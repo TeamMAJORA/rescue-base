@@ -1,0 +1,33 @@
+{
+  "logo": "/Logo.svg",
+  "icons": {
+    "adopt": "/icons/Adopt.svg",
+    "donate": "/icons/Donate.svg",
+    "google": "/icons/google.svg",
+    "heart": "/icons/heart.svg",
+    "home": "/icons/home.svg",
+    "lightHeart": "/icons/light heart.svg",
+    "redHeart": "/icons/red heart.svg",
+    "pawSearch": "/icons/paw search.svg",
+    "redPaw": "/icons/redPaw.svg",
+    "stepArrow": "/icons/StepArrow.svg",
+    "yellowPaw": "/icons/yellowPaw.svg",
+    "passport" : "/icons/passport.svg"
+  },
+  "images": {
+    "authPets": "/images/auth-pets.png",
+    "authPets2": "/images/auth-pets2.png",
+    "bannerPets": "/images/banner-pets.png",
+    "pawTrail": "/images/pawTrail.svg",
+    "topCurve": "/images/topCurve.png",
+    "photo1" : "/images/1-(1).png",
+    "photo2" : "/images/1-(2).png",
+    "photo3" : "/images/1-(3).png",
+    "photo4" : "/images/1-(4).png",
+    "photo5" : "/images/1-(5).png",
+    "photo6" : "/images/1-(6).png",
+    "photo7" : "/images/1-(7).png",
+    "photo8" : "/images/1-(8).png",
+    "photo9" : "/images/1-(9).png"
+  }
+}

@@ -1,0 +1,378 @@
+/* =========================
+   AUTH PAGE
+========================= */
+
+:root {
+    --auth-header-height: 86px;
+    --auth-image-width: 760px;
+    --auth-curve: 17px;
+    --auth-overlap: -10px;
+    --auth-form-top: 150px;
+}
+
+.auth-header {
+    width: min(1220px, 100%);
+    height: 86px;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    padding: 0 42px;
+    position: relative;
+    z-index: 10;
+}
+
+/* HEADER */
+
+.auth-page {
+    min-height: 100vh;
+    width: 100%;
+    background: var(--yellow);
+    overflow: hidden;
+    font-family: "Inter", Arial, sans-serif;
+    color: var(--brown);
+}
+
+.auth-header {
+    width: 100%;
+    height: var(--auth-header-height);
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    padding: 0 42px;
+    position: relative;
+    z-index: 10;
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--red);
+    font-family: "Itim", cursive;
+    cursor: pointer;
+}
+
+.auth-brand img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+}
+
+.auth-brand span {
+    font-size: 36px;
+    line-height: 1;
+}
+
+.auth-nav {
+    margin-left: auto;
+    margin-right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    color: var(--red);
+}
+
+.auth-nav button {
+    background: transparent;
+    color: var(--red);
+    font-family: "Itim", cursive;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.auth-nav img {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+}
+
+/* MAIN LAYOUT */
+
+.auth-shell {
+    width: 100%;
+    height: calc(100vh - var(--auth-header-height));
+    display: grid;
+    grid-template-columns: var(--auth-image-width) 1fr;
+    position: relative;
+}
+
+
+.auth-image-wrap {
+    position: relative;
+    height: calc(100vh - 86px);
+    overflow: hidden;
+    z-index: 2;
+}
+
+.auth-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 42% center;
+    opacity: 0;
+    transition: opacity 1.8s ease-in-out;
+}
+
+.auth-slide.active {
+    opacity: 1;
+}
+@keyframes authFade {
+    0% {
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    25% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.auth-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 30% center;
+}
+
+.auth-panel {
+    position: relative;
+    height: calc(100vh - 78px + 55px);
+    background: var(--yellow);
+
+    border-top-left-radius: 72px;
+    border-bottom-left-radius: 72px;
+
+    margin-left: -21px;
+    margin-top: -33px;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    padding-top: 220px;
+    z-index: 3;
+}
+
+.auth-back {
+    position: absolute;
+    top: 68px;
+    left: 74px;
+    background: transparent;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* FORM CARD */
+
+.auth-card {
+    width: 335px;
+    text-align: center;
+    color: var(--brown);
+}
+
+.auth-card h1 {
+    font-family: "Itim", cursive;
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 60px;
+}
+
+/* GOOGLE BUTTON */
+
+.google-btn {
+    width: 100%;
+    height: 38px;
+    border-radius: 8px;
+    background: rgba(90, 27, 0, 0.25);
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.google-btn:hover {
+    background: rgba(90, 27, 0, 0.33);
+}
+
+.google-icon {
+    width: 29px;
+    height: 29px;
+    object-fit: contain;
+}
+
+/* DIVIDER */
+
+.auth-divider {
+    margin: 24px 0 22px;
+    font-size: 11px;
+    color: var(--brown);
+}
+
+/* INPUTS */
+
+.auth-field {
+    display: block;
+    text-align: left;
+    margin-bottom: 22px;
+    position: relative;
+}
+
+.auth-field span {
+    display: block;
+    font-size: 11px;
+    color: var(--brown);
+    margin-bottom: 4px;
+}
+
+.auth-field input {
+    width: 100%;
+    height: 24px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--brown);
+    outline: none;
+    color: var(--brown);
+    font-size: 13px;
+    padding-right: 28px;
+}
+
+.auth-field input:focus {
+    border-bottom-width: 2px;
+}
+
+/* PASSWORD EYE */
+
+.auth-password button {
+    position: absolute;
+    right: 0;
+    bottom: 4px;
+    background: transparent;
+    color: var(--brown);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* SUBMIT BUTTON */
+
+.auth-submit {
+    width: 100%;
+    height: 38px;
+    border-radius: 7px;
+    background: var(--brown);
+    color: var(--cream);
+    font-family: "Itim", cursive;
+    font-size: 14px;
+    margin-top: 4px;
+    cursor: pointer;
+}
+
+.auth-submit:hover {
+    background: var(--red-dark);
+}
+
+/* SWITCH LOGIN / SIGNUP */
+
+.auth-switch {
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--brown);
+}
+
+.auth-switch button {
+    background: transparent;
+    color: var(--red-dark);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+    .auth-header {
+        height: auto;
+        min-height: 86px;
+        padding: 18px 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .auth-brand img {
+        width: 58px;
+        height: 58px;
+    }
+
+    .auth-brand span {
+        font-size: 30px;
+    }
+
+    .auth-nav {
+        width: 100%;
+        margin: 0;
+        justify-content: center;
+    }
+
+    .auth-shell {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    .auth-image-wrap {
+        height: 240px;
+    }
+
+    .auth-panel {
+        min-height: calc(100vh - 326px);
+        margin-left: 0;
+        border-top-left-radius: 52px;
+        border-top-right-radius: 52px;
+        border-bottom-left-radius: 0;
+        padding: 70px 24px 50px;
+    }
+
+    .auth-back {
+        top: 34px;
+        left: 36px;
+    }
+
+    .auth-card {
+        width: min(335px, 100%);
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card h1 {
+        margin-bottom: 42px;
+    }
+
+    .auth-image-wrap {
+        height: 210px;
+    }
+
+    .auth-panel {
+        padding-top: 64px;
+    }
+}

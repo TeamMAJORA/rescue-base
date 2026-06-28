@@ -1,0 +1,426 @@
+.admin-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 245px 1fr;
+    background: #ebe3af;
+    color: #2f2f30;
+}
+
+.admin-sidebar {
+    background: var(--yellow);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.admin-logo {
+    height: 92px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 24px;
+}
+
+.admin-logo img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.admin-logo span {
+    font-family: "Itim", cursive;
+    color: var(--red);
+    font-size: 24px;
+}
+
+.admin-menu {
+    display: grid;
+}
+
+.admin-menu button {
+    height: 62px;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: transparent;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    text-align: left;
+}
+
+.admin-menu button.active {
+    background: var(--brown);
+    color: white;
+}
+
+.admin-user-card {
+    margin: auto 18px 18px;
+    min-height: 64px;
+    border-radius: 18px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+}
+
+.admin-user-card div {
+    display: grid;
+    text-align: left;
+}
+
+.admin-user-card small {
+    color: var(--red);
+}
+
+.admin-main {
+    padding: 32px 34px 46px;
+}
+
+.admin-topbar {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    margin-bottom: 34px;
+}
+
+.admin-topbar h1 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 28px;
+}
+
+.admin-search {
+    width: 310px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--white-yellow);
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+}
+
+.admin-search input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    flex: 1;
+    font-size: 12px;
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 34px;
+}
+
+.admin-stat-card {
+    min-height: 86px;
+    border-radius: 12px;
+    background: var(--white-yellow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px;
+}
+
+.admin-stat-card p {
+    font-size: 11px;
+    margin-bottom: 8px;
+}
+
+.admin-stat-card h3 {
+    font-family: "Itim", cursive;
+    font-size: 28px;
+    color: var(--brown);
+}
+
+.admin-stat-card > span {
+    width: 42px;
+    height: 42px;
+    border-radius: 9px;
+    background: #f6a623;
+    display: grid;
+    place-items: center;
+}
+
+.admin-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1.2fr 0.9fr;
+    grid-auto-rows: minmax(170px, auto);
+    gap: 18px;
+}
+
+.admin-panel {
+    background: #fffdf4;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.admin-panel h2 {
+    font-size: 16px;
+    color: #2f2f30;
+    margin-bottom: 18px;
+}
+
+.admin-recent-panel {
+    min-height: 360px;
+}
+
+.admin-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.admin-panel-heading h2 {
+    margin-bottom: 0;
+}
+
+.admin-panel-heading button {
+    height: 32px;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    padding: 0 16px;
+    font-family: "Itim", cursive;
+}
+
+.admin-empty {
+    min-height: 250px;
+    display: grid;
+    place-items: center;
+    color: #999;
+    font-size: 12px;
+}
+
+.admin-application-list {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-application-row {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 12px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.admin-application-row h3 {
+    font-family: "Itim", cursive;
+    font-size: 18px;
+}
+
+.admin-application-row p {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.admin-status-pill {
+    border-radius: 999px;
+    padding: 5px 10px;
+    color: white;
+    font-size: 11px;
+    text-transform: capitalize;
+}
+
+.admin-status-pill.pending {
+    background: #e0a400;
+}
+
+.admin-status-pill.approved {
+    background: #20b263;
+}
+
+.admin-status-pill.rejected {
+    background: #d62828;
+}
+
+.admin-application-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-application-actions button {
+    height: 30px;
+    border-radius: 999px;
+    padding: 0 12px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-size: 11px;
+}
+
+.admin-application-actions button.approve {
+    background: #20b263;
+    color: white;
+}
+
+.admin-application-actions button.reject {
+    background: #d62828;
+    color: white;
+}
+
+.admin-capacity-panel {
+    display: grid;
+    place-items: start center;
+}
+
+.admin-donut {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: conic-gradient(#41c96f 0 34%, #ef5050 34% 100%);
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+
+.admin-donut::before {
+    content: "";
+    position: absolute;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    background: #fffdf4;
+}
+
+.admin-donut div {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    text-align: center;
+    font-size: 12px;
+}
+
+.admin-impression-panel {
+    grid-column: 3;
+    grid-row: span 1;
+}
+
+.admin-bars {
+    height: 120px;
+    display: flex;
+    align-items: end;
+    gap: 22px;
+    padding: 0 10px;
+}
+
+.admin-bars span {
+    width: 24px;
+    border-radius: 8px 8px 0 0;
+    background: #7d42d6;
+}
+
+.admin-bars span:nth-child(1),
+.admin-bars span:nth-child(4) {
+    background: #d4b6ff;
+}
+
+.admin-bar-labels {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 8px;
+    color: #999;
+}
+
+.admin-donation-panel {
+    text-align: center;
+}
+
+.admin-donation-panel strong {
+    display: block;
+    font-size: 48px;
+    color: #6b35d1;
+    margin: 22px 0 14px;
+}
+
+.admin-donation-panel p {
+    color: #999;
+    font-size: 12px;
+}
+
+.admin-donation-panel button {
+    margin-top: 22px;
+    color: #6b35d1;
+    font-size: 12px;
+}
+
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(47, 47, 48, 0.55);
+    z-index: 999;
+    display: grid;
+    place-items: center;
+    padding: 30px;
+}
+
+.admin-modal {
+    width: min(760px, 100%);
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--cream-card);
+    border-radius: 20px;
+    border: 1px solid var(--brown);
+    padding: 34px;
+    position: relative;
+}
+
+.admin-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--brown);
+    color: var(--yellow);
+    font-size: 20px;
+}
+
+.admin-modal h2 {
+    text-align: center;
+    font-family: "Itim", cursive;
+    font-size: 34px;
+    margin-bottom: 24px;
+}
+
+.admin-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 18px;
+    background: var(--white-yellow);
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.admin-detail-grid p {
+    font-size: 13px;
+}
+
+.admin-detail-box {
+    margin-top: 18px;
+    background: var(--white-yellow);
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.admin-detail-box h3 {
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.admin-detail-box p {
+    font-size: 13px;
+    line-height: 1.6;
+}
