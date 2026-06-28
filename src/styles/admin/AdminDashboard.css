@@ -424,3 +424,57 @@
     font-size: 13px;
     line-height: 1.6;
 }
+
+.admin-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 18px;
+    align-items: stretch;
+}
+
+.admin-recent-panel {
+    grid-column: span 2;
+    min-height: 360px;
+}
+
+.admin-ledger-panel {
+    min-height: 360px;
+}
+
+.admin-capacity-panel,
+.admin-impression-panel,
+.admin-donation-panel {
+    min-height: 210px;
+}
+
+.admin-impression-panel {
+    grid-column: auto;
+    grid-row: auto;
+}
+
+.admin-ledger-panel {
+    min-height: 360px;
+    max-height: 360px;
+    overflow: hidden;
+}
+
+.admin-ledger-list {
+    display: grid;
+    gap: 12px;
+    max-height: 275px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.admin-ledger-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-ledger-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-ledger-list::-webkit-scrollbar-thumb {
+    background: rgba(90, 27, 0, 0.35);
+    border-radius: 999px;
+}
