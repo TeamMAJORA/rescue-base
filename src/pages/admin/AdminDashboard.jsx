@@ -132,6 +132,7 @@ export default function AdminDashboard({ setPage }) {
     const [applications, setApplications] = useState([]);
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [ledgerEntries, setLedgersEntries] = useState([]);
 
     const pendingApplications = useMemo(() => {
         return applications.filter(
@@ -192,8 +193,24 @@ export default function AdminDashboard({ setPage }) {
         }
     }
 
+    async function fetchLedger() {
+        try {
+            const response = await fetch(`${API}/api/ledger?limit=8`);
+            const data = await response.json();
+
+            console.log("Ledger entries:", data);
+
+            if(data.success) {
+                setLedgersEntries(data.entries || []);
+            }
+        } catch (error) {
+            console.error("Fetch ledger error:", error);
+        }
+    }
+
     useEffect(() => {
         fetchApplications();
+        fetchLedger();
     }, []);
 
     return (
@@ -289,6 +306,40 @@ export default function AdminDashboard({ setPage }) {
                         )}
                     </div>
 
+                    <div className="admin-panel admin-ledger-panel">
+                        <div className="admin-panel-heading">
+                            <h2>Recent Activity :</h2>
+
+                            <button type="button" onClick={fetchLedger}>
+                                Refresh
+                            </button>
+                        </div>
+
+                        {ledgerEntries.length === 0 ? (
+                            <p className="admin-empty">No ledger Activity</p>
+                        ) : (
+                            <div className="admin-ledger-list">
+                                {ledgerEntries.map((entry) => (
+                                    <article className="admin-ledger-item" key={entry._id}>
+                                        <span className={`admin-ledger-dot ${entry.type}`}></span>
+
+                                        <div>
+                                            <h3>{entry.description}</h3>
+
+                                            <p>
+                                                {entry.type} • {entry.status || "recorded"}
+                                            </p>
+
+                                            <small>
+                                                {new Date(entry.createdAt).toLocaleDateString()}
+                                            </small>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     <div className="admin-panel admin-capacity-panel">
                         <h2>Shelter Capacity</h2>
 
@@ -299,6 +350,8 @@ export default function AdminDashboard({ setPage }) {
                             </div>
                         </div>
                     </div>
+
+                    
 
                     <div className="admin-panel admin-impression-panel">
                         <h2>Impression</h2>
