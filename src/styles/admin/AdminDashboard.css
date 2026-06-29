@@ -478,3 +478,89 @@
     background: rgba(90, 27, 0, 0.35);
     border-radius: 999px;
 }
+
+.admin-foster-panel {
+    min-height: 420px;
+}
+
+.admin-foster-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.admin-foster-form label {
+    display: grid;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--brown);
+}
+
+.admin-foster-form input,
+.admin-foster-form textarea {
+    width: 100%;
+    border: 1px solid rgba(90, 27, 0, 0.28);
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    padding: 11px 13px;
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-foster-form input:focus,
+.admin-foster-form textarea:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-foster-form textarea {
+    min-height: 105px;
+    resize: vertical;
+}
+
+.admin-foster-form label:nth-child(3),
+.admin-foster-form label:nth-child(6) {
+    grid-column: span 2;
+}
+
+.admin-foster-form button {
+    grid-column: span 2;
+    height: 42px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(90, 27, 0, 0.22);
+}
+
+.admin-foster-form button:hover {
+    transform: translateY(-1px);
+}
+
+.admin-foster-message {
+    grid-column: span 2;
+    margin: 0;
+    color: var(--red-dark);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* If admin grid gets tight */
+@media (max-width: 900px) {
+    .admin-foster-form {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-foster-form label:nth-child(3),
+    .admin-foster-form label:nth-child(6),
+    .admin-foster-form button,
+    .admin-foster-message {
+        grid-column: span 1;
+    }
+}

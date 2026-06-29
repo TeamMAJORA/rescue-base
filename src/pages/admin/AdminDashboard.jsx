@@ -129,10 +129,21 @@ function ApplicationModal({ application, onClose }) {
 }
 
 export default function AdminDashboard({ setPage }) {
+
+    const [fosterForm, setFosterForm] = useState({
+        petName: "",
+        petBreed: "",
+        petImage: "",
+        fosterName: "",
+        fosterEmail: "",
+        careInstructions: "",
+    });
+
     const [applications, setApplications] = useState([]);
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [loading, setLoading] = useState(true);
     const [ledgerEntries, setLedgersEntries] = useState([]);
+    const [fosterMessage, setFosterMessage] = useState("");
 
     const pendingApplications = useMemo(() => {
         return applications.filter(
@@ -200,11 +211,59 @@ export default function AdminDashboard({ setPage }) {
 
             console.log("Ledger entries:", data);
 
-            if(data.success) {
+            if (data.success) {
                 setLedgersEntries(data.entries || []);
             }
         } catch (error) {
             console.error("Fetch ledger error:", error);
+        }
+    }
+
+    async function handleCreateFosterAssignment(e) {
+        e.preventDefault();
+
+        try {
+            setFosterMessage("");
+
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const response = await fetch(`${API}/api/foster/assignments`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...fosterForm,
+                    adminName: savedUser.name || savedUser.username || "Admin User",
+                    adminEmail: savedUser.email || "admin",
+                }),
+            });
+
+            const data = await response.json();
+            console.log("Create foster assignment:", data);
+
+            if (!response.ok || !data.success) {
+                setFosterMessage(data.message || "Failed to create foster assignment.");
+                return;
+            }
+
+            setFosterMessage("Foster assignment created.");
+
+            setFosterForm({
+                petName: "",
+                petBreed: "",
+                petImage: "",
+                fosterName: "",
+                fosterEmail: "",
+                careInstructions: "",
+            });
+
+            fetchLedger();
+        } catch (error) {
+            console.error("Create foster assignment error:", error);
+            setFosterMessage("Server error. Please try again.");
         }
     }
 
@@ -279,6 +338,11 @@ export default function AdminDashboard({ setPage }) {
 
                 <section className="admin-dashboard-grid">
                     <div className="admin-panel admin-recent-panel">
+
+                        <div className="admin-panel-heading">
+                            <h2>Create Foster Assignment</h2>
+                        </div>
+
                         <div className="admin-panel-heading">
                             <h2>Pending Adoption Applications</h2>
                             <button type="button" onClick={fetchApplications}>
@@ -304,6 +368,96 @@ export default function AdminDashboard({ setPage }) {
                                 ))}
                             </div>
                         )}
+                    </div>
+
+                    <div className="admin-panel admin-foster-panel">
+                        <div className="admin-panel-heading">
+                            <h2>Create Foster Assignment</h2>
+                        </div>
+
+                        <form className="admin-foster-form" onSubmit={handleCreateFosterAssignment}>
+                            <label>
+                                Pet Name
+                                <input
+                                    type="text"
+                                    value={fosterForm.petName}
+                                    onChange={(e) =>
+                                        setFosterForm({ ...fosterForm, petName: e.target.value })
+                                    }
+                                    required
+                                />
+                            </label>
+
+                            <label>
+                                Pet Breed
+                                <input
+                                    type="text"
+                                    value={fosterForm.petBreed}
+                                    onChange={(e) =>
+                                        setFosterForm({ ...fosterForm, petBreed: e.target.value })
+                                    }
+                                />
+                            </label>
+
+                            <label>
+                                Pet Image URL
+                                <input
+                                    type="text"
+                                    value={fosterForm.petImage}
+                                    onChange={(e) =>
+                                        setFosterForm({ ...fosterForm, petImage: e.target.value })
+                                    }
+                                    placeholder="Optional"
+                                />
+                            </label>
+
+                            <label>
+                                Foster Name
+                                <input
+                                    type="text"
+                                    value={fosterForm.fosterName}
+                                    onChange={(e) =>
+                                        setFosterForm({ ...fosterForm, fosterName: e.target.value })
+                                    }
+                                    required
+                                />
+                            </label>
+
+                            <label>
+                                Foster Gmail
+                                <input
+                                    type="email"
+                                    value={fosterForm.fosterEmail}
+                                    onChange={(e) =>
+                                        setFosterForm({ ...fosterForm, fosterEmail: e.target.value })
+                                    }
+                                    required
+                                />
+                            </label>
+
+                            <label>
+                                Care Instructions
+                                <textarea
+                                    value={fosterForm.careInstructions}
+                                    onChange={(e) =>
+                                        setFosterForm({
+                                            ...fosterForm,
+                                            careInstructions: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Example: Feed twice a day and submit weekly updates."
+                                    required
+                                />
+                            </label>
+
+                            {fosterMessage && (
+                                <p className="admin-foster-message">{fosterMessage}</p>
+                            )}
+
+                            <button type="submit">
+                                Assign Foster
+                            </button>
+                        </form>
                     </div>
 
                     <div className="admin-panel admin-ledger-panel">
@@ -351,7 +505,7 @@ export default function AdminDashboard({ setPage }) {
                         </div>
                     </div>
 
-                    
+
 
                     <div className="admin-panel admin-impression-panel">
                         <h2>Impression</h2>
