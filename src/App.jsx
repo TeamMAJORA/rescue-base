@@ -6,6 +6,7 @@ import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/adopter/Dashboard";
 import AdoptionPage from "./pages/adopter/AdoptionApplication";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import FosterDashboard from "./pages/foster/FosterDashboard";
 
 
 const pets = [
@@ -290,6 +291,10 @@ export default function App() {
                 setPage={setPage}
             />
         )
+    }
+
+    if (page === "foster") {
+        return <FosterDashboard setPage={setPage} />
     }
 
     if (page === "admin") {

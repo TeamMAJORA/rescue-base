@@ -69,7 +69,8 @@ export default function AuthPage({ mode = "login", setPage }) {
 
             localStorage.setItem("rescuebase_user", JSON.stringify(loggedInUser));
 
-            const role = loggedInUser.role?.toLowerCase() || "adopter";
+            const role = String(loggedInUser.role || "adopter").trim().toLowerCase();
+
 
             if (role === "admin") {
                 setPage("admin");
