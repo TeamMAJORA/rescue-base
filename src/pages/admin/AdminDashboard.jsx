@@ -1,8 +1,17 @@
 import {
     useEffect, useMemo, useState
 } from "react";
+
+//CSS
 import "../../styles/admin/AdminDashboard.css";
+import "../../styles/admin/AdminDashboardOverview.css"
+
+// Assets
 import assets from "../../data/assets.json";
+
+// Modules
+import AdminOverview from "./modules/AdminOverview";
+
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -322,14 +331,7 @@ export default function AdminDashboard({ setPage }) {
 
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
-            return (
-                <section className="admin-panel admin-simple-dashboard">
-                    <h2>Admin Dashboard</h2>
-                    <p>
-                        Welcome to RescueBase Admin. the Dashboard contents will be organized into their sidebar modules soon
-                    </p>
-                </section>
-            )
+            return <AdminOverview />
         }
     }
 

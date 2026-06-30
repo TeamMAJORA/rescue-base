@@ -1,0 +1,27 @@
+.admin-simple-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.admin-simple-actions article {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.22);
+    border-radius: 14px;
+    padding: 16px;
+    display: grid;
+    gap: 6px;
+}
+
+.admin-simple-actions strong {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 18px;
+}
+
+.admin-simple-actions span {
+    color: var(--red);
+    font-weight: 700;
+    font-size: 13px;
+}
