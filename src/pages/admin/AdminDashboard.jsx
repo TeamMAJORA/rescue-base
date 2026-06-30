@@ -5,13 +5,14 @@ import {
 //CSS
 import "../../styles/admin/AdminDashboard.css";
 import "../../styles/admin/AdminDashboardOverview.css"
+import "../../styles/admin/AnimalProfiles.css";
 
 // Assets
 import assets from "../../data/assets.json";
 
 // Modules
 import AdminOverview from "./modules/AdminOverview";
-
+import AnimalProfiles from "./modules/animals/AnimalProfiles";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -333,6 +334,11 @@ export default function AdminDashboard({ setPage }) {
         if (activeAdminPage === "overview") {
             return <AdminOverview />
         }
+
+        if (activeAdminPage === "animals" || activeAdminPage === "animal-profiles") {
+            return <AnimalProfiles />
+        }
+
     }
 
     useEffect(() => {
@@ -413,11 +419,6 @@ export default function AdminDashboard({ setPage }) {
             <section className="admin-main">
                 <header className="admin-topbar">
                     <h1>{getAdminPageTitle(activeAdminPage)}</h1>
-
-                    <div className="admin-search">
-                        <input placeholder="Search anything here..." />
-                        <span>⌕</span>
-                    </div>
                 </header>
 
                     {renderAdminContent()}

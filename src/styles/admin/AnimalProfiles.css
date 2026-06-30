@@ -1,0 +1,109 @@
+.admin-animal-page {
+    display: grid;
+    gap: 20px;
+}
+
+.admin-animal-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.admin-animal-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.admin-animal-form-panel,
+.admin-animal-list-panel {
+    min-height: 420px;
+}
+
+.admin-animal-form {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-animal-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-animal-form input,
+.admin-animal-form select {
+    height: 42px;
+    border: 1px solid rgba(90, 27, 0, 0.28);
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    padding: 0 13px;
+    font-family: "Inter", sans-serif;
+    outline: none;
+}
+
+.admin-animal-form input:focus,
+.admin-animal-form select:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-stat-card img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.admin-animal-form button {
+    height: 44px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.admin-animal-list {
+    display: grid;
+    gap: 12px;
+    max-height: 460px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.admin-animal-row {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.admin-animal-row h3 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 22px;
+}
+
+.admin-animal-row p {
+    margin-top: 3px;
+    color: #6f4a35;
+    font-size: 13px;
+}
+
+@media (max-width: 950px) {
+    .admin-animal-grid,
+    .admin-animal-stats {
+        grid-template-columns: 1fr;
+    }
+}

@@ -12,7 +12,11 @@
     "redPaw": "/icons/redPaw.svg",
     "stepArrow": "/icons/StepArrow.svg",
     "yellowPaw": "/icons/yellowPaw.svg",
-    "passport" : "/icons/passport.svg"
+    "passport" : "/icons/passport.svg",
+    "brownHouse" : "/icons/home1.svg",
+    "clipboard" : "/icons/clipboard.svg",
+    "brownPaw" : "/icons/brown paw.svg",
+    "check-box" : "icons/check-box.svg"
   },
   "images": {
     "authPets": "/images/auth-pets.png",
