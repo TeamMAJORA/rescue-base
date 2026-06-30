@@ -6,6 +6,7 @@ import {
 import "../../styles/admin/AdminDashboard.css";
 import "../../styles/admin/AdminDashboardOverview.css"
 import "../../styles/admin/AnimalProfiles.css";
+import "../../styles/admin/MedicalRecords.css"
 
 // Assets
 import assets from "../../data/assets.json";
@@ -13,6 +14,7 @@ import assets from "../../data/assets.json";
 // Modules
 import AdminOverview from "./modules/AdminOverview";
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
+import MedicalRecords from "./modules/animals/MedicalRecords";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -332,11 +334,15 @@ export default function AdminDashboard({ setPage }) {
 
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
-            return <AdminOverview />
+            return <AdminOverview />;
         }
 
         if (activeAdminPage === "animals" || activeAdminPage === "animal-profiles") {
-            return <AnimalProfiles />
+            return <AnimalProfiles />;
+        }
+
+        if (activeAdminPage === "medical-records") {
+            return <MedicalRecords />;
         }
 
     }
