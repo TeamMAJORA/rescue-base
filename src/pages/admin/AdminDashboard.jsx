@@ -7,6 +7,7 @@ import "../../styles/admin/AdminDashboard.css";
 import "../../styles/admin/AdminDashboardOverview.css"
 import "../../styles/admin/AnimalProfiles.css";
 import "../../styles/admin/MedicalRecords.css"
+import "../../styles/admin/IntakeRecords.css"
 
 // Assets
 import assets from "../../data/assets.json";
@@ -15,6 +16,7 @@ import assets from "../../data/assets.json";
 import AdminOverview from "./modules/AdminOverview";
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
 import MedicalRecords from "./modules/animals/MedicalRecords";
+import IntakeRecords from "./modules/animals/IntakeRecords";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -343,6 +345,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "medical-records") {
             return <MedicalRecords />;
+        }
+
+        if (activeAdminPage === "intake-records") {
+            return <IntakeRecords />;
         }
 
     }
