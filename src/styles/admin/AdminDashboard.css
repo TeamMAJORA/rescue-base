@@ -54,6 +54,57 @@
     color: white;
 }
 
+.admin-menu button:hover,
+.admin-submenu button:hover{
+    background: rgba(90, 27, 0, 0.14);
+    color : var(--red);
+}
+
+.admin-menu button.active:hover,
+.admin-submenu button.active:hover{
+    background: var(--brown);
+    color: var(--yellow)
+}
+
+.admin-menu-arrow {
+    margin-left: auto;
+    font-size: 13px;
+    transition: transform 0.2 ease;
+}
+
+.admin-menu-arrow.open {
+    transform: rotate(180deg);
+}
+
+.admin-submenu {
+    display: grid;
+    gap: 4px;
+    padding: 6px 12px 8px 38px;
+}
+
+.admin-submenu button {
+    min-height: 34px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--brown);
+    text-align: left;
+    font-family: "Itim", cursive;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0 12px;
+}
+
+.admin-submenu button:hover {
+    background: rgba(90, 27, 0, 0.14);
+    color: var(--red);
+}
+
+.admin-submenu button.active {
+    background: var(--brown);
+    color: var(--yellow);
+}
+
 .admin-user-card {
     margin: auto 18px 18px;
     min-height: 64px;

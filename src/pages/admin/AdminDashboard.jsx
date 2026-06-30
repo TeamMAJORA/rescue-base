@@ -6,17 +6,39 @@ import assets from "../../data/assets.json";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-const sidebarItems = [
-    "Dashboard",
-    "Animals",
-    "Applications",
-    "Foster Care",
-    "Lost & Found",
-    "Stray Map",
-    "Donations",
-    "Users",
-    "Notifications",
-];
+const adminMenu = [
+    { key: "overview", label: "Dashboard" },
+
+    { key: "users", label: "User Management" },
+
+    {
+        key: "animals",
+        label: "Animals",
+        children: [
+            { key: "animal-profiles", label: "Animal Profiles" },
+            { key: "medical-records", label: "Medical Records" },
+            { key: "intake-records", label: "Intake Records" },
+        ],
+    },
+
+    {
+        key: "adoptions",
+        label: "Adoptions",
+        children: [
+            { key: "adoption-applications", label: "Applications" },
+            { key: "matching-quiz", label: "Matching Quiz Results" },
+            { key: "recommendations", label: "Recommendations" },
+        ],
+    },
+    { key: "foster-care", label: "Foster Care" },
+    { key: "donation", label: "Donations" },
+    { key: "lost-found", label: "Lost & Found" },
+    { key: "gis-mapping", label: "GIS Mapping" },
+    { key: "feedback", label: "Feedback" },
+    { key: "analytics", label: "Analytics" },
+    { key: "notifications", label: "Notifications" },
+    { key: "reports", label: "Reports" },
+]
 
 const mockAnimals = [
     { name: "Max", status: "available" },
@@ -128,6 +150,21 @@ function ApplicationModal({ application, onClose }) {
     );
 }
 
+function getAdminPageTitle(activeAdminPage) {
+    for ( const item of adminMenu) {
+        if (item.key === activeAdminPage) return item.label;
+
+        if (item.children) {
+            const child = item.children.find(
+                (child) => child.key === activeAdminPage
+            );
+
+            if(child) return child.label;
+        }
+    }
+    return "Dashboard"
+}
+
 export default function AdminDashboard({ setPage }) {
 
     const [fosterForm, setFosterForm] = useState({
@@ -144,6 +181,8 @@ export default function AdminDashboard({ setPage }) {
     const [loading, setLoading] = useState(true);
     const [ledgerEntries, setLedgersEntries] = useState([]);
     const [fosterMessage, setFosterMessage] = useState("");
+    const [activeAdminPage, setActiveAdminPage] = useState("overview");
+    const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
 
     const pendingApplications = useMemo(() => {
         return applications.filter(
@@ -267,6 +306,33 @@ export default function AdminDashboard({ setPage }) {
         }
     }
 
+    function handleSidebarClick(item) {
+        if (item.children) {
+            setOpenSidebarMenu((current) =>
+                current === item.key ? null : item.key
+            );
+
+            setActiveAdminPage(item.key);
+            return;
+        }
+
+        setOpenSidebarMenu(null);
+        setActiveAdminPage(item.key);
+    }
+
+    function renderAdminContent() {
+        if (activeAdminPage === "overview") {
+            return (
+                <section className="admin-panel admin-simple-dashboard">
+                    <h2>Admin Dashboard</h2>
+                    <p>
+                        Welcome to RescueBase Admin. the Dashboard contents will be organized into their sidebar modules soon
+                    </p>
+                </section>
+            )
+        }
+    }
+
     useEffect(() => {
         fetchApplications();
         fetchLedger();
@@ -281,16 +347,51 @@ export default function AdminDashboard({ setPage }) {
                 </div>
 
                 <nav className="admin-menu">
-                    {sidebarItems.map((item) => (
-                        <button
-                            key={item}
-                            type="button"
-                            className={item === "Dashboard" ? "active" : ""}
-                        >
-                            <span>▣</span>
-                            {item}
-                        </button>
-                    ))}
+                    {adminMenu.map((item) => {
+                        const isOpen = openSidebarMenu === item.key;
+                        const isActive =
+                            activeAdminPage === item.key ||
+                            item.children?.some((child) => child.key === activeAdminPage);
+
+                        return (
+                            <div className="admin-menu-group" key={item.key}>
+                                <button
+                                    type="button"
+                                    title={item.label}
+                                    className={isActive ? "active" : ""}
+                                    onClick={() => handleSidebarClick(item)}
+                                >
+                                    <div className="admin-menu-text">
+                                        <strong>{item.label}</strong>
+                                    </div>
+
+                                    {item.children && (
+                                        <span className={`admin-menu-arrow ${isOpen ? "open" : ""}`}>
+                                            ▾
+                                        </span>
+                                    )}
+                                </button>
+
+                                {item.children && isOpen && (
+                                    <div className="admin-submenu">
+                                        {item.children.map((child) => (
+                                            <button
+                                                key={child.key}
+                                                type="button"
+                                                title={child.label}
+                                                className={
+                                                    activeAdminPage === child.key ? "active" : ""
+                                                }
+                                                onClick={() => setActiveAdminPage(child.key)}
+                                            >
+                                                {child.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </nav>
 
                 <button
@@ -309,7 +410,7 @@ export default function AdminDashboard({ setPage }) {
 
             <section className="admin-main">
                 <header className="admin-topbar">
-                    <h1>Dashboard</h1>
+                    <h1>{getAdminPageTitle(activeAdminPage)}</h1>
 
                     <div className="admin-search">
                         <input placeholder="Search anything here..." />
@@ -317,221 +418,8 @@ export default function AdminDashboard({ setPage }) {
                     </div>
                 </header>
 
-                <section className="admin-stats">
-                    <AdminStatCard label="Total Animals" value={totalAnimals} icon="🐾" />
-                    <AdminStatCard
-                        label="Animals Available for Adoption"
-                        value={availableAnimals}
-                        icon="🏠"
-                    />
-                    <AdminStatCard
-                        label="Pending Adoption Applications"
-                        value={pendingApplications.length}
-                        icon="📋"
-                    />
-                    <AdminStatCard
-                        label="Active Foster Assignments"
-                        value={1}
-                        icon="✅"
-                    />
-                </section>
+                    {renderAdminContent()}
 
-                <section className="admin-dashboard-grid">
-                    <div className="admin-panel admin-recent-panel">
-
-                        <div className="admin-panel-heading">
-                            <h2>Create Foster Assignment</h2>
-                        </div>
-
-                        <div className="admin-panel-heading">
-                            <h2>Pending Adoption Applications</h2>
-                            <button type="button" onClick={fetchApplications}>
-                                Refresh
-                            </button>
-                        </div>
-
-                        {loading ? (
-                            <p className="admin-empty">Loading applications...</p>
-                        ) : pendingApplications.length === 0 ? (
-                            <p className="admin-empty">
-                                There are no pending adoption applications.
-                            </p>
-                        ) : (
-                            <div className="admin-application-list">
-                                {pendingApplications.map((application) => (
-                                    <ApplicationRow
-                                        key={application._id}
-                                        application={application}
-                                        onReview={setSelectedApplication}
-                                        onUpdateStatus={handleUpdateStatus}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="admin-panel admin-foster-panel">
-                        <div className="admin-panel-heading">
-                            <h2>Create Foster Assignment</h2>
-                        </div>
-
-                        <form className="admin-foster-form" onSubmit={handleCreateFosterAssignment}>
-                            <label>
-                                Pet Name
-                                <input
-                                    type="text"
-                                    value={fosterForm.petName}
-                                    onChange={(e) =>
-                                        setFosterForm({ ...fosterForm, petName: e.target.value })
-                                    }
-                                    required
-                                />
-                            </label>
-
-                            <label>
-                                Pet Breed
-                                <input
-                                    type="text"
-                                    value={fosterForm.petBreed}
-                                    onChange={(e) =>
-                                        setFosterForm({ ...fosterForm, petBreed: e.target.value })
-                                    }
-                                />
-                            </label>
-
-                            <label>
-                                Pet Image URL
-                                <input
-                                    type="text"
-                                    value={fosterForm.petImage}
-                                    onChange={(e) =>
-                                        setFosterForm({ ...fosterForm, petImage: e.target.value })
-                                    }
-                                    placeholder="Optional"
-                                />
-                            </label>
-
-                            <label>
-                                Foster Name
-                                <input
-                                    type="text"
-                                    value={fosterForm.fosterName}
-                                    onChange={(e) =>
-                                        setFosterForm({ ...fosterForm, fosterName: e.target.value })
-                                    }
-                                    required
-                                />
-                            </label>
-
-                            <label>
-                                Foster Gmail
-                                <input
-                                    type="email"
-                                    value={fosterForm.fosterEmail}
-                                    onChange={(e) =>
-                                        setFosterForm({ ...fosterForm, fosterEmail: e.target.value })
-                                    }
-                                    required
-                                />
-                            </label>
-
-                            <label>
-                                Care Instructions
-                                <textarea
-                                    value={fosterForm.careInstructions}
-                                    onChange={(e) =>
-                                        setFosterForm({
-                                            ...fosterForm,
-                                            careInstructions: e.target.value,
-                                        })
-                                    }
-                                    placeholder="Example: Feed twice a day and submit weekly updates."
-                                    required
-                                />
-                            </label>
-
-                            {fosterMessage && (
-                                <p className="admin-foster-message">{fosterMessage}</p>
-                            )}
-
-                            <button type="submit">
-                                Assign Foster
-                            </button>
-                        </form>
-                    </div>
-
-                    <div className="admin-panel admin-ledger-panel">
-                        <div className="admin-panel-heading">
-                            <h2>Recent Activity :</h2>
-
-                            <button type="button" onClick={fetchLedger}>
-                                Refresh
-                            </button>
-                        </div>
-
-                        {ledgerEntries.length === 0 ? (
-                            <p className="admin-empty">No ledger Activity</p>
-                        ) : (
-                            <div className="admin-ledger-list">
-                                {ledgerEntries.map((entry) => (
-                                    <article className="admin-ledger-item" key={entry._id}>
-                                        <span className={`admin-ledger-dot ${entry.type}`}></span>
-
-                                        <div>
-                                            <h3>{entry.description}</h3>
-
-                                            <p>
-                                                {entry.type} • {entry.status || "recorded"}
-                                            </p>
-
-                                            <small>
-                                                {new Date(entry.createdAt).toLocaleDateString()}
-                                            </small>
-                                        </div>
-                                    </article>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="admin-panel admin-capacity-panel">
-                        <h2>Shelter Capacity</h2>
-
-                        <div className="admin-donut">
-                            <div>
-                                <strong>67%</strong>
-                                <span>Full</span>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <div className="admin-panel admin-impression-panel">
-                        <h2>Impression</h2>
-
-                        <div className="admin-bars">
-                            <span style={{ height: "78%" }}></span>
-                            <span style={{ height: "25%" }}></span>
-                            <span style={{ height: "63%" }}></span>
-                            <span style={{ height: "32%" }}></span>
-                        </div>
-
-                        <div className="admin-bar-labels">
-                            <small>Mon</small>
-                            <small>Tue</small>
-                            <small>Wed</small>
-                            <small>Thu</small>
-                        </div>
-                    </div>
-
-                    <div className="admin-panel admin-donation-panel">
-                        <h2>Total Donations Received</h2>
-                        <strong>10$</strong>
-                        <p>Update your payout method in Setting</p>
-                        <button type="button">Withdraw All Earnings</button>
-                    </div>
-                </section>
             </section>
 
             <ApplicationModal
@@ -540,5 +428,4 @@ export default function AdminDashboard({ setPage }) {
             />
         </main>
     );
-
 }
