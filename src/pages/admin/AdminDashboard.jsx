@@ -10,6 +10,7 @@ import "../../styles/admin/MedicalRecords.css"
 import "../../styles/admin/IntakeRecords.css"
 import "../../styles/admin/AdoptionApplications.css"
 import "../../styles/admin/MatchingQuizResults.css"
+import "../../styles/admin/Recommendations.css"
 
 // Assets
 import assets from "../../data/assets.json";
@@ -21,6 +22,7 @@ import MedicalRecords from "./modules/animals/MedicalRecords";
 import IntakeRecords from "./modules/animals/IntakeRecords";
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
+import Recommendations from "./modules/adoptions/Recommendations";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -150,6 +152,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "matching-quiz") {
             return <MatchingQuizResults />;
+        }
+
+        if (activeAdminPage === "recommendations") {
+            return <Recommendations />
         }
 
     }
