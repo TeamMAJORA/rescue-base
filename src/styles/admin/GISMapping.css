@@ -1,0 +1,247 @@
+.admin-gis-page {
+    display: grid;
+    gap: 18px;
+}
+
+.admin-gis-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-gis-stat-card {
+    display: grid;
+    gap: 8px;
+}
+
+.admin-gis-stat-card span {
+    color: var(--red);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-gis-stat-card strong {
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 34px;
+}
+
+.admin-gis-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.admin-gis-form-panel,
+.admin-gis-map-panel,
+.admin-gis-list-panel {
+    min-height: 430px;
+}
+
+.admin-gis-form {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-gis-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-gis-form input,
+.admin-gis-form select,
+.admin-gis-form textarea {
+    width: 100%;
+    border: 1px solid rgba(90, 27, 0, 0.28);
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    padding: 11px 13px;
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-gis-form input,
+.admin-gis-form select {
+    height: 42px;
+}
+
+.admin-gis-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.admin-gis-form input:focus,
+.admin-gis-form select:focus,
+.admin-gis-form textarea:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-gis-form button {
+    height: 44px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.admin-gis-map-wrap {
+    width: 100%;
+    height: 520px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(90, 27, 0, 0.22);
+    background: var(--white-yellow);
+}
+
+.admin-gis-map {
+    width: 100%;
+    height: 100%;
+}
+
+.admin-gis-marker {
+    font-size: 30px;
+    line-height: 30px;
+    text-align: center;
+    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.25));
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 14px;
+}
+
+.leaflet-popup-content {
+    color: var(--brown);
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.admin-gis-list-panel {
+    min-height: 300px;
+}
+
+.admin-gis-list {
+    display: grid;
+    gap: 12px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.admin-gis-row {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 14px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-gis-row h3 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 22px;
+}
+
+.admin-gis-row p {
+    margin-top: 4px;
+    color: #6f4a35;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.admin-gis-row small {
+    display: block;
+    margin-top: 6px;
+    color: var(--brown);
+    font-size: 12px;
+    opacity: 0.75;
+    line-height: 1.5;
+}
+
+.admin-gis-row div > span {
+    display: block;
+    margin-top: 8px;
+    color: var(--red);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.admin-gis-actions {
+    min-width: 120px;
+    display: grid;
+    align-content: center;
+    justify-items: end;
+    gap: 10px;
+}
+
+.admin-gis-type {
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.admin-gis-type.lost {
+    background: rgba(214, 40, 40, 0.16);
+    color: var(--red-dark);
+}
+
+.admin-gis-type.found {
+    background: rgba(32, 178, 99, 0.18);
+    color: #16834a;
+}
+
+.admin-gis-type.rescue {
+    background: rgba(251, 133, 0, 0.2);
+    color: var(--orange);
+}
+
+.admin-gis-type.intake {
+    background: rgba(90, 27, 0, 0.14);
+    color: var(--brown);
+}
+
+.admin-gis-actions button {
+    height: 34px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+@media (max-width: 950px) {
+    .admin-gis-stats,
+    .admin-gis-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-gis-map-wrap {
+        height: 420px;
+    }
+
+    .admin-gis-row {
+        flex-direction: column;
+    }
+
+    .admin-gis-actions {
+        justify-items: start;
+    }
+}
