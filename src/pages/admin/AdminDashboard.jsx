@@ -12,6 +12,7 @@ import "../../styles/admin/AdoptionApplications.css"
 import "../../styles/admin/MatchingQuizResults.css"
 import "../../styles/admin/Recommendations.css"
 import "../../styles/admin/FosterCare.css"
+import "../../styles/admin/LostFound.css"
 
 // Assets
 import assets from "../../data/assets.json";
@@ -25,6 +26,8 @@ import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
 import FosterCare from "./modules/FosterCare";
+
+import LostFound from "./modules/LostFound";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -162,6 +165,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "foster-care")  {
             return <FosterCare />
+        }
+
+        if (activeAdminPage === "lost-found") {
+            return <LostFound />
         }
 
     }
