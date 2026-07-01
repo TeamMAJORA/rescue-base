@@ -1,0 +1,160 @@
+.admin-foster-page {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.admin-foster-form-panel,
+.admin-foster-list-panel {
+    min-height: 430px;
+}
+
+.admin-foster-form {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-foster-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-foster-form input,
+.admin-foster-form textarea {
+    width: 100%;
+    border: 1px solid rgba(90, 27, 0, 0.28);
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    padding: 11px 13px;
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-foster-form input {
+    height: 42px;
+}
+
+.admin-foster-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.admin-foster-form input:focus,
+.admin-foster-form textarea:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-foster-form button {
+    height: 44px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.admin-foster-message {
+    margin: 0;
+    color: var(--red-dark);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-foster-list {
+    display: grid;
+    gap: 12px;
+    max-height: 540px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.admin-foster-row {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 14px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-foster-row h3 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 22px;
+}
+
+.admin-foster-row p {
+    margin-top: 4px;
+    color: #6f4a35;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-foster-row small {
+    display: block;
+    margin-top: 5px;
+    color: var(--brown);
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.admin-foster-row div > span {
+    display: block;
+    margin-top: 8px;
+    color: var(--red);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.admin-foster-actions {
+    min-width: 110px;
+    display: grid;
+    align-content: center;
+    justify-items: end;
+    gap: 10px;
+}
+
+.admin-foster-actions strong {
+    border-radius: 999px;
+    padding: 7px 12px;
+    background: rgba(252, 191, 73, 0.35);
+    color: var(--brown);
+    font-size: 12px;
+    text-transform: capitalize;
+}
+
+.admin-foster-actions button {
+    height: 34px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 999px;
+    background: #20b263;
+    color: white;
+    font-family: "Itim", cursive;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+@media (max-width: 950px) {
+    .admin-foster-page {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-foster-row {
+        flex-direction: column;
+    }
+
+    .admin-foster-actions {
+        justify-items: start;
+    }
+}
