@@ -1,0 +1,215 @@
+.admin-adoption-page {
+    display: grid;
+    gap: 18px;
+}
+
+.admin-adoption-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.admin-adoption-summary article {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.22);
+    border-radius: 16px;
+    padding: 20px;
+    display: grid;
+    gap: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.admin-adoption-summary span {
+    color: var(--red);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-adoption-summary strong {
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 34px;
+}
+
+.admin-adoption-list-panel {
+    min-height: 430px;
+}
+
+.admin-application-list {
+    display: grid;
+    gap: 12px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.admin-application-row {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 14px;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.admin-application-row h3 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 22px;
+}
+
+.admin-application-row p {
+    margin-top: 4px;
+    color: #6f4a35;
+    font-size: 13px;
+}
+
+.admin-status-pill {
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+    background: rgba(90, 27, 0, 0.12);
+    color: var(--brown);
+}
+
+.admin-status-pill.pending {
+    background: rgba(252, 191, 73, 0.35);
+    color: var(--brown);
+}
+
+.admin-status-pill.approved {
+    background: rgba(32, 178, 99, 0.18);
+    color: #16834a;
+}
+
+.admin-status-pill.rejected {
+    background: rgba(214, 40, 40, 0.16);
+    color: var(--red-dark);
+}
+
+.admin-application-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-application-status button {
+    height: 34px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.admin-application-status button.approve {
+    background: #20b263;
+    color: white;
+}
+
+.admin-application-status button.reject {
+    background: var(--red);
+    color: white;
+}
+
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.45);
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.admin-modal {
+    width: min(760px, 100%);
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--cream);
+    border-radius: 20px;
+    padding: 26px;
+    position: relative;
+    border: 1px solid rgba(90, 27, 0, 0.28);
+}
+
+.admin-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: var(--brown);
+    color: var(--yellow);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.admin-modal h2 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 30px;
+    margin-bottom: 18px;
+}
+
+.admin-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.admin-detail-grid p,
+.admin-detail-box {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--brown);
+    font-size: 13px;
+}
+
+.admin-detail-box {
+    margin-top: 12px;
+}
+
+.admin-detail-box h3 {
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+.admin-detail-box p {
+    line-height: 1.5;
+}
+
+@media (max-width: 950px) {
+    .admin-adoption-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-application-row {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    .admin-application-status {
+        flex-wrap: wrap;
+    }
+
+    .admin-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
