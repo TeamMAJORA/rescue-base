@@ -6,13 +6,14 @@ import {
 import "../../styles/admin/AdminDashboard.css";
 import "../../styles/admin/AdminDashboardOverview.css"
 import "../../styles/admin/AnimalProfiles.css";
-import "../../styles/admin/MedicalRecords.css"
-import "../../styles/admin/IntakeRecords.css"
-import "../../styles/admin/AdoptionApplications.css"
-import "../../styles/admin/MatchingQuizResults.css"
-import "../../styles/admin/Recommendations.css"
-import "../../styles/admin/FosterCare.css"
-import "../../styles/admin/LostFound.css"
+import "../../styles/admin/MedicalRecords.css";
+import "../../styles/admin/IntakeRecords.css";
+import "../../styles/admin/AdoptionApplications.css";
+import "../../styles/admin/MatchingQuizResults.css";
+import "../../styles/admin/Recommendations.css";
+import "../../styles/admin/FosterCare.css";
+import "../../styles/admin/LostFound.css";
+import "../../styles/admin/GISMapping.css";
 
 // Assets
 import assets from "../../data/assets.json";
@@ -26,6 +27,7 @@ import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
 import FosterCare from "./modules/FosterCare";
+import GISMapping from "./modules/GISMapping";
 
 import LostFound from "./modules/LostFound";
 
@@ -169,6 +171,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "lost-found") {
             return <LostFound />
+        }
+
+        if (activeAdminPage === "gis-mapping" ) {
+            return <GISMapping />;
         }
 
     }
