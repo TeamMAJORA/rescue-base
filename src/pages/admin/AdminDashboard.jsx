@@ -11,6 +11,7 @@ import "../../styles/admin/IntakeRecords.css"
 import "../../styles/admin/AdoptionApplications.css"
 import "../../styles/admin/MatchingQuizResults.css"
 import "../../styles/admin/Recommendations.css"
+import "../../styles/admin/FosterCare.css"
 
 // Assets
 import assets from "../../data/assets.json";
@@ -23,6 +24,7 @@ import IntakeRecords from "./modules/animals/IntakeRecords";
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
+import FosterCare from "./modules/FosterCare";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -156,6 +158,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "recommendations") {
             return <Recommendations />
+        }
+
+        if (activeAdminPage === "foster-care")  {
+            return <FosterCare />
         }
 
     }
