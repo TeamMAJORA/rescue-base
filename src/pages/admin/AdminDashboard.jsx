@@ -15,6 +15,7 @@ import "../../styles/admin/FosterCare.css";
 import "../../styles/admin/LostFound.css";
 import "../../styles/admin/GISMapping.css";
 import "../../styles/admin/Feedback.css";
+import "../../styles/admin/Analytics.css";
 
 // Assets
 import assets from "../../data/assets.json";
@@ -32,6 +33,7 @@ import GISMapping from "./modules/GISMapping";
 
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
+import Analytics from "./modules/Analytics";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -181,6 +183,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "feedback") {
             return <Feedback />;
+        }
+
+        if (activeAdminPage === "analytics") {
+            return <Analytics />;
         }
 
     }
