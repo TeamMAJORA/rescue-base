@@ -1,390 +1,281 @@
-import { useEffect,useMemo, useState } from "react";
-import "../../styles/adopter/Dashboard.css";
-import assets from "../../data/assets.json";
+import {
+    useMemo, useState
+} from 'react';
 
-const shelters = [
-    {
-        name: "All Shelters",
-        location: "2 Locations",
-        phone: "",
-        active: true,
-    },
-    {
-        name: "Shelter 1",
-        location: "Location",
-        phone: "+68**********",
-        active: false,
-    },
-    {
-        name: "Shelter 2",
-        location: "Location",
-        phone: "+68**********",
-        active: false,
-    },
-];
+import "../../styles/adopter/Dashboard.css"
 
-const pets = [
+const starterPets = [
     {
+        id: 1,
         name: "Max",
         type: "Dog",
         breed: "Shih Tzu",
-        age: "4 years",
-        status: "Available",
-        image: assets.images.authPets,
-        tags: ["Kid Friendly", "Vaccinated"],
-    },
-    {
-        name: "Blacky",
-        type: "Dog",
-        breed: "Aspin",
-        age: "1 year",
-        status: "Pending",
-        image: assets.images.authPets2,
-        tags: ["Kid Friendly"],
-    },
-    {
-        name: "Chichay",
-        type: "Cat",
-        breed: "Puspin",
-        age: "4 years",
-        status: "Foster",
-        image: assets.images.authPets,
-        tags: ["Calm", "Indoor"],
-    },
-    {
-        name: "Milo",
-        type: "Dog",
-        breed: "Mixed Breed",
         age: "2 years",
-        status: "Available",
-        image: assets.images.authPets2,
-        tags: ["Playful"],
+        gender: "Male",
+        size: "Small",
+        status: "available",
+        location: "RescueBase Shelter",
+        personality: "Playful, loyal, and friendly",
+        idealHome: "Best for families or active adopters",
+        health: "Vaccinated and healthy",
+        story: "Max is a sweet rescued dog who enjoys attention and short walks.",
+        icon: "🐶",
     },
     {
+        id: 2,
         name: "Luna",
         type: "Cat",
-        breed: "Puspin",
+        breed: "Persian",
         age: "1 year",
-        status: "Available",
-        image: assets.images.authPets,
-        tags: ["Gentle"],
+        gender: "Female",
+        size: "Small",
+        status: "available",
+        location: "RescueBase Shelter",
+        personality: "Calm, gentle, and affectionate",
+        idealHome: "Best for quiet homes or apartment living",
+        health: "Healthy and dewormed",
+        story: "Luna is a gentle cat who loves peaceful spaces and soft blankets.",
+        icon: "🐱",
     },
     {
-        name: "Coco",
+        id: 3,
+        name: "Oreo",
         type: "Dog",
         breed: "Aspin",
         age: "3 years",
-        status: "Available",
-        image: assets.images.authPets2,
-        tags: ["Friendly"],
-    },
-    {
-        name: "Mochi",
-        type: "Cat",
-        breed: "Persian Mix",
-        age: "2 years",
-        status: "Available",
-        image: assets.images.authPets,
-        tags: ["Quiet"],
-    },
-    {
-        name: "Buddy",
-        type: "Dog",
-        breed: "Golden Mix",
-        age: "5 years",
-        status: "Pending",
-        image: assets.images.authPets2,
-        tags: ["Trained"],
-    },
-    {
-        name: "Snow",
-        type: "Cat",
-        breed: "Puspin",
-        age: "8 months",
-        status: "Available",
-        image: assets.images.authPets,
-        tags: ["Young"],
+        gender: "Male",
+        size: "Medium",
+        status: "not_available",
+        location: "Temporary Foster Home",
+        personality: "Protective, smart, and calm",
+        idealHome: "Best for adopters with pet care experience",
+        health: "Under observation",
+        story: "Oreo is currently under care and will be available after assessment.",
+        icon: "🐕",
     },
 ];
 
-function ApplicationStatusCard({ application, onReview}) {
-    const statusText = {
-        pending : "Pending review",
-        approved : "Approved",
-        rejected : "Rejected",
-    };
-
-    return (
-        <section className={`dashboard-application-card ${application.status}`}>
-            <div>
-                <p className="dashboard-application-label">Adoption Application</p>
-
-                <h2>
-                    {application.status === "pending"
-                        ? "You have a pending application"
-                        : application.status === "approved"
-                            ? "Your applciation was approved"
-                            : "Your application was rejected"
-                    }
-                </h2>
-
-                <p>
-                    Pet : <strong>{application.petName || "Not selected"}</strong>
-                </p>
-
-                <p>
-                    Status : {" "}
-                    <strong>{statusText[application.status] || application.status}</strong>
-                </p>
-            </div>
-
-            <button type="button" onClick={onReview}>
-                    Review Application
-            </button>
-        </section>
-    );
-}
-
-function ApplicationDetailsModal({ application, onClose }) {
-    if (!application) return null;
-
-    return (
-        <div className="application-modal-overlay">
-            <section className="application-modal">
-                <button
-                    className="application-modal-close"
-                    type="button"
-                    onClick={onClose}
-                >
-                    x
-                </button>
-
-                <h2> Application Details </h2>
-
-                <div className="application-detail-grid">
-                    <p><strong>Status:</strong> {application.status} </p>
-                    <p><strong>Full Name:</strong> {application.fullName} </p>
-                    <p><strong>Email:</strong> {application.email} </p>
-                    <p><strong>Phone:</strong> {application.phone} </p>
-                    <p><strong>Address</strong> {application.address} </p>
-                    <p><strong>Pet Name:</strong> {application.petName || "Not Selected" } </p>
-                    <p><strong>Pet Breed:</strong> {application.petBreed || "N/A" } </p>
-                    <p><strong>Home Type:</strong> {application.homeType} </p>
-                    <p><strong>Has Children:</strong> {application.hasChildren} </p>
-                    <p><strong>Has Other Pets:</strong> {application.hasOtherPets} </p>
-                </div>
-
-                <div className="application-detail-section">
-                    <h3>Reason for adoption</h3>
-                    <p> {application.reason || "No reason provided" } </p>
-                </div>
-
-                <div className="application-detail-section">
-                    <h3>Pet Care Experience</h3>
-                    <p> {application.experience || "No experience provided" } </p>
-                </div>
-
-            </section>
-        </div>
-    )
-}
-
-function DashboardHeader({ onLogout, onApply }) {
-
-    const [application, setApplication] = useState(null);
-    const [showApplication, setShowApplication] = useState(null);
-
-    return (
-        <header className="dashboard-header">
-            <a className="dashboard-brand" href="/">
-                <img src={assets.logo} alt="RescueBase logo" />
-                <span>RescueBase</span>
-            </a>
-
-            <nav className="dashboard-nav">
-                <a href="#about">About Us</a>
-                <img src={assets.icons.redPaw} alt="" />
-                <a href="#pets">Browse Pets</a>
-                <img src={assets.icons.redPaw} alt="" />
-                <a href="#foster">Donate & Foster</a>
-                <img src={assets.icons.redPaw} alt="" />
-            </nav>
-
-            <button className="dashboard-user-btn" type="button" onClick={onLogout}>
-                <span>♡</span>
-                Vervou
-            </button>
-        </header>
-    );
-}
-
-function ShelterCard({ shelter }) {
-    return (
-        <article className={`dashboard-shelter-card ${shelter.active ? "active" : ""}`}>
-            <div className="dashboard-shelter-avatar"></div>
-
-            <div>
-                <h3>{shelter.name}</h3>
-                <p>⌾ {shelter.location}</p>
-                {shelter.phone && <p>☎ {shelter.phone}</p>}
-            </div>
-        </article>
-    );
-}
-
-function PetCard({ pet, onApply }) {
-    return (
-        <article className="dashboard-pet-card">
-            <div className="dashboard-pet-image">
-                <img src={pet.image} alt={pet.name} />
-
-                <span className={`dashboard-pet-status ${pet.status.toLowerCase()}`}>
-                    {pet.status}
-                </span>
-            </div>
-
-            <div className="dashboard-pet-info">
-                <h3>{pet.name}</h3>
-                <p>{pet.breed}</p>
-                <p>{pet.age}</p>
-
-                <div className="dashboard-pet-tags">
-                    {pet.tags.map((tag) => (
-                        <span key={tag}>{tag}</span>
-                    ))}
-                </div>
-
-                <button
-                    className="dashboard-apply-btn"
-                    type="button"
-                    onClick={() => onApply?.(pet)}
-                >
-                    Apply to Adopt
-                </button>
-            </div>
-        </article>
-    );
-}
-
 export default function Dashboard({ onLogout, onApply }) {
-    const [filter, setFilter] = useState("All");
-    const [application, setApplication] = useState(null);
-    const [showApplication, setShowApplication] = useState(false);
+    const savedUser = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
 
-    const filteredPets = useMemo(() => {
-        if (filter === "All") return pets;
-        return pets.filter((pet) => pet.type === filter);
-    }, [filter]);
+    const [search, setSearch] = useState("");
+    const [typeFilter, setTypeFilter] = useState("all");
+    const [selectedPet, setSelectedPet] = useState(starterPets[0]);
 
-    useEffect(() => {
-        async function fetchApplication() {
-            try {
-                const savedUser = JSON.parse(
-                    localStorage.getItem("rescuebase_user") || "{}" 
-                );
-
-                if (!savedUser.email) return;
-
-                const response = await fetch(
-                    `http://localhost:5000/api/adoptions/user/${encodeURIComponent(savedUser.email)}/latest`
-                );
-
-                const data = await response.json();
-                console.log("Latest application", data);
-
-                if (data.success && data.application) {
-                    setApplication(data.application);
-                }
-            } catch (error) {
-                console.error("Fetch application error:", error);
-            }
-        }
-
-        fetchApplication();
+    const availablePets = useMemo(() => {
+        return starterPets.filter((pet) => pet.status === "available").length;
     }, []);
 
-    const hasApplication = Boolean(application);
+    const filteredPets = useMemo(() => {
+        return starterPets.filter((pet) => {
+            const matchesType =
+                typeFilter === "all" || pet.type.toLowerCase() === typeFilter;
+
+            const matchesSearch =
+                pet.name.toLowerCase().includes(search.toLowerCase()) ||
+                pet.breed.toLowerCase().includes(search.toLowerCase()) ||
+                pet.type.toLowerCase().includes(search.toLowerCase());
+
+            return matchesType && matchesSearch;
+        });
+    }, [search, typeFilter]);
+
+    function handleApply(pet) {
+        if (pet.status !== "available") return;
+        onApply(pet);
+    }
 
     return (
-        <main className="dashboard-page">
-            <DashboardHeader onLogout={onLogout} />
+        <main className="adopter-page">
+            <header className="adopter-topbar">
+                <div>
+                    <span className="adopter-eyebrow">Adopter Dashboard</span>
+                    <h1>Hello, {savedUser.username || savedUser.name || "Adopter"}!</h1>
+                    <p>Find rescued pets that are ready for a loving home.</p>
+                </div>
 
-            <section className="dashboard-hero">
-                <img src={assets.images.bannerPets} alt="" />
+                <button type="button" onClick={onLogout}>
+                    Logout
+                </button>
+            </header>
 
-                <div className="dashboard-hero-text">
-                    <h1>
-                        Find Your Perfect <span>Match</span>
-                    </h1>
-                    <p>Helping every rescued pet find a loving family faster.</p>
+            <section className="adopter-hero">
+                <div className="adopter-hero-content">
+                    <span>RescueBase Matching</span>
+                    <h2>Meet your possible new companion.</h2>
+                    <p>
+                        Browse available rescued pets, check their details, and submit an
+                        adoption application when you find a match.
+                    </p>
+
+                    <div className="adopter-hero-actions">
+                        <a href="#available-pets">Browse Pets</a>
+                        <button
+                            type="button"
+                            onClick={() => handleApply(selectedPet)}
+                            disabled={selectedPet.status !== "available"}
+                        >
+                            Apply for {selectedPet.name}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="adopter-featured-pet">
+                    <div className="adopter-pet-icon">{selectedPet.icon}</div>
+                    <span className={`adopter-status ${selectedPet.status}`}>
+                        {selectedPet.status.replace("_", " ")}
+                    </span>
+                    <h3>{selectedPet.name}</h3>
+                    <p>
+                        {selectedPet.breed} • {selectedPet.age} • {selectedPet.gender}
+                    </p>
                 </div>
             </section>
 
-            <section className="dashboard-content" id="pets">
-                <aside className="dashboard-sidebar">
-                    <h2>⌾ Shelters Near You</h2>
+            <section className="adopter-stats">
+                <article>
+                    <span>Available Pets</span>
+                    <strong>{availablePets}</strong>
+                </article>
 
-                    <div className="dashboard-shelter-list">
-                        {shelters.map((shelter) => (
-                            <ShelterCard key={shelter.name} shelter={shelter} />
-                        ))}
-                    </div>
-                </aside>
+                <article>
+                    <span>Pet Categories</span>
+                    <strong>Dog / Cat</strong>
+                </article>
 
-                <section className="dashboard-main">
+                <article>
+                    <span>Application Status</span>
+                    <strong>Ready</strong>
+                </article>
+            </section>
 
-                    {hasApplication && (
-                        <ApplicationStatusCard
-                            application = {application}
-                            onReview={() => setShowApplication(true)}
-                        />
-                    )}
-
-                    <div className="dashboard-top-row">
-                        <div className="dashboard-filters">
-                            {["All", "Dog", "Cat"].map((item) => (
-                                <button
-                                    key={item}
-                                    className={filter === item ? "active" : ""}
-                                    type="button"
-                                    onClick={() => setFilter(item)}
-                                >
-                                    {item === "All" ? "All Pets" : `${item}s`}
-                                </button>
-                            ))}
+            <section className="adopter-content-grid">
+                <section className="adopter-panel" id="available-pets">
+                    <div className="adopter-panel-heading">
+                        <div>
+                            <h2>Available Pets</h2>
+                            <p>Select a pet to view details and apply.</p>
                         </div>
-
-                        <button
-                            className="dashboard-quiz-btn"
-                            type="button"
-                            onClick={() => {
-                                if (hasApplication) {
-                                    setShowApplication(true);
-                                    return;
-                                }
-
-                                onApply?.(null);
-                            }}
-                        >
-                            {hasApplication ? "Review Application" : "Submit Application" }
-                        </button>
                     </div>
 
-                    <div className="dashboard-pet-grid">
+                    <div className="adopter-filters">
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search pet name, breed, or type"
+                        />
+
+                        <select
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                        >
+                            <option value="all">All Pets</option>
+                            <option value="dog">Dogs</option>
+                            <option value="cat">Cats</option>
+                        </select>
+                    </div>
+
+                    <div className="adopter-pet-list">
                         {filteredPets.map((pet) => (
-                            <PetCard key={pet.name} pet={pet} onApply={onApply} />
+                            <article
+                                key={pet.id}
+                                className={
+                                    selectedPet.id === pet.id
+                                        ? "adopter-pet-card active"
+                                        : "adopter-pet-card"
+                                }
+                                onClick={() => setSelectedPet(pet)}
+                            >
+                                <div className="adopter-pet-card-icon">{pet.icon}</div>
+
+                                <div>
+                                    <h3>{pet.name}</h3>
+                                    <p>
+                                        {pet.type} • {pet.breed}
+                                    </p>
+                                    <small>
+                                        {pet.age} • {pet.size}
+                                    </small>
+                                </div>
+
+                                <span className={`adopter-status ${pet.status}`}>
+                                    {pet.status.replace("_", " ")}
+                                </span>
+                            </article>
                         ))}
                     </div>
                 </section>
+
+                <aside className="adopter-panel adopter-detail-panel">
+                    <div className="adopter-detail-header">
+                        <div className="adopter-detail-icon">{selectedPet.icon}</div>
+
+                        <div>
+                            <span className={`adopter-status ${selectedPet.status}`}>
+                                {selectedPet.status.replace("_", " ")}
+                            </span>
+                            <h2>{selectedPet.name}</h2>
+                            <p>
+                                {selectedPet.type} • {selectedPet.breed}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="adopter-detail-grid">
+                        <article>
+                            <span>Age</span>
+                            <strong>{selectedPet.age}</strong>
+                        </article>
+
+                        <article>
+                            <span>Gender</span>
+                            <strong>{selectedPet.gender}</strong>
+                        </article>
+
+                        <article>
+                            <span>Size</span>
+                            <strong>{selectedPet.size}</strong>
+                        </article>
+
+                        <article>
+                            <span>Location</span>
+                            <strong>{selectedPet.location}</strong>
+                        </article>
+                    </div>
+
+                    <div className="adopter-detail-section">
+                        <h3>Personality</h3>
+                        <p>{selectedPet.personality}</p>
+                    </div>
+
+                    <div className="adopter-detail-section">
+                        <h3>Ideal Home</h3>
+                        <p>{selectedPet.idealHome}</p>
+                    </div>
+
+                    <div className="adopter-detail-section">
+                        <h3>Health Status</h3>
+                        <p>{selectedPet.health}</p>
+                    </div>
+
+                    <div className="adopter-detail-section">
+                        <h3>Story</h3>
+                        <p>{selectedPet.story}</p>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="adopter-apply-button"
+                        onClick={() => handleApply(selectedPet)}
+                        disabled={selectedPet.status !== "available"}
+                    >
+                        {selectedPet.status === "available"
+                            ? `Apply to Adopt ${selectedPet.name}`
+                            : "Currently Not Available"}
+                    </button>
+                </aside>
             </section>
-
-            {showApplication && (
-                <ApplicationDetailsModal
-                    application={application}
-                    onClose={() => setShowApplication(false)}
-                />
-            )}
-
         </main>
     );
 }

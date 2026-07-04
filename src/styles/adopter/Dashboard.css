@@ -1,410 +1,472 @@
-/* =========================
-   ADOPTER DASHBOARD
-========================= */
-
-.dashboard-page {
+.adopter-page {
     min-height: 100vh;
     background: var(--cream);
+    padding: 28px;
     color: var(--brown);
-    overflow-x: clip;
 }
 
-.dashboard-header {
-    height: 86px;
-    background: var(--yellow);
+.adopter-topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 58px;
-    position: relative;
-    z-index: 20;
+    gap: 20px;
+    margin-bottom: 26px;
 }
 
-.dashboard-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.dashboard-brand img {
-    width: 64px;
-    height: 64px;
-    object-fit: contain;
-}
-
-.dashboard-brand span {
-    font-family: "Itim", cursive;
-    font-size: 34px;
+.adopter-eyebrow {
     color: var(--red);
-}
-
-.dashboard-nav {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-family: "Itim", cursive;
     font-size: 13px;
-    color: var(--red);
+    font-weight: 800;
 }
 
-.dashboard-nav img {
-    width: 11px;
-    height: 11px;
-    object-fit: contain;
-}
-
-.dashboard-user-btn {
-    height: 42px;
-    padding: 0 22px;
-    border-radius: 999px;
-    background: var(--white-yellow);
-    color: var(--orange);
+.adopter-topbar h1 {
     font-family: "Itim", cursive;
-    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.25);
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 36px;
+    color: var(--brown);
+    margin-top: 4px;
 }
 
-.dashboard-hero {
-    min-height: 230px;
-    background: var(--yellow);
-    display: flex;
-    align-items: center;
-    gap: 85px;
-    padding: 0 90px;
+.adopter-topbar p {
+    color: #6f4a35;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.adopter-topbar button {
+    height: 42px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.adopter-hero {
+    min-height: 310px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, var(--brown), var(--red-dark));
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 22px;
+    padding: 34px;
+    color: white;
+    margin-bottom: 20px;
     overflow: hidden;
 }
 
-.dashboard-hero img {
-    width: 280px;
-    height: 230px;
-    object-fit: contain;
-    opacity: 0.72;
+.adopter-hero-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.dashboard-hero-text {
-    flex: 1;
+.adopter-hero-content span {
+    color: var(--yellow);
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.adopter-hero-content h2 {
+    max-width: 620px;
+    font-family: "Itim", cursive;
+    font-size: 48px;
+    line-height: 1;
+    margin-top: 10px;
+}
+
+.adopter-hero-content p {
+    max-width: 590px;
+    color: #fff3d0;
+    font-size: 15px;
+    line-height: 1.6;
+    font-weight: 700;
+    margin-top: 14px;
+}
+
+.adopter-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.adopter-hero-actions a,
+.adopter-hero-actions button {
+    height: 44px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.adopter-hero-actions a {
+    background: var(--yellow);
+    color: var(--brown);
+}
+
+.adopter-hero-actions button {
+    background: var(--white-yellow);
+    color: var(--brown);
+}
+
+.adopter-hero-actions button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.adopter-featured-pet {
+    background: rgba(255, 247, 203, 0.14);
+    border: 1px solid rgba(255, 247, 203, 0.22);
+    border-radius: 24px;
+    padding: 24px;
+    display: grid;
+    align-content: center;
+    justify-items: center;
     text-align: center;
 }
 
-.dashboard-hero h1 {
-    font-family: "Itim", cursive;
-    font-size: clamp(2.8rem, 4.5vw, 4.2rem);
-    color: var(--orange);
-    line-height: 1;
-}
-
-.dashboard-hero h1 span {
-    color: var(--red-dark);
-}
-
-.dashboard-hero p {
-    margin-top: 10px;
-    font-family: "Karma", serif;
-    font-weight: 700;
-    color: var(--red);
-}
-
-.dashboard-content {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: 58px;
-    padding: 70px 90px 100px;
-}
-
-.dashboard-sidebar h2 {
-    font-family: "Itim", cursive;
-    font-size: 18px;
-    text-transform: uppercase;
-    margin-bottom: 22px;
-}
-
-.dashboard-shelter-list {
-    display: grid;
-    gap: 20px;
-}
-
-.dashboard-shelter-card {
-    min-height: 82px;
-    background: var(--white-yellow);
-    border-radius: 10px;
-    padding: 16px;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
-}
-
-.dashboard-shelter-card.active {
-    border: 1px solid var(--brown);
-}
-
-.dashboard-shelter-avatar {
-    width: 34px;
-    height: 34px;
+.adopter-pet-icon {
+    width: 132px;
+    height: 132px;
     border-radius: 50%;
-    background: #d9d9d9;
-    flex-shrink: 0;
+    background: var(--white-yellow);
+    display: grid;
+    place-items: center;
+    font-size: 68px;
+    margin-bottom: 16px;
 }
 
-.dashboard-shelter-card h3 {
+.adopter-featured-pet h3 {
     font-family: "Itim", cursive;
-    font-size: 15px;
-    margin-bottom: 7px;
+    font-size: 34px;
+    margin-top: 10px;
 }
 
-.dashboard-shelter-card p {
-    font-size: 11px;
-    line-height: 1.6;
+.adopter-featured-pet p {
+    color: #fff3d0;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 4px;
 }
 
-.dashboard-top-row {
+.adopter-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.adopter-stats article {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 18px;
+    padding: 18px;
+    display: grid;
+    gap: 6px;
+}
+
+.adopter-stats span {
+    color: var(--red);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.adopter-stats strong {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 28px;
+}
+
+.adopter-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 20px;
+    align-items: start;
+}
+
+.adopter-panel {
+    background: #fffdf4;
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 22px;
+    padding: 22px;
+}
+
+.adopter-panel-heading {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
-    gap: 18px;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
 }
 
-.dashboard-filters {
-    display: flex;
-    gap: 24px;
+.adopter-panel-heading h2 {
+    font-family: "Itim", cursive;
+    font-size: 28px;
+    color: var(--brown);
 }
 
-.dashboard-filters button,
-.dashboard-quiz-btn {
-    min-width: 112px;
-    height: 36px;
-    border-radius: 999px;
+.adopter-panel-heading p {
+    color: #6f4a35;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 3px;
+}
+
+.adopter-filters {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.adopter-filters input,
+.adopter-filters select {
+    height: 42px;
+    border: 1px solid rgba(90, 27, 0, 0.25);
+    border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
-    font-family: "Itim", cursive;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.16);
+    padding: 0 13px;
+    font-family: "Inter", sans-serif;
+    outline: none;
 }
 
-.dashboard-filters button.active {
-    background: #84c87a;
-    border: 1px solid var(--brown);
+.adopter-filters input:focus,
+.adopter-filters select:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.14);
 }
 
-.dashboard-quiz-btn {
-    min-width: 170px;
-    background: var(--brown);
-    color: var(--yellow);
-}
-
-.dashboard-pet-grid {
+.adopter-pet-list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(170px, 1fr));
-    gap: 38px 30px;
+    gap: 12px;
+    max-height: 560px;
+    overflow-y: auto;
+    padding-right: 6px;
 }
 
-.dashboard-pet-card {
-    min-height: 220px;
-    background: var(--cream-card);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 8px 14px rgba(0, 0, 0, 0.14);
+.adopter-pet-card {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 16px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 14px;
+    align-items: center;
     cursor: pointer;
     transition: 0.2s ease;
 }
 
-.dashboard-pet-card:hover {
-    transform: translateY(-4px);
+.adopter-pet-card:hover,
+.adopter-pet-card.active {
+    border-color: var(--orange);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(90, 27, 0, 0.12);
 }
 
-.dashboard-pet-image {
-    height: 135px;
-    position: relative;
-    background: rgba(255, 255, 255, 0.55);
-    overflow: hidden;
-}
-
-.dashboard-pet-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.dashboard-pet-status {
-    position: absolute;
-    top: 7px;
-    right: 7px;
-    border-radius: 999px;
-    padding: 3px 8px;
-    font-size: 8px;
-    font-weight: 700;
-    color: white;
-}
-
-.dashboard-pet-status.available {
-    background: #20b263;
-}
-
-.dashboard-pet-status.pending {
-    background: #e0a400;
-}
-
-.dashboard-pet-status.foster {
-    background: #00b7c7;
-}
-
-.dashboard-pet-info {
-    padding: 12px 13px 14px;
-}
-
-.dashboard-pet-info h3 {
-    font-size: 17px;
-    line-height: 1;
-}
-
-.dashboard-pet-info p {
-    margin-top: 4px;
-    font-size: 10px;
-}
-
-.dashboard-pet-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-top: 9px;
-}
-
-.dashboard-pet-tags span {
-    background: var(--dark);
-    color: white;
-    border-radius: 999px;
-    padding: 4px 7px;
-    font-size: 7px;
-}
-
-.dashboard-application-card {
-    margin-bottom: 30px;
-    background: var(--white-yellow);
-    border: 1px solid var(--brown);
+.adopter-pet-card-icon {
+    width: 56px;
+    height: 56px;
     border-radius: 16px;
-    padding: 22px 26px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 22px;
-    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.12);
+    background: #fff3d0;
+    display: grid;
+    place-items: center;
+    font-size: 30px;
 }
 
-.dashboard-application-card.pending {
-    border-left: 8px solid #e0a400;
-}
-
-.dashboard-application-card.approved {
-    border-left: 8px solid #20b263;
-}
-
-.dashboard-application-card.rejected {
-    border-left: 8px solid #d62828;
-}
-
-.dashboard-application-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--red);
-    font-weight: 700;
-    margin-bottom: 6px;
-}
-
-.dashboard-application-card h2 {
+.adopter-pet-card h3 {
     font-family: "Itim", cursive;
-    font-size: 26px;
     color: var(--brown);
-    margin-bottom: 8px;
+    font-size: 22px;
 }
 
-.dashboard-application-card p {
+.adopter-pet-card p,
+.adopter-pet-card small {
+    color: #6f4a35;
     font-size: 13px;
+    font-weight: 700;
+}
+
+.adopter-pet-card small {
+    display: block;
+    margin-top: 3px;
+    opacity: 0.75;
+}
+
+.adopter-status {
+    width: fit-content;
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.adopter-status.available {
+    background: rgba(32, 178, 99, 0.18);
+    color: #16834a;
+}
+
+.adopter-status.not_available {
+    background: rgba(214, 40, 40, 0.16);
+    color: var(--red-dark);
+}
+
+.adopter-detail-panel {
+    position: sticky;
+    top: 24px;
+}
+
+.adopter-detail-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.adopter-detail-icon {
+    width: 86px;
+    height: 86px;
+    border-radius: 24px;
+    background: var(--white-yellow);
+    display: grid;
+    place-items: center;
+    font-size: 48px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+}
+
+.adopter-detail-header h2 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 34px;
+    margin-top: 6px;
+}
+
+.adopter-detail-header p {
+    color: #6f4a35;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.adopter-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.adopter-detail-grid article {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 14px;
+    padding: 12px;
+    display: grid;
+    gap: 4px;
+}
+
+.adopter-detail-grid span {
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.adopter-detail-grid strong {
+    color: var(--brown);
+    font-size: 13px;
+}
+
+.adopter-detail-section {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.adopter-detail-section h3 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.adopter-detail-section p {
+    color: #6f4a35;
+    font-size: 13px;
+    font-weight: 700;
     line-height: 1.5;
 }
 
-.dashboard-application-card button {
-    height: 42px;
-    padding: 0 22px;
+.adopter-apply-button {
+    width: 100%;
+    height: 46px;
+    border: none;
     border-radius: 999px;
     background: var(--brown);
     color: var(--yellow);
     font-family: "Itim", cursive;
-    flex-shrink: 0;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 8px;
 }
 
-.application-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(47, 47, 48, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 28px;
-    z-index: 999;
+.adopter-apply-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
-.application-modal {
-    width: min(760px, 100%);
-    max-height: 88vh;
-    overflow-y: auto;
-    background: var(--cream-card);
-    border: 1px solid var(--brown);
-    border-radius: 20px;
-    padding: 34px;
-    position: relative;
-    color: var(--brown);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+@media (max-width: 1050px) {
+
+    .adopter-hero,
+    .adopter-content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .adopter-detail-panel {
+        position: static;
+    }
 }
 
-.application-modal-close {
-    position: absolute;
-    top: 16px;
-    right: 18px;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--brown);
-    color: var(--yellow);
-    font-size: 20px;
-}
+@media (max-width: 720px) {
+    .adopter-page {
+        padding: 18px;
+    }
 
-.application-modal h2 {
-    font-family: "Itim", cursive;
-    font-size: 34px;
-    text-align: center;
-    margin-bottom: 24px;
-}
+    .adopter-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
 
-.application-detail-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px 18px;
-    background: var(--white-yellow);
-    border-radius: 14px;
-    padding: 18px;
-}
+    .adopter-hero {
+        padding: 24px;
+    }
 
-.application-detail-grid p {
-    font-size: 13px;
-}
+    .adopter-hero-content h2 {
+        font-size: 38px;
+    }
 
-.application-detail-section {
-    margin-top: 18px;
-    background: var(--white-yellow);
-    border-radius: 14px;
-    padding: 18px;
-}
+    .adopter-stats,
+    .adopter-filters {
+        grid-template-columns: 1fr;
+    }
 
-.application-detail-section h3 {
-    font-family: "Itim", cursive;
-    font-size: 20px;
-    margin-bottom: 8px;
-}
+    .adopter-pet-card {
+        grid-template-columns: 52px 1fr;
+    }
 
-.application-detail-section p {
-    font-size: 13px;
-    line-height: 1.6;
+    .adopter-pet-card .adopter-status {
+        grid-column: span 2;
+    }
 }
