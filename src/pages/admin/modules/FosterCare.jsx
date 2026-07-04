@@ -27,6 +27,15 @@ export default function FosterCare() {
 
             console.log("Foster assignments:", data);
 
+            console.table(
+                (data.assignments || []).map((assignment) => ({
+                    id: assignment._id,
+                    petName: assignment.petName,
+                    fosterEmail: assignment.fosterEmail,
+                    status: assignment.status,
+                }))
+            );
+
             if (data.success) {
                 setAssignments(data.assignments || []);
             }
@@ -36,7 +45,6 @@ export default function FosterCare() {
             setLoading(false);
         }
     }
-
     async function handleCreateFosterAssignment(e) {
         e.preventDefault();
 
@@ -103,13 +111,29 @@ export default function FosterCare() {
             });
 
             const data = await response.json();
-            console.log("Complete foster assignment:", data);
 
-            if (data.success) {
-                fetchAssignments();
+            console.log("Complete foster assignment:", data);
+            console.log("Returned status:", data.assignment?.status);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to complete assignment.");
+                return;
             }
+
+            setMessage("Foster assignment completed.");
+
+            setAssignments((current) =>
+                current.map((assignment) =>
+                    assignment._id === id
+                        ? { ...assignment, ...data.assignment }
+                        : assignment
+                )
+            );
+
+            fetchAssignments();
         } catch (error) {
             console.error("Complete foster assignment error:", error);
+            setMessage("Server error while completing assignment.");
         }
     }
 
@@ -238,9 +262,7 @@ export default function FosterCare() {
                                     {assignment.status === "active" && (
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                handleCompleteAssignment(assignment._id)
-                                            }
+                                            onClick={() => handleCompleteAssignment(assignment._id)}
                                         >
                                             Complete
                                         </button>
