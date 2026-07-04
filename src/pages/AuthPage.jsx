@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+
 const authSlides = [
     assets.images.authPets,
     assets.images.authPets2,
@@ -35,10 +36,17 @@ export default function AuthPage({ mode = "login", setPage }) {
 
     const handleGoogleLogin = async () => {
         try {
+
+            // Getting the token result from logging in from the google provider
             const result = await signInWithPopup(auth, googleProvider);
+
+            // translating the token from the result
             const firebaseUser = result.user;
+
+            // getting the token from the firebaseUser
             const token = await firebaseUser.getIdToken();
 
+            // Making an endpoint translating the 
             const endpoint = isSignup
                 ? `${API}/api/auth/google/signup`
                 : `${API}/api/auth/google/login`;
@@ -82,6 +90,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                 return;
             }
 
+            // If adopter just straight go in
             setPage("dashboard");
         } catch (error) {
             console.error("Google auth error:", error);

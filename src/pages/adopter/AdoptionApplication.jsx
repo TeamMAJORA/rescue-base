@@ -2,6 +2,8 @@ import { useState } from "react";
 import "../../styles/adopter/AdoptionApplication.css";
 import assets from "../../data/assets.json"
 
+const API = import.meta.env.VITE_BACKEND_URL;
+
 export default function AdoptionPage({ pet, setPage }) {
     const savedUser = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
 
@@ -15,8 +17,8 @@ export default function AdoptionPage({ pet, setPage }) {
         homeType: "House",
         hasChildren: "No",
         hasOtherPets: "No",
-        reason : "",
-        experience : "",
+        reason: "",
+        experience: "",
     });
 
     const [loading, setLoading] = useState(false);
@@ -25,9 +27,9 @@ export default function AdoptionPage({ pet, setPage }) {
     function handleChange(e) {
         const { name, value } = e.target;
 
-        setForm ((prev) => ({
+        setForm((prev) => ({
             ...prev,
-            [name] : value,
+            [name]: value,
         }));
     }
 
@@ -38,38 +40,47 @@ export default function AdoptionPage({ pet, setPage }) {
             setLoading(true);
             setMessage("");
 
-            const response = await fetch("http://localhost:5000/api/adoptions", {
-                method : "POST",
-                headers : {
-                    "Content-Type" : "application/json",
+            const response = await fetch(`${API}/api/adoptions`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
                 },
-                body : JSON.stringify({
+                body: JSON.stringify({
                     ...form,
                     status: "pending",
-                    role : "adopter",
+                    role: "adopter",
                 }),
             });
 
             const data = await response.json();
+            console.log("Adoption submit:", data);
 
-            console.log(data);
-
-            if (!response.ok || data.success) {
-                setMessage(data.message || "Failed to submit application");
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to submit application.");
                 return;
-            } 
+            }
 
-            setMessage("Application submitted! Waiting for approval");
+            localStorage.setItem(
+                "rescuebase_pending_application",
+                JSON.stringify({
+                    status: "pending",
+                    petName: data.application?.petName || form.petName,
+                    petBreed: data.application?.petBreed || form.petBreed,
+                    applicationId: data.application?._id,
+                    submittedAt: new Date().toISOString(),
+                })
+            );
+
+            setMessage("Application submitted! Waiting for approval.");
 
             setTimeout(() => {
                 setPage("dashboard");
-            }, 900)
-
+            }, 900);
         } catch (error) {
             console.error("Adoption submit error:", error);
-            setMessage("Server error. Please try again");
+            setMessage("Server error. Please try again.");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 

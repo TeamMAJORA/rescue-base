@@ -1,8 +1,10 @@
 import {
-    useMemo, useState
+    useMemo, useState, useEffect
 } from 'react';
 
 import "../../styles/adopter/Dashboard.css"
+
+const API = import.meta.env.VITE_BACKEND_URL;
 
 const starterPets = [
     {
@@ -61,6 +63,19 @@ export default function Dashboard({ onLogout, onApply }) {
     const [search, setSearch] = useState("");
     const [typeFilter, setTypeFilter] = useState("all");
     const [selectedPet, setSelectedPet] = useState(starterPets[0]);
+    const [applicationStatus, setApplicationStatus] = useState(() => {
+        try {
+            return JSON.parse(
+                localStorage.getItem("rescuebase_pending_application") || "null"
+            );
+        } catch {
+            return null;
+        }
+    });
+
+    const hasPendingApplication = applicationStatus?.status === "pending";
+    const isRejectedApplication = applicationStatus?.status === "rejected";
+    const isApprovedApplication = applicationStatus?.status === "approved";
 
     const availablePets = useMemo(() => {
         return starterPets.filter((pet) => pet.status === "available").length;
@@ -80,10 +95,73 @@ export default function Dashboard({ onLogout, onApply }) {
         });
     }, [search, typeFilter]);
 
+    async function fetchApplicationStatus() {
+        try {
+            if (!savedUser.email) return;
+
+            const response = await fetch(`${API}/api/adoptions`);
+            const data = await response.json();
+
+            if (!response.ok || !data.success) return;
+
+            const myApplications = (data.applications || []).filter(
+                (application) =>
+                    String(application.email || "").trim().toLowerCase() ===
+                    String(savedUser.email || "").trim().toLowerCase()
+            );
+
+            if (myApplications.length === 0) {
+                localStorage.removeItem("rescuebase_pending_application");
+                setApplicationStatus(null);
+                return;
+            }
+
+            const latestApplication = myApplications.sort(
+                (a, b) =>
+                    new Date(b.updatedAt || b.createdAt) -
+                    new Date(a.updatedAt || a.createdAt)
+            )[0];
+
+            const updatedStatus = {
+                status: latestApplication.status,
+                petName: latestApplication.petName,
+                petBreed: latestApplication.petBreed,
+                applicationId: latestApplication._id,
+                submittedAt: latestApplication.createdAt,
+            };
+
+            if (latestApplication.status === "pending") {
+                localStorage.setItem(
+                    "rescuebase_pending_application",
+                    JSON.stringify(updatedStatus)
+                );
+                setApplicationStatus(updatedStatus);
+                return;
+            }
+
+            localStorage.removeItem("rescuebase_pending_application");
+            setApplicationStatus(updatedStatus);
+        } catch (error) {
+            console.error("Fetch adopter application status error:", error);
+        }
+    }
+
     function handleApply(pet) {
         if (pet.status !== "available") return;
+        if (hasPendingApplication) return;
+
         onApply(pet);
     }
+
+    useEffect(() => {
+        fetchApplicationStatus();
+
+        const interval = setInterval(() => {
+            fetchApplicationStatus();
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <main className="adopter-page">
@@ -113,9 +191,11 @@ export default function Dashboard({ onLogout, onApply }) {
                         <button
                             type="button"
                             onClick={() => handleApply(selectedPet)}
-                            disabled={selectedPet.status !== "available"}
+                            disabled={selectedPet.status !== "available" || hasPendingApplication}
                         >
-                            Apply for {selectedPet.name}
+                            {hasPendingApplication
+                                ? `Pending application for ${applicationStatus.petName}`
+                                : `Apply for ${selectedPet.name}`}
                         </button>
                     </div>
                 </div>
@@ -145,9 +225,54 @@ export default function Dashboard({ onLogout, onApply }) {
 
                 <article>
                     <span>Application Status</span>
-                    <strong>Ready</strong>
+
+                    <strong>
+                        {hasPendingApplication
+                            ? "Pending"
+                            : isRejectedApplication
+                                ? "Rejected"
+                                : isApprovedApplication
+                                    ? "Approved"
+                                    : "Ready"}
+                    </strong>
+
+                    {applicationStatus?.petName && (
+                        <small>For {applicationStatus.petName}</small>
+                    )}
                 </article>
             </section>
+
+            {hasPendingApplication && (
+                <section className="adopter-pending-banner">
+                    <strong>Pending Adoption Application</strong>
+                    <p>
+                        You already submitted an application for{" "}
+                        <span>{applicationStatus.petName}</span>. Please wait for admin review.
+                    </p>
+                </section>
+            )}
+
+            {isRejectedApplication && (
+                <section className="adopter-pending-banner">
+                    <strong>Application Rejected</strong>
+                    <p>
+                        Your application for{" "}
+                        <span>{applicationStatus.petName}</span> was rejected. You may submit
+                        another application.
+                    </p>
+                </section>
+            )}
+
+            {isApprovedApplication && (
+                <section className="adopter-pending-banner">
+                    <strong>Application Approved</strong>
+                    <p>
+                        Your application for{" "}
+                        <span>{applicationStatus.petName}</span> was approved. Please wait for
+                        shelter instructions.
+                    </p>
+                </section>
+            )}
 
             <section className="adopter-content-grid">
                 <section className="adopter-panel" id="available-pets">
@@ -268,11 +393,13 @@ export default function Dashboard({ onLogout, onApply }) {
                         type="button"
                         className="adopter-apply-button"
                         onClick={() => handleApply(selectedPet)}
-                        disabled={selectedPet.status !== "available"}
+                        disabled={selectedPet.status !== "available" || hasPendingApplication}
                     >
-                        {selectedPet.status === "available"
-                            ? `Apply to Adopt ${selectedPet.name}`
-                            : "Currently Not Available"}
+                        {hasPendingApplication
+                            ? `Pending application: ${applicationStatus.petName}`
+                            : selectedPet.status === "available"
+                                ? `Apply to adopt ${selectedPet.name}`
+                                : "Currently Not Available"}
                     </button>
                 </aside>
             </section>

@@ -8,7 +8,7 @@ import AdoptionPage from "./pages/adopter/AdoptionApplication";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import FosterDashboard from "./pages/foster/FosterDashboard";
 
-
+// Array = OBJECT 
 const pets = [
     {
         name: "Max",
@@ -253,6 +253,9 @@ export default function App() {
 
     const [page, setPage] = useState("home");
     const [selectedPet, setSelectedPet] = useState(null);
+
+
+    // Checks the database on User Roles
 
     if (page === "auth" || page === "login") {
         return (

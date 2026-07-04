@@ -427,6 +427,37 @@
     cursor: not-allowed;
 }
 
+.adopter-pending-banner {
+    margin: 18px 0;
+    padding: 18px 22px;
+    border-radius: 20px;
+    background: #fff7cb;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    color: #5a1b00;
+}
+
+.adopter-pending-banner strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.adopter-pending-banner p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.adopter-pending-banner span {
+    font-weight: 800;
+}
+
+.adopter-stats small {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    opacity: 0.75;
+}
+
 @media (max-width: 1050px) {
 
     .adopter-hero,
