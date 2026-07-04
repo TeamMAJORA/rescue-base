@@ -4,7 +4,7 @@ import {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-function Application({ application, onReview, onUpdateStatus }) {
+function ApplicationRow({ application, onReview, onUpdateStatus }) {
     return (
         <article className="admin-application-row">
             <div>
@@ -20,7 +20,7 @@ function Application({ application, onReview, onUpdateStatus }) {
             </span>
 
             <div className="admin-application-status">
-                <button className="admin-application-status">
+                <div className="admin-application-status">
                     <button type="button" onClick={() => onReview(application)}>
                         Review
                     </button>
@@ -30,9 +30,7 @@ function Application({ application, onReview, onUpdateStatus }) {
                             <button
                                 type="button"
                                 className="approve"
-                                onClick={() =>
-                                    onUpdateStatus(application._id, "approved")
-                                }
+                                onClick={() => onUpdateStatus(application._id, "approved")}
                             >
                                 Approve
                             </button>
@@ -40,15 +38,13 @@ function Application({ application, onReview, onUpdateStatus }) {
                             <button
                                 type="button"
                                 className="reject"
-                                onClick={() =>
-                                    onUpdateStatus(application._id, "reject")
-                                }
+                                onClick={() => onUpdateStatus(application._id, "rejected")}
                             >
                                 Reject
                             </button>
                         </>
                     )}
-                </button>
+                </div>
             </div>
         </article>
     );
