@@ -16,6 +16,7 @@ import "../../styles/admin/LostFound.css";
 import "../../styles/admin/GISMapping.css";
 import "../../styles/admin/Feedback.css";
 import "../../styles/admin/Analytics.css";
+import "../../styles/admin/Reports.css";
 
 // Assets
 import assets from "../../data/assets.json";
@@ -34,6 +35,7 @@ import GISMapping from "./modules/GISMapping";
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
+import Reports from "./modules/Reports";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -187,6 +189,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "analytics") {
             return <Analytics />;
+        }
+
+        if (activeAdminPage === "reports") {
+            return <Reports />;
         }
 
     }
