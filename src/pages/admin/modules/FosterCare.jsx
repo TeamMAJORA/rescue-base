@@ -4,19 +4,23 @@ import {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+const emptyFosterForm = {
+    petName: "",
+    petBreed: "",
+    petImage: "",
+    fosterName: "",
+    fosterEmail: "",
+    careInstructions: "",
+}
+
 export default function FosterCare() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
+    const [editingId, setEditingId] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
-    const [fosterForm, setFosterForm] = useState({
-        petName: "",
-        petBreed: "",
-        petImage: "",
-        fosterName: "",
-        fosterEmail: "",
-        careInstructions: "",
-    });
+    const [fosterForm, setFosterForm] = useState(emptyFosterForm);
 
     async function fetchAssignments() {
         try {
@@ -45,18 +49,26 @@ export default function FosterCare() {
             setLoading(false);
         }
     }
-    async function handleCreateFosterAssignment(e) {
+
+    async function handleSubmitFosterAssignment(e) {
         e.preventDefault();
 
         try {
+            setSubmitting(true);
             setMessage("");
 
             const savedUser = JSON.parse(
                 localStorage.getItem("rescuebase_user") || "{}"
             );
 
-            const response = await fetch(`${API}/api/foster/assignments`, {
-                method: "POST",
+            const endpoint = editingId
+                ? `${API}/api/foster/assignments/${editingId}`
+                : `${API}/api/foster/assignments`;
+
+            const method = editingId ? "PATCH" : "POST";
+
+            const response = await fetch(endpoint, {
+                method,
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -68,28 +80,27 @@ export default function FosterCare() {
             });
 
             const data = await response.json();
-            console.log("Create foster assignment:", data);
+            console.log("Save foster assignment:", data);
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to create foster assignment.");
+                setMessage(data.message || "Failed to save foster assignment.");
                 return;
             }
 
-            setMessage("Foster assignment created.");
+            setMessage(
+                editingId
+                    ? "Foster assignment updated."
+                    : "Foster assignment created."
+            );
 
-            setFosterForm({
-                petName: "",
-                petBreed: "",
-                petImage: "",
-                fosterName: "",
-                fosterEmail: "",
-                careInstructions: "",
-            });
-
+            setFosterForm(emptyFosterForm);
+            setEditingId(null);
             fetchAssignments();
         } catch (error) {
-            console.error("Create foster assignment error:", error);
+            console.error("Save foster assignment error:", error);
             setMessage("Server error. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     }
 
@@ -137,6 +148,78 @@ export default function FosterCare() {
         }
     }
 
+    function handleEditAssignment(assignment) {
+        if (assignment.status !== "active") {
+            setMessage("Only in-progress assignments can be updated.");
+            return;
+        }
+
+        setEditingId(assignment._id);
+
+        setFosterForm({
+            petName: assignment.petName || "",
+            petBreed: assignment.petBreed || "",
+            petImage: assignment.petImage || "",
+            fosterName: assignment.fosterName || "",
+            fosterEmail: assignment.fosterEmail || "",
+            careInstructions: assignment.careInstructions || "",
+        });
+
+        setMessage("Editing in-progress foster assignment.");
+    }
+
+    function handleCancelEdit() {
+        setEditingId(null);
+        setFosterForm(emptyFosterForm);
+        setMessage("");
+    }
+
+    async function handleDeleteAssignment(id) {
+        const confirmDelete = window.confirm(
+            "Delete this in-progress foster assignment?"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            setMessage("");
+
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const response = await fetch(`${API}/api/foster/assignments/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    adminName: savedUser.name || savedUser.username || "Admin User",
+                    adminEmail: savedUser.email || "admin",
+                }),
+            });
+
+            const data = await response.json();
+            console.log("Delete foster assignment:", data);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to delete assignment.");
+                return;
+            }
+
+            setMessage("Foster assignment deleted.");
+
+            if (editingId === id) {
+                handleCancelEdit();
+            }
+
+            fetchAssignments();
+        } catch (error) {
+            console.error("Delete foster assignment error:", error);
+            setMessage("Server error while deleting assignment.");
+        }
+    }
+
     useEffect(() => {
         fetchAssignments();
     }, []);
@@ -145,10 +228,17 @@ export default function FosterCare() {
         <section className="admin-foster-page">
             <section className="admin-panel admin-foster-form-panel">
                 <div className="admin-panel-heading">
-                    <h2>Create Foster Assignment</h2>
+                    <h2>{editingId ? "Update Foster Assignment" : "Create Foster Assignment"}</h2>
+
+                    {editingId && (
+                        <button type="button" onClick={handleCancelEdit}>
+                            Cancel Edit
+                        </button>
+                    )}
+
                 </div>
 
-                <form className="admin-foster-form" onSubmit={handleCreateFosterAssignment}>
+                <form className="admin-foster-form" onSubmit={handleSubmitFosterAssignment}>
                     <label>
                         Pet Name
                         <input
@@ -225,7 +315,13 @@ export default function FosterCare() {
 
                     {message && <p className="admin-foster-message">{message}</p>}
 
-                    <button type="submit">Assign Foster</button>
+                    <button type="submit" disabled={submitting}>
+                        {submitting
+                            ? "Saving..."
+                            : editingId
+                                ? "Update Assignment"
+                                : "Assign Foster"}
+                    </button>
                 </form>
             </section>
 
@@ -260,12 +356,29 @@ export default function FosterCare() {
                                     <strong>{assignment.status}</strong>
 
                                     {assignment.status === "active" && (
-                                        <button
-                                            type="button"
-                                            onClick={() => handleCompleteAssignment(assignment._id)}
-                                        >
-                                            Complete
-                                        </button>
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditAssignment(assignment)}
+                                            >
+                                                Edit
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => handleCompleteAssignment(assignment._id)}
+                                            >
+                                                Complete
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                className="delete"
+                                                onClick={() => handleDeleteAssignment(assignment._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </>
                                     )}
                                 </div>
                             </article>

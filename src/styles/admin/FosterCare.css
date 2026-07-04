@@ -108,7 +108,7 @@
     opacity: 0.75;
 }
 
-.admin-foster-row div > span {
+.admin-foster-row div>span {
     display: block;
     margin-top: 8px;
     color: var(--red);
@@ -143,6 +143,11 @@
     font-family: "Itim", cursive;
     font-size: 12px;
     cursor: pointer;
+}
+
+.admin-foster-actions .delete {
+    background: #d62828;
+    color: white;
 }
 
 @media (max-width: 950px) {
