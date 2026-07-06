@@ -126,6 +126,8 @@ export default function AdminDashboard({ setPage }) {
 
     const [activeAdminPage, setActiveAdminPage] = useState("overview");
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
+    const [notifications, setNotification] = useState([]);
+    const [notifOpen, setNotifOpen] = useState(false);
 
 
     function handleSidebarClick(item) {
@@ -141,6 +143,12 @@ export default function AdminDashboard({ setPage }) {
         setOpenSidebarMenu(null);
         setActiveAdminPage(item.key);
     }
+
+    // async function fetchAdminNotifications() {
+    //     try {
+    //         const [adoption]
+    //     } 
+    // }
 
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
