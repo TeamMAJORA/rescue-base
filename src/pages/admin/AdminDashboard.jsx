@@ -1,4 +1,5 @@
 import {
+    useEffect,
     useState
 } from "react";
 
@@ -99,7 +100,7 @@ function AdminStatCard({ label, value, icon }) {
 
 
 function getAdminPageTitle(activeAdminPage) {
-    for ( const item of adminMenu) {
+    for (const item of adminMenu) {
         if (item.key === activeAdminPage) return item.label;
 
         if (item.children) {
@@ -107,7 +108,7 @@ function getAdminPageTitle(activeAdminPage) {
                 (child) => child.key === activeAdminPage
             );
 
-            if(child) return child.label;
+            if (child) return child.label;
         }
     }
     return "Dashboard"
@@ -144,11 +145,64 @@ export default function AdminDashboard({ setPage }) {
         setActiveAdminPage(item.key);
     }
 
-    // async function fetchAdminNotifications() {
-    //     try {
-    //         const [adoption]
-    //     } 
-    // }
+    async function fetchAdminNotifications() {
+        try {
+            const [adoptionResponse, fosterResponse] = await Promise.all([
+                fetch(`${API}/api/adoptions`),
+                fetch(`${API}/api/foster/assignments`),
+            ]);
+
+            const adoptionData = await adoptionResponse.json();
+            const fosterData = await fosterResponse.json();
+
+            const adoptionApplications = adoptionData.applications || [];
+            const fosterAssignments = fosterData.assignments || [];
+
+            const pendingApplication = adoptionApplications.filter(
+                (application) => application.status === "pending"
+            );
+
+            const activeFosters = fosterAssignments.filter(
+                (assignment) => assignment.status === "active"
+            );
+
+            const completedFosters = fosterAssignments.filter(
+                (assignment) => assignment.status === "completed"
+            );
+
+            const newNotifications = [];
+
+            if (pendingApplication.length > 0) {
+                newNotifications.push({
+                    id: "pending-applcations",
+                    title: "Pending Adoption Applications",
+                    message: `${pendingApplication.length} application(s) waiting for review.`,
+                    page : "adoption-applications",
+                });
+            }
+
+            if (activeFosters.length > 0) {
+                newNotifications.push({
+                    id : "active-fosters",
+                    title : "Active foster assignment",
+                    message : `${activeFosters.length} foster assignments(s) currently in progress.`,
+                    page : "foster-care",
+                });
+            }
+
+            if (completedFosters.length > 0) {
+                newNotifications.push({
+                    id : "completed-fosters",
+                    title : "Completed Foster Assignment",
+                    message : `${activeFosters.length} foster assignment(s) completed.`,
+                });
+            }
+
+            setNotification(newNotifications);
+        } catch (error){
+            console.error("Fetch admin notification error: ", error);
+        }
+    }
 
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
@@ -179,7 +233,7 @@ export default function AdminDashboard({ setPage }) {
             return <Recommendations />
         }
 
-        if (activeAdminPage === "foster-care")  {
+        if (activeAdminPage === "foster-care") {
             return <FosterCare />
         }
 
@@ -187,7 +241,7 @@ export default function AdminDashboard({ setPage }) {
             return <LostFound />
         }
 
-        if (activeAdminPage === "gis-mapping" ) {
+        if (activeAdminPage === "gis-mapping") {
             return <GISMapping />;
         }
 
@@ -204,6 +258,16 @@ export default function AdminDashboard({ setPage }) {
         }
 
     }
+
+    useEffect(() => {
+        fetchAdminNotifications();
+
+        const interval = setInterval(() => {
+            fetchAdminNotifications();
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, []); 
 
     return (
         <main className="admin-page">
@@ -278,8 +342,52 @@ export default function AdminDashboard({ setPage }) {
             <section className="admin-main">
                 <header className="admin-topbar">
                     <h1>{getAdminPageTitle(activeAdminPage)}</h1>
+
+                    <div className="admin-notification-wrap">
+                        <button
+                            className="admin-notification-btn"
+                            type="button"
+                            onClick={() => setNotifOpen(!notifOpen)}
+                        >
+                            BELL DAW NI
+
+                            {notifications.length > 0 && (
+                                <span>{notifications.length}</span>
+                            )}
+                        </button>
+
+                        {notifOpen && (
+                            <div className="admin-notification-dropdown">
+                                <div className="admin-notification-header">
+                                    <strong>Notifications</strong>
+                                    <small>{notifications.length} updates(s)</small>
+                                </div>
+
+                                {notifications.length === 0 ? (
+                                    <p className="admin-notifications-empty">
+                                        No new notifications.
+                                    </p>
+                                ) : (
+                                    notifications.map((notification) => (
+                                        <button
+                                            key={notification.id}
+                                            type="button"
+                                            className="admin-notification-item"
+                                            onClick={() => {
+                                                setActiveAdminPage(notification.page);
+                                                setNotifOpen(false);
+                                            }}
+                                        >
+                                            <strong>{notification.title}</strong>
+                                            <span>{notification.message}</span>
+                                        </button>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </header>
-                    {renderAdminContent()}
+                {renderAdminContent()}
             </section>
         </main>
     );
