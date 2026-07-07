@@ -18,6 +18,7 @@ import "../../styles/admin/GISMapping.css";
 import "../../styles/admin/Feedback.css";
 import "../../styles/admin/Analytics.css";
 import "../../styles/admin/Reports.css";
+import "../../styles/foster/UserManagement.css"
 
 // Assets
 import assets from "../../data/assets.json";
@@ -32,7 +33,7 @@ import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
 import FosterCare from "./modules/FosterCare";
 import GISMapping from "./modules/GISMapping";
-
+import UserManagement from "./modules/UserManagement";
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
@@ -68,7 +69,6 @@ const adminMenu = [
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
-    { key: "notifications", label: "Notifications" },
     { key: "reports", label: "Reports" },
 ]
 
@@ -113,6 +113,8 @@ function getAdminPageTitle(activeAdminPage) {
     }
     return "Dashboard"
 }
+
+const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminDashboard({ setPage }) {
 
@@ -207,6 +209,10 @@ export default function AdminDashboard({ setPage }) {
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
             return <AdminOverview />;
+        }
+
+        if (activeAdminPage === "users") {
+            return <UserManagement />;
         }
 
         if (activeAdminPage === "animals" || activeAdminPage === "animal-profiles") {
