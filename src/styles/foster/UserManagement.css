@@ -1,0 +1,139 @@
+.admin-user-page {
+    display: grid;
+    gap: 20px;
+}
+
+.admin-user-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-user-message {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.admin-user-edit-form {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.admin-user-edit-form h3 {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #5a1b00;
+}
+
+.admin-user-edit-form label {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #5a1b00;
+}
+
+.admin-user-edit-form input,
+.admin-user-edit-form select {
+    width: 100%;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: white;
+    color: #5a1b00;
+    outline: none;
+}
+
+.admin-user-edit-form input:focus,
+.admin-user-edit-form select:focus {
+    border-color: #fb8500;
+}
+
+.admin-user-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.admin-user-form-actions button,
+.admin-user-row button {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: #fb8500;
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-user-form-actions button:last-child {
+    background: #777;
+}
+
+.admin-user-list {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-user-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    border-radius: 18px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.admin-user-row h3 {
+    margin: 0 0 4px;
+    color: #5a1b00;
+}
+
+.admin-user-row p {
+    margin: 0 0 4px;
+    color: rgba(90, 27, 0, 0.75);
+    font-size: 14px;
+}
+
+.admin-user-row small {
+    color: rgba(90, 27, 0, 0.55);
+    font-size: 11px;
+}
+
+.admin-user-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-user-badges span {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+@media (max-width: 900px) {
+    .admin-user-stats,
+    .admin-user-edit-form,
+    .admin-user-row {
+        grid-template-columns: 1fr;
+    }
+}
