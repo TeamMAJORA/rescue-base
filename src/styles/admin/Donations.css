@@ -1,0 +1,293 @@
+.admin-donation-page {
+    display: grid;
+    gap: 22px;
+}
+
+.admin-donation-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-donation-stats .admin-stat-card {
+    min-height: 86px;
+    padding: 20px 22px;
+    border-radius: 14px;
+    background: #fff7cb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-donation-stats .admin-stat-card span {
+    color: #5a1b00;
+    font-size: 15px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-donation-stats .admin-stat-card strong {
+    color: #3a1200;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.admin-donation-panel {
+    display: grid;
+    gap: 20px;
+    padding: 26px 20px;
+}
+
+.admin-donation-message {
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 800;
+    border: 1px solid rgba(251, 133, 0, 0.22);
+}
+
+.admin-donation-form {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    padding: 18px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.admin-donation-form-title {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.admin-donation-form-title h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-size: 18px;
+}
+
+.admin-donation-form-title button {
+    border: none;
+    border-radius: 12px;
+    padding: 9px 13px;
+    background: #e9dcc4;
+    color: #5a1b00;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-donation-form label {
+    display: grid;
+    gap: 7px;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-donation-form input,
+.admin-donation-form select,
+.admin-donation-form textarea {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 14px;
+    padding: 10px 12px;
+    background: white;
+    color: #5a1b00;
+    font-size: 14px;
+    outline: none;
+}
+
+.admin-donation-form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.admin-donation-form input:focus,
+.admin-donation-form select:focus,
+.admin-donation-form textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.admin-donation-notes {
+    grid-column: span 2;
+}
+
+.admin-donation-form > button[type="submit"] {
+    align-self: end;
+    min-height: 42px;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 18px;
+    background: #fb8500;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.admin-donation-form > button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.admin-donation-list-section {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-donation-list-section > h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-size: 18px;
+}
+
+.admin-donation-list {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-donation-card {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1.2fr auto;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.admin-donation-card:hover {
+    border-color: rgba(251, 133, 0, 0.28);
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
+}
+
+.admin-donation-main h3 {
+    margin: 0 0 5px;
+    color: #5a1b00;
+    font-size: 17px;
+}
+
+.admin-donation-main p,
+.admin-donation-extra p {
+    margin: 0 0 5px;
+    color: rgba(90, 27, 0, 0.72);
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.admin-donation-main small {
+    color: rgba(90, 27, 0, 0.48);
+    font-size: 11px;
+    word-break: break-word;
+}
+
+.admin-donation-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-donation-details span {
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: capitalize;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.admin-donation-extra strong {
+    color: #5a1b00;
+}
+
+.admin-donation-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-donation-actions button {
+    border: none;
+    border-radius: 12px;
+    padding: 9px 12px;
+    background: #fb8500;
+    color: white;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-donation-actions button:nth-child(3) {
+    background: #777;
+}
+
+.admin-donation-actions .delete {
+    background: #d62828;
+}
+
+.admin-donation-actions button:hover,
+.admin-donation-form > button[type="submit"]:hover,
+.admin-donation-form-title button:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 1200px) {
+    .admin-donation-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-donation-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-donation-card {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-donation-actions {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 780px) {
+    .admin-donation-stats,
+    .admin-donation-form,
+    .admin-donation-card {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-donation-notes {
+        grid-column: auto;
+    }
+
+    .admin-donation-form > button[type="submit"] {
+        width: 100%;
+    }
+
+    .admin-donation-form-title {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-donation-actions {
+        flex-direction: column;
+    }
+
+    .admin-donation-actions button {
+        width: 100%;
+    }
+}
