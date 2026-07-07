@@ -19,6 +19,7 @@ import "../../styles/admin/Feedback.css";
 import "../../styles/admin/Analytics.css";
 import "../../styles/admin/Reports.css";
 import "../../styles/foster/UserManagement.css"
+import "../../styles/admin/Donations.css";
 
 // Assets
 import assets from "../../data/assets.json";
@@ -38,6 +39,7 @@ import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
+import Donations from "./modules/Donations";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -261,6 +263,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "reports") {
             return <Reports />;
+        }
+
+        if (activeAdminPage === "donations") {
+            return <Donations />;
         }
 
     }

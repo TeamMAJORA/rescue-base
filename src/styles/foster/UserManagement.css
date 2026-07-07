@@ -1,87 +1,103 @@
 .admin-user-page {
     display: grid;
-    gap: 20px;
+    gap: 22px;
 }
 
+/* Stats */
 .admin-user-stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
 }
 
+/* Main panel spacing */
+.admin-user-panel {
+    display: grid;
+    gap: 18px;
+}
+
 .admin-user-message {
-    margin: 12px 0;
-    padding: 12px 14px;
+    margin: 0;
+    padding: 12px 16px;
     border-radius: 14px;
     background: #fff7cb;
     color: #5a1b00;
     font-size: 14px;
     font-weight: 700;
+    border: 1px solid rgba(251, 133, 0, 0.22);
 }
 
+/* Edit form */
 .admin-user-edit-form {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    margin-bottom: 18px;
-    padding: 16px;
-    border-radius: 18px;
+    padding: 18px;
+    border-radius: 20px;
     background: #fffaf0;
-    border: 1px solid rgba(90, 27, 0, 0.08);
+    border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
 .admin-user-edit-form h3 {
     grid-column: 1 / -1;
-    margin: 0;
+    margin: 0 0 4px;
     color: #5a1b00;
+    font-size: 18px;
 }
 
 .admin-user-edit-form label {
     display: grid;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 700;
+    gap: 7px;
     color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
 }
 
 .admin-user-edit-form input,
 .admin-user-edit-form select {
     width: 100%;
-    border: 1px solid rgba(90, 27, 0, 0.18);
-    border-radius: 12px;
+    min-height: 42px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 14px;
     padding: 10px 12px;
     background: white;
     color: #5a1b00;
+    font-size: 14px;
     outline: none;
 }
 
 .admin-user-edit-form input:focus,
 .admin-user-edit-form select:focus {
     border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
 .admin-user-form-actions {
     grid-column: 1 / -1;
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
-.admin-user-form-actions button,
-.admin-user-row button {
+.admin-user-form-actions button {
     border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    background: #fb8500;
-    color: white;
+    border-radius: 14px;
+    padding: 11px 16px;
     font-weight: 800;
     cursor: pointer;
 }
 
-.admin-user-form-actions button:last-child {
-    background: #777;
+.admin-user-form-actions button[type="submit"] {
+    background: #fb8500;
+    color: white;
 }
 
+.admin-user-form-actions button[type="button"] {
+    background: #e9dcc4;
+    color: #5a1b00;
+}
+
+/* User list */
 .admin-user-list {
     display: grid;
     gap: 12px;
@@ -89,51 +105,151 @@
 
 .admin-user-row {
     display: grid;
-    grid-template-columns: 1.4fr 1fr auto;
-    gap: 16px;
+    grid-template-columns: minmax(220px, 1.4fr) minmax(230px, 1fr) auto;
     align-items: center;
-    padding: 16px;
-    border-radius: 18px;
+    gap: 18px;
+    padding: 16px 18px;
+    border-radius: 20px;
     background: #fffaf0;
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
+.admin-user-row:hover {
+    border-color: rgba(251, 133, 0, 0.28);
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
+}
+
 .admin-user-row h3 {
-    margin: 0 0 4px;
+    margin: 0 0 5px;
     color: #5a1b00;
+    font-size: 17px;
 }
 
 .admin-user-row p {
-    margin: 0 0 4px;
-    color: rgba(90, 27, 0, 0.75);
+    margin: 0 0 5px;
+    color: rgba(90, 27, 0, 0.72);
     font-size: 14px;
+    word-break: break-word;
 }
 
 .admin-user-row small {
-    color: rgba(90, 27, 0, 0.55);
+    color: rgba(90, 27, 0, 0.48);
     font-size: 11px;
+    word-break: break-word;
 }
 
+/* Badges */
 .admin-user-badges {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    justify-content: flex-start;
 }
 
 .admin-user-badges span {
-    padding: 6px 10px;
+    padding: 7px 11px;
     border-radius: 999px;
     background: #fff7cb;
     color: #5a1b00;
     font-size: 12px;
     font-weight: 800;
     text-transform: capitalize;
+    border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
-@media (max-width: 900px) {
-    .admin-user-stats,
-    .admin-user-edit-form,
+/* Row button */
+.admin-user-row button {
+    border: none;
+    border-radius: 14px;
+    padding: 10px 16px;
+    background: #fb8500;
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-user-row button:hover,
+.admin-user-form-actions button:hover {
+    opacity: 0.9;
+}
+
+/* Fix User Management stat cards */
+.admin-user-stats .admin-stat-card {
+    min-height: 86px;
+    padding: 20px 22px;
+    border-radius: 14px;
+    background: #fff7cb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-user-stats .admin-stat-card span {
+    max-width: none;
+    width: auto;
+    line-height: 1.2;
+    font-size: 15px;
+    font-weight: 800;
+    color: #5a1b00;
+    white-space: nowrap;
+}
+
+.admin-user-stats .admin-stat-card strong {
+    font-size: 22px;
+    font-weight: 900;
+    color: #3a1200;
+}
+
+/* Fix User row spacing */
+.admin-user-row {
+    grid-template-columns: 1fr auto auto;
+    padding: 18px 20px;
+}
+
+.admin-user-badges {
+    justify-content: flex-end;
+    min-width: 300px;
+}
+
+.admin-user-row button {
+    min-width: 74px;
+}
+
+/* Make rows cleaner */
+.admin-user-list {
+    margin-top: 10px;
+}
+
+.admin-user-panel {
+    padding: 26px 20px;
+}
+
+/* Mobile */
+@media (max-width: 1000px) {
     .admin-user-row {
         grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .admin-user-row button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 780px) {
+
+    .admin-user-stats,
+    .admin-user-edit-form {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-user-form-actions {
+        justify-content: stretch;
+        flex-direction: column;
+    }
+
+    .admin-user-form-actions button {
+        width: 100%;
     }
 }
