@@ -13,6 +13,21 @@ const emptyFosterForm = {
     careInstructions: "",
 }
 
+const emptyApplicationForm = {
+    applicantName: "",
+    applicantEmail: "",
+    phoneNumber: "",
+    address: "",
+    housingType: "House",
+    hasPets: false,
+    hasChildren: false,
+    availableSpace: "",
+    availableTime: "",
+    fosterExperience: "",
+    preferredAnimalType: "Both",
+    capacity: 1,
+}
+
 export default function FosterCare() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -21,6 +36,8 @@ export default function FosterCare() {
     const [submitting, setSubmitting] = useState(false);
 
     const [fosterForm, setFosterForm] = useState(emptyFosterForm);
+    const [applications, setApplications] = useState([]);
+    const [applicationForm, setApplicationForm] = useState(emptyApplicationForm);
 
     async function fetchAssignments() {
         try {
@@ -50,57 +67,101 @@ export default function FosterCare() {
         }
     }
 
-    async function handleSubmitFosterAssignment(e) {
+    async function fetchFosterApplications() {
+        try {
+            const response = await fetch(`${API}/api/foster/applications`);
+            const data = await response.json();
+
+            console.log("Foster applications:", data);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to fetch foster applications.");
+                return;
+            }
+
+            setApplications(data.applications || []);
+        } catch (error) {
+            console.error("Fetch foster applications error:", error);
+            setMessage("Server error while fetching foster applications.");
+        }
+    }
+
+    async function handleSubmitFosterApplication(e) {
         e.preventDefault();
 
         try {
-            setSubmitting(true);
+            setMessage("");
+
+            const response = await fetch(`${API}/api/foster/applications`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...applicationForm,
+                    capacity: Number(applicationForm.capacity || 1),
+                }),
+            });
+
+            const data = await response.json();
+
+            console.log("Create foster application:", data);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to submit foster application.");
+                return;
+            }
+
+            setMessage("Foster application submitted.");
+            setApplicationForm(emptyApplicationForm);
+            fetchFosterApplications();
+        } catch (error) {
+            console.error("Submit foster application error:", error);
+            setMessage("Server error while submitting foster application.");
+        }
+    }
+
+    async function handleReviewFosterApplication(applicationId, status) {
+        try {
             setMessage("");
 
             const savedUser = JSON.parse(
                 localStorage.getItem("rescuebase_user") || "{}"
             );
 
-            const endpoint = editingId
-                ? `${API}/api/foster/assignments/${editingId}`
-                : `${API}/api/foster/assignments`;
-
-            const method = editingId ? "PATCH" : "POST";
-
-            const response = await fetch(endpoint, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    ...fosterForm,
-                    adminName: savedUser.name || savedUser.username || "Admin User",
-                    adminEmail: savedUser.email || "admin",
-                }),
-            });
+            const response = await fetch(
+                `${API}/api/foster/applications/${applicationId}/status`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        status,
+                        adminName: savedUser.name || savedUser.username || "Admin User",
+                        adminEmail: savedUser.email || "admin",
+                        reviewNotes:
+                            status === "approved"
+                                ? "Approved for foster care."
+                                : "Rejected foster application.",
+                    }),
+                }
+            );
 
             const data = await response.json();
-            console.log("Save foster assignment:", data);
+
+            console.log("Review foster application:", data);
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to save foster assignment.");
+                setMessage(data.message || "Failed to review foster application.");
                 return;
             }
 
-            setMessage(
-                editingId
-                    ? "Foster assignment updated."
-                    : "Foster assignment created."
-            );
-
-            setFosterForm(emptyFosterForm);
-            setEditingId(null);
-            fetchAssignments();
+            setMessage(`Foster application ${status}.`);
+            fetchFosterApplications();
         } catch (error) {
-            console.error("Save foster assignment error:", error);
-            setMessage("Server error. Please try again.");
-        } finally {
-            setSubmitting(false);
+            console.error("Review foster application error:", error);
+            setMessage("Server error while reviewing foster application.");
         }
     }
 
@@ -222,107 +283,251 @@ export default function FosterCare() {
 
     useEffect(() => {
         fetchAssignments();
+        fetchFosterApplications();
     }, []);
 
     return (
         <section className="admin-foster-page">
-            <section className="admin-panel admin-foster-form-panel">
+            <section className="admin-panel admin-foster-application-panel">
                 <div className="admin-panel-heading">
-                    <h2>{editingId ? "Update Foster Assignment" : "Create Foster Assignment"}</h2>
+                    <div>
+                        <h2>Foster Applications</h2>
+                        <p>Register and approve foster caregivers before assigning animals.</p>
+                    </div>
 
-                    {editingId && (
-                        <button type="button" onClick={handleCancelEdit}>
-                            Cancel Edit
-                        </button>
-                    )}
-
+                    <button type="button" onClick={fetchFosterApplications}>
+                        Refresh Applications
+                    </button>
                 </div>
 
-                <form className="admin-foster-form" onSubmit={handleSubmitFosterAssignment}>
+                <form className="admin-foster-application-form" onSubmit={handleSubmitFosterApplication}>
                     <label>
-                        Pet Name
+                        Applicant Name
                         <input
-                            type="text"
-                            value={fosterForm.petName}
+                            value={applicationForm.applicantName}
                             onChange={(e) =>
-                                setFosterForm({ ...fosterForm, petName: e.target.value })
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    applicantName: e.target.value,
+                                })
                             }
                             required
                         />
                     </label>
 
                     <label>
-                        Pet Breed
-                        <input
-                            type="text"
-                            value={fosterForm.petBreed}
-                            onChange={(e) =>
-                                setFosterForm({ ...fosterForm, petBreed: e.target.value })
-                            }
-                        />
-                    </label>
-
-                    <label>
-                        Pet Image URL
-                        <input
-                            type="text"
-                            value={fosterForm.petImage}
-                            onChange={(e) =>
-                                setFosterForm({ ...fosterForm, petImage: e.target.value })
-                            }
-                            placeholder="Optional"
-                        />
-                    </label>
-
-                    <label>
-                        Foster Name
-                        <input
-                            type="text"
-                            value={fosterForm.fosterName}
-                            onChange={(e) =>
-                                setFosterForm({ ...fosterForm, fosterName: e.target.value })
-                            }
-                            required
-                        />
-                    </label>
-
-                    <label>
-                        Foster Gmail
+                        Applicant Email
                         <input
                             type="email"
-                            value={fosterForm.fosterEmail}
+                            value={applicationForm.applicantEmail}
                             onChange={(e) =>
-                                setFosterForm({ ...fosterForm, fosterEmail: e.target.value })
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    applicantEmail: e.target.value,
+                                })
                             }
                             required
+                        />
+                    </label>
+
+                    <label>
+                        Phone Number
+                        <input
+                            value={applicationForm.phoneNumber}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    phoneNumber: e.target.value,
+                                })
+                            }
+                        />
+                    </label>
+
+                    <label>
+                        Address
+                        <input
+                            value={applicationForm.address}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    address: e.target.value,
+                                })
+                            }
+                        />
+                    </label>
+
+                    <label>
+                        Housing Type
+                        <select
+                            value={applicationForm.housingType}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    housingType: e.target.value,
+                                })
+                            }
+                        >
+                            <option value="House">House</option>
+                            <option value="Apartment">Apartment</option>
+                            <option value="Condo">Condo</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Preferred Animal
+                        <select
+                            value={applicationForm.preferredAnimalType}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    preferredAnimalType: e.target.value,
+                                })
+                            }
+                        >
+                            <option value="Dog">Dog</option>
+                            <option value="Cat">Cat</option>
+                            <option value="Both">Both</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Capacity
+                        <input
+                            type="number"
+                            min="1"
+                            value={applicationForm.capacity}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    capacity: e.target.value,
+                                })
+                            }
+                        />
+                    </label>
+
+                    <label>
+                        Available Space
+                        <input
+                            value={applicationForm.availableSpace}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    availableSpace: e.target.value,
+                                })
+                            }
+                            placeholder="Example: spare room, yard, crate space"
+                        />
+                    </label>
+
+                    <label>
+                        Available Time
+                        <input
+                            value={applicationForm.availableTime}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    availableTime: e.target.value,
+                                })
+                            }
+                            placeholder="Example: evenings, weekends"
                         />
                     </label>
 
                     <label className="admin-foster-care-field">
-                        Care Instructions
+                        Foster Experience
                         <textarea
-                            value={fosterForm.careInstructions}
+                            value={applicationForm.fosterExperience}
                             onChange={(e) =>
-                                setFosterForm({
-                                    ...fosterForm,
-                                    careInstructions: e.target.value,
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    fosterExperience: e.target.value,
                                 })
                             }
-                            placeholder="Example: Feed twice a day and submit weekly updates."
-                            required
+                            placeholder="Describe foster experience or beginner status."
                         />
                     </label>
 
-                    {message && <p className="admin-foster-message">{message}</p>}
+                    <label className="admin-foster-check">
+                        <input
+                            type="checkbox"
+                            checked={applicationForm.hasPets}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    hasPets: e.target.checked,
+                                })
+                            }
+                        />
+                        Has pets at home
+                    </label>
 
-                    <button type="submit" disabled={submitting}>
-                        {submitting
-                            ? "Saving..."
-                            : editingId
-                                ? "Update Assignment"
-                                : "Assign Foster"}
+                    <label className="admin-foster-check">
+                        <input
+                            type="checkbox"
+                            checked={applicationForm.hasChildren}
+                            onChange={(e) =>
+                                setApplicationForm({
+                                    ...applicationForm,
+                                    hasChildren: e.target.checked,
+                                })
+                            }
+                        />
+                        Has children at home
+                    </label>
+
+                    <button type="submit">
+                        Submit Foster Application
                     </button>
                 </form>
+
+                <div className="admin-foster-application-list">
+                    {applications.length === 0 ? (
+                        <p className="admin-empty">No foster applications found.</p>
+                    ) : (
+                        applications.map((application) => (
+                            <article className="admin-foster-application-card" key={application._id}>
+                                <div>
+                                    <h3>{application.applicantName}</h3>
+                                    <p>{application.applicantEmail}</p>
+                                    <small>
+                                        Capacity: {application.capacity} • Preferred: {application.preferredAnimalType}
+                                    </small>
+                                </div>
+
+                                <strong className={`admin-foster-status ${application.status}`}>
+                                    {application.status}
+                                </strong>
+
+                                <div className="admin-foster-application-actions">
+                                    {application.status !== "approved" && (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleReviewFosterApplication(application._id, "approved")
+                                            }
+                                        >
+                                            Approve
+                                        </button>
+                                    )}
+
+                                    {application.status !== "rejected" && (
+                                        <button
+                                            type="button"
+                                            className="reject"
+                                            onClick={() =>
+                                                handleReviewFosterApplication(application._id, "rejected")
+                                            }
+                                        >
+                                            Reject
+                                        </button>
+                                    )}
+                                </div>
+                            </article>
+                        ))
+                    )}
+                </div>
             </section>
 
             <section className="admin-panel admin-foster-list-panel">

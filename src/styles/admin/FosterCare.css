@@ -1,165 +1,273 @@
 .admin-foster-page {
     display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 18px;
-    align-items: start;
+    gap: 22px;
 }
 
+.admin-foster-application-panel,
 .admin-foster-form-panel,
 .admin-foster-list-panel {
-    min-height: 430px;
+    display: grid;
+    gap: 18px;
 }
 
+.admin-foster-application-form,
 .admin-foster-form {
     display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
+    padding: 18px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
+.admin-foster-application-form label,
 .admin-foster-form label {
     display: grid;
-    gap: 6px;
-    color: var(--brown);
+    gap: 7px;
+    color: #5a1b00;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
+.admin-foster-application-form input,
+.admin-foster-application-form select,
+.admin-foster-application-form textarea,
 .admin-foster-form input,
 .admin-foster-form textarea {
     width: 100%;
-    border: 1px solid rgba(90, 27, 0, 0.28);
-    border-radius: 12px;
-    background: var(--white-yellow);
-    color: var(--brown);
-    padding: 11px 13px;
-    font-family: "Inter", sans-serif;
-    font-size: 13px;
+    min-height: 42px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 14px;
+    padding: 10px 12px;
+    background: white;
+    color: #5a1b00;
+    font-size: 14px;
     outline: none;
 }
 
-.admin-foster-form input {
-    height: 42px;
-}
-
+.admin-foster-application-form textarea,
 .admin-foster-form textarea {
-    min-height: 120px;
+    min-height: 90px;
     resize: vertical;
 }
 
+.admin-foster-application-form input:focus,
+.admin-foster-application-form select:focus,
+.admin-foster-application-form textarea:focus,
 .admin-foster-form input:focus,
 .admin-foster-form textarea:focus {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
-.admin-foster-form button {
-    height: 44px;
+.admin-foster-care-field {
+    grid-column: span 2;
+}
+
+.admin-foster-check {
+    display: flex !important;
+    align-items: center;
+    gap: 10px !important;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: white;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.admin-foster-check input {
+    width: 16px;
+    min-height: auto;
+}
+
+.admin-foster-application-form > button,
+.admin-foster-form > button {
+    align-self: end;
+    min-height: 42px;
     border: none;
-    border-radius: 999px;
-    background: var(--brown);
-    color: var(--yellow);
-    font-family: "Itim", cursive;
-    font-size: 15px;
+    border-radius: 14px;
+    padding: 12px 18px;
+    background: #fb8500;
+    color: white;
+    font-weight: 900;
     cursor: pointer;
+}
+
+.admin-foster-application-form > button:hover,
+.admin-foster-form > button:hover {
+    opacity: 0.9;
+}
+
+.admin-foster-form > button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .admin-foster-message {
+    grid-column: 1 / -1;
     margin: 0;
-    color: var(--red-dark);
-    font-size: 13px;
-    font-weight: 700;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 800;
+    border: 1px solid rgba(251, 133, 0, 0.22);
 }
 
+.admin-foster-application-list,
 .admin-foster-list {
     display: grid;
     gap: 12px;
-    max-height: 540px;
-    overflow-y: auto;
-    padding-right: 6px;
 }
 
+.admin-foster-application-card,
 .admin-foster-row {
-    background: var(--white-yellow);
-    border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 14px;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.admin-foster-row h3 {
-    font-family: "Itim", cursive;
-    color: var(--brown);
-    font-size: 22px;
-}
-
-.admin-foster-row p {
-    margin-top: 4px;
-    color: #6f4a35;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.admin-foster-row small {
-    display: block;
-    margin-top: 5px;
-    color: var(--brown);
-    font-size: 12px;
-    opacity: 0.75;
-}
-
-.admin-foster-row div>span {
-    display: block;
-    margin-top: 8px;
-    color: var(--red);
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-.admin-foster-actions {
-    min-width: 110px;
     display: grid;
-    align-content: center;
-    justify-items: end;
-    gap: 10px;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
+.admin-foster-application-card:hover,
+.admin-foster-row:hover {
+    border-color: rgba(251, 133, 0, 0.28);
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
+}
+
+.admin-foster-application-card h3,
+.admin-foster-row h3 {
+    margin: 0 0 5px;
+    color: #5a1b00;
+    font-size: 17px;
+}
+
+.admin-foster-application-card p,
+.admin-foster-row p {
+    margin: 0 0 5px;
+    color: rgba(90, 27, 0, 0.72);
+    font-size: 14px;
+}
+
+.admin-foster-application-card small,
+.admin-foster-row small,
+.admin-foster-row span {
+    display: block;
+    color: rgba(90, 27, 0, 0.55);
+    font-size: 12px;
+    word-break: break-word;
+}
+
+.admin-foster-status,
 .admin-foster-actions strong {
-    border-radius: 999px;
     padding: 7px 12px;
-    background: rgba(252, 191, 73, 0.35);
-    color: var(--brown);
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
     font-size: 12px;
+    font-weight: 900;
     text-transform: capitalize;
+    border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
-.admin-foster-actions button {
-    height: 34px;
-    padding: 0 14px;
+.admin-foster-status.approved {
+    background: #e8f7df;
+    color: #2f6b1f;
+}
+
+.admin-foster-status.rejected {
+    background: #ffe3e3;
+    color: #aa2020;
+}
+
+.admin-foster-status.pending {
+    background: #fff7cb;
+    color: #5a1b00;
+}
+
+.admin-foster-application-actions,
+.admin-foster-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.admin-foster-application-actions button,
+.admin-foster-actions button,
+.admin-panel-heading button {
     border: none;
-    border-radius: 999px;
-    background: #20b263;
+    border-radius: 12px;
+    padding: 9px 13px;
+    background: #fb8500;
     color: white;
-    font-family: "Itim", cursive;
     font-size: 12px;
+    font-weight: 900;
     cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-foster-application-actions .reject {
+    background: #777;
 }
 
 .admin-foster-actions .delete {
     background: #d62828;
-    color: white;
 }
 
-@media (max-width: 950px) {
-    .admin-foster-page {
+.admin-foster-application-actions button:hover,
+.admin-foster-actions button:hover,
+.admin-panel-heading button:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 1000px) {
+    .admin-foster-application-form,
+    .admin-foster-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-foster-application-card,
+    .admin-foster-row {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .admin-foster-application-actions,
+    .admin-foster-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 720px) {
+    .admin-foster-application-form,
+    .admin-foster-form {
         grid-template-columns: 1fr;
     }
 
-    .admin-foster-row {
-        flex-direction: column;
+    .admin-foster-care-field {
+        grid-column: auto;
     }
 
+    .admin-foster-application-form > button,
+    .admin-foster-form > button {
+        width: 100%;
+    }
+
+    .admin-foster-application-actions,
     .admin-foster-actions {
-        justify-items: start;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-foster-application-actions button,
+    .admin-foster-actions button {
+        width: 100%;
     }
 }
