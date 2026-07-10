@@ -1,109 +1,298 @@
 .admin-animal-page {
     display: grid;
-    gap: 20px;
+    gap: 22px;
 }
 
 .admin-animal-stats {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
 }
 
-.admin-animal-grid {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 18px;
-    align-items: start;
+.admin-animal-stats .admin-stat-card {
+    min-height: 86px;
+    padding: 20px 22px;
+    border-radius: 14px;
+    background: #fff7cb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-animal-stats .admin-stat-card span {
+    color: #5a1b00;
+    font-size: 15px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-animal-stats .admin-stat-card strong {
+    color: #3a1200;
+    font-size: 22px;
+    font-weight: 900;
 }
 
 .admin-animal-form-panel,
 .admin-animal-list-panel {
-    min-height: 420px;
+    display: grid;
+    gap: 20px;
+    padding: 26px 20px;
 }
 
 .admin-animal-form {
     display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
+    padding: 18px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
 .admin-animal-form label {
     display: grid;
-    gap: 6px;
-    color: var(--brown);
+    gap: 7px;
+    color: #5a1b00;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .admin-animal-form input,
-.admin-animal-form select {
-    height: 42px;
-    border: 1px solid rgba(90, 27, 0, 0.28);
-    border-radius: 12px;
-    background: var(--white-yellow);
-    color: var(--brown);
-    padding: 0 13px;
-    font-family: "Inter", sans-serif;
+.admin-animal-form select,
+.admin-animal-form textarea {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 14px;
+    padding: 10px 12px;
+    background: white;
+    color: #5a1b00;
+    font-size: 14px;
     outline: none;
 }
 
+.admin-animal-form textarea {
+    min-height: 95px;
+    resize: vertical;
+}
+
 .admin-animal-form input:focus,
-.admin-animal-form select:focus {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+.admin-animal-form select:focus,
+.admin-animal-form textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
-.admin-stat-card img {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
-    flex-shrink: 0;
+.admin-animal-wide {
+    grid-column: span 2;
 }
 
-.admin-animal-form button {
-    height: 44px;
+.admin-animal-message {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 800;
+    border: 1px solid rgba(251, 133, 0, 0.22);
+}
+
+.admin-animal-form > button[type="submit"] {
+    grid-column: 1 / -1;
+    justify-self: flex-end;
+    min-height: 42px;
     border: none;
-    border-radius: 999px;
-    background: var(--brown);
-    color: var(--yellow);
-    font-family: "Itim", cursive;
-    font-size: 15px;
+    border-radius: 14px;
+    padding: 12px 18px;
+    background: #fb8500;
+    color: white;
+    font-weight: 900;
     cursor: pointer;
+}
+
+.admin-animal-form > button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.admin-animal-form > button[type="submit"]:hover {
+    opacity: 0.9;
 }
 
 .admin-animal-list {
     display: grid;
-    gap: 12px;
-    max-height: 460px;
-    overflow-y: auto;
-    padding-right: 6px;
-}
-
-.admin-animal-row {
-    background: var(--white-yellow);
-    border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 14px;
-    padding: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     gap: 14px;
 }
 
-.admin-animal-row h3 {
-    font-family: "Itim", cursive;
-    color: var(--brown);
-    font-size: 22px;
+.admin-animal-card {
+    display: grid;
+    grid-template-columns: 120px 1.2fr 0.8fr auto;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
-.admin-animal-row p {
-    margin-top: 3px;
-    color: #6f4a35;
-    font-size: 13px;
+.admin-animal-card:hover {
+    border-color: rgba(251, 133, 0, 0.28);
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
 }
 
-@media (max-width: 950px) {
-    .admin-animal-grid,
+.admin-animal-image {
+    width: 120px;
+    height: 100px;
+    border-radius: 18px;
+    background: #fff7cb;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.admin-animal-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-animal-image span {
+    font-size: 42px;
+}
+
+.admin-animal-info h3 {
+    margin: 0 0 5px;
+    color: #5a1b00;
+    font-size: 18px;
+}
+
+.admin-animal-info p {
+    margin: 0 0 5px;
+    color: rgba(90, 27, 0, 0.72);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.admin-animal-info small {
+    display: block;
+    margin-bottom: 10px;
+    color: rgba(90, 27, 0, 0.55);
+    font-size: 12px;
+    word-break: break-word;
+}
+
+.admin-animal-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-animal-badges span {
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: capitalize;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.admin-animal-details {
+    display: grid;
+    gap: 6px;
+}
+
+.admin-animal-details p {
+    margin: 0;
+    color: rgba(90, 27, 0, 0.72);
+    font-size: 14px;
+}
+
+.admin-animal-details b {
+    color: #5a1b00;
+}
+
+.admin-animal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-animal-actions button,
+.admin-panel-heading button {
+    border: none;
+    border-radius: 12px;
+    padding: 9px 13px;
+    background: #fb8500;
+    color: white;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-animal-actions .delete {
+    background: #d62828;
+}
+
+.admin-animal-actions button:hover,
+.admin-panel-heading button:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 1200px) {
     .admin-animal-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-animal-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-animal-card {
+        grid-template-columns: 120px 1fr;
+    }
+
+    .admin-animal-details,
+    .admin-animal-actions {
+        grid-column: 1 / -1;
+    }
+
+    .admin-animal-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 780px) {
+    .admin-animal-stats,
+    .admin-animal-form,
+    .admin-animal-card {
         grid-template-columns: 1fr;
+    }
+
+    .admin-animal-wide {
+        grid-column: auto;
+    }
+
+    .admin-animal-image {
+        width: 100%;
+        height: 180px;
+    }
+
+    .admin-animal-form > button[type="submit"] {
+        width: 100%;
+    }
+
+    .admin-animal-actions {
+        flex-direction: column;
+    }
+
+    .admin-animal-actions button {
+        width: 100%;
     }
 }
