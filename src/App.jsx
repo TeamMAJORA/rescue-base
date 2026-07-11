@@ -261,14 +261,14 @@ function CTAFooter() {
                 <p>It takes five minutes to take the quiz. It takes a lifetime to love them.</p>
 
                 <div className="cta-actions">
-                    <button className="match-btn cta-match-btn" type="button" onClick={() => setPage("signup")}>
+                    <button className="match-btn cta-match-btn" type="button">
                         Find my Match
                         <img src={assets.icons.heart} alt="" />
                     </button>
 
-                    <button className="outline-btn" type="button" onClick={() => setPage("signup")}>
+                    <button className="outline-btn" type="button" >
                         Support a Shelter
-                    </button>
+                    </button>   
                 </div>
             </div>
 
