@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./styles/App.css";
 import './animations/AppAnimation.css'
 import assets from "./data/assets.json";
@@ -8,8 +8,10 @@ import AdoptionPage from "./pages/adopter/AdoptionApplication";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import FosterDashboard from "./pages/foster/FosterDashboard";
 
-// Array = OBJECT 
-const pets = [
+const API = import.meta.env.VITE_BACKEND_URL;
+
+// Fallback sample pets shown while real data is loading (or if the API has nothing yet).
+const samplePets = [
     {
         name: "Max",
         breed: "Shih Tzu",
@@ -31,20 +33,34 @@ const pets = [
         tag: "Kid Friendly",
         image: assets.images.authPets,
     },
-];
-
-const stats = [
-    { value: "2,847", label: "Pets Adopted" },
-    { value: "94%", label: "Match Rate" },
-    { value: "12", label: "Partner Shelters" },
-    { value: "4.9", label: "Adopter Rating" },
+    {
+        name: "Biscuit",
+        breed: "Labrador Mix",
+        age: "2 years",
+        tag: "Good with Dogs",
+        image: assets.images.photo1,
+    },
+    {
+        name: "Mocha",
+        breed: "Puspin",
+        age: "8 months",
+        tag: "Playful",
+        image: assets.images.photo2,
+    },
+    {
+        name: "Snowy",
+        breed: "Aspin",
+        age: "3 years",
+        tag: "Calm & Gentle",
+        image: assets.images.photo3,
+    },
 ];
 
 const adoptionSteps = [
     {
         icon: assets.icons.pawSearch,
         title: "Take the Match Quiz",
-        text: "Answer a few fun questions about your lifestyle. Our AI finds pets that fit you.",
+        text: "Hey!, Answer a few fun questions about your lifestyle. Our AI finds pets that fit you.",
     },
     {
         icon: assets.icons.redHeart,
@@ -54,20 +70,20 @@ const adoptionSteps = [
     {
         icon: assets.icons.home,
         title: "Apply & Bring Them Home",
-        text: "Submit your application in minutes. Our staff guides you through every step of the journey.",
+        text: "Submit yor application in minutes. Our staff guides you through every step of your journey.",
     },
 ];
 
-const features = [
+const features = [//ewam ko dito pero pacheck nga baka may syntax error tuh
     {
         icon: assets.icons.pawSearch,
         title: "AI-Powered Matching",
-        text: "Our quiz algorithm weighs lifestyle, experience, and home setup to surface your most compatible pets first.",
+        text: "Our quiz algorithm analyzes your lifestyle, experience, and home setup to find your most compatible pets first-.",
     },
     {
         icon: assets.icons.passport,
         title: "Digital Pet Passport",
-        text: "Every animal has a complete medical history, vaccination records, and personality notes — all in one place.",
+        text: "Every animal has a complete medical history, vaccination records, and personality notes all in one place.",
     },
     {
         icon: assets.icons.home,
@@ -77,11 +93,11 @@ const features = [
     {
         icon: assets.icons.redHeart,
         title: "Real-Time Analytics",
-        text: "Shelter managers get live dashboards, intake trends, adoption rates, and donation impact at a glance.",
+        text: "Shelter managers get live dashboards, intake trends, adoption rates, and donation stats that shows the impact of peaoples help.",
     },
 ];
 
-function Header({ onLogin }) {
+function Header({ onLogin, onSignup }) {
     return (
         <header className="header">
             <a className="brand" href="/">
@@ -102,7 +118,7 @@ function Header({ onLogin }) {
                     Log in
                 </button>
 
-                <button className="start-btn" type="button" onClick={onLogin}>
+                <button className="start-btn" type="button" onClick={onSignup}>
                     <img src={assets.icons.yellowPaw} alt="" />
                     Get Started
                 </button>
@@ -126,7 +142,51 @@ function PetCard({ pet }) {
     );
 }
 
-function StatsBand() {
+function PetSlider({ pets }) {
+    const trackRef = useRef(null);
+
+    const scrollByCard = (direction) => {
+        const track = trackRef.current;
+        if (!track) return;
+
+        const firstSlide = track.querySelector(".pet-slide");
+        const slideWidth = firstSlide ? firstSlide.getBoundingClientRect().width : 261;
+
+        track.scrollBy({ left: direction * (slideWidth + 32), behavior: "smooth" });
+    };
+
+    return (
+        <div className="pet-slider">
+            <button
+                className="pet-slider-arrow pet-slider-prev"
+                type="button"
+                onClick={() => scrollByCard(-1)}
+                aria-label="Previous pets"
+            >
+                ‹
+            </button>
+
+            <div className="pet-track" ref={trackRef}>
+                {pets.map((pet) => (
+                    <div className="pet-slide" key={pet.id || pet.name}>
+                        <PetCard pet={pet} />
+                    </div>
+                ))}
+            </div>
+
+            <button
+                className="pet-slider-arrow pet-slider-next"
+                type="button"
+                onClick={() => scrollByCard(1)}
+                aria-label="Next pets"
+            >
+                ›
+            </button>
+        </div>
+    );
+}
+
+function StatsBand({ stats }) {
     return (
         <section className="stats-band">
             {stats.map((item) => (
@@ -249,13 +309,80 @@ function CTAFooter() {
     );
 }
 
+// Formats an Animal document from the API TO PETCARD.
+function formatPetForCard(animal) {
+    const ageLabel = animal.age
+        ? animal.age + (animal.age === 1 ? " year" : " years")
+        : "Age unknown";
+
+    const hasRealImage = typeof animal.image === "string" && animal.image.trim().length > 0;
+
+    return {
+        id: animal._id,
+        name: animal.name,
+        breed: animal.breed || animal.type || "Mixed",
+        age: ageLabel,
+        tag: animal.type || "Pet",
+        image: hasRealImage ? animal.image : assets.images.authPets,
+    };
+}
+
 export default function App() {
 
     const [page, setPage] = useState("home");
     const [selectedPet, setSelectedPet] = useState(null);
 
+    const [pets, setPets] = useState([]);
+    const [stats, setStats] = useState([
+        { value: "—", label: "Pets Adopted" },
+        { value: "—", label: "Pets Available" },
+        { value: "—", label: "Active Foster Caregivers" },
+        { value: "—", label: "Total Rescues" },
+    ]);
 
-    // Checks the database on User Roles
+    useEffect(() => {
+        if (page !== "home" || !API) return;
+
+        let cancelled = false;
+
+        async function loadLandingData() {
+            try {
+                const [animalsRes, fosterRes] = await Promise.all([
+                    fetch(API + "/api/animals"),
+                    fetch(API + "/api/foster/assignments"),
+                ]);
+
+                const animalsData = await animalsRes.json();
+                const fosterData = await fosterRes.json();
+
+                if (cancelled) return;
+
+                const animals = animalsData.success ? animalsData.animals : [];
+                const assignments = fosterData.success ? fosterData.assignments : [];
+
+                const available = animals.filter((a) => a.availabilityStatus === "available");
+                const adoptedCount = animals.filter((a) => a.adoptionStatus === "adopted").length;
+                const activeFosterCount = assignments.filter((a) => a.status === "active").length;
+
+                setPets(available.slice(0, 8).map(formatPetForCard));
+
+                setStats([
+                    { value: String(adoptedCount), label: "Pets Adopted" },
+                    { value: String(available.length), label: "Pets Available" },
+                    { value: String(activeFosterCount), label: "Active Foster Caregivers" },
+                    { value: String(animals.length), label: "Total Rescues" },
+                ]);
+            } catch (error) {
+                console.error("Failed to load landing page data:", error);
+            }
+        }
+
+        loadLandingData();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [page]);
 
     if (page === "auth" || page === "login") {
         return (
@@ -306,7 +433,7 @@ export default function App() {
 
     return (
         <main className="app">
-            <Header onLogin={() => setPage("auth")} />
+            <Header onLogin={() => setPage("auth")} onSignup={() => setPage("signup")} />
 
             <img
                 className="page-paws"
@@ -352,34 +479,30 @@ export default function App() {
                     <p>Every one of them is waiting for you.</p>
                 </div>
 
-                <a className="see-all-pets" href="#pets">
+                <a className="see-all-pets" href="#pets" onClick={(e) => { e.preventDefault(); setPage("auth"); }}>
                     See All Pets →
                 </a>
 
-                <div className="pet-grid">
-                    {pets.map((pet) => (
-                        <PetCard key={pet.name} pet={pet} />
-                    ))}
-                </div>
+                <PetSlider pets={pets.length > 0 ? pets : samplePets} />
 
                 <p className="pet-note">
                     Sign in to see all available pets and start your application
                 </p>
 
                 <div className="pet-actions">
-                    <button className="adopt-btn" type="button">
+                    <button className="adopt-btn" type="button" onClick={() => setPage("auth")}>
                         Adopt
                         <img src={assets.icons.adopt} alt="" />
                     </button>
 
-                    <button className="donate-btn" type="button">
+                    <button className="donate-btn" type="button" onClick={() => setPage("auth")}>
                         Donate
                         <img src={assets.icons.donate} alt="" />
                     </button>
                 </div>
             </section>
 
-            <StatsBand />
+            <StatsBand stats={stats} />
             <AdoptionSteps />
             <FeatureSection />
             <CTAFooter />
