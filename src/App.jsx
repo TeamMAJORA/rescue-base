@@ -466,7 +466,7 @@ export default function App() {
 
                     <p>Helping every rescued pet find a loving family faster.</p>
 
-                    <button className="match-btn" type="button" onClick={() => setPage("auth")}>
+                    <button className="match-btn" type="button" onClick={() => setPage("signup")}>
                         Find my Match
                         <img src={assets.icons.heart} alt="" />
                     </button>
@@ -479,7 +479,7 @@ export default function App() {
                     <p>Every one of them is waiting for you.</p>
                 </div>
 
-                <a className="see-all-pets" href="#pets" onClick={(e) => { e.preventDefault(); setPage("auth"); }}>
+                <a className="see-all-pets" href="#pets" onClick={(e) => { e.preventDefault(); setPage("signup"); }}>
                     See All Pets →
                 </a>
 
@@ -490,12 +490,12 @@ export default function App() {
                 </p>
 
                 <div className="pet-actions">
-                    <button className="adopt-btn" type="button" onClick={() => setPage("auth")}>
+                    <button className="adopt-btn" type="button" onClick={() => setPage("signup")}>
                         Adopt
                         <img src={assets.icons.adopt} alt="" />
                     </button>
 
-                    <button className="donate-btn" type="button" onClick={() => setPage("auth")}>
+                    <button className="donate-btn" type="button" onClick={() => setPage("signup")}>
                         Donate
                         <img src={assets.icons.donate} alt="" />
                     </button>
