@@ -28,6 +28,7 @@ export default function AnimalProfiles() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState("");
+    const [imageUploading, setImageUploading] = useState(false);
 
     const totalAnimals = animals.length;
 
@@ -126,6 +127,47 @@ export default function AnimalProfiles() {
             setMessage("Server error while saving animal profile.");
         } finally {
             setSubmitting(false);
+        }
+    }
+
+    async function handleUploadAnimalImage(e) {
+        const file = e.target.files?.[0];
+
+        if (!file) return;
+
+        setMessage("");
+        setImageUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append("image", file);
+
+            const response = await fetch(`${API}/api/uploads/image`, {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            console.log("Upload image:", data);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to upload image.");
+                return;
+            }
+
+            setAnimalForm((prev) => ({
+                ...prev,
+                image: data.imageUrl,
+            }));
+
+            setMessage("Image uploaded successfully.");
+        } catch (error) {
+            console.error("Upload animal image error.");
+            setMessage("Server error while uploading image.");
+        } finally {
+            setImageUploading(false);
+            e.target.value = "";
         }
     }
 
@@ -330,8 +372,26 @@ export default function AnimalProfiles() {
                             onChange={(e) =>
                                 setAnimalForm({ ...animalForm, image: e.target.value })
                             }
-                            placeholder="Paste image URL"
+                            placeholder="Paste image URL or upload below"
                         />
+
+                        <label>
+                            Upload Image
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleUploadAnimalImage}
+                                disabled={imageUploading}
+                            />
+                        </label>
+
+                        {animalForm.image ? (
+                            <div className="admin-animal-preview admin-animal-wide">
+                                <img src={animalForm.image} alt="Animal preview"/>
+                                <span>{imageUploading ? "Uploading..." : "Image ready"}</span>
+                            </div>
+                        ) : null }
+
                     </label>
 
                     <label>
@@ -458,8 +518,8 @@ export default function AnimalProfiles() {
                         {submitting
                             ? "Saving..."
                             : editingId
-                            ? "Update Animal"
-                            : "Save Animal"}
+                                ? "Update Animal"
+                                : "Save Animal"}
                     </button>
                 </form>
             </section>
