@@ -1,6 +1,6 @@
 import { useState } from "react";
-import "../../styles/adopter/AdoptionApplication.css";
-import assets from "../../data/assets.json"
+import "../../../styles/adopter/AdoptionApplication.css";
+import assets from "../../../data/assets.json"
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
