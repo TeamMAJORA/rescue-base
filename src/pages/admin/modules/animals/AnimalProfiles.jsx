@@ -372,27 +372,27 @@ export default function AnimalProfiles() {
                             onChange={(e) =>
                                 setAnimalForm({ ...animalForm, image: e.target.value })
                             }
-                            placeholder="Paste image URL or upload below"
+                            placeholder="Paste image URL or Upload Below"
                         />
 
-                        <label>
-                            Upload Image
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleUploadAnimalImage}
-                                disabled={imageUploading}
-                            />
-                        </label>
-
-                        {animalForm.image ? (
-                            <div className="admin-animal-preview admin-animal-wide">
-                                <img src={animalForm.image} alt="Animal preview"/>
-                                <span>{imageUploading ? "Uploading..." : "Image ready"}</span>
-                            </div>
-                        ) : null }
-
                     </label>
+
+                    <label>
+                        Upload Image
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleUploadAnimalImage}
+                            disabled={imageUploading}
+                        />
+                    </label>
+
+                    {animalForm.image ? (
+                        <div className="admin-animal-preview admin-animal-wide">
+                            <img src={animalForm.image} alt="Animal preview" />
+                            <span>{imageUploading ? "Uploading..." : "Image ready"}</span>
+                        </div>
+                    ) : null}
 
                     <label>
                         Intake Condition
@@ -514,7 +514,7 @@ export default function AnimalProfiles() {
 
                     {message && <p className="admin-animal-message">{message}</p>}
 
-                    <button type="submit" disabled={submitting}>
+                    <button type="submit" disabled={submitting || imageUploading}>
                         {submitting
                             ? "Saving..."
                             : editingId
