@@ -4,7 +4,6 @@ import './animations/AppAnimation.css'
 import assets from "./data/assets.json";
 import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/adopter/Dashboard";
-import AdoptionPage from "./pages/adopter/AdoptionApplication";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import FosterDashboard from "./pages/foster/FosterDashboard";
 
@@ -268,7 +267,7 @@ function CTAFooter() {
 
                     <button className="outline-btn" type="button" >
                         Support a Shelter
-                    </button>   
+                    </button>
                 </div>
             </div>
 
@@ -328,9 +327,7 @@ function formatPetForCard(animal) {
 }
 
 export default function App() {
-
     const [page, setPage] = useState("home");
-    const [selectedPet, setSelectedPet] = useState(null);
 
     const [pets, setPets] = useState([]);
     const [stats, setStats] = useState([
@@ -406,21 +403,8 @@ export default function App() {
         return (
             <Dashboard
                 onLogout={() => setPage("home")}
-                onApply={(pet) => {
-                    setSelectedPet(pet || null);
-                    setPage("adoption")
-                }}
             />
         );
-    }
-
-    if (page === "adoption") {
-        return (
-            <AdoptionPage
-                pet={selectedPet}
-                setPage={setPage}
-            />
-        )
     }
 
     if (page === "foster") {
