@@ -14,41 +14,41 @@
     --adopter-border: rgba(90, 27, 0, 0.14);
     --adopter-shadow: 0 14px 34px rgba(90, 27, 0, 0.12);
 
-    display: grid;
-    grid-template-columns: 275px minmax(0, 1fr);
     min-height: 100vh;
     background: var(--adopter-cream);
     color: var(--adopter-brown);
     font-family: "Inter", sans-serif;
 }
 
-
 .adopter-sidebar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    bottom: 0;
+    width: 275px;
     height: 100vh;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 26px 18px 20px;
+    padding: 22px 18px 18px;
     background:
-        radial-gradient(
-            circle at top left,
+        radial-gradient(circle at top left,
             rgba(252, 191, 73, 0.32),
-            transparent 42%
-        ),
+            transparent 42%),
         var(--adopter-light-cream);
     border-right: 1px solid var(--adopter-border);
     box-shadow: 8px 0 25px rgba(90, 27, 0, 0.06);
-    overflow-y: auto;
+    overflow: hidden;
     z-index: 20;
 }
+
 
 .adopter-logo {
     width: 100%;
     display: flex;
     align-items: center;
     gap: 13px;
-    padding: 8px 10px 24px;
+    padding: 4px 10px 18px;
     border: 0;
     border-bottom: 1px solid var(--adopter-border);
     background: transparent;
@@ -71,17 +71,19 @@
 }
 
 .adopter-menu {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 7px;
-    margin-top: 24px;
+    margin-top: 20px;
+    min-height: 0;
 }
 
 .adopter-menu-group {
     width: 100%;
 }
 
-.adopter-menu-group > button {
+.adopter-menu-group>button {
     width: 100%;
     min-height: 48px;
     display: flex;
@@ -100,25 +102,23 @@
         transform 0.2s ease;
 }
 
-.adopter-menu-group > button:hover:not(:disabled) {
+.adopter-menu-group>button:hover:not(:disabled) {
     background: var(--adopter-light-yellow);
     border-color: rgba(251, 133, 0, 0.2);
     color: var(--adopter-brown);
     transform: translateX(3px);
 }
 
-.adopter-menu-group > button.active {
-    background: linear-gradient(
-        135deg,
-        var(--adopter-orange),
-        #fca62c
-    );
+.adopter-menu-group>button.active {
+    background: linear-gradient(135deg,
+            var(--adopter-orange),
+            #fca62c);
     color: #ffffff;
     border-color: var(--adopter-orange);
     box-shadow: 0 8px 20px rgba(251, 133, 0, 0.24);
 }
 
-.adopter-menu-group > button:disabled {
+.adopter-menu-group>button:disabled {
     cursor: not-allowed;
     opacity: 0.45;
 }
@@ -140,7 +140,8 @@
     grid-template-columns: 43px minmax(0, 1fr) auto;
     align-items: center;
     gap: 11px;
-    margin-top: auto;
+    flex-shrink: 0;
+    margin-top: 16px;
     padding: 12px;
     border: 1px solid var(--adopter-border);
     border-radius: 16px;
@@ -148,10 +149,6 @@
     color: var(--adopter-brown);
     cursor: pointer;
     text-align: left;
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        border-color 0.2s ease;
 }
 
 .adopter-user-card:hover {
@@ -177,7 +174,7 @@
     object-fit: cover;
 }
 
-.adopter-user-card > div:nth-child(2) {
+.adopter-user-card>div:nth-child(2) {
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -198,7 +195,10 @@
 
 
 .adopter-main {
+    width: calc(100% - 275px);
     min-width: 0;
+    min-height: 100vh;
+    margin-left: 275px;
 }
 
 .adopter-dashboard-topbar {
@@ -260,7 +260,7 @@
     background: #ffffff;
 }
 
-.adopter-notification-btn > span {
+.adopter-notification-btn>span {
     position: absolute;
     top: -7px;
     right: -7px;
@@ -351,16 +351,12 @@
     padding: 30px;
     border-radius: 24px;
     background:
-        radial-gradient(
-            circle at right top,
+        radial-gradient(circle at right top,
             rgba(255, 255, 255, 0.35),
-            transparent 45%
-        ),
-        linear-gradient(
-            135deg,
+            transparent 45%),
+        linear-gradient(135deg,
             var(--adopter-yellow),
-            #ffad33
-        );
+            #ffad33);
     box-shadow: var(--adopter-shadow);
     overflow: hidden;
 }
@@ -372,7 +368,7 @@
     justify-content: center;
 }
 
-.adopter-hero-content > span {
+.adopter-hero-content>span {
     display: inline-flex;
     margin-bottom: 10px;
     padding: 7px 12px;
@@ -537,19 +533,19 @@
     box-shadow: 0 9px 20px rgba(90, 27, 0, 0.07);
 }
 
-.adopter-stats article > span {
+.adopter-stats article>span {
     color: var(--adopter-light-brown);
     font-size: 12px;
     font-weight: 700;
 }
 
-.adopter-stats article > strong {
+.adopter-stats article>strong {
     font-family: "Itim", cursive;
     font-size: 30px;
     line-height: 1;
 }
 
-.adopter-stats article > small {
+.adopter-stats article>small {
     color: var(--adopter-orange-dark);
     font-size: 11px;
     font-weight: 700;
@@ -604,7 +600,7 @@
     font-size: 27px;
 }
 
-.adopter-application-banner-content > p {
+.adopter-application-banner-content>p {
     margin: 5px 0;
     color: var(--adopter-light-brown);
     line-height: 1.55;
@@ -653,7 +649,7 @@
     font-size: 13px;
 }
 
-.adopter-panel-heading > button {
+.adopter-panel-heading>button {
     min-height: 40px;
     padding: 9px 14px;
     border: 1px solid rgba(251, 133, 0, 0.3);
@@ -664,11 +660,11 @@
     cursor: pointer;
 }
 
-.adopter-panel-heading > button:hover:not(:disabled) {
+.adopter-panel-heading>button:hover:not(:disabled) {
     background: var(--adopter-yellow);
 }
 
-.adopter-panel-heading > button:disabled {
+.adopter-panel-heading>button:disabled {
     cursor: wait;
     opacity: 0.6;
 }
@@ -875,11 +871,9 @@
     padding: 11px 17px;
     border: 0;
     border-radius: 13px;
-    background: linear-gradient(
-        135deg,
-        var(--adopter-orange),
-        #f5a623
-    );
+    background: linear-gradient(135deg,
+            var(--adopter-orange),
+            #f5a623);
     color: #ffffff;
     font-weight: 800;
     cursor: pointer;
@@ -887,11 +881,9 @@
 }
 
 .adopter-apply-button:hover:not(:disabled) {
-    background: linear-gradient(
-        135deg,
-        var(--adopter-orange-dark),
-        var(--adopter-orange)
-    );
+    background: linear-gradient(135deg,
+            var(--adopter-orange-dark),
+            var(--adopter-orange));
     transform: translateY(-1px);
 }
 
@@ -914,9 +906,13 @@
 }
 
 
-.adopter-sidebar::-webkit-scrollbar,
 .adopter-pet-list::-webkit-scrollbar {
     width: 7px;
+}
+
+.adopter-pet-list::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.2);
 }
 
 .adopter-sidebar::-webkit-scrollbar-thumb,
@@ -927,8 +923,13 @@
 
 
 @media (max-width: 1200px) {
-    .adopter-dashboard-page {
-        grid-template-columns: 235px minmax(0, 1fr);
+    .adopter-sidebar {
+        width: 235px;
+    }
+
+    .adopter-main {
+        width: calc(100% - 235px);
+        margin-left: 235px;
     }
 
     .adopter-content-grid {
@@ -949,7 +950,9 @@
         position: static;
         width: 100%;
         height: auto;
+        min-height: auto;
         padding: 14px;
+        overflow: visible;
         border-right: 0;
         border-bottom: 1px solid var(--adopter-border);
     }
@@ -973,9 +976,18 @@
         margin-top: 14px;
     }
 
-    .adopter-menu-group > button {
+    .adopter-menu-group>button {
         justify-content: center;
         text-align: center;
+    }
+
+    .adopter-main {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .adopter-dashboard-page {
+        display: block;
     }
 
     .adopter-user-card {
@@ -1025,7 +1037,7 @@
         grid-template-columns: 1fr;
     }
 
-    .adopter-menu-group > button {
+    .adopter-menu-group>button {
         justify-content: flex-start;
     }
 
@@ -1103,7 +1115,7 @@
         height: 60px;
     }
 
-    .adopter-pet-card > .adopter-status {
+    .adopter-pet-card>.adopter-status {
         grid-column: 2;
         margin-top: 4px;
     }
