@@ -10,10 +10,12 @@ import assets from "../../data/assets.json";
 // CSS
 import "../../styles/adopter/Dashboard.css";
 import "../../styles/adopter/ApplicationStatus.css";
+import "../../styles/adopter/BrowsePets.css";
 
 // Module
 import AdoptionApplication from "./modules/AdoptionApplication";
 import ApplicationStatus from "./modules/ApplicationStatus";
+import BrowsePets from "./modules/BrowsePets";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1033,7 +1035,24 @@ export default function Dashboard({ onLogout }) {
         if (
             activeAdopterPage === "browse-pets"
         ) {
-            return renderPetBrowser();
+            return (
+                <BrowsePets
+                    pets={pets}
+                    loading={petsLoading}
+                    error={petsError}
+                    search={search}
+                    setSearch={setSearch}
+                    typeFilter={typeFilter}
+                    setTypeFilter={setTypeFilter}
+                    filteredPets={filteredPets}
+                    selectedPet={selectedPet}
+                    setSelectedPet={setSelectedPet}
+                    hasPendingApplication={hasPendingApplication}
+                    applicationStatus={applicationStatus}
+                    onApply={handleApply}
+                    onRefresh={fetchPets}
+                />
+            );
         }
 
         return renderOverview();
