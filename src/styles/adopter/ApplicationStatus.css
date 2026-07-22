@@ -1,0 +1,664 @@
+.application-status-module {
+    width: 100%;
+    color: var(--adopter-brown, #5a1b00);
+}
+
+.application-status-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 25px 27px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-left: 7px solid #fcbf49;
+    border-radius: 20px;
+    background:
+        radial-gradient(
+            circle at right top,
+            rgba(252, 191, 73, 0.24),
+            transparent 42%
+        ),
+        #fffaf0;
+    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
+}
+
+.application-status-header.approved {
+    border-left-color: #2f8f5b;
+    background:
+        radial-gradient(
+            circle at right top,
+            rgba(47, 143, 91, 0.16),
+            transparent 42%
+        ),
+        #fffaf0;
+}
+
+.application-status-header.rejected {
+    border-left-color: #d62828;
+    background:
+        radial-gradient(
+            circle at right top,
+            rgba(214, 40, 40, 0.12),
+            transparent 42%
+        ),
+        #fffaf0;
+}
+
+.application-status-header > div {
+    min-width: 0;
+}
+
+.application-status-header > div > span {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: #d96f00;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.application-status-header.approved > div > span {
+    color: #2f8f5b;
+}
+
+.application-status-header.rejected > div > span {
+    color: #d62828;
+}
+
+.application-status-header h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: clamp(30px, 3vw, 40px);
+    line-height: 1.08;
+    color: #5a1b00;
+}
+
+.application-status-header p {
+    max-width: 760px;
+    margin: 10px 0 0;
+    color: #75432f;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.application-status-refresh {
+    flex-shrink: 0;
+    min-height: 43px;
+    padding: 10px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 12px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.application-status-refresh:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fcbf49;
+    transform: translateY(-1px);
+}
+
+.application-status-refresh:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
+.application-status-layout {
+    display: grid;
+    grid-template-columns: minmax(270px, 360px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.application-status-pet-card {
+    position: sticky;
+    top: 115px;
+    padding: 22px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
+}
+
+.application-status-pet-image {
+    width: 100%;
+    height: 245px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 17px;
+    border-radius: 17px;
+    background: #fff7cb;
+    overflow: hidden;
+    font-size: 68px;
+}
+
+.application-status-pet-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.application-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.application-status-pill.pending {
+    background: #fff0bf;
+    color: #9a6400;
+}
+
+.application-status-pill.approved {
+    background: #dff5e8;
+    color: #2f8f5b;
+}
+
+.application-status-pill.rejected {
+    background: #f9dddd;
+    color: #d62828;
+}
+
+.application-status-pet-card > h2 {
+    margin: 10px 0 4px;
+    font-family: "Itim", cursive;
+    font-size: 31px;
+    color: #5a1b00;
+}
+
+.application-status-pet-card > p {
+    margin: 0;
+    color: #75432f;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.application-status-pet-meta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 19px;
+}
+
+.application-status-pet-meta article {
+    min-width: 0;
+    padding: 12px 13px;
+    border-radius: 12px;
+    background: #fff7cb;
+}
+
+.application-status-pet-meta span {
+    display: block;
+    margin-bottom: 5px;
+    color: #75432f;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.application-status-pet-meta strong {
+    display: block;
+    overflow-wrap: anywhere;
+    color: #5a1b00;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.application-status-content {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.application-status-progress,
+.application-status-information {
+    padding: 23px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.08);
+}
+
+.application-status-information.pending {
+    border-left: 6px solid #fcbf49;
+}
+
+.application-status-information.approved {
+    border-left: 6px solid #2f8f5b;
+}
+
+.application-status-information.rejected {
+    border-left: 6px solid #d62828;
+}
+
+.application-status-section-heading {
+    margin-bottom: 19px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.12);
+}
+
+.application-status-section-heading > span {
+    display: inline-flex;
+    margin-bottom: 6px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #d96f00;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.application-status-information.approved
+    .application-status-section-heading
+    > span {
+    background: #dff5e8;
+    color: #2f8f5b;
+}
+
+.application-status-information.rejected
+    .application-status-section-heading
+    > span {
+    background: #f9dddd;
+    color: #d62828;
+}
+
+.application-status-section-heading h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 25px;
+    color: #5a1b00;
+}
+
+.application-progress-track {
+    display: flex;
+    flex-direction: column;
+}
+
+.application-progress-track > article {
+    position: relative;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 14px;
+    min-height: 92px;
+}
+
+.application-progress-track > article:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 43px;
+    bottom: 0;
+    left: 21px;
+    width: 2px;
+    background: rgba(90, 27, 0, 0.14);
+}
+
+.application-progress-track > article.complete:not(:last-child)::after {
+    background: #2f8f5b;
+}
+
+.application-progress-track > article.active:not(:last-child)::after {
+    background: linear-gradient(
+        to bottom,
+        #fcbf49,
+        rgba(90, 27, 0, 0.14)
+    );
+}
+
+.application-progress-track > article > div {
+    position: relative;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 2px solid rgba(90, 27, 0, 0.16);
+    border-radius: 50%;
+    background: #ffffff;
+    color: #75432f;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.application-progress-track > article.complete > div {
+    border-color: #2f8f5b;
+    background: #2f8f5b;
+    color: #ffffff;
+}
+
+.application-progress-track > article.active > div {
+    border-color: #fcbf49;
+    background: #fcbf49;
+    color: #5a1b00;
+    box-shadow: 0 0 0 5px rgba(252, 191, 73, 0.18);
+}
+
+.application-progress-track > article.rejected > div {
+    border-color: #d62828;
+    background: #d62828;
+    color: #ffffff;
+}
+
+.application-progress-track section {
+    min-width: 0;
+    padding: 3px 0 24px;
+}
+
+.application-progress-track strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.application-progress-track p {
+    margin: 0;
+    color: #75432f;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.application-status-information > p {
+    margin: 0 0 12px;
+    color: #75432f;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.application-status-information > p:last-child {
+    margin-bottom: 0;
+}
+
+.application-interview-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 17px;
+    border: 1px solid rgba(47, 143, 91, 0.22);
+    border-radius: 14px;
+    background: #dff5e8;
+}
+
+.application-interview-card span {
+    color: #2f8f5b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.application-interview-card strong {
+    color: #215f3d;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.application-review-box {
+    margin-top: 15px;
+    padding: 16px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 14px;
+    background: #fff7cb;
+}
+
+.application-status-information.rejected
+    .application-review-box {
+    border-color: rgba(214, 40, 40, 0.18);
+    background: #fce8e8;
+}
+
+.application-review-box > span {
+    display: block;
+    margin-bottom: 7px;
+    color: #d96f00;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.application-status-information.rejected
+    .application-review-box
+    > span {
+    color: #d62828;
+}
+
+.application-review-box p {
+    margin: 0;
+    color: #75432f;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.application-browse-button {
+    min-height: 46px;
+    margin-top: 18px;
+    padding: 10px 17px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fb8500, #f5a623);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 9px 20px rgba(251, 133, 0, 0.22);
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.application-browse-button:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #d96f00, #fb8500);
+    box-shadow: 0 12px 23px rgba(251, 133, 0, 0.27);
+}
+
+.application-status-loading,
+.application-status-empty {
+    max-width: 650px;
+    margin: 45px auto;
+    padding: 43px 32px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 22px;
+    background: #fffaf0;
+    color: #5a1b00;
+    text-align: center;
+    box-shadow: 0 14px 32px rgba(90, 27, 0, 0.1);
+}
+
+.application-status-loading-icon,
+.application-status-empty-icon {
+    width: 86px;
+    height: 86px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 17px;
+    border-radius: 50%;
+    background: #fff7cb;
+    font-size: 40px;
+}
+
+.application-status-loading > span,
+.application-status-empty > span {
+    display: block;
+    margin-bottom: 7px;
+    color: #d62828;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.application-status-loading h2,
+.application-status-empty h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 31px;
+}
+
+.application-status-loading p,
+.application-status-empty p {
+    max-width: 480px;
+    margin: 12px auto 22px;
+    color: #75432f;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.application-status-empty-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 11px;
+}
+
+.application-status-empty-actions button {
+    min-height: 45px;
+    padding: 10px 17px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.application-status-empty-actions button:first-child {
+    border: 0;
+    background: #fb8500;
+    color: #ffffff;
+}
+
+.application-status-empty-actions button:first-child:hover {
+    background: #d96f00;
+    transform: translateY(-1px);
+}
+
+.application-status-empty-actions button:last-child {
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    background: #fff7cb;
+    color: #5a1b00;
+}
+
+.application-status-empty-actions button:last-child:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fcbf49;
+}
+
+.application-status-empty-actions button:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
+@media (max-width: 1100px) {
+    .application-status-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .application-status-pet-card {
+        position: static;
+        display: grid;
+        grid-template-columns: 230px minmax(0, 1fr);
+        column-gap: 22px;
+    }
+
+    .application-status-pet-image {
+        grid-column: 1;
+        grid-row: 1 / span 6;
+        height: 230px;
+        margin-bottom: 0;
+    }
+
+    .application-status-pet-card
+        > .application-status-pill,
+    .application-status-pet-card > h2,
+    .application-status-pet-card > p,
+    .application-status-pet-meta {
+        grid-column: 2;
+    }
+}
+
+@media (max-width: 760px) {
+    .application-status-header {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .application-status-refresh {
+        width: 100%;
+    }
+
+    .application-status-pet-card {
+        display: block;
+    }
+
+    .application-status-pet-image {
+        height: 235px;
+        margin-bottom: 17px;
+    }
+
+    .application-status-progress,
+    .application-status-information {
+        padding: 19px;
+    }
+}
+
+@media (max-width: 520px) {
+    .application-status-header h2 {
+        font-size: 30px;
+    }
+
+    .application-status-pet-image {
+        height: 210px;
+    }
+
+    .application-status-empty-actions {
+        flex-direction: column;
+    }
+
+    .application-status-empty-actions button {
+        width: 100%;
+    }
+
+    .application-progress-track > article {
+        grid-template-columns: 39px minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .application-progress-track > article > div {
+        width: 39px;
+        height: 39px;
+    }
+
+    .application-progress-track
+        > article:not(:last-child)::after {
+        top: 39px;
+        left: 18px;
+    }
+}
