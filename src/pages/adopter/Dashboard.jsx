@@ -9,9 +9,11 @@ import assets from "../../data/assets.json";
 
 // CSS
 import "../../styles/adopter/Dashboard.css";
+import "../../styles/adopter/ApplicationStatus.css";
 
 // Module
 import AdoptionApplication from "./modules/AdoptionApplication";
+import ApplicationStatus from "./modules/ApplicationStatus";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -27,6 +29,10 @@ const adopterMenu = [
     {
         key: "adoption-application",
         label: "Adoption Application",
+    },
+    {
+        key: "application-status",
+        label: "Application Status",
     },
 ];
 
@@ -1006,6 +1012,22 @@ export default function Dashboard({ onLogout }) {
                     }}
                 />
             );
+        }
+
+        if (
+            activeAdopterPage ===
+            "application-status"
+        ) {
+            return (
+                <ApplicationStatus
+                    application={applicationStatus}
+                    loading={applicationLoading}
+                    onRefresh={fetchApplicationStatus}
+                    onBrowsePets={() =>
+                        setActiveAdopterPage("browse-pets")
+                    }
+                />
+            )
         }
 
         if (
