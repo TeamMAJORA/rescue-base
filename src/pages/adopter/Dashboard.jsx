@@ -11,11 +11,15 @@ import assets from "../../data/assets.json";
 import "../../styles/adopter/Dashboard.css";
 import "../../styles/adopter/ApplicationStatus.css";
 import "../../styles/adopter/BrowsePets.css";
+import "../../styles/adopter/MatchmakingQuiz.css";
+import "../../styles/adopter/Recommendations.css";
 
 // Module
 import AdoptionApplication from "./modules/AdoptionApplication";
 import ApplicationStatus from "./modules/ApplicationStatus";
 import BrowsePets from "./modules/BrowsePets";
+import MatchmakingQuiz from "./modules/MatchmakingQuiz";
+import Recommendations from "./modules/Recommendations";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -33,8 +37,16 @@ const adopterMenu = [
         label: "Adoption Application",
     },
     {
+        key: "matchmaking-quiz",
+        label: "Matchmaking Quiz"
+    },
+    {
         key: "application-status",
         label: "Application Status",
+    },
+    {
+        key: "recommendations",
+        label: "Recommendations",
     },
 ];
 
@@ -1051,6 +1063,44 @@ export default function Dashboard({ onLogout }) {
                     applicationStatus={applicationStatus}
                     onApply={handleApply}
                     onRefresh={fetchPets}
+                />
+            );
+        }
+
+        if (activeAdopterPage === "matchmaking-quiz") {
+            let currentUser = null;
+
+            try {
+                currentUser = JSON.parse(
+                    localStorage.getItem("rescuebase_user") || "null"
+                );
+            } catch {
+                currentUser = null;
+            }
+
+            return (
+                <MatchmakingQuiz
+                    user={currentUser}
+                    onCompleted={() =>
+                        setActiveAdopterPage("recommendations")
+                    }
+                />
+            );
+        }
+
+        if (activeAdopterPage === "recommendations") {
+            return (
+                <Recommendations
+                    pets={pets}
+                    loading={petsLoading}
+                    error={petsError}
+                    onRefresh={fetchPets}
+                    onApply={handleApply}
+                    hasPendingApplication={hasPendingApplication}
+                    applicationStatus={applicationStatus}
+                    onTakeQuiz={() =>
+                        setActiveAdopterPage("matchmaking-quiz")
+                    }
                 />
             );
         }
