@@ -4,29 +4,17 @@ import {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-const emptyFosterForm = {
+const emptyAssignmentForm = {
+    fosterApplicationId: "",
+    fosterName: "",
+    fosterEmail: "",
     petName: "",
     petBreed: "",
     petImage: "",
-    fosterName: "",
-    fosterEmail: "",
     careInstructions: "",
-}
+};
 
-const emptyApplicationForm = {
-    applicantName: "",
-    applicantEmail: "",
-    phoneNumber: "",
-    address: "",
-    housingType: "House",
-    hasPets: false,
-    hasChildren: false,
-    availableSpace: "",
-    availableTime: "",
-    fosterExperience: "",
-    preferredAnimalType: "Both",
-    capacity: 1,
-}
+
 
 export default function FosterCare() {
     const [assignments, setAssignments] = useState([]);
@@ -35,9 +23,9 @@ export default function FosterCare() {
     const [editingId, setEditingId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
-    const [fosterForm, setFosterForm] = useState(emptyFosterForm);
+    const [assignmentForm, setAssignmentForm] =
+        useState(emptyAssignmentForm);
     const [applications, setApplications] = useState([]);
-    const [applicationForm, setApplicationForm] = useState(emptyApplicationForm);
 
     async function fetchAssignments() {
         try {
@@ -83,41 +71,6 @@ export default function FosterCare() {
         } catch (error) {
             console.error("Fetch foster applications error:", error);
             setMessage("Server error while fetching foster applications.");
-        }
-    }
-
-    async function handleSubmitFosterApplication(e) {
-        e.preventDefault();
-
-        try {
-            setMessage("");
-
-            const response = await fetch(`${API}/api/foster/applications`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    ...applicationForm,
-                    capacity: Number(applicationForm.capacity || 1),
-                }),
-            });
-
-            const data = await response.json();
-
-            console.log("Create foster application:", data);
-
-            if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to submit foster application.");
-                return;
-            }
-
-            setMessage("Foster application submitted.");
-            setApplicationForm(emptyApplicationForm);
-            fetchFosterApplications();
-        } catch (error) {
-            console.error("Submit foster application error:", error);
-            setMessage("Server error while submitting foster application.");
         }
     }
 
@@ -209,29 +162,66 @@ export default function FosterCare() {
         }
     }
 
+    function handleApplicationSelect(e) {
+        const applicationId = e.target.value;
+
+        const application = applications.find(
+            (item) => item._id === applicationId
+        );
+
+        if (!application) return;
+
+        setAssignmentForm({
+            ...assignmentForm,
+
+            fosterApplicationId: application._id,
+            fosterName: application.applicantName,
+            fosterEmail: application.applicantEmail,
+        });
+    }
+
     function handleEditAssignment(assignment) {
         if (assignment.status !== "active") {
-            setMessage("Only in-progress assignments can be updated.");
+            setMessage(
+                "Only active assignents can be edited."
+            );
             return;
         }
 
         setEditingId(assignment._id);
 
-        setFosterForm({
-            petName: assignment.petName || "",
-            petBreed: assignment.petBreed || "",
-            petImage: assignment.petImage || "",
-            fosterName: assignment.fosterName || "",
-            fosterEmail: assignment.fosterEmail || "",
-            careInstructions: assignment.careInstructions || "",
+        setAssignmentForm({
+
+            fosterApplicationId:
+                assignment.fosterApplicationId || "",
+
+            fosterName:
+                assignment.fosterName,
+
+            fosterEmail:
+                assignment.fosterEmail,
+
+            petName:
+                assignment.petName,
+
+            petBreed:
+                assignment.petBreed,
+
+            petImage:
+                assignment.petImage,
+
+            careInstructions:
+                assignment.careInstructions,
         });
 
-        setMessage("Editing in-progress foster assignment.");
+        setMessage(
+            "Editing assignment."
+        );
     }
 
     function handleCancelEdit() {
         setEditingId(null);
-        setFosterForm(emptyFosterForm);
+        setAssignmentForm(emptyAssignmentForm);
         setMessage("");
     }
 
@@ -281,6 +271,111 @@ export default function FosterCare() {
         }
     }
 
+    async function handleCreateAssignment(e) {
+        e.preventDefault();
+
+        try {
+            setSubmitting(true);
+            setMessage("");
+
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const response = await fetch(
+                `${API}/api/foster/assignments`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        ...assignmentForm,
+
+                        adminName:
+                            savedUser.name ||
+                            savedUser.username,
+
+                        adminEmail:
+                            savedUser.email,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(
+                    data.message ||
+                    "Failed to create assignment."
+                );
+                return;
+            }
+
+            setMessage("Foster assignment created");
+
+            setAssignmentForm(emptyAssignmentForm);
+            fetchAssignments();
+            fetchFosterApplications();
+        } catch (error) {
+            console.error(error);
+
+            setMessage("Server error while creating assignments.");
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    async function handleUpdateAssignment(e) {
+        e.preventDefault();
+
+        try {
+            setSubmitting(true);
+
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${editingId}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        ...assignmentForm,
+                        adminName:
+                            savedUser.name ||
+                            savedUser.username,
+                        adminEmail:
+                            savedUser.email,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message);
+                return;
+            }
+
+            setMessage("Assignment updated.");
+
+            setEditingId(null);
+
+            setAssignmentForm(emptyAssignmentForm);
+
+            fetchAssignments();
+        } catch (error) {
+            console.error(error);
+            setMessage("Server error.");
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
     useEffect(() => {
         fetchAssignments();
         fetchFosterApplications();
@@ -300,187 +395,133 @@ export default function FosterCare() {
                     </button>
                 </div>
 
-                <form className="admin-foster-application-form" onSubmit={handleSubmitFosterApplication}>
-                    <label>
-                        Applicant Name
-                        <input
-                            value={applicationForm.applicantName}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    applicantName: e.target.value,
-                                })
-                            }
-                            required
-                        />
-                    </label>
+                <section className="admin-panel admin-foster-assignment-panel">
 
-                    <label>
-                        Applicant Email
-                        <input
-                            type="email"
-                            value={applicationForm.applicantEmail}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    applicantEmail: e.target.value,
-                                })
-                            }
-                            required
-                        />
-                    </label>
+                    <div className="admin-panel-heading">
+                        <div>
+                            <h2>Create Foster Assignment</h2>
+                            <p>
+                                Assign an approved foster caregiver to a rescued animal.
+                            </p>
+                        </div>
+                    </div>
 
-                    <label>
-                        Phone Number
-                        <input
-                            value={applicationForm.phoneNumber}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    phoneNumber: e.target.value,
-                                })
-                            }
-                        />
-                    </label>
+                    <form
+                        className="admin-foster-assignment-form"
+                        onSubmit={handleCreateAssignment}
+                    >
 
-                    <label>
-                        Address
-                        <input
-                            value={applicationForm.address}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    address: e.target.value,
-                                })
-                            }
-                        />
-                    </label>
+                        <label>
+                            Approved Foster
 
-                    <label>
-                        Housing Type
-                        <select
-                            value={applicationForm.housingType}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    housingType: e.target.value,
-                                })
-                            }
+                            <select
+                                value={assignmentForm.fosterApplicationId}
+                                onChange={handleApplicationSelect}
+                                required
+                            >
+
+                                <option value="">
+                                    Select Approved Foster
+                                </option>
+
+                                {applications
+                                    .filter(
+                                        (application) =>
+                                            application.status === "approved"
+                                    )
+                                    .map((application) => (
+                                        <option
+                                            key={application._id}
+                                            value={application._id}
+                                        >
+                                            {application.applicantName}
+                                        </option>
+                                    ))}
+
+                            </select>
+                        </label>
+
+                        <label>
+                            Foster Email
+
+                            <input
+                                value={assignmentForm.fosterEmail}
+                                readOnly
+                            />
+                        </label>
+
+                        <label>
+                            Pet Name
+
+                            <input
+                                value={assignmentForm.petName}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petName: e.target.value,
+                                    })
+                                }
+                                required
+                            />
+                        </label>
+
+                        <label>
+                            Breed
+
+                            <input
+                                value={assignmentForm.petBreed}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petBreed: e.target.value,
+                                    })
+                                }
+                            />
+                        </label>
+
+                        <label>
+                            Pet Image URL
+
+                            <input
+                                value={assignmentForm.petImage}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petImage: e.target.value,
+                                    })
+                                }
+                            />
+                        </label>
+
+                        <label className="admin-foster-care-field">
+
+                            Care Instructions
+
+                            <textarea
+                                rows="4"
+                                value={assignmentForm.careInstructions}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        careInstructions: e.target.value,
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <button
+                            type="submit"
+                            disabled={submitting}
                         >
-                            <option value="House">House</option>
-                            <option value="Apartment">Apartment</option>
-                            <option value="Condo">Condo</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </label>
+                            {submitting
+                                ? "Assigning..."
+                                : "Assign Foster"}
+                        </button>
 
-                    <label>
-                        Preferred Animal
-                        <select
-                            value={applicationForm.preferredAnimalType}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    preferredAnimalType: e.target.value,
-                                })
-                            }
-                        >
-                            <option value="Dog">Dog</option>
-                            <option value="Cat">Cat</option>
-                            <option value="Both">Both</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </label>
+                    </form>
 
-                    <label>
-                        Capacity
-                        <input
-                            type="number"
-                            min="1"
-                            value={applicationForm.capacity}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    capacity: e.target.value,
-                                })
-                            }
-                        />
-                    </label>
-
-                    <label>
-                        Available Space
-                        <input
-                            value={applicationForm.availableSpace}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    availableSpace: e.target.value,
-                                })
-                            }
-                            placeholder="Example: spare room, yard, crate space"
-                        />
-                    </label>
-
-                    <label>
-                        Available Time
-                        <input
-                            value={applicationForm.availableTime}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    availableTime: e.target.value,
-                                })
-                            }
-                            placeholder="Example: evenings, weekends"
-                        />
-                    </label>
-
-                    <label className="admin-foster-care-field">
-                        Foster Experience
-                        <textarea
-                            value={applicationForm.fosterExperience}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    fosterExperience: e.target.value,
-                                })
-                            }
-                            placeholder="Describe foster experience or beginner status."
-                        />
-                    </label>
-
-                    <label className="admin-foster-check">
-                        <input
-                            type="checkbox"
-                            checked={applicationForm.hasPets}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    hasPets: e.target.checked,
-                                })
-                            }
-                        />
-                        Has pets at home
-                    </label>
-
-                    <label className="admin-foster-check">
-                        <input
-                            type="checkbox"
-                            checked={applicationForm.hasChildren}
-                            onChange={(e) =>
-                                setApplicationForm({
-                                    ...applicationForm,
-                                    hasChildren: e.target.checked,
-                                })
-                            }
-                        />
-                        Has children at home
-                    </label>
-
-                    <button type="submit">
-                        Submit Foster Application
-                    </button>
-                </form>
+                </section>
 
                 <div className="admin-foster-application-list">
                     {applications.length === 0 ? (
@@ -530,48 +571,213 @@ export default function FosterCare() {
                 </div>
             </section>
 
+            {editingId && (
+
+                <section className="admin-panel">
+
+                    <div className="admin-panel-heading">
+
+                        <h2>Edit Foster Assignment</h2>
+
+                    </div>
+
+                    <form
+                        className="admin-foster-assignment-form"
+                        onSubmit={handleUpdateAssignment}
+                    >
+
+                        <label>
+
+                            Pet Name
+
+                            <input
+                                value={assignmentForm.petName}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petName: e.target.value
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <label>
+
+                            Breed
+
+                            <input
+                                value={assignmentForm.petBreed}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petBreed: e.target.value
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <label>
+
+                            Pet Image
+
+                            <input
+                                value={assignmentForm.petImage}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petImage: e.target.value
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <label className="admin-foster-care-field">
+
+                            Care Instructions
+
+                            <textarea
+                                rows="4"
+                                value={assignmentForm.careInstructions}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        careInstructions: e.target.value
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <div className="admin-foster-actions">
+
+                            <button type="submit">
+                                Save Changes
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleCancelEdit}
+                            >
+                                Cancel
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+            )}
+
             <section className="admin-panel admin-foster-list-panel">
                 <div className="admin-panel-heading">
-                    <h2>Foster Assignments</h2>
-
-                    <button type="button" onClick={fetchAssignments}>
+                    <div>
+                        <h2>Current Foster Assignments</h2>
+                        <p>
+                            Manage all active and completed foster assignments.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={fetchAssignments}
+                    >
                         Refresh
                     </button>
                 </div>
 
                 {loading ? (
-                    <p className="admin-empty">Loading foster assignments...</p>
+                    <p className="admin-empty">
+                        Loading assignments...
+                    </p>
                 ) : assignments.length === 0 ? (
-                    <p className="admin-empty">No foster assignments yet.</p>
+                    <p className="admin-empty">
+                        No foster assignments found.
+                    </p>
                 ) : (
+
                     <div className="admin-foster-list">
                         {assignments.map((assignment) => (
-                            <article className="admin-foster-row" key={assignment._id}>
-                                <div>
+                            <article
+                                className="admin-foster-row"
+                                key={assignment._id}
+                            >
+
+                                <div className="admin-foster-pet">
+                                    <img
+                                        src={
+                                            assignment.petImage ||
+                                            "https://placehold.co/120x120?text=Pet"
+                                        }
+                                        alt={assignment.petName}
+                                    />
+                                </div>
+
+                                <div className="admin-foster-details">
+
                                     <h3>{assignment.petName}</h3>
+
                                     <p>
-                                        {assignment.petBreed || "Unknown breed"} •{" "}
+                                        <strong>Breed:</strong>{" "}
+                                        {assignment.petBreed || "Unknown"}
+                                    </p>
+
+                                    <p>
+                                        <strong>Foster:</strong>{" "}
                                         {assignment.fosterName}
                                     </p>
-                                    <small>{assignment.fosterEmail}</small>
-                                    <span>{assignment.careInstructions}</span>
+
+                                    <p>
+                                        <strong>Email:</strong>{" "}
+                                        {assignment.fosterEmail}
+                                    </p>
+
+                                    <p>
+                                        <strong>Started:</strong>{" "}
+                                        {new Date(
+                                            assignment.startDate
+                                        ).toLocaleDateString()}
+                                    </p>
+
+                                    <p>
+                                        <strong>Updates:</strong>{" "}
+                                        {assignment.updates?.length || 0}
+                                    </p>
+                                    <small>
+                                        {assignment.careInstructions}
+                                    </small>
                                 </div>
 
                                 <div className="admin-foster-actions">
-                                    <strong>{assignment.status}</strong>
+
+                                    <span
+                                        className={`admin-foster-status ${assignment.status}`}
+                                    >
+                                        {assignment.status}
+                                    </span>
 
                                     {assignment.status === "active" && (
                                         <>
                                             <button
                                                 type="button"
-                                                onClick={() => handleEditAssignment(assignment)}
+                                                onClick={() =>
+                                                    handleEditAssignment(
+                                                        assignment
+                                                    )
+                                                }
                                             >
                                                 Edit
                                             </button>
 
                                             <button
                                                 type="button"
-                                                onClick={() => handleCompleteAssignment(assignment._id)}
+                                                onClick={() =>
+                                                    handleCompleteAssignment(
+                                                        assignment._id
+                                                    )
+                                                }
                                             >
                                                 Complete
                                             </button>
@@ -579,7 +785,11 @@ export default function FosterCare() {
                                             <button
                                                 type="button"
                                                 className="delete"
-                                                onClick={() => handleDeleteAssignment(assignment._id)}
+                                                onClick={() =>
+                                                    handleDeleteAssignment(
+                                                        assignment._id
+                                                    )
+                                                }
                                             >
                                                 Delete
                                             </button>
