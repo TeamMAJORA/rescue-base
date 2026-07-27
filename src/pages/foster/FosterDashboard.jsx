@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 
 import FosterApplication from "./modules/FosterApplication";
+import FosterAssignment from "./modules/FosterAssignment";
 
 import "../../styles/foster/FosterDashboard.css";
 import "../../styles/foster/FosterApplication.css";
+import "../../styles/foster/FosterAssignment.css";
 
 import assets from "../../data/assets.json";
 
@@ -154,6 +156,11 @@ export default function FosterDashboard({ setPage }) {
                         setApplication={setApplication}
                         fetchFosterApplication={fetchFosterApplication}
                     />
+                );
+
+            case "assignment":
+                return (
+                    <FosterAssignment/>
                 );
 
             default:
