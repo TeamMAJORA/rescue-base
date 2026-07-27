@@ -1,0 +1,250 @@
+.foster-assignment-top {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 28px;
+    margin-top: 24px;
+}
+
+.foster-pet-card,
+.foster-assignment-details,
+.assignment-card {
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #e8eef5;
+    box-shadow: 0 8px 25px rgba(16, 24, 40, 0.06);
+}
+
+.foster-pet-card {
+    overflow: hidden;
+}
+
+.foster-pet-card img {
+    width: 100%;
+    height: 320px;
+    object-fit: contain;
+    background: #f6f8fb;
+    display: block;
+}
+
+.foster-pet-card div {
+    padding: 22px;
+}
+
+.foster-pet-card h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1d2939;
+}
+
+.foster-pet-card p {
+    margin-top: 6px;
+    color: #667085;
+}
+
+.assignment-status {
+    display: inline-flex;
+    margin-top: 14px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.assignment-status.active {
+    background: #dcfae6;
+    color: #067647;
+}
+
+.assignment-status.completed {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.assignment-status.pending {
+    background: #fff7d6;
+    color: #b54708;
+}
+
+.foster-assignment-details {
+    padding: 28px;
+}
+
+.foster-assignment-details h3 {
+    margin: 0 0 24px;
+    color: #1d2939;
+}
+
+.assignment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.assignment-grid div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.assignment-grid span {
+    font-size: .82rem;
+    color: #98a2b3;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.assignment-grid strong {
+    font-size: 1rem;
+    color: #1d2939;
+}
+
+.foster-assignment-sections {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.assignment-card {
+    padding: 28px;
+}
+
+.assignment-card h3 {
+    margin-bottom: 18px;
+    color: #1d2939;
+}
+
+.assignment-card p {
+    color: #475467;
+    line-height: 1.7;
+}
+
+.assignment-updates {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.assignment-update-card {
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    padding: 18px;
+    background: #fcfcfd;
+}
+
+.assignment-update-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.assignment-update-header strong {
+    color: #1d2939;
+}
+
+.assignment-update-header span {
+    color: #667085;
+    font-size: .88rem;
+}
+
+.assignment-update-card p {
+    margin-bottom: 14px;
+}
+
+.assignment-update-card img {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.assignment-empty {
+    color: #98a2b3;
+    text-align: center;
+    padding: 30px;
+}
+
+.assignment-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.assignment-primary,
+.assignment-secondary {
+    border: none;
+    border-radius: 12px;
+    padding: 13px 22px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .25s;
+}
+
+.assignment-primary {
+    background: #16a34a;
+    color: #fff;
+}
+
+.assignment-primary:hover {
+    background: #15803d;
+}
+
+.assignment-secondary {
+    background: #eef2f6;
+    color: #344054;
+}
+
+.assignment-secondary:hover {
+    background: #dfe7ef;
+}
+
+.assignment-message {
+    margin-top: 20px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: #eff8ff;
+    color: #175cd3;
+}
+
+.foster-loading,
+.foster-empty-state {
+    padding: 90px 20px;
+    text-align: center;
+}
+
+.foster-empty-state h3 {
+    margin-bottom: 10px;
+    color: #344054;
+}
+
+.foster-empty-state p {
+    color: #667085;
+}
+
+@media (max-width: 992px) {
+
+    .foster-assignment-top {
+        grid-template-columns: 1fr;
+    }
+
+    .assignment-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 640px) {
+
+    .assignment-actions {
+        flex-direction: column;
+    }
+
+    .assignment-primary,
+    .assignment-secondary {
+        width: 100%;
+    }
+
+}
