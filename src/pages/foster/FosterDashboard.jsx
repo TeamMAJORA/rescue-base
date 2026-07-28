@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import FosterApplication from "./modules/FosterApplication";
 import FosterAssignment from "./modules/FosterAssignment";
 import DashboardOverview from "./modules/DashboardOverview";
+import WeeklyUpdates from "./modules/WeeklyUpdates";
 
 import "../../styles/foster/FosterDashboard.css";
 import "../../styles/foster/FosterApplication.css";
