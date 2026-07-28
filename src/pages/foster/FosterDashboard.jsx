@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import FosterApplication from "./modules/FosterApplication";
 import FosterAssignment from "./modules/FosterAssignment";
+import DashboardOverview from "./modules/DashboardOverview";
 
 import "../../styles/foster/FosterDashboard.css";
 import "../../styles/foster/FosterApplication.css";
@@ -12,241 +13,257 @@ import assets from "../../data/assets.json";
 const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function FosterDashboard({ setPage }) {
-    const savedUser = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
 
-    const fosterEmail = String(savedUser.email || "").trim().toLowerCase();
-    const fosterName = savedUser.username || savedUser.name || "Foster User";
+    const savedUser = JSON.parse(
+        localStorage.getItem("rescuebase_user") || "{}"
+    );
 
-    const [activeTab, setActiveTab] = useState("overview");
-    const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState("");
+    const fosterEmail = String(
+        savedUser.email || ""
+    ).trim().toLowerCase();
 
-    const [application, setApplication] = useState(null);
-    const [assignment, setAssignment] = useState(null);
+    const fosterName =
+        savedUser.username ||
+        savedUser.name ||
+        "Foster User";
 
-    async function fetchFosterApplication() {
-        if (!fosterEmail) {
-            setApplication(null);
-            return;
+    const [activePage, setActivePage] =
+        useState("dashboard");
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [message, setMessage] =
+        useState("");
+
+    const [application, setApplication] =
+        useState(null);
+
+    const [assignment, setAssignment] =
+        useState(null);
+
+    async function fetchApplication() {
+
+        if (!fosterEmail) return;
+
+        try {
+
+            const response = await fetch(
+                `${API}/api/foster/applications/applicant/${encodeURIComponent(fosterEmail)}`
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+                setApplication(data.application);
+            }
+
+        } catch (error) {
+            console.error(error);
         }
 
-        const response = await fetch(
-            `${API}/api/foster/applications/applicant/${encodeURIComponent(fosterEmail)}`
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            setApplication(null);
-            return;
-        }
-
-        setApplication(data.application || null);
     }
 
     async function fetchAssignment() {
-        if (!fosterEmail) {
-            setAssignment(null);
-            setMessage("No foster email found. Please log in again.");
-            return;
+
+        if (!fosterEmail) return;
+
+        try {
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/foster/${encodeURIComponent(fosterEmail)}/active`
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+                setAssignment(data.assignment);
+            }
+
+        } catch (error) {
+            console.error(error);
         }
 
-        const response = await fetch(
-            `${API}/api/foster/assignments/foster/${encodeURIComponent(fosterEmail)}/active`
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            setAssignment(null);
-            setMessage(data.message || "Failed to fetch foster assignment.");
-            return;
-        }
-
-        setAssignment(data.assignment || null);
     }
 
-    async function fetchFosterData() {
+    async function loadDashboard() {
+
         try {
+
             setLoading(true);
-            setMessage("");
 
             await Promise.all([
-                fetchFosterApplication(),
+                fetchApplication(),
                 fetchAssignment(),
             ]);
-        } catch (error) {
-            console.error("Fetch foster data error:", error);
-            setMessage("Server error while loading foster dashboard.");
+
         } finally {
+
             setLoading(false);
-        }
-    }
-
-    function formatDate(dateValue) {
-        if (!dateValue) return "N/A";
-
-        return new Date(dateValue).toLocaleDateString("en-PH", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
-    }
-
-    function renderOverview() {
-        return (
-            <section className="foster-overview">
-                <div className="foster-stat-grid">
-                    <article className="foster-stat-card">
-                        <span>Application Status</span>
-                        <strong>{application?.status || "Not Submitted"}</strong>
-                    </article>
-
-                    <article className="foster-stat-card">
-                        <span>Active Assignment</span>
-                        <strong>{assignment ? assignment.petName : "None"}</strong>
-                    </article>
-
-                    <article className="foster-stat-card">
-                        <span>Weekly Updates</span>
-                        <strong>{assignment?.updates?.length || 0}</strong>
-                    </article>
-                </div>
-
-                <section className="foster-panel foster-welcome-panel">
-                    <div>
-                        <p className="foster-label">Welcome back</p>
-                        <h2>{fosterName}</h2>
-                        <p>
-                            Submit your foster application, wait for shelter approval,
-                            then view your active foster assignment and submit weekly updates.
-                        </p>
-                    </div>
-
-                    <div className="foster-quick-actions">
-                        <button type="button" onClick={() => setActiveTab("application")}>
-                            View Application
-                        </button>
-
-                        <button type="button" onClick={() => setActiveTab("assignment")}>
-                            View Assignment
-                        </button>
-                    </div>
-                </section>
-
-                {message && <p className="foster-message">{message}</p>}
-            </section>
-        );
-    }
-
-
-    function renderFosterContent() {
-
-        switch (activeTab) {
-
-            case "overview":
-                return renderOverview();
-
-            case "application":
-                return (
-                    <FosterApplication
-                        fosterName={fosterName}
-                        fosterEmail={fosterEmail}
-                        application={application}
-                        setApplication={setApplication}
-                        fetchFosterApplication={fetchFosterApplication}
-                    />
-                );
-
-            case "assignment":
-                return (
-                    <FosterAssignment/>
-                );
-
-            default:
-                return renderOverview();
 
         }
 
     }
 
     useEffect(() => {
-        fetchFosterData();
+
+        loadDashboard();
+
     }, []);
 
+    function renderContent() {
+
+        switch (activePage) {
+
+            case "dashboard":
+
+                return (
+                    <DashboardOverview
+                        fosterName={fosterName}
+                        application={application}
+                        assignment={assignment}
+                    />
+                );
+
+            case "application":
+
+                return (
+                    <FosterApplication
+                        application={application}
+                        refresh={fetchApplication}
+                    />
+                );
+
+            case "assignment":
+
+                return (
+                    <FosterAssignment
+                        assignment={assignment}
+                        refresh={fetchAssignment}
+                    />
+                );
+
+            case "updates":
+
+                return (
+                    <WeeklyUpdates
+                        assignment={assignment}
+                        refresh={fetchAssignment}
+                    />
+                );
+
+            case "history":
+
+                return (
+                    <FosterHistory
+                        assignment={assignment}
+                    />
+                );
+
+            default:
+
+                return "dashboard";
+
+        }
+
+    }
+
     return (
+
         <main className="foster-page">
+
             <aside className="foster-sidebar">
+
                 <div className="foster-logo">
-                    <img src={assets.logo} alt="RescueBase logo" />
+
+                    <img
+                        src={assets.logo}
+                        alt="RescueBase"
+                    />
+
                     <span>RescueBase</span>
+
                 </div>
 
                 <nav className="foster-menu">
+
                     <button
-                        className={activeTab === "overview" ? "active" : ""}
-                        type="button"
-                        onClick={() => setActiveTab("overview")}
+                        className={activePage === "dashboard" ? "active" : ""}
+                        onClick={() => setActivePage("dashboard")}
                     >
-                        Overview
+                        Dashboard
                     </button>
 
                     <button
-                        className={activeTab === "application" ? "active" : ""}
-                        type="button"
-                        onClick={() => setActiveTab("application")}
+                        className={activePage === "assignment" ? "active" : ""}
+                        onClick={() => setActivePage("assignment")}
                     >
-                        Foster Application
+                        My Foster Pet
                     </button>
 
                     <button
-                        className={activeTab === "assignment" ? "active" : ""}
-                        type="button"
-                        onClick={() => setActiveTab("assignment")}
-                    >
-                        Active Assignment
-                    </button>
-
-                    <button
-                        className={activeTab === "updates" ? "active" : ""}
-                        type="button"
-                        onClick={() => setActiveTab("updates")}
+                        className={activePage === "updates" ? "active" : ""}
+                        onClick={() => setActivePage("updates")}
                     >
                         Weekly Updates
                     </button>
 
                     <button
-                        className={activeTab === "messages" ? "active" : ""}
-                        type="button"
-                        onClick={() => setActiveTab("messages")}
+                        className={activePage === "history" ? "active" : ""}
+                        onClick={() => setActivePage("history")}
                     >
-                        Messages
+                        History
                     </button>
+
+                    <button
+                        className={activePage === "application" ? "active" : ""}
+                        onClick={() => setActivePage("application")}
+                    >
+                        My Application
+                    </button>
+
                 </nav>
 
                 <button
                     className="foster-logout"
-                    type="button"
                     onClick={() => setPage("home")}
                 >
                     Logout
                 </button>
+
             </aside>
 
             <section className="foster-main">
+
                 <header className="foster-topbar">
+
                     <div>
-                        <h1>Foster Dashboard</h1>
-                        <p>Welcome back, {fosterName}.</p>
+
+                        <h1>
+                            Foster Dashboard
+                        </h1>
+
+                        <p>
+                            Welcome back, {fosterName}
+                        </p>
+
                     </div>
 
-                    <button type="button" onClick={fetchFosterData}>
+                    <button onClick={loadDashboard}>
                         Refresh
                     </button>
+
                 </header>
 
-                {renderFosterContent()}
+                {loading
+                    ? <p>Loading...</p>
+                    : renderContent()
+                }
+
             </section>
+
         </main>
+
     );
+
 }
