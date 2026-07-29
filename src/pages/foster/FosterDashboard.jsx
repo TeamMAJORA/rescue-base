@@ -5,6 +5,7 @@ import FosterApplication from "./modules/FosterApplication";
 import FosterAssignment from "./modules/FosterAssignment";
 import WeeklyUpdates from "./modules/WeeklyUpdates";
 import FosterHistory from "./modules/FosterHistory";
+import FosterNotifications from "./modules/FosterNotifications";
 
 import "../../styles/foster/FosterDashboard.css";
 import "../../styles/foster/FosterApplication.css";
@@ -32,34 +33,26 @@ export default function FosterDashboard({ setPage }) {
         savedUser.name ||
         "Foster User";
 
-    const [activePage, setActivePage] =
-        useState("dashboard");
+    const [activePage, setActivePage] = useState("dashboard");
+    const [loading, setLoading] = useState(true);
+    const [application, setApplication] = useState(null);
+    const [assignment, setAssignment] = useState(null);
+    const [message, setMessage] = useState("");
+    const [notificationsOpen, setNotificationsOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
 
-    const [loading, setLoading] =
-        useState(true);
-
-    const [application, setApplication] =
-        useState(null);
-
-    const [assignment, setAssignment] =
-        useState(null);
-
-    const [message, setMessage] =
-        useState("");
 
     async function fetchApplication() {
-
         if (!fosterEmail) {
             setApplication(null);
             return;
         }
 
         try {
-
             const response = await fetch(
                 `${API}/api/foster/applications/applicant/${encodeURIComponent(fosterEmail)}`
             );
-
             const data = await response.json();
 
             if (response.ok && data.success) {
@@ -72,18 +65,15 @@ export default function FosterDashboard({ setPage }) {
             console.error(error);
             setApplication(null);
         }
-
     }
 
     async function fetchAssignment() {
-
         if (!fosterEmail) {
             setAssignment(null);
             return;
         }
 
         try {
-
             const response = await fetch(
                 `${API}/api/foster/assignments/foster/${encodeURIComponent(fosterEmail)}/active`
             );
@@ -95,18 +85,14 @@ export default function FosterDashboard({ setPage }) {
             } else {
                 setAssignment(null);
             }
-
         } catch (error) {
             console.error(error);
             setAssignment(null);
         }
-
     }
 
     async function loadDashboard() {
-
         try {
-
             setLoading(true);
             setMessage("");
 
@@ -114,26 +100,45 @@ export default function FosterDashboard({ setPage }) {
                 fetchApplication(),
                 fetchAssignment(),
             ]);
-
         } catch (error) {
-
             console.error(error);
             setMessage(
                 "Unable to load dashboard."
             );
-
         } finally {
 
             setLoading(false);
 
         }
+    }
 
+    async function loadNotifications() {
+        if (!fosterEmail) return;
+
+        try {
+            const response = await fetch(
+                `${API}/api/foster/notifications/${encodeURIComponent(fosterEmail)}`
+            );
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setNotifications(data.notifications || []);
+
+                setUnreadCount(
+                    (data.notifications || []).filter(
+                        notification => !notification.isRead
+                    ).length
+                );
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     useEffect(() => {
-
         loadDashboard();
-
+        loadNotifications();
     }, []);
 
     const pages = useMemo(() => ({
@@ -173,13 +178,25 @@ export default function FosterDashboard({ setPage }) {
             />
         ),
 
+        notifications: (
+            <FosterNotifications
+                open={notificationsOpen}
+                notifications={notifications}
+                onClose={() =>
+                    setNotificationsOpen(false)
+                }
+                setActivePage={setActivePage}
+                refresh={loadNotifications}
+            />
+        ),
+
     }), [
         application,
         assignment,
         fosterName,
     ]);
 
-       return (
+    return (
 
         <main className="foster-page">
 
@@ -264,7 +281,6 @@ export default function FosterDashboard({ setPage }) {
                     >
                         My Application
                     </button>
-
                 </nav>
 
                 <button
@@ -298,18 +314,43 @@ export default function FosterDashboard({ setPage }) {
 
                     </div>
 
-                    <button
-                        onClick={loadDashboard}
-                    >
-                        Refresh
-                    </button>
+                    <div className="foster-topbar-actions">
+                        <button
+                            className="foster-notification-button"
+                            onClick={() =>
+                                setNotificationsOpen(!notificationsOpen)
+                            }
+                        >
+                            BELL NI SYA GUYS
 
+                            {unreadCount > 0 && (
+                                <span className="notification-badge">
+                                    {unreadCount}
+                                </span>
+                            )}
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                loadDashboard();
+                                loadNotifications();
+                            }}
+                        >
+                            Refresh
+                        </button>
+                    </div>
                 </header>
 
+                <FosterNotifications
+                    open={notificationsOpen}
+                    notifications={notifications}
+                    onClose={() => setNotificationsOpen(false)}
+                    setActivePage={setActivePage}
+                    refresh={loadNotifications}
+                />
+
                 <section className="foster-panel foster-dashboard-banner">
-
                     <div>
-
                         <span className="foster-label">
                             Foster Status
                         </span>
@@ -321,7 +362,6 @@ export default function FosterDashboard({ setPage }) {
                         </h2>
 
                         <p>
-
                             {assignment
                                 ? "You currently have an active foster assignment."
                                 : "You don't have an active foster assignment yet."}
@@ -337,10 +377,9 @@ export default function FosterDashboard({ setPage }) {
                         </span>
 
                         <strong
-                            className={`status ${
-                                application?.status ||
+                            className={`status ${application?.status ||
                                 "pending"
-                            }`}
+                                }`}
                         >
                             {
                                 application?.status ||
