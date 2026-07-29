@@ -111,6 +111,21 @@ export default function FosterCare() {
             }
 
             setMessage(`Foster application ${status}.`);
+
+            await sendFosterNotification({
+                email: applications.applicantEmail,
+                title:
+                    status === "approved"
+                        ? "Foster Application Approved"
+                        : "Foster Application Rejected",
+                message:
+                    status === "approved"
+                        ? "Congratulations! Your foster application has been approved. You may now receive a task."
+                        : "Your foster application was not approved at this time. Please review your application and try sending one again.",
+                type: "application",
+                relatedId: applications._id,
+            });
+
             fetchFosterApplications();
         } catch (error) {
             console.error("Review foster application error:", error);
@@ -146,6 +161,14 @@ export default function FosterCare() {
             }
 
             setMessage("Foster assignment completed.");
+
+            await sendFosterNotification({
+                email: data.assignment.fosterEmail,
+                title: "Foster Assignment Completed.",
+                message: `Your assignment for ${data.assignment.petName} has been marked as complete. Thank you for helping RescueBase!`,
+                type: "assignment",
+                relatedId: data.assignment._id,
+            });
 
             setAssignments((current) =>
                 current.map((assignment) =>
@@ -314,6 +337,13 @@ export default function FosterCare() {
 
             setMessage("Foster assignment created");
 
+            await sendFosterNotification({
+                email: assignmentForm.fosterEmail,
+                title: "New Foster Assignment.",
+                message: `You have been assigned to foster ${assignmentForm.petName}. Please login to RescueBase to review your assignment.`,
+                type: "assignment."
+            })
+
             setAssignmentForm(emptyAssignmentForm);
             fetchAssignments();
             fetchFosterApplications();
@@ -373,6 +403,34 @@ export default function FosterCare() {
             setMessage("Server error.");
         } finally {
             setSubmitting(false);
+        }
+    }
+
+    async function sendFosterNotification({
+        email,
+        title,
+        message,
+        type = "general",
+        relatedId = null,
+    }) {
+        try {
+            await fetch(
+                `${API}/api/foster/notifications`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
+                    title,
+                    message,
+                    type,
+                    relatedId,
+                }),
+            }
+            );
+        } catch (error) {
+            console.error("Notifications error", error);
         }
     }
 
