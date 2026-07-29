@@ -26,12 +26,12 @@ export default function FosterNotifications({
 
         return () =>
             window.removeEventListener("keydown", close);
-    }, []);
+    }, [onClose]);
 
     if (!open) return null;
 
     function handleNotification(notification) {
-        refresh?.(notification._id);
+        refresh?.();
 
         switch (notification.type) {
             case "application_approved":
