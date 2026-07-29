@@ -10,6 +10,8 @@ import "../../styles/foster/FosterDashboard.css";
 import "../../styles/foster/FosterApplication.css";
 import "../../styles/foster/FosterAssignment.css";
 import "../../styles/foster/DashboardOverview.css"
+import "../../styles/foster/WeeklyUpdates.css";
+import "../../styles/foster/FosterHistory.css";
 
 import assets from "../../data/assets.json";
 
