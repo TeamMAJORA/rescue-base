@@ -1,0 +1,237 @@
+.foster-dashboard-overview {
+    display: grid;
+    gap: 22px;
+}
+
+.foster-dashboard-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.foster-dashboard-banner h2 {
+    margin: 8px 0;
+    color: #5a1b00;
+    font-size: 32px;
+    font-weight: 900;
+}
+
+.foster-dashboard-banner p {
+    color: rgba(90, 27, 0, 0.72);
+    line-height: 1.7;
+    max-width: 700px;
+}
+
+.foster-label {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(251, 133, 0, .15);
+    color: #fb8500;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.foster-dashboard-status {
+    min-width: 220px;
+    text-align: center;
+}
+
+.foster-dashboard-status span {
+    display: block;
+    margin-bottom: 10px;
+    color: rgba(90, 27, 0, .65);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.foster-dashboard-status .status {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 160px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: capitalize;
+}
+
+.status.pending {
+    background: #fff5cf;
+    color: #8d6200;
+}
+
+.status.approved {
+    background: #e6f8e7;
+    color: #2b6d2f;
+}
+
+.status.rejected {
+    background: #ffe6e6;
+    color: #c21f1f;
+}
+
+.foster-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.foster-stat-card {
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, .08);
+    border-radius: 20px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: .25s;
+}
+
+.foster-stat-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(251,133,0,.25);
+    box-shadow: 0 10px 24px rgba(90,27,0,.08);
+}
+
+.foster-stat-card span {
+    color: rgba(90,27,0,.6);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.foster-stat-card strong {
+    color: #5a1b00;
+    font-size: 30px;
+    font-weight: 900;
+}
+
+.foster-current-pet {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 28px;
+    align-items: center;
+}
+
+.foster-current-image img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 22px;
+    border: 4px solid #fb8500;
+}
+
+.foster-current-info h2 {
+    margin-bottom: 18px;
+    color: #5a1b00;
+    font-size: 32px;
+}
+
+.foster-current-info p {
+    margin-bottom: 12px;
+    color: rgba(90,27,0,.72);
+}
+
+.foster-care-box {
+    margin-top: 24px;
+    padding: 18px;
+    border-radius: 18px;
+    background: #fff5e7;
+}
+
+.foster-care-box h4 {
+    margin-bottom: 10px;
+    color: #fb8500;
+}
+
+.foster-care-box p {
+    margin: 0;
+    line-height: 1.7;
+}
+
+.foster-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+.foster-dashboard-grid h3 {
+    margin-bottom: 18px;
+    color: #5a1b00;
+}
+
+.foster-activity {
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(90,27,0,.08);
+}
+
+.foster-activity:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.foster-activity strong {
+    color: #fb8500;
+    font-size: 13px;
+}
+
+.foster-activity p {
+    margin-top: 8px;
+    color: rgba(90,27,0,.72);
+    line-height: 1.6;
+}
+
+.foster-reminders {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.foster-reminders li {
+    margin-bottom: 12px;
+    color: rgba(90,27,0,.75);
+    line-height: 1.6;
+}
+
+@media (max-width: 1100px) {
+
+    .foster-dashboard-stats {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .foster-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .foster-current-pet {
+        grid-template-columns: 1fr;
+    }
+
+    .foster-current-image {
+        max-width: 320px;
+        margin: auto;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .foster-dashboard-banner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .foster-dashboard-status {
+        width: 100%;
+        text-align: left;
+    }
+
+    .foster-dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+}
