@@ -13,6 +13,7 @@ import "../../styles/foster/FosterAssignment.css";
 import "../../styles/foster/DashboardOverview.css"
 import "../../styles/foster/WeeklyUpdates.css";
 import "../../styles/foster/FosterHistory.css";
+import "../../styles/foster/FosterNotifications.css";
 
 import assets from "../../data/assets.json";
 
@@ -321,8 +322,7 @@ export default function FosterDashboard({ setPage }) {
                                 setNotificationsOpen(!notificationsOpen)
                             }
                         >
-                            BELL NI SYA GUYS
-
+                            B
                             {unreadCount > 0 && (
                                 <span className="notification-badge">
                                     {unreadCount}
