@@ -19,6 +19,14 @@ export default function FosterUpdates({
         setMessage("");
     }, [assignment]);
 
+    if (loading && !assignment) {
+        return (
+            <section className="foster-panel">
+                <p>Loading....</p>
+            </section>
+        )
+    }
+
     async function handleSubmit(e) {
         e.preventDefault();
 
@@ -29,10 +37,10 @@ export default function FosterUpdates({
 
         try {
             setLoading(true);
-            setMessage();
+            setMessage("");
 
             const response = await fetch(
-                `${API}/api/foster/assignment/${assignment._id}/update`,
+                `${API}/api/foster/assignments/${assignment._id}/updates`,
                 {
                     method: "POST",
                     headers: {
@@ -80,117 +88,115 @@ export default function FosterUpdates({
                 </section>
             );
         }
+    }
 
-        return (
-            <section className="foster-updates-page">
+    return (
+        <section className="foster-updates-page">
 
-                <section className="foster-panel">
+            <section className="foster-panel">
 
-                    <div className="foster-section-heading">
-                        <div>
-                            <span>Foster Progress</span>
-                            <h2>Weekly Update</h2>
-                        </div>
+                <div className="foster-section-heading">
+                    <div>
+                        <span>Foster Progress</span>
+                        <h2>Weekly Update</h2>
                     </div>
+                </div>
 
-                    <form
-                        className="foster-update-form"
-                        onSubmit={handleSubmit}
-                    >
+                <form
+                    className="foster-update-form"
+                    onSubmit={handleSubmit}
+                >
 
-                        <label>
-                            Progress Notes
+                    <label>
+                        Progress Notes
 
-                            <textarea
-                                rows="6"
-                                value={note}
-                                onChange={(e) =>
-                                    setNote(e.target.value)
-                                }
-                                placeholder="Describe the pet's condition, appetite, behavior, health, etc."
-                                required
-                            />
+                        <textarea
+                            rows="6"
+                            value={note}
+                            onChange={(e) =>
+                                setNote(e.target.value)
+                            }
+                            placeholder="Describe the pet's condition, appetite, behavior, health, etc."
+                            required
+                        />
 
-                        </label>
+                    </label>
 
-                        <label>
-                            Photo URL (Optional)
+                    <label>
+                        Photo URL (Optional)
 
-                            <input
-                                type="text"
-                                value={photoUrl}
-                                onChange={(e) =>
-                                    setPhotoUrl(e.target.value)
-                                }
-                                placeholder="https://..."
-                            />
+                        <input
+                            type="text"
+                            value={photoUrl}
+                            onChange={(e) =>
+                                setPhotoUrl(e.target.value)
+                            }
+                            placeholder="https://..."
+                        />
 
-                        </label>
+                    </label>
 
-                        {message && (
-                            <div className="foster-alert success">
-                                {message}
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            className="foster-submit-button"
-                            disabled={loading}
-                        >
-                            {loading
-                                ? "Submitting..."
-                                : "Submit Update"}
-                        </button>
-
-                    </form>
-
-                </section>
-
-                <section className="foster-panel">
-
-                    <div className="foster-section-heading">
-                        <div>
-                            <span>History</span>
-                            <h2>Previous Updates</h2>
+                    {message && (
+                        <div className="foster-alert success">
+                            {message}
                         </div>
-                    </div>
-
-                    {assignment.updates?.length ? (
-                        <div className="foster-update-list">
-
-                            {[...assignment.updates]
-                                .reverse()
-                                .map((update) => (
-                                    <article
-                                        key={update._id}
-                                        className="foster-update-card"
-                                    >
-                                        <strong>
-                                            {new Date(
-                                                update.createdAt
-                                            ).toLocaleDateString()}
-                                        </strong>
-
-                                        <p>{update.note}</p>
-
-                                        {update.photoUrl && (
-                                            <img
-                                                src={update.photoUrl}
-                                                alt="Update"
-                                            />
-                                        )}
-                                    </article>
-                                ))}
-
-                        </div>
-                    ) : (
-                        <p>No updates submitted yet.</p>
                     )}
 
-                </section>
+                    <button
+                        type="submit"
+                        className="foster-submit-button"
+                        disabled={loading}
+                    >
+                        {loading
+                            ? "Submitting..."
+                            : "Submit Update"}
+                    </button>
+
+                </form>
 
             </section>
-        );
-    }
+
+            <section className="foster-panel">
+
+                <div className="foster-section-heading">
+                    <div>
+                        <span>History</span>
+                        <h2>Previous Updates</h2>
+                    </div>
+                </div>
+
+                {assignment.updates?.length ? (
+                    <div className="foster-update-list">
+
+                        {[...assignment.updates]
+                            .reverse()
+                            .map((update) => (
+                                <article
+                                    key={update._id}
+                                    className="foster-update-card"
+                                >
+                                    <strong>
+                                        {new Date(
+                                            update.createdAt
+                                        ).toLocaleDateString()}
+                                    </strong>
+
+                                    <p>{update.note}</p>
+
+                                    {update.photoUrl && (
+                                        <img
+                                            src={update.photoUrl}
+                                            alt="Update"
+                                        />
+                                    )}
+                                </article>
+                            ))}
+
+                    </div>
+                ) : (
+                    <p>No updates submitted yet.</p>
+                )}
+            </section>
+        </section>
+    );
 }
