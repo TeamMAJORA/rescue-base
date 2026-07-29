@@ -82,6 +82,10 @@ export default function FosterCare() {
                 localStorage.getItem("rescuebase_user") || "{}"
             );
 
+            const application = applications.find(
+                (item) => item._id === applicationId
+            );
+
             const response = await fetch(
                 `${API}/api/foster/applications/${applicationId}/status`,
                 {
@@ -113,17 +117,20 @@ export default function FosterCare() {
             setMessage(`Foster application ${status}.`);
 
             await sendFosterNotification({
-                email: applications.applicantEmail,
+                email: application.applicantEmail,
                 title:
                     status === "approved"
-                        ? "Foster Application Approved"
-                        : "Foster Application Rejected",
+                        ? "Application Approved"
+                        : "Application Rejected",
+
                 message:
                     status === "approved"
-                        ? "Congratulations! Your foster application has been approved. You may now receive a task."
-                        : "Your foster application was not approved at this time. Please review your application and try sending one again.",
+                        ? "Congratulations! Your foster application has been approved. You can now receive foster assignments."
+                        : "Unfortunately, your foster application was not approved. Please contact the shelter for more information.",
+
                 type: "application",
-                relatedId: applications._id,
+
+                relatedId: application._id,
             });
 
             fetchFosterApplications();
@@ -164,8 +171,8 @@ export default function FosterCare() {
 
             await sendFosterNotification({
                 email: data.assignment.fosterEmail,
-                title: "Foster Assignment Completed.",
-                message: `Your assignment for ${data.assignment.petName} has been marked as complete. Thank you for helping RescueBase!`,
+                title: "Foster Assignment Completed",
+                message: `Your foster assignment for ${data.assignment.petName} has been marked as completed. Thank you for helping RescueBase.`,
                 type: "assignment",
                 relatedId: data.assignment._id,
             });
@@ -262,6 +269,10 @@ export default function FosterCare() {
                 localStorage.getItem("rescuebase_user") || "{}"
             );
 
+            const assignment = assignments.find(
+                (item) => item._id === id
+            )
+
             const response = await fetch(`${API}/api/foster/assignments/${id}`, {
                 method: "DELETE",
                 headers: {
@@ -286,6 +297,14 @@ export default function FosterCare() {
             if (editingId === id) {
                 handleCancelEdit();
             }
+
+            await sendFosterNotification({
+                email: assignment.fosterEmail,
+                title: "Assignment Cancelled",
+                message: `Your foster assignment for ${assignment.petName} has been cancelled by the shelter.`,
+                type: "assignment",
+                relatedId: assignment._id,
+            })
 
             fetchAssignments();
         } catch (error) {
@@ -339,10 +358,10 @@ export default function FosterCare() {
 
             await sendFosterNotification({
                 email: assignmentForm.fosterEmail,
-                title: "New Foster Assignment.",
-                message: `You have been assigned to foster ${assignmentForm.petName}. Please login to RescueBase to review your assignment.`,
-                type: "assignment."
-            })
+                title: "New Foster Assignment",
+                message: `You have been assigned to foster ${assignmentForm.petName}. Please log in to RescueBase to review your assignment.`,
+                type: "assignment",
+            });
 
             setAssignmentForm(emptyAssignmentForm);
             fetchAssignments();
@@ -414,23 +433,31 @@ export default function FosterCare() {
         relatedId = null,
     }) {
         try {
-            await fetch(
-                `${API}/api/foster/notifications`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email,
-                    title,
-                    message,
-                    type,
-                    relatedId,
-                }),
-            }
+            const response = await fetch(
+                `${API}/api/foster/notifications`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        email,
+                        title,
+                        message,
+                        type,
+                        relatedId,
+                    }),
+                }
             );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                console.error(data.message);
+            }
+
         } catch (error) {
-            console.error("Notifications error", error);
+            console.error(error);
         }
     }
 
