@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { act, useEffect, useMemo, useState } from "react";
 
 import DashboardOverview from "./modules/DashboardOverview";
 import FosterApplication from "./modules/FosterApplication";
@@ -6,6 +6,7 @@ import FosterAssignment from "./modules/FosterAssignment";
 import WeeklyUpdates from "./modules/WeeklyUpdates";
 import FosterHistory from "./modules/FosterHistory";
 import FosterNotifications from "./modules/FosterNotifications";
+import MedicalAssistance from "./modules/MedicalAssistance";
 
 import "../../styles/foster/FosterDashboard.css";
 import "../../styles/foster/FosterApplication.css";
@@ -191,6 +192,12 @@ export default function FosterDashboard({ setPage }) {
             />
         ),
 
+        medical: (
+            <MedicalAssistance
+                assignment={assignment}
+            /> 
+        ),
+
     }), [
         application,
         assignment,
@@ -282,6 +289,20 @@ export default function FosterDashboard({ setPage }) {
                     >
                         My Application
                     </button>
+
+                    <button
+                        className={
+                            activePage === "medical"
+                                ? "active"
+                                : ""
+                        }
+                        onClick={() =>
+                            setActivePage("medical")
+                        }
+                    >
+                        Medical Assistance
+                    </button>
+
                 </nav>
 
                 <button
