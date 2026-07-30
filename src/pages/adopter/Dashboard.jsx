@@ -48,6 +48,14 @@ const adopterMenu = [
         key: "recommendations",
         label: "Recommendations",
     },
+    {
+        key: "donation",
+        label: "Donation",
+    },
+    {
+        key: "donation-history",
+        label: "Donation History",
+    },
 ];
 
 const emptyPet = {
@@ -1104,6 +1112,10 @@ export default function Dashboard({ onLogout }) {
                 />
             );
         }
+
+        // if (activeAdopterPage === "donation") {
+        //     return <DonationCenter />
+        // }
 
         return renderOverview();
     }
