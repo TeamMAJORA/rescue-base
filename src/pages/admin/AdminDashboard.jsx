@@ -18,7 +18,7 @@ import "../../styles/admin/GISMapping.css";
 import "../../styles/admin/Feedback.css";
 import "../../styles/admin/Analytics.css";
 import "../../styles/admin/Reports.css";
-import "../../styles/foster/UserManagement.css"
+import "../../styles/foster/UserManagement.css";
 import "../../styles/admin/Donations.css";
 
 // Assets
@@ -42,6 +42,7 @@ import VaccinationRecords from "./modules/animals/VaccinationRecords";
 import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
 import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
+import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
@@ -64,7 +65,8 @@ const adminMenu = [
             { key: "vaccination-records", label: "Vaccination Records" },
             { key: "behavior-assessment", label: "Behavioral Assessment"},
             { key: "qr-tags", label: "QR Tags" },
-            { key: "animal-transfers", label: "Animal Transfers"},
+            { key: "animal-transfers", label: "Animal Transfers" },
+            { key: "mobile-intake", label: "Mobile Field Intake" },
         ],
     },
 
@@ -295,6 +297,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "animal-transfers") {
             return <AnimalTransfers />
+        }
+
+        if (activeAdminPage === "mobile-intake") {
+            return <MobileFieldIntake />
         }
 
     }
