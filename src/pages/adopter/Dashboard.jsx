@@ -14,6 +14,7 @@ import "../../styles/adopter/BrowsePets.css";
 import "../../styles/adopter/MatchmakingQuiz.css";
 import "../../styles/adopter/Recommendations.css";
 import "../../styles/adopter/DonationCenter.css";
+import "../../styles/adopter/DonationHistory.css";
 
 // Module
 import AdoptionApplication from "./modules/AdoptionApplication";
@@ -22,6 +23,7 @@ import BrowsePets from "./modules/BrowsePets";
 import MatchmakingQuiz from "./modules/MatchmakingQuiz";
 import Recommendations from "./modules/Recommendations";
 import DonationCenter from "./modules/DonationCenter";
+import DonationHistory from "./modules/DonationHistory";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1117,6 +1119,10 @@ export default function Dashboard({ onLogout }) {
 
         if (activeAdopterPage === "donation") {
             return <DonationCenter />
+        }
+
+        if (activeAdopterPage === "donation-history") {
+            return <DonationHistory />
         }
 
         return renderOverview();
