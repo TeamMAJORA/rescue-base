@@ -80,7 +80,7 @@ export default function MedicalRecords() {
                         <select
                             value={recordForm.recordType}
                             onChange={(e) =>
-                                starterRecords({
+                                setRecordForm({
                                     ...recordForm,
                                     recordType : e.type.value,
                                 })
