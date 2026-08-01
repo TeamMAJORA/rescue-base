@@ -6,7 +6,6 @@ const starterAssessments = [
         animalName: "Bella",
         assessor: "Shelter Staff",
         assessmentDate: "2026-07-30",
-
         energyLevel: 4,
         friendliness: 5,
         humanSociability: 5,
@@ -15,7 +14,6 @@ const starterAssessments = [
         confidence: 3,
         anxietyLevel: 2,
         aggressionLevel: 1,
-
         notes: "Very friendly and suitable for first-time adopters.",
     },
     {
@@ -23,7 +21,6 @@ const starterAssessments = [
         animalName: "Max",
         assessor: "Volunteer Team",
         assessmentDate: "2026-07-27",
-
         energyLevel: 5,
         friendliness: 4,
         humanSociability: 4,
@@ -32,7 +29,6 @@ const starterAssessments = [
         confidence: 5,
         anxietyLevel: 1,
         aggressionLevel: 1,
-
         notes: "Highly energetic and loves outdoor activities.",
     },
 ];
