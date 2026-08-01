@@ -34,7 +34,6 @@ import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
-import QRTags from "./modules/QRTags";
 
 // ANIMALS
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
@@ -42,11 +41,13 @@ import MedicalRecords from "./modules/animals/MedicalRecords";
 import VaccinationRecords from "./modules/animals/VaccinationRecords";
 import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
 import IntakeRecords from "./modules/animals/IntakeRecords";
+import QRTags from "./modules/animals/QRTags";
 
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
+import AnimalTransfers from "./modules/animals/AnimalTransfers";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -62,6 +63,8 @@ const adminMenu = [
             { key: "intake-records", label: "Intake Records" },
             { key: "vaccination-records", label: "Vaccination Records" },
             { key: "behavior-assessment", label: "Behavioral Assessment"},
+            { key: "qr-tags", label: "QR Tags" },
+            { key: "animal-transfers", label: "Animal Transfers"},
         ],
     },
 
@@ -74,7 +77,6 @@ const adminMenu = [
             { key: "recommendations", label: "Recommendations" },
         ],
     },
-    { key: "qr-tags", label: "QR Tags" },
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "lost-found", label: "Lost & Found" },
@@ -289,6 +291,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "qr-tags") {
             return <QRTags />
+        }
+
+        if (activeAdminPage === "animal-transfers") {
+            return <AnimalTransfers />
         }
 
     }
