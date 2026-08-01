@@ -3,107 +3,147 @@ import { useState } from "react";
 const starterIntakes = [
     {
         id: 1,
-        animalName: "Max",
-        intakeType: "Rescue",
-        intakeDate: "2026-06-25",
-        foundLocation: "Cebu City",
-        condition: "Good",
-        notes: "Rescued near roadside. No visible injuries.",
+        animalName: "Bella",
+        animalType: "Dog",
+        intakeType: "Rescued",
+        rescueLocation: "Poblacion, Koronadal",
+        intakeDate: "2026-07-18",
+        rescuedBy: "Volunteer Team A",
+        condition: "Injured",
+        notes: "Found with a minor leg injury.",
     },
     {
         id: 2,
-        animalName: "Luna",
-        intakeType: "Surrender",
-        intakeDate: "2026-06-26",
-        foundLocation: "Talisay City",
-        condition: "Needs Observation",
-        notes: "Owner surrendered due to relocation.",
+        animalName: "Ming",
+        animalType: "Cat",
+        intakeType: "Owner Surrender",
+        rescueLocation: "Koronadal Shelter",
+        intakeDate: "2026-07-24",
+        rescuedBy: "Owner",
+        condition: "Healthy",
+        notes: "Owner relocated overseas.",
     },
 ];
 
 export default function IntakeRecords() {
-    const [intakes, setIntakes] = useState(starterIntakes);
-
-    const [intakeForm, setIntakeForm] = useState({
+    const [records, setRecords] = useState(starterIntakes);
+    const [form, setForm] = useState({
         animalName: "",
-        intakeType: "Rescue",
+        animalType: "Dog",
+        intakeType: "Rescued",
+        rescueLocation: "",
         intakeDate: "",
-        foundLocation: "",
-        condition: "Good",
+        rescuedBy: "",
+        condition: "Healthy",
         notes: "",
     });
 
-    function handleAddIntake(e) {
+    function handleAddRecord(e) {
         e.preventDefault();
 
-        const newIntake = {
+        const newRecord = {
             id: Date.now(),
-            ...intakeForm,
+            ...form,
         };
 
-        setIntakes((current) => [newIntake, ...current]);
+        setRecords((current) => [
+            newRecord,
+            ...current,
+        ]);
 
-        setIntakeForm({
+        setForm({
             animalName: "",
-            intakeType: "Rescue",
+            animalType: "Dog",
+            intakeType: "Rescued",
+            rescueLocation: "",
             intakeDate: "",
-            foundLocation: "",
-            condition: "Good",
+            rescuedBy: "",
+            condition: "Healthy",
             notes: "",
         });
     }
-
     return (
         <section className="admin-intake-page">
             <section className="admin-panel admin-intake-form-panel">
                 <div className="admin-panel-heading">
-                    <h2>Add Intake Record</h2>
+                    <h2>New Intake Record</h2>
                 </div>
-
-                <form className="admin-intake-form" onSubmit={handleAddIntake}>
+                <form
+                    className="admin-intake-form"
+                    onSubmit={handleAddRecord}
+                >
                     <label>
                         Animal Name
                         <input
-                            type="text"
-                            value={intakeForm.animalName}
-                            onChange={(e) =>
-                                setIntakeForm({
-                                    ...intakeForm,
-                                    animalName: e.target.value,
+                            value={form.animalName}
+                            onChange={(e)=>
+                                setForm({
+                                    ...form,
+                                    animalName:e.target.value
                                 })
                             }
-                            placeholder="Example: Max"
                             required
                         />
                     </label>
 
                     <label>
-                        Intake Type
+                        Animal Type
                         <select
-                            value={intakeForm.intakeType}
-                            onChange={(e) =>
-                                setIntakeForm({
-                                    ...intakeForm,
-                                    intakeType: e.target.value,
+                            value={form.animalType}
+                            onChange={(e)=>
+                                setForm({
+                                    ...form,
+                                    animalType:e.target.value
                                 })
                             }
                         >
-                            <option value="Rescue">Rescue</option>
-                            <option value="Surrender">Surrender</option>
-                            <option value="Transfer">Transfer</option>
-                            <option value="Found Stray">Found Stray</option>
+                            <option>Dog</option>
+                            <option>Cat</option>
+                            <option>Other</option>
                         </select>
+                    </label>
+
+                    <label>
+                        Intake Type
+                        <select
+                            value={form.intakeType}
+                            onChange={(e)=>
+                                setForm({
+                                    ...form,
+                                    intakeType:e.target.value
+                                })
+                            }
+                        >
+                            <option>Rescued</option>
+                            <option>Owner Surrender</option>
+                            <option>Transferred</option>
+                            <option>Stray</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Rescue Location
+                        <input
+                            value={form.rescueLocation}
+                            onChange={(e)=>
+                                setForm({
+                                    ...form,
+                                    rescueLocation:e.target.value
+                                })
+                            }
+                            required
+                        />
                     </label>
 
                     <label>
                         Intake Date
                         <input
                             type="date"
-                            value={intakeForm.intakeDate}
-                            onChange={(e) =>
-                                setIntakeForm({
-                                    ...intakeForm,
-                                    intakeDate: e.target.value,
+                            value={form.intakeDate}
+                            onChange={(e)=>
+                                setForm({
+                                    ...form,
+                                    intakeDate:e.target.value
                                 })
                             }
                             required
@@ -111,82 +151,136 @@ export default function IntakeRecords() {
                     </label>
 
                     <label>
-                        Found / Source Location
+                       Rescued By
                         <input
-                            type="text"
-                            value={intakeForm.foundLocation}
-                            onChange={(e) =>
-                                setIntakeForm({
-                                    ...intakeForm,
-                                    foundLocation: e.target.value,
+                            value={form.rescuedBy}
+                            onChange={(e)=>
+                                setForm({
+                                    ...form,
+                                    rescuedBy:e.target.value
                                 })
                             }
-                            placeholder="Example: Cebu City"
-                            required
-                        />
+                    />
                     </label>
 
                     <label>
-                        Condition
+                        Initial Condition
                         <select
-                            value={intakeForm.condition}
-                            onChange={(e) =>
-                                setIntakeForm({
-                                    ...intakeForm,
-                                    condition: e.target.value,
+                            value={form.condition}
+                            onChange={(e)=>
+                                setForm({
+                                    ...form,
+                                    condition:e.target.value
                                 })
                             }
                         >
-                            <option value="Good">Good</option>
-                            <option value="Needs Observation">Needs Observation</option>
-                            <option value="Injured">Injured</option>
-                            <option value="Critical">Critical</option>
+                            <option>Healthy</option>
+                            <option>Injured</option>
+                            <option>Critical</option>
+                            <option>Under Observation</option>
                         </select>
                     </label>
-
                     <label className="admin-intake-notes-field">
                         Notes
                         <textarea
-                            value={intakeForm.notes}
-                            onChange={(e) =>
-                                setIntakeForm({
-                                    ...intakeForm,
-                                    notes: e.target.value,
+                            rows="4"
+                            value={form.notes}
+                            onChange={(e)=>
+                                setForm({
+                                    ...form,
+                                    notes:e.target.value
                                 })
                             }
-                            placeholder="Write intake details here..."
-                            required
                         />
                     </label>
-
-                    <button type="submit">Add Intake Record</button>
+                    <button type="submit">
+                        Save Intake Record
+                    </button>
                 </form>
             </section>
 
             <section className="admin-panel admin-intake-list-panel">
                 <div className="admin-panel-heading">
+
                     <h2>Intake Records</h2>
+
                 </div>
 
                 <div className="admin-intake-list">
-                    {intakes.map((intake) => (
-                        <article className="admin-intake-row" key={intake.id}>
-                            <div>
-                                <h3>{intake.animalName}</h3>
+                    {
+                        records.map((record)=>(
+                            <article
+                                key={record.id}
+                                className="admin-intake-row"
+                            >
+                                <div>
 
-                                <p>
-                                    {intake.intakeType} • {intake.intakeDate} •{" "}
-                                    {intake.condition}
-                                </p>
+                                    <h3>
 
-                                <small>{intake.foundLocation}</small>
+                                        {record.animalName}
 
-                                <span>{intake.notes}</span>
-                            </div>
-                        </article>
-                    ))}
+                                    </h3>
+
+                                    <p>
+
+                                        <strong>Animal:</strong>{" "}
+
+                                        {record.animalType}
+
+                                    </p>
+
+                                    <p>
+
+                                        <strong>Intake:</strong>{" "}
+
+                                        {record.intakeType}
+
+                                    </p>
+
+                                    <p>
+
+                                        <strong>Location:</strong>{" "}
+
+                                        {record.rescueLocation}
+
+                                    </p>
+
+                                    <p>
+
+                                        <strong>Date:</strong>{" "}
+
+                                        {record.intakeDate}
+
+                                    </p>
+
+                                    <p>
+
+                                        <strong>Rescued By:</strong>{" "}
+
+                                        {record.rescuedBy}
+
+                                    </p>
+
+                                    <p>
+
+                                        <strong>Condition:</strong>{" "}
+
+                                        {record.condition}
+
+                                    </p>
+
+                                    <span>
+
+                                        {record.notes}
+
+                                    </span>
+                                </div>
+                            </article>
+                    ))
+                    }
                 </div>
             </section>
         </section>
     );
-}
+
+};
