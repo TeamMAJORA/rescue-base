@@ -26,12 +26,6 @@ import assets from "../../data/assets.json";
 
 // Modules
 import AdminOverview from "./modules/AdminOverview";
-import AnimalProfiles from "./modules/animals/AnimalProfiles";
-import MedicalRecords from "./modules/animals/MedicalRecords";
-import IntakeRecords from "./modules/animals/IntakeRecords";
-import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
-import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
-import Recommendations from "./modules/adoptions/Recommendations";
 import FosterCare from "./modules/FosterCare";
 import GISMapping from "./modules/GISMapping";
 import UserManagement from "./modules/UserManagement";
@@ -40,7 +34,19 @@ import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
+import QRTags from "./modules/QRTags";
+
+// ANIMALS
+import AnimalProfiles from "./modules/animals/AnimalProfiles";
+import MedicalRecords from "./modules/animals/MedicalRecords";
 import VaccinationRecords from "./modules/animals/VaccinationRecords";
+import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
+import IntakeRecords from "./modules/animals/IntakeRecords";
+
+// ADOPTIONS
+import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
+import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
+import Recommendations from "./modules/adoptions/Recommendations";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -54,7 +60,8 @@ const adminMenu = [
             { key: "animal-profiles", label: "Animal Profiles" },
             { key: "medical-records", label: "Medical Records" },
             { key: "intake-records", label: "Intake Records" },
-            { key: "vaccination-records", label: "Vaccination Records" }
+            { key: "vaccination-records", label: "Vaccination Records" },
+            { key: "behavior-assessment", label: "Behavioral Assessment"},
         ],
     },
 
@@ -67,6 +74,7 @@ const adminMenu = [
             { key: "recommendations", label: "Recommendations" },
         ],
     },
+    { key: "qr-tags", label: "QR Tags" },
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "lost-found", label: "Lost & Found" },
@@ -273,6 +281,14 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "vaccination-records") {
             return <VaccinationRecords />
+        }
+
+        if (activeAdminPage === "behavior-assessment") {
+            return <BehaviorAssessment />
+        }
+
+        if (activeAdminPage === "qr-tags") {
+            return <QRTags />
         }
 
     }
