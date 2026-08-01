@@ -40,6 +40,7 @@ import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
+import VaccinationRecords from "./modules/animals/VaccinationRecords";
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -53,6 +54,7 @@ const adminMenu = [
             { key: "animal-profiles", label: "Animal Profiles" },
             { key: "medical-records", label: "Medical Records" },
             { key: "intake-records", label: "Intake Records" },
+            { key: "vaccination-records", label: "Vaccination Records" }
         ],
     },
 
@@ -181,29 +183,29 @@ export default function AdminDashboard({ setPage }) {
                     id: "pending-applcations",
                     title: "Pending Adoption Applications",
                     message: `${pendingApplication.length} application(s) waiting for review.`,
-                    page : "adoption-applications",
+                    page: "adoption-applications",
                 });
             }
 
             if (activeFosters.length > 0) {
                 newNotifications.push({
-                    id : "active-fosters",
-                    title : "Active foster assignment",
-                    message : `${activeFosters.length} foster assignments(s) currently in progress.`,
-                    page : "foster-care",
+                    id: "active-fosters",
+                    title: "Active foster assignment",
+                    message: `${activeFosters.length} foster assignments(s) currently in progress.`,
+                    page: "foster-care",
                 });
             }
 
             if (completedFosters.length > 0) {
                 newNotifications.push({
-                    id : "completed-fosters",
-                    title : "Completed Foster Assignment",
-                    message : `${activeFosters.length} foster assignment(s) completed.`,
+                    id: "completed-fosters",
+                    title: "Completed Foster Assignment",
+                    message: `${activeFosters.length} foster assignment(s) completed.`,
                 });
             }
 
             setNotification(newNotifications);
-        } catch (error){
+        } catch (error) {
             console.error("Fetch admin notification error: ", error);
         }
     }
@@ -269,6 +271,10 @@ export default function AdminDashboard({ setPage }) {
             return <Donations />;
         }
 
+        if (activeAdminPage === "vaccination-records") {
+            return <VaccinationRecords />
+        }
+
     }
 
     useEffect(() => {
@@ -279,7 +285,7 @@ export default function AdminDashboard({ setPage }) {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, []); 
+    }, []);
 
     return (
         <main className="admin-page">
