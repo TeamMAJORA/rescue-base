@@ -111,9 +111,8 @@ function AdminStatCard({ label, value, icon }) {
 
             <span>{icon}</span>
         </article>
-    )
+    );
 }
-
 
 function getAdminPageTitle(activeAdminPage) {
     for (const item of adminMenu) {
