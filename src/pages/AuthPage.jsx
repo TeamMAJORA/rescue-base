@@ -71,13 +71,18 @@ export default function AuthPage({ mode = "login", setPage }) {
 
         const role = String(user.role || "adopter").trim().toLowerCase();
 
-        if (role === "admin" || role === "staff") {
+        if (role === "admin") {
             setPage("admin");
             return;
         }
 
         if (role === "foster") {
             setPage("foster");
+            return;
+        }
+
+        if (role === "staff") {
+            setPage("staff");
             return;
         }
 
