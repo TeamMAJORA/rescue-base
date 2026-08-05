@@ -4,7 +4,7 @@ import {
 } from "react";
 
 //CSS
-import "../../styles/admin/AdminDashboard.css";
+import "../../styles/admin/StaffDashboard.css";
 import "../../styles/admin/AdminDashboardOverview.css"
 import "../../styles/admin/AnimalProfiles.css";
 import "../../styles/admin/MedicalRecords.css";
@@ -25,30 +25,30 @@ import "../../styles/admin/Donations.css";
 import assets from "../../data/assets.json";
 
 // Modules
-// import AdminOverview from "./modules/AdminOverview";
-// import FosterCare from "./modules/FosterCare";
-// import GISMapping from "./modules/GISMapping";
-// import UserManagement from "./modules/UserManagement";
-// import LostFound from "./modules/LostFound";
-// import Feedback from "./modules/Feedback";
-// import Analytics from "./modules/Analytics";
-// import Reports from "./modules/Reports";
-// import Donations from "./modules/Donations";
+import AdminOverview from "./modules/AdminOverview";
+import FosterCare from "./modules/FosterCare";
+import GISMapping from "./modules/GISMapping";
+import UserManagement from "./modules/UserManagement";
+import LostFound from "./modules/LostFound";
+import Feedback from "./modules/Feedback";
+import Analytics from "./modules/Analytics";
+import Reports from "./modules/Reports";
+import Donations from "./modules/Donations";
 
 // // ANIMALS
-// import AnimalProfiles from "./modules/animals/AnimalProfiles";
-// import MedicalRecords from "./modules/animals/MedicalRecords";
-// import VaccinationRecords from "./modules/animals/VaccinationRecords";
-// import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
-// import IntakeRecords from "./modules/animals/IntakeRecords";
-// import QRTags from "./modules/animals/QRTags";
-// import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
+import AnimalProfiles from "./modules/animals/AnimalProfiles";
+import MedicalRecords from "./modules/animals/MedicalRecords";
+import VaccinationRecords from "./modules/animals/VaccinationRecords";
+import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
+import IntakeRecords from "./modules/animals/IntakeRecords";
+import QRTags from "./modules/animals/QRTags";
+import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 
 // // ADOPTIONS
-// import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
-// import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
-// import Recommendations from "./modules/adoptions/Recommendations";
-// import AnimalTransfers from "./modules/animals/AnimalTransfers";
+import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
+import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
+import Recommendations from "./modules/adoptions/Recommendations";
+import AnimalTransfers from "./modules/animals/AnimalTransfers";
 
 const staffMenu = [
     { key: "overview", label: "Dashboard" },
@@ -219,7 +219,7 @@ export default function StaffDashboard({ setPage }) {
 
     function renderStaffContent() {
         if (activeStaffPage === "overview") {
-            return <StaffOverview />;
+            return <AdminOverview />;
         }
 
         if (activeStaffPage === "animals" || activeStaffPage === "animal-profiles") {
