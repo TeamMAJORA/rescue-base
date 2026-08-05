@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isAdmin } from "../../../../utils/auth";
 
 const starterVaccinations = [
     {
@@ -25,6 +26,10 @@ const starterVaccinations = [
 
 export default function VaccinationRecords() {
     const [vaccinations, setVaccinations] = useState(starterVaccinations);
+    const [editingId, setEditingId] = useState(null);
+    const [search, setSearch] = useState("");
+    const [filterStatus, setFilterStatus] = useState("All");
+
     const [vaccinationForm, setVaccinationForm] = useState({
         animalName: "",
         vaccineName: "",
@@ -38,15 +43,30 @@ export default function VaccinationRecords() {
     function handleAddVaccination(e) {
         e.preventDefault();
 
-        const newVaccination = {
-            id: Date.now(),
-            ...vaccinationForm,
-        };
+        if (editingId) {
+            setVaccinations((current) =>
+                current.map((vaccination) =>
+                    vaccination.id === editingId
+                        ? {
+                            ...vaccination,
+                            ...vaccinationForm
+                        }
+                        : vaccination
+                )
+            );
 
-        setVaccinations((current) => [
-            newVaccination,
-            ...current,
-        ]);
+            setEditingId(null);
+        } else {
+            const newVaccination = {
+                id: Date.now(),
+                ...vaccinationForm,
+            }
+
+            setVaccinations((current) => [
+                newVaccination,
+                ...current,
+            ]);
+        }
 
         setVaccinationForm({
             animalName: "",
@@ -59,11 +79,42 @@ export default function VaccinationRecords() {
         });
     }
 
+    function handleEditVaccination(vaccination) {
+        setEditingId(vaccination.id);
+
+        setVaccinationForm({
+            animalName: vaccination.animalName,
+            vaccineName: vaccination.vaccineName,
+            veterinarian: vaccination.veterinarian,
+            vaccinationDate: vaccination.vaccinationDate,
+            nextDueDate: vaccination.nextDueDate,
+            status: vaccination.status,
+            notes: vaccination.notes,
+        });
+    }
+
+    function handleDeleteVaccination(id) {
+        if (!isAdmin()) {
+            alert("Only administrators can delete can delete vaccination records.");
+            return;
+        }
+
+        setVaccinations((current) =>
+            current.filter(
+                (vaccination) => vaccination.id !== id
+            )
+        )
+    }
+
     return (
         <section className="admin-vaccination-page">
             <section className="admin-panel admin-vaccination-form-panel">
                 <div className="admin-panel-heading">
-                    <h2>Add Vaccination Record</h2>
+                    <h2>{
+                        editingId
+                            ? "Editing Vaccination Record"
+                            : "Add Vaccination Record"
+                    }</h2>
                 </div>
                 <form
                     className="admin-vaccination-form"
@@ -189,8 +240,34 @@ export default function VaccinationRecords() {
 
                     </label>
                     <button type="submit">
-                        Save Vaccination Record
+                        {
+                            editingId
+                                ? "Update Vaccination Record"
+                                : "Save Vaccination Record"
+                        }
                     </button>
+
+                    {editingId && (
+                        <button
+                            type="button"
+                            className="admin-secondary-button"
+                            onClick={() => {
+                                setEditingId(null);
+
+                                setVaccinationForm({
+                                    animalName: "",
+                                    vaccineName: "",
+                                    veterinarian: "",
+                                    vaccinationDate: "",
+                                    nextDueDate: "",
+                                    status: "Completed",
+                                    notes: "",
+                                });
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    )}
                 </form>
             </section>
 
@@ -198,23 +275,45 @@ export default function VaccinationRecords() {
                 <div className="admin-panel-heading">
                     <h2>Vaccination Records</h2>
                 </div>
+
+                <input
+                    type="text"
+                    placeholder="Search animal..."
+                    value={search}
+                    onChange={(e) =>
+                        setSearch(e.target.value)
+                    }
+                />
+
+                <select
+                    value={filterStatus}
+                    onChange={(e) =>
+                        setFilterStatus(e.target.value)
+                    }
+                >
+                    <option value="All">All</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Overdue">Overdue</option>
+                </select>
+
                 <div className="admin-vaccination-list">
 
-                    {vaccinations.map((vaccination) => (
-
+                    {vaccinations.filter((vaccination) => {
+                        const matchesSearch = vaccination.animalName.toLowerCase().includes(search.toLowerCase());
+                        const matchesStatus = filterStatus === "All" || vaccination.status === filterStatus;
+                        return matchesSearch && matchesStatus;
+                    }).map((vaccination) => (
                         <article
                             className="admin-vaccination-row"
                             key={vaccination.id}
                         >
-
                             <div>
-
                                 <h3>
                                     {vaccination.animalName}
                                 </h3>
 
                                 <p>
-
                                     <strong>
                                         Vaccine:
                                     </strong>
@@ -222,11 +321,9 @@ export default function VaccinationRecords() {
                                     {" "}
 
                                     {vaccination.vaccineName}
-
                                 </p>
 
                                 <p>
-
                                     <strong>
                                         Veterinarian:
                                     </strong>
@@ -234,11 +331,9 @@ export default function VaccinationRecords() {
                                     {" "}
 
                                     {vaccination.veterinarian}
-
                                 </p>
 
                                 <p>
-
                                     <strong>
                                         Vaccinated:
                                     </strong>
@@ -246,11 +341,9 @@ export default function VaccinationRecords() {
                                     {" "}
 
                                     {vaccination.vaccinationDate}
-
                                 </p>
 
                                 <p>
-
                                     <strong>
                                         Next Due:
                                     </strong>
@@ -258,7 +351,6 @@ export default function VaccinationRecords() {
                                     {" "}
 
                                     {vaccination.nextDueDate}
-
                                 </p>
 
                                 <span
@@ -268,10 +360,32 @@ export default function VaccinationRecords() {
                                 </span>
 
                                 <p>
-
                                     {vaccination.notes}
-
                                 </p>
+
+                                <div className="admin-vaccination-actions">
+                                    <button
+                                        button="button"
+                                        className="admin-edit-button"
+                                        onClick={() =>
+                                            handleAddVaccination(vaccination)
+                                        }
+                                    >
+                                        Edit
+                                    </button>
+
+                                    {isAdmin && (
+                                        <button
+                                            type="button"
+                                            className="admin-delete-button"
+                                            onClick={() =>
+                                                handleDeleteVaccination(vaccination.id)
+                                            }
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </article>
                     ))}
