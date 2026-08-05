@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isAdmin } from "../../../../utils/auth";
 
 const starterTransfers = [
     {
@@ -23,6 +24,10 @@ const starterTransfers = [
 
 export default function AnimalTransfers() {
     const [transfers, setTransfer] = useState(starterTransfers);
+    const [editingId, setEditingId] = useState(null);
+    const [search, setSearch] = useState("");
+    const [filterStatus, setFilterStatus] = useState("All");
+
     const [form, setForm] = useState({
         animalName: "",
         fromLocation: "",
@@ -42,15 +47,30 @@ export default function AnimalTransfers() {
     function handleSubmit(e) {
         e.preventDefault();
 
-        const newTransfer = {
-            newTransfer,
-            ...form,
-        }
+        if (editingId) {
+            setTransfer((current) =>
+                current.map((transfer) =>
+                    transfer.id === editingId
+                        ? {
+                            ...transfer,
+                            ...form,
+                        }
+                        : transfer
+                )
+            );
 
-        setTransfer((current) => [
-            newTransfer,
-            ...current
-        ]);
+            setEditingId(null);
+        } else {
+            const newTransfer = {
+                id: Date.now(),
+                ...form
+            };
+
+            setTransfer((current) => [
+                newTransfer,
+                ...current
+            ])
+        }
 
         setForm({
             animalName: "",
@@ -62,14 +82,41 @@ export default function AnimalTransfers() {
         });
     }
 
+    function handleEditTransfer(transfer) {
+        setEditingId(transfer.id);
+
+        setForm({
+            animalName: transfer.animalName,
+            fromLocation: transfer.fromLocation,
+            toLocation: transfer.toLocation,
+            transferDate: transfer.transferDate,
+            reason: transfer.reason,
+            status: transfer.status,
+        });
+    }
+
+    function handleDeleteTransfer(id) {
+        if (!isAdmin()) {
+            alert("Only administrators can delete transfers");
+            return;
+        }
+
+        setTransfer((current) =>
+            current.filter(
+                (transfer) => transfer.id !== id
+            )
+        );
+    }
+
     return (
         <section className="admin-transfer-page">
             <section className="admin-panel admin-transfer-form-panel">
                 <div className="admin-panel-heading">
                     <h2>
-
-                        Animal Transfer
-
+                        {editingId
+                            ? "Edit Animal Transfer"
+                            : "Animal Transfer"
+                        }
                     </h2>
                 </div>
 
@@ -82,7 +129,7 @@ export default function AnimalTransfers() {
                         Animal Name
                         <input
                             value={form.animalName}
-                            onChange={(e)=>
+                            onChange={(e) =>
                                 updateField(
                                     "animalName",
                                     e.target.value
@@ -96,7 +143,7 @@ export default function AnimalTransfers() {
                         From
                         <input
                             value={form.fromLocation}
-                            onChange={(e)=>
+                            onChange={(e) =>
                                 updateField(
                                     "fromLocation",
                                     e.target.value
@@ -110,7 +157,7 @@ export default function AnimalTransfers() {
                         To
                         <input
                             value={form.toLocation}
-                            onChange={(e)=>
+                            onChange={(e) =>
                                 updateField(
                                     "toLocation",
                                     e.target.value
@@ -125,7 +172,7 @@ export default function AnimalTransfers() {
                         <input
                             type="date"
                             value={form.transferDate}
-                            onChange={(e)=>
+                            onChange={(e) =>
                                 updateField(
                                     "transferDate",
                                     e.target.value
@@ -139,7 +186,7 @@ export default function AnimalTransfers() {
                         Reason
                         <input
                             value={form.reason}
-                            onChange={(e)=>
+                            onChange={(e) =>
                                 updateField(
                                     "reason",
                                     e.target.value
@@ -153,7 +200,7 @@ export default function AnimalTransfers() {
                         Status
                         <select
                             value={form.status}
-                            onChange={(e)=>
+                            onChange={(e) =>
                                 updateField(
                                     "status",
                                     e.target.value
@@ -175,8 +222,32 @@ export default function AnimalTransfers() {
                         </select>
                     </label>
                     <button type="submit">
-                        Save Transfer
+                        {editingId
+                            ? "Update Transfer"
+                            : "Save Transfer"
+                        }
                     </button>
+
+                    {editingId && (
+                        <button
+                            type="button"
+                            className="admin-secondary-button"
+                            onClick={() => {
+                                setEditingId(null);
+
+                                setForm({
+                                    animalName: "",
+                                    fromLocation: "",
+                                    toLocation: "",
+                                    transferDate: "",
+                                    reason: "",
+                                    status: "Pending",
+                                });
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    )}
                 </form>
             </section>
 
@@ -187,9 +258,35 @@ export default function AnimalTransfers() {
                     </h2>
                 </div>
 
+                <input
+                    type="text"
+                    placeholder="Search Animal..."
+                    value={search}
+                    onChange={(e) =>
+                        setSearch(e.target.value)
+                    }
+                />
+
+                <select
+                    value={filterStatus}
+                    onChange={(e) =>
+                        setFilterStatus(e.target.value)
+                    }
+                >
+                    <option value="All">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Transit">In Transit</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+
                 <div className="admin-transfer-list">
                     {
-                        transfers.map((transfer)=>(
+                        transfers.filter((transfer) => {
+                            const matchesSearch = transfer.animalName.toLowerCase().includes(search.toLowerCase());
+                            const matchesStatus = filterStatus === "All" || transfer.status === filterStatus;
+                            return matchesSearch && matchesStatus;
+                        }).map((transfer) => (
                             <article
                                 key={transfer.id}
                                 className="admin-transfer-row"
@@ -217,10 +314,34 @@ export default function AnimalTransfers() {
                                 </div>
 
                                 <span
-                                    className={`transfer-status ${transfer.status.toLowerCase().replace(/\s+/g,"-")}`}
+                                    className={`transfer-status ${transfer.status.toLowerCase().replace(/\s+/g, "-")}`}
                                 >
                                     {transfer.status}
                                 </span>
+
+                                <div className="admin-transfer-actions">
+                                    <button
+                                        type="button"
+                                        className="admin-edit-button"
+                                        onClick={() =>
+                                            handleEditTransfer(transfer)
+                                        }
+                                    >
+                                        Edit
+                                    </button>
+
+                                    {isAdmin() && (
+                                        <button
+                                            type="button"
+                                            className="admin-delete-button"
+                                            onClick={() =>
+                                                handleDeleteTransfer(transfer.id)
+                                            }
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
+                                </div>
                             </article>
                         ))
                     }
