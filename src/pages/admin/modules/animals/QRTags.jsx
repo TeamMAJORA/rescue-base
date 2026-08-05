@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isAdmin } from "../../../../utils/auth";
 
 const starterQRCodes = [
     {
@@ -19,6 +20,7 @@ const starterQRCodes = [
 
 export default function QRTags() {
     const [qrRecords, setQrRecords] = useState(starterQRCodes);
+    const [search, setSearch] = useState("");
     const [form, setForm] = useState({
         animalName: "",
     });
@@ -52,6 +54,32 @@ export default function QRTags() {
         setForm({
             animalName: "",
         });
+    }
+
+    function handleDelete(id) {
+        if (!isAdmin()) {
+            alert("Only administrators can dleete QR Tags");
+            return;
+        }
+
+        setQrRecords((current) =>
+            current.filter(
+                (record) => record.id !== id
+            )
+        )
+    }
+
+    function handleRegenrate(id) {
+        setQrRecords((current) =>
+            current.map((record) =>
+                record.id === id
+                    ? {
+                        ...record,
+                        createdAt: new Date().toISOString().split("T")[0],
+                    }
+                    : record
+            )
+        );
     }
 
     return (
@@ -89,9 +117,21 @@ export default function QRTags() {
                 <div className="admin-panel-heading">
                     <h2>QR Tag Records</h2>
                 </div>
+
+                <input
+                    type="text"
+                    placeholder="Search animal..."
+                    value={search}
+                    onChange={(e) =>
+                        setSearch(e.target.value)
+                    }
+                />
+
                 <div className="admin-qr-list">
                     {
-                        qrRecords.map((record) => (
+                        qrRecords.filter((record) =>
+                            record.animalName.toLowerCase().includes(search.toLowerCase())
+                        ).map((record) => (
                             <article
                                 className="admin-qr-row"
                                 key={record.id}
@@ -106,11 +146,11 @@ export default function QRTags() {
                                         {" "}
                                         {record.qrId}
                                     </p>
-                                    <p>
-                                        <strong>Status:</strong>
-                                        {" "}
+                                    <span
+                                        className={`admin-status-pill ${record.status.toLowerCase()}`}
+                                    >
                                         {record.status}
-                                    </p>
+                                    </span>
                                     <p>
                                         <strong>Created:</strong>
                                         {" "}
@@ -121,6 +161,28 @@ export default function QRTags() {
                                     <button>View</button>
                                     <button>Download</button>
                                     <button>Print</button>
+                                    {isAdmin() && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleRegenrate(record.id)
+                                                }
+                                            >
+                                                Regenerate
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                className="admin-delete-button"
+                                                onClick={() =>
+                                                    handleDelete(record.id)
+                                                }
+                                            >
+                                                Delete
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </article>
                         ))
