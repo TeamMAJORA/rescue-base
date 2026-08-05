@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isAdmin } from "../../../../utils/auth";
 
 const starterAssessments = [
     {
@@ -35,6 +36,9 @@ const starterAssessments = [
 
 export default function BehaviorAssessment() {
     const [assessments, setAssessments] = useState(starterAssessments);
+    const [editingId, setEditingId] = useState("");
+    const [filterAssessor, setFilterAssessor] = useState("All");
+
     const [form, setForm] = useState({
         animalName: "",
         assessor: "",
@@ -60,15 +64,30 @@ export default function BehaviorAssessment() {
     function handleSubmit(e) {
         e.preventDefault();
 
-        const newAssessment = {
-            id: Date.now(),
-            ...form,
-        }
+        if (editingId) {
+            setAssessments((current) =>
+                current.map((assessment) =>
+                    assessment.id === editingId
+                        ? {
+                            ...assessment,
+                            ...form,
+                        }
+                        : assessment
+                )
+            );
 
-        setAssessments((current) => [
-            newAssessment,
-            ...current,
-        ]);
+            setEditingId(null);
+        } else {
+            const newAssessment = {
+                id: Date.now(),
+                ...form,
+            };
+
+            setAssessments((current) => [
+                newAssessment,
+                ...current,
+            ]);
+        }
 
         setForm({
             animalName: "",
@@ -86,11 +105,46 @@ export default function BehaviorAssessment() {
         });
     }
 
+    function handleEditAssessment(assessment) {
+        setEditingId(assessment.id);
+
+        setForm({
+            animalName: assessment.animalName,
+            assessor: assessment.assessor,
+            assessmentDate: assessment.assessmentDate,
+            energyLevel: assessment.energyLevel,
+            friendliness: assessment.friendliness,
+            humanSociability: assessment.humanSociability,
+            animalSociability: assessment.animalSociability,
+            trainability: assessment.trainability,
+            confidence: assessment.confidence,
+            anxietyLevel: assessment.anxietyLevel,
+            aggressionLevel: assessment.aggressionLevel,
+            notes: assessment.notes,
+        });
+    }
+
+    function handleDeleteAssessment(id) {
+        if (!isAdmin()) {
+            alert("Only administrators can delete behavioral assessments");
+            return;
+        }
+
+        setAssessments((current) =>
+            current.filter(
+                (assessment) => assessment.id !== id
+            )
+        );
+    }
+
     return (
         <section className="admin-behavior-page">
             <section className="admin-panel admin-behavior-form-panel">
                 <div className="admin-panel-heading">
-                    <h2>Behavioral Assessment</h2>
+                    <h2>{editingId
+                        ? "Edit Behavioral Assessment"
+                        : "Behavioral Assessment"
+                    }</h2>
                 </div>
                 <form
                     className="admin-behavior-form"
@@ -186,8 +240,38 @@ export default function BehaviorAssessment() {
                     </label>
 
                     <button type="submit">
-                        Save Assessment
+                        {editingId
+                            ? "Update Assessment"
+                            : "Save Assessment"
+                        }
                     </button>
+
+                    {editingId && (
+                        <button
+                            type="button"
+                            className="admin-secondary-button"
+                            onClick={() => {
+                                setEditingId(null);
+
+                                setForm({
+                                    animalName: "",
+                                    assessor: "",
+                                    assessmentDate: "",
+                                    energyLevel: 3,
+                                    friendliness: 3,
+                                    humanSociability: 3,
+                                    animalSociability: 3,
+                                    trainability: 3,
+                                    confidence: 3,
+                                    anxietyLevel: 3,
+                                    aggressionLevel: 3,
+                                    notes: "",
+                                });
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    )}
                 </form>
             </section>
 
@@ -198,9 +282,40 @@ export default function BehaviorAssessment() {
                     </h2>
                 </div>
 
+                <input
+                    type="text"
+                    placeholder="Search animal..."
+                    value={search}
+                    onChange={(e) =>
+                        setSearch(e.target.value)
+                    }
+                />
+
+                <select
+                    value={filterAssessor}
+                    onChange={(e) =>
+                        setFilterAssessor(e.target.value)
+                    }
+                >
+                    <option value="All">All Assessors</option>
+                    {[...new Set(
+                        assessments.map((a) => a.assessor)
+                    )].map((assessor) => (
+                        <option
+                            key={assessor}
+                            value={assessor}
+                        >
+                            {assessor}
+                        </option>
+                    ))}
+                </select>
                 <div className="admin-behavior-list">
                     {
-                        assessments.map((assessment) => (
+                        assessments.filter((assessment) => {
+                            const matchesSearch = assessment.animalName.toLowerCase().includes(search.toLowerCase());
+                            const matchesAssessor = filterAssessor === "All" || assessment.assessor === filterAssessor;
+                            return matchesSearch && matchesAssessor
+                        }).map((assessment) => (
                             <article
                                 className="admin-behavior-row"
                                 key={assessment.id}
@@ -280,6 +395,30 @@ export default function BehaviorAssessment() {
                                     <span>
                                         {assessment.notes}
                                     </span>
+
+                                    <div className="admin-behavior-actions">
+                                        <button
+                                            type="button"
+                                            className="admin-edit-button"
+                                            onClick={() => 
+                                                handleEditAssessment(assessment)
+                                            }
+                                        >
+                                            Edit
+                                        </button>
+
+                                        {isAdmin() && (
+                                            <button
+                                                type="button"
+                                                className="admin-delete-button"
+                                                onClick={() =>
+                                                    handleDeleteAssessment(assessment.id)
+                                                }
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </article>
                         ))
