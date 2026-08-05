@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { getCurrentUser, isAdmin, isStaff } from "../../../../utils/auth";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -79,9 +80,7 @@ export default function AnimalProfiles() {
             setSubmitting(true);
             setMessage("");
 
-            const savedUser = JSON.parse(
-                localStorage.getItem("rescuebase_user") || "{}"
-            );
+            const savedUser = getCurrentUser();
 
             const payload = {
                 ...animalForm,
@@ -203,6 +202,12 @@ export default function AnimalProfiles() {
     }
 
     async function handleDeleteAnimal(id) {
+
+        if (!isAdmin()) {
+            setMessage("Only administrators can delete animal profiles");
+            return;
+        }
+
         const confirmed = window.confirm("Delete this animal profile?");
 
         if (!confirmed) return;
@@ -587,13 +592,17 @@ export default function AnimalProfiles() {
                                         Edit
                                     </button>
 
-                                    <button
-                                        type="button"
-                                        className="delete"
-                                        onClick={() => handleDeleteAnimal(animal._id)}
-                                    >
-                                        Delete
-                                    </button>
+                                    {
+                                        isAdmin() && (
+                                            <button
+                                                type="button"
+                                                className="delete"
+                                                onClick={() => handleDeleteAnimal(animal._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        )
+                                    }
                                 </div>
                             </article>
                         ))}
