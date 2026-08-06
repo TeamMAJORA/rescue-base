@@ -7,6 +7,7 @@ import Dashboard from "./pages/adopter/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import FosterDashboard from "./pages/foster/FosterDashboard";
 import StaffDashboard from "./pages/admin/StaffDashboard";
+import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -418,6 +419,10 @@ export default function App() {
 
     if (page === "staff") {
         return  <StaffDashboard setPage={setPage} />
+    }
+
+    if (page === "volunteer") {
+        return <VolunteerDashboard setPage={setPage} />
     }
 
     return (
