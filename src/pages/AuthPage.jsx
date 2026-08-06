@@ -86,6 +86,11 @@ export default function AuthPage({ mode = "login", setPage }) {
             return;
         }
 
+        if (role === "volunteer") {
+            setPage("volunteer");
+            return;
+        }
+
         setPage("dashboard");
     }
 
