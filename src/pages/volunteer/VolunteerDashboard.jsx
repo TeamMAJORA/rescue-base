@@ -105,7 +105,7 @@ function getStaffPageTitle(activeStaffPage) {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-export default function StaffDashboard({ setPage }) {
+export default function VolunteerDashboard({ setPage }) {
     const [activeStaffPage, setActiveStaffPage] = useState("overview");
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotification] = useState([]);
