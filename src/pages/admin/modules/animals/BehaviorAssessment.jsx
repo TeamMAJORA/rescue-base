@@ -37,6 +37,7 @@ const starterAssessments = [
 export default function BehaviorAssessment() {
     const [assessments, setAssessments] = useState(starterAssessments);
     const [editingId, setEditingId] = useState("");
+    const [search, setSearch] = useState("");
     const [filterAssessor, setFilterAssessor] = useState("All");
 
     const [form, setForm] = useState({

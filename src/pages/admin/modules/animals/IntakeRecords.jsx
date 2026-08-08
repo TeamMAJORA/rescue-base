@@ -307,7 +307,7 @@ export default function IntakeRecords() {
                 <div className="admin-intake-list">
                     {
                         records.filter((record) => {
-                            const matchesSearch = record.animalName.tolowerCase().includes(search.toLowerCase());
+                            const matchesSearch = record.animalName.toLowerCase().includes(search.toLowerCase());
                             const matchesCondition = filterCondition === "All" || record.condition === filterCondition;
                             return matchesSearch && matchesCondition;
                         }).map((record) => (
