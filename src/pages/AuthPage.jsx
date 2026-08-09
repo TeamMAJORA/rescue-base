@@ -66,7 +66,12 @@ export default function AuthPage({ mode = "login", setPage }) {
         return () => clearInterval(interval);
     }, []);
 
-    function redirectByRole(user) {
+    function redirectByRole(user, token = null) {
+
+        if (token) {
+            localStorage.setItem("token", token);
+        }
+
         localStorage.setItem("rescuebase_user", JSON.stringify(user));
 
         const role = String(user.role || "adopter").trim().toLowerCase();
@@ -108,6 +113,9 @@ export default function AuthPage({ mode = "login", setPage }) {
 
         const data = await response.json();
 
+        console.log("GOOGLE AUTH RESPONSE:", data);
+        console.log("RESCUEBASE JWT:", data.token);
+
         if (!response.ok || !data.success) {
             throw new Error(data.message || "Authentication failed.");
         }
@@ -122,7 +130,7 @@ export default function AuthPage({ mode = "login", setPage }) {
             verified: true,
         };
 
-        redirectByRole(loggedInUser);
+        redirectByRole(loggedInUser, data.token);
     }
 
     async function handleGoogleLogin() {
@@ -220,7 +228,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                 return;
             }
 
-            redirectByRole(data.user);
+            redirectByRole(data.user, data.token);
         } catch (err) {
             console.error("Email auth error:", err);
             setError(err.message || "Authentication failed.");
@@ -263,7 +271,7 @@ export default function AuthPage({ mode = "login", setPage }) {
             setSuccess("Email verified successfully.");
 
             if (data.user) {
-                redirectByRole(data.user);
+                redirectByRole(data.user, data.token);
             }
         } catch (err) {
             console.error("Verify OTP error:", err);
