@@ -63,7 +63,7 @@ const adminMenu = [
             { key: "medical-records", label: "Medical Records" },
             { key: "intake-records", label: "Intake Records" },
             { key: "vaccination-records", label: "Vaccination Records" },
-            { key: "behavior-assessment", label: "Behavioral Assessment"},
+            { key: "behavior-assessment", label: "Behavioral Assessment" },
             { key: "qr-tags", label: "QR Tags" },
             { key: "animal-transfers", label: "Animal Transfers" },
             { key: "mobile-intake", label: "Mobile Field Intake" },
@@ -164,9 +164,25 @@ export default function AdminDashboard({ setPage }) {
 
     async function fetchAdminNotifications() {
         try {
+            const token = localStorage.getItem("token");
+            
+            if (!token) {
+                console.error("No RescueBase auth token found");
+                return;
+            }
+
             const [adoptionResponse, fosterResponse] = await Promise.all([
-                fetch(`${API}/api/adoptions`),
-                fetch(`${API}/api/foster/assignments`),
+                fetch(`${API}/api/adoptions`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
+
+                fetch(`${API}/api/foster/assignments`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
             ]);
 
             const adoptionData = await adoptionResponse.json();

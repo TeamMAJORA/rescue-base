@@ -113,9 +113,6 @@ export default function AuthPage({ mode = "login", setPage }) {
 
         const data = await response.json();
 
-        console.log("GOOGLE AUTH RESPONSE:", data);
-        console.log("RESCUEBASE JWT:", data.token);
-
         if (!response.ok || !data.success) {
             throw new Error(data.message || "Authentication failed.");
         }

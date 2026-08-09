@@ -94,7 +94,7 @@ export default function AdoptionApplications() {
     const [applications, setApplications] = useState([]);
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const token = localStorage.getItem("token");
     const pendingApplications = useMemo(() => {
         return applications.filter(
             (app) => String(app.status).toLowerCase() === "pending"
@@ -105,7 +105,11 @@ export default function AdoptionApplications() {
         try {
             setLoading(true);
 
-            const response = await fetch(`${API}/api/adoptions`);
+            const response = await fetch(`${API}/api/adoptions`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             console.log("Adoption applications:", data);
@@ -134,6 +138,7 @@ export default function AdoptionApplications() {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     status,
