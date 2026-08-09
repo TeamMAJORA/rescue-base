@@ -16,15 +16,19 @@ export default function FosterHistory() {
     const [loading, setLoading] = useState(true);
     const [history, setHistory] = useState([]);
     const [message, setMessage] = useState("");
+    const token = localStorage.getItem("token");
 
     async function loadHistory() {
         try {
             setLoading(true);
 
             const response = await fetch(
-                `${API}/api/foster/assignments/foster/${encodeURIComponent(
-                    fosterEmail
-                )}/history`
+                `${API}/api/foster/assignments/me/history`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
             const data = await response.json();

@@ -31,6 +31,7 @@ export default function FosterApplication() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
+    const token = localStorage.getItem("token");
 
     function handleChange(e) {
         const { name, value, type, checked } = e.target;
@@ -63,6 +64,7 @@ export default function FosterApplication() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                         applicantName: form.fullName,

@@ -16,15 +16,19 @@ export default function FosterAssignment() {
     const [loading, setLoading] = useState(true);
     const [assignment, setAssignment] = useState(null);
     const [message, setMessage] = useState("");
+    const token = localStorage.getItem("token");
 
     async function loadAssignment() {
         try {
             setLoading(true);
 
             const response = await fetch(
-                `${API}/api/foster/assignments/foster/${encodeURIComponent(
-                    fosterEmail
-                )}/active`
+                `${API}/api/foster/assignments/me/active`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
             const data = await response.json();

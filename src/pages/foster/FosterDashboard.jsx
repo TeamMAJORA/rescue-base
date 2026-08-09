@@ -43,7 +43,7 @@ export default function FosterDashboard({ setPage }) {
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
-
+    const token = localStorage.getItem("token");
 
     async function fetchApplication() {
         if (!fosterEmail) {
@@ -53,7 +53,12 @@ export default function FosterDashboard({ setPage }) {
 
         try {
             const response = await fetch(
-                `${API}/api/foster/applications/applicant/${encodeURIComponent(fosterEmail)}`
+                `${API}/api/foster/applications/me`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
             const data = await response.json();
 
@@ -77,7 +82,12 @@ export default function FosterDashboard({ setPage }) {
 
         try {
             const response = await fetch(
-                `${API}/api/foster/assignments/foster/${encodeURIComponent(fosterEmail)}/active`
+                `${API}/api/foster/assignments/me/active`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
             const data = await response.json();
@@ -195,7 +205,7 @@ export default function FosterDashboard({ setPage }) {
         medical: (
             <MedicalAssistance
                 assignment={assignment}
-            /> 
+            />
         ),
 
     }), [

@@ -23,6 +23,8 @@ export default function FosterCare() {
     const [editingId, setEditingId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
+    const token = localStorage.getItem("token")
+
     const [assignmentForm, setAssignmentForm] =
         useState(emptyAssignmentForm);
     const [applications, setApplications] = useState([]);
@@ -31,7 +33,11 @@ export default function FosterCare() {
         try {
             setLoading(true);
 
-            const response = await fetch(`${API}/api/foster/assignments`);
+            const response = await fetch(`${API}/api/foster/assignments`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             console.log("Foster assignments:", data);
@@ -57,7 +63,11 @@ export default function FosterCare() {
 
     async function fetchFosterApplications() {
         try {
-            const response = await fetch(`${API}/api/foster/applications`);
+            const response = await fetch(`${API}/api/foster/applications`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             console.log("Foster applications:", data);
@@ -92,6 +102,7 @@ export default function FosterCare() {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         status,
@@ -150,6 +161,7 @@ export default function FosterCare() {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     adminName: savedUser.name || savedUser.username || "Admin User",
@@ -277,6 +289,7 @@ export default function FosterCare() {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     adminName: savedUser.name || savedUser.username || "Admin User",
@@ -330,6 +343,7 @@ export default function FosterCare() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         ...assignmentForm,
@@ -391,6 +405,7 @@ export default function FosterCare() {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         ...assignmentForm,
@@ -439,6 +454,7 @@ export default function FosterCare() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         email,

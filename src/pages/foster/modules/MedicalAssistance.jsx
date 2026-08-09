@@ -17,6 +17,7 @@ export default function MedicalAssistance({ assignment }) {
     const [photo, setPhoto] = useState(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const token = localStorage.getItem("token");
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -42,6 +43,9 @@ export default function MedicalAssistance({ assignment }) {
                 `${API}/api/foster/medical`,
                 {
                     method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                     body: formData,
                 }
             );

@@ -10,6 +10,7 @@ export default function FosterUpdates({
     const [photoUrl, setPhotoUrl] = useState("");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const token = localStorage.getItem("token");
 
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
@@ -45,6 +46,7 @@ export default function FosterUpdates({
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                         note,

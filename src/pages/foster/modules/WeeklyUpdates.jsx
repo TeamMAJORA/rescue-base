@@ -23,6 +23,7 @@ export default function WeeklyUpdates({
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const token = localStorage.getItem("token");
 
     function updateField(name, value) {
         setForm({
@@ -51,6 +52,7 @@ export default function WeeklyUpdates({
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                         ...form,
