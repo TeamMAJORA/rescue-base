@@ -20,6 +20,7 @@ export default function Donations() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState("");
+    const token = localStorage.getItem("token");
 
     const totalDonations = donations.length;
 
@@ -42,7 +43,11 @@ export default function Donations() {
             setLoading(true);
             setMessage("");
 
-            const response = await fetch(`${API}/api/donations`);
+            const response = await fetch(`${API}/api/donations`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             if (!response.ok || !data.success) {
@@ -86,6 +91,7 @@ export default function Donations() {
                 method,
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(payload),
             });
@@ -140,6 +146,7 @@ export default function Donations() {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ status }),
             });
@@ -169,6 +176,9 @@ export default function Donations() {
 
             const response = await fetch(`${API}/api/donations/${donationId}`, {
                 method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
             });
 
             const data = await response.json();

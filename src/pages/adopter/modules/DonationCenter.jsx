@@ -41,6 +41,7 @@ export default function DonationCenter() {
     const [submitting, setSubmitting] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [message, setMessage] = useState("");
+    const token = localStorage.getItem("token");
 
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
@@ -67,6 +68,9 @@ export default function DonationCenter() {
                 `${API}/api/uploads/image`,
                 {
                     method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
                     body: formData,
                 }
             );
@@ -114,11 +118,15 @@ export default function DonationCenter() {
                     savedUser.name ||
                     savedUser.username ||
                     "Anonymous",
-
                 donorEmail:
                     savedUser.email || "",
-
-                ...donation,
+                donationType: donation.category,
+                itemName: donation.itemName,
+                quantity: Number(
+                    donation.quantity || 1
+                ),
+                notes: donation.description,
+                status: "pending",
             };
 
             const response = await fetch(
@@ -127,8 +135,8 @@ export default function DonationCenter() {
                     method: "POST",
 
                     headers: {
-                        "Content-Type":
-                            "application/json",
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
                     },
 
                     body: JSON.stringify(payload),
@@ -136,6 +144,9 @@ export default function DonationCenter() {
             );
 
             const data = await response.json();
+
+            console.log("DONATION STATUS:", response.status);
+            console.log("DONATION RESPONSE:", data);
 
             if (!response.ok || !data.success) {
                 setMessage(
