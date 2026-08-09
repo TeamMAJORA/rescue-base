@@ -82,6 +82,10 @@ const emptyPet = {
     image: "",
 };
 
+function getAuthToken() {
+    return localStorage.getItem("token");
+}
+
 function getSavedUser() {
     try {
         return JSON.parse(
@@ -102,6 +106,8 @@ function getAdopterPageTitle(activeAdopterPage) {
 
 export default function Dashboard({ onLogout }) {
     const savedUser = getSavedUser();
+
+    const token = getAuthToken();
 
     const savedEmail = String(savedUser.email || "")
         .trim()
@@ -347,10 +353,18 @@ export default function Dashboard({ onLogout }) {
                 return;
             }
 
+            if (!token) {
+                console.error("No rescuebase Auth token found");
+                return;
+            }
+
             const response = await fetch(
-                `${API}/api/adoptions/user/${encodeURIComponent(
-                    savedEmail
-                )}/latest`
+                `${API}/api/adoptions/user/latest`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
             const data = await response.json();
