@@ -117,7 +117,7 @@ export default function AdoptionApplication({
                 showMessage(
                     "error",
                     data.message ||
-                        "Failed to upload the identification document."
+                    "Failed to upload the identification document."
                 );
 
                 return;
@@ -199,14 +199,7 @@ export default function AdoptionApplication({
             showMessage("", "");
 
             const payload = {
-                applicantUserId:
-                    savedUser._id || null,
-
                 fullName: form.fullName.trim(),
-
-                email: form.email
-                    .trim()
-                    .toLowerCase(),
 
                 phone: form.phone.trim(),
                 address: form.address.trim(),
@@ -227,14 +220,16 @@ export default function AdoptionApplication({
                     : [],
             };
 
+            const token = localStorage.getItem("token");
+
             const response = await fetch(
                 `${API}/api/adoptions`,
                 {
                     method: "POST",
 
                     headers: {
-                        "Content-Type":
-                            "application/json",
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
                     },
 
                     body: JSON.stringify(payload),
@@ -252,7 +247,7 @@ export default function AdoptionApplication({
                 showMessage(
                     "error",
                     data.message ||
-                        "Failed to submit the adoption application."
+                    "Failed to submit the adoption application."
                 );
 
                 return;
@@ -392,14 +387,13 @@ export default function AdoptionApplication({
                     </div>
 
                     <span
-                        className={`adopter-status ${
-                            pet.status ||
+                        className={`adopter-status ${pet.status ||
                             "available"
-                        }`}
+                            }`}
                     >
                         {String(
                             pet.status ||
-                                "available"
+                            "available"
                         ).replace("_", " ")}
                     </span>
 
@@ -770,8 +764,8 @@ export default function AdoptionApplication({
                             {documentUploading
                                 ? "Uploading document..."
                                 : submitting
-                                  ? "Submitting application..."
-                                  : `Submit Application for ${pet.name}`}
+                                    ? "Submitting application..."
+                                    : `Submit Application for ${pet.name}`}
                         </button>
                     </div>
                 </form>
