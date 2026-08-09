@@ -31,6 +31,8 @@ export default function AnimalProfiles() {
     const [message, setMessage] = useState("");
     const [imageUploading, setImageUploading] = useState(false);
 
+    const token = localStorage.getItem("token");
+
     const totalAnimals = animals.length;
 
     const availableAnimals = useMemo(() => {
@@ -54,7 +56,11 @@ export default function AnimalProfiles() {
             setLoading(true);
             setMessage("");
 
-            const response = await fetch(`${API}/api/animals`);
+            const response = await fetch(`${API}/api/animals`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             console.log("Animals:", data);
@@ -99,6 +105,7 @@ export default function AnimalProfiles() {
                 method,
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(payload),
             });
@@ -143,6 +150,9 @@ export default function AnimalProfiles() {
 
             const response = await fetch(`${API}/api/uploads/image`, {
                 method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
                 body: formData,
             });
 
@@ -217,6 +227,9 @@ export default function AnimalProfiles() {
 
             const response = await fetch(`${API}/api/animals/${id}`, {
                 method: "DELETE",
+                headers: {
+                    Authorization : `Bearer ${token}`
+                }
             });
 
             const data = await response.json();
