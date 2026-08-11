@@ -334,16 +334,30 @@
 /* SWITCH LOGIN / SIGNUP */
 
 .auth-switch {
-    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.auth-switch > span {
+    font-family: Arial, sans-serif;
     font-size: 11px;
-    color: var(--brown);
+    font-weight: 400;
 }
 
 .auth-switch button {
+    padding: 0;
+    border: none;
     background: transparent;
     color: var(--red-dark);
     font-size: 11px;
     cursor: pointer;
+}
+
+.auth-switch .forgot-password-btn {
+    margin-left: 0;
 }
 
 /* =========================

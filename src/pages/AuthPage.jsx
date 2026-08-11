@@ -57,10 +57,75 @@ export default function AuthPage({ mode = "login", setPage }) {
     const [loginOtpMode, setLoginOtpMode] = useState(false);
     const [loginOtpEmail, setLoginOtpEmail] = useState("");
     const [loginOtp, setLoginOtp] = useState("");
-
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
+    const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+    const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+    const [resetPasswordMode, setResetPasswordMode] = useState(false);
+    const [resetOtp, setResetOtp] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+
+    const handleForgotPassword = async (e) => {
+        e.preventDefault();
+
+        if (!forgotPasswordEmail.trim()) {
+            alert("Please enter your email.");
+            return;
+        }
+
+        try {
+            setForgotPasswordLoading(true);
+
+            const response = await fetch(
+                `${API}/api/auth/forgot-password`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        email: forgotPasswordEmail.trim(),
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to request password reset."
+                );
+            }
+
+            alert(
+                data.message ||
+                "If an account exists, password reset instructions have been sent."
+            );
+
+            setShowForgotPassword(false);
+            setResetPasswordMode(true);
+            setSuccess(
+                "A password reset OTP has been sent to your email."
+            );
+
+        } catch (error) {
+            console.error(
+                "Forgot password error:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Something went wrong."
+            );
+        } finally {
+            setForgotPasswordLoading(false);
+        }
+    };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -400,6 +465,322 @@ export default function AuthPage({ mode = "login", setPage }) {
         }
     }
 
+    async function handleResetPassword(e) {
+        e.preventDefault();
+
+        setError("");
+        setSuccess("");
+
+        if (!forgotPasswordEmail || !resetOtp.trim()) {
+            setError("Please enter the OTP sent to your email.");
+            return;
+        }
+
+        if (!newPassword || !confirmNewPassword) {
+            setError("Please enter and confirm your new password.");
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setError("Password must be at least 6 characters.");
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                API + "/api/auth/reset-password",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        email: forgotPasswordEmail
+                            .trim()
+                            .toLowerCase(),
+                        otp: resetOtp.trim(),
+                        password: newPassword,
+                        confirmPassword: confirmNewPassword,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.message ||
+                    "Failed to reset password."
+                );
+            }
+
+            setSuccess(
+                "Password reset successfully. You can now log in."
+            );
+
+            setResetPasswordMode(false);
+            setForgotPasswordEmail("");
+            setResetOtp("");
+            setNewPassword("");
+            setConfirmNewPassword("");
+
+        } catch (err) {
+            console.error(
+                "Reset password error:",
+                err
+            );
+
+            setError(
+                err.message ||
+                "Failed to reset password."
+            );
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    if (showForgotPassword) {
+        return (
+            <main className="auth-page">
+                <header className="auth-header">
+                    <button
+                        className="auth-brand"
+                        type="button"
+                        onClick={() => setPage("home")}
+                    >
+                        <img
+                            src={assets.logo}
+                            alt="RescueBase logo"
+                        />
+                        <span>RescueBase</span>
+                    </button>
+                </header>
+
+                <section className="auth-shell">
+                    <div className="auth-image-wrap">
+                        {authSlides.map((image, index) => (
+                            <img
+                                key={index}
+                                className={
+                                    "auth-slide " +
+                                    (index === currentSlide
+                                        ? "active"
+                                        : "")
+                                }
+                                src={image}
+                                alt="Rescue pets"
+                            />
+                        ))}
+                    </div>
+
+                    <div className="auth-panel">
+                        <button
+                            className="auth-back"
+                            type="button"
+                            onClick={() => {
+                                setShowForgotPassword(false);
+                                setForgotPasswordEmail("");
+                                setError("");
+                                setSuccess("");
+                            }}
+                        >
+                            ← Back
+                        </button>
+
+                        <div className="auth-card">
+                            <h1>Forgot Password?</h1>
+
+                            <p className="auth-subtext">
+                                Enter your email address and
+                                we'll send you a password reset OTP.
+                            </p>
+
+                            {error && (
+                                <div className="auth-message auth-message-error">
+                                    {error}
+                                </div>
+                            )}
+
+                            {success && (
+                                <div className="auth-message auth-message-success">
+                                    {success}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleForgotPassword}>
+                                <label className="auth-field">
+                                    <span>Email Address</span>
+
+                                    <input
+                                        type="email"
+                                        value={forgotPasswordEmail}
+                                        onChange={(e) =>
+                                            setForgotPasswordEmail(
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="Enter your email"
+                                    />
+                                </label>
+
+                                <button
+                                    className="auth-submit"
+                                    type="submit"
+                                    disabled={forgotPasswordLoading}
+                                >
+                                    {forgotPasswordLoading
+                                        ? "Sending..."
+                                        : "Send Reset OTP"}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        );
+    }
+
+    if (resetPasswordMode) {
+        return (
+            <main className="auth-page">
+                <header className="auth-header">
+                    <button
+                        className="auth-brand"
+                        type="button"
+                        onClick={() => setPage("home")}
+                    >
+                        <img
+                            src={assets.logo}
+                            alt="RescueBase logo"
+                        />
+                        <span>RescueBase</span>
+                    </button>
+                </header>
+
+                <section className="auth-shell">
+                    <div className="auth-image-wrap">
+                        {authSlides.map((image, index) => (
+                            <img
+                                key={index}
+                                className={
+                                    "auth-slide " +
+                                    (index === currentSlide
+                                        ? "active"
+                                        : "")
+                                }
+                                src={image}
+                                alt="Rescue pets"
+                            />
+                        ))}
+                    </div>
+
+                    <div className="auth-panel">
+                        <button
+                            className="auth-back"
+                            type="button"
+                            onClick={() => {
+                                setResetPasswordMode(false);
+                                setResetOtp("");
+                                setNewPassword("");
+                                setConfirmNewPassword("");
+                                setError("");
+                                setSuccess("");
+                            }}
+                        >
+                            ← Back
+                        </button>
+
+                        <div className="auth-card">
+                            <h1>Reset Password</h1>
+
+                            <p className="auth-subtext">
+                                Enter the OTP sent to{" "}
+                                {forgotPasswordEmail}.
+                            </p>
+
+                            {error && (
+                                <div className="auth-message auth-message-error">
+                                    {error}
+                                </div>
+                            )}
+
+                            {success && (
+                                <div className="auth-message auth-message-success">
+                                    {success}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleResetPassword}>
+                                <label className="auth-field">
+                                    <span>Reset OTP</span>
+
+                                    <input
+                                        type="text"
+                                        value={resetOtp}
+                                        onChange={(e) =>
+                                            setResetOtp(
+                                                e.target.value
+                                            )
+                                        }
+                                        maxLength={6}
+                                        placeholder="Enter 6-digit OTP"
+                                    />
+                                </label>
+
+                                <label className="auth-field auth-password">
+                                    <span>New Password</span>
+
+                                    <input
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) =>
+                                            setNewPassword(
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="Enter new password"
+                                    />
+                                </label>
+
+                                <label className="auth-field auth-password">
+                                    <span>Confirm New Password</span>
+
+                                    <input
+                                        type="password"
+                                        value={confirmNewPassword}
+                                        onChange={(e) =>
+                                            setConfirmNewPassword(
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="Confirm new password"
+                                    />
+                                </label>
+
+                                <button
+                                    className="auth-submit"
+                                    type="submit"
+                                    disabled={loading}
+                                >
+                                    {loading
+                                        ? "Resetting..."
+                                        : "Reset Password"}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        );
+    }
+
     if (loginOtpMode) {
         return (
             <main className="auth-page">
@@ -671,7 +1052,12 @@ export default function AuthPage({ mode = "login", setPage }) {
                         </form>
 
                         <p className="auth-switch">
-                            {isSignup ? "Already have an account?" : "Do not have an account?"}
+                            <span>
+                                {isSignup
+                                    ? "Already have an account?"
+                                    : "Do not have an account?"}
+                            </span>
+
                             <button
                                 type="button"
                                 onClick={() => {
@@ -684,6 +1070,20 @@ export default function AuthPage({ mode = "login", setPage }) {
                             >
                                 {isSignup ? "Log in" : "Create account"}
                             </button>
+
+                            {!isSignup && (
+                                <button
+                                    type="button"
+                                    className="forgot-password-btn"
+                                    onClick={() => {
+                                        setShowForgotPassword(true);
+                                        setError("");
+                                        setSuccess("");
+                                    }}
+                                >
+                                    Forgot Password?
+                                </button>
+                            )}
                         </p>
                     </div>
                 </div>
