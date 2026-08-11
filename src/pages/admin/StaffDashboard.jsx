@@ -61,7 +61,7 @@ const staffMenu = [
             { key: "medical-records", label: "Medical Records" },
             { key: "intake-records", label: "Intake Records" },
             { key: "vaccination-records", label: "Vaccination Records" },
-            { key: "behavior-assessment", label: "Behavioral Assessment"},
+            { key: "behavior-assessment", label: "Behavioral Assessment" },
             { key: "qr-tags", label: "QR Tags" },
             { key: "animal-transfers", label: "Animal Transfers" },
             { key: "mobile-intake", label: "Mobile Field Intake" },
@@ -142,6 +142,7 @@ export default function StaffDashboard({ setPage }) {
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotification] = useState([]);
     const [notifOpen, setNotifOpen] = useState(false);
+    const token = localStorage.getItem("token");
 
 
     function handleSidebarClick(item) {
@@ -161,8 +162,16 @@ export default function StaffDashboard({ setPage }) {
     async function fetchStaffNotifications() {
         try {
             const [adoptionResponse, fosterResponse] = await Promise.all([
-                fetch(`${API}/api/adoptions`),
-                fetch(`${API}/api/foster/assignments`),
+                fetch(`${API}/api/adoptions`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }),
+                fetch(`${API}/api/foster/assignments`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }),
             ]);
 
             const adoptionData = await adoptionResponse.json();

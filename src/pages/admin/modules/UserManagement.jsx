@@ -8,6 +8,7 @@ export default function UserManagement() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
+    const token = localStorage.getItem("token");
 
     const [editingUser, setEditingUser] = useState(null);
     const [editForm, setEditForm] = useState({
@@ -32,7 +33,11 @@ export default function UserManagement() {
             setLoading(true);
             setMessage("");
 
-            const response = await fetch(`${API}/api/users`);
+            const response = await fetch(`${API}/api/users`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             console.log("Users:", data);
@@ -91,6 +96,7 @@ export default function UserManagement() {
                 method : "PATCH",
                 headers : {
                     "Content-Type" : "application/json",
+                    Authorization : `Bearer ${token}`
                 },
                 body : JSON.stringify({
                     ...editForm,

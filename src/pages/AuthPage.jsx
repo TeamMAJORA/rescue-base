@@ -54,6 +54,10 @@ export default function AuthPage({ mode = "login", setPage }) {
     const [otpEmail, setOtpEmail] = useState("");
     const [otp, setOtp] = useState("");
 
+    const [loginOtpMode, setLoginOtpMode] = useState(false);
+    const [loginOtpEmail, setLoginOtpEmail] = useState("");
+    const [loginOtp, setLoginOtp] = useState("");
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -127,7 +131,22 @@ export default function AuthPage({ mode = "login", setPage }) {
             verified: true,
         };
 
-        redirectByRole(loggedInUser, data.token);
+        if (data.requiresOtp) {
+            setLoginOtpEmail(
+                data.email ||
+                firebaseUser.email ||
+                ""
+            );
+
+            setLoginOtpMode(true);
+            setSuccess(
+                "A verification code has been sent to your email."
+            );
+
+            return;
+        }
+
+        redirectByRole(data.user, data.token);
     }
 
     async function handleGoogleLogin() {
@@ -225,6 +244,13 @@ export default function AuthPage({ mode = "login", setPage }) {
                 return;
             }
 
+            if (data.requiresOtp) {
+                setLoginOtpEmail(data.email || cleanEmail);
+                setLoginOtpMode(true);
+                setSuccess("A verification code has been sent to your email.");
+                return;
+            }
+
             redirectByRole(data.user, data.token);
         } catch (err) {
             console.error("Email auth error:", err);
@@ -278,6 +304,65 @@ export default function AuthPage({ mode = "login", setPage }) {
         }
     }
 
+    async function handleVerifyLoginOtp(e) {
+        e.preventDefault();
+
+        setError("");
+        setSuccess("");
+
+        if (!loginOtpEmail || !loginOtp.trim()) {
+            setError("Please enter the OTP sent to your email.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                API + "/api/auth/email/verify-login-otp",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        email: loginOtpEmail.trim().toLowerCase(),
+                        otp: loginOtp.trim(),
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.message ||
+                    "OTP verification failed."
+                );
+            }
+
+            setSuccess("Login verified successfully.");
+
+            redirectByRole(
+                data.user,
+                data.token
+            );
+
+        } catch (err) {
+            console.error(
+                "Login OTP verification error:",
+                err
+            );
+
+            setError(
+                err.message ||
+                "OTP verification failed."
+            );
+        } finally {
+            setLoading(false);
+        }
+    }
+
     async function handleResendOtp() {
         setError("");
         setSuccess("");
@@ -313,6 +398,109 @@ export default function AuthPage({ mode = "login", setPage }) {
         } finally {
             setLoading(false);
         }
+    }
+
+    if (loginOtpMode) {
+        return (
+            <main className="auth-page">
+                <header className="auth-header">
+                    <button
+                        className="auth-brand"
+                        type="button"
+                        onClick={() => setPage("home")}
+                    >
+                        <img
+                            src={assets.logo}
+                            alt="RescueBase logo"
+                        />
+                        <span>RescueBase</span>
+                    </button>
+                </header>
+
+                <section className="auth-shell">
+                    <div className="auth-image-wrap">
+                        {authSlides.map((image, index) => (
+                            <img
+                                key={index}
+                                className={
+                                    "auth-slide " +
+                                    (index === currentSlide
+                                        ? "active"
+                                        : "")
+                                }
+                                src={image}
+                                alt="Rescue pets"
+                            />
+                        ))}
+                    </div>
+
+                    <div className="auth-panel">
+                        <button
+                            className="auth-back"
+                            type="button"
+                            onClick={() => {
+                                setLoginOtpMode(false);
+                                setLoginOtp("");
+                                setLoginOtpEmail("");
+                                setError("");
+                                setSuccess("");
+                            }}
+                        >
+                            ← Back
+                        </button>
+
+                        <div className="auth-card">
+                            <h1>Login Verification</h1>
+
+                            <p className="auth-subtext">
+                                Enter the OTP sent to{" "}
+                                {loginOtpEmail}.
+                            </p>
+
+                            {error ? (
+                                <div className="auth-message auth-message-error">
+                                    {error}
+                                </div>
+                            ) : null}
+
+                            {success ? (
+                                <div className="auth-message auth-message-success">
+                                    {success}
+                                </div>
+                            ) : null}
+
+                            <form onSubmit={handleVerifyLoginOtp}>
+                                <label className="auth-field">
+                                    <span>OTP Code</span>
+
+                                    <input
+                                        type="text"
+                                        value={loginOtp}
+                                        onChange={(e) =>
+                                            setLoginOtp(
+                                                e.target.value
+                                            )
+                                        }
+                                        maxLength={6}
+                                        placeholder="Enter 6-digit OTP"
+                                    />
+                                </label>
+
+                                <button
+                                    className="auth-submit"
+                                    type="submit"
+                                    disabled={loading}
+                                >
+                                    {loading
+                                        ? "Verifying..."
+                                        : "Verify & Log in"}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        );
     }
 
     if (otpMode) {

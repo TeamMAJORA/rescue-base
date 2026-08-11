@@ -241,7 +241,11 @@ export default function Dashboard({ onLogout }) {
             setPetsError("");
 
             const response = await fetch(
-                `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`
+                `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             );
 
             const data = await response.json();
