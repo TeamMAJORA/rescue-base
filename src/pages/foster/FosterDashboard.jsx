@@ -123,28 +123,36 @@ export default function FosterDashboard({ setPage }) {
 
         }
     }
-
+    
     async function loadNotifications() {
-        if (!fosterEmail) return;
-
         try {
             const response = await fetch(
-                `${API}/api/foster/notifications/${encodeURIComponent(fosterEmail)}`
+                `${API}/api/notifications`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
             const data = await response.json();
 
             if (response.ok && data.success) {
-                setNotifications(data.notifications || []);
+                const notificationList = data.notifications || [];
+
+                setNotifications(notificationList);
 
                 setUnreadCount(
-                    (data.notifications || []).filter(
-                        notification => !notification.isRead
+                    notificationList.filter(
+                        (notification) => !notification.read
                     ).length
                 );
             }
         } catch (error) {
-            console.error(error);
+            console.error(
+                "Load notifications error:",
+                error
+            );
         }
     }
 
