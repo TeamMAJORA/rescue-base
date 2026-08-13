@@ -24,6 +24,7 @@ import MatchmakingQuiz from "./modules/MatchmakingQuiz";
 import Recommendations from "./modules/Recommendations";
 import DonationCenter from "./modules/DonationCenter";
 import DonationHistory from "./modules/DonationHistory";
+import LostFound from "../admin/modules/LostFound";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -47,6 +48,10 @@ const adopterMenu = [
     {
         key: "application-status",
         label: "Application Status",
+    },
+    {
+        key: "lost-found",
+        label: "Lost & Found",
     },
     {
         key: "recommendations",
@@ -1141,6 +1146,10 @@ export default function Dashboard({ onLogout }) {
 
         if (activeAdopterPage === "donation-history") {
             return <DonationHistory />
+        }
+
+        if (activeAdopterPage === "lost-found") {
+            return <LostFound/>
         }
 
         return renderOverview();
