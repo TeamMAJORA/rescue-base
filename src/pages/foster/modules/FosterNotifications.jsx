@@ -1,11 +1,8 @@
 import { useEffect } from "react";
 
 const ICONS = {
-    application_approved: "🎉",
-    application_rejected: "⚠️",
-    assignment_created: "🐾",
-    assignment_completed: "✅",
-    weekly_reminder: "📝",
+    application_update: "📋",
+    foster_update: "🐾",
     general: "📢",
 };
 
@@ -30,33 +27,51 @@ export default function FosterNotifications({
 
     if (!open) return null;
 
-    function handleNotification(notification) {
-        refresh?.();
+    async function handleNotification(notification) {
+        const token = localStorage.getItem("token");
+
+        try {
+            if (!notification.read && token) {
+                const response = await fetch(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/notifications/${notification._id}/read`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    console.error("Failed to mark notification as read.");
+                }
+            }
+        } catch (error) {
+            console.error(
+                "Mark notification as read error:",
+                error
+            );
+        }
+
+        await refresh?.();
 
         switch (notification.type) {
-            case "application_approved":
-            case "application_rejected":
+            case "application_update":
                 setActivePage("application");
                 break;
 
-            case "assignment_created":
+            case "foster_update":
                 setActivePage("assignment");
-                break;
-
-            case "assignment_completed":
-                setActivePage("history");
-                break;
-
-            case "weekly_reminder":
-                setActivePage("updates");
                 break;
 
             default:
                 setActivePage("dashboard");
+                break;
         }
+
         onClose();
     }
-
+    
     return (
         <div
             className="foster-notification-overlay"
@@ -67,67 +82,55 @@ export default function FosterNotifications({
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="notification-header">
-                    <h3>
-                        Notifications
-                    </h3>
+                    <h3>Notifications</h3>
+
                     <button
+                        type="button"
                         onClick={onClose}
                     >
                         ✕
                     </button>
                 </div>
 
-                {
+                {notifications.length === 0 ? (
+                    <div className="notification-empty">
+                        No notifications.
+                    </div>
+                ) : (
+                    notifications.map((notification) => (
+                        <button
+                            type="button"
+                            key={notification._id}
+                            className={`notification-item ${notification.read
+                                ? ""
+                                : "unread"
+                                }`}
+                            onClick={() =>
+                                handleNotification(notification)
+                            }
+                        >
+                            <div className="notification-icon">
+                                {ICONS[notification.type] || "📢"}
+                            </div>
 
-                    notifications.length === 0 ? (
-                        <div className="notification-empty">
+                            <div className="notification-content">
+                                <strong>
+                                    {notification.title}
+                                </strong>
 
-                            No notifications.
+                                <p>
+                                    {notification.message}
+                                </p>
 
-                        </div>
-                    ) : (
-
-                        notifications.map((notification) => (
-                            <button
-                                key={notification._id}
-                                className={`notification-item ${notification.isRead
-                                        ? ""
-                                        : "unread"
-                                    }`}
-                                onClick={() =>
-                                    handleNotification(notification)
-                                }
-                            >
-
-                                <div className="notification-icon">
-                                    {
-                                        ICONS[
-                                        notification.type
-                                        ] || "📢"
-                                    }
-                                </div>
-
-                                <div className="notification-content">
-                                    <strong>
-                                        {notification.title}
-                                    </strong>
-
-                                    <p>
-                                        {notification.message}
-                                    </p>
-
-                                    <small>
-                                        {
-                                            new Date(
-                                                notification.createdAt
-                                            ).toLocaleString()
-                                        }
-                                    </small>
-                                </div>
-                            </button>
-                        ))
-                    )
-                }
+                                <small>
+                                    {new Date(
+                                        notification.createdAt
+                                    ).toLocaleString()}
+                                </small>
+                            </div>
+                        </button>
+                    ))
+                )}
             </div>
         </div>
     );
