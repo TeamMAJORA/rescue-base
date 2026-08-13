@@ -127,7 +127,7 @@ export default function FosterCare() {
 
             setMessage(`Foster application ${status}.`);
 
-            await sendFosterNotification({
+            await sendNotification({
                 email: application.applicantEmail,
                 title:
                     status === "approved"
@@ -139,9 +139,7 @@ export default function FosterCare() {
                         ? "Congratulations! Your foster application has been approved. You can now receive foster assignments."
                         : "Unfortunately, your foster application was not approved. Please contact the shelter for more information.",
 
-                type: "application",
-
-                relatedId: application._id,
+                type: "application_update",
             });
 
             fetchFosterApplications();
@@ -181,12 +179,11 @@ export default function FosterCare() {
 
             setMessage("Foster assignment completed.");
 
-            await sendFosterNotification({
+            await sendNotification({
                 email: data.assignment.fosterEmail,
                 title: "Foster Assignment Completed",
                 message: `Your foster assignment for ${data.assignment.petName} has been marked as completed. Thank you for helping RescueBase.`,
-                type: "assignment",
-                relatedId: data.assignment._id,
+                type: "foster_update",
             });
 
             setAssignments((current) =>
@@ -311,12 +308,11 @@ export default function FosterCare() {
                 handleCancelEdit();
             }
 
-            await sendFosterNotification({
+            await sendNotification({
                 email: assignment.fosterEmail,
                 title: "Assignment Cancelled",
                 message: `Your foster assignment for ${assignment.petName} has been cancelled by the shelter.`,
-                type: "assignment",
-                relatedId: assignment._id,
+                type: "foster_update",
             })
 
             fetchAssignments();
@@ -370,11 +366,11 @@ export default function FosterCare() {
 
             setMessage("Foster assignment created");
 
-            await sendFosterNotification({
+            await sendNotification({
                 email: assignmentForm.fosterEmail,
                 title: "New Foster Assignment",
                 message: `You have been assigned to foster ${assignmentForm.petName}. Please log in to RescueBase to review your assignment.`,
-                type: "assignment",
+                type: "foster_update",
             });
 
             setAssignmentForm(emptyAssignmentForm);
@@ -440,28 +436,26 @@ export default function FosterCare() {
         }
     }
 
-    async function sendFosterNotification({
+    async function sendNotification({
         email,
         title,
         message,
         type = "general",
-        relatedId = null,
     }) {
         try {
             const response = await fetch(
-                `${API}/api/foster/notifications`,
+                `${API}/api/notifications`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                         email,
                         title,
                         message,
                         type,
-                        relatedId,
                     }),
                 }
             );
@@ -469,11 +463,16 @@ export default function FosterCare() {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                console.error(data.message);
+                console.error(
+                    data.message ||
+                    "Failed to create notification."
+                );
             }
-
         } catch (error) {
-            console.error(error);
+            console.error(
+                "Create notification error:",
+                error
+            );
         }
     }
 
