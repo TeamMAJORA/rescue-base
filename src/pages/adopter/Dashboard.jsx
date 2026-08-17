@@ -149,6 +149,8 @@ export default function Dashboard({ onLogout }) {
 
     const [notificationOpen, setNotificationOpen] =
         useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const hasPendingApplication =
         applicationStatus?.status === "pending";
@@ -197,48 +199,38 @@ export default function Dashboard({ onLogout }) {
         });
     }, [pets, search, typeFilter]);
 
-    const notifications = useMemo(() => {
-        if (!applicationStatus) {
-            return [];
-        }
+    async function loadNotifications() {
+        if (!token) return;
 
-        if (hasPendingApplication) {
-            return [
-                {
-                    id: "pending-adoption",
-                    title: "Pending Adoption Application",
-                    message: `Your application for ${applicationStatus.petName} is waiting for review.`,
+        try {
+            const response = await fetch(
+                `${API}/api/notifications`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
                 },
-            ];
-        }
+            }
+            );
 
-        if (isApprovedApplication) {
-            return [
-                {
-                    id: "approved-adoption",
-                    title: "Application Approved",
-                    message: `Your application for ${applicationStatus.petName} was approved.`,
-                },
-            ];
-        }
+            const data = await response.json();
 
-        if (isRejectedApplication) {
-            return [
-                {
-                    id: "rejected-adoption",
-                    title: "Application Update",
-                    message: `Your application for ${applicationStatus.petName} was rejected.`,
-                },
-            ];
-        }
+            if (!response.ok || !data.success) {
+                console.error(data.message || "Failed to load notifications");
+                return;
+            }
 
-        return [];
-    }, [
-        applicationStatus,
-        hasPendingApplication,
-        isApprovedApplication,
-        isRejectedApplication,
-    ]);
+            const notificationList = data.notifications || [];
+
+            setNotifications(notificationList);
+
+            setUnreadCount(
+                notificationList.filter(
+                    (notification) => !notification.read
+                ).length
+            );
+        } catch (error) {
+            console.error("Load notifications error: ", error);
+        }
+    }
 
     async function fetchPets() {
         try {
@@ -247,10 +239,10 @@ export default function Dashboard({ onLogout }) {
 
             const response = await fetch(
                 `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
+            }
             );
 
             const data = await response.json();
@@ -1149,14 +1141,47 @@ export default function Dashboard({ onLogout }) {
         }
 
         if (activeAdopterPage === "lost-found") {
-            return <LostFound/>
+            return <LostFound />
         }
 
         return renderOverview();
     }
 
+    async function handleNotificationClick(notification) {
+        if (!notification.read && token) {
+            try {
+                const response = await fetch(
+                    `${API}/api/notifications/${notification._id}/read`, {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    console.error(
+                        data.message || "Failed to mark notification as read."
+                    );
+                    return;
+                }
+
+                await loadNotifications();
+            } catch (error) {
+                console.error("Mark notifications as read error: ", error)
+                return;
+            }
+        }
+
+        setActiveAdopterPage("overview");
+        setNotificationOpen(false);
+    }
+
     useEffect(() => {
         refreshDashboard();
+        loadNotifications();
 
         const interval = setInterval(() => {
             fetchApplicationStatus();
@@ -1330,20 +1355,13 @@ export default function Dashboard({ onLogout }) {
                                     notifications.map(
                                         (notification) => (
                                             <button
-                                                key={
-                                                    notification.id
-                                                }
+                                                key={notification._id}
                                                 type="button"
-                                                className="adopter-notification-item"
-                                                onClick={() => {
-                                                    setActiveAdopterPage(
-                                                        "overview"
-                                                    );
-
-                                                    setNotificationOpen(
-                                                        false
-                                                    );
-                                                }}
+                                                className={`adopter-notification-item ${notification.read ? "" : "unread"
+                                                    }`}
+                                                onClick={() =>
+                                                    handleNotificationClick(notification)
+                                                }
                                             >
                                                 <strong>
                                                     {
