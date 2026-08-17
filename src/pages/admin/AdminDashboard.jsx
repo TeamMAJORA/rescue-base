@@ -43,6 +43,7 @@ import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
 import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
 import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
+import RescueAssignments from "./modules/Rescue";
 
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
@@ -79,6 +80,7 @@ const adminMenu = [
             { key: "recommendations", label: "Recommendations" },
         ],
     },
+    { key: "rescue", label: "Rescue Animals"},
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "lost-found", label: "Lost & Found" },
@@ -316,6 +318,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "mobile-intake") {
             return <MobileFieldIntake />
+        }
+
+        if (activeAdminPage === "rescue") {
+            return <RescueAssignments />
         }
 
     }
