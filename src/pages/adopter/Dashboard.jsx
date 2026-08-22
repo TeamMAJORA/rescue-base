@@ -1151,31 +1151,49 @@ export default function Dashboard({ onLogout }) {
         if (!notification.read && token) {
             try {
                 const response = await fetch(
-                    `${API}/api/notifications/${notification._id}/read`, {
-                    method: "PATCH",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+                    `${API}/api/notifications/${notification._id}/read`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
                 );
 
                 const data = await response.json();
 
                 if (!response.ok || !data.success) {
                     console.error(
-                        data.message || "Failed to mark notification as read."
+                        data.message ||
+                        "Failed to mark notification as read."
                     );
                     return;
                 }
 
                 await loadNotifications();
             } catch (error) {
-                console.error("Mark notifications as read error: ", error)
+                console.error(
+                    "Mark notification as read error:",
+                    error
+                );
                 return;
             }
         }
 
-        setActiveAdopterPage("overview");
+        switch (notification.type) {
+            case "adoption_update":
+                setActiveAdopterPage("browse-pets");
+                break;
+
+            case "application_update":
+                setActiveAdopterPage("application-status");
+                break;
+
+            default:
+                setActiveAdopterPage("overview");
+                break;
+        }
+
         setNotificationOpen(false);
     }
 
