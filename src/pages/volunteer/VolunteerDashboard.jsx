@@ -108,8 +108,9 @@ const API = import.meta.env.VITE_BACKEND_URL;
 export default function VolunteerDashboard({ setPage }) {
     const [activeStaffPage, setActiveStaffPage] = useState("overview");
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
-    const [notifications, setNotification] = useState([]);
+    const [notifications, setNotifications] = useState([]);
     const [notifOpen, setNotifOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
 
 
     function handleSidebarClick(item) {
@@ -126,63 +127,99 @@ export default function VolunteerDashboard({ setPage }) {
         setActiveStaffPage(item.key);
     }
 
-    async function fetchStaffNotifications() {
-        try {
-            const [adoptionResponse, fosterResponse] = await Promise.all([
-                fetch(`${API}/api/adoptions`),
-                fetch(`${API}/api/foster/assignments`),
-            ]);
+    async function loadNotifications() {
+        const token = localStorage.getItem("token");
 
-            const adoptionData = await adoptionResponse.json();
-            const fosterData = await fosterResponse.json();
-
-            const adoptionApplications = adoptionData.applications || [];
-            const fosterAssignments = fosterData.assignments || [];
-
-            const pendingApplication = adoptionApplications.filter(
-                (application) => application.status === "pending"
-            );
-
-            const activeFosters = fosterAssignments.filter(
-                (assignment) => assignment.status === "active"
-            );
-
-            const completedFosters = fosterAssignments.filter(
-                (assignment) => assignment.status === "completed"
-            );
-
-            const newNotifications = [];
-
-            if (pendingApplication.length > 0) {
-                newNotifications.push({
-                    id: "pending-applications",
-                    title: "Pending Adoption Applications",
-                    message: `${pendingApplication.length} application(s) waiting for review.`,
-                    page: "adoption-applications",
-                });
-            }
-
-            if (activeFosters.length > 0) {
-                newNotifications.push({
-                    id: "active-fosters",
-                    title: "Active foster assignment",
-                    message: `${activeFosters.length} foster assignments(s) currently in progress.`,
-                    page: "foster-care",
-                });
-            }
-
-            if (completedFosters.length > 0) {
-                newNotifications.push({
-                    id: "completed-fosters",
-                    title: "Completed Foster Assignment",
-                    message: `${activeFosters.length} foster assignment(s) completed.`,
-                });
-            }
-
-            setNotification(newNotifications);
-        } catch (error) {
-            console.error("Fetch staff notification error: ", error);
+        if (!token) {
+            console.error("No authentication token found.");
+            return;
         }
+
+        try {
+            const response = await fetch(
+                `${API}/api/notifications`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                console.error(
+                    data.message ||
+                    "Failed to load notifications."
+                );
+                return;
+            }
+
+            const notificationList =
+                data.notifications || [];
+
+            setNotifications(notificationList);
+
+            setUnreadCount(
+                notificationList.filter(
+                    (notification) =>
+                        !notification.read
+                ).length
+            );
+        } catch (error) {
+            console.error(
+                "Load volunteer notifications error:",
+                error
+            );
+        }
+    }
+
+    async function handleNotificationClick(notification) {
+        const token = localStorage.getItem("token");
+
+        try {
+            if (!notification.read && token) {
+                const response = await fetch(
+                    `${API}/api/notifications/${notification._id}/read`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    console.error(
+                        data.message ||
+                        "Failed to mark notification as read."
+                    );
+                }
+            }
+        } catch (error) {
+            console.error(
+                "Mark volunteer notification as read error:",
+                error
+            );
+        }
+
+        await loadNotifications();
+
+        switch (notification.type) {
+            case "rescue_update":
+                setActiveStaffPage(
+                    "rescue-assignments"
+                );
+                break;
+
+            default:
+                setActiveStaffPage("overview");
+                break;
+        }
+
+        setNotifOpen(false);
     }
 
     function renderStaffContent() {
@@ -226,13 +263,7 @@ export default function VolunteerDashboard({ setPage }) {
     }
 
     useEffect(() => {
-        fetchStaffNotifications();
-
-        const interval = setInterval(() => {
-            fetchStaffNotifications();
-        }, 5000);
-
-        return () => clearInterval(interval);
+        loadNotifications();
     }, []);
 
     return (
@@ -313,41 +344,65 @@ export default function VolunteerDashboard({ setPage }) {
                         <button
                             className="staff-notification-btn"
                             type="button"
-                            onClick={() => setNotifOpen(!notifOpen)}
+                            onClick={() =>
+                                setNotifOpen((current) => !current)
+                            }
                         >
                             BELL DAW NI
 
-                            {notifications.length > 0 && (
-                                <span>{notifications.length}</span>
+                            {unreadCount > 0 && (
+                                <span>{unreadCount}</span>
                             )}
                         </button>
 
                         {notifOpen && (
                             <div className="staff-notification-dropdown">
                                 <div className="staff-notification-header">
-                                    <strong>Notifications</strong>
-                                    <small>{notifications.length} updates(s)</small>
+                                    <strong>
+                                        Notifications
+                                    </strong>
+
+                                    <small>
+                                        {unreadCount} unread
+                                    </small>
                                 </div>
 
                                 {notifications.length === 0 ? (
                                     <p className="staff-notifications-empty">
-                                        No new notifications.
+                                        No notifications.
                                     </p>
                                 ) : (
-                                    notifications.map((notification) => (
-                                        <button
-                                            key={notification.id}
-                                            type="button"
-                                            className="staff-notification-item"
-                                            onClick={() => {
-                                                setActiveStaffPage(notification.page);
-                                                setNotifOpen(false);
-                                            }}
-                                        >
-                                            <strong>{notification.title}</strong>
-                                            <span>{notification.message}</span>
-                                        </button>
-                                    ))
+                                    notifications.map(
+                                        (notification) => (
+                                            <button
+                                                key={notification._id}
+                                                type="button"
+                                                className={`staff-notification-item ${notification.read
+                                                        ? ""
+                                                        : "unread"
+                                                    }`}
+                                                onClick={() =>
+                                                    handleNotificationClick(
+                                                        notification
+                                                    )
+                                                }
+                                            >
+                                                <strong>
+                                                    {notification.title}
+                                                </strong>
+
+                                                <span>
+                                                    {notification.message}
+                                                </span>
+
+                                                <small>
+                                                    {new Date(
+                                                        notification.createdAt
+                                                    ).toLocaleString()}
+                                                </small>
+                                            </button>
+                                        )
+                                    )
                                 )}
                             </div>
                         )}
