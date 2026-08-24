@@ -7,6 +7,7 @@ import WeeklyUpdates from "./modules/WeeklyUpdates";
 import FosterHistory from "./modules/FosterHistory";
 import FosterNotifications from "./modules/FosterNotifications";
 import MedicalAssistance from "./modules/MedicalAssistance";
+import FeedbackForm from "../FeedbackForm";
 
 import "../../styles/foster/FosterDashboard.css";
 import "../../styles/foster/FosterApplication.css";
@@ -215,6 +216,10 @@ export default function FosterDashboard({ setPage }) {
                 assignment={assignment}
             />
         ),
+
+        feedback: (
+            <FeedbackForm />
+        )
 
     }), [
         application,

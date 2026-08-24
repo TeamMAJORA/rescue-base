@@ -25,6 +25,7 @@ import MobileFieldIntake from "../admin/modules/animals/MobileFieldIntake";
 import RescueAssignments from "./modules/RescueAssignments";
 import RescueHistory from "./modules/RescueHistory";
 import ActivityLog from "./modules/ActivityLog";
+import FeedbackForm from "../FeedbackForm";
 
 // // ADOPTIONS
 import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
@@ -50,7 +51,6 @@ const staffMenu = [
             { key: "rescue-history", label: "My Rescue History" },
         ],
     },
-
     {
         key: "lost-found",
         label: "Lost & Found",
@@ -59,6 +59,10 @@ const staffMenu = [
     {
         key: "activity-log",
         label: "Activity Log",
+    },
+    {
+        key: "feedback",
+        label: "Feedback",
     },
 ];
 
@@ -260,6 +264,9 @@ export default function VolunteerDashboard({ setPage }) {
             return <ActivityLog />;
         }
 
+        if (activeStaffPage === "feedback") {
+            return <FeedbackForm />;
+        }
     }
 
     useEffect(() => {

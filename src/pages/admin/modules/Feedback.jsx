@@ -1,160 +1,543 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-const starterFeedback = [
-    {
-        id: 1,
-        name: "Maria Santos",
-        email: "maria@example.com",
-        role: "Adopter",
-        category: "Adoption Process",
-        rating: 5,
-        message: "The adoption process was easy to understand and the pet details were helpful.",
-        status: "new",
-        date: "2026-06-29",
-    },
-    {
-        id: 2,
-        name: "Juan Dela Cruz",
-        email: "juan@example.com",
-        role: "Foster",
-        category: "Foster Care",
-        rating: 4,
-        message: "The foster dashboard is useful, but it would be nice to upload more photos.",
-        status: "reviewed",
-        date: "2026-06-28",
-    },
-    {
-        id: 3,
-        name: "Ana Reyes",
-        email: "ana@example.com",
-        role: "Visitor",
-        category: "Lost & Found",
-        rating: 4,
-        message: "Lost and found reports are clear. A map feature would make it better.",
-        status: "new",
-        date: "2026-06-27",
-    },
-]
+const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL;
+
+const CATEGORY_LABELS = {
+    general: "General",
+    adoption: "Adoption",
+    foster: "Foster Care",
+    volunteer: "Volunteer",
+    donation: "Donation",
+    lost_found: "Lost & Found",
+    medical: "Medical",
+    website: "Website",
+    other: "Other",
+};
 
 export default function Feedback() {
-    const [feedbackList, setFeedbackList] = useState(starterFeedback);
-    const [filter, setFilter] = useState("all");
+    const [feedback, setFeedback] =
+        useState([]);
 
-    const filteredFeedback = useMemo(() => {
-        if (filter === "all") return feedbackList;
-        return feedbackList.filter((feedback) => feedback.status === filter);
-    }, [feedbackList, filter]);
+    const [status, setStatus] =
+        useState("active");
 
-    const newFeedback = useMemo(() => {
-        return feedbackList.filter((feedback) => feedback.status === "new").length;
-    }, [feedbackList]);
+    const [loading, setLoading] =
+        useState(true);
 
-    const averageRating = useMemo(() => {
-        if (feedbackList.length === 0) return 0;
+    const [error, setError] =
+        useState("");
 
-        const total = feedbackList.reduce(
-            (sum, feedback) => sum + Number(feedback.rating || 0),
-            0
-        );
-        return (total / feedbackList.length).toFixed(1);
-    }, [feedbackList]);
+    const [selectedFeedback, setSelectedFeedback] =
+        useState(null);
 
-    function handleMarkReviewed(id) {
-        setFeedbackList((current) =>
-            current.map((feedback) =>
-                feedback.id === id ? { ...feedback, status: "reviewed" } : feedback
-            )
-        );
+    async function loadFeedback() {
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) {
+            setError(
+                "Authentication token is missing."
+            );
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+        setError("");
+
+        try {
+            const response =
+                await fetch(
+                    `${BACKEND_URL}/api/feedback?status=${status}`,
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to load feedback."
+                );
+            }
+
+            setFeedback(
+                data.feedback || []
+            );
+        } catch (error) {
+            console.error(
+                "Load feedback error:",
+                error
+            );
+
+            setError(
+                error.message ||
+                "Failed to load feedback."
+            );
+        } finally {
+            setLoading(false);
+        }
     }
 
-    function handleDeleteFeedback(id) {
-        setFeedbackList((current) =>
-            current.filter((feedback) => feedback.id !== id)
+    useEffect(() => {
+        loadFeedback();
+    }, [status]);
+
+    async function updateFeedback(
+        id,
+        action
+    ) {
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) return;
+
+        try {
+            const response =
+                await fetch(
+                    `${BACKEND_URL}/api/feedback/${id}/${action}`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    `Failed to ${action} feedback.`
+                );
+            }
+
+            await loadFeedback();
+
+            setSelectedFeedback(
+                null
+            );
+        } catch (error) {
+            console.error(
+                `Feedback ${action} error:`,
+                error
+            );
+
+            setError(
+                error.message ||
+                `Failed to ${action} feedback.`
+            );
+        }
+    }
+
+    async function deleteFeedback(
+        id
+    ) {
+        const confirmed =
+            window.confirm(
+                "Are you sure you want to permanently delete this feedback?"
+            );
+
+        if (!confirmed) return;
+
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) return;
+
+        try {
+            const response =
+                await fetch(
+                    `${BACKEND_URL}/api/feedback/${id}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to delete feedback."
+                );
+            }
+
+            await loadFeedback();
+
+            setSelectedFeedback(
+                null
+            );
+        } catch (error) {
+            console.error(
+                "Delete feedback error:",
+                error
+            );
+
+            setError(
+                error.message ||
+                "Failed to delete feedback."
+            );
+        }
+    }
+
+    function renderStars(rating) {
+        return (
+            <span className="feedback-table-stars">
+                {[1, 2, 3, 4, 5].map(
+                    (star) => (
+                        <span
+                            key={star}
+                            className={
+                                star <=
+                                    rating
+                                    ? "filled"
+                                    : ""
+                            }
+                        >
+                            ★
+                        </span>
+                    )
+                )}
+            </span>
         );
     }
 
     return (
-        <section className="admin-feedback-page">
-            <section className="admin-feedback-stats">
-                <article className="admin-panel admin-feedback-stat-card">
-                    <span>Total Feedback</span>
-                    <strong>{feedbackList.length}</strong>
-                </article>
+        <section className="feedback-management">
+            <div className="feedback-management-header">
+                <div>
+                    <h2>
+                        Feedback Management
+                    </h2>
 
-                <article className="admin-panel admin-feedback-stat-card">
-                    <span>New Feedback</span>
-                    <strong>{newFeedback}</strong>
-                </article>
-
-                <article className="admin-panel admin-feedback-stat-card">
-                    <span>Average Rating</span>
-                    <strong>{averageRating}/5</strong>
-                </article>
-            </section>
-
-            <section className="admin-panel admin-feedback-list-panel">
-                <div className="admin-panel-heading">
-                    <h2>User Feedback</h2>
-
-                    <select
-                        className="admin-feedback-filter"
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                    >
-                        <option value="all">All Feedback</option>
-                        <option value="new">New</option>
-                        <option value="reviewed">Reviewed</option>
-                    </select>
+                    <p>
+                        Review feedback
+                        submitted by
+                        RescueBase users.
+                    </p>
                 </div>
 
-                {filteredFeedback.length === 0 ? (
-                    <p className="admin-empty">No feedback found.</p>
-                ) : (
-                    <div className="admin-feedback-list">
-                        {filteredFeedback.map((feedback) => (
-                            <article className="admin-feedback-row" key={feedback.id}>
-                                <div>
-                                    <h3>{feedback.name}</h3>
+                <select
+                    value={status}
+                    onChange={(e) =>
+                        setStatus(
+                            e.target.value
+                        )
+                    }
+                >
+                    <option value="active">
+                        Active Feedback
+                    </option>
 
-                                    <p>
-                                        {feedback.email} • {feedback.role} •{" "}
-                                        {feedback.category}
-                                    </p>
+                    <option value="archived">
+                        Archived Feedback
+                    </option>
+                </select>
+            </div>
 
-                                    <small>
-                                        Rating: {feedback.rating}/5 • {feedback.date}
-                                    </small>
+            {error && (
+                <div className="feedback-message feedback-error">
+                    {error}
+                </div>
+            )}
 
-                                    <span>{feedback.message}</span>
-                                </div>
+            {loading ? (
+                <div className="feedback-loading">
+                    Loading feedback...
+                </div>
+            ) : feedback.length ===
+                0 ? (
+                <div className="feedback-empty">
+                    No feedback found.
+                </div>
+            ) : (
+                <div className="feedback-table-wrapper">
+                    <table className="feedback-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    User
+                                </th>
 
-                                <div className="admin-feedback-actions">
-                                    <span className={`admin-status-pill ${feedback.status}`}>
-                                        {feedback.status}
-                                    </span>
+                                <th>
+                                    Role
+                                </th>
 
-                                    {feedback.status === "new" && (
-                                        <button
-                                            type="button"
-                                            onClick={() => handleMarkReviewed(feedback.id)}
-                                        >
-                                            Mark Reviewed
-                                        </button>
-                                    )}
+                                <th>
+                                    Category
+                                </th>
 
-                                    <button
-                                        type="button"
-                                        className="danger"
-                                        onClick={() => handleDeleteFeedback(feedback.id)}
+                                <th>
+                                    Rating
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {feedback.map(
+                                (item) => (
+                                    <tr
+                                        key={
+                                            item._id
+                                        }
                                     >
-                                        Delete
-                                    </button>
-                                </div>
-                            </article>
-                        ))}
+                                        <td>
+                                            <strong>
+                                                {
+                                                    item.userName
+                                                }
+                                            </strong>
+
+                                            <small>
+                                                {
+                                                    item.userEmail
+                                                }
+                                            </small>
+                                        </td>
+
+                                        <td>
+                                            <span className="feedback-role">
+                                                {
+                                                    item.role
+                                                }
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            {
+                                                CATEGORY_LABELS[
+                                                item
+                                                    .category
+                                                ] ||
+                                                item.category
+                                            }
+                                        </td>
+
+                                        <td>
+                                            {renderStars(
+                                                item.rating
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            <span
+                                                className={`feedback-status ${item.status}`}
+                                            >
+                                                {
+                                                    item.status
+                                                }
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            {new Date(
+                                                item.createdAt
+                                            ).toLocaleDateString()}
+                                        </td>
+
+                                        <td>
+                                            <div className="feedback-actions">
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setSelectedFeedback(
+                                                            item
+                                                        )
+                                                    }
+                                                >
+                                                    View
+                                                </button>
+
+                                                {item.status ===
+                                                    "active" ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            updateFeedback(
+                                                                item._id,
+                                                                "archive"
+                                                            )
+                                                        }
+                                                    >
+                                                        Archive
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            updateFeedback(
+                                                                item._id,
+                                                                "restore"
+                                                            )
+                                                        }
+                                                    >
+                                                        Restore
+                                                    </button>
+                                                )}
+
+                                                <button
+                                                    type="button"
+                                                    className="danger"
+                                                    onClick={() =>
+                                                        deleteFeedback(
+                                                            item._id
+                                                        )
+                                                    }
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {selectedFeedback && (
+                <div
+                    className="feedback-modal-overlay"
+                    onClick={() =>
+                        setSelectedFeedback(
+                            null
+                        )
+                    }
+                >
+                    <div
+                        className="feedback-modal"
+                        onClick={(e) =>
+                            e.stopPropagation()
+                        }
+                    >
+                        <div className="feedback-modal-header">
+                            <h3>
+                                Feedback Details
+                            </h3>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setSelectedFeedback(
+                                        null
+                                    )
+                                }
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="feedback-detail">
+                            <strong>
+                                User
+                            </strong>
+
+                            <p>
+                                {
+                                    selectedFeedback.userName
+                                }
+                            </p>
+
+                            <small>
+                                {
+                                    selectedFeedback.userEmail
+                                }
+                            </small>
+                        </div>
+
+                        <div className="feedback-detail">
+                            <strong>
+                                Role
+                            </strong>
+
+                            <p>
+                                {
+                                    selectedFeedback.role
+                                }
+                            </p>
+                        </div>
+
+                        <div className="feedback-detail">
+                            <strong>
+                                Category
+                            </strong>
+
+                            <p>
+                                {CATEGORY_LABELS[
+                                    selectedFeedback
+                                        .category
+                                ] ||
+                                    selectedFeedback.category}
+                            </p>
+                        </div>
+
+                        <div className="feedback-detail">
+                            <strong>
+                                Rating
+                            </strong>
+
+                            <div>
+                                {renderStars(
+                                    selectedFeedback.rating
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="feedback-detail">
+                            <strong>
+                                Feedback
+                            </strong>
+
+                            <p>
+                                {
+                                    selectedFeedback.message
+                                }
+                            </p>
+                        </div>
+
+                        <div className="feedback-detail">
+                            <strong>
+                                Submitted
+                            </strong>
+
+                            <p>
+                                {new Date(
+                                    selectedFeedback.createdAt
+                                ).toLocaleString()}
+                            </p>
+                        </div>
                     </div>
-                )}
-            </section>
+                </div>
+            )}
         </section>
     );
 }

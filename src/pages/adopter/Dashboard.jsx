@@ -25,6 +25,7 @@ import Recommendations from "./modules/Recommendations";
 import DonationCenter from "./modules/DonationCenter";
 import DonationHistory from "./modules/DonationHistory";
 import LostFound from "../admin/modules/LostFound";
+import FeedbackForm from "../FeedbackForm";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -64,6 +65,10 @@ const adopterMenu = [
     {
         key: "donation-history",
         label: "Donation History",
+    },
+    {
+        key: "feedback",
+        label: "Feedback",
     },
 ];
 
@@ -1142,6 +1147,10 @@ export default function Dashboard({ onLogout }) {
 
         if (activeAdopterPage === "lost-found") {
             return <LostFound />
+        }
+
+        if (activeAdopterPage === "feedback") {
+            return <FeedbackForm />
         }
 
         return renderOverview();
