@@ -169,7 +169,7 @@ export default function AuthPage({ mode = "login", setPage }) {
     }
 
     async function finishGoogleLogin(firebaseUser, endpoint) {
-        const token = await firebaseUser.getIdToken();
+        const token = await firebaseUser.getIdToken(true);
 
         const response = await fetch(endpoint, {
             method: "POST",
