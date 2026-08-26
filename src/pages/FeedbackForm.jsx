@@ -74,7 +74,7 @@ export default function FeedbackForm({ onSubmitted }) {
 
         try {
             const response = await fetch(
-                `${BACKEND_URL}/api/feedback`,
+                `${API}/api/feedback`,
                 {
                     method: "POST",
                     headers: {
@@ -111,137 +111,137 @@ export default function FeedbackForm({ onSubmitted }) {
         } finally {
             setLoading(false);
         }
-
-        return (
-            <form
-                className="feedback-form"
-                onSubmit={handleSubmit}
-            >
-                <div className="feedback-form-header">
-                    <h2>
-                        Share Your Feedback
-                    </h2>
-
-                    <p>
-                        Tell us about your
-                        experience with
-                        RescueBase.
-                    </p>
-                </div>
-
-                {error && (
-                    <div className="feedback-message feedback-error">
-                        {error}
-                    </div>
-                )}
-
-                {success && (
-                    <div className="feedback-message feedback-success">
-                        {success}
-                    </div>
-                )}
-
-                <div className="feedback-field">
-                    <label>
-                        Rating
-                    </label>
-
-                    <div className="feedback-stars">
-                        {[1, 2, 3, 4, 5].map(
-                            (star) => (
-                                <button
-                                    key={star}
-                                    type="button"
-                                    className={
-                                        star <=
-                                            rating
-                                            ? "selected"
-                                            : ""
-                                    }
-                                    onClick={() =>
-                                        setRating(
-                                            star
-                                        )
-                                    }
-                                    aria-label={`Rate ${star} out of 5`}
-                                >
-                                    ★
-                                </button>
-                            )
-                        )}
-                    </div>
-
-                    <span className="feedback-rating-text">
-                        {rating === 0
-                            ? "Select a rating"
-                            : `${rating} out of 5`}
-                    </span>
-                </div>
-
-                <div className="feedback-field">
-                    <label htmlFor="feedback-category">
-                        Category
-                    </label>
-
-                    <select
-                        id="feedback-category"
-                        value={category}
-                        onChange={(e) =>
-                            setCategory(
-                                e.target.value
-                            )
-                        }
-                    >
-                        {CATEGORIES.map(
-                            (item) => (
-                                <option
-                                    key={
-                                        item.value
-                                    }
-                                    value={
-                                        item.value
-                                    }
-                                >
-                                    {item.label}
-                                </option>
-                            )
-                        )}
-                    </select>
-                </div>
-
-                <div className="feedback-field">
-                    <label htmlFor="feedback-message">
-                        Your Feedback
-                    </label>
-
-                    <textarea
-                        id="feedback-message"
-                        value={message}
-                        onChange={(e) =>
-                            setMessage(
-                                e.target.value
-                            )
-                        }
-                        maxLength={2000}
-                        rows={6}
-                        placeholder="Tell us about your experience or suggestions..."
-                    />
-
-                    <span className="feedback-character-count">
-                        {message.length}/2000
-                    </span>
-                </div>
-
-                <button
-                    type="submit"
-                    className="feedback-submit"
-                    disabled={loading}
-                >
-                    {loading
-                        ? "Submitting..."
-                        : "Submit Feedback"}
-                </button>
-            </form>
-        );
     }
+
+    return (
+        <form
+            className="feedback-form"
+            onSubmit={handleSubmit}
+        >
+            <div className="feedback-form-header">
+                <h2>
+                    Share Your Feedback
+                </h2>
+
+                <p>
+                    Tell us about your
+                    experience with
+                    RescueBase.
+                </p>
+            </div>
+
+            {error && (
+                <div className="feedback-message feedback-error">
+                    {error}
+                </div>
+            )}
+
+            {success && (
+                <div className="feedback-message feedback-success">
+                    {success}
+                </div>
+            )}
+
+            <div className="feedback-field">
+                <label>
+                    Rating
+                </label>
+
+                <div className="feedback-stars">
+                    {[1, 2, 3, 4, 5].map(
+                        (star) => (
+                            <button
+                                key={star}
+                                type="button"
+                                className={
+                                    star <=
+                                        rating
+                                        ? "selected"
+                                        : ""
+                                }
+                                onClick={() =>
+                                    setRating(
+                                        star
+                                    )
+                                }
+                                aria-label={`Rate ${star} out of 5`}
+                            >
+                                ★
+                            </button>
+                        )
+                    )}
+                </div>
+
+                <span className="feedback-rating-text">
+                    {rating === 0
+                        ? "Select a rating"
+                        : `${rating} out of 5`}
+                </span>
+            </div>
+
+            <div className="feedback-field">
+                <label htmlFor="feedback-category">
+                    Category
+                </label>
+
+                <select
+                    id="feedback-category"
+                    value={category}
+                    onChange={(e) =>
+                        setCategory(
+                            e.target.value
+                        )
+                    }
+                >
+                    {categories.map(
+                        (item) => (
+                            <option
+                                key={
+                                    item.value
+                                }
+                                value={
+                                    item.value
+                                }
+                            >
+                                {item.label}
+                            </option>
+                        )
+                    )}
+                </select>
+            </div>
+
+            <div className="feedback-field">
+                <label htmlFor="feedback-message">
+                    Your Feedback
+                </label>
+
+                <textarea
+                    id="feedback-message"
+                    value={message}
+                    onChange={(e) =>
+                        setMessage(
+                            e.target.value
+                        )
+                    }
+                    maxLength={2000}
+                    rows={6}
+                    placeholder="Tell us about your experience or suggestions..."
+                />
+
+                <span className="feedback-character-count">
+                    {message.length}/2000
+                </span>
+            </div>
+
+            <button
+                type="submit"
+                className="feedback-submit"
+                disabled={loading}
+            >
+                {loading
+                    ? "Submitting..."
+                    : "Submit Feedback"}
+            </button>
+        </form>
+    );
 }
