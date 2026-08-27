@@ -410,15 +410,14 @@ export default function App() {
     }
 
     if (page === "foster") {
-        return <FosterDashboard setPage={setPage} />
-    }
+        return <FosterDashboard setPage={setPage} />    }
 
     if (page === "admin") {
         return <AdminDashboard setPage={setPage} />
     }
 
     if (page === "staff") {
-        return  <StaffDashboard setPage={setPage} />
+        return <StaffDashboard setPage={setPage} />
     }
 
     if (page === "volunteer") {
