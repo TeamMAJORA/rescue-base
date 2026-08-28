@@ -44,16 +44,13 @@ export default function AuthPage({ mode = "login", setPage }) {
     const isSignup = mode === "signup";
 
     const [currentSlide, setCurrentSlide] = useState(0);
-
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
     const [otpMode, setOtpMode] = useState(false);
     const [otpEmail, setOtpEmail] = useState("");
     const [otp, setOtp] = useState("");
-
     const [loginOtpMode, setLoginOtpMode] = useState(false);
     const [loginOtpEmail, setLoginOtpEmail] = useState("");
     const [loginOtp, setLoginOtp] = useState("");

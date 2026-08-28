@@ -1,7 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+const API =
+    import.meta.env.VITE_BACKEND_URL;
 
 const cebuCenter = [10.3157, 123.8854];
 
@@ -13,126 +16,354 @@ const markerIcon = L.divIcon({
     popupAnchor: [0, -30],
 });
 
-const starterLocations = [
-    {
-        id: 1,
-        petName: "Milo",
-        reportType: "lost",
-        species: "Dog",
-        locationName: "Talisay City, Cebu",
-        latitude: 10.2447,
-        longitude: 123.8494,
-        status: "open",
-        description: "Brown dog with red collar last seen near the market.",
-    },
-    {
-        id: 2,
-        petName: "Unknown Cat",
-        reportType: "found",
-        species: "Cat",
-        locationName: "Cebu City",
-        latitude: 10.3157,
-        longitude: 123.8854,
-        status: "open",
-        description: "White cat found near a convenience store.",
-    },
-];
+const emptyLocationForm = {
+    petName: "",
+    reportType: "lost",
+    species: "dog",
+    locationName: "",
+    latitude: "",
+    longitude: "",
+    status: "open",
+    description: "",
+};
 
 export default function GISMapping() {
-    const [locations, setLocations] = useState(starterLocations);
+    const [locations, setLocations] = useState([]);
 
-    const [locationForm, setLocationForm] = useState({
-        petName: "",
-        reportType: "lost",
-        species: "Dog",
-        locationName: "",
-        latitude: "",
-        longitude: "",
-        status: "open",
-        description: "",
-    });
+    const [locationForm, setLocationForm] =
+        useState(emptyLocationForm);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [submitting, setSubmitting] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
+
+    const [success, setSuccess] =
+        useState("");
 
     const openCases = useMemo(() => {
-        return locations.filter((location) => location.status === "open").length;
+        return locations.filter(
+            (location) =>
+                location.status === "open"
+        ).length;
     }, [locations]);
 
     const lostCases = useMemo(() => {
-        return locations.filter((location) => location.reportType === "lost").length;
+        return locations.filter(
+            (location) =>
+                location.reportType === "lost"
+        ).length;
     }, [locations]);
 
-    function handleAddLocation(e) {
-        e.preventDefault();
+    async function loadLocations() {
+        const token =
+            localStorage.getItem("token");
 
-        const latitude = Number(locationForm.latitude);
-        const longitude = Number(locationForm.longitude);
+        if (!token) {
+            setError(
+                "Authentication token is missing."
+            );
+            setLoading(false);
+            return;
+        }
 
-        if (Number.isNaN(latitude) || Number.isNaN(longitude)) return;
+        try {
+            setLoading(true);
+            setError("");
 
-        const newLocation = {
-            id: Date.now(),
-            ...locationForm,
-            latitude,
-            longitude,
-        };
+            const response = await fetch(
+                `${API}/api/gis`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`,
+                    },
+                }
+            );
 
-        setLocations((current) => [newLocation, ...current]);
+            const data =
+                await response.json();
 
-        setLocationForm({
-            petName: "",
-            reportType: "lost",
-            species: "Dog",
-            locationName: "",
-            latitude: "",
-            longitude: "",
-            status: "open",
-            description: "",
-        });
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to load GIS locations."
+                );
+            }
+
+            setLocations(
+                data.locations || []
+            );
+        } catch (error) {
+            console.error(
+                "Load GIS locations error:",
+                error
+            );
+
+            setError(
+                error.message ||
+                "Failed to load GIS locations."
+            );
+        } finally {
+            setLoading(false);
+        }
     }
 
-    function handleResolveLocation(id) {
-        setLocations((current) =>
-            current.map((location) =>
-                location.id === id ? { ...location, status: "resolved" } : location
-            )
+    useEffect(() => {
+        loadLocations();
+    }, []);
+
+    function handleFormChange(
+        field,
+        value
+    ) {
+        setLocationForm((current) => ({
+            ...current,
+            [field]: value,
+        }));
+    }
+
+    async function handleAddLocation(e) {
+        e.preventDefault();
+
+        setError("");
+        setSuccess("");
+
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) {
+            setError(
+                "Authentication token is missing."
+            );
+            return;
+        }
+
+        const latitude = Number(
+            locationForm.latitude
         );
+
+        const longitude = Number(
+            locationForm.longitude
+        );
+
+        if (
+            Number.isNaN(latitude) ||
+            Number.isNaN(longitude)
+        ) {
+            setError(
+                "Latitude and longitude must be valid numbers."
+            );
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+
+            const response = await fetch(
+                `${API}/api/gis`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                        Authorization:
+                            `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        petName:
+                            locationForm.petName.trim(),
+
+                        reportType:
+                            locationForm.reportType,
+
+                        species:
+                            locationForm.species,
+
+                        locationName:
+                            locationForm.locationName.trim(),
+
+                        latitude,
+
+                        longitude,
+
+                        status:
+                            locationForm.status,
+
+                        description:
+                            locationForm.description.trim(),
+                    }),
+                }
+            );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to create GIS location."
+                );
+            }
+
+            setLocationForm({
+                ...emptyLocationForm,
+            });
+
+            setSuccess(
+                "GIS location added successfully."
+            );
+
+            await loadLocations();
+        } catch (error) {
+            console.error(
+                "Add GIS location error:",
+                error
+            );
+
+            setError(
+                error.message ||
+                "Failed to add GIS location."
+            );
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    async function handleResolveLocation(
+        id
+    ) {
+        setError("");
+        setSuccess("");
+
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) {
+            setError(
+                "Authentication token is missing."
+            );
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${API}/api/gis/${id}/resolve`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to resolve GIS location."
+                );
+            }
+
+            setSuccess(
+                "GIS location resolved successfully."
+            );
+
+            await loadLocations();
+        } catch (error) {
+            console.error(
+                "Resolve GIS location error:",
+                error
+            );
+
+            setError(
+                error.message ||
+                "Failed to resolve GIS location."
+            );
+        }
     }
 
     return (
         <section className="admin-gis-page">
+            {error && (
+                <div className="admin-gis-error">
+                    {error}
+                </div>
+            )}
+
+            {success && (
+                <div className="admin-gis-success">
+                    {success}
+                </div>
+            )}
+
             <section className="admin-gis-stats">
                 <article className="admin-panel admin-gis-stat-card">
-                    <span>Total Map Reports</span>
-                    <strong>{locations.length}</strong>
+                    <span>
+                        Total Map Reports
+                    </span>
+
+                    <strong>
+                        {locations.length}
+                    </strong>
                 </article>
 
                 <article className="admin-panel admin-gis-stat-card">
-                    <span>Open Cases</span>
-                    <strong>{openCases}</strong>
+                    <span>
+                        Open Cases
+                    </span>
+
+                    <strong>
+                        {openCases}
+                    </strong>
                 </article>
 
                 <article className="admin-panel admin-gis-stat-card">
-                    <span>Lost Pet Cases</span>
-                    <strong>{lostCases}</strong>
+                    <span>
+                        Lost Pet Cases
+                    </span>
+
+                    <strong>
+                        {lostCases}
+                    </strong>
                 </article>
             </section>
 
             <section className="admin-gis-grid">
                 <section className="admin-panel admin-gis-form-panel">
                     <div className="admin-panel-heading">
-                        <h2>Add Map Location</h2>
+                        <h2>
+                            Add Map Location
+                        </h2>
                     </div>
 
-                    <form className="admin-gis-form" onSubmit={handleAddLocation}>
+                    <form
+                        className="admin-gis-form"
+                        onSubmit={
+                            handleAddLocation
+                        }
+                    >
                         <label>
                             Pet Name
+
                             <input
                                 type="text"
-                                value={locationForm.petName}
+                                value={
+                                    locationForm.petName
+                                }
                                 onChange={(e) =>
-                                    setLocationForm({
-                                        ...locationForm,
-                                        petName: e.target.value,
-                                    })
+                                    handleFormChange(
+                                        "petName",
+                                        e.target.value
+                                    )
                                 }
                                 placeholder="Use Unknown if not sure"
                                 required
@@ -141,49 +372,85 @@ export default function GISMapping() {
 
                         <label>
                             Report Type
+
                             <select
-                                value={locationForm.reportType}
+                                value={
+                                    locationForm.reportType
+                                }
                                 onChange={(e) =>
-                                    setLocationForm({
-                                        ...locationForm,
-                                        reportType: e.target.value,
-                                    })
+                                    handleFormChange(
+                                        "reportType",
+                                        e.target.value
+                                    )
                                 }
                             >
-                                <option value="lost">Lost Pet</option>
-                                <option value="found">Found Pet</option>
-                                <option value="rescue">Rescue Location</option>
-                                <option value="intake">Shelter Intake</option>
+                                <option value="lost">
+                                    Lost Pet
+                                </option>
+
+                                <option value="found">
+                                    Found Pet
+                                </option>
+
+                                <option value="stray">
+                                    Stray Animal
+                                </option>
+
+                                <option value="rescue">
+                                    Rescue Location
+                                </option>
+
+                                <option value="intake">
+                                    Shelter Intake
+                                </option>
                             </select>
                         </label>
 
                         <label>
                             Species
+
                             <select
-                                value={locationForm.species}
+                                value={
+                                    locationForm.species
+                                }
                                 onChange={(e) =>
-                                    setLocationForm({
-                                        ...locationForm,
-                                        species: e.target.value,
-                                    })
+                                    handleFormChange(
+                                        "species",
+                                        e.target.value
+                                    )
                                 }
                             >
-                                <option value="Dog">Dog</option>
-                                <option value="Cat">Cat</option>
-                                <option value="Other">Other</option>
+                                <option value="dog">
+                                    Dog
+                                </option>
+
+                                <option value="cat">
+                                    Cat
+                                </option>
+
+                                <option value="other">
+                                    Other
+                                </option>
+
+                                <option value="unknown">
+                                    Unknown
+                                </option>
                             </select>
                         </label>
 
                         <label>
                             Location Name
+
                             <input
                                 type="text"
-                                value={locationForm.locationName}
+                                value={
+                                    locationForm.locationName
+                                }
                                 onChange={(e) =>
-                                    setLocationForm({
-                                        ...locationForm,
-                                        locationName: e.target.value,
-                                    })
+                                    handleFormChange(
+                                        "locationName",
+                                        e.target.value
+                                    )
                                 }
                                 placeholder="Example: Talisay City, Cebu"
                                 required
@@ -192,15 +459,18 @@ export default function GISMapping() {
 
                         <label>
                             Latitude
+
                             <input
                                 type="number"
                                 step="any"
-                                value={locationForm.latitude}
+                                value={
+                                    locationForm.latitude
+                                }
                                 onChange={(e) =>
-                                    setLocationForm({
-                                        ...locationForm,
-                                        latitude: e.target.value,
-                                    })
+                                    handleFormChange(
+                                        "latitude",
+                                        e.target.value
+                                    )
                                 }
                                 placeholder="Example: 10.2447"
                                 required
@@ -209,15 +479,18 @@ export default function GISMapping() {
 
                         <label>
                             Longitude
+
                             <input
                                 type="number"
                                 step="any"
-                                value={locationForm.longitude}
+                                value={
+                                    locationForm.longitude
+                                }
                                 onChange={(e) =>
-                                    setLocationForm({
-                                        ...locationForm,
-                                        longitude: e.target.value,
-                                    })
+                                    handleFormChange(
+                                        "longitude",
+                                        e.target.value
+                                    )
                                 }
                                 placeholder="Example: 123.8494"
                                 required
@@ -226,120 +499,248 @@ export default function GISMapping() {
 
                         <label>
                             Status
+
                             <select
-                                value={locationForm.status}
+                                value={
+                                    locationForm.status
+                                }
                                 onChange={(e) =>
-                                    setLocationForm({
-                                        ...locationForm,
-                                        status: e.target.value,
-                                    })
+                                    handleFormChange(
+                                        "status",
+                                        e.target.value
+                                    )
                                 }
                             >
-                                <option value="open">Open</option>
-                                <option value="resolved">Resolved</option>
+                                <option value="open">
+                                    Open
+                                </option>
+
+                                <option value="resolved">
+                                    Resolved
+                                </option>
                             </select>
                         </label>
 
                         <label className="admin-gis-description-field">
                             Description
+
                             <textarea
-                                value={locationForm.description}
+                                value={
+                                    locationForm.description
+                                }
                                 onChange={(e) =>
-                                    setLocationForm({
-                                        ...locationForm,
-                                        description: e.target.value,
-                                    })
+                                    handleFormChange(
+                                        "description",
+                                        e.target.value
+                                    )
                                 }
                                 placeholder="Add report details, landmark, or notes."
                                 required
                             />
                         </label>
 
-                        <button type="submit">Add Location</button>
+                        <button
+                            type="submit"
+                            disabled={
+                                submitting
+                            }
+                        >
+                            {submitting
+                                ? "Adding..."
+                                : "Add Location"}
+                        </button>
                     </form>
                 </section>
 
                 <section className="admin-panel admin-gis-map-panel">
                     <div className="admin-panel-heading">
-                        <h2>GIS Map</h2>
+                        <h2>
+                            GIS Map
+                        </h2>
                     </div>
 
                     <div className="admin-gis-map-wrap">
-                        <MapContainer
-                            center={cebuCenter}
-                            zoom={11}
-                            scrollWheelZoom={true}
-                            className="admin-gis-map"
-                        >
-                            <TileLayer
-                                attribution="&copy; OpenStreetMap contributors"
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
+                        {loading ? (
+                            <div>
+                                Loading GIS map...
+                            </div>
+                        ) : (
+                            <MapContainer
+                                center={
+                                    cebuCenter
+                                }
+                                zoom={11}
+                                scrollWheelZoom={
+                                    true
+                                }
+                                className="admin-gis-map"
+                            >
+                                <TileLayer
+                                    attribution="&copy; OpenStreetMap contributors"
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
 
-                            {locations.map((location) => (
-                                <Marker
-                                    key={location.id}
-                                    position={[location.latitude, location.longitude]}
-                                    icon={markerIcon}
-                                >
-                                    <Popup>
-                                        <strong>{location.petName}</strong>
-                                        <br />
-                                        {location.reportType} • {location.species}
-                                        <br />
-                                        {location.locationName}
-                                        <br />
-                                        Status: {location.status}
-                                    </Popup>
-                                </Marker>
-                            ))}
-                        </MapContainer>
+                                {locations.map(
+                                    (
+                                        location
+                                    ) => (
+                                        <Marker
+                                            key={
+                                                location._id
+                                            }
+                                            position={[
+                                                location.latitude,
+                                                location.longitude,
+                                            ]}
+                                            icon={
+                                                markerIcon
+                                            }
+                                        >
+                                            <Popup>
+                                                <strong>
+                                                    {
+                                                        location.petName
+                                                    }
+                                                </strong>
+
+                                                <br />
+
+                                                {
+                                                    location.reportType
+                                                }{" "}
+                                                •{" "}
+                                                {
+                                                    location.species
+                                                }
+
+                                                <br />
+
+                                                {
+                                                    location.locationName
+                                                }
+
+                                                <br />
+
+                                                Status:{" "}
+                                                {
+                                                    location.status
+                                                }
+
+                                                <br />
+
+                                                {
+                                                    location.description
+                                                }
+                                            </Popup>
+                                        </Marker>
+                                    )
+                                )}
+                            </MapContainer>
+                        )}
                     </div>
                 </section>
             </section>
 
             <section className="admin-panel admin-gis-list-panel">
                 <div className="admin-panel-heading">
-                    <h2>Mapped Reports</h2>
+                    <h2>
+                        Mapped Reports
+                    </h2>
                 </div>
 
                 <div className="admin-gis-list">
-                    {locations.map((location) => (
-                        <article className="admin-gis-row" key={location.id}>
-                            <div>
-                                <h3>{location.petName}</h3>
-                                <p>
-                                    {location.reportType} • {location.species} •{" "}
-                                    {location.locationName}
-                                </p>
+                    {loading ? (
+                        <div>
+                            Loading reports...
+                        </div>
+                    ) : locations.length ===
+                        0 ? (
+                        <div>
+                            No mapped reports found.
+                        </div>
+                    ) : (
+                        locations.map(
+                            (location) => (
+                                <article
+                                    className="admin-gis-row"
+                                    key={
+                                        location._id
+                                    }
+                                >
+                                    <div>
+                                        <h3>
+                                            {
+                                                location.petName
+                                            }
+                                        </h3>
 
-                                <small>
-                                    Lat: {location.latitude} • Lng: {location.longitude}
-                                </small>
+                                        <p>
+                                            {
+                                                location.reportType
+                                            }{" "}
+                                            •{" "}
+                                            {
+                                                location.species
+                                            }{" "}
+                                            •{" "}
+                                            {
+                                                location.locationName
+                                            }
+                                        </p>
 
-                                <span>{location.description}</span>
-                            </div>
+                                        <small>
+                                            Lat:{" "}
+                                            {
+                                                location.latitude
+                                            }{" "}
+                                            • Lng:{" "}
+                                            {
+                                                location.longitude
+                                            }
+                                        </small>
 
-                            <div className="admin-gis-actions">
-                                <span className={`admin-gis-type ${location.reportType}`}>
-                                    {location.reportType}
-                                </span>
+                                        <span>
+                                            {
+                                                location.description
+                                            }
+                                        </span>
+                                    </div>
 
-                                <span className={`admin-status-pill ${location.status}`}>
-                                    {location.status}
-                                </span>
+                                    <div className="admin-gis-actions">
+                                        <span
+                                            className={`admin-gis-type ${location.reportType}`}
+                                        >
+                                            {
+                                                location.reportType
+                                            }
+                                        </span>
 
-                                {location.status === "open" && (
-                                    <button
-                                        type="button"
-                                        onClick={() => handleResolveLocation(location.id)}
-                                    >
-                                        Resolve
-                                    </button>
-                                )}
-                            </div>
-                        </article>
-                    ))}
+                                        <span
+                                            className={`admin-status-pill ${location.status}`}
+                                        >
+                                            {
+                                                location.status
+                                            }
+                                        </span>
+
+                                        {location.status ===
+                                            "open" && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handleResolveLocation(
+                                                            location._id
+                                                        )
+                                                    }
+                                                >
+                                                    Resolve
+                                                </button>
+                                            )}
+                                    </div>
+                                </article>
+                            )
+                        )
+                    )}
                 </div>
             </section>
         </section>
