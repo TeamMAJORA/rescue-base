@@ -8,6 +8,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import FosterDashboard from "./pages/foster/FosterDashboard";
 import StaffDashboard from "./pages/admin/StaffDashboard";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
+import PublicGISMap from "./components/system/PublicGISMap";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -497,6 +498,8 @@ export default function App() {
 
             <StatsBand stats={stats} />
             <AdoptionSteps />
+
+            <PublicGISMap />
             <FeatureSection />
             <CTAFooter />
         </main>
