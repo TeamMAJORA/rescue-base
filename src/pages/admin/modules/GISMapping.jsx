@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -47,6 +47,20 @@ export default function GISMapping() {
 
     const [userRole, setUserRole] =
         useState("");
+
+    const [hotspots, setHotspots] =
+        useState([]);
+
+    const [hotspotLoading, setHotpotLoading] =
+        useState(true);
+
+    const [hotspotError, setHotspotError] =
+        useState("");
+
+    const [mapMode, setMapMode] =
+        useState("pins");
+
+    const token = localStorage.getItem("token");
 
     const openCases = useMemo(() => {
         return locations.filter(
@@ -117,8 +131,51 @@ export default function GISMapping() {
         }
     }
 
+    async function loadHotspots() {
+        if (!token) {
+            setHotspotError(
+                "Auth token is missing."
+            );
+            setHotpotLoading(false);
+            return;
+        }
+
+        try {
+            setHotpotLoading(true);
+            setHotspotError("");
+
+            const response = await fetch(
+                `${API}/api/gis/hotspots`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to load analysis");
+            }
+
+            setHotspots(data.hotspots || []);
+        } catch (error) {
+            console.error("Hotspots analysis error:", error);
+
+            setHotspotError(
+                error.message || "Failed to load hotspot analysis."
+            );
+        } finally {
+            setHotpotLoading(false);
+        }
+    }
+
     useEffect(() => {
         loadLocations();
+        loadHotspots();
 
         const storedUser = localStorage.getItem("user");
 
@@ -197,6 +254,7 @@ export default function GISMapping() {
                 }
                 : {
                     petName: locationForm.petName.trim() || "Unknown Stray",
+                    reportType: locationForm.reportType,
                     species: locationForm.species,
                     locationName: locationForm.locationName.trim(),
                     latitude,
@@ -237,6 +295,7 @@ export default function GISMapping() {
             );
 
             await loadLocations();
+            await loadHotspots();
         } catch (error) {
             console.error(
                 "Add GIS location error:",
@@ -295,6 +354,7 @@ export default function GISMapping() {
             );
 
             await loadLocations();
+            await loadHotspots();
         } catch (error) {
             console.error(
                 "Resolve GIS location error:",
@@ -588,40 +648,64 @@ export default function GISMapping() {
                         <h2>
                             GIS Map
                         </h2>
+
+                        <div className="admin-gis-map-controls">
+                            <button
+                                type="button"
+                                className={
+                                    mapMode === "pins"
+                                        ? "active"
+                                        : ""
+                                }
+                                onClick={() =>
+                                    setMapMode("pins")
+                                }
+                            >
+                                Pins
+                            </button>
+
+                            <button
+                                type="button"
+                                className={
+                                    mapMode === "hotspots"
+                                        ? "active"
+                                        : ""
+                                }
+                                onClick={() =>
+                                    setMapMode("hotspots")
+                                }
+                            >
+                                Hotspots
+                            </button>
+                        </div>
                     </div>
 
                     <div className="admin-gis-map-wrap">
-                        {loading ? (
-                            <div>
-                                Loading GIS map...
-                            </div>
-                        ) : (
-                            <MapContainer
-                                center={
-                                    cebuCenter
-                                }
-                                zoom={11}
-                                scrollWheelZoom={
-                                    true
-                                }
-                                className="admin-gis-map"
-                            >
-                                <TileLayer
-                                    attribution="&copy; OpenStreetMap contributors"
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
+                        <MapContainer
+                            center={cebuCenter}
+                            zoom={11}
+                            scrollWheelZoom={true}
+                            className="admin-gis-map"
+                        >
+                            <TileLayer
+                                attribution="&copy; OpenStreetMap contributors"
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
 
-                                {locations.map(
-                                    (
-                                        location
-                                    ) => (
+                            {mapMode === "pins" ? (
+                                locations.map(
+                                    (location) => (
                                         <Marker
                                             key={
                                                 location._id
                                             }
                                             position={[
-                                                location.latitude,
-                                                location.longitude,
+                                                Number(
+                                                    location.latitude
+                                                ),
+                                                Number(
+                                                    location.longitude
+                                                ),
                                             ]}
                                             icon={
                                                 markerIcon
@@ -638,8 +722,8 @@ export default function GISMapping() {
 
                                                 {
                                                     location.reportType
-                                                }{" "}
-                                                •{" "}
+                                                }
+                                                {" • "}
                                                 {
                                                     location.species
                                                 }
@@ -665,8 +749,68 @@ export default function GISMapping() {
                                             </Popup>
                                         </Marker>
                                     )
-                                )}
-                            </MapContainer>
+                                )
+                            ) : (
+                                hotspots.map(
+                                    (hotspot, index) => (
+                                        <Circle
+                                            key={`${hotspot.latCell}:${hotspot.lngCell}`}
+                                            center={[
+                                                Number(
+                                                    hotspot.latitude
+                                                ),
+                                                Number(
+                                                    hotspot.longitude
+                                                ),
+                                            ]}
+                                            radius={Math.max(
+                                                hotspot.count * 150,
+                                                250
+                                            )}
+                                        >
+                                            <Popup>
+                                                <strong>
+                                                    Hotspot #{index + 1}
+                                                </strong>
+
+                                                <br />
+
+                                                Reports:{" "}
+                                                {
+                                                    hotspot.count
+                                                }
+
+                                                <br />
+
+                                                Lost:{" "}
+                                                {
+                                                    hotspot.lost
+                                                }
+
+                                                <br />
+
+                                                Found:{" "}
+                                                {
+                                                    hotspot.found
+                                                }
+
+                                                <br />
+
+                                                Stray:{" "}
+                                                {
+                                                    hotspot.stray
+                                                }
+                                            </Popup>
+                                        </Circle>
+                                    )
+                                )
+                            )}
+                        </MapContainer>
+
+                        {loading && (
+                            <div className="admin-gis-map-loading">
+                                Loading GIS locations...
+                            </div>
                         )}
                     </div>
                 </section>
@@ -773,6 +917,88 @@ export default function GISMapping() {
                         )
                     )}
                 </div>
+            </section>
+
+            <section className="admin-panel admin-gis-hotspot-panel">
+                <div className="admin-panel-heading">
+                    <h2>
+                        Hotspot Analysis
+                    </h2>
+
+                    <p>
+                        Areas with the highest
+                        concentration of open GIS reports.
+                    </p>
+                </div>
+
+                {hotspotError && (
+                    <div className="admin-gis-error">
+                        {hotspotError}
+                    </div>
+                )}
+
+                {hotspotLoading ? (
+                    <div>
+                        Loading hotspot analysis...
+                    </div>
+                ) : hotspots.length === 0 ? (
+                    <div>
+                        No open GIS reports available
+                        for hotspot analysis.
+                    </div>
+                ) : (
+                    <div className="admin-gis-hotspot-list">
+                        {hotspots
+                            .slice(0, 5)
+                            .map((hotspot, index) => (
+                                <article
+                                    className="admin-gis-hotspot-row"
+                                    key={`${hotspot.latCell}:${hotspot.lngCell}`}
+                                >
+                                    <div>
+                                        <strong>
+                                            Hotspot #{index + 1}
+                                        </strong>
+
+                                        <p>
+                                            Latitude:{" "}
+                                            {hotspot.latitude.toFixed(5)}
+                                            <br />
+                                            Longitude:{" "}
+                                            {hotspot.longitude.toFixed(5)}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            {hotspot.count}
+                                        </strong>
+
+                                        <span>
+                                            Reports
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <small>
+                                            Lost:{" "}
+                                            {hotspot.lost}
+                                        </small>
+
+                                        <small>
+                                            Found:{" "}
+                                            {hotspot.found}
+                                        </small>
+
+                                        <small>
+                                            Stray:{" "}
+                                            {hotspot.stray}
+                                        </small>
+                                    </div>
+                                </article>
+                            ))}
+                    </div>
+                )}
             </section>
         </section>
     );
