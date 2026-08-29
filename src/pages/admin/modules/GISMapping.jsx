@@ -51,7 +51,7 @@ export default function GISMapping() {
     const [hotspots, setHotspots] =
         useState([]);
 
-    const [hotspotLoading, setHotpotLoading] =
+    const [hotspotLoading, setHotspotLoading] =
         useState(true);
 
     const [hotspotError, setHotspotError] =
@@ -76,30 +76,30 @@ export default function GISMapping() {
         ).length;
     }, [locations]);
 
-    async function loadLocations() {
-        const token =
-            localStorage.getItem("token");
-
-        if (!token) {
-            setError(
-                "Authentication token is missing."
-            );
-            setLoading(false);
-            return;
-        }
-
+    async function loadLocations(role) {
         try {
             setLoading(true);
             setError("");
 
+            const isVolunteer =
+                role === "volunteer";
+
+            const endpoint = isVolunteer
+                ? `${API}/api/gis/public`
+                : `${API}/api/gis`;
+
+            const headers = isVolunteer
+                ? {}
+                : {
+                    Authorization:
+                        `Bearer ${localStorage.getItem("token")}`,
+                };
+
             const response = await fetch(
-                `${API}/api/gis`,
+                endpoint,
                 {
                     method: "GET",
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`,
-                    },
+                    headers,
                 }
             );
 
@@ -116,6 +116,7 @@ export default function GISMapping() {
             setLocations(
                 data.locations || []
             );
+
         } catch (error) {
             console.error(
                 "Load GIS locations error:",
@@ -126,22 +127,26 @@ export default function GISMapping() {
                 error.message ||
                 "Failed to load GIS locations."
             );
+
         } finally {
             setLoading(false);
         }
     }
 
     async function loadHotspots() {
+        const token =
+            localStorage.getItem("token");
+
         if (!token) {
             setHotspotError(
                 "Auth token is missing."
             );
-            setHotpotLoading(false);
+            setHotspotLoading(false);
             return;
         }
 
         try {
-            setHotpotLoading(true);
+            setHotspotLoading(true);
             setHotspotError("");
 
             const response = await fetch(
@@ -155,44 +160,85 @@ export default function GISMapping() {
                 }
             );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || "Failed to load analysis");
+                throw new Error(
+                    data.message ||
+                    "Failed to load analysis"
+                );
             }
 
-            setHotspots(data.hotspots || []);
+            setHotspots(
+                data.hotspots || []
+            );
+
         } catch (error) {
-            console.error("Hotspots analysis error:", error);
+            console.error(
+                "Hotspots analysis error:",
+                error
+            );
 
             setHotspotError(
-                error.message || "Failed to load hotspot analysis."
+                error.message ||
+                "Failed to load hotspot analysis."
             );
+
         } finally {
-            setHotpotLoading(false);
+            setHotspotLoading(false);
         }
     }
 
     useEffect(() => {
-        loadLocations();
-        loadHotspots();
+        const storedUser =
+            localStorage.getItem("rescuebase_user");
 
-        const storedUser = localStorage.getItem("user");
+        if (!storedUser) {
+            setUserRole("");
+            return;
+        }
 
-        if (storedUser) {
-            try {
-                const user = JSON.parse(storedUser);
+        try {
+            const user =
+                JSON.parse(storedUser);
 
-                setUserRole(String(user.role || "").trim().toLowerCase());
+            const role = String(
+                user.role || ""
+            )
+                .trim()
+                .toLowerCase();
 
-            } catch {
-                console.error(
-                    "Failed to read user information:",
-                    error
-                );
-            }
+            setUserRole(role);
+
+        } catch (error) {
+            console.error(
+                "Failed to read user information:",
+                error
+            );
+
+            setUserRole("");
         }
     }, []);
+
+    useEffect(() => {
+        if (!userRole) {
+            return;
+        }
+
+        const loadGISData = async () => {
+            await loadLocations(userRole);
+
+            if (
+                userRole === "admin" ||
+                userRole === "staff"
+            ) {
+                await loadHotspots();
+            }
+        };
+
+        loadGISData();
+    }, [userRole]);
 
     function handleFormChange(
         field,
@@ -294,8 +340,14 @@ export default function GISMapping() {
                 "GIS location added successfully."
             );
 
-            await loadLocations();
-            await loadHotspots();
+            await loadLocations(userRole);
+
+            if (
+                userRole === "admin" ||
+                userRole === "staff"
+            ) {
+                await loadHotspots();
+            }
         } catch (error) {
             console.error(
                 "Add GIS location error:",
@@ -353,8 +405,14 @@ export default function GISMapping() {
                 "GIS location resolved successfully."
             );
 
-            await loadLocations();
-            await loadHotspots();
+            await loadLocations(userRole);
+
+            if (
+                userRole === "admin" ||
+                userRole === "staff"
+            ) {
+                await loadHotspots();
+            }
         } catch (error) {
             console.error(
                 "Resolve GIS location error:",
@@ -898,8 +956,8 @@ export default function GISMapping() {
                                             }
                                         </span>
 
-                                        {location.status ===
-                                            "open" && (
+                                        {userRole !== "volunteer" &&
+                                            location.status === "open" && (
                                                 <button
                                                     type="button"
                                                     onClick={() =>
