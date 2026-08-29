@@ -45,6 +45,9 @@ export default function GISMapping() {
     const [success, setSuccess] =
         useState("");
 
+    const [userRole, setUserRole] =
+        useState("");
+
     const openCases = useMemo(() => {
         return locations.filter(
             (location) =>
@@ -116,6 +119,22 @@ export default function GISMapping() {
 
     useEffect(() => {
         loadLocations();
+
+        const storedUser = localStorage.getItem("user");
+
+        if (storedUser) {
+            try {
+                const user = JSON.parse(storedUser);
+
+                setUserRole(String(user.role || "").trim().toLowerCase());
+
+            } catch {
+                console.error(
+                    "Failed to read user information:",
+                    error
+                );
+            }
+        }
     }, []);
 
     function handleFormChange(
@@ -165,39 +184,37 @@ export default function GISMapping() {
         try {
             setSubmitting(true);
 
+            const endpoint = userRole === "volunteer" ? `${API}/api/gis/stray-sightings` : `${API}/api/gis`;
+
+            const body = userRole === "volunteer"
+                ? {
+                    petName: locationForm.petName.trim() || "Unknown Stray",
+                    species: locationForm.species,
+                    locationName: locationForm.locationName.trim(),
+                    latitude,
+                    longitude,
+                    description: locationForm.description.trim(),
+                }
+                : {
+                    petName: locationForm.petName.trim() || "Unknown Stray",
+                    species: locationForm.species,
+                    locationName: locationForm.locationName.trim(),
+                    latitude,
+                    longitude,
+                    status: locationForm.status,
+                    description: locationForm.description.trim(),
+                }
+
             const response = await fetch(
-                `${API}/api/gis`,
+                endpoint,
                 {
                     method: "POST",
                     headers: {
-                        "Content-Type":
-                            "application/json",
-                        Authorization:
-                            `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({
-                        petName:
-                            locationForm.petName.trim(),
 
-                        reportType:
-                            locationForm.reportType,
-
-                        species:
-                            locationForm.species,
-
-                        locationName:
-                            locationForm.locationName.trim(),
-
-                        latitude,
-
-                        longitude,
-
-                        status:
-                            locationForm.status,
-
-                        description:
-                            locationForm.description.trim(),
-                    }),
+                    body: JSON.stringify(body),
                 }
             );
 
@@ -341,7 +358,9 @@ export default function GISMapping() {
                 <section className="admin-panel admin-gis-form-panel">
                     <div className="admin-panel-heading">
                         <h2>
-                            Add Map Location
+                            {userRole === "volunteer"
+                                ? "Record Stray Sighting"
+                                : "Add Map Location"}
                         </h2>
                     </div>
 
@@ -370,41 +389,53 @@ export default function GISMapping() {
                             />
                         </label>
 
-                        <label>
-                            Report Type
+                        {userRole !== "volunteer" ? (
+                            <label>
+                                Report Type
 
-                            <select
-                                value={
-                                    locationForm.reportType
-                                }
-                                onChange={(e) =>
-                                    handleFormChange(
-                                        "reportType",
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="lost">
-                                    Lost Pet
-                                </option>
+                                <select
+                                    value={
+                                        locationForm.reportType
+                                    }
+                                    onChange={(e) =>
+                                        handleFormChange(
+                                            "reportType",
+                                            e.target.value
+                                        )
+                                    }
+                                >
+                                    <option value="lost">
+                                        Lost Pet
+                                    </option>
 
-                                <option value="found">
-                                    Found Pet
-                                </option>
+                                    <option value="found">
+                                        Found Pet
+                                    </option>
 
-                                <option value="stray">
+                                    <option value="stray">
+                                        Stray Animal
+                                    </option>
+
+                                    <option value="rescue">
+                                        Rescue Location
+                                    </option>
+
+                                    <option value="intake">
+                                        Shelter Intake
+                                    </option>
+                                </select>
+                            </label>
+                        ) : (
+                            <div>
+                                <strong>
+                                    Report Type
+                                </strong>
+
+                                <p>
                                     Stray Animal
-                                </option>
-
-                                <option value="rescue">
-                                    Rescue Location
-                                </option>
-
-                                <option value="intake">
-                                    Shelter Intake
-                                </option>
-                            </select>
-                        </label>
+                                </p>
+                            </div>
+                        )}
 
                         <label>
                             Species
@@ -541,13 +572,13 @@ export default function GISMapping() {
 
                         <button
                             type="submit"
-                            disabled={
-                                submitting
-                            }
+                            disabled={submitting}
                         >
                             {submitting
-                                ? "Adding..."
-                                : "Add Location"}
+                                ? "Recording..."
+                                : userRole === "volunteer"
+                                    ? "Record Stray Sighting"
+                                    : "Add Location"}
                         </button>
                     </form>
                 </section>
