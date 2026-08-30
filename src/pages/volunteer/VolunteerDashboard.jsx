@@ -26,6 +26,7 @@ import RescueAssignments from "./modules/RescueAssignments";
 import RescueHistory from "./modules/RescueHistory";
 import ActivityLog from "./modules/ActivityLog";
 import FeedbackForm from "../FeedbackForm";
+import GISMapping from "../admin/modules/GISMapping";
 
 // // ADOPTIONS
 import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
@@ -50,6 +51,10 @@ const staffMenu = [
             { key: "rescue-assignments", label: "Rescue Assignments" },
             { key: "rescue-history", label: "My Rescue History" },
         ],
+    },
+    {
+        key: "gis",
+        label: "GIS Mapping"
     },
     {
         key: "lost-found",
@@ -266,6 +271,10 @@ export default function VolunteerDashboard({ setPage }) {
 
         if (activeStaffPage === "feedback") {
             return <FeedbackForm />;
+        }
+
+        if (activeStaffPage === "gis") {
+            return <GISMapping />
         }
     }
 

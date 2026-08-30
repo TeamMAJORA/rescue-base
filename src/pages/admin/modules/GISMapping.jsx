@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -45,6 +45,23 @@ export default function GISMapping() {
     const [success, setSuccess] =
         useState("");
 
+    const [userRole, setUserRole] =
+        useState("");
+
+    const [hotspots, setHotspots] =
+        useState([]);
+
+    const [hotspotLoading, setHotspotLoading] =
+        useState(true);
+
+    const [hotspotError, setHotspotError] =
+        useState("");
+
+    const [mapMode, setMapMode] =
+        useState("pins");
+
+    const token = localStorage.getItem("token");
+
     const openCases = useMemo(() => {
         return locations.filter(
             (location) =>
@@ -59,30 +76,30 @@ export default function GISMapping() {
         ).length;
     }, [locations]);
 
-    async function loadLocations() {
-        const token =
-            localStorage.getItem("token");
-
-        if (!token) {
-            setError(
-                "Authentication token is missing."
-            );
-            setLoading(false);
-            return;
-        }
-
+    async function loadLocations(role) {
         try {
             setLoading(true);
             setError("");
 
+            const isVolunteer =
+                role === "volunteer";
+
+            const endpoint = isVolunteer
+                ? `${API}/api/gis/public`
+                : `${API}/api/gis`;
+
+            const headers = isVolunteer
+                ? {}
+                : {
+                    Authorization:
+                        `Bearer ${localStorage.getItem("token")}`,
+                };
+
             const response = await fetch(
-                `${API}/api/gis`,
+                endpoint,
                 {
                     method: "GET",
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`,
-                    },
+                    headers,
                 }
             );
 
@@ -99,6 +116,7 @@ export default function GISMapping() {
             setLocations(
                 data.locations || []
             );
+
         } catch (error) {
             console.error(
                 "Load GIS locations error:",
@@ -109,14 +127,118 @@ export default function GISMapping() {
                 error.message ||
                 "Failed to load GIS locations."
             );
+
         } finally {
             setLoading(false);
         }
     }
 
+    async function loadHotspots() {
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) {
+            setHotspotError(
+                "Auth token is missing."
+            );
+            setHotspotLoading(false);
+            return;
+        }
+
+        try {
+            setHotspotLoading(true);
+            setHotspotError("");
+
+            const response = await fetch(
+                `${API}/api/gis/hotspots`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to load analysis"
+                );
+            }
+
+            setHotspots(
+                data.hotspots || []
+            );
+
+        } catch (error) {
+            console.error(
+                "Hotspots analysis error:",
+                error
+            );
+
+            setHotspotError(
+                error.message ||
+                "Failed to load hotspot analysis."
+            );
+
+        } finally {
+            setHotspotLoading(false);
+        }
+    }
+
     useEffect(() => {
-        loadLocations();
+        const storedUser =
+            localStorage.getItem("rescuebase_user");
+
+        if (!storedUser) {
+            setUserRole("");
+            return;
+        }
+
+        try {
+            const user =
+                JSON.parse(storedUser);
+
+            const role = String(
+                user.role || ""
+            )
+                .trim()
+                .toLowerCase();
+
+            setUserRole(role);
+
+        } catch (error) {
+            console.error(
+                "Failed to read user information:",
+                error
+            );
+
+            setUserRole("");
+        }
     }, []);
+
+    useEffect(() => {
+        if (!userRole) {
+            return;
+        }
+
+        const loadGISData = async () => {
+            await loadLocations(userRole);
+
+            if (
+                userRole === "admin" ||
+                userRole === "staff"
+            ) {
+                await loadHotspots();
+            }
+        };
+
+        loadGISData();
+    }, [userRole]);
 
     function handleFormChange(
         field,
@@ -165,39 +287,38 @@ export default function GISMapping() {
         try {
             setSubmitting(true);
 
+            const endpoint = userRole === "volunteer" ? `${API}/api/gis/stray-sightings` : `${API}/api/gis`;
+
+            const body = userRole === "volunteer"
+                ? {
+                    petName: locationForm.petName.trim() || "Unknown Stray",
+                    species: locationForm.species,
+                    locationName: locationForm.locationName.trim(),
+                    latitude,
+                    longitude,
+                    description: locationForm.description.trim(),
+                }
+                : {
+                    petName: locationForm.petName.trim() || "Unknown Stray",
+                    reportType: locationForm.reportType,
+                    species: locationForm.species,
+                    locationName: locationForm.locationName.trim(),
+                    latitude,
+                    longitude,
+                    status: locationForm.status,
+                    description: locationForm.description.trim(),
+                }
+
             const response = await fetch(
-                `${API}/api/gis`,
+                endpoint,
                 {
                     method: "POST",
                     headers: {
-                        "Content-Type":
-                            "application/json",
-                        Authorization:
-                            `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({
-                        petName:
-                            locationForm.petName.trim(),
 
-                        reportType:
-                            locationForm.reportType,
-
-                        species:
-                            locationForm.species,
-
-                        locationName:
-                            locationForm.locationName.trim(),
-
-                        latitude,
-
-                        longitude,
-
-                        status:
-                            locationForm.status,
-
-                        description:
-                            locationForm.description.trim(),
-                    }),
+                    body: JSON.stringify(body),
                 }
             );
 
@@ -219,7 +340,14 @@ export default function GISMapping() {
                 "GIS location added successfully."
             );
 
-            await loadLocations();
+            await loadLocations(userRole);
+
+            if (
+                userRole === "admin" ||
+                userRole === "staff"
+            ) {
+                await loadHotspots();
+            }
         } catch (error) {
             console.error(
                 "Add GIS location error:",
@@ -277,7 +405,14 @@ export default function GISMapping() {
                 "GIS location resolved successfully."
             );
 
-            await loadLocations();
+            await loadLocations(userRole);
+
+            if (
+                userRole === "admin" ||
+                userRole === "staff"
+            ) {
+                await loadHotspots();
+            }
         } catch (error) {
             console.error(
                 "Resolve GIS location error:",
@@ -341,7 +476,9 @@ export default function GISMapping() {
                 <section className="admin-panel admin-gis-form-panel">
                     <div className="admin-panel-heading">
                         <h2>
-                            Add Map Location
+                            {userRole === "volunteer"
+                                ? "Record Stray Sighting"
+                                : "Add Map Location"}
                         </h2>
                     </div>
 
@@ -370,41 +507,53 @@ export default function GISMapping() {
                             />
                         </label>
 
-                        <label>
-                            Report Type
+                        {userRole !== "volunteer" ? (
+                            <label>
+                                Report Type
 
-                            <select
-                                value={
-                                    locationForm.reportType
-                                }
-                                onChange={(e) =>
-                                    handleFormChange(
-                                        "reportType",
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="lost">
-                                    Lost Pet
-                                </option>
+                                <select
+                                    value={
+                                        locationForm.reportType
+                                    }
+                                    onChange={(e) =>
+                                        handleFormChange(
+                                            "reportType",
+                                            e.target.value
+                                        )
+                                    }
+                                >
+                                    <option value="lost">
+                                        Lost Pet
+                                    </option>
 
-                                <option value="found">
-                                    Found Pet
-                                </option>
+                                    <option value="found">
+                                        Found Pet
+                                    </option>
 
-                                <option value="stray">
+                                    <option value="stray">
+                                        Stray Animal
+                                    </option>
+
+                                    <option value="rescue">
+                                        Rescue Location
+                                    </option>
+
+                                    <option value="intake">
+                                        Shelter Intake
+                                    </option>
+                                </select>
+                            </label>
+                        ) : (
+                            <div>
+                                <strong>
+                                    Report Type
+                                </strong>
+
+                                <p>
                                     Stray Animal
-                                </option>
-
-                                <option value="rescue">
-                                    Rescue Location
-                                </option>
-
-                                <option value="intake">
-                                    Shelter Intake
-                                </option>
-                            </select>
-                        </label>
+                                </p>
+                            </div>
+                        )}
 
                         <label>
                             Species
@@ -541,13 +690,13 @@ export default function GISMapping() {
 
                         <button
                             type="submit"
-                            disabled={
-                                submitting
-                            }
+                            disabled={submitting}
                         >
                             {submitting
-                                ? "Adding..."
-                                : "Add Location"}
+                                ? "Recording..."
+                                : userRole === "volunteer"
+                                    ? "Record Stray Sighting"
+                                    : "Add Location"}
                         </button>
                     </form>
                 </section>
@@ -557,40 +706,64 @@ export default function GISMapping() {
                         <h2>
                             GIS Map
                         </h2>
+
+                        <div className="admin-gis-map-controls">
+                            <button
+                                type="button"
+                                className={
+                                    mapMode === "pins"
+                                        ? "active"
+                                        : ""
+                                }
+                                onClick={() =>
+                                    setMapMode("pins")
+                                }
+                            >
+                                Pins
+                            </button>
+
+                            <button
+                                type="button"
+                                className={
+                                    mapMode === "hotspots"
+                                        ? "active"
+                                        : ""
+                                }
+                                onClick={() =>
+                                    setMapMode("hotspots")
+                                }
+                            >
+                                Hotspots
+                            </button>
+                        </div>
                     </div>
 
                     <div className="admin-gis-map-wrap">
-                        {loading ? (
-                            <div>
-                                Loading GIS map...
-                            </div>
-                        ) : (
-                            <MapContainer
-                                center={
-                                    cebuCenter
-                                }
-                                zoom={11}
-                                scrollWheelZoom={
-                                    true
-                                }
-                                className="admin-gis-map"
-                            >
-                                <TileLayer
-                                    attribution="&copy; OpenStreetMap contributors"
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
+                        <MapContainer
+                            center={cebuCenter}
+                            zoom={11}
+                            scrollWheelZoom={true}
+                            className="admin-gis-map"
+                        >
+                            <TileLayer
+                                attribution="&copy; OpenStreetMap contributors"
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
 
-                                {locations.map(
-                                    (
-                                        location
-                                    ) => (
+                            {mapMode === "pins" ? (
+                                locations.map(
+                                    (location) => (
                                         <Marker
                                             key={
                                                 location._id
                                             }
                                             position={[
-                                                location.latitude,
-                                                location.longitude,
+                                                Number(
+                                                    location.latitude
+                                                ),
+                                                Number(
+                                                    location.longitude
+                                                ),
                                             ]}
                                             icon={
                                                 markerIcon
@@ -607,8 +780,8 @@ export default function GISMapping() {
 
                                                 {
                                                     location.reportType
-                                                }{" "}
-                                                •{" "}
+                                                }
+                                                {" • "}
                                                 {
                                                     location.species
                                                 }
@@ -634,8 +807,68 @@ export default function GISMapping() {
                                             </Popup>
                                         </Marker>
                                     )
-                                )}
-                            </MapContainer>
+                                )
+                            ) : (
+                                hotspots.map(
+                                    (hotspot, index) => (
+                                        <Circle
+                                            key={`${hotspot.latCell}:${hotspot.lngCell}`}
+                                            center={[
+                                                Number(
+                                                    hotspot.latitude
+                                                ),
+                                                Number(
+                                                    hotspot.longitude
+                                                ),
+                                            ]}
+                                            radius={Math.max(
+                                                hotspot.count * 150,
+                                                250
+                                            )}
+                                        >
+                                            <Popup>
+                                                <strong>
+                                                    Hotspot #{index + 1}
+                                                </strong>
+
+                                                <br />
+
+                                                Reports:{" "}
+                                                {
+                                                    hotspot.count
+                                                }
+
+                                                <br />
+
+                                                Lost:{" "}
+                                                {
+                                                    hotspot.lost
+                                                }
+
+                                                <br />
+
+                                                Found:{" "}
+                                                {
+                                                    hotspot.found
+                                                }
+
+                                                <br />
+
+                                                Stray:{" "}
+                                                {
+                                                    hotspot.stray
+                                                }
+                                            </Popup>
+                                        </Circle>
+                                    )
+                                )
+                            )}
+                        </MapContainer>
+
+                        {loading && (
+                            <div className="admin-gis-map-loading">
+                                Loading GIS locations...
+                            </div>
                         )}
                     </div>
                 </section>
@@ -723,8 +956,8 @@ export default function GISMapping() {
                                             }
                                         </span>
 
-                                        {location.status ===
-                                            "open" && (
+                                        {userRole !== "volunteer" &&
+                                            location.status === "open" && (
                                                 <button
                                                     type="button"
                                                     onClick={() =>
@@ -742,6 +975,88 @@ export default function GISMapping() {
                         )
                     )}
                 </div>
+            </section>
+
+            <section className="admin-panel admin-gis-hotspot-panel">
+                <div className="admin-panel-heading">
+                    <h2>
+                        Hotspot Analysis
+                    </h2>
+
+                    <p>
+                        Areas with the highest
+                        concentration of open GIS reports.
+                    </p>
+                </div>
+
+                {hotspotError && (
+                    <div className="admin-gis-error">
+                        {hotspotError}
+                    </div>
+                )}
+
+                {hotspotLoading ? (
+                    <div>
+                        Loading hotspot analysis...
+                    </div>
+                ) : hotspots.length === 0 ? (
+                    <div>
+                        No open GIS reports available
+                        for hotspot analysis.
+                    </div>
+                ) : (
+                    <div className="admin-gis-hotspot-list">
+                        {hotspots
+                            .slice(0, 5)
+                            .map((hotspot, index) => (
+                                <article
+                                    className="admin-gis-hotspot-row"
+                                    key={`${hotspot.latCell}:${hotspot.lngCell}`}
+                                >
+                                    <div>
+                                        <strong>
+                                            Hotspot #{index + 1}
+                                        </strong>
+
+                                        <p>
+                                            Latitude:{" "}
+                                            {hotspot.latitude.toFixed(5)}
+                                            <br />
+                                            Longitude:{" "}
+                                            {hotspot.longitude.toFixed(5)}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            {hotspot.count}
+                                        </strong>
+
+                                        <span>
+                                            Reports
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <small>
+                                            Lost:{" "}
+                                            {hotspot.lost}
+                                        </small>
+
+                                        <small>
+                                            Found:{" "}
+                                            {hotspot.found}
+                                        </small>
+
+                                        <small>
+                                            Stray:{" "}
+                                            {hotspot.stray}
+                                        </small>
+                                    </div>
+                                </article>
+                            ))}
+                    </div>
+                )}
             </section>
         </section>
     );
