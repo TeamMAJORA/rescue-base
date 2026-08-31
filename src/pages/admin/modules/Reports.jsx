@@ -74,7 +74,7 @@ export default function Reports() {
         try {
             setError("");
 
-            const response = await fetch(`${API}/api/reports${id}/finalize`,
+            const response = await fetch(`${API}/api/reports/${id}/finalize`,
                 {
                     method: "PATCH",
                     headers: {
@@ -281,7 +281,7 @@ export default function Reports() {
                             Report Title
                             <input
                                 type="text"
-                                value={reportForm}
+                                value={reportForm.title}
                                 onChange={(e) =>
                                     setReportForm({
                                         ...reportForm,
@@ -344,7 +344,7 @@ export default function Reports() {
                             </select>
                         </label>
 
-                        <label className="admin-reports-summary=field">
+                        <label className="admin-reports-summary-field">
                             Summary
                             <textarea
                                 value={reportForm.summary}
@@ -377,58 +377,82 @@ export default function Reports() {
                         <p>Loading reports...</p>
                     ) : (
                         <div className="admin-reports-list">
-                            {/* existing map */}
-                        </div>
-                    )}
+                            {reports.map((report) => (
+                                <article
+                                    className="admin-reports-row"
+                                    key={report._id}
+                                >
+                                    <div>
+                                        <h3>
+                                            {report.title}
+                                        </h3>
 
-                    <div className="admin-reports-list">
-                        {reports.map((report) => (
-                            <article className="admin-reports-row" key={report._id}>
-                                <div>
-                                    <h3>{report.title}</h3>
+                                        <p>
+                                            {report.type} •{" "}
+                                            {report.period} • Created by{" "}
+                                            {report.createdByName}
+                                        </p>
 
-                                    <p>
-                                        {report.type} • {report.period} • Created by{" "}
-                                        {report.createdBy}
-                                    </p>
+                                        <small>
+                                            Created at{" "}
+                                            {new Date(
+                                                report.createdAt
+                                            ).toLocaleString()}
+                                        </small>
 
-                                    <small>Created at {report.createdAt}</small>
+                                        <span>
+                                            {report.summary}
+                                        </span>
+                                    </div>
 
-                                    <span>{report.summary}</span>
-                                </div>
+                                    <div className="admin-reports-actions">
+                                        <span
+                                            className={`admin-status-pill ${report.status}`}
+                                        >
+                                            {report.status}
+                                        </span>
 
-                                <div className="admin-reports-actions">
-                                    <span className={`admin-status-pill ${report.status}`}>
-                                        {report.status}
-                                    </span>
+                                        {report.status ===
+                                            "draft" && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handleFinalizeReport(
+                                                            report._id
+                                                        )
+                                                    }
+                                                >
+                                                    Finalize
+                                                </button>
+                                            )}
 
-                                    {report.status === "draft" && (
                                         <button
                                             type="button"
-                                            onClick={() => handleFinalizeReport(report._id)}
+                                            onClick={() =>
+                                                handleDownloadReport(
+                                                    report
+                                                )
+                                            }
                                         >
-                                            Finalize
+                                            Download
                                         </button>
-                                    )}
 
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDownloadReport(report)}
-                                    >
-                                        Download
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className="danger"
-                                        onClick={() => handleDeleteReport(report._id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
+                                        <button
+                                            type="button"
+                                            className="danger"
+                                            onClick={() =>
+                                                handleDeleteReport(
+                                                    report._id
+                                                )
+                                            }
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    )}
                 </section>
             </section>
         </section>
