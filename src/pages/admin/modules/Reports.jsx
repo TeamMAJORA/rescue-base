@@ -46,13 +46,13 @@ export default function Reports() {
                 }
             );
 
-            const data = response.json();
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || "Failed to create report.");
             }
 
-            setReportsL((current) => [
+            setReports((current) => [
                 data.report,
                 ...current,
             ]);
@@ -83,7 +83,7 @@ export default function Reports() {
                 }
             );
 
-            const data = response.json();
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || "Failed to finalize report");
@@ -232,7 +232,7 @@ export default function Reports() {
                 }
             );
 
-            const data = response.json();
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || "Failed to load reports.");
