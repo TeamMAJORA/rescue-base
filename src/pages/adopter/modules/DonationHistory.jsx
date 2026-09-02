@@ -1,59 +1,84 @@
 import { useEffect, useMemo, useState } from "react";
 
-const mockDonations = [
-    {
-        id: 1,
-        itemName: "Premium Dog Food",
-        category: "Pet Food",
-        quantity: "10 kg",
-        status: "Pending",
-        submitted: "July 31, 2026",
-        delivery: "August 3, 2026",
-        image: "https://placehold.co/120x120",
-        description:
-            "Premium dog food for rescued puppies.",
-        remarks: ""
-    },
-    {
-        id: 2,
-        itemName: "Pet Bed",
-        category: "Supplies",
-        quantity: "2 pcs",
-        status: "Accepted",
-        submitted: "July 27, 2026",
-        delivery: "July 30, 2026",
-        image: "https://placehold.co/120x120",
-        description:
-            "Soft washable pet beds.",
-        remarks:
-            "Thank you! Please bring this on your preferred schedule."
-    },
-    {
-        id: 3,
-        itemName: "Pet Shampoo",
-        category: "Hygiene",
-        quantity: "6 bottles",
-        status: "Delivered",
-        submitted: "July 20, 2026",
-        delivery: "July 22, 2026",
-        image: "https://placehold.co/120x120",
-        description:
-            "Hypoallergenic shampoo.",
-        remarks:
-            "Donation received successfully."
-    }
-];
+const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function DonationHistory() {
+    const [donations, setDonations] = useState([]);
     const [search, setSearch] = useState("");
     const [selected, setSelected] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const token = localStorage.getItem("token");
+
+    const fetchDonations = async () => {
+        try {
+            setLoading(true);
+            setError("");
+
+            const response = await fetch(`${API}/api/donations/my`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to load donation history");
+            }
+
+            setDonations(data);
+        } catch (error) {
+            console.error("Fetching donations history error:", error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const filtered = useMemo(() => {
-        return mockDonations.filter(d =>
-            d.itemName.toLowerCase().includes(search.toLowerCase()) ||
-            d.category.toLowerCase().includes(search.toLowerCase())
+        return donations.filter((donation) => {
+            const itemName = donation.itemName?.toLowerCase() || "";
+            const category = donation.donationType?.toLowerCase() || "";
+            const notes = donation.notes?.toLowerCase() || "";
+            const query = donation.search?.toLowerCase() || "";
+
+            return (
+                itemName.includes(query) ||
+                category.includes(query) ||
+                notes.includes(query)
+            )
+        })
+    }, [donations, search]);
+
+    const formatDate = (date) => {
+        if (!date) {
+            return "--";
+        }
+
+        return new Date(date).toLocaleDateString(
+            "en-us",
+            {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            }
         );
-    }, [search]);
+    };
+
+    const formatStatus = (status) => {
+        if (!status) {
+            return "Pending"
+        }
+
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    };
+
+    useEffect(() => {
+        fetchDonations();
+    });
 
     return (
         <div className="donation-history-page">
@@ -65,6 +90,7 @@ export default function DonationHistory() {
                         View and track every donation you've submitted.
                     </p>
                 </div>
+
                 <input
                     placeholder="Search donation..."
                     value={search}
@@ -72,42 +98,78 @@ export default function DonationHistory() {
                 />
             </div>
 
-            <div className="donation-history-grid">
-                {filtered.map(item => (
-                    <div
-                        className="donation-card"
-                        key={item.id}
-                    >
-                        <img
-                            src={item.image}
-                            alt={item.itemName}
-                        />
-                        <div className="donation-card-content">
-                            <h3>{item.itemName}</h3>
+            {loading && (
+                <div className="donation-history-message">
+                    Loading donation history...
+                </div>
+            )}
 
-                            <span className="category">
-                                {item.category}
-                            </span>
-                            <p>
-                                <strong>Quantity:</strong> {item.quantity}
-                            </p>
-                            <p>
-                                <strong>Submitted:</strong> {item.submitted}
-                            </p>
-                            <span
-                                className={`status ${item.status.toLowerCase()}`}
-                            >
-                                {item.status}
-                            </span>
-                            <button
-                                onClick={() => setSelected(item)}
-                            >
-                                View Details
-                            </button>
+            {!loading && error && (
+                <div className="donation-history-message">
+                    {error}
+                </div>
+            )}
+
+            {!loading && !error && filtered.length === 0 && (
+                <div className="donation-history-message">
+                    {search
+                        ? "No donations match your search."
+                        : "You have not submitted any donations yet."}
+                </div>
+            )}
+
+            {!loading && !error && filtered.length > 0 && (
+                <div className="donation-history-grid">
+                    {filtered.map((item) => (
+                        <div
+                            className="donation-card"
+                            key={item._id}
+                        >
+                            <div className="donation-card-image">
+                                <div className="donation-placeholder">
+                                    Donation
+                                </div>
+                            </div>
+
+                            <div className="donation-card-content">
+                                <h3>
+                                    {item.itemName ||
+                                        item.donationType}
+                                </h3>
+
+                                <span className="category">
+                                    {item.donationType}
+                                </span>
+
+                                <p>
+                                    <strong>Quantity:</strong>{" "}
+                                    {item.quantity}
+                                </p>
+
+                                <p>
+                                    <strong>Submitted:</strong>{" "}
+                                    {formatDate(item.createdAt)}
+                                </p>
+
+                                <span
+                                    className={`status ${item.status || "pending"
+                                        }`}
+                                >
+                                    {formatStatus(item.status)}
+                                </span>
+
+                                <button
+                                    onClick={() =>
+                                        setSelected(item)
+                                    }
+                                >
+                                    View Details
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
 
             {selected && (
                 <div
@@ -120,31 +182,77 @@ export default function DonationHistory() {
                     >
                         <div className="modal-header">
                             <h2>
-                                {selected.itemName}
+                                {selected.itemName ||
+                                    selected.donationType}
                             </h2>
+
                             <button
-                                onClick={() => setSelected(null)}
+                                onClick={() =>
+                                    setSelected(null)
+                                }
                             >
                                 ✕
                             </button>
                         </div>
 
-                        <img
-                            src={selected.image}
-                            alt={selected.itemName}
-                        />
                         <div className="modal-body">
-                            <p><strong>Category:</strong> {selected.category}</p>
-                            <p><strong>Quantity:</strong> {selected.quantity}</p>
-                            <p><strong>Status:</strong> {selected.status}</p>
-                            <p><strong>Preferred Delivery:</strong> {selected.delivery}</p>
-                            <p><strong>Description:</strong></p>
+                            <p>
+                                <strong>Category:</strong>{" "}
+                                {selected.donationType}
+                            </p>
+
+                            <p>
+                                <strong>Quantity:</strong>{" "}
+                                {selected.quantity}
+                            </p>
+
+                            <p>
+                                <strong>Amount:</strong>{" "}
+                                {selected.amount > 0
+                                    ? `₱${selected.amount.toLocaleString()}`
+                                    : "In-kind donation"}
+                            </p>
+
+                            <p>
+                                <strong>Status:</strong>{" "}
+                                {formatStatus(selected.status)}
+                            </p>
+
+                            <p>
+                                <strong>Submitted:</strong>{" "}
+                                {formatDate(
+                                    selected.createdAt
+                                )}
+                            </p>
+
+                            {selected.receivedDate && (
+                                <p>
+                                    <strong>Received:</strong>{" "}
+                                    {formatDate(
+                                        selected.receivedDate
+                                    )}
+                                </p>
+                            )}
+
+                            <p>
+                                <strong>Description:</strong>
+                            </p>
+
                             <div className="description">
-                                {selected.description}
+                                {selected.notes ||
+                                    "No description provided."}
                             </div>
-                            <p><strong>Staff Remarks:</strong></p>
+
+                            <p>
+                                <strong>Donation Status:</strong>
+                            </p>
+
                             <div className="remarks">
-                                {selected.remarks || "No remarks yet."}
+                                {selected.status === "received"
+                                    ? "Donation received successfully."
+                                    : selected.status === "cancelled"
+                                        ? "This donation has been cancelled."
+                                        : "Your donation is currently pending."}
                             </div>
                         </div>
                     </div>
