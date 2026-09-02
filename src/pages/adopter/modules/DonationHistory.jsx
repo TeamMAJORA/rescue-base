@@ -43,7 +43,7 @@ export default function DonationHistory() {
             const itemName = donation.itemName?.toLowerCase() || "";
             const category = donation.donationType?.toLowerCase() || "";
             const notes = donation.notes?.toLowerCase() || "";
-            const query = donation.search?.toLowerCase() || "";
+            const query = search.toLowerCase();
 
             return (
                 itemName.includes(query) ||
@@ -78,7 +78,7 @@ export default function DonationHistory() {
 
     useEffect(() => {
         fetchDonations();
-    });
+    }, []);
 
     return (
         <div className="donation-history-page">
