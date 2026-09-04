@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import assets from "../data/assets.json";
 import PublicGISMap from "../components/system/PublicGISMap";
 
+import "../styles/Landing.css"
+
 import Header from "../components/landing/Header";
 import PetSlider from "../components/landing/PetSlider";
 import StatsBand from "../components/landing/StatsBand";
 import AdoptionSteps from "../components/landing/AdoptionSteps";
 import FeatureSection from "../components/landing/FeatureSection";
 import CTAFooter from "../components/landing/CTAFooter";
+import HeroSection from "../components/landing/HeroSection";
+import RescueSection from "../components/landing/RescueSection";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -215,94 +219,9 @@ export default function LandingPage({
                 aria-hidden="true"
             />
 
-            <section className="hero">
-                <div className="hero-content">
-                    <h1>
-                        Find Your <br />
-                        Perfect <span>Match</span>
-                    </h1>
+            <HeroSection onSignup={onSignup} />
 
-                    <p>
-                        Helping every rescued pet find a loving family faster.
-                    </p>
-
-                    <button
-                        className="match-btn"
-                        type="button"
-                        onClick={onSignup}
-                    >
-                        Find my Match
-                        <img
-                            src={assets.icons.heart}
-                            alt=""
-                        />
-                    </button>
-                </div>
-            </section>
-
-            <section
-                className="pets-section"
-                id="pets"
-            >
-                <div className="section-heading">
-                    <h2>
-                        Meet some of our rescues
-                    </h2>
-
-                    <p>
-                        Every one of them is waiting for you.
-                    </p>
-                </div>
-
-                <a
-                    className="see-all-pets"
-                    href="#pets"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        onSignup();
-                    }}
-                >
-                    See All Pets →
-                </a>
-
-                <PetSlider
-                    pets={
-                        pets.length > 0
-                            ? pets
-                            : samplePets
-                    }
-                />
-
-                <p className="pet-note">
-                    Sign in to see all available pets and start your application
-                </p>
-
-                <div className="pet-actions">
-                    <button
-                        className="adopt-btn"
-                        type="button"
-                        onClick={onSignup}
-                    >
-                        Adopt
-                        <img
-                            src={assets.icons.adopt}
-                            alt=""
-                        />
-                    </button>
-
-                    <button
-                        className="donate-btn"
-                        type="button"
-                        onClick={onSignup}
-                    >
-                        Donate
-                        <img
-                            src={assets.icons.donate}
-                            alt=""
-                        />
-                    </button>
-                </div>
-            </section>
+            <RescueSection pets={pets} onSignup={onSignup} />
 
             <StatsBand stats={stats} />
 
