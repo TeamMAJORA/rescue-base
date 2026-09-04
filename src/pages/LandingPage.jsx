@@ -12,6 +12,8 @@ import FeatureSection from "../components/landing/FeatureSection";
 import CTAFooter from "../components/landing/CTAFooter";
 import HeroSection from "../components/landing/HeroSection";
 import RescueSection from "../components/landing/RescueSection";
+import GISSection from "../components/landing/GISSection";
+import DonorSection from "../components/landing/DonorSection";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -223,11 +225,13 @@ export default function LandingPage({
 
             <RescueSection pets={pets} onSignup={onSignup} />
 
+            <GISSection />
+
+            <DonorSection onSignup={onSignup}/>
+
             <StatsBand stats={stats} />
 
             <AdoptionSteps />
-
-            <PublicGISMap />
 
             <FeatureSection />
 
