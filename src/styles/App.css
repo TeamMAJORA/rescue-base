@@ -205,7 +205,6 @@ img {
 }
 
 .page-paws {
-    z-index: 1;
     position: absolute;
     width: 1950px;
     max-width: none;
@@ -831,7 +830,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 1;
+    z-index: 2;
 }
 
 .steps-section,
