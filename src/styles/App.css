@@ -873,7 +873,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 3;
+    z-index: 2;
 }
 
 .features-section .section-heading,
