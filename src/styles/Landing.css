@@ -700,6 +700,8 @@
     grid-template-columns: 184px 1fr;
     align-items: center;
     gap: 22px;
+    position: relative;
+    z-index: 10;
 }
 
 .hearts-code-image {
