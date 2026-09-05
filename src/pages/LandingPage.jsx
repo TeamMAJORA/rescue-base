@@ -224,13 +224,20 @@ export default function LandingPage({
                 aria-hidden="true"
             />
 
+            <img
+                className="page-paws-footer-bottom1"
+                src={assets.images.pawTrail}
+                alt=""
+                aria-hidden="true"
+            />
+
             <HeroSection onSignup={onSignup} />
 
             <RescueSection pets={pets} onSignup={onSignup} />
 
             <GISSection />
 
-            <DonorSection onSignup={onSignup}/>
+            <DonorSection onSignup={onSignup} />
 
             <StatsBand stats={stats} />
 
@@ -238,8 +245,8 @@ export default function LandingPage({
 
             <FeatureSection />
 
-            <SpotlightSection 
-                pet = {pets[0]}
+            <SpotlightSection
+                pet={pets[0]}
                 onSignup={onSignup}
             />
 
