@@ -16,6 +16,7 @@ import GISSection from "../components/landing/GISSection";
 import DonorSection from "../components/landing/DonorSection";
 import SpotlightSection from "../components/landing/SpotlightSection";
 import TailsSection from "../components/landing/TailsSection";
+import HeartsCodeSection from "../components/landing/HeartsCodeSection";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -241,6 +242,8 @@ export default function LandingPage({
                 pet = {pets[0]}
                 onSignup={onSignup}
             />
+
+            <HeartsCodeSection />
 
             <TailsSection onSignup={onSignup} />
 
