@@ -8,6 +8,8 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
+import assets from "../../data/assets.json"
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const cebuCenter = [
