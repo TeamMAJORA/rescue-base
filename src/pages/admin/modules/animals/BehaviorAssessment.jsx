@@ -1,172 +1,290 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 
-const starterAssessments = [
-    {
-        id: 1,
-        animalName: "Bella",
-        assessor: "Shelter Staff",
-        assessmentDate: "2026-07-30",
-        energyLevel: 4,
-        friendliness: 5,
-        humanSociability: 5,
-        animalSociability: 4,
-        trainability: 4,
-        confidence: 3,
-        anxietyLevel: 2,
-        aggressionLevel: 1,
-        notes: "Very friendly and suitable for first-time adopters.",
-    },
-    {
-        id: 2,
-        animalName: "Max",
-        assessor: "Volunteer Team",
-        assessmentDate: "2026-07-27",
-        energyLevel: 5,
-        friendliness: 4,
-        humanSociability: 4,
-        animalSociability: 3,
-        trainability: 4,
-        confidence: 5,
-        anxietyLevel: 1,
-        aggressionLevel: 1,
-        notes: "Highly energetic and loves outdoor activities.",
-    },
-];
+const API = import.meta.env.VITE_BACKEND_URL;
+
+const emptyForm = {
+    animalId: "",
+    assessor: "",
+    assessmentDate: "",
+    energyLevel: 3,
+    friendliness: 3,
+    humanSociability: 3,
+    animalSociability: 3,
+    trainability: 3,
+    anxietyLevel: 3,
+    aggressionLevel: 3,
+    activityLevel: 3,
+    notes: "",
+};
+
+const factorLabels = [
+    ["Energy Level", "energyLevel"],
+    ["Friendliness", "friendliness"],
+    ["Human Sociability", "humanSociability"],
+    ["Animal Sociability", "animalSociability"],
+    ["Trainability", "trainability"],
+    ["Anxiety Level", "anxietyLevel"],
+    ["Aggression Level", "aggressionLevel"],
+    ["Activity Level", "activityLevel"],
+]
 
 export default function BehaviorAssessment() {
-    const [assessments, setAssessments] = useState(starterAssessments);
+    const [animals, setAnimals] = useState([]);
+    const [form, setForm] = useState(emptyForm);
     const [editingId, setEditingId] = useState("");
     const [search, setSearch] = useState("");
     const [filterAssessor, setFilterAssessor] = useState("All");
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [message, setMessage] = useState("");
+    const [messageType, setMessageType] = useState("");
+    const token = localStorage.getItem("token");
 
-    const [form, setForm] = useState({
-        animalName: "",
-        assessor: "",
-        assessmentDate: "",
-        energyLevel: 3,
-        friendliness: 3,
-        humanSociability: 3,
-        animalSociability: 3,
-        trainability: 3,
-        confidence: 3,
-        anxietyLevel: 3,
-        aggressionLevel: 3,
-        notes: "",
-    });
+    async function fetchAnimals() {
+        try {
+            setLoading(true);
+            setMessage("");
+
+            const response = await fetch(`${API}/api/animals`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to fetch animals");
+            }
+
+            setAnimals(data.animals || []);
+        } catch (error) {
+            console.error("Fetch animals error: ", error);
+            setMessage(error.message || "Server error while fetching animals");
+            setMessageType("error");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchAnimals();
+    }, []);
 
     function updateField(name, value) {
-        setForm({
-            ...form,
+        setForm((current) => ({
+            ...current,
             [name]: value,
-        });
+        }));
     }
 
-    function handleSubmit(e) {
-        e.preventDefault();
+    function handleAnimalChange(e) {
+        const animalId = e.target.value;
 
-        if (editingId) {
-            setAssessments((current) =>
-                current.map((assessment) =>
-                    assessment.id === editingId
-                        ? {
-                            ...assessment,
-                            ...form,
-                        }
-                        : assessment
-                )
-            );
+        const selectedAnimal = animals.find(
+            (animal) => animal._id === animalId
+        );
 
-            setEditingId(null);
-        } else {
-            const newAssessment = {
-                id: Date.now(),
-                ...form,
-            };
-
-            setAssessments((current) => [
-                newAssessment,
+        if (!selectedAnimal) {
+            setForm((current) => ({
                 ...current,
-            ]);
-        }
-
-        setForm({
-            animalName: "",
-            assessor: "",
-            assessmentDate: "",
-            energyLevel: 3,
-            friendliness: 3,
-            humanSociability: 3,
-            animalSociability: 3,
-            trainability: 3,
-            confidence: 3,
-            anxietyLevel: 3,
-            aggressionLevel: 3,
-            notes: "",
-        });
-    }
-
-    function handleEditAssessment(assessment) {
-        setEditingId(assessment.id);
-
-        setForm({
-            animalName: assessment.animalName,
-            assessor: assessment.assessor,
-            assessmentDate: assessment.assessmentDate,
-            energyLevel: assessment.energyLevel,
-            friendliness: assessment.friendliness,
-            humanSociability: assessment.humanSociability,
-            animalSociability: assessment.animalSociability,
-            trainability: assessment.trainability,
-            confidence: assessment.confidence,
-            anxietyLevel: assessment.anxietyLevel,
-            aggressionLevel: assessment.aggressionLevel,
-            notes: assessment.notes,
-        });
-    }
-
-    function handleDeleteAssessment(id) {
-        if (!isAdmin()) {
-            alert("Only administrators can delete behavioral assessments");
+                animalId: "",
+            }));
             return;
         }
 
-        setAssessments((current) =>
-            current.filter(
-                (assessment) => assessment.id !== id
-            )
-        );
+        setForm((current) => ({
+            ...current,
+            animalId,
+            energyLevel: selectedAnimal.energyLevel ?? 3,
+            friendliness: selectedAnimal.friendliness ?? 3,
+            humanSociability: selectedAnimal.humanSociability ?? 3,
+            animalSociability: selectedAnimal.animalSociability ?? 3,
+            trainability: selectedAnimal.trainability ?? 3,
+            anxietyLevel: selectedAnimal.anxietyLevel ?? 3,
+            aggressionLevel: selectedAnimal.aggressionLevel ?? 3,
+            activityLevel: selectedAnimal.activityLevel ?? 3,
+            notes: selectedAnimal.behaviorNotes || "",
+        }));
     }
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+
+        if (!form.animalId) {
+            setMessage("Please select an animal");
+            setMessageType("error");
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            setMessage("");
+            setMessageType("");
+
+            const selectedAnimal = animals.find(
+                (animal) => animal._id === form.animalId
+            );
+
+            if (!selectedAnimal) {
+                throw new Error("Selected animal was not found.");
+            }
+
+            const payload = {
+                energyLevel: Number(form.energyLevel),
+                friendliness: Number(form.friendliness),
+                humanSociability: Number(form.humanSociability),
+                animalSociability: Number(form.animalSociability),
+                trainability: Number(form.trainability),
+                anxietyLevel: Number(form.anxietyLevel),
+                aggressionLevel: Number(form.aggressionLevel),
+                activityLevel: Number(form.activityLevel),
+                behaviorNotes: String(form.notes || "").trim(),
+            };
+
+            const response = await fetch(`${API}/api/animals/${form.animalId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to save behavioral profile");
+            }
+
+            setMessage(editingId
+                ? `${selectedAnimal.name}'s behavioral profile was updated successfully.`
+                : `${selectedAnimal.name}'s behavioral profile was saved successfully.`
+            );
+
+            setMessage("success");
+            setEditingId("");
+            setForm(emptyForm);
+
+            await fetchAnimals();
+        } catch (error) {
+            console.error(
+                "Save behavioral profile error:",
+                error
+            );
+
+            setMessage(
+                error.message ||
+                "Server error while saving behavioral profile."
+            );
+            setMessageType("error");
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    function handleEditAssessment(animal) {
+        setEditingId(animal._id);
+
+        setForm({
+            animalId: animal._id,
+            assessor: "",
+            assessmentDate: new Date()
+                .toISOString()
+                .split("T")[0],
+            energyLevel: animal.energyLevel ?? 3,
+            friendliness: animal.friendliness ?? 3,
+            humanSociability:
+                animal.humanSociability ?? 3,
+            animalSociability:
+                animal.animalSociability ?? 3,
+            trainability: animal.trainability ?? 3,
+            anxietyLevel: animal.anxietyLevel ?? 3,
+            aggressionLevel: animal.aggressionLevel ?? 3,
+            activityLevel: animal.activityLevel ?? 3,
+            notes: animal.behaviorNotes || "",
+        });
+
+        setMessage(`Editing behavioral profile for ${animal.name}`);
+        setMessageType("");
+    }
+
+    function handleCancelEdit() {
+        setEditingId("");
+        setForm(emptyForm);
+        setMessage("");
+        setMessageType("");
+    }
+
+    const assessors = [
+        ...new Set(
+            animals
+                .map((animal) => animal.behaiorAssessor).filter(Boolean)
+        ),
+    ];
+
+    const filteredAnimals = animals.filter((animal) => {
+        const searchValue = search.toLowerCase().trim();
+        const matchesSearch = animal.name?.toLowerCase().includes(searchValue) ||
+            animal.breed?.toLowerCase().includes(searchValue);
+        const hasAssessment = animal.energyLevel !== null & animal.energyLevel !== undefined;
+        const matchesAssessor = filterAssessor === "All" || animal.behaiorAssessor === filterAssessor;
+
+        return matchesSearch && matchesAssessor && hasAssessment;
+    });
 
     return (
         <section className="admin-behavior-page">
             <section className="admin-panel admin-behavior-form-panel">
                 <div className="admin-panel-heading">
-                    <h2>{editingId
-                        ? "Edit Behavioral Assessment"
-                        : "Behavioral Assessment"
-                    }</h2>
+                    <div>
+                        <h2>
+                            {editingId
+                                ? "Edit Behavioral Assessment"
+                                : "Behavioral Assessment"}
+                        </h2>
+
+                        <p>
+                            Manually evaluate an animal's behavior
+                            using the eight matching factors.
+                        </p>
+                    </div>
                 </div>
+
                 <form
                     className="admin-behavior-form"
                     onSubmit={handleSubmit}
                 >
                     <label>
-                        Animal Name
-                        <input
-                            value={form.animalName}
-                            onChange={(e) =>
-                                updateField(
-                                    "animalName",
-                                    e.target.value
-                                )
-                            }
+                        Animal
+
+                        <select
+                            value={form.animalId}
+                            onChange={handleAnimalChange}
                             required
-                        />
+                        >
+                            <option value="">
+                                Select an animal
+                            </option>
+
+                            {animals.map((animal) => (
+                                <option
+                                    key={animal._id}
+                                    value={animal._id}
+                                >
+                                    {animal.name} — {animal.type}
+                                    {animal.breed
+                                        ? ` — ${animal.breed}`
+                                        : ""}
+                                </option>
+                            ))}
+                        </select>
                     </label>
 
                     <label>
                         Assessed By
+
                         <input
                             value={form.assessor}
                             onChange={(e) =>
@@ -175,12 +293,14 @@ export default function BehaviorAssessment() {
                                     e.target.value
                                 )
                             }
+                            placeholder="Shelter Staff / Volunteer"
                             required
                         />
                     </label>
 
                     <label>
                         Assessment Date
+
                         <input
                             type="date"
                             value={form.assessmentDate}
@@ -194,18 +314,10 @@ export default function BehaviorAssessment() {
                         />
                     </label>
 
-                    {[
-                        ["Energy Level", "energyLevel"],
-                        ["Friendliness", "friendliness"],
-                        ["Human Sociability", "humanSociability"],
-                        ["Animal Sociability", "animalSociability"],
-                        ["Trainability", "trainability"],
-                        ["Confidence", "confidence"],
-                        ["Anxiety Level", "anxietyLevel"],
-                        ["Aggression Level", "aggressionLevel"],
-                    ].map(([label, key]) => (
+                    {factorLabels.map(([label, key]) => (
                         <label key={key}>
                             {label}
+
                             <select
                                 value={form[key]}
                                 onChange={(e) =>
@@ -215,19 +327,32 @@ export default function BehaviorAssessment() {
                                     )
                                 }
                             >
-                                <option value={1}>1</option>
-                                <option value={2}>2</option>
-                                <option value={3}>3</option>
-                                <option value={4}>4</option>
-                                <option value={5}>5</option>
+                                <option value={1}>
+                                    1 — Very Low
+                                </option>
+
+                                <option value={2}>
+                                    2 — Low
+                                </option>
+
+                                <option value={3}>
+                                    3 — Moderate
+                                </option>
+
+                                <option value={4}>
+                                    4 — High
+                                </option>
+
+                                <option value={5}>
+                                    5 — Very High
+                                </option>
                             </select>
                         </label>
                     ))}
 
-                    <label
-                        className="admin-behavior-notes-field"
-                    >
+                    <label className="admin-behavior-notes-field">
                         Behavior Notes
+
                         <textarea
                             rows="5"
                             value={form.notes}
@@ -237,38 +362,35 @@ export default function BehaviorAssessment() {
                                     e.target.value
                                 )
                             }
+                            placeholder="Describe observed behavior..."
                         />
                     </label>
 
-                    <button type="submit">
-                        {editingId
-                            ? "Update Assessment"
-                            : "Save Assessment"
-                        }
+                    {message && (
+                        <p
+                            className={`admin-behavior-message ${messageType}`}
+                        >
+                            {message}
+                        </p>
+                    )}
+
+                    <button
+                        type="submit"
+                        disabled={submitting}
+                    >
+                        {submitting
+                            ? "Saving..."
+                            : editingId
+                                ? "Update Assessment"
+                                : "Save Assessment"}
                     </button>
 
                     {editingId && (
                         <button
                             type="button"
                             className="admin-secondary-button"
-                            onClick={() => {
-                                setEditingId(null);
-
-                                setForm({
-                                    animalName: "",
-                                    assessor: "",
-                                    assessmentDate: "",
-                                    energyLevel: 3,
-                                    friendliness: 3,
-                                    humanSociability: 3,
-                                    animalSociability: 3,
-                                    trainability: 3,
-                                    confidence: 3,
-                                    anxietyLevel: 3,
-                                    aggressionLevel: 3,
-                                    notes: "",
-                                });
-                            }}
+                            onClick={handleCancelEdit}
+                            disabled={submitting}
                         >
                             Cancel
                         </button>
@@ -278,9 +400,24 @@ export default function BehaviorAssessment() {
 
             <section className="admin-panel admin-behavior-list-panel">
                 <div className="admin-panel-heading">
-                    <h2>
-                        Previous Assessments
-                    </h2>
+                    <div>
+                        <h2>
+                            Current Behavioral Profiles
+                        </h2>
+
+                        <p>
+                            Animals with completed behavioral
+                            evaluations used for matching.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={fetchAnimals}
+                        disabled={loading}
+                    >
+                        Refresh
+                    </button>
                 </div>
 
                 <input
@@ -298,10 +435,11 @@ export default function BehaviorAssessment() {
                         setFilterAssessor(e.target.value)
                     }
                 >
-                    <option value="All">All Assessors</option>
-                    {[...new Set(
-                        assessments.map((a) => a.assessor)
-                    )].map((assessor) => (
+                    <option value="All">
+                        All Assessors
+                    </option>
+
+                    {assessors.map((assessor) => (
                         <option
                             key={assessor}
                             value={assessor}
@@ -310,99 +448,106 @@ export default function BehaviorAssessment() {
                         </option>
                     ))}
                 </select>
-                <div className="admin-behavior-list">
-                    {
-                        assessments.filter((assessment) => {
-                            const matchesSearch = assessment.animalName.toLowerCase().includes(search.toLowerCase());
-                            const matchesAssessor = filterAssessor === "All" || assessment.assessor === filterAssessor;
-                            return matchesSearch && matchesAssessor
-                        }).map((assessment) => (
+
+                {loading ? (
+                    <p className="admin-empty">
+                        Loading behavioral profiles...
+                    </p>
+                ) : filteredAnimals.length === 0 ? (
+                    <p className="admin-empty">
+                        No completed behavioral profiles found.
+                    </p>
+                ) : (
+                    <div className="admin-behavior-list">
+                        {filteredAnimals.map((animal) => (
                             <article
                                 className="admin-behavior-row"
-                                key={assessment.id}
+                                key={animal._id}
                             >
-
                                 <div>
                                     <h3>
-                                        {assessment.animalName}
+                                        {animal.name}
                                     </h3>
 
                                     <p>
-                                        <strong>Assessor:</strong>{" "}
-                                        {assessment.assessor}
+                                        <strong>Type:</strong>{" "}
+                                        {animal.type}
+                                        {" | "}
+                                        <strong>Breed:</strong>{" "}
+                                        {animal.breed ||
+                                            "Unknown"}
                                     </p>
 
                                     <p>
-                                        <strong>Date:</strong>{" "}
-                                        {assessment.assessmentDate}
+                                        <strong>
+                                            Energy:
+                                        </strong>{" "}
+                                        {animal.energyLevel}/5
+
+                                        {" | "}
+
+                                        <strong>
+                                            Friendly:
+                                        </strong>{" "}
+                                        {animal.friendliness}/5
+
+                                        {" | "}
+
+                                        <strong>
+                                            Human:
+                                        </strong>{" "}
+                                        {animal.humanSociability}/5
                                     </p>
 
                                     <p>
-                                        Energy:
-                                        {" "}
-                                        {assessment.energyLevel}
-                                        /5
+                                        <strong>
+                                            Animal:
+                                        </strong>{" "}
+                                        {animal.animalSociability}/5
 
                                         {" | "}
 
-                                        Friendly:
-                                        {" "}
-                                        {assessment.friendliness}
-                                        /5
-
-                                        {" | "}
-
-                                        Human:
-                                        {" "}
-                                        {assessment.humanSociability}
-                                        /5
+                                        <strong>
+                                            Trainability:
+                                        </strong>{" "}
+                                        {animal.trainability}/5
                                     </p>
 
                                     <p>
-                                        Animal:
-                                        {" "}
-                                        {assessment.animalSociability}
-                                        /5
+                                        <strong>
+                                            Anxiety:
+                                        </strong>{" "}
+                                        {animal.anxietyLevel}/5
 
                                         {" | "}
 
-                                        Trainability:
-                                        {" "}
-                                        {assessment.trainability}
-                                        /5
+                                        <strong>
+                                            Aggression:
+                                        </strong>{" "}
+                                        {animal.aggressionLevel}/5
+
+                                        {" | "}
+
+                                        <strong>
+                                            Activity:
+                                        </strong>{" "}
+                                        {animal.activityLevel}/5
                                     </p>
 
-                                    <p>
-                                        Confidence:
-                                        {" "}
-                                        {assessment.confidence}
-                                        /5
-
-                                        {" | "}
-
-                                        Anxiety:
-                                        {" "}
-                                        {assessment.anxietyLevel}
-                                        /5
-
-                                        {" | "}
-
-                                        Aggression:
-                                        {" "}
-                                        {assessment.aggressionLevel}
-                                        /5
-                                    </p>
-
-                                    <span>
-                                        {assessment.notes}
-                                    </span>
+                                    {animal.behaviorNotes && (
+                                        <span>
+                                            {animal.behaviorNotes}
+                                        </span>
+                                    )}
 
                                     <div className="admin-behavior-actions">
                                         <button
                                             type="button"
                                             className="admin-edit-button"
-                                            onClick={() => 
-                                                handleEditAssessment(assessment)
+                                            onClick={() =>
+                                                handleEditAssessment(
+                                                    animal
+                                                )
                                             }
                                         >
                                             Edit
@@ -413,18 +558,20 @@ export default function BehaviorAssessment() {
                                                 type="button"
                                                 className="admin-delete-button"
                                                 onClick={() =>
-                                                    handleDeleteAssessment(assessment.id)
+                                                    handleEditAssessment(
+                                                        animal
+                                                    )
                                                 }
                                             >
-                                                Delete
+                                                Edit Profile
                                             </button>
                                         )}
                                     </div>
                                 </div>
                             </article>
-                        ))
-                    }
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
         </section>
     );
