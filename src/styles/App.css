@@ -205,7 +205,6 @@ img {
 }
 
 .page-paws {
-    z-index: 1;
     position: absolute;
     width: 1950px;
     max-width: none;
@@ -820,7 +819,7 @@ img {
     max-width: none;
     height: auto;
 
-    top: 1470px;
+    top: 1520px;
     left: 50%;
 
     opacity: 0.48;
@@ -831,7 +830,23 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 1;
+    z-index: 2;
+}
+
+.page-paws-footer-bottom1 {
+    position: absolute;
+    width: 1870px;
+    max-width: none;
+    height: auto;
+    top: 4500px;
+    left: 50%;
+    opacity: 0.45;
+    transform: translateX(-50%) rotate(-7deg) scaleY(-1);
+    transform-origin: center center;
+    filter: brightness(0.7) saturate(1.8);
+    pointer-events: none;
+    user-select: none;
+    z-index: 3;
 }
 
 .steps-section,
@@ -862,7 +877,7 @@ img {
     max-width: none;
     height: auto;
 
-    top: 2200px;
+    top: 3000px;
     /* adjust this */
     left: 50%;
 
@@ -874,7 +889,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 3;
+    z-index: 2;
 }
 
 .features-section .section-heading,

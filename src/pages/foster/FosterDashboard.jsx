@@ -7,6 +7,7 @@ import WeeklyUpdates from "./modules/WeeklyUpdates";
 import FosterHistory from "./modules/FosterHistory";
 import FosterNotifications from "./modules/FosterNotifications";
 import MedicalAssistance from "./modules/MedicalAssistance";
+import FosterUpdates from "./modules/FosterUpdates";
 import FeedbackForm from "../FeedbackForm";
 
 import "../../styles/foster/FosterDashboard.css";
@@ -124,7 +125,7 @@ export default function FosterDashboard({ setPage }) {
 
         }
     }
-    
+
     async function loadNotifications() {
         try {
             const response = await fetch(
@@ -188,6 +189,13 @@ export default function FosterDashboard({ setPage }) {
 
         updates: (
             <WeeklyUpdates
+                assignment={assignment}
+                refreshAssignment={fetchAssignment}
+            />
+        ),
+
+        fosterUpdates: (
+            <FosterUpdates
                 assignment={assignment}
                 refreshAssignment={fetchAssignment}
             />
@@ -285,6 +293,19 @@ export default function FosterDashboard({ setPage }) {
                         }
                     >
                         Weekly Updates
+                    </button>
+
+                    <button
+                        className={
+                            activePage === "fosterUpdates"
+                                ? "active"
+                                : ""
+                        }
+                        onClick={() =>
+                            setActivePage("fosterUpdates")
+                        }
+                    >
+                        Foster Updates
                     </button>
 
                     <button
