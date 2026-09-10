@@ -201,6 +201,44 @@ export default function FosterCare() {
         }
     }
 
+    async function handleAcceptBehaviorEvaluation(id) {
+        try {
+            setMessage("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${id}/bevahior-evaluation/accept`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to accept behavioral evaluation");
+                return;
+            }
+
+            setMessage("Behavioral evaluation accepted and foster assignment completed.");
+
+            await sendNotification({
+                email: data.assignment.fosterEmail,
+                title: "Behavioral Evaluation Accepted",
+                message: `Your behavioral evaluation for ${data.assignment.petName} has been reviewed and accepted. Your foster assignment has been completed.`,
+                type: "foster_update",
+            });
+
+            await fetchAssignments();
+        } catch (error) {
+            console.error("Accept behavioral evaluation error:", error);
+            setMessage("Server error while accepting behavioral evaluation");
+        }
+    }
+
     function handleApplicationSelect(e) {
         const applicationId = e.target.value;
 
@@ -845,10 +883,123 @@ export default function FosterCare() {
                                         <strong>Updates:</strong>{" "}
                                         {assignment.updates?.length || 0}
                                     </p>
+
                                     <small>
                                         {assignment.careInstructions}
                                     </small>
+
                                 </div>
+
+                                {assignment.behaviorEvaluation?.status === "pending" && (
+                                    <div className="admin-foster-behavior-review">
+
+                                        <div className="admin-foster-behavior-heading">
+                                            <strong>Behavioral Evaluation</strong>
+                                            <span>Pending Review</span>
+                                        </div>
+
+                                        <div className="admin-foster-behavior-grid">
+
+                                            <div>
+                                                <strong>Energy Level</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.energyLevel}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Friendliness</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.friendliness}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Human Sociability</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.humanSociability}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Animal Sociability</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.animalSociability}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Trainability</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.trainability}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Anxiety Level</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.anxietyLevel}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Aggression Level</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.aggressionLevel}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Activity Level</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.activityLevel}/5
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                        {assignment.behaviorEvaluation.notes && (
+                                            <div className="admin-foster-behavior-notes">
+                                                <strong>Foster Notes</strong>
+
+                                                <p>
+                                                    {assignment.behaviorEvaluation.notes}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        <div className="admin-foster-behavior-meta">
+
+                                            <span>
+                                                Submitted by:{" "}
+                                                {assignment.behaviorEvaluation.submittedBy ||
+                                                    assignment.fosterName}
+                                            </span>
+
+                                            {assignment.behaviorEvaluation.submittedAt && (
+                                                <span>
+                                                    Submitted:{" "}
+                                                    {new Date(
+                                                        assignment.behaviorEvaluation.submittedAt
+                                                    ).toLocaleDateString()}
+                                                </span>
+                                            )}
+
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleAcceptBehaviorEvaluation(
+                                                    assignment._id
+                                                )
+                                            }
+                                        >
+                                            Accept Evaluation
+                                        </button>
+
+                                    </div>
+                                )}
 
                                 <div className="admin-foster-actions">
 
@@ -871,16 +1022,18 @@ export default function FosterCare() {
                                                 Edit
                                             </button>
 
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleCompleteAssignment(
-                                                        assignment._id
-                                                    )
-                                                }
-                                            >
-                                                Complete
-                                            </button>
+                                            {assignment.behaviorEvaluation?.status === "accepted" && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handleCompleteAssignment(
+                                                            assignment._id
+                                                        )
+                                                    }
+                                                >
+                                                    Complete
+                                                </button>
+                                            )}
 
                                             <button
                                                 type="button"
@@ -895,7 +1048,9 @@ export default function FosterCare() {
                                             </button>
                                         </>
                                     )}
+
                                 </div>
+
                             </article>
                         ))}
                     </div>
