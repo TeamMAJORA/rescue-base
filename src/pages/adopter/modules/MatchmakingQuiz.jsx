@@ -2,6 +2,8 @@ import {
     useMemo, useState
 } from "react";
 
+const API = import.meta.env.VITE_BACKEND_URL;
+
 const factorDescriptions = {
     energyPreference:
         "How energetic should your preferred pet be?",
@@ -184,13 +186,31 @@ export default function MatchmakingQuiz({
                 JSON.stringify(quizResponse)
             );
 
+            const response = await fetch(`${API}/api/matchmaking/quiz`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type" : "application/json",
+                    },
+                    body: JSON.stringify(quizResponse),
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Failed to process matchmaking quiz.");
+            }
+
+            localStorage.setItem("rescuebase_matchmaking_results", JSON.stringify(result));
+
             setMessageType("success");
             setMessage(
                 "Your matchmaking preferences were saved successfully"
             );
 
             window.setTimeout(() => {
-                onCompleted?.(quizResponse);
+                onCompleted?.(result);
             }, 900);
 
         } catch (error) {
