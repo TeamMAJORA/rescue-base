@@ -1,22 +1,95 @@
 import {
-    useEffect, useMemo, useState
+    useEffect,
+    useState
 } from "react";
+
+//CSS
 import "../../styles/admin/AdminDashboard.css";
+import "../../styles/admin/AdminDashboardOverview.css"
+import "../../styles/admin/AnimalProfiles.css";
+import "../../styles/admin/MedicalRecords.css";
+import "../../styles/admin/IntakeRecords.css";
+import "../../styles/admin/AdoptionApplications.css";
+import "../../styles/admin/MatchingQuizResults.css";
+import "../../styles/admin/Recommendations.css";
+import "../../styles/admin/FosterCare.css";
+import "../../styles/admin/LostFound.css";
+import "../../styles/admin/GISMapping.css";
+import "../../styles/admin/Feedback.css";
+import "../../styles/admin/Analytics.css";
+import "../../styles/admin/Reports.css";
+import "../../styles/foster/UserManagement.css";
+import "../../styles/admin/Donations.css";
+import "../../styles/admin/Behavior.css"
+
+// Assets
 import assets from "../../data/assets.json";
 
-const API = import.meta.env.VITE_BACKEND_URL;
+// Modules
+import AdminOverview from "./modules/AdminOverview";
+import FosterCare from "./modules/FosterCare";
+import GISMapping from "./modules/GISMapping";
+import UserManagement from "./modules/UserManagement";
+import LostFound from "./modules/LostFound";
+import Feedback from "./modules/Feedback";
+import Analytics from "./modules/Analytics";
+import Reports from "./modules/Reports";
+import Donations from "./modules/Donations";
 
-const sidebarItems = [
-    "Dashboard",
-    "Animals",
-    "Applications",
-    "Foster Care",
-    "Lost & Found",
-    "Stray Map",
-    "Donations",
-    "Users",
-    "Notifications",
-];
+// ANIMALS
+import AnimalProfiles from "./modules/animals/AnimalProfiles";
+import MedicalRecords from "./modules/animals/MedicalRecords";
+import VaccinationRecords from "./modules/animals/VaccinationRecords";
+import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
+import IntakeRecords from "./modules/animals/IntakeRecords";
+import QRTags from "./modules/animals/QRTags";
+import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
+import RescueAssignments from "./modules/Rescue";
+
+// ADOPTIONS
+import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
+import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
+import Recommendations from "./modules/adoptions/Recommendations";
+import AnimalTransfers from "./modules/animals/AnimalTransfers";
+
+const adminMenu = [
+    { key: "overview", label: "Dashboard" },
+
+    { key: "users", label: "User Management" },
+
+    {
+        key: "animals",
+        label: "Animals",
+        children: [
+            { key: "animal-profiles", label: "Animal Profiles" },
+            { key: "medical-records", label: "Medical Records" },
+            { key: "intake-records", label: "Intake Records" },
+            { key: "vaccination-records", label: "Vaccination Records" },
+            { key: "behavior-assessment", label: "Behavioral Assessment" },
+            { key: "qr-tags", label: "QR Tags" },
+            { key: "animal-transfers", label: "Animal Transfers" },
+            { key: "mobile-intake", label: "Mobile Field Intake" },
+        ],
+    },
+
+    {
+        key: "adoptions",
+        label: "Adoptions",
+        children: [
+            { key: "adoption-applications", label: "Applications" },
+            { key: "matching-quiz", label: "Matching Quiz Results" },
+            { key: "recommendations", label: "Recommendations" },
+        ],
+    },
+    { key: "rescue", label: "Rescue Animals"},
+    { key: "foster-care", label: "Foster Care" },
+    { key: "donations", label: "Donations" },
+    { key: "lost-found", label: "Lost & Found" },
+    { key: "gis-mapping", label: "GIS Mapping" },
+    { key: "feedback", label: "Feedback" },
+    { key: "analytics", label: "Analytics" },
+    { key: "reports", label: "Reports" },
+]
 
 const mockAnimals = [
     { name: "Max", status: "available" },
@@ -41,159 +114,227 @@ function AdminStatCard({ label, value, icon }) {
 
             <span>{icon}</span>
         </article>
-    )
-}
-
-function ApplicationRow({ application, onReview, onUpdateStatus }) {
-    return (
-        <article className="admin-application-row">
-            <div>
-                <h3> {application.fullName || "Unknown Applicant"} </h3>
-                <p> {application.email} </p>
-                <p>
-                    Pet : <strong> {application.petName || "Not selected"} </strong>
-                </p>
-            </div>
-
-            <span className={`admin-status-pill ${application.status}`}>
-                {application.status}
-            </span>
-
-            <div className="admin-application-status">
-                <button type="button" onClick={() => onReview(application)}>
-                    Review
-                </button>
-
-                {application.status === "pending" && (
-                    <>
-                        <button
-                            type="button"
-                            className="approve"
-                            onClick={() => onUpdateStatus(application._id, "approved")}
-                        >
-                            Approve
-                        </button>
-
-                        <button
-                            type="button"
-                            className="reject"
-                            onClick={() => onUpdateStatus(application._id, "rejected")}
-                        >
-                            Reject
-                        </button>
-                    </>
-                )}
-            </div>
-        </article>
     );
 }
 
-function ApplicationModal({ application, onClose }) {
-    if (!application) return null;
+function getAdminPageTitle(activeAdminPage) {
+    for (const item of adminMenu) {
+        if (item.key === activeAdminPage) return item.label;
 
-    return (
-        <div className="admin-modal-overlay">
-            <section className="admin-modal">
-                <button className="admin-modal-class" type="button" onClick={onClose}>
-                    x
-                </button>
+        if (item.children) {
+            const child = item.children.find(
+                (child) => child.key === activeAdminPage
+            );
 
-                <h2>Application Details</h2>
-
-                <div className="admin-detail-grid">
-                    <p><strong>Status:</strong> {application.status}</p>
-                    <p><strong>Name:</strong> {application.fullName}</p>
-                    <p><strong>Email:</strong> {application.email}</p>
-                    <p><strong>Phone:</strong> {application.phone}</p>
-                    <p><strong>Address:</strong> {application.address}</p>
-                    <p><strong>Pet Name:</strong> {application.petName || "Not selected"}</p>
-                    <p><strong>Pet Breed:</strong> {application.petBreed || "N/A"}</p>
-                    <p><strong>Home Type:</strong> {application.homeType}</p>
-                    <p><strong>Has Children:</strong> {application.hasChildren}</p>
-                    <p><strong>Other Pets:</strong> {application.hasOtherPets}</p>
-                </div>
-
-                <div className="admin-detail-box">
-                    <h3>Reason for Adtoption</h3>
-                    <p> {application.reason || "No reason provided."} </p>
-                </div>
-
-                <div className="admin-detail-box">
-                    <h3>Pet Care Experience</h3>
-                    <p> {application.experience || "No experience provided."} </p>
-                </div>
-
-            </section>
-        </div>
-    );
+            if (child) return child.label;
+        }
+    }
+    return "Dashboard"
 }
+
+const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminDashboard({ setPage }) {
-    const [applications, setApplications] = useState([]);
-    const [selectedApplication, setSelectedApplication] = useState(null);
-    const [loading, setLoading] = useState(true);
 
-    const pendingApplications = useMemo(() => {
-        return applications.filter(
-            (app) => String(app.status).toLowerCase() === "pending"
-        );
-    }, [applications]);
+    const [fosterForm, setFosterForm] = useState({
+        petName: "",
+        petBreed: "",
+        petImage: "",
+        fosterName: "",
+        fosterEmail: "",
+        careInstructions: "",
+    });
 
-    const totalAnimals = mockAnimals.length;
-    const availableAnimals = mockAnimals.filter(
-        (animal) => animal.status === "available"
-    ).length
+    const [activeAdminPage, setActiveAdminPage] = useState("overview");
+    const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
+    const [notifications, setNotification] = useState([]);
+    const [notifOpen, setNotifOpen] = useState(false);
 
-    async function fetchApplications() {
+
+    function handleSidebarClick(item) {
+        if (item.children) {
+            setOpenSidebarMenu((current) =>
+                current === item.key ? null : item.key
+            );
+
+            setActiveAdminPage(item.key);
+            return;
+        }
+
+        setOpenSidebarMenu(null);
+        setActiveAdminPage(item.key);
+    }
+
+    async function fetchAdminNotifications() {
         try {
-            setLoading(true);
-
-            const response = await fetch(`${API}/api/adoptions`);
-            const data = await response.json();
-
-            console.log("Admin applications:", data);
-
-            if (!response.ok || !data.success) {
-                setApplications([]);
+            const token = localStorage.getItem("token");
+            
+            if (!token) {
+                console.error("No RescueBase auth token found");
                 return;
             }
 
-            setApplications(Array.isArray(data.applications) ? data.applications : []);
+            const [adoptionResponse, fosterResponse] = await Promise.all([
+                fetch(`${API}/api/adoptions`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
+
+                fetch(`${API}/api/foster/assignments`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
+            ]);
+
+            const adoptionData = await adoptionResponse.json();
+            const fosterData = await fosterResponse.json();
+
+            const adoptionApplications = adoptionData.applications || [];
+            const fosterAssignments = fosterData.assignments || [];
+
+            const pendingApplication = adoptionApplications.filter(
+                (application) => application.status === "pending"
+            );
+
+            const activeFosters = fosterAssignments.filter(
+                (assignment) => assignment.status === "active"
+            );
+
+            const completedFosters = fosterAssignments.filter(
+                (assignment) => assignment.status === "completed"
+            );
+
+            const newNotifications = [];
+
+            if (pendingApplication.length > 0) {
+                newNotifications.push({
+                    id: "pending-applcations",
+                    title: "Pending Adoption Applications",
+                    message: `${pendingApplication.length} application(s) waiting for review.`,
+                    page: "adoption-applications",
+                });
+            }
+
+            if (activeFosters.length > 0) {
+                newNotifications.push({
+                    id: "active-fosters",
+                    title: "Active foster assignment",
+                    message: `${activeFosters.length} foster assignments(s) currently in progress.`,
+                    page: "foster-care",
+                });
+            }
+
+            if (completedFosters.length > 0) {
+                newNotifications.push({
+                    id: "completed-fosters",
+                    title: "Completed Foster Assignment",
+                    message: `${activeFosters.length} foster assignment(s) completed.`,
+                });
+            }
+
+            setNotification(newNotifications);
         } catch (error) {
-            console.error("Fetch applications error:", error);
-            setApplications([]);
-        } finally {
-            setLoading(false);
+            console.error("Fetch admin notification error: ", error);
         }
     }
 
-    async function handleUpdateStatus(id, status) {
-        try {
-            const response = await fetch(
-                `${API}/api/adoptions/${id}/status`,
-
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ status }),
-                }
-            );
-
-            const data = await response.json();
-            console.log(data);
-
-            if (data.success) {
-                fetchApplications();
-            }
-        } catch (error) {
-            console.log("Update status error:", error);
+    function renderAdminContent() {
+        if (activeAdminPage === "overview") {
+            return <AdminOverview />;
         }
+
+        if (activeAdminPage === "users") {
+            return <UserManagement />;
+        }
+
+        if (activeAdminPage === "animals" || activeAdminPage === "animal-profiles") {
+            return <AnimalProfiles />;
+        }
+
+        if (activeAdminPage === "medical-records") {
+            return <MedicalRecords />;
+        }
+
+        if (activeAdminPage === "intake-records") {
+            return <IntakeRecords />;
+        }
+
+        if (activeAdminPage === "adoptions" || activeAdminPage === "adoption-applications") {
+            return <AdoptionApplications />;
+        }
+
+        if (activeAdminPage === "matching-quiz") {
+            return <MatchingQuizResults />;
+        }
+
+        if (activeAdminPage === "recommendations") {
+            return <Recommendations />
+        }
+
+        if (activeAdminPage === "foster-care") {
+            return <FosterCare />
+        }
+
+        if (activeAdminPage === "lost-found") {
+            return <LostFound />
+        }
+
+        if (activeAdminPage === "gis-mapping") {
+            return <GISMapping />;
+        }
+
+        if (activeAdminPage === "feedback") {
+            return <Feedback />;
+        }
+
+        if (activeAdminPage === "analytics") {
+            return <Analytics />;
+        }
+
+        if (activeAdminPage === "reports") {
+            return <Reports />;
+        }
+
+        if (activeAdminPage === "donations") {
+            return <Donations />;
+        }
+
+        if (activeAdminPage === "vaccination-records") {
+            return <VaccinationRecords />
+        }
+
+        if (activeAdminPage === "behavior-assessment") {
+            return <BehaviorAssessment />
+        }
+
+        if (activeAdminPage === "qr-tags") {
+            return <QRTags />
+        }
+
+        if (activeAdminPage === "animal-transfers") {
+            return <AnimalTransfers />
+        }
+
+        if (activeAdminPage === "mobile-intake") {
+            return <MobileFieldIntake />
+        }
+
+        if (activeAdminPage === "rescue") {
+            return <RescueAssignments />
+        }
+
     }
 
     useEffect(() => {
-        fetchApplications();
+        fetchAdminNotifications();
+
+        const interval = setInterval(() => {
+            fetchAdminNotifications();
+        }, 5000);
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
@@ -205,16 +346,51 @@ export default function AdminDashboard({ setPage }) {
                 </div>
 
                 <nav className="admin-menu">
-                    {sidebarItems.map((item) => (
-                        <button
-                            key={item}
-                            type="button"
-                            className={item === "Dashboard" ? "active" : ""}
-                        >
-                            <span>▣</span>
-                            {item}
-                        </button>
-                    ))}
+                    {adminMenu.map((item) => {
+                        const isOpen = openSidebarMenu === item.key;
+                        const isActive =
+                            activeAdminPage === item.key ||
+                            item.children?.some((child) => child.key === activeAdminPage);
+
+                        return (
+                            <div className="admin-menu-group" key={item.key}>
+                                <button
+                                    type="button"
+                                    title={item.label}
+                                    className={isActive ? "active" : ""}
+                                    onClick={() => handleSidebarClick(item)}
+                                >
+                                    <div className="admin-menu-text">
+                                        <strong>{item.label}</strong>
+                                    </div>
+
+                                    {item.children && (
+                                        <span className={`admin-menu-arrow ${isOpen ? "open" : ""}`}>
+                                            ▾
+                                        </span>
+                                    )}
+                                </button>
+
+                                {item.children && isOpen && (
+                                    <div className="admin-submenu">
+                                        {item.children.map((child) => (
+                                            <button
+                                                key={child.key}
+                                                type="button"
+                                                title={child.label}
+                                                className={
+                                                    activeAdminPage === child.key ? "active" : ""
+                                                }
+                                                onClick={() => setActiveAdminPage(child.key)}
+                                            >
+                                                {child.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </nav>
 
                 <button
@@ -233,105 +409,54 @@ export default function AdminDashboard({ setPage }) {
 
             <section className="admin-main">
                 <header className="admin-topbar">
-                    <h1>Dashboard</h1>
+                    <h1>{getAdminPageTitle(activeAdminPage)}</h1>
 
-                    <div className="admin-search">
-                        <input placeholder="Search anything here..." />
-                        <span>⌕</span>
-                    </div>
-                </header>
+                    <div className="admin-notification-wrap">
+                        <button
+                            className="admin-notification-btn"
+                            type="button"
+                            onClick={() => setNotifOpen(!notifOpen)}
+                        >
+                            BELL DAW NI
 
-                <section className="admin-stats">
-                    <AdminStatCard label="Total Animals" value={totalAnimals} icon="🐾" />
-                    <AdminStatCard
-                        label="Animals Available for Adoption"
-                        value={availableAnimals}
-                        icon="🏠"
-                    />
-                    <AdminStatCard
-                        label="Pending Adoption Applications"
-                        value={pendingApplications.length}
-                        icon="📋"
-                    />
-                    <AdminStatCard
-                        label="Active Foster Assignments"
-                        value={1}
-                        icon="✅"
-                    />
-                </section>
+                            {notifications.length > 0 && (
+                                <span>{notifications.length}</span>
+                            )}
+                        </button>
 
-                <section className="admin-dashboard-grid">
-                    <div className="admin-panel admin-recent-panel">
-                        <div className="admin-panel-heading">
-                            <h2>Pending Adoption Applications</h2>
-                            <button type="button" onClick={fetchApplications}>
-                                Refresh
-                            </button>
-                        </div>
+                        {notifOpen && (
+                            <div className="admin-notification-dropdown">
+                                <div className="admin-notification-header">
+                                    <strong>Notifications</strong>
+                                    <small>{notifications.length} updates(s)</small>
+                                </div>
 
-                        {loading ? (
-                            <p className="admin-empty">Loading applications...</p>
-                        ) : pendingApplications.length === 0 ? (
-                            <p className="admin-empty">
-                                There are no pending adoption applications.
-                            </p>
-                        ) : (
-                            <div className="admin-application-list">
-                                {pendingApplications.map((application) => (
-                                    <ApplicationRow
-                                        key={application._id}
-                                        application={application}
-                                        onReview={setSelectedApplication}
-                                        onUpdateStatus={handleUpdateStatus}
-                                    />
-                                ))}
+                                {notifications.length === 0 ? (
+                                    <p className="admin-notifications-empty">
+                                        No new notifications.
+                                    </p>
+                                ) : (
+                                    notifications.map((notification) => (
+                                        <button
+                                            key={notification.id}
+                                            type="button"
+                                            className="admin-notification-item"
+                                            onClick={() => {
+                                                setActiveAdminPage(notification.page);
+                                                setNotifOpen(false);
+                                            }}
+                                        >
+                                            <strong>{notification.title}</strong>
+                                            <span>{notification.message}</span>
+                                        </button>
+                                    ))
+                                )}
                             </div>
                         )}
                     </div>
-
-                    <div className="admin-panel admin-capacity-panel">
-                        <h2>Shelter Capacity</h2>
-
-                        <div className="admin-donut">
-                            <div>
-                                <strong>67%</strong>
-                                <span>Full</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="admin-panel admin-impression-panel">
-                        <h2>Impression</h2>
-
-                        <div className="admin-bars">
-                            <span style={{ height: "78%" }}></span>
-                            <span style={{ height: "25%" }}></span>
-                            <span style={{ height: "63%" }}></span>
-                            <span style={{ height: "32%" }}></span>
-                        </div>
-
-                        <div className="admin-bar-labels">
-                            <small>Mon</small>
-                            <small>Tue</small>
-                            <small>Wed</small>
-                            <small>Thu</small>
-                        </div>
-                    </div>
-
-                    <div className="admin-panel admin-donation-panel">
-                        <h2>Total Donations Received</h2>
-                        <strong>10$</strong>
-                        <p>Update your payout method in Setting</p>
-                        <button type="button">Withdraw All Earnings</button>
-                    </div>
-                </section>
+                </header>
+                {renderAdminContent()}
             </section>
-
-            <ApplicationModal
-                application={selectedApplication}
-                onClose={() => setSelectedApplication(null)}
-            />
         </main>
     );
-
 }

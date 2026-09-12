@@ -1,390 +1,1419 @@
-import { useEffect,useMemo, useState } from "react";
-import "../../styles/adopter/Dashboard.css";
+import {
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+
+// Assets
 import assets from "../../data/assets.json";
 
-const shelters = [
-    {
-        name: "All Shelters",
-        location: "2 Locations",
-        phone: "",
-        active: true,
-    },
-    {
-        name: "Shelter 1",
-        location: "Location",
-        phone: "+68**********",
-        active: false,
-    },
-    {
-        name: "Shelter 2",
-        location: "Location",
-        phone: "+68**********",
-        active: false,
-    },
-];
+// CSS
+import "../../styles/adopter/Dashboard.css";
+import "../../styles/adopter/ApplicationStatus.css";
+import "../../styles/adopter/BrowsePets.css";
+import "../../styles/adopter/MatchmakingQuiz.css";
+import "../../styles/adopter/Recommendations.css";
+import "../../styles/adopter/DonationCenter.css";
+import "../../styles/adopter/DonationHistory.css";
 
-const pets = [
+// Module
+import AdoptionApplication from "./modules/AdoptionApplication";
+import ApplicationStatus from "./modules/ApplicationStatus";
+import BrowsePets from "./modules/BrowsePets";
+import MatchmakingQuiz from "./modules/MatchmakingQuiz";
+import Recommendations from "./modules/Recommendations";
+import DonationCenter from "./modules/DonationCenter";
+import DonationHistory from "./modules/DonationHistory";
+import LostFound from "../admin/modules/LostFound";
+import FeedbackForm from "../FeedbackForm";
+
+const API = import.meta.env.VITE_BACKEND_URL;
+
+const adopterMenu = [
     {
-        name: "Max",
-        type: "Dog",
-        breed: "Shih Tzu",
-        age: "4 years",
-        status: "Available",
-        image: assets.images.authPets,
-        tags: ["Kid Friendly", "Vaccinated"],
+        key: "overview",
+        label: "Dashboard",
     },
     {
-        name: "Blacky",
-        type: "Dog",
-        breed: "Aspin",
-        age: "1 year",
-        status: "Pending",
-        image: assets.images.authPets2,
-        tags: ["Kid Friendly"],
+        key: "browse-pets",
+        label: "Browse Pets",
     },
     {
-        name: "Chichay",
-        type: "Cat",
-        breed: "Puspin",
-        age: "4 years",
-        status: "Foster",
-        image: assets.images.authPets,
-        tags: ["Calm", "Indoor"],
+        key: "adoption-application",
+        label: "Adoption Application",
     },
     {
-        name: "Milo",
-        type: "Dog",
-        breed: "Mixed Breed",
-        age: "2 years",
-        status: "Available",
-        image: assets.images.authPets2,
-        tags: ["Playful"],
+        key: "matchmaking-quiz",
+        label: "Matchmaking Quiz"
     },
     {
-        name: "Luna",
-        type: "Cat",
-        breed: "Puspin",
-        age: "1 year",
-        status: "Available",
-        image: assets.images.authPets,
-        tags: ["Gentle"],
+        key: "application-status",
+        label: "Application Status",
     },
     {
-        name: "Coco",
-        type: "Dog",
-        breed: "Aspin",
-        age: "3 years",
-        status: "Available",
-        image: assets.images.authPets2,
-        tags: ["Friendly"],
+        key: "lost-found",
+        label: "Lost & Found",
     },
     {
-        name: "Mochi",
-        type: "Cat",
-        breed: "Persian Mix",
-        age: "2 years",
-        status: "Available",
-        image: assets.images.authPets,
-        tags: ["Quiet"],
+        key: "recommendations",
+        label: "Recommendations",
     },
     {
-        name: "Buddy",
-        type: "Dog",
-        breed: "Golden Mix",
-        age: "5 years",
-        status: "Pending",
-        image: assets.images.authPets2,
-        tags: ["Trained"],
+        key: "donation",
+        label: "Donation",
     },
     {
-        name: "Snow",
-        type: "Cat",
-        breed: "Puspin",
-        age: "8 months",
-        status: "Available",
-        image: assets.images.authPets,
-        tags: ["Young"],
+        key: "donation-history",
+        label: "Donation History",
+    },
+    {
+        key: "feedback",
+        label: "Feedback",
     },
 ];
 
-function ApplicationStatusCard({ application, onReview}) {
-    const statusText = {
-        pending : "Pending review",
-        approved : "Approved",
-        rejected : "Rejected",
-    };
+const emptyPet = {
+    id: "",
+    _id: "",
+    name: "No available pets",
+    type: "Pet",
+    breed: "Not available",
+    age: "—",
+    gender: "Unknown",
+    size: "Unknown",
+    status: "not_available",
+    location: "RescueBase Shelter",
+    personality: "No animal selected.",
+    idealHome: "Please check again later.",
+    health: "Not available",
+    story: "There are currently no available animals.",
+    description: "",
+    icon: "🐾",
+    image: "",
+};
 
-    return (
-        <section className={`dashboard-application-card ${application.status}`}>
-            <div>
-                <p className="dashboard-application-label">Adoption Application</p>
+function getAuthToken() {
+    return localStorage.getItem("token");
+}
 
-                <h2>
-                    {application.status === "pending"
-                        ? "You have a pending application"
-                        : application.status === "approved"
-                            ? "Your applciation was approved"
-                            : "Your application was rejected"
-                    }
-                </h2>
+function getSavedUser() {
+    try {
+        return JSON.parse(
+            localStorage.getItem("rescuebase_user") || "{}"
+        );
+    } catch {
+        return {};
+    }
+}
 
-                <p>
-                    Pet : <strong>{application.petName || "Not selected"}</strong>
-                </p>
-
-                <p>
-                    Status : {" "}
-                    <strong>{statusText[application.status] || application.status}</strong>
-                </p>
-            </div>
-
-            <button type="button" onClick={onReview}>
-                    Review Application
-            </button>
-        </section>
+function getAdopterPageTitle(activeAdopterPage) {
+    const currentItem = adopterMenu.find(
+        (item) => item.key === activeAdopterPage
     );
+
+    return currentItem?.label || "Dashboard";
 }
 
-function ApplicationDetailsModal({ application, onClose }) {
-    if (!application) return null;
+export default function Dashboard({ onLogout }) {
+    const savedUser = getSavedUser();
 
-    return (
-        <div className="application-modal-overlay">
-            <section className="application-modal">
-                <button
-                    className="application-modal-close"
-                    type="button"
-                    onClick={onClose}
-                >
-                    x
-                </button>
+    const token = getAuthToken();
 
-                <h2> Application Details </h2>
+    const savedEmail = String(savedUser.email || "")
+        .trim()
+        .toLowerCase();
 
-                <div className="application-detail-grid">
-                    <p><strong>Status:</strong> {application.status} </p>
-                    <p><strong>Full Name:</strong> {application.fullName} </p>
-                    <p><strong>Email:</strong> {application.email} </p>
-                    <p><strong>Phone:</strong> {application.phone} </p>
-                    <p><strong>Address</strong> {application.address} </p>
-                    <p><strong>Pet Name:</strong> {application.petName || "Not Selected" } </p>
-                    <p><strong>Pet Breed:</strong> {application.petBreed || "N/A" } </p>
-                    <p><strong>Home Type:</strong> {application.homeType} </p>
-                    <p><strong>Has Children:</strong> {application.hasChildren} </p>
-                    <p><strong>Has Other Pets:</strong> {application.hasOtherPets} </p>
-                </div>
+    const [activeAdopterPage, setActiveAdopterPage] =
+        useState("overview");
 
-                <div className="application-detail-section">
-                    <h3>Reason for adoption</h3>
-                    <p> {application.reason || "No reason provided" } </p>
-                </div>
+    const [search, setSearch] = useState("");
+    const [typeFilter, setTypeFilter] = useState("all");
 
-                <div className="application-detail-section">
-                    <h3>Pet Care Experience</h3>
-                    <p> {application.experience || "No experience provided" } </p>
-                </div>
+    const [pets, setPets] = useState([]);
+    const [petsLoading, setPetsLoading] = useState(true);
+    const [petsError, setPetsError] = useState("");
 
-            </section>
-        </div>
-    )
-}
+    const [selectedPet, setSelectedPet] =
+        useState(emptyPet);
 
-function DashboardHeader({ onLogout, onApply }) {
+    const [applicationStatus, setApplicationStatus] =
+        useState(() => {
+            try {
+                return JSON.parse(
+                    localStorage.getItem(
+                        "rescuebase_pending_application"
+                    ) || "null"
+                );
+            } catch {
+                return null;
+            }
+        });
 
-    const [application, setApplication] = useState(null);
-    const [showApplication, setShowApplication] = useState(null);
+    const [applicationLoading, setApplicationLoading] =
+        useState(true);
 
-    return (
-        <header className="dashboard-header">
-            <a className="dashboard-brand" href="/">
-                <img src={assets.logo} alt="RescueBase logo" />
-                <span>RescueBase</span>
-            </a>
+    const [notificationOpen, setNotificationOpen] =
+        useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
 
-            <nav className="dashboard-nav">
-                <a href="#about">About Us</a>
-                <img src={assets.icons.redPaw} alt="" />
-                <a href="#pets">Browse Pets</a>
-                <img src={assets.icons.redPaw} alt="" />
-                <a href="#foster">Donate & Foster</a>
-                <img src={assets.icons.redPaw} alt="" />
-            </nav>
+    const hasPendingApplication =
+        applicationStatus?.status === "pending";
 
-            <button className="dashboard-user-btn" type="button" onClick={onLogout}>
-                <span>♡</span>
-                Vervou
-            </button>
-        </header>
-    );
-}
+    const isRejectedApplication =
+        applicationStatus?.status === "rejected";
 
-function ShelterCard({ shelter }) {
-    return (
-        <article className={`dashboard-shelter-card ${shelter.active ? "active" : ""}`}>
-            <div className="dashboard-shelter-avatar"></div>
+    const isApprovedApplication =
+        applicationStatus?.status === "approved";
 
-            <div>
-                <h3>{shelter.name}</h3>
-                <p>⌾ {shelter.location}</p>
-                {shelter.phone && <p>☎ {shelter.phone}</p>}
-            </div>
-        </article>
-    );
-}
-
-function PetCard({ pet, onApply }) {
-    return (
-        <article className="dashboard-pet-card">
-            <div className="dashboard-pet-image">
-                <img src={pet.image} alt={pet.name} />
-
-                <span className={`dashboard-pet-status ${pet.status.toLowerCase()}`}>
-                    {pet.status}
-                </span>
-            </div>
-
-            <div className="dashboard-pet-info">
-                <h3>{pet.name}</h3>
-                <p>{pet.breed}</p>
-                <p>{pet.age}</p>
-
-                <div className="dashboard-pet-tags">
-                    {pet.tags.map((tag) => (
-                        <span key={tag}>{tag}</span>
-                    ))}
-                </div>
-
-                <button
-                    className="dashboard-apply-btn"
-                    type="button"
-                    onClick={() => onApply?.(pet)}
-                >
-                    Apply to Adopt
-                </button>
-            </div>
-        </article>
-    );
-}
-
-export default function Dashboard({ onLogout, onApply }) {
-    const [filter, setFilter] = useState("All");
-    const [application, setApplication] = useState(null);
-    const [showApplication, setShowApplication] = useState(false);
+    const availablePets = useMemo(() => {
+        return pets.filter(
+            (pet) => pet.status === "available"
+        ).length;
+    }, [pets]);
 
     const filteredPets = useMemo(() => {
-        if (filter === "All") return pets;
-        return pets.filter((pet) => pet.type === filter);
-    }, [filter]);
+        const normalizedSearch = search
+            .trim()
+            .toLowerCase();
 
-    useEffect(() => {
-        async function fetchApplication() {
-            try {
-                const savedUser = JSON.parse(
-                    localStorage.getItem("rescuebase_user") || "{}" 
-                );
+        return pets.filter((pet) => {
+            const petType = String(
+                pet.type || ""
+            ).toLowerCase();
 
-                if (!savedUser.email) return;
+            const petName = String(
+                pet.name || ""
+            ).toLowerCase();
 
-                const response = await fetch(
-                    `http://localhost:5000/api/adoptions/user/${encodeURIComponent(savedUser.email)}/latest`
-                );
+            const petBreed = String(
+                pet.breed || ""
+            ).toLowerCase();
 
-                const data = await response.json();
-                console.log("Latest application", data);
+            const matchesType =
+                typeFilter === "all" ||
+                petType === typeFilter;
 
-                if (data.success && data.application) {
-                    setApplication(data.application);
+            const matchesSearch =
+                !normalizedSearch ||
+                petName.includes(normalizedSearch) ||
+                petBreed.includes(normalizedSearch) ||
+                petType.includes(normalizedSearch);
+
+            return matchesType && matchesSearch;
+        });
+    }, [pets, search, typeFilter]);
+
+    async function loadNotifications() {
+        if (!token) return;
+
+        try {
+            const response = await fetch(
+                `${API}/api/notifications`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                console.error(data.message || "Failed to load notifications");
+                return;
+            }
+
+            const notificationList = data.notifications || [];
+
+            setNotifications(notificationList);
+
+            setUnreadCount(
+                notificationList.filter(
+                    (notification) => !notification.read
+                ).length
+            );
+        } catch (error) {
+            console.error("Load notifications error: ", error);
+        }
+    }
+
+    async function fetchPets() {
+        try {
+            setPetsLoading(true);
+            setPetsError("");
+
+            const response = await fetch(
+                `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
-            } catch (error) {
-                console.error("Fetch application error:", error);
+            }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setPets([]);
+                setSelectedPet(emptyPet);
+
+                setPetsError(
+                    data.message ||
+                    "Failed to load available pets."
+                );
+
+                return;
+            }
+
+            const animals = Array.isArray(data.animals)
+                ? data.animals
+                : [];
+
+            const normalizedPets = animals.map(
+                (animal) => {
+                    const age = Number(
+                        animal.age || 0
+                    );
+
+                    return {
+                        ...animal,
+
+                        id: animal._id,
+
+                        status:
+                            animal.availabilityStatus ===
+                                "available" &&
+                                animal.adoptionStatus ===
+                                "available"
+                                ? "available"
+                                : "not_available",
+
+                        age: `${age} ${age === 1 ? "year" : "years"
+                            }`,
+
+                        personality:
+                            animal.behaviorNotes ||
+                            "Behavior information has not been added yet.",
+
+                        idealHome:
+                            animal.description ||
+                            "Contact the shelter to learn about the ideal home.",
+
+                        health:
+                            animal.medicalStatus ||
+                            animal.intakeCondition ||
+                            "Health information is not available.",
+
+                        story:
+                            animal.description ||
+                            `${animal.name} is currently under the care of RescueBase.`,
+
+                        icon:
+                            animal.type === "Dog"
+                                ? "🐶"
+                                : animal.type === "Cat"
+                                    ? "🐱"
+                                    : "🐾",
+                    };
+                }
+            );
+
+            setPets(normalizedPets);
+
+            setSelectedPet((currentPet) => {
+                const existingPet =
+                    normalizedPets.find(
+                        (pet) =>
+                            pet._id ===
+                            currentPet?._id
+                    );
+
+                return (
+                    existingPet ||
+                    normalizedPets[0] ||
+                    emptyPet
+                );
+            });
+        } catch (error) {
+            console.error(
+                "Fetch available pets error:",
+                error
+            );
+
+            setPets([]);
+            setSelectedPet(emptyPet);
+
+            setPetsError(
+                "Server error while loading available pets."
+            );
+        } finally {
+            setPetsLoading(false);
+        }
+    }
+
+    async function fetchApplicationStatus() {
+        try {
+            setApplicationLoading(true);
+
+            if (!savedEmail) {
+                setApplicationStatus(null);
+                return;
+            }
+
+            if (!token) {
+                console.error("No rescuebase Auth token found");
+                return;
+            }
+
+            const response = await fetch(
+                `${API}/api/adoptions/user/latest`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                console.error(
+                    data.message ||
+                    "Failed to load application status."
+                );
+
+                return;
+            }
+
+            const application = data.application;
+
+            if (!application) {
+                localStorage.removeItem(
+                    "rescuebase_pending_application"
+                );
+
+                setApplicationStatus(null);
+                return;
+            }
+
+            const updatedStatus = {
+                status:
+                    application.status || "pending",
+
+                petName:
+                    application.petName ||
+                    application.animalId?.name ||
+                    "Selected Pet",
+
+                petBreed:
+                    application.petBreed ||
+                    application.animalId?.breed ||
+                    "",
+
+                petImage:
+                    application.petImage ||
+                    application.animalId?.image ||
+                    "",
+
+                animalId:
+                    application.animalId?._id ||
+                    application.animalId ||
+                    null,
+
+                applicationId:
+                    application._id,
+
+                submittedAt:
+                    application.createdAt,
+
+                updatedAt:
+                    application.updatedAt,
+
+                interviewSchedule:
+                    application.interviewSchedule ||
+                    null,
+
+                rejectionReason:
+                    application.rejectionReason ||
+                    "",
+
+                reviewNotes:
+                    application.reviewNotes || "",
+
+                documentsVerified: Boolean(
+                    application.documentsVerified
+                ),
+            };
+
+            setApplicationStatus(updatedStatus);
+
+            if (
+                updatedStatus.status === "pending"
+            ) {
+                localStorage.setItem(
+                    "rescuebase_pending_application",
+                    JSON.stringify(updatedStatus)
+                );
+            } else {
+                localStorage.removeItem(
+                    "rescuebase_pending_application"
+                );
+            }
+        } catch (error) {
+            console.error(
+                "Fetch adopter application status error:",
+                error
+            );
+        } finally {
+            setApplicationLoading(false);
+        }
+    }
+
+    async function refreshDashboard() {
+        await Promise.all([
+            fetchPets(),
+            fetchApplicationStatus(),
+        ]);
+    }
+
+    function handleSidebarClick(item) {
+        if (
+            item.key === "adoption-application"
+        ) {
+            if (hasPendingApplication) {
+                setActiveAdopterPage("overview");
+                return;
+            }
+
+            if (!selectedPet?._id) {
+                setActiveAdopterPage("browse-pets");
+                return;
             }
         }
 
-        fetchApplication();
-    }, []);
+        setActiveAdopterPage(item.key);
+        setNotificationOpen(false);
+    }
 
-    const hasApplication = Boolean(application);
+    function handleApply(pet) {
+        if (!pet?._id) {
+            return;
+        }
 
-    return (
-        <main className="dashboard-page">
-            <DashboardHeader onLogout={onLogout} />
+        if (pet.status !== "available") {
+            return;
+        }
 
-            <section className="dashboard-hero">
-                <img src={assets.images.bannerPets} alt="" />
+        if (hasPendingApplication) {
+            setActiveAdopterPage("overview");
+            return;
+        }
 
-                <div className="dashboard-hero-text">
-                    <h1>
-                        Find Your Perfect <span>Match</span>
-                    </h1>
-                    <p>Helping every rescued pet find a loving family faster.</p>
-                </div>
-            </section>
+        setSelectedPet(pet);
+        setActiveAdopterPage(
+            "adoption-application"
+        );
+    }
 
-            <section className="dashboard-content" id="pets">
-                <aside className="dashboard-sidebar">
-                    <h2>⌾ Shelters Near You</h2>
+    function handleLogout() {
+        localStorage.removeItem(
+            "rescuebase_user"
+        );
 
-                    <div className="dashboard-shelter-list">
-                        {shelters.map((shelter) => (
-                            <ShelterCard key={shelter.name} shelter={shelter} />
-                        ))}
-                    </div>
-                </aside>
+        localStorage.removeItem(
+            "rescuebase_pending_application"
+        );
 
-                <section className="dashboard-main">
+        onLogout?.();
+    }
 
-                    {hasApplication && (
-                        <ApplicationStatusCard
-                            application = {application}
-                            onReview={() => setShowApplication(true)}
+    function formatApplicationDate(dateValue) {
+        if (!dateValue) {
+            return "Date not available";
+        }
+
+        const parsedDate = new Date(dateValue);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return "Date not available";
+        }
+
+        return parsedDate.toLocaleDateString(
+            "en-PH",
+            {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            }
+        );
+    }
+
+    function renderApplicationBanner() {
+        if (applicationLoading) {
+            return null;
+        }
+
+        if (!applicationStatus) {
+            return null;
+        }
+
+        return (
+            <section
+                className={`adopter-application-banner ${applicationStatus.status}`}
+            >
+                <div className="adopter-application-banner-image">
+                    {applicationStatus.petImage ? (
+                        <img
+                            src={
+                                applicationStatus.petImage
+                            }
+                            alt={
+                                applicationStatus.petName
+                            }
                         />
+                    ) : (
+                        <span>🐾</span>
+                    )}
+                </div>
+
+                <div className="adopter-application-banner-content">
+                    <span
+                        className={`adopter-status ${applicationStatus.status}`}
+                    >
+                        {applicationStatus.status}
+                    </span>
+
+                    <h2>
+                        Application for{" "}
+                        {applicationStatus.petName}
+                    </h2>
+
+                    <p>
+                        {applicationStatus.petBreed ||
+                            "Breed not available"}
+                    </p>
+
+                    <small>
+                        Submitted on{" "}
+                        {formatApplicationDate(
+                            applicationStatus.submittedAt
+                        )}
+                    </small>
+
+                    {hasPendingApplication && (
+                        <p>
+                            Your application is currently
+                            waiting for shelter review.
+                        </p>
                     )}
 
-                    <div className="dashboard-top-row">
-                        <div className="dashboard-filters">
-                            {["All", "Dog", "Cat"].map((item) => (
-                                <button
-                                    key={item}
-                                    className={filter === item ? "active" : ""}
-                                    type="button"
-                                    onClick={() => setFilter(item)}
-                                >
-                                    {item === "All" ? "All Pets" : `${item}s`}
-                                </button>
-                            ))}
+                    {isApprovedApplication && (
+                        <p>
+                            Your application has been
+                            approved. Please wait for
+                            further instructions from the
+                            shelter.
+                        </p>
+                    )}
+
+                    {isRejectedApplication && (
+                        <>
+                            <p>
+                                Your application was not
+                                approved.
+                            </p>
+
+                            {applicationStatus.rejectionReason && (
+                                <p>
+                                    <strong>
+                                        Reason:
+                                    </strong>{" "}
+                                    {
+                                        applicationStatus.rejectionReason
+                                    }
+                                </p>
+                            )}
+                        </>
+                    )}
+                </div>
+            </section>
+        );
+    }
+
+    function renderPetBrowser() {
+        return (
+            <section className="adopter-content-grid">
+                <section
+                    className="adopter-panel"
+                    id="available-pets"
+                >
+                    <div className="adopter-panel-heading">
+                        <div>
+                            <h2>Available Pets</h2>
+
+                            <p>
+                                Select a pet to view its
+                                details and submit an
+                                application.
+                            </p>
                         </div>
 
                         <button
-                            className="dashboard-quiz-btn"
                             type="button"
-                            onClick={() => {
-                                if (hasApplication) {
-                                    setShowApplication(true);
-                                    return;
-                                }
-
-                                onApply?.(null);
-                            }}
+                            onClick={fetchPets}
+                            disabled={petsLoading}
                         >
-                            {hasApplication ? "Review Application" : "Submit Application" }
+                            Refresh
                         </button>
                     </div>
 
-                    <div className="dashboard-pet-grid">
-                        {filteredPets.map((pet) => (
-                            <PetCard key={pet.name} pet={pet} onApply={onApply} />
-                        ))}
+                    <div className="adopter-filters">
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(event) =>
+                                setSearch(
+                                    event.target.value
+                                )
+                            }
+                            placeholder="Search pet name, breed, or type"
+                        />
+
+                        <select
+                            value={typeFilter}
+                            onChange={(event) =>
+                                setTypeFilter(
+                                    event.target.value
+                                )
+                            }
+                        >
+                            <option value="all">
+                                All Pets
+                            </option>
+
+                            <option value="dog">
+                                Dogs
+                            </option>
+
+                            <option value="cat">
+                                Cats
+                            </option>
+                        </select>
+                    </div>
+
+                    <div className="adopter-pet-list">
+                        {petsLoading && (
+                            <p className="adopter-pets-message">
+                                Loading available pets...
+                            </p>
+                        )}
+
+                        {petsError && (
+                            <p className="adopter-pets-message">
+                                {petsError}
+                            </p>
+                        )}
+
+                        {!petsLoading &&
+                            !petsError &&
+                            filteredPets.length ===
+                            0 && (
+                                <p className="adopter-pets-message">
+                                    No available pets
+                                    matched your search.
+                                </p>
+                            )}
+
+                        {!petsLoading &&
+                            !petsError &&
+                            filteredPets.map((pet) => (
+                                <article
+                                    key={pet._id}
+                                    className={
+                                        selectedPet._id ===
+                                            pet._id
+                                            ? "adopter-pet-card active"
+                                            : "adopter-pet-card"
+                                    }
+                                    onClick={() =>
+                                        setSelectedPet(
+                                            pet
+                                        )
+                                    }
+                                >
+                                    <div className="adopter-pet-card-icon">
+                                        {pet.image ? (
+                                            <img
+                                                src={
+                                                    pet.image
+                                                }
+                                                alt={
+                                                    pet.name
+                                                }
+                                            />
+                                        ) : (
+                                            pet.icon
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <h3>
+                                            {pet.name}
+                                        </h3>
+
+                                        <p>
+                                            {pet.type} •{" "}
+                                            {pet.breed}
+                                        </p>
+
+                                        <small>
+                                            {pet.age} •{" "}
+                                            {pet.size}
+                                        </small>
+                                    </div>
+
+                                    <span
+                                        className={`adopter-status ${pet.status}`}
+                                    >
+                                        {pet.status.replace(
+                                            "_",
+                                            " "
+                                        )}
+                                    </span>
+                                </article>
+                            ))}
                     </div>
                 </section>
+
+                <aside className="adopter-panel adopter-detail-panel">
+                    <div className="adopter-detail-header">
+                        <div className="adopter-detail-icon">
+                            {selectedPet.image ? (
+                                <img
+                                    src={
+                                        selectedPet.image
+                                    }
+                                    alt={
+                                        selectedPet.name
+                                    }
+                                />
+                            ) : (
+                                selectedPet.icon
+                            )}
+                        </div>
+
+                        <div>
+                            <span
+                                className={`adopter-status ${selectedPet.status}`}
+                            >
+                                {selectedPet.status.replace(
+                                    "_",
+                                    " "
+                                )}
+                            </span>
+
+                            <h2>
+                                {selectedPet.name}
+                            </h2>
+
+                            <p>
+                                {selectedPet.type} •{" "}
+                                {selectedPet.breed}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="adopter-detail-grid">
+                        <article>
+                            <span>Age</span>
+                            <strong>
+                                {selectedPet.age}
+                            </strong>
+                        </article>
+
+                        <article>
+                            <span>Gender</span>
+                            <strong>
+                                {selectedPet.gender}
+                            </strong>
+                        </article>
+
+                        <article>
+                            <span>Size</span>
+                            <strong>
+                                {selectedPet.size}
+                            </strong>
+                        </article>
+
+                        <article>
+                            <span>Location</span>
+                            <strong>
+                                {selectedPet.location}
+                            </strong>
+                        </article>
+                    </div>
+
+                    <div className="adopter-detail-section">
+                        <h3>Personality</h3>
+                        <p>
+                            {selectedPet.personality}
+                        </p>
+                    </div>
+
+                    <div className="adopter-detail-section">
+                        <h3>Ideal Home</h3>
+                        <p>
+                            {selectedPet.idealHome}
+                        </p>
+                    </div>
+
+                    <div className="adopter-detail-section">
+                        <h3>Health Status</h3>
+                        <p>{selectedPet.health}</p>
+                    </div>
+
+                    <div className="adopter-detail-section">
+                        <h3>Story</h3>
+                        <p>{selectedPet.story}</p>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="adopter-apply-button"
+                        onClick={() =>
+                            handleApply(selectedPet)
+                        }
+                        disabled={
+                            selectedPet.status !==
+                            "available" ||
+                            hasPendingApplication
+                        }
+                    >
+                        {hasPendingApplication
+                            ? `Pending application: ${applicationStatus.petName}`
+                            : selectedPet.status ===
+                                "available"
+                                ? `Apply to adopt ${selectedPet.name}`
+                                : "Currently Not Available"}
+                    </button>
+                </aside>
             </section>
+        );
+    }
 
-            {showApplication && (
-                <ApplicationDetailsModal
-                    application={application}
-                    onClose={() => setShowApplication(false)}
+    function renderOverview() {
+        return (
+            <>
+                <section className="adopter-hero">
+                    <div className="adopter-hero-content">
+                        <span>
+                            RescueBase Matching
+                        </span>
+
+                        <h2>
+                            Meet your possible new
+                            companion.
+                        </h2>
+
+                        <p>
+                            Browse available rescued pets,
+                            check their details, and submit
+                            an adoption application when
+                            you find a match.
+                        </p>
+
+                        <div className="adopter-hero-actions">
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setActiveAdopterPage(
+                                        "browse-pets"
+                                    )
+                                }
+                            >
+                                Browse Pets
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    handleApply(
+                                        selectedPet
+                                    )
+                                }
+                                disabled={
+                                    selectedPet.status !==
+                                    "available" ||
+                                    hasPendingApplication
+                                }
+                            >
+                                {hasPendingApplication
+                                    ? `Pending application for ${applicationStatus.petName}`
+                                    : `Apply for ${selectedPet.name}`}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="adopter-featured-pet">
+                        <div className="adopter-pet-icon">
+                            {selectedPet.image ? (
+                                <img
+                                    src={
+                                        selectedPet.image
+                                    }
+                                    alt={
+                                        selectedPet.name
+                                    }
+                                />
+                            ) : (
+                                selectedPet.icon
+                            )}
+                        </div>
+
+                        <span
+                            className={`adopter-status ${selectedPet.status}`}
+                        >
+                            {selectedPet.status.replace(
+                                "_",
+                                " "
+                            )}
+                        </span>
+
+                        <h3>{selectedPet.name}</h3>
+
+                        <p>
+                            {selectedPet.breed} •{" "}
+                            {selectedPet.age} •{" "}
+                            {selectedPet.gender}
+                        </p>
+                    </div>
+                </section>
+
+                <section className="adopter-stats">
+                    <article>
+                        <span>Available Pets</span>
+                        <strong>
+                            {availablePets}
+                        </strong>
+                    </article>
+
+                    <article>
+                        <span>Pet Categories</span>
+                        <strong>Dog / Cat</strong>
+                    </article>
+
+                    <article>
+                        <span>
+                            Application Status
+                        </span>
+
+                        <strong>
+                            {applicationLoading
+                                ? "Loading"
+                                : hasPendingApplication
+                                    ? "Pending"
+                                    : isRejectedApplication
+                                        ? "Rejected"
+                                        : isApprovedApplication
+                                            ? "Approved"
+                                            : "Ready"}
+                        </strong>
+
+                        {applicationStatus?.petName && (
+                            <small>
+                                For{" "}
+                                {
+                                    applicationStatus.petName
+                                }
+                            </small>
+                        )}
+                    </article>
+                </section>
+
+                {renderApplicationBanner()}
+
+                {renderPetBrowser()}
+            </>
+        );
+    }
+
+    function renderAdopterContent() {
+        if (
+            activeAdopterPage ===
+            "adoption-application"
+        ) {
+            return (
+                <AdoptionApplication
+                    pet={selectedPet}
+                    onBack={() =>
+                        setActiveAdopterPage(
+                            "browse-pets"
+                        )
+                    }
+                    onApplicationSubmitted={async () => {
+                        await refreshDashboard();
+
+                        setActiveAdopterPage(
+                            "overview"
+                        );
+                    }}
                 />
-            )}
+            );
+        }
 
+        if (
+            activeAdopterPage ===
+            "application-status"
+        ) {
+            return (
+                <ApplicationStatus
+                    application={applicationStatus}
+                    loading={applicationLoading}
+                    onRefresh={fetchApplicationStatus}
+                    onBrowsePets={() =>
+                        setActiveAdopterPage("browse-pets")
+                    }
+                />
+            )
+        }
+
+        if (
+            activeAdopterPage === "browse-pets"
+        ) {
+            return (
+                <BrowsePets
+                    pets={pets}
+                    loading={petsLoading}
+                    error={petsError}
+                    search={search}
+                    setSearch={setSearch}
+                    typeFilter={typeFilter}
+                    setTypeFilter={setTypeFilter}
+                    filteredPets={filteredPets}
+                    selectedPet={selectedPet}
+                    setSelectedPet={setSelectedPet}
+                    hasPendingApplication={hasPendingApplication}
+                    applicationStatus={applicationStatus}
+                    onApply={handleApply}
+                    onRefresh={fetchPets}
+                />
+            );
+        }
+
+        if (activeAdopterPage === "matchmaking-quiz") {
+            let currentUser = null;
+
+            try {
+                currentUser = JSON.parse(
+                    localStorage.getItem("rescuebase_user") || "null"
+                );
+            } catch {
+                currentUser = null;
+            }
+
+            return (
+                <MatchmakingQuiz
+                    user={currentUser}
+                    onCompleted={() =>
+                        setActiveAdopterPage("recommendations")
+                    }
+                />
+            );
+        }
+
+        if (activeAdopterPage === "recommendations") {
+            return (
+                <Recommendations
+                    pets={pets}
+                    loading={petsLoading}
+                    error={petsError}
+                    onRefresh={fetchPets}
+                    onApply={handleApply}
+                    hasPendingApplication={hasPendingApplication}
+                    applicationStatus={applicationStatus}
+                    onTakeQuiz={() =>
+                        setActiveAdopterPage("matchmaking-quiz")
+                    }
+                />
+            );
+        }
+
+        if (activeAdopterPage === "donation") {
+            return <DonationCenter />
+        }
+
+        if (activeAdopterPage === "donation-history") {
+            return <DonationHistory />
+        }
+
+        if (activeAdopterPage === "lost-found") {
+            return <LostFound />
+        }
+
+        if (activeAdopterPage === "feedback") {
+            return <FeedbackForm />
+        }
+
+        return renderOverview();
+    }
+
+    async function handleNotificationClick(notification) {
+        if (!notification.read && token) {
+            try {
+                const response = await fetch(
+                    `${API}/api/notifications/${notification._id}/read`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    console.error(
+                        data.message ||
+                        "Failed to mark notification as read."
+                    );
+                    return;
+                }
+
+                await loadNotifications();
+            } catch (error) {
+                console.error(
+                    "Mark notification as read error:",
+                    error
+                );
+                return;
+            }
+        }
+
+        switch (notification.type) {
+            case "adoption_update":
+                setActiveAdopterPage("browse-pets");
+                break;
+
+            case "application_update":
+                setActiveAdopterPage("application-status");
+                break;
+
+            default:
+                setActiveAdopterPage("overview");
+                break;
+        }
+
+        setNotificationOpen(false);
+    }
+
+    useEffect(() => {
+        refreshDashboard();
+        loadNotifications();
+
+        const interval = setInterval(() => {
+            fetchApplicationStatus();
+        }, 5000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [savedEmail]);
+
+    return (
+        <main className="adopter-dashboard-page">
+            <aside className="adopter-sidebar">
+                <button
+                    type="button"
+                    className="adopter-logo"
+                    onClick={() =>
+                        setActiveAdopterPage(
+                            "overview"
+                        )
+                    }
+                >
+                    <img
+                        src={assets.logo}
+                        alt="RescueBase logo"
+                    />
+
+                    <span>RescueBase</span>
+                </button>
+
+                <nav className="adopter-menu">
+                    {adopterMenu.map((item) => {
+                        const isActive =
+                            activeAdopterPage ===
+                            item.key;
+
+                        const applicationDisabled =
+                            item.key ===
+                            "adoption-application" &&
+                            (hasPendingApplication ||
+                                !selectedPet?._id);
+
+                        return (
+                            <div
+                                className="adopter-menu-group"
+                                key={item.key}
+                            >
+                                <button
+                                    type="button"
+                                    title={item.label}
+                                    className={
+                                        isActive
+                                            ? "active"
+                                            : ""
+                                    }
+                                    disabled={
+                                        applicationDisabled
+                                    }
+                                    onClick={() =>
+                                        handleSidebarClick(
+                                            item
+                                        )
+                                    }
+                                >
+                                    <div className="adopter-menu-text">
+                                        <strong>
+                                            {item.label}
+                                        </strong>
+                                    </div>
+                                </button>
+                            </div>
+                        );
+                    })}
+                </nav>
+
+                <button
+                    className="adopter-user-card"
+                    type="button"
+                    onClick={handleLogout}
+                >
+                    <div className="adopter-user-avatar">
+                        {savedUser.profileImage ? (
+                            <img
+                                src={
+                                    savedUser.profileImage
+                                }
+                                alt={
+                                    savedUser.name ||
+                                    savedUser.username ||
+                                    "Adopter"
+                                }
+                            />
+                        ) : (
+                            <span>👤</span>
+                        )}
+                    </div>
+
+                    <div>
+                        <strong>
+                            {savedUser.name ||
+                                savedUser.username ||
+                                "Adopter"}
+                        </strong>
+
+                        <small>Adopter</small>
+                    </div>
+
+                    <span>→</span>
+                </button>
+            </aside>
+
+            <section className="adopter-main">
+                <header className="adopter-dashboard-topbar">
+                    <div>
+                        <span className="adopter-dashboard-eyebrow">
+                            Adopter Portal
+                        </span>
+
+                        <h1>
+                            {getAdopterPageTitle(
+                                activeAdopterPage
+                            )}
+                        </h1>
+                    </div>
+
+                    <div className="adopter-notification-wrap">
+                        <button
+                            type="button"
+                            className="adopter-notification-btn"
+                            onClick={() =>
+                                setNotificationOpen(
+                                    (current) =>
+                                        !current
+                                )
+                            }
+                        >
+                            Notifications
+
+                            {notifications.length >
+                                0 && (
+                                    <span>
+                                        {
+                                            notifications.length
+                                        }
+                                    </span>
+                                )}
+                        </button>
+
+                        {notificationOpen && (
+                            <div className="adopter-notification-dropdown">
+                                <div className="adopter-notification-header">
+                                    <strong>
+                                        Notifications
+                                    </strong>
+
+                                    <small>
+                                        {
+                                            notifications.length
+                                        }{" "}
+                                        update(s)
+                                    </small>
+                                </div>
+
+                                {notifications.length ===
+                                    0 ? (
+                                    <p className="adopter-notification-empty">
+                                        No new
+                                        notifications.
+                                    </p>
+                                ) : (
+                                    notifications.map(
+                                        (notification) => (
+                                            <button
+                                                key={notification._id}
+                                                type="button"
+                                                className={`adopter-notification-item ${notification.read ? "" : "unread"
+                                                    }`}
+                                                onClick={() =>
+                                                    handleNotificationClick(notification)
+                                                }
+                                            >
+                                                <strong>
+                                                    {
+                                                        notification.title
+                                                    }
+                                                </strong>
+
+                                                <span>
+                                                    {
+                                                        notification.message
+                                                    }
+                                                </span>
+                                            </button>
+                                        )
+                                    )
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </header>
+
+                <section className="adopter-dashboard-content">
+                    {renderAdopterContent()}
+                </section>
+            </section>
         </main>
     );
 }

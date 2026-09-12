@@ -1,0 +1,181 @@
+.admin-recommendation-page {
+    display: grid;
+    gap: 18px;
+}
+
+.admin-recommendation-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-recommendation-stat-card {
+    display: grid;
+    gap: 8px;
+}
+
+.admin-recommendation-stat-card span {
+    color: var(--red);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-recommendation-stat-card strong {
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 34px;
+}
+
+.admin-recommendation-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.admin-recommendation-form-panel,
+.admin-recommendation-list-panel {
+    min-height: 430px;
+}
+
+.admin-recommendation-form {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-recommendation-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-recommendation-form input,
+.admin-recommendation-form select,
+.admin-recommendation-form textarea {
+    width: 100%;
+    border: 1px solid rgba(90, 27, 0, 0.28);
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    padding: 11px 13px;
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-recommendation-form input,
+.admin-recommendation-form select {
+    height: 42px;
+}
+
+.admin-recommendation-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.admin-recommendation-form input:focus,
+.admin-recommendation-form select:focus,
+.admin-recommendation-form textarea:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-recommendation-form button {
+    height: 44px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.admin-recommendation-list {
+    display: grid;
+    gap: 12px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.admin-recommendation-row {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 14px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-recommendation-row h3 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 22px;
+}
+
+.admin-recommendation-row p {
+    margin-top: 4px;
+    color: #6f4a35;
+    font-size: 13px;
+}
+
+.admin-recommendation-row small {
+    display: block;
+    margin-top: 6px;
+    color: var(--brown);
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.admin-recommendation-row div > span {
+    display: block;
+    margin-top: 8px;
+    color: var(--red);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.admin-recommendation-score {
+    min-width: 105px;
+    border-radius: 14px;
+    background: rgba(252, 191, 73, 0.28);
+    padding: 12px;
+    display: grid;
+    gap: 4px;
+    text-align: center;
+}
+
+.admin-recommendation-score strong {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 26px;
+}
+
+.admin-recommendation-score span {
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+@media (max-width: 950px) {
+    .admin-recommendation-stats,
+    .admin-recommendation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-recommendation-row {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .admin-recommendation-score {
+        width: 100%;
+        text-align: left;
+    }
+}

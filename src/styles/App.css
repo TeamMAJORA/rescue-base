@@ -205,7 +205,6 @@ img {
 }
 
 .page-paws {
-    z-index: 1;
     position: absolute;
     width: 1950px;
     max-width: none;
@@ -340,13 +339,62 @@ img {
     color: var(--brown);
 }
 
-.pet-grid {
-    width: min(898px, 100%);
+.pet-slider {
+    width: min(1000px, 100%);
     margin: 85px auto 0;
-    display: grid;
-    grid-template-columns: repeat(3, 261px);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.pet-track {
+    flex: 1;
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 6px 4px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brown) transparent;
+}
+
+.pet-track::-webkit-scrollbar {
+    height: 6px;
+}
+
+.pet-track::-webkit-scrollbar-thumb {
+    background: var(--brown);
+    border-radius: 999px;
+    opacity: 0.4;
+}
+
+.pet-slide {
+    flex: 0 0 261px;
+    scroll-snap-align: start;
+}
+
+.pet-slider-arrow {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: var(--brown);
+    color: var(--cream);
+    font-size: 22px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 49px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.pet-slider-arrow:hover {
+    background: var(--red-dark);
+    transform: scale(1.06);
 }
 
 .pet-card {
@@ -771,7 +819,7 @@ img {
     max-width: none;
     height: auto;
 
-    top: 1470px;
+    top: 1520px;
     left: 50%;
 
     opacity: 0.48;
@@ -782,7 +830,23 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 1;
+    z-index: 2;
+}
+
+.page-paws-footer-bottom1 {
+    position: absolute;
+    width: 1870px;
+    max-width: none;
+    height: auto;
+    top: 4500px;
+    left: 50%;
+    opacity: 0.45;
+    transform: translateX(-50%) rotate(-7deg) scaleY(-1);
+    transform-origin: center center;
+    filter: brightness(0.7) saturate(1.8);
+    pointer-events: none;
+    user-select: none;
+    z-index: 3;
 }
 
 .steps-section,
@@ -813,7 +877,7 @@ img {
     max-width: none;
     height: auto;
 
-    top: 2200px;
+    top: 3000px;
     /* adjust this */
     left: 50%;
 
@@ -825,7 +889,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 3;
+    z-index: 2;
 }
 
 .features-section .section-heading,
@@ -874,6 +938,16 @@ img {
     background: var(--yellow);
 }
 
+.public-gis-map-wrap {
+    width: 100%;
+    height: 500px;
+}
+
+.public-gis-map {
+    width: 100%;
+    height: 100%;
+}
+
 
 /* =========================
    RESPONSIVE
@@ -903,8 +977,11 @@ img {
         margin-left: auto;
     }
 
-    .pet-grid {
-        grid-template-columns: repeat(3, minmax(200px, 261px));
+    .pet-slide {
+        flex-basis: 220px;
+    }
+
+    .pet-track {
         gap: 25px;
     }
 }
@@ -956,9 +1033,18 @@ img {
         text-align: center;
     }
 
-    .pet-grid {
-        grid-template-columns: 1fr;
-        max-width: 320px;
+    .pet-slider-arrow {
+        display: none;
+    }
+
+    .pet-slide {
+        flex-basis: 78vw;
+        max-width: 300px;
+    }
+
+    .pet-track {
+        padding-left: 12px;
+        padding-right: 12px;
     }
 }
 

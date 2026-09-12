@@ -1,0 +1,546 @@
+.foster-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    background: #eae2b7;
+    color: #5a1b00;
+}
+
+.foster-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 24px 18px;
+    background: #fff7cb;
+    border-right: 1px solid rgba(90, 27, 0, 0.12);
+}
+
+.foster-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 8px;
+    font-size: 20px;
+    font-weight: 900;
+    color: #5a1b00;
+}
+
+.foster-logo img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.foster-menu {
+    display: grid;
+    gap: 10px;
+}
+
+.foster-menu button,
+.foster-logout {
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    padding: 13px 15px;
+    background: transparent;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 900;
+    text-align: left;
+    cursor: pointer;
+}
+
+.foster-menu button:hover {
+    background: #fffaf0;
+}
+
+.foster-menu button.active {
+    background: #fb8500;
+    color: white;
+}
+
+.foster-logout {
+    margin-top: auto;
+    background: #d62828;
+    color: white;
+    text-align: center;
+}
+
+.foster-main {
+    display: grid;
+    gap: 22px;
+    align-content: start;
+    padding: 28px;
+}
+
+.foster-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 24px;
+    border-radius: 22px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.foster-topbar h1 {
+    margin: 0 0 4px;
+    color: #5a1b00;
+    font-size: 28px;
+}
+
+.foster-topbar p {
+    margin: 0;
+    color: rgba(90, 27, 0, 0.72);
+    font-weight: 700;
+}
+
+.foster-topbar button,
+.foster-quick-actions button,
+.foster-section-heading button,
+.foster-empty-card button,
+.foster-application-form button,
+.foster-update-form button {
+    border: none;
+    border-radius: 14px;
+    padding: 11px 16px;
+    background: #fb8500;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.foster-topbar button:hover,
+.foster-quick-actions button:hover,
+.foster-section-heading button:hover,
+.foster-empty-card button:hover,
+.foster-application-form button:hover,
+.foster-update-form button:hover {
+    opacity: 0.9;
+}
+
+.foster-overview {
+    display: grid;
+    gap: 22px;
+}
+
+.foster-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.foster-stat-card {
+    min-height: 92px;
+    padding: 20px 22px;
+    border-radius: 18px;
+    background: #fff7cb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.foster-stat-card span {
+    font-size: 14px;
+    font-weight: 900;
+    color: #5a1b00;
+}
+
+.foster-stat-card strong {
+    font-size: 20px;
+    font-weight: 900;
+    color: #3a1200;
+    text-transform: capitalize;
+    text-align: right;
+}
+
+.foster-panel {
+    padding: 22px;
+    border-radius: 22px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.foster-welcome-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+}
+
+.foster-label {
+    margin: 0 0 6px;
+    color: #fb8500;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.foster-welcome-panel h2,
+.foster-application-panel h2,
+.foster-assignment-info h2,
+.foster-update-form h2,
+.foster-updates-panel h2,
+.foster-empty-card h2 {
+    margin: 0 0 8px;
+    color: #5a1b00;
+}
+
+.foster-welcome-panel p,
+.foster-empty-card p,
+.foster-application-status-card p,
+.foster-instructions p {
+    margin: 0;
+    color: rgba(90, 27, 0, 0.72);
+    line-height: 1.5;
+}
+
+.foster-quick-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.foster-message {
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 800;
+    border: 1px solid rgba(251, 133, 0, 0.22);
+}
+
+.foster-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.foster-section-heading h2 {
+    margin: 0;
+}
+
+.foster-application-status-card {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 18px;
+    border-radius: 18px;
+    background: #fff7cb;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.foster-status-pill {
+    width: fit-content;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: capitalize;
+    border: 1px solid rgba(251, 133, 0, 0.22);
+}
+
+.foster-status-pill.approved {
+    background: #e8f7df;
+    color: #2f6b1f;
+}
+
+.foster-status-pill.rejected {
+    background: #ffe3e3;
+    color: #aa2020;
+}
+
+.foster-status-pill.pending {
+    background: #fff7cb;
+    color: #5a1b00;
+}
+
+.foster-application-form,
+.foster-update-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.foster-application-form label,
+.foster-update-form label {
+    display: grid;
+    gap: 7px;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.foster-application-form input,
+.foster-application-form select,
+.foster-application-form textarea,
+.foster-update-form input,
+.foster-update-form textarea {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 14px;
+    padding: 10px 12px;
+    background: white;
+    color: #5a1b00;
+    font-size: 14px;
+    outline: none;
+}
+
+.foster-application-form textarea,
+.foster-update-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.foster-application-form input:focus,
+.foster-application-form select:focus,
+.foster-application-form textarea:focus,
+.foster-update-form input:focus,
+.foster-update-form textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.foster-full-field {
+    grid-column: span 2;
+}
+
+.foster-check-field {
+    display: flex !important;
+    align-items: center;
+    gap: 10px !important;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: white;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.foster-check-field input {
+    width: 16px;
+    min-height: auto;
+}
+
+.foster-application-form .foster-message,
+.foster-update-form .foster-message {
+    grid-column: 1 / -1;
+}
+
+.foster-application-form button,
+.foster-update-form button {
+    align-self: end;
+    min-height: 42px;
+}
+
+.foster-application-form button:disabled,
+.foster-update-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.foster-empty-card {
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+}
+
+.foster-assignment-card {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 22px;
+    align-items: stretch;
+}
+
+.foster-pet-image {
+    min-height: 240px;
+    border-radius: 20px;
+    background: #fff7cb;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.foster-pet-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.foster-pet-image span {
+    font-size: 64px;
+}
+
+.foster-assignment-info {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+}
+
+.foster-assignment-info > p {
+    margin: 0;
+    color: rgba(90, 27, 0, 0.72);
+    font-weight: 700;
+}
+
+.foster-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.foster-meta span {
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 900;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.foster-instructions {
+    margin-top: 8px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #fff7cb;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.foster-instructions h3 {
+    margin: 0 0 8px;
+    color: #5a1b00;
+}
+
+.foster-update-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.foster-update-form {
+    grid-template-columns: 1fr;
+}
+
+.foster-updates-panel {
+    display: grid;
+    gap: 14px;
+}
+
+.foster-empty-text {
+    margin: 0;
+    color: rgba(90, 27, 0, 0.65);
+    font-weight: 700;
+}
+
+.foster-update-list {
+    display: grid;
+    gap: 12px;
+}
+
+.foster-update-item {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #fff7cb;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+.foster-update-item p {
+    margin: 0;
+    color: rgba(90, 27, 0, 0.78);
+    line-height: 1.5;
+}
+
+.foster-update-item img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.foster-update-item small {
+    color: rgba(90, 27, 0, 0.55);
+    font-weight: 700;
+}
+
+@media (max-width: 1050px) {
+    .foster-page {
+        grid-template-columns: 1fr;
+    }
+
+    .foster-sidebar {
+        position: static;
+        height: auto;
+    }
+
+    .foster-menu {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .foster-stat-grid,
+    .foster-application-form,
+    .foster-assignment-card,
+    .foster-update-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .foster-full-field {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 720px) {
+    .foster-main {
+        padding: 18px;
+    }
+
+    .foster-topbar,
+    .foster-welcome-panel,
+    .foster-section-heading {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .foster-menu {
+        grid-template-columns: 1fr;
+    }
+
+    .foster-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .foster-application-form {
+        grid-template-columns: 1fr;
+    }
+
+    .foster-quick-actions,
+    .foster-meta {
+        flex-direction: column;
+    }
+
+    .foster-topbar button,
+    .foster-quick-actions button,
+    .foster-section-heading button,
+    .foster-empty-card button,
+    .foster-application-form button,
+    .foster-update-form button {
+        width: 100%;
+    }
+}

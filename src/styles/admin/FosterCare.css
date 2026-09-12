@@ -1,0 +1,320 @@
+.admin-foster-page {
+    display: grid;
+    gap: 22px;
+}
+
+.admin-foster-application-panel,
+.admin-foster-assignment-panel,
+.admin-foster-list-panel {
+    display: grid;
+    gap: 18px;
+}
+
+.admin-foster-application-form,
+.admin-foster-assignment-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    padding: 18px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.admin-foster-application-form label,
+.admin-foster-assignment-form label {
+    display: grid;
+    gap: 7px;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-foster-application-form input,
+.admin-foster-application-form select,
+.admin-foster-application-form textarea,
+.admin-foster-assignment-form input,
+.admin-foster-assignment-form select,
+.admin-foster-assignment-form textarea {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 14px;
+    padding: 10px 12px;
+    background: white;
+    color: #5a1b00;
+    font-size: 14px;
+    outline: none;
+}
+
+.admin-foster-application-form textarea,
+.admin-foster-assignment-form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.admin-foster-application-form input:focus,
+.admin-foster-application-form select:focus,
+.admin-foster-application-form textarea:focus,
+.admin-foster-assignment-form input:focus,
+.admin-foster-assignment-form select:focus,
+.admin-foster-assignment-form textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.admin-foster-care-field {
+    grid-column: span 2;
+}
+
+.admin-foster-check {
+    display: flex !important;
+    align-items: center;
+    gap: 10px !important;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: white;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.admin-foster-check input {
+    width: 16px;
+    min-height: auto;
+}
+
+.admin-foster-application-form > button,
+.admin-foster-assignment-form > button {
+    align-self: end;
+    min-height: 42px;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 18px;
+    background: #fb8500;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.admin-foster-application-form > button:hover,
+.admin-foster-assignment-form > button:hover {
+    background: #e97b00;
+}
+
+.admin-foster-assignment-form > button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.admin-foster-message {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 800;
+    border: 1px solid rgba(251,133,0,.22);
+}
+
+.admin-foster-application-list,
+.admin-foster-list {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-foster-application-card,
+.admin-foster-row {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90,27,0,.08);
+}
+
+.admin-foster-application-card {
+    grid-template-columns: 1fr auto auto;
+}
+
+.admin-foster-application-card:hover,
+.admin-foster-row:hover {
+    border-color: rgba(251,133,0,.28);
+    box-shadow: 0 10px 24px rgba(90,27,0,.08);
+}
+
+.admin-foster-pet {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.admin-foster-pet img {
+    width: 90px;
+    height: 90px;
+    border-radius: 16px;
+    object-fit: cover;
+    border: 2px solid rgba(251,133,0,.18);
+    background: white;
+}
+
+.admin-foster-details {
+    display: grid;
+    gap: 4px;
+}
+
+.admin-foster-application-card h3,
+.admin-foster-details h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-size: 17px;
+}
+
+.admin-foster-application-card p,
+.admin-foster-details p {
+    margin: 0;
+    color: rgba(90,27,0,.72);
+    font-size: 14px;
+}
+
+.admin-foster-application-card small,
+.admin-foster-details small {
+    color: rgba(90,27,0,.58);
+    font-size: 12px;
+}
+
+.admin-foster-status {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    border: 1px solid rgba(251,133,0,.18);
+    text-transform: capitalize;
+}
+
+.admin-foster-status.pending {
+    background: #fff7cb;
+    color: #5a1b00;
+}
+
+.admin-foster-status.approved {
+    background: #e8f7df;
+    color: #2f6b1f;
+}
+
+.admin-foster-status.rejected {
+    background: #ffe3e3;
+    color: #aa2020;
+}
+
+.admin-foster-status.active {
+    background: #e8f7df;
+    color: #2f6b1f;
+}
+
+.admin-foster-status.completed {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.admin-foster-actions,
+.admin-foster-application-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.admin-foster-actions button,
+.admin-foster-application-actions button,
+.admin-panel-heading button {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: #fb8500;
+    color: white;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.admin-foster-actions button:hover,
+.admin-foster-application-actions button:hover,
+.admin-panel-heading button:hover {
+    background: #e97b00;
+}
+
+.admin-foster-application-actions .reject {
+    background: #6b7280;
+}
+
+.admin-foster-application-actions .reject:hover {
+    background: #555;
+}
+
+.admin-foster-actions .delete {
+    background: #d62828;
+}
+
+.admin-foster-actions .delete:hover {
+    background: #b91c1c;
+}
+
+.admin-empty {
+    text-align: center;
+    padding: 30px;
+    color: rgba(90,27,0,.6);
+}
+
+@media (max-width:1000px){
+
+    .admin-foster-application-form,
+    .admin-foster-assignment-form{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .admin-foster-row,
+    .admin-foster-application-card{
+        grid-template-columns:1fr;
+    }
+
+    .admin-foster-actions,
+    .admin-foster-application-actions{
+        justify-content:flex-start;
+    }
+
+}
+
+@media (max-width:720px){
+
+    .admin-foster-application-form,
+    .admin-foster-assignment-form{
+        grid-template-columns:1fr;
+    }
+
+    .admin-foster-care-field{
+        grid-column:auto;
+    }
+
+    .admin-foster-application-form>button,
+    .admin-foster-assignment-form>button{
+        width:100%;
+    }
+
+    .admin-foster-actions,
+    .admin-foster-application-actions{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .admin-foster-actions button,
+    .admin-foster-application-actions button{
+        width:100%;
+    }
+
+}

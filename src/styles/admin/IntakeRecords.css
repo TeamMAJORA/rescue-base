@@ -1,0 +1,116 @@
+.admin-intake-page {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.admin-intake-form-panel,
+.admin-intake-list-panel {
+    min-height: 430px;
+}
+
+.admin-intake-form {
+    display: grid;
+    gap: 14px;
+}
+
+.admin-intake-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-intake-form input,
+.admin-intake-form select,
+.admin-intake-form textarea {
+    width: 100%;
+    border: 1px solid rgba(90, 27, 0, 0.28);
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    padding: 11px 13px;
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-intake-form input,
+.admin-intake-form select {
+    height: 42px;
+}
+
+.admin-intake-form input:focus,
+.admin-intake-form select:focus,
+.admin-intake-form textarea:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-intake-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.admin-intake-form button {
+    height: 44px;
+    border: none;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--yellow);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.admin-intake-list {
+    display: grid;
+    gap: 12px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.admin-intake-row {
+    background: var(--white-yellow);
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 14px;
+    padding: 15px;
+}
+
+.admin-intake-row h3 {
+    font-family: "Itim", cursive;
+    color: var(--brown);
+    font-size: 22px;
+}
+
+.admin-intake-row p {
+    margin-top: 4px;
+    color: #6f4a35;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-intake-row small {
+    display: block;
+    margin-top: 5px;
+    color: var(--brown);
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.admin-intake-row span {
+    display: block;
+    margin-top: 8px;
+    color: var(--red);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+@media (max-width: 950px) {
+    .admin-intake-page {
+        grid-template-columns: 1fr;
+    }
+}

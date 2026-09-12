@@ -1,0 +1,775 @@
+/* TOP HERO SECTION */
+
+.hero-actions {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.hero-actions .match-btn {
+    margin-top: 0;
+}
+
+.match-btn1 {
+    height: 60px;
+    padding: 0 28px;
+    gap: 12px;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.match-btn1:hover {
+    transform: translateY(-2px);
+}
+
+.match-btn1 img {
+    width: 33px;
+    height: 30px;
+    object-fit: contain;
+}
+
+/* GIS SECTION */
+
+.gis-section {
+    position: relative;
+    min-height: 630px;
+    padding: 70px 70px 55px;
+    background: var(--cream);
+}
+
+.gis-heading {
+    text-align: center;
+}
+
+.gis-heading h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+    line-height: 1;
+    color: var(--brown);
+}
+
+.gis-heading p {
+    margin: 14px auto 0;
+    max-width: 650px;
+    font-family: "Karma", serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--red);
+}
+
+.gis-filters {
+    width: min(1010px, 100%);
+    margin: 34px auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.gis-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gis-filter {
+    height: 36px;
+    min-width: 96px;
+    padding: 0 18px;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--brown);
+    font-family: "Karma", serif;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.gis-filter-active {
+    background: var(--brown);
+    color: var(--cream);
+}
+
+.gis-filter:hover {
+    transform: translateY(-1px);
+}
+
+.gis-map-container {
+    width: min(1010px, 100%);
+    height: 325px;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid var(--brown);
+    border-radius: 22px;
+    background: var(--cream-card);
+}
+
+.gis-map-container .public-gis-landing {
+    width: 100%;
+    height: 100%;
+}
+
+.gis-map-container .public-gis-map-wrap {
+    width: 100%;
+    height: 100%;
+}
+
+.gis-map-container .public-gis-map {
+    width: 100%;
+    height: 100%;
+}
+
+.gis-map-container .leaflet-container {
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 700px) {
+    .gis-section {
+        padding: 55px 24px 45px;
+    }
+
+    .gis-heading h2 {
+        font-size: 2.3rem;
+    }
+
+    .gis-heading p {
+        font-size: 14px;
+    }
+
+    .gis-filters {
+        flex-direction: column;
+        align-items: stretch;
+        margin-top: 28px;
+    }
+
+    .gis-filter-group {
+        justify-content: center;
+    }
+
+    .gis-animal-filters {
+        width: 100%;
+    }
+
+    .gis-animal-filters .gis-filter {
+        flex: 1;
+    }
+
+    .gis-map-container {
+        height: 360px;
+        border-radius: 18px;
+    }
+}
+
+/* Donation Section */
+
+.donor-section {
+    position: relative;
+    z-index: 5;
+    min-height: 520px;
+    padding: 60px 70px 45px;
+    background: transparent;
+    color: var(--brown);
+}
+
+.donor-heading {
+    text-align: center;
+}
+
+.donor-heading h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: clamp(2.5rem, 4vw, 3.4rem);
+    line-height: 1;
+    color: var(--brown);
+}
+
+.donor-heading p {
+    margin-top: 8px;
+    font-family: "Karma", serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--red);
+}
+
+.donor-content {
+    width: min(1060px, 100%);
+    margin: 24px auto 0;
+    display: grid;
+    grid-template-columns: 215px 1fr;
+    gap: 18px;
+    align-items: center;
+}
+
+.sponsor-card {
+    min-height: 213px;
+    padding: 25px 28px;
+    border-radius: 15px;
+    background: #513021;
+    color: var(--cream);
+    position: relative;
+    z-index: 2;
+    box-shadow: -10px 10px 0 #a77a50;
+}
+
+.sponsor-label {
+    display: block;
+    font-family: "Karma", serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--yellow);
+}
+
+.sponsor-card h3 {
+    margin-top: 5px;
+    font-family: "Karma", serif;
+    font-size: 23px;
+    font-weight: 500;
+}
+
+.sponsor-card p {
+    margin-top: 10px;
+    font-family: "Karma", serif;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.sponsor-card strong {
+    display: block;
+    margin-top: 72px;
+    font-family: "Karma", serif;
+    font-size: 25px;
+    color: var(--yellow);
+}
+
+.donor-wall {
+    min-height: 213px;
+    padding: 10px 18px 12px;
+    border: 1px solid var(--brown);
+    border-radius: 15px;
+    background: var(--cream-card);
+}
+
+.donor-wall h3 {
+    margin-bottom: 4px;
+    font-family: "Karma", serif;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.donor-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.donor-item {
+    display: flex;
+    align-items: center;
+    min-height: 37px;
+    gap: 7px;
+}
+
+.donor-number {
+    width: 20px;
+    flex-shrink: 0;
+    font-family: "Karma", serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--red);
+}
+
+.donor-avatar {
+    width: 27px;
+    height: 27px;
+    flex-shrink: 0;
+    border: 1px solid var(--brown);
+    border-radius: 50%;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Itim", cursive;
+    font-size: 12px;
+    color: var(--brown);
+}
+
+.donor-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.donor-info strong {
+    font-family: "Karma", serif;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--brown);
+}
+
+.donor-info span {
+    margin-top: 2px;
+    font-family: "Karma", serif;
+    font-size: 8px;
+    line-height: 1.1;
+    color: var(--brown-soft);
+}
+
+.donor-button {
+    position: relative;
+    z-index: 20;
+    margin: 28px auto 0;
+    width: 120px;
+    height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    background: var(--yellow);
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.12);
+}
+
+.donor-button:hover {
+    transform: translateY(-2px);
+}
+
+.donor-button img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+}
+
+@media (max-width: 700px) {
+    .donor-section {
+        padding: 50px 24px 40px;
+    }
+
+    .donor-heading p {
+        font-size: 12px;
+    }
+
+    .donor-content {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        max-width: 500px;
+    }
+
+    .sponsor-card {
+        min-height: 200px;
+    }
+
+    .sponsor-card strong {
+        margin-top: 55px;
+    }
+
+    .donor-wall {
+        min-height: 220px;
+    }
+}
+
+/* Spotlight Section */
+
+.spotlight-section {
+    position: relative;
+    min-height: 720px;
+    padding: 75px 60px 100px;
+    background: var(--cream);
+    color: var(--brown);
+}
+
+.spotlight-heading {
+    text-align: center;
+    position: relative;
+    z-index: 5;
+}
+
+.spotlight-heading h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: clamp(2.5rem, 4.5vw, 3.7rem);
+    line-height: 1;
+    color: var(--brown);
+}
+
+.spotlight-heading p {
+    margin-top: 10px;
+    font-family: "Karma", serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--red);
+}
+
+.spotlight-card {
+    width: min(890px, 100%);
+    min-height: 448px;
+    margin: 68px auto 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    border: 1px solid var(--brown);
+    border-radius: 30px;
+    background: var(--cream-card);
+    position: relative;
+    z-index: 6;
+}
+
+.spotlight-image-wrap {
+    position: relative;
+    min-height: 448px;
+    overflow: hidden;
+}
+
+.spotlight-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.spotlight-status {
+    position: absolute;
+    top: 22px;
+    left: 22px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    background: #19b957;
+    color: white;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 12px;
+}
+
+.spotlight-details {
+    padding: 58px 46px 40px;
+    display: flex;
+    flex-direction: column;
+    color: var(--brown);
+}
+
+.spotlight-details h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 34px;
+    line-height: 1;
+}
+
+.spotlight-meta {
+    margin-top: 8px;
+    font-family: "Karma", serif;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.spotlight-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 22px;
+}
+
+.spotlight-tags span {
+    padding: 5px 16px;
+    border-radius: 999px;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+}
+
+.tag-playful {
+    background: #ff9d18;
+    color: white;
+}
+
+.tag-vaccinated {
+    background: #38b6a6;
+    color: white;
+}
+
+.tag-neutered {
+    background: #4285ed;
+    color: white;
+}
+
+.tag-cuddly {
+    background: #f76ca4;
+    color: white;
+}
+
+.spotlight-description {
+    margin-top: 23px;
+    max-width: 390px;
+    font-family: "Karma", serif;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--brown-soft);
+}
+
+.spotlight-actions {
+    margin-top: auto;
+    padding-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.spotlight-adopt-btn,
+.spotlight-outline-btn {
+    height: 38px;
+    padding: 0 17px;
+    border-radius: 999px;
+    font-family: "Itim", cursive;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.spotlight-adopt-btn {
+    border: 1px solid var(--brown);
+    background: var(--yellow);
+    color: var(--brown);
+}
+
+.spotlight-outline-btn {
+    border: 1px solid var(--brown);
+    background: transparent;
+    color: var(--brown);
+}
+
+.spotlight-adopt-btn:hover,
+.spotlight-outline-btn:hover {
+    transform: translateY(-2px);
+}
+
+.spotlight-adopt-btn img,
+.spotlight-outline-btn img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+@media (max-width: 750px) {
+    .spotlight-section {
+        padding: 55px 24px 70px;
+    }
+
+    .spotlight-heading h2 {
+        font-size: 2.4rem;
+    }
+
+    .spotlight-card {
+        grid-template-columns: 1fr;
+        margin-top: 45px;
+        border-radius: 22px;
+    }
+
+    .spotlight-image-wrap {
+        min-height: 330px;
+        height: 330px;
+    }
+
+    .spotlight-details {
+        padding: 35px 28px;
+    }
+
+    .spotlight-actions {
+        margin-top: 10px;
+    }
+}
+
+/* Tail Section */
+
+.tails-section {
+    position: relative;
+    padding: 90px 70px;
+    background: var(--cream);
+}
+
+.tails-content {
+    width: min(1100px, 100%);
+    min-height: 120px;
+    margin: 0 auto;
+    padding: 28px 30px;
+    border-radius: 22px;
+    background: var(--brown);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.tails-text h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 25px;
+    line-height: 1;
+    color: var(--yellow);
+}
+
+.tails-text p {
+    margin: 10px 0 0;
+    font-family: "Karma", serif;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--cream);
+}
+
+.tails-button {
+    flex-shrink: 0;
+    min-width: 136px;
+    height: 40px;
+    padding: 0 20px;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    background: var(--yellow);
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.tails-button:hover {
+    transform: translateY(-2px);
+}
+
+@media (max-width: 700px) {
+    .tails-section {
+        padding: 60px 24px;
+    }
+
+    .tails-content {
+        padding: 28px 24px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    .tails-text p {
+        font-size: 11px;
+    }
+
+    .tails-text p br {
+        display: none;
+    }
+
+    .tails-button {
+        align-self: flex-end;
+    }
+}
+
+/* Hearts Code Section */
+
+.hearts-code-section {
+    position: relative;
+    padding: 70px 70px 80px;
+    background: var(--cream);
+}
+
+.hearts-code-content {
+    width: min(950px, 100%);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 184px 1fr;
+    align-items: center;
+    gap: 22px;
+    position: relative;
+    z-index: 10;
+}
+
+.hearts-code-image {
+    width: 184px;
+    height: 160px;
+    overflow: hidden;
+    border: 1px solid var(--brown);
+    border-radius: 14px;
+    background: var(--cream-card);
+}
+
+.hearts-code-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hearts-code-text {
+    max-width: 570px;
+}
+
+.hearts-code-text h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 27px;
+    line-height: 0.95;
+    color: var(--brown);
+}
+
+.hearts-code-text p {
+    margin: 12px 0 0;
+    font-family: "Karma", serif;
+    font-size: 9px;
+    line-height: 1.45;
+    color: var(--brown);
+}
+
+.hearts-code-text p + p {
+    margin-top: 13px;
+}
+
+@media (max-width: 700px) {
+    .hearts-code-section {
+        padding: 55px 24px 65px;
+    }
+
+    .hearts-code-content {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 25px;
+    }
+
+    .hearts-code-image {
+        width: 220px;
+        height: 190px;
+    }
+
+    .hearts-code-text {
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+    }
+
+    .hearts-code-text h2 {
+        font-size: 26px;
+    }
+
+    .hearts-code-text p {
+        font-size: 11px;
+    }
+}

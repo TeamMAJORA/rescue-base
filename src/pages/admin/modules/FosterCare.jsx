@@ -1,0 +1,1061 @@
+import {
+    useEffect, useState
+} from "react"
+
+const API = import.meta.env.VITE_BACKEND_URL;
+
+const emptyAssignmentForm = {
+    fosterApplicationId: "",
+    fosterName: "",
+    fosterEmail: "",
+    petName: "",
+    petBreed: "",
+    petImage: "",
+    careInstructions: "",
+};
+
+
+
+export default function FosterCare() {
+    const [assignments, setAssignments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState("");
+    const [editingId, setEditingId] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
+
+    const token = localStorage.getItem("token")
+
+    const [assignmentForm, setAssignmentForm] =
+        useState(emptyAssignmentForm);
+    const [applications, setApplications] = useState([]);
+
+    async function fetchAssignments() {
+        try {
+            setLoading(true);
+
+            const response = await fetch(`${API}/api/foster/assignments`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+
+            console.log("Foster assignments:", data);
+
+            console.table(
+                (data.assignments || []).map((assignment) => ({
+                    id: assignment._id,
+                    petName: assignment.petName,
+                    fosterEmail: assignment.fosterEmail,
+                    status: assignment.status,
+                }))
+            );
+
+            if (data.success) {
+                setAssignments(data.assignments || []);
+            }
+        } catch (error) {
+            console.error("Fetch foster assignments error:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchFosterApplications() {
+        try {
+            const response = await fetch(`${API}/api/foster/applications`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+
+            console.log("Foster applications:", data);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to fetch foster applications.");
+                return;
+            }
+
+            setApplications(data.applications || []);
+        } catch (error) {
+            console.error("Fetch foster applications error:", error);
+            setMessage("Server error while fetching foster applications.");
+        }
+    }
+
+    async function handleReviewFosterApplication(applicationId, status) {
+        try {
+            setMessage("");
+
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const application = applications.find(
+                (item) => item._id === applicationId
+            );
+
+            const response = await fetch(
+                `${API}/api/foster/applications/${applicationId}/status`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        status,
+                        adminName: savedUser.name || savedUser.username || "Admin User",
+                        adminEmail: savedUser.email || "admin",
+                        reviewNotes:
+                            status === "approved"
+                                ? "Approved for foster care."
+                                : "Rejected foster application.",
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            console.log("Review foster application:", data);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to review foster application.");
+                return;
+            }
+
+            setMessage(`Foster application ${status}.`);
+
+            await sendNotification({
+                email: application.applicantEmail,
+                title:
+                    status === "approved"
+                        ? "Application Approved"
+                        : "Application Rejected",
+
+                message:
+                    status === "approved"
+                        ? "Congratulations! Your foster application has been approved. You can now receive foster assignments."
+                        : "Unfortunately, your foster application was not approved. Please contact the shelter for more information.",
+
+                type: "application_update",
+            });
+
+            fetchFosterApplications();
+        } catch (error) {
+            console.error("Review foster application error:", error);
+            setMessage("Server error while reviewing foster application.");
+        }
+    }
+
+    async function handleCompleteAssignment(id) {
+        try {
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const response = await fetch(`${API}/api/foster/assignments/${id}/complete`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    adminName: savedUser.name || savedUser.username || "Admin User",
+                    adminEmail: savedUser.email || "admin",
+                }),
+            });
+
+            const data = await response.json();
+
+            console.log("Complete foster assignment:", data);
+            console.log("Returned status:", data.assignment?.status);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to complete assignment.");
+                return;
+            }
+
+            setMessage("Foster assignment completed.");
+
+            await sendNotification({
+                email: data.assignment.fosterEmail,
+                title: "Foster Assignment Completed",
+                message: `Your foster assignment for ${data.assignment.petName} has been marked as completed. Thank you for helping RescueBase.`,
+                type: "foster_update",
+            });
+
+            setAssignments((current) =>
+                current.map((assignment) =>
+                    assignment._id === id
+                        ? { ...assignment, ...data.assignment }
+                        : assignment
+                )
+            );
+
+            fetchAssignments();
+        } catch (error) {
+            console.error("Complete foster assignment error:", error);
+            setMessage("Server error while completing assignment.");
+        }
+    }
+
+    async function handleAcceptBehaviorEvaluation(id) {
+        try {
+            setMessage("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${id}/bevahior-evaluation/accept`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to accept behavioral evaluation");
+                return;
+            }
+
+            setMessage("Behavioral evaluation accepted and foster assignment completed.");
+
+            await sendNotification({
+                email: data.assignment.fosterEmail,
+                title: "Behavioral Evaluation Accepted",
+                message: `Your behavioral evaluation for ${data.assignment.petName} has been reviewed and accepted. Your foster assignment has been completed.`,
+                type: "foster_update",
+            });
+
+            await fetchAssignments();
+        } catch (error) {
+            console.error("Accept behavioral evaluation error:", error);
+            setMessage("Server error while accepting behavioral evaluation");
+        }
+    }
+
+    function handleApplicationSelect(e) {
+        const applicationId = e.target.value;
+
+        const application = applications.find(
+            (item) => item._id === applicationId
+        );
+
+        if (!application) return;
+
+        setAssignmentForm({
+            ...assignmentForm,
+
+            fosterApplicationId: application._id,
+            fosterName: application.applicantName,
+            fosterEmail: application.applicantEmail,
+        });
+    }
+
+    function handleEditAssignment(assignment) {
+        if (assignment.status !== "active") {
+            setMessage(
+                "Only active assignents can be edited."
+            );
+            return;
+        }
+
+        setEditingId(assignment._id);
+
+        setAssignmentForm({
+
+            fosterApplicationId:
+                assignment.fosterApplicationId || "",
+
+            fosterName:
+                assignment.fosterName,
+
+            fosterEmail:
+                assignment.fosterEmail,
+
+            petName:
+                assignment.petName,
+
+            petBreed:
+                assignment.petBreed,
+
+            petImage:
+                assignment.petImage,
+
+            careInstructions:
+                assignment.careInstructions,
+        });
+
+        setMessage(
+            "Editing assignment."
+        );
+    }
+
+    function handleCancelEdit() {
+        setEditingId(null);
+        setAssignmentForm(emptyAssignmentForm);
+        setMessage("");
+    }
+
+    async function handleDeleteAssignment(id) {
+        const confirmDelete = window.confirm(
+            "Delete this in-progress foster assignment?"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            setMessage("");
+
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const assignment = assignments.find(
+                (item) => item._id === id
+            )
+
+            const response = await fetch(`${API}/api/foster/assignments/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    adminName: savedUser.name || savedUser.username || "Admin User",
+                    adminEmail: savedUser.email || "admin",
+                }),
+            });
+
+            const data = await response.json();
+            console.log("Delete foster assignment:", data);
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Failed to delete assignment.");
+                return;
+            }
+
+            setMessage("Foster assignment deleted.");
+
+            if (editingId === id) {
+                handleCancelEdit();
+            }
+
+            await sendNotification({
+                email: assignment.fosterEmail,
+                title: "Assignment Cancelled",
+                message: `Your foster assignment for ${assignment.petName} has been cancelled by the shelter.`,
+                type: "foster_update",
+            })
+
+            fetchAssignments();
+        } catch (error) {
+            console.error("Delete foster assignment error:", error);
+            setMessage("Server error while deleting assignment.");
+        }
+    }
+
+    async function handleCreateAssignment(e) {
+        e.preventDefault();
+
+        try {
+            setSubmitting(true);
+            setMessage("");
+
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const response = await fetch(
+                `${API}/api/foster/assignments`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        ...assignmentForm,
+
+                        adminName:
+                            savedUser.name ||
+                            savedUser.username,
+
+                        adminEmail:
+                            savedUser.email,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(
+                    data.message ||
+                    "Failed to create assignment."
+                );
+                return;
+            }
+
+            setMessage("Foster assignment created");
+
+            await sendNotification({
+                email: assignmentForm.fosterEmail,
+                title: "New Foster Assignment",
+                message: `You have been assigned to foster ${assignmentForm.petName}. Please log in to RescueBase to review your assignment.`,
+                type: "foster_update",
+            });
+
+            setAssignmentForm(emptyAssignmentForm);
+            fetchAssignments();
+            fetchFosterApplications();
+        } catch (error) {
+            console.error(error);
+
+            setMessage("Server error while creating assignments.");
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    async function handleUpdateAssignment(e) {
+        e.preventDefault();
+
+        try {
+            setSubmitting(true);
+
+            const savedUser = JSON.parse(
+                localStorage.getItem("rescuebase_user") || "{}"
+            );
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${editingId}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        ...assignmentForm,
+                        adminName:
+                            savedUser.name ||
+                            savedUser.username,
+                        adminEmail:
+                            savedUser.email,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message);
+                return;
+            }
+
+            setMessage("Assignment updated.");
+
+            setEditingId(null);
+
+            setAssignmentForm(emptyAssignmentForm);
+
+            fetchAssignments();
+        } catch (error) {
+            console.error(error);
+            setMessage("Server error.");
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    async function sendNotification({
+        email,
+        title,
+        message,
+        type = "general",
+    }) {
+        try {
+            const response = await fetch(
+                `${API}/api/notifications`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        email,
+                        title,
+                        message,
+                        type,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                console.error(
+                    data.message ||
+                    "Failed to create notification."
+                );
+            }
+        } catch (error) {
+            console.error(
+                "Create notification error:",
+                error
+            );
+        }
+    }
+
+    useEffect(() => {
+        fetchAssignments();
+        fetchFosterApplications();
+    }, []);
+
+    return (
+        <section className="admin-foster-page">
+            <section className="admin-panel admin-foster-application-panel">
+                <div className="admin-panel-heading">
+                    <div>
+                        <h2>Foster Applications</h2>
+                        <p>Register and approve foster caregivers before assigning animals.</p>
+                    </div>
+
+                    <button type="button" onClick={fetchFosterApplications}>
+                        Refresh Applications
+                    </button>
+                </div>
+
+                <section className="admin-panel admin-foster-assignment-panel">
+
+                    <div className="admin-panel-heading">
+                        <div>
+                            <h2>Create Foster Assignment</h2>
+                            <p>
+                                Assign an approved foster caregiver to a rescued animal.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form
+                        className="admin-foster-assignment-form"
+                        onSubmit={handleCreateAssignment}
+                    >
+
+                        <label>
+                            Approved Foster
+
+                            <select
+                                value={assignmentForm.fosterApplicationId}
+                                onChange={handleApplicationSelect}
+                                required
+                            >
+
+                                <option value="">
+                                    Select Approved Foster
+                                </option>
+
+                                {applications
+                                    .filter(
+                                        (application) =>
+                                            application.status === "approved"
+                                    )
+                                    .map((application) => (
+                                        <option
+                                            key={application._id}
+                                            value={application._id}
+                                        >
+                                            {application.applicantName}
+                                        </option>
+                                    ))}
+
+                            </select>
+                        </label>
+
+                        <label>
+                            Foster Email
+
+                            <input
+                                value={assignmentForm.fosterEmail}
+                                readOnly
+                            />
+                        </label>
+
+                        <label>
+                            Pet Name
+
+                            <input
+                                value={assignmentForm.petName}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petName: e.target.value,
+                                    })
+                                }
+                                required
+                            />
+                        </label>
+
+                        <label>
+                            Breed
+
+                            <input
+                                value={assignmentForm.petBreed}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petBreed: e.target.value,
+                                    })
+                                }
+                            />
+                        </label>
+
+                        <label>
+                            Pet Image URL
+
+                            <input
+                                value={assignmentForm.petImage}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petImage: e.target.value,
+                                    })
+                                }
+                            />
+                        </label>
+
+                        <label className="admin-foster-care-field">
+
+                            Care Instructions
+
+                            <textarea
+                                rows="4"
+                                value={assignmentForm.careInstructions}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        careInstructions: e.target.value,
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                        >
+                            {submitting
+                                ? "Assigning..."
+                                : "Assign Foster"}
+                        </button>
+
+                    </form>
+
+                </section>
+
+                <div className="admin-foster-application-list">
+                    {applications.length === 0 ? (
+                        <p className="admin-empty">No foster applications found.</p>
+                    ) : (
+                        applications.map((application) => (
+                            <article className="admin-foster-application-card" key={application._id}>
+                                <div>
+                                    <h3>{application.applicantName}</h3>
+                                    <p>{application.applicantEmail}</p>
+                                    <small>
+                                        Capacity: {application.capacity} • Preferred: {application.preferredAnimalType}
+                                    </small>
+                                </div>
+
+                                <strong className={`admin-foster-status ${application.status}`}>
+                                    {application.status}
+                                </strong>
+
+                                <div className="admin-foster-application-actions">
+                                    {application.status !== "approved" && (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleReviewFosterApplication(application._id, "approved")
+                                            }
+                                        >
+                                            Approve
+                                        </button>
+                                    )}
+
+                                    {application.status !== "rejected" && (
+                                        <button
+                                            type="button"
+                                            className="reject"
+                                            onClick={() =>
+                                                handleReviewFosterApplication(application._id, "rejected")
+                                            }
+                                        >
+                                            Reject
+                                        </button>
+                                    )}
+                                </div>
+                            </article>
+                        ))
+                    )}
+                </div>
+            </section>
+
+            {editingId && (
+
+                <section className="admin-panel">
+
+                    <div className="admin-panel-heading">
+
+                        <h2>Edit Foster Assignment</h2>
+
+                    </div>
+
+                    <form
+                        className="admin-foster-assignment-form"
+                        onSubmit={handleUpdateAssignment}
+                    >
+
+                        <label>
+
+                            Pet Name
+
+                            <input
+                                value={assignmentForm.petName}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petName: e.target.value
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <label>
+
+                            Breed
+
+                            <input
+                                value={assignmentForm.petBreed}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petBreed: e.target.value
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <label>
+
+                            Pet Image
+
+                            <input
+                                value={assignmentForm.petImage}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        petImage: e.target.value
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <label className="admin-foster-care-field">
+
+                            Care Instructions
+
+                            <textarea
+                                rows="4"
+                                value={assignmentForm.careInstructions}
+                                onChange={(e) =>
+                                    setAssignmentForm({
+                                        ...assignmentForm,
+                                        careInstructions: e.target.value
+                                    })
+                                }
+                            />
+
+                        </label>
+
+                        <div className="admin-foster-actions">
+
+                            <button type="submit">
+                                Save Changes
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleCancelEdit}
+                            >
+                                Cancel
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+            )}
+
+            <section className="admin-panel admin-foster-list-panel">
+                <div className="admin-panel-heading">
+                    <div>
+                        <h2>Current Foster Assignments</h2>
+                        <p>
+                            Manage all active and completed foster assignments.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={fetchAssignments}
+                    >
+                        Refresh
+                    </button>
+                </div>
+
+                {loading ? (
+                    <p className="admin-empty">
+                        Loading assignments...
+                    </p>
+                ) : assignments.length === 0 ? (
+                    <p className="admin-empty">
+                        No foster assignments found.
+                    </p>
+                ) : (
+
+                    <div className="admin-foster-list">
+                        {assignments.map((assignment) => (
+                            <article
+                                className="admin-foster-row"
+                                key={assignment._id}
+                            >
+
+                                <div className="admin-foster-pet">
+                                    <img
+                                        src={
+                                            assignment.petImage ||
+                                            "https://placehold.co/120x120?text=Pet"
+                                        }
+                                        alt={assignment.petName}
+                                    />
+                                </div>
+
+                                <div className="admin-foster-details">
+
+                                    <h3>{assignment.petName}</h3>
+
+                                    <p>
+                                        <strong>Breed:</strong>{" "}
+                                        {assignment.petBreed || "Unknown"}
+                                    </p>
+
+                                    <p>
+                                        <strong>Foster:</strong>{" "}
+                                        {assignment.fosterName}
+                                    </p>
+
+                                    <p>
+                                        <strong>Email:</strong>{" "}
+                                        {assignment.fosterEmail}
+                                    </p>
+
+                                    <p>
+                                        <strong>Started:</strong>{" "}
+                                        {new Date(
+                                            assignment.startDate
+                                        ).toLocaleDateString()}
+                                    </p>
+
+                                    <p>
+                                        <strong>Updates:</strong>{" "}
+                                        {assignment.updates?.length || 0}
+                                    </p>
+
+                                    <small>
+                                        {assignment.careInstructions}
+                                    </small>
+
+                                </div>
+
+                                {assignment.behaviorEvaluation?.status === "pending" && (
+                                    <div className="admin-foster-behavior-review">
+
+                                        <div className="admin-foster-behavior-heading">
+                                            <strong>Behavioral Evaluation</strong>
+                                            <span>Pending Review</span>
+                                        </div>
+
+                                        <div className="admin-foster-behavior-grid">
+
+                                            <div>
+                                                <strong>Energy Level</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.energyLevel}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Friendliness</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.friendliness}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Human Sociability</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.humanSociability}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Animal Sociability</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.animalSociability}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Trainability</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.trainability}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Anxiety Level</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.anxietyLevel}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Aggression Level</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.aggressionLevel}/5
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <strong>Activity Level</strong>
+                                                <span>
+                                                    {assignment.behaviorEvaluation.activityLevel}/5
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                        {assignment.behaviorEvaluation.notes && (
+                                            <div className="admin-foster-behavior-notes">
+                                                <strong>Foster Notes</strong>
+
+                                                <p>
+                                                    {assignment.behaviorEvaluation.notes}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        <div className="admin-foster-behavior-meta">
+
+                                            <span>
+                                                Submitted by:{" "}
+                                                {assignment.behaviorEvaluation.submittedBy ||
+                                                    assignment.fosterName}
+                                            </span>
+
+                                            {assignment.behaviorEvaluation.submittedAt && (
+                                                <span>
+                                                    Submitted:{" "}
+                                                    {new Date(
+                                                        assignment.behaviorEvaluation.submittedAt
+                                                    ).toLocaleDateString()}
+                                                </span>
+                                            )}
+
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleAcceptBehaviorEvaluation(
+                                                    assignment._id
+                                                )
+                                            }
+                                        >
+                                            Accept Evaluation
+                                        </button>
+
+                                    </div>
+                                )}
+
+                                <div className="admin-foster-actions">
+
+                                    <span
+                                        className={`admin-foster-status ${assignment.status}`}
+                                    >
+                                        {assignment.status}
+                                    </span>
+
+                                    {assignment.status === "active" && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleEditAssignment(
+                                                        assignment
+                                                    )
+                                                }
+                                            >
+                                                Edit
+                                            </button>
+
+                                            {assignment.behaviorEvaluation?.status === "accepted" && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handleCompleteAssignment(
+                                                            assignment._id
+                                                        )
+                                                    }
+                                                >
+                                                    Complete
+                                                </button>
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                className="delete"
+                                                onClick={() =>
+                                                    handleDeleteAssignment(
+                                                        assignment._id
+                                                    )
+                                                }
+                                            >
+                                                Delete
+                                            </button>
+                                        </>
+                                    )}
+
+                                </div>
+
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </section>
+        </section>
+    );
+}
