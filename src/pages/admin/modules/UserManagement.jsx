@@ -57,7 +57,7 @@ export default function UserManagement() {
     }
 
     function handleEditUser(user) {
-        setEditForm(user);
+        setEditingUser(user);
 
         setEditForm({
             username : user.username || user.name || "",
