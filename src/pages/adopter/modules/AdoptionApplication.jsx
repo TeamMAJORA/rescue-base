@@ -52,6 +52,8 @@ export default function AdoptionApplication({
     const [messageType, setMessageType] =
         useState("");
 
+    const token = localStorage.getItem("token")
+
     function showMessage(type, text) {
         setMessageType(type);
         setMessage(text);
@@ -107,6 +109,9 @@ export default function AdoptionApplication({
                 `${API}/api/uploads/image`,
                 {
                     method: "POST",
+                    headers : {
+                        Authorization: `Bearer ${token}`
+                    },
                     body: uploadData,
                 }
             );
