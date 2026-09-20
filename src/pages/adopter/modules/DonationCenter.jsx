@@ -34,6 +34,7 @@ const emptyDonation = {
     preferredDate: "",
     description: "",
     image: "",
+    neededSupplyId: "",
 };
 
 export default function DonationCenter() {
@@ -41,6 +42,8 @@ export default function DonationCenter() {
     const [submitting, setSubmitting] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [message, setMessage] = useState("");
+    const [neededSupplies, setNeededSupplies] = useState([]);
+    const [loadingSupplies, setLoadingSupplies] = useState(true);
     const token = localStorage.getItem("token");
 
     const savedUser = JSON.parse(
@@ -118,14 +121,14 @@ export default function DonationCenter() {
                     savedUser.name ||
                     savedUser.username ||
                     "Anonymous",
-                donorEmail:
-                    savedUser.email || "",
+                donorEmail: savedUser.email || "",
                 donationType: donation.category,
                 itemName: donation.itemName,
-                quantity: Number(
-                    donation.quantity || 1
-                ),
+                quantity: Number(donation.quantity || 1),
                 notes: donation.description,
+                neededSupplyId:
+                    donation.neededSupplyId || null,
+
                 status: "pending",
             };
 
@@ -173,6 +176,61 @@ export default function DonationCenter() {
         }
     }
 
+    async function fetchNeededSupplies() {
+        try {
+            setLoadingSupplies(true);
+
+            const response = await fetch(
+                `${API}/api/supplies`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                console.error(
+                    data.message || "Failed to fetch needed supplies."
+                );
+                return;
+            }
+
+            setNeededSupplies(
+                (data.supplies || []).filter(
+                    (supply) =>
+                        supply.status !== "fulfilled" &&
+                        supply.status !== "cancelled"
+                )
+            );
+        } catch (error) {
+            console.error("Fetch needed supplies error:", error);
+        } finally {
+            setLoadingSupplies(false);
+        }
+    }
+
+    function handleSelectNeededSupply(supply) {
+        setDonation((current) => ({
+            ...current,
+            neededSupplyId: supply._id,
+            itemName: supply.item,
+            description:
+                `Donation for ${supply.shelter}. ` +
+                `Remaining needed: ${supply.quantityNeeded -
+                supply.quantityReceived
+                }.`,
+        }));
+
+        setMessage(`Selected: ${supply.item}`);
+    }
+
+    useEffect(() => {
+        fetchNeededSupplies();
+    }, []);
+
     return (
         <section className="adopter-donation-page">
             <section className="adopter-donation-hero">
@@ -188,6 +246,81 @@ export default function DonationCenter() {
                     animals receive proper care while
                     waiting for their forever homes.
                 </p>
+            </section>
+
+            <section className="adopter-panel needed-supplies-panel">
+                <div className="adopter-panel-heading">
+                    <div>
+                        <h2>Needed Supplies</h2>
+
+                        <p>
+                            Help provide supplies currently needed
+                            by our shelter.
+                        </p>
+                    </div>
+                </div>
+
+                {loadingSupplies ? (
+                    <p>Loading needed supplies...</p>
+                ) : neededSupplies.length === 0 ? (
+                    <p>No urgent supplies are currently listed.</p>
+                ) : (
+                    <div className="needed-supplies-grid">
+                        {neededSupplies.map((supply) => {
+                            const remaining =
+                                Math.max(
+                                    0,
+                                    supply.quantityNeeded -
+                                    supply.quantityReceived
+                                );
+
+                            return (
+                                <article
+                                    className="needed-supply-card"
+                                    key={supply._id}
+                                >
+                                    <h3>{supply.item}</h3>
+
+                                    <p>
+                                        <strong>Shelter:</strong>{" "}
+                                        {supply.shelter}
+                                    </p>
+
+                                    <p>
+                                        <strong>Needed:</strong>{" "}
+                                        {supply.quantityNeeded}
+                                    </p>
+
+                                    <p>
+                                        <strong>Received:</strong>{" "}
+                                        {supply.quantityReceived}
+                                    </p>
+
+                                    <p>
+                                        <strong>Remaining:</strong>{" "}
+                                        {remaining}
+                                    </p>
+
+                                    {supply.notes && (
+                                        <p>{supply.notes}</p>
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleSelectNeededSupply(
+                                                supply
+                                            )
+                                        }
+                                        disabled={remaining <= 0}
+                                    >
+                                        Donate This Item
+                                    </button>
+                                </article>
+                            );
+                        })}
+                    </div>
+                )}
             </section>
 
             <section className="adopter-panel donation-form-panel">
