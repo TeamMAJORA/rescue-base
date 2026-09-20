@@ -22,7 +22,7 @@ export default function FosterCare() {
     const [message, setMessage] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
-
+    const [medicalRequests, setMedicalRequests] = useState([]);
     const token = localStorage.getItem("token")
 
     const [assignmentForm, setAssignmentForm] =
@@ -514,9 +514,77 @@ export default function FosterCare() {
         }
     }
 
+    async function handleUpdateMedicalRequest(
+        assignmentId,
+        requestId,
+        status
+    ) {
+        try {
+            const response = await fetch(
+                `${API}/api/foster/medical-requests/${assignmentId}/${requestId}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ status }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(
+                    data.message || "Failed to update medical request."
+                );
+                return;
+            }
+
+            setMessage("Medical request updated successfully.");
+            fetchMedicalRequests();
+        } catch (error) {
+            console.error("Update medical request error:", error);
+            setMessage("Something went wrong while updating the request.");
+        }
+    }
+
+    async function fetchMedicalRequests() {
+        try {
+            const response = await fetch(
+                `${API}/api/foster/medical-requests`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            console.log("Medical requests:", data);
+
+            if (!response.ok || !data.success) {
+                setMessage(
+                    data.message ||
+                    "Failed to fetch medical requests."
+                );
+                return;
+            }
+
+            setMedicalRequests(data.requests || []);
+        } catch (error) {
+            console.error(
+                "Fetch medical requests error:",
+                error
+            );
+        }
+    }
+
     useEffect(() => {
         fetchAssignments();
         fetchFosterApplications();
+        fetchMedicalRequests();
     }, []);
 
     return (
@@ -809,6 +877,110 @@ export default function FosterCare() {
                 </section>
 
             )}
+
+            <section className="admin-panel admin-medical-requests-panel">
+                <div className="admin-panel-heading">
+                    <div>
+                        <h2>Medical Assistance Requests</h2>
+                        <p>
+                            Review medical concerns submitted by foster caregivers.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={fetchMedicalRequests}
+                    >
+                        Refresh Requests
+                    </button>
+                </div>
+
+                {medicalRequests.length === 0 ? (
+                    <p className="admin-empty">
+                        No medical assistance requests found.
+                    </p>
+                ) : (
+                    <div className="admin-medical-request-list">
+                        {medicalRequests.map((request) => (
+                            <article
+                                className="admin-medical-request-card"
+                                key={`${request.assignmentId}-${request._id}`}
+                            >
+                                <h3>{request.petName}</h3>
+
+                                <p>
+                                    <strong>Foster:</strong>{" "}
+                                    {request.fosterName}
+                                </p>
+
+                                <p>
+                                    <strong>Email:</strong>{" "}
+                                    {request.fosterEmail}
+                                </p>
+
+                                <p>
+                                    <strong>Issue:</strong>{" "}
+                                    {request.issue}
+                                </p>
+
+                                <p>
+                                    <strong>Urgency:</strong>{" "}
+                                    {request.urgency}
+                                </p>
+
+                                <p>
+                                    <strong>Status:</strong>{" "}
+                                    {request.status}
+                                </p>
+
+                                <small>
+                                    Submitted:{" "}
+                                    {request.createdAt
+                                        ? new Date(
+                                            request.createdAt
+                                        ).toLocaleString()
+                                        : "Unknown"}
+                                </small>
+
+                                <div className="medical-request-actions">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleUpdateMedicalRequest(
+                                                request.assignmentId,
+                                                request._id,
+                                                "in_progress"
+                                            )
+                                        }
+                                        disabled={
+                                            request.status === "in_progress" ||
+                                            request.status === "resolved"
+                                        }
+                                    >
+                                        In Progress
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleUpdateMedicalRequest(
+                                                request.assignmentId,
+                                                request._id,
+                                                "resolved"
+                                            )
+                                        }
+                                        disabled={
+                                            request.status === "resolved"
+                                        }
+                                    >
+                                        Mark Resolved
+                                    </button>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </section>
 
             <section className="admin-panel admin-foster-list-panel">
                 <div className="admin-panel-heading">
