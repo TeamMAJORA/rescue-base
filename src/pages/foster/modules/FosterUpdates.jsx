@@ -63,16 +63,15 @@ export default function FosterUpdates({
 }) {
     const [note, setNote] = useState("");
     const [photoUrl, setPhotoUrl] = useState("");
-    const [evaluation, setEvaluation] = useState(
-        initialEvaluation
-    );
+    const [evaluation, setEvaluation] = useState(initialEvaluation);
     const [loading, setLoading] = useState(false);
-    const [evaluationLoading, setEvaluationLoading] =
-        useState(false);
+    const [evaluationLoading, setEvaluationLoading] = useState(false);
     const [message, setMessage] = useState("");
-    const [evaluationMessage, setEvaluationMessage] =
-        useState("");
-
+    const [evaluationMessage, setEvaluationMessage] = useState("");
+    const [medicalIssue, setMedicalIssue] = useState("");
+    const [medicalUrgency, setMedicalUrgency] = useState("Medium");
+    const [medicalLoading, setMedicalLoading] = useState(false);
+    const [medicalMessage, setMedicalMessage] = useState("");
     const token = localStorage.getItem("token");
 
     const savedUser = JSON.parse(
@@ -177,6 +176,68 @@ export default function FosterUpdates({
             setMessage("Server error");
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function handleMedicalRequest(e) {
+        e.preventDefault();
+
+        if (!assignment?._id) {
+            setMedicalMessage("No active foster assignment.");
+            return;
+        }
+
+        if (!medicalIssue.trim()) {
+            setMedicalMessage("Please describe the medical issue.");
+            return;
+        }
+
+        try {
+            setMedicalLoading(true);
+            setMedicalMessage("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${assignment._id}/medical-requests`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        issue: medicalIssue,
+                        urgency: medicalUrgency,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMedicalMessage(
+                    data.message ||
+                    "Unable to submit medical request."
+                );
+                return;
+            }
+
+            setMedicalIssue("");
+            setMedicalUrgency("Medium");
+
+            setMedicalMessage(
+                "Medical assistance request submitted."
+            );
+
+            await refreshAssignment?.();
+        } catch (error) {
+            console.error(
+                "Medical assistance error:",
+                error
+            );
+
+            setMedicalMessage("Server error.");
+        } finally {
+            setMedicalLoading(false);
         }
     }
 
@@ -343,6 +404,132 @@ export default function FosterUpdates({
                     </button>
 
                 </form>
+
+            </section>
+
+            <section className="foster-panel">
+
+                <div className="foster-section-heading">
+                    <div>
+                        <span>Medical Support</span>
+                        <h2>Request Medical Assistance</h2>
+                    </div>
+                </div>
+
+                <form
+                    className="foster-update-form"
+                    onSubmit={handleMedicalRequest}
+                >
+
+                    <label>
+                        Describe Medical Issue
+
+                        <textarea
+                            rows="5"
+                            value={medicalIssue}
+                            onChange={(e) =>
+                                setMedicalIssue(e.target.value)
+                            }
+                            placeholder="Describe the animal's symptoms, injury, or medical concern..."
+                            required
+                        />
+                    </label>
+
+                    <label>
+                        Urgency
+
+                        <select
+                            value={medicalUrgency}
+                            onChange={(e) =>
+                                setMedicalUrgency(e.target.value)
+                            }
+                        >
+                            <option value="Low">
+                                Low
+                            </option>
+
+                            <option value="Medium">
+                                Medium
+                            </option>
+
+                            <option value="High">
+                                High
+                            </option>
+
+                            <option value="Emergency">
+                                Emergency
+                            </option>
+                        </select>
+                    </label>
+
+                    {medicalMessage && (
+                        <div className="foster-alert success">
+                            {medicalMessage}
+                        </div>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="foster-submit-button"
+                        disabled={medicalLoading}
+                    >
+                        {medicalLoading
+                            ? "Submitting..."
+                            : "Request Medical Assistance"}
+                    </button>
+
+                </form>
+
+                <div className="foster-section-heading">
+                    <div>
+                        <span>Request History</span>
+                        <h2>Previous Medical Requests</h2>
+                    </div>
+                </div>
+
+                {assignment.medicalRequests?.length ? (
+                    <div className="foster-update-list">
+
+                        {[...assignment.medicalRequests]
+                            .reverse()
+                            .map((request) => (
+                                <article
+                                    key={request._id}
+                                    className="foster-update-card"
+                                >
+                                    <strong>
+                                        {new Date(
+                                            request.createdAt
+                                        ).toLocaleDateString()}
+                                    </strong>
+
+                                    <p>
+                                        {request.issue}
+                                    </p>
+
+                                    <p>
+                                        <strong>Urgency:</strong>{" "}
+                                        {request.urgency}
+                                    </p>
+
+                                    <p>
+                                        <strong>Status:</strong>{" "}
+                                        {request.status}
+                                    </p>
+
+                                    {request.resolutionNotes && (
+                                        <p>
+                                            <strong>Resolution:</strong>{" "}
+                                            {request.resolutionNotes}
+                                        </p>
+                                    )}
+                                </article>
+                            ))}
+
+                    </div>
+                ) : (
+                    <p>No medical requests submitted yet.</p>
+                )}
 
             </section>
 
