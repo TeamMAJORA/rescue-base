@@ -29,19 +29,18 @@ const roles = [
 ];
 
 export default function UserManagement() {
+    const token = localStorage.getItem("token");
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
-
-    const token = localStorage.getItem("token");
-
     const [showAddForm, setShowAddForm] = useState(false);
     const [addForm, setAddForm] = useState(initialAddForm);
     const [addingUser, setAddingUser] = useState(false);
-
     const [editingUser, setEditingUser] = useState(null);
     const [editForm, setEditForm] = useState(initialEditForm);
-
+    const [reviewingApplication, setReviewingApplication] = useState(null);
+    const [rejectionReason, setRejectionReason] = useState("");
+    const [reviewing, setReviewing] = useState(false);
     const totalUsers = users.length;
 
     const activeUsers = useMemo(() => {
@@ -54,6 +53,13 @@ export default function UserManagement() {
         return users.filter(
             (user) => user.role === "foster"
         ).length;
+    }, [users]);
+
+    const pendingApplications = useMemo(() => {
+        return users.filter(
+            (user) =>
+                user.roleApplication?.status === "pending"
+        );
     }, [users]);
 
     async function fetchUsers() {
@@ -261,6 +267,81 @@ export default function UserManagement() {
         }
     }
 
+    async function handleReviewApplication(decision) {
+        if (!reviewingApplication || reviewing) return;
+
+        if (
+            decision === "rejected" &&
+            !rejectionReason.trim()
+        ) {
+            setMessage("Please provide a rejection reason.");
+            return;
+        }
+
+        const applicantName =
+            reviewingApplication.username ||
+            reviewingApplication.name ||
+            "this user";
+
+        const confirmed = window.confirm(
+            `Are you sure you want to ${decision} ${applicantName}'s role application?`
+        );
+
+        if (!confirmed) return;
+
+        try {
+            setReviewing(true);
+            setMessage("");
+
+            const response = await fetch(
+                `${API}/api/users/${reviewingApplication._id}/role-application`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        decision,
+                        rejectionReason:
+                            decision === "rejected"
+                                ? rejectionReason.trim()
+                                : "",
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(
+                    data.message ||
+                    "Failed to review role application."
+                );
+                return;
+            }
+
+            setMessage(
+                decision === "approved"
+                    ? "Role application approved successfully."
+                    : "Role application rejected successfully."
+            );
+
+            setReviewingApplication(null);
+            setRejectionReason("");
+
+            await fetchUsers();
+        } catch (error) {
+            console.error("Review role application error:", error);
+
+            setMessage(
+                "Server error while reviewing role application."
+            );
+        } finally {
+            setReviewing(false);
+        }
+    }
+
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -283,6 +364,156 @@ export default function UserManagement() {
                     <strong>{fosterUsers}</strong>
                 </article>
             </div>
+
+            <section className="admin-panel admin-role-application-panel">
+                <div className="admin-panel-heading">
+                    <div>
+                        <h2>Role Applications</h2>
+                        <p>
+                            Review adopter applications for volunteer
+                            and staff roles.
+                        </p>
+                    </div>
+
+                    <span className="admin-user-badges">
+                        {pendingApplications.length} Pending
+                    </span>
+                </div>
+
+                {pendingApplications.length === 0 ? (
+                    <p className="admin-empty">
+                        No pending role applications.
+                    </p>
+                ) : (
+                    <div className="admin-user-list">
+                        {pendingApplications.map((user) => (
+                            <article
+                                className="admin-user-row"
+                                key={user._id}
+                            >
+                                <div>
+                                    <h3>
+                                        {user.username ||
+                                            user.name ||
+                                            "Unnamed User"}
+                                    </h3>
+
+                                    <p>{user.email}</p>
+
+                                    <small>
+                                        Requested Role: {" "}
+                                        <strong>
+                                            {user.roleApplication?.targetRole}
+                                        </strong>
+                                    </small>
+
+                                    <p>
+                                        <strong>Reason:</strong>{" "}
+                                        {user.roleApplication?.reason ||
+                                            "No reason provided."}
+                                    </p>
+
+                                    <small>
+                                        Submitted: {" "}
+                                        {user.roleApplication?.submittedAt
+                                            ? new Date(
+                                                  user.roleApplication.submittedAt
+                                              ).toLocaleString()
+                                            : "Unknown"}
+                                    </small>
+                                </div>
+
+                                <div className="admin-user-row-actions">
+                                    <button
+                                        type="button"
+                                        className="admin-user-action-btn edit-btn"
+                                        onClick={() => {
+                                            setReviewingApplication(user);
+                                            setRejectionReason("");
+                                            setMessage("");
+                                        }}
+                                    >
+                                        Review
+                                    </button>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            {reviewingApplication && (
+                <section className="admin-panel admin-role-review-panel">
+                    <h2>Review Role Application</h2>
+
+                    <p>
+                        Applicant: {" "}
+                        <strong>
+                            {reviewingApplication.username ||
+                                reviewingApplication.name ||
+                                "Unnamed User"}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Requested Role: {" "}
+                        <strong>
+                            {reviewingApplication.roleApplication?.targetRole}
+                        </strong>
+                    </p>
+
+                    <p>
+                        <strong>Reason:</strong> {" "}
+                        {reviewingApplication.roleApplication?.reason ||
+                            "No reason provided."}
+                    </p>
+
+                    <label>
+                        Rejection Reason
+                        <textarea
+                            value={rejectionReason}
+                            onChange={(e) =>
+                                setRejectionReason(e.target.value)
+                            }
+                            placeholder="Required only when rejecting..."
+                            rows={4}
+                        />
+                    </label>
+
+                    <div className="admin-user-form-actions">
+                        <button
+                            type="button"
+                            disabled={reviewing}
+                            onClick={() =>
+                                handleReviewApplication("approved")
+                            }
+                        >
+                            {reviewing ? "Processing..." : "Approve"}
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled={reviewing}
+                            onClick={() =>
+                                handleReviewApplication("rejected")
+                            }
+                        >
+                            {reviewing ? "Processing..." : "Reject"}
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled={reviewing}
+                            onClick={() => {
+                                setReviewingApplication(null);
+                                setRejectionReason("");
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </section>
+            )}
 
             <section className="admin-panel admin-user-panel">
                 <div className="admin-panel-heading">
