@@ -46,6 +46,7 @@ import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
 import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 import RescueAssignments from "./modules/Rescue";
+import ActivityLog from "./modules/ActivityLog";
 
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
@@ -91,6 +92,7 @@ const adminMenu = [
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
     { key: "reports", label: "Reports" },
+    { key: "activity-log", label: "Activity Log"}
 ]
 
 function AdminStatCard({ label, value, icon }) {
@@ -316,6 +318,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "rescue") {
             return <RescueAssignments />;
+        }
+
+        if (activeAdminPage === "activity-log") {
+            return <ActivityLog />;
         }
 
     }
