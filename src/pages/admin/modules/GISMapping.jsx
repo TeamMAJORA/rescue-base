@@ -2,12 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-const API =
-    import.meta.env.VITE_BACKEND_URL;
-
+const API = import.meta.env.VITE_BACKEND_URL;
 const cebuCenter = [10.3157, 123.8854];
-
 const markerIcon = L.divIcon({
     className: "admin-gis-marker",
     html: "📍",
@@ -29,39 +25,25 @@ const emptyLocationForm = {
 
 export default function GISMapping() {
     const [locations, setLocations] = useState([]);
-
-    const [locationForm, setLocationForm] =
-        useState(emptyLocationForm);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [submitting, setSubmitting] =
-        useState(false);
-
-    const [error, setError] =
-        useState("");
-
-    const [success, setSuccess] =
-        useState("");
-
-    const [userRole, setUserRole] =
-        useState("");
-
-    const [hotspots, setHotspots] =
-        useState([]);
-
-    const [hotspotLoading, setHotspotLoading] =
-        useState(true);
-
-    const [hotspotError, setHotspotError] =
-        useState("");
-
-    const [mapMode, setMapMode] =
-        useState("pins");
-
+    const [locationForm, setLocationForm] = useState(emptyLocationForm);
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [userRole, setUserRole] = useState("");
+    const [hotspots, setHotspots] = useState([]);
+    const [hotspotLoading, setHotspotLoading] = useState(true);
+    const [hotspotError, setHotspotError] = useState("");
+    const [mapMode, setMapMode] = useState("pins");
+    const [shelters, setShelters] = useState([]);
+    const [userLocation, setUserLocation] = useState(null);
+    const [nearestShelters, setNearestShelters] = useState([]);
+    const [selectedShelter, setSelectedShelter] = useState(null);
+    const [shelterLoading, setShelterLoading] = useState(true);
+    const [shelterError, setShelterError] = useState("");
+    const [manualLatitude, setManualLatitude] = useState("");
+    const [manualLongitude, setManualLongitude] = useState("");
     const token = localStorage.getItem("token");
-
     const openCases = useMemo(() => {
         return locations.filter(
             (location) =>
@@ -80,21 +62,17 @@ export default function GISMapping() {
         try {
             setLoading(true);
             setError("");
-
             const isVolunteer =
                 role === "volunteer";
-
             const endpoint = isVolunteer
                 ? `${API}/api/gis/public`
                 : `${API}/api/gis`;
-
             const headers = isVolunteer
                 ? {}
                 : {
                     Authorization:
                         `Bearer ${localStorage.getItem("token")}`,
                 };
-
             const response = await fetch(
                 endpoint,
                 {
@@ -102,9 +80,7 @@ export default function GISMapping() {
                     headers,
                 }
             );
-
-            const data =
-                await response.json();
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(
@@ -127,7 +103,6 @@ export default function GISMapping() {
                 error.message ||
                 "Failed to load GIS locations."
             );
-
         } finally {
             setLoading(false);
         }
@@ -136,7 +111,6 @@ export default function GISMapping() {
     async function loadHotspots() {
         const token =
             localStorage.getItem("token");
-
         if (!token) {
             setHotspotError(
                 "Auth token is missing."
@@ -148,7 +122,6 @@ export default function GISMapping() {
         try {
             setHotspotLoading(true);
             setHotspotError("");
-
             const response = await fetch(
                 `${API}/api/gis/hotspots`,
                 {
@@ -160,8 +133,7 @@ export default function GISMapping() {
                 }
             );
 
-            const data =
-                await response.json();
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(
@@ -169,54 +141,78 @@ export default function GISMapping() {
                     "Failed to load analysis"
                 );
             }
-
             setHotspots(
                 data.hotspots || []
             );
-
         } catch (error) {
             console.error(
                 "Hotspots analysis error:",
                 error
             );
-
             setHotspotError(
                 error.message ||
                 "Failed to load hotspot analysis."
             );
-
         } finally {
             setHotspotLoading(false);
+        }
+    }
+
+    async function loadShelters() {
+        try {
+            setShelterLoading(true);
+            setShelterError("");
+            const response = await fetch(
+                `${API}/api/gis/shelters`
+            );
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to load shelters."
+                );
+            }
+            setShelters(
+                Array.isArray(data.shelters)
+                    ? data.shelters
+                    : []
+            );
+
+        } catch (error) {
+            console.error(
+                "Load shelters error:",
+                error
+            );
+            setShelterError(
+                error.message ||
+                "Failed to load shelters."
+            );
+        } finally {
+            setShelterLoading(false);
         }
     }
 
     useEffect(() => {
         const storedUser =
             localStorage.getItem("rescuebase_user");
-
         if (!storedUser) {
             setUserRole("");
             return;
         }
 
         try {
-            const user =
-                JSON.parse(storedUser);
-
+            const user = JSON.parse(storedUser);
             const role = String(
                 user.role || ""
             )
                 .trim()
                 .toLowerCase();
-
             setUserRole(role);
-
         } catch (error) {
             console.error(
                 "Failed to read user information:",
                 error
             );
-
             setUserRole("");
         }
     }, []);
@@ -225,10 +221,8 @@ export default function GISMapping() {
         if (!userRole) {
             return;
         }
-
         const loadGISData = async () => {
             await loadLocations(userRole);
-
             if (
                 userRole === "admin" ||
                 userRole === "staff"
@@ -236,9 +230,12 @@ export default function GISMapping() {
                 await loadHotspots();
             }
         };
-
         loadGISData();
     }, [userRole]);
+
+    useEffect(() => {
+        loadShelters();
+    }, []);
 
     function handleFormChange(
         field,
@@ -252,28 +249,22 @@ export default function GISMapping() {
 
     async function handleAddLocation(e) {
         e.preventDefault();
-
         setError("");
         setSuccess("");
-
         const token =
             localStorage.getItem("token");
-
         if (!token) {
             setError(
                 "Authentication token is missing."
             );
             return;
         }
-
         const latitude = Number(
             locationForm.latitude
         );
-
         const longitude = Number(
             locationForm.longitude
         );
-
         if (
             Number.isNaN(latitude) ||
             Number.isNaN(longitude)
@@ -283,12 +274,9 @@ export default function GISMapping() {
             );
             return;
         }
-
         try {
             setSubmitting(true);
-
             const endpoint = userRole === "volunteer" ? `${API}/api/gis/stray-sightings` : `${API}/api/gis`;
-
             const body = userRole === "volunteer"
                 ? {
                     petName: locationForm.petName.trim() || "Unknown Stray",
@@ -308,7 +296,6 @@ export default function GISMapping() {
                     status: locationForm.status,
                     description: locationForm.description.trim(),
                 }
-
             const response = await fetch(
                 endpoint,
                 {
@@ -317,31 +304,24 @@ export default function GISMapping() {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-
                     body: JSON.stringify(body),
                 }
             );
-
             const data =
                 await response.json();
-
             if (!response.ok) {
                 throw new Error(
                     data.message ||
                     "Failed to create GIS location."
                 );
             }
-
             setLocationForm({
                 ...emptyLocationForm,
             });
-
             setSuccess(
                 "GIS location added successfully."
             );
-
             await loadLocations(userRole);
-
             if (
                 userRole === "admin" ||
                 userRole === "staff"
@@ -353,7 +333,6 @@ export default function GISMapping() {
                 "Add GIS location error:",
                 error
             );
-
             setError(
                 error.message ||
                 "Failed to add GIS location."
@@ -368,17 +347,14 @@ export default function GISMapping() {
     ) {
         setError("");
         setSuccess("");
-
         const token =
             localStorage.getItem("token");
-
         if (!token) {
             setError(
                 "Authentication token is missing."
             );
             return;
         }
-
         try {
             const response = await fetch(
                 `${API}/api/gis/${id}/resolve`,
@@ -390,23 +366,18 @@ export default function GISMapping() {
                     },
                 }
             );
-
             const data =
                 await response.json();
-
             if (!response.ok) {
                 throw new Error(
                     data.message ||
                     "Failed to resolve GIS location."
                 );
             }
-
             setSuccess(
                 "GIS location resolved successfully."
             );
-
             await loadLocations(userRole);
-
             if (
                 userRole === "admin" ||
                 userRole === "staff"
@@ -418,12 +389,124 @@ export default function GISMapping() {
                 "Resolve GIS location error:",
                 error
             );
-
             setError(
                 error.message ||
                 "Failed to resolve GIS location."
             );
         }
+    }
+    function haversineDistance(
+        lat1,
+        lon1,
+        lat2,
+        lon2
+    ) {
+        const R = 6371;
+        const toRadians = (value) =>
+            (value * Math.PI) / 180;
+        const dLat = toRadians(lat2 - lat1);
+        const dLon = toRadians(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRadians(lat1)) *
+            Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) ** 2;
+        const c =
+            2 *
+            Math.atan2(
+                Math.sqrt(a),
+                Math.sqrt(1 - a)
+            );
+        return R * c;
+    }
+    function findNearestShelters(
+        latitude,
+        longitude
+    ) {
+        const sorted = shelters
+            .map((shelter) => ({
+                ...shelter,
+                distance: haversineDistance(
+                    latitude,
+                    longitude,
+                    shelter.latitude,
+                    shelter.longitude
+                ),
+            }))
+            .sort(
+                (a, b) =>
+                    a.distance - b.distance
+            );
+        setUserLocation({
+            latitude,
+            longitude,
+        });
+        setNearestShelters(sorted);
+    };
+
+    function useMyLocation() {
+        setError("");
+        if (!navigator.geolocation) {
+            setError(
+                "Geolocation is not supported by this browser. Please enter your coordinates manually."
+            );
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                findNearestShelters(
+                    position.coords.latitude,
+                    position.coords.longitude
+                );
+            },
+            () => {
+                setError(
+                    "Unable to get your location. Please enter your coordinates manually."
+                );
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000,
+            }
+        );
+    }
+
+    function handleManualLocationSubmit(event) {
+        event.preventDefault();
+        const latitude = Number(manualLatitude);
+        const longitude = Number(manualLongitude);
+
+        if (
+            !Number.isFinite(latitude) ||
+            latitude < -90 ||
+            latitude > 90
+        ) {
+            setError(
+                "Enter a valid latitude between -90 and 90."
+            );
+            return;
+        }
+
+        if (
+            !Number.isFinite(longitude) ||
+            longitude < -180 ||
+            longitude > 180
+        ) {
+            setError(
+                "Enter a valid longitude between -180 and 180."
+            );
+            return;
+        }
+
+        if (shelters.length === 0) {
+            setError("No active shelters are available.");
+            return;
+        }
+
+        setError("");
+        setSelectedShelter(null);
+        findNearestShelters(latitude, longitude);
     }
 
     return (
@@ -439,39 +522,32 @@ export default function GISMapping() {
                     {success}
                 </div>
             )}
-
             <section className="admin-gis-stats">
                 <article className="admin-panel admin-gis-stat-card">
                     <span>
                         Total Map Reports
                     </span>
-
                     <strong>
                         {locations.length}
                     </strong>
                 </article>
-
                 <article className="admin-panel admin-gis-stat-card">
                     <span>
                         Open Cases
                     </span>
-
                     <strong>
                         {openCases}
                     </strong>
                 </article>
-
                 <article className="admin-panel admin-gis-stat-card">
                     <span>
                         Lost Pet Cases
                     </span>
-
                     <strong>
                         {lostCases}
                     </strong>
                 </article>
             </section>
-
             <section className="admin-gis-grid">
                 <section className="admin-panel admin-gis-form-panel">
                     <div className="admin-panel-heading">
@@ -481,7 +557,6 @@ export default function GISMapping() {
                                 : "Add Map Location"}
                         </h2>
                     </div>
-
                     <form
                         className="admin-gis-form"
                         onSubmit={
@@ -490,7 +565,6 @@ export default function GISMapping() {
                     >
                         <label>
                             Pet Name
-
                             <input
                                 type="text"
                                 value={
@@ -506,11 +580,9 @@ export default function GISMapping() {
                                 required
                             />
                         </label>
-
                         {userRole !== "volunteer" ? (
                             <label>
                                 Report Type
-
                                 <select
                                     value={
                                         locationForm.reportType
@@ -525,19 +597,15 @@ export default function GISMapping() {
                                     <option value="lost">
                                         Lost Pet
                                     </option>
-
                                     <option value="found">
                                         Found Pet
                                     </option>
-
                                     <option value="stray">
                                         Stray Animal
                                     </option>
-
                                     <option value="rescue">
                                         Rescue Location
                                     </option>
-
                                     <option value="intake">
                                         Shelter Intake
                                     </option>
@@ -548,7 +616,6 @@ export default function GISMapping() {
                                 <strong>
                                     Report Type
                                 </strong>
-
                                 <p>
                                     Stray Animal
                                 </p>
@@ -557,7 +624,6 @@ export default function GISMapping() {
 
                         <label>
                             Species
-
                             <select
                                 value={
                                     locationForm.species
@@ -572,24 +638,19 @@ export default function GISMapping() {
                                 <option value="dog">
                                     Dog
                                 </option>
-
                                 <option value="cat">
                                     Cat
                                 </option>
-
                                 <option value="other">
                                     Other
                                 </option>
-
                                 <option value="unknown">
                                     Unknown
                                 </option>
                             </select>
                         </label>
-
                         <label>
                             Location Name
-
                             <input
                                 type="text"
                                 value={
@@ -605,10 +666,8 @@ export default function GISMapping() {
                                 required
                             />
                         </label>
-
                         <label>
                             Latitude
-
                             <input
                                 type="number"
                                 step="any"
@@ -625,10 +684,8 @@ export default function GISMapping() {
                                 required
                             />
                         </label>
-
                         <label>
                             Longitude
-
                             <input
                                 type="number"
                                 step="any"
@@ -645,10 +702,8 @@ export default function GISMapping() {
                                 required
                             />
                         </label>
-
                         <label>
                             Status
-
                             <select
                                 value={
                                     locationForm.status
@@ -663,16 +718,13 @@ export default function GISMapping() {
                                 <option value="open">
                                     Open
                                 </option>
-
                                 <option value="resolved">
                                     Resolved
                                 </option>
                             </select>
                         </label>
-
                         <label className="admin-gis-description-field">
                             Description
-
                             <textarea
                                 value={
                                     locationForm.description
@@ -687,7 +739,6 @@ export default function GISMapping() {
                                 required
                             />
                         </label>
-
                         <button
                             type="submit"
                             disabled={submitting}
@@ -700,13 +751,11 @@ export default function GISMapping() {
                         </button>
                     </form>
                 </section>
-
                 <section className="admin-panel admin-gis-map-panel">
                     <div className="admin-panel-heading">
                         <h2>
                             GIS Map
                         </h2>
-
                         <div className="admin-gis-map-controls">
                             <button
                                 type="button"
@@ -721,7 +770,6 @@ export default function GISMapping() {
                             >
                                 Pins
                             </button>
-
                             <button
                                 type="button"
                                 className={
@@ -737,7 +785,6 @@ export default function GISMapping() {
                             </button>
                         </div>
                     </div>
-
                     <div className="admin-gis-map-wrap">
                         <MapContainer
                             center={cebuCenter}
@@ -749,7 +796,6 @@ export default function GISMapping() {
                                 attribution="&copy; OpenStreetMap contributors"
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
-
                             {mapMode === "pins" ? (
                                 locations.map(
                                     (location) => (
@@ -775,9 +821,7 @@ export default function GISMapping() {
                                                         location.petName
                                                     }
                                                 </strong>
-
                                                 <br />
-
                                                 {
                                                     location.reportType
                                                 }
@@ -785,22 +829,16 @@ export default function GISMapping() {
                                                 {
                                                     location.species
                                                 }
-
                                                 <br />
-
                                                 {
                                                     location.locationName
                                                 }
-
                                                 <br />
-
                                                 Status:{" "}
                                                 {
                                                     location.status
                                                 }
-
                                                 <br />
-
                                                 {
                                                     location.description
                                                 }
@@ -830,30 +868,22 @@ export default function GISMapping() {
                                                 <strong>
                                                     Hotspot #{index + 1}
                                                 </strong>
-
                                                 <br />
-
                                                 Reports:{" "}
                                                 {
                                                     hotspot.count
                                                 }
-
                                                 <br />
-
                                                 Lost:{" "}
                                                 {
                                                     hotspot.lost
                                                 }
-
                                                 <br />
-
                                                 Found:{" "}
                                                 {
                                                     hotspot.found
                                                 }
-
                                                 <br />
-
                                                 Stray:{" "}
                                                 {
                                                     hotspot.stray
@@ -864,7 +894,6 @@ export default function GISMapping() {
                                 )
                             )}
                         </MapContainer>
-
                         {loading && (
                             <div className="admin-gis-map-loading">
                                 Loading GIS locations...
@@ -873,14 +902,12 @@ export default function GISMapping() {
                     </div>
                 </section>
             </section>
-
             <section className="admin-panel admin-gis-list-panel">
                 <div className="admin-panel-heading">
                     <h2>
                         Mapped Reports
                     </h2>
                 </div>
-
                 <div className="admin-gis-list">
                     {loading ? (
                         <div>
@@ -906,7 +933,6 @@ export default function GISMapping() {
                                                 location.petName
                                             }
                                         </h3>
-
                                         <p>
                                             {
                                                 location.reportType
@@ -920,7 +946,6 @@ export default function GISMapping() {
                                                 location.locationName
                                             }
                                         </p>
-
                                         <small>
                                             Lat:{" "}
                                             {
@@ -931,14 +956,12 @@ export default function GISMapping() {
                                                 location.longitude
                                             }
                                         </small>
-
                                         <span>
                                             {
                                                 location.description
                                             }
                                         </span>
                                     </div>
-
                                     <div className="admin-gis-actions">
                                         <span
                                             className={`admin-gis-type ${location.reportType}`}
@@ -947,7 +970,6 @@ export default function GISMapping() {
                                                 location.reportType
                                             }
                                         </span>
-
                                         <span
                                             className={`admin-status-pill ${location.status}`}
                                         >
@@ -976,13 +998,203 @@ export default function GISMapping() {
                     )}
                 </div>
             </section>
+            <section className="admin-panel admin-nearest-shelter-panel">
+                <div className="admin-panel-heading">
+                    <div>
+                        <h2>Find Nearest Shelter</h2>
+                        <p>
+                            Find active shelters using your current
+                            location or enter coordinates manually.
+                        </p>
+                    </div>
+                </div>
+
+                {shelterError && (
+                    <div className="admin-gis-error">
+                        {shelterError}
+                    </div>
+                )}
+
+                <div className="admin-nearest-shelter-controls">
+                    <button
+                        type="button"
+                        onClick={useMyLocation}
+                        disabled={shelterLoading}
+                    >
+                        Use My Location
+                    </button>
+
+                    <form
+                        className="admin-nearest-shelter-form"
+                        onSubmit={handleManualLocationSubmit}
+                    >
+                        <label>
+                            Latitude
+                            <input
+                                type="number"
+                                step="any"
+                                min="-90"
+                                max="90"
+                                value={manualLatitude}
+                                onChange={(event) =>
+                                    setManualLatitude(event.target.value)
+                                }
+                                placeholder="Example: 10.3157"
+                            />
+                        </label>
+
+                        <label>
+                            Longitude
+                            <input
+                                type="number"
+                                step="any"
+                                min="-180"
+                                max="180"
+                                value={manualLongitude}
+                                onChange={(event) =>
+                                    setManualLongitude(event.target.value)
+                                }
+                                placeholder="Example: 123.8854"
+                            />
+                        </label>
+
+                        <button
+                            type="submit"
+                            disabled={
+                                shelterLoading ||
+                                shelters.length === 0
+                            }
+                        >
+                            Find Nearest
+                        </button>
+                    </form>
+                </div>
+
+                {shelterLoading ? (
+                    <div className="admin-gis-list">
+                        Loading shelters...
+                    </div>
+                ) : selectedShelter ? (
+                    <div className="admin-nearest-shelter-details">
+                        <button
+                            type="button"
+                            onClick={() => setSelectedShelter(null)}
+                        >
+                            ← Back to Shelters
+                        </button>
+
+                        <div className="admin-gis-row">
+                            <div>
+                                <h3>{selectedShelter.name}</h3>
+                                <p>{selectedShelter.address}</p>
+
+                                {selectedShelter.description && (
+                                    <span>
+                                        {selectedShelter.description}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="admin-gis-actions">
+                                <strong>
+                                    {selectedShelter.distance != null
+                                        ? `${selectedShelter.distance.toFixed(2)} km away`
+                                        : "Distance unavailable"}
+                                </strong>
+
+                                {selectedShelter.contact && (
+                                    <small>
+                                        Contact: {selectedShelter.contact}
+                                    </small>
+                                )}
+
+                                {selectedShelter.email && (
+                                    <small>
+                                        Email: {selectedShelter.email}
+                                    </small>
+                                )}
+
+                                <small>
+                                    Lat: {selectedShelter.latitude}
+                                    {" • "}
+                                    Lng: {selectedShelter.longitude}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="admin-nearest-shelter-results">
+                        <div className="admin-panel-heading">
+                            <div>
+                                <h3>Nearby Shelters</h3>
+
+                                {userLocation && (
+                                    <p>
+                                        Search location: {" "}
+                                        {userLocation.latitude.toFixed(6)}
+                                        {", "}
+                                        {userLocation.longitude.toFixed(6)}
+                                    </p>
+                                )}
+                            </div>
+
+                            {nearestShelters.length > 0 && (
+                                <strong>
+                                    {nearestShelters.length} shelters
+                                </strong>
+                            )}
+                        </div>
+
+                        {!userLocation ? (
+                            <div className="admin-gis-list">
+                                Use your location or enter coordinates
+                                to find nearby shelters.
+                            </div>
+                        ) : nearestShelters.length === 0 ? (
+                            <div className="admin-gis-list">
+                                No active shelters are available.
+                            </div>
+                        ) : (
+                            <div className="admin-gis-list">
+                                {nearestShelters.map((shelter, index) => (
+                                    <button
+                                        type="button"
+                                        className="admin-gis-row admin-shelter-row"
+                                        key={
+                                            shelter._id ||
+                                            shelter.id ||
+                                            `${shelter.name}-${shelter.latitude}-${shelter.longitude}`
+                                        }
+                                        onClick={() =>
+                                            setSelectedShelter(shelter)
+                                        }
+                                    >
+                                        <div>
+                                            <h3>
+                                                {index + 1}. {shelter.name}
+                                            </h3>
+                                            <p>{shelter.address}</p>
+                                        </div>
+
+                                        <div className="admin-gis-actions">
+                                            <strong>
+                                                {shelter.distance.toFixed(2)} km
+                                            </strong>
+                                            <span>View Details</span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </section>
 
             <section className="admin-panel admin-gis-hotspot-panel">
                 <div className="admin-panel-heading">
                     <h2>
                         Hotspot Analysis
                     </h2>
-
                     <p>
                         Areas with the highest
                         concentration of open GIS reports.
@@ -1017,7 +1229,6 @@ export default function GISMapping() {
                                         <strong>
                                             Hotspot #{index + 1}
                                         </strong>
-
                                         <p>
                                             Latitude:{" "}
                                             {hotspot.latitude.toFixed(5)}
@@ -1026,28 +1237,23 @@ export default function GISMapping() {
                                             {hotspot.longitude.toFixed(5)}
                                         </p>
                                     </div>
-
                                     <div>
                                         <strong>
                                             {hotspot.count}
                                         </strong>
-
                                         <span>
                                             Reports
                                         </span>
                                     </div>
-
                                     <div>
                                         <small>
                                             Lost:{" "}
                                             {hotspot.lost}
                                         </small>
-
                                         <small>
                                             Found:{" "}
                                             {hotspot.found}
                                         </small>
-
                                         <small>
                                             Stray:{" "}
                                             {hotspot.stray}
