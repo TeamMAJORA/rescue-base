@@ -4,13 +4,29 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 const API = import.meta.env.VITE_BACKEND_URL;
 const cebuCenter = [10.3157, 123.8854];
-const asset = "../../../data/assets.json"
+import assets from "../../../data/assets.json"
 
 const markerIcon = L.divIcon({
     className: "admin-gis-marker",
     html: `<img
-        src = "${asset.icons.pawpin}"
-    />`,
+            src="${assets.icons.straymapbrown}"
+            width="40"
+            height="40"
+            alt="Shelter location"
+        />`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -30],
+});
+
+const shelterIcon = L.divIcon({
+    className: "admin-gis-marker",
+    html: `<img
+            src="${assets.icons.pawpin}"
+            width="40"
+            height="40"
+            alt="Shelter location"
+        />`,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -30],
