@@ -19,7 +19,12 @@ const cebuCenter = [
 
 const markerIcon = L.divIcon({
     className: "public-gis-marker",
-    html: "📍",
+    html: `<img
+            src="${assets.icons.straymap-brown}"
+            width="40"
+            height="40"
+            alt="Shelter location"
+        />`,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -30],

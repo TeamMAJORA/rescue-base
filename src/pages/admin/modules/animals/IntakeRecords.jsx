@@ -18,9 +18,13 @@ const initialForm = {
 const token = localStorage.getItem("token");
 
 function getHeaders(includeJson = false) {
-    const headers = {
-        Authorization: `Bearer ${token}`,
-    };
+    const token = localStorage.getItem("token");
+
+    const headers = {};
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
 
     if (includeJson) {
         headers["Content-Type"] = "application/json";
@@ -31,6 +35,19 @@ function getHeaders(includeJson = false) {
 
 async function parseResponse(response) {
     const data = await response.json().catch(() => ({}));
+
+    if (response.status === 401) {
+        throw new Error(
+            "Your session has expired. Please log in again."
+        );
+    }
+
+    if (response.status === 403) {
+        throw new Error(
+            data.message ||
+            "You do not have permission to perform this action."
+        );
+    }
 
     if (!response.ok) {
         throw new Error(

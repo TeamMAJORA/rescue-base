@@ -26,6 +26,7 @@ import DonationCenter from "./modules/DonationCenter";
 import DonationHistory from "./modules/DonationHistory";
 import LostFound from "../admin/modules/LostFound";
 import FeedbackForm from "../FeedbackForm";
+import RoleApplication from "./modules/RoleApplication";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -65,6 +66,10 @@ const adopterMenu = [
     {
         key: "donation-history",
         label: "Donation History",
+    },
+    {
+        key: "role-application",
+        label: "Role Application",
     },
     {
         key: "feedback",
@@ -1151,6 +1156,10 @@ export default function Dashboard({ onLogout }) {
 
         if (activeAdopterPage === "feedback") {
             return <FeedbackForm />
+        }
+
+        if (activeAdopterPage === "role-application") {
+            return <RoleApplication />
         }
 
         return renderOverview();

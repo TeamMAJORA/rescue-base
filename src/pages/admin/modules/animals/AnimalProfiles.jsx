@@ -228,7 +228,7 @@ export default function AnimalProfiles() {
             const response = await fetch(`${API}/api/animals/${id}`, {
                 method: "DELETE",
                 headers: {
-                    Authorization : `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 

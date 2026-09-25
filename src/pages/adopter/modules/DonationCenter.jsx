@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -11,6 +11,7 @@ const donationCategories = [
     "Pet Accessories",
     "Feeding Bowls",
     "Leashes & Collars",
+    "Money",
     "Other",
 ];
 
@@ -35,20 +36,74 @@ const emptyDonation = {
     description: "",
     image: "",
     neededSupplyId: "",
+    paymentMethod: "",
+    paymentReference: "",
+    proofOfPayment: "",
 };
 
 export default function DonationCenter() {
-    const [donation, setDonation] = useState(emptyDonation);
-    const [submitting, setSubmitting] = useState(false);
-    const [uploadingImage, setUploadingImage] = useState(false);
-    const [message, setMessage] = useState("");
-    const [neededSupplies, setNeededSupplies] = useState([]);
-    const [loadingSupplies, setLoadingSupplies] = useState(true);
+    const [donation, setDonation] =
+        useState(emptyDonation);
+
+    const [submitting, setSubmitting] =
+        useState(false);
+
+    const [uploadingImage, setUploadingImage] =
+        useState(false);
+
+    const [message, setMessage] =
+        useState("");
+
+    const [neededSupplies, setNeededSupplies] =
+        useState([]);
+
+    const [loadingSupplies, setLoadingSupplies] =
+        useState(true);
+
+    const [paymentMethods, setPaymentMethods] =
+        useState([]);
+
+    const [loadingPaymentMethods, setLoadingPaymentMethods] =
+        useState(true);
+
     const token = localStorage.getItem("token");
 
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
+
+    const isMoneyDonation =
+        donation.category === "Money";
+
+    function updateDonationField(field, value) {
+        setDonation((current) => ({
+            ...current,
+            [field]: value,
+        }));
+    }
+
+    function handleCategoryChange(category) {
+        setDonation((current) => ({
+            ...current,
+            category,
+            itemName: "",
+            quantity: "",
+            unit: "Pieces",
+            deliveryMethod:
+                category === "Money"
+                    ? "Online Payment"
+                    : "Drop-off",
+            preferredDate: "",
+            description: "",
+            image: "",
+            neededSupplyId: "",
+            paymentMethod: "",
+            paymentReference: "",
+            proofOfPayment: "",
+        }));
+
+        setMessage("");
+    }
 
     async function handleUploadImage(event) {
         const file = event.target.files?.[0];
@@ -72,7 +127,7 @@ export default function DonationCenter() {
                 {
                     method: "POST",
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
                     },
                     body: formData,
                 }
@@ -82,29 +137,36 @@ export default function DonationCenter() {
 
             if (!response.ok || !data.success) {
                 setMessage(
-                    data.message || "Failed to upload image."
+                    data.message ||
+                    "Failed to upload image."
                 );
-
                 return;
             }
 
             setDonation((current) => ({
                 ...current,
                 image: data.imageUrl,
+                proofOfPayment: isMoneyDonation
+                    ? data.imageUrl
+                    : current.proofOfPayment,
             }));
 
             setMessage(
-                "Donation image uploaded successfully."
+                isMoneyDonation
+                    ? "Proof of payment uploaded successfully."
+                    : "Donation image uploaded successfully."
             );
         } catch (error) {
-            console.error(error);
+            console.error(
+                "Upload image error:",
+                error
+            );
 
             setMessage(
                 "Server error while uploading image."
             );
         } finally {
             setUploadingImage(false);
-
             event.target.value = "";
         }
     }
@@ -112,22 +174,118 @@ export default function DonationCenter() {
     async function handleSubmit(event) {
         event.preventDefault();
 
+        if (!donation.itemName.trim()) {
+            setMessage(
+                isMoneyDonation
+                    ? "Please enter your donation purpose."
+                    : "Please enter an item name."
+            );
+            return;
+        }
+
+        if (
+            !donation.quantity ||
+            !Number.isFinite(Number(donation.quantity)) ||
+            Number(donation.quantity) < 1
+        ) {
+            setMessage(
+                isMoneyDonation
+                    ? "Donation amount must be at least ₱1."
+                    : "Quantity must be at least 1."
+            );
+            return;
+        }
+
+        if (
+            isMoneyDonation &&
+            !donation.paymentMethod
+        ) {
+            setMessage(
+                "Please select a payment method."
+            );
+            return;
+        }
+
+        if (!donation.preferredDate) {
+            setMessage(
+                isMoneyDonation
+                    ? "Please select a preferred payment date."
+                    : "Please select a preferred delivery date."
+            );
+            return;
+        }
+
         try {
             setSubmitting(true);
             setMessage("");
+
+            const notes = [
+                !isMoneyDonation
+                    ? `Unit: ${donation.unit}`
+                    : "Donation Type: Monetary Donation",
+
+                !isMoneyDonation
+                    ? `Delivery Method: ${donation.deliveryMethod}`
+                    : "Payment Method: " +
+                      (donation.paymentMethod || "Not specified"),
+
+                `Preferred Date: ${donation.preferredDate}`,
+
+                isMoneyDonation &&
+                donation.paymentReference.trim()
+                    ? `Payment Reference: ${donation.paymentReference.trim()}`
+                    : "",
+
+                donation.description.trim(),
+            ]
+                .filter(Boolean)
+                .join("\n");
 
             const payload = {
                 donorName:
                     savedUser.name ||
                     savedUser.username ||
                     "Anonymous",
-                donorEmail: savedUser.email || "",
-                donationType: donation.category,
-                itemName: donation.itemName,
-                quantity: Number(donation.quantity || 1),
-                notes: donation.description,
+
+                donorEmail:
+                    savedUser.email || "",
+
+                donationType:
+                    donation.category,
+
+                itemName:
+                    donation.itemName.trim(),
+
+                quantity:
+                    Number(donation.quantity),
+
+                notes,
+
                 neededSupplyId:
                     donation.neededSupplyId || null,
+
+                paymentMethod:
+                    isMoneyDonation
+                        ? donation.paymentMethod || ""
+                        : "",
+
+                paymentReference:
+                    isMoneyDonation
+                        ? donation.paymentReference.trim()
+                        : "",
+
+                proofOfPayment:
+                    isMoneyDonation
+                        ? donation.proofOfPayment || ""
+                        : "",
+
+                image:
+                    donation.image || "",
+
+                paymentStatus:
+                    isMoneyDonation
+                        ? "pending"
+                        : "not_required",
 
                 status: "pending",
             };
@@ -136,37 +294,46 @@ export default function DonationCenter() {
                 `${API}/api/donations`,
                 {
                     method: "POST",
-
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
                     },
-
                     body: JSON.stringify(payload),
                 }
             );
 
             const data = await response.json();
 
-            console.log("DONATION STATUS:", response.status);
-            console.log("DONATION RESPONSE:", data);
+            console.log(
+                "DONATION STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DONATION RESPONSE:",
+                data
+            );
 
             if (!response.ok || !data.success) {
                 setMessage(
                     data.message ||
                     "Failed to submit donation."
                 );
-
                 return;
             }
 
-            setDonation(emptyDonation);
+            setDonation({
+                ...emptyDonation,
+            });
 
             setMessage(
                 "Thank you! Your donation request has been submitted."
             );
         } catch (error) {
-            console.error(error);
+            console.error(
+                "Submit donation error:",
+                error
+            );
 
             setMessage(
                 "Server error while submitting donation."
@@ -193,42 +360,129 @@ export default function DonationCenter() {
 
             if (!response.ok || !data.success) {
                 console.error(
-                    data.message || "Failed to fetch needed supplies."
+                    data.message ||
+                    "Failed to fetch needed supplies."
                 );
                 return;
             }
 
-            setNeededSupplies(
+            const activeSupplies =
                 (data.supplies || []).filter(
                     (supply) =>
-                        supply.status !== "fulfilled" &&
-                        supply.status !== "cancelled"
-                )
-            );
+                        supply.status === "active" &&
+                        Number(
+                            supply.quantityNeeded || 0
+                        ) >
+                        Number(
+                            supply.quantityReceived || 0
+                        )
+                );
+
+            setNeededSupplies(activeSupplies);
         } catch (error) {
-            console.error("Fetch needed supplies error:", error);
+            console.error(
+                "Fetch needed supplies error:",
+                error
+            );
         } finally {
             setLoadingSupplies(false);
         }
     }
 
+    async function fetchPaymentMethods() {
+        try {
+            setLoadingPaymentMethods(true);
+
+            const response = await fetch(
+                `${API}/api/payment-methods`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            console.log(
+                "PAYMENT STATUS:",
+                response.status
+            );
+
+            console.log(
+                "PAYMENT RESPONSE:",
+                data
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to fetch payment methods."
+                );
+            }
+
+            const methods = Array.isArray(data)
+                ? data
+                : data.methods ||
+                  data.paymentMethods ||
+                  data.data ||
+                  [];
+
+            setPaymentMethods(methods);
+        } catch (error) {
+            console.error(
+                "Fetch payment methods error:",
+                error
+            );
+
+            setPaymentMethods([]);
+        } finally {
+            setLoadingPaymentMethods(false);
+        }
+    }
+
     function handleSelectNeededSupply(supply) {
+        const remaining = Math.max(
+            0,
+            Number(supply.quantityNeeded || 0) -
+            Number(supply.quantityReceived || 0)
+        );
+
         setDonation((current) => ({
             ...current,
-            neededSupplyId: supply._id,
-            itemName: supply.item,
+            neededSupplyId:
+                supply._id,
+
+            category:
+                supply.category || "Other",
+
+            itemName:
+                supply.name || "",
+
+            quantity:
+                "",
+
             description:
-                `Donation for ${supply.shelter}. ` +
-                `Remaining needed: ${supply.quantityNeeded -
-                supply.quantityReceived
-                }.`,
+                `Donation for ${supply.name}. ` +
+                `Remaining needed: ${remaining}.`,
         }));
 
-        setMessage(`Selected: ${supply.item}`);
+        setMessage(
+            `Selected: ${supply.name}`
+        );
+    }
+
+    function getRemaining(supply) {
+        return Math.max(
+            0,
+            Number(supply.quantityNeeded || 0) -
+            Number(supply.quantityReceived || 0)
+        );
     }
 
     useEffect(() => {
         fetchNeededSupplies();
+        fetchPaymentMethods();
     }, []);
 
     return (
@@ -242,7 +496,7 @@ export default function DonationCenter() {
                 </h2>
 
                 <p>
-                    Every donated item helps rescued
+                    Every donation helps rescued
                     animals receive proper care while
                     waiting for their forever homes.
                 </p>
@@ -254,55 +508,84 @@ export default function DonationCenter() {
                         <h2>Needed Supplies</h2>
 
                         <p>
-                            Help provide supplies currently needed
-                            by our shelter.
+                            Help provide supplies currently
+                            needed by our shelter.
                         </p>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={fetchNeededSupplies}
+                    >
+                        Refresh
+                    </button>
                 </div>
 
                 {loadingSupplies ? (
-                    <p>Loading needed supplies...</p>
+                    <p>
+                        Loading needed supplies...
+                    </p>
                 ) : neededSupplies.length === 0 ? (
-                    <p>No urgent supplies are currently listed.</p>
+                    <p>
+                        No active supplies are
+                        currently listed.
+                    </p>
                 ) : (
                     <div className="needed-supplies-grid">
                         {neededSupplies.map((supply) => {
                             const remaining =
-                                Math.max(
-                                    0,
-                                    supply.quantityNeeded -
-                                    supply.quantityReceived
-                                );
+                                getRemaining(supply);
 
                             return (
                                 <article
                                     className="needed-supply-card"
                                     key={supply._id}
                                 >
-                                    <h3>{supply.item}</h3>
+                                    <h3>
+                                        {supply.name}
+                                    </h3>
 
                                     <p>
-                                        <strong>Shelter:</strong>{" "}
-                                        {supply.shelter}
+                                        <strong>
+                                            Category:
+                                        </strong>{" "}
+                                        {supply.category}
                                     </p>
 
                                     <p>
-                                        <strong>Needed:</strong>{" "}
+                                        <strong>
+                                            Priority:
+                                        </strong>{" "}
+                                        {supply.priority}
+                                    </p>
+
+                                    <p>
+                                        <strong>
+                                            Needed:
+                                        </strong>{" "}
                                         {supply.quantityNeeded}
                                     </p>
 
                                     <p>
-                                        <strong>Received:</strong>{" "}
+                                        <strong>
+                                            Received:
+                                        </strong>{" "}
                                         {supply.quantityReceived}
                                     </p>
 
                                     <p>
-                                        <strong>Remaining:</strong>{" "}
+                                        <strong>
+                                            Remaining:
+                                        </strong>{" "}
                                         {remaining}
                                     </p>
 
-                                    {supply.notes && (
-                                        <p>{supply.notes}</p>
+                                    {supply.description && (
+                                        <p>
+                                            {
+                                                supply.description
+                                            }
+                                        </p>
                                     )}
 
                                     <button
@@ -312,7 +595,9 @@ export default function DonationCenter() {
                                                 supply
                                             )
                                         }
-                                        disabled={remaining <= 0}
+                                        disabled={
+                                            remaining <= 0
+                                        }
                                     >
                                         Donate This Item
                                     </button>
@@ -346,12 +631,9 @@ export default function DonationCenter() {
                         <select
                             value={donation.category}
                             onChange={(event) =>
-                                setDonation({
-                                    ...donation,
-                                    category:
-                                        event.target
-                                            .value,
-                                })
+                                handleCategoryChange(
+                                    event.target.value
+                                )
                             }
                         >
                             {donationCategories.map(
@@ -367,140 +649,274 @@ export default function DonationCenter() {
                         </select>
                     </label>
 
+                    {isMoneyDonation && (
+                        <>
+                            <label>
+                                Payment Method
+
+                                <select
+                                    value={
+                                        donation.paymentMethod
+                                    }
+                                    onChange={(event) =>
+                                        updateDonationField(
+                                            "paymentMethod",
+                                            event.target.value
+                                        )
+                                    }
+                                    required
+                                >
+                                    <option value="">
+                                        Select Payment Method
+                                    </option>
+
+                                    {paymentMethods.map(
+                                        (method) => (
+                                            <option
+                                                key={method._id}
+                                                value={
+                                                    method.method_type
+                                                }
+                                            >
+                                                {
+                                                    method.method_type
+                                                }
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </label>
+
+                            {donation.paymentMethod && (
+                                <div className="selected-payment-details">
+                                    {paymentMethods
+                                        .filter(
+                                            (method) =>
+                                                method.method_type ===
+                                                donation.paymentMethod
+                                        )
+                                        .map((method) => (
+                                            <article
+                                                key={method._id}
+                                            >
+                                                <h3>
+                                                    Payment Details
+                                                </h3>
+
+                                                <p>
+                                                    <strong>
+                                                        Account Name:
+                                                    </strong>{" "}
+                                                    {
+                                                        method.account_name
+                                                    }
+                                                </p>
+
+                                                <p>
+                                                    <strong>
+                                                        Account Number:
+                                                    </strong>{" "}
+                                                    {
+                                                        method.account_number
+                                                    }
+                                                </p>
+
+                                                {method.qr_image_url && (
+                                                    <img
+                                                        src={
+                                                            method.qr_image_url
+                                                        }
+                                                        alt={`${method.method_type} payment QR code`}
+                                                    />
+                                                )}
+
+                                                {method.instructions && (
+                                                    <p>
+                                                        {
+                                                            method.instructions
+                                                        }
+                                                    </p>
+                                                )}
+                                            </article>
+                                        ))}
+                                </div>
+                            )}
+
+                            <label>
+                                Payment Reference
+                                (Optional)
+
+                                <input
+                                    value={
+                                        donation.paymentReference
+                                    }
+                                    onChange={(event) =>
+                                        updateDonationField(
+                                            "paymentReference",
+                                            event.target.value
+                                        )
+                                    }
+                                    placeholder="Example: GCash reference number"
+                                />
+                            </label>
+                        </>
+                    )}
+
                     <label>
-                        Item Name
+                        {isMoneyDonation
+                            ? "Donation Purpose"
+                            : "Item Name"}
 
                         <input
-                            value={
-                                donation.itemName
-                            }
+                            value={donation.itemName}
                             onChange={(event) =>
-                                setDonation({
-                                    ...donation,
-                                    itemName:
-                                        event.target
-                                            .value,
-                                })
+                                updateDonationField(
+                                    "itemName",
+                                    event.target.value
+                                )
                             }
-                            placeholder="Example: Royal Canin Puppy Food"
+                            placeholder={
+                                isMoneyDonation
+                                    ? "Example: Medical Fund"
+                                    : "Example: Royal Canin Puppy Food"
+                            }
                             required
                         />
                     </label>
 
                     <div className="donation-row">
                         <label>
-                            Quantity
+                            {isMoneyDonation
+                                ? "Amount (₱)"
+                                : "Quantity"}
 
                             <input
                                 type="number"
                                 min="1"
-                                value={
-                                    donation.quantity
+                                step={
+                                    isMoneyDonation
+                                        ? "0.01"
+                                        : "1"
                                 }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setDonation({
-                                        ...donation,
-                                        quantity:
-                                            event
-                                                .target
-                                                .value,
-                                    })
+                                value={donation.quantity}
+                                onChange={(event) =>
+                                    updateDonationField(
+                                        "quantity",
+                                        event.target.value
+                                    )
+                                }
+                                placeholder={
+                                    isMoneyDonation
+                                        ? "Example: 500"
+                                        : "Example: 5"
                                 }
                                 required
                             />
                         </label>
 
+                        {!isMoneyDonation && (
+                            <label>
+                                Unit
+
+                                <select
+                                    value={donation.unit}
+                                    onChange={(event) =>
+                                        updateDonationField(
+                                            "unit",
+                                            event.target.value
+                                        )
+                                    }
+                                >
+                                    {donationUnits.map(
+                                        (unit) => (
+                                            <option
+                                                key={unit}
+                                                value={unit}
+                                            >
+                                                {unit}
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </label>
+                        )}
+                    </div>
+
+                    {!isMoneyDonation && (
                         <label>
-                            Unit
+                            Delivery Method
 
                             <select
                                 value={
-                                    donation.unit
+                                    donation.deliveryMethod
                                 }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setDonation({
-                                        ...donation,
-                                        unit: event
-                                            .target
-                                            .value,
-                                    })
+                                onChange={(event) =>
+                                    updateDonationField(
+                                        "deliveryMethod",
+                                        event.target.value
+                                    )
                                 }
                             >
-                                {donationUnits.map(
-                                    (unit) => (
-                                        <option
-                                            key={unit}
-                                        >
-                                            {unit}
-                                        </option>
-                                    )
-                                )}
+                                <option value="Drop-off">
+                                    Drop-off
+                                </option>
+
+                                <option value="Shelter Pickup">
+                                    Shelter Pickup
+                                </option>
                             </select>
                         </label>
-                    </div>
-                    <label>
-                        Delivery Method
-
-                        <select
-                            value={donation.deliveryMethod}
-                            onChange={(event) =>
-                                setDonation({
-                                    ...donation,
-                                    deliveryMethod:
-                                        event.target.value,
-                                })
-                            }
-                        >
-                            <option value="Drop-off">
-                                Drop-off
-                            </option>
-
-                            <option value="Shelter Pickup">
-                                Shelter Pickup
-                            </option>
-                        </select>
-                    </label>
+                    )}
 
                     <label>
-                        Preferred Delivery Date
+                        {isMoneyDonation
+                            ? "Preferred Payment Date"
+                            : "Preferred Delivery Date"}
 
                         <input
                             type="date"
+                            min={
+                                new Date()
+                                    .toISOString()
+                                    .split("T")[0]
+                            }
                             value={donation.preferredDate}
                             onChange={(event) =>
-                                setDonation({
-                                    ...donation,
-                                    preferredDate:
-                                        event.target.value,
-                                })
+                                updateDonationField(
+                                    "preferredDate",
+                                    event.target.value
+                                )
                             }
                             required
                         />
                     </label>
 
                     <label className="donation-full">
-                        Description
+                        {isMoneyDonation
+                            ? "Payment Notes"
+                            : "Description"}
 
                         <textarea
                             rows="5"
-                            placeholder="Tell us more about your donation..."
+                            placeholder={
+                                isMoneyDonation
+                                    ? "Tell us more about your donation..."
+                                    : "Tell us more about your donation..."
+                            }
                             value={donation.description}
                             onChange={(event) =>
-                                setDonation({
-                                    ...donation,
-                                    description:
-                                        event.target.value,
-                                })
+                                updateDonationField(
+                                    "description",
+                                    event.target.value
+                                )
                             }
                         />
                     </label>
 
                     <label>
-                        Upload Photo (Optional)
+                        {isMoneyDonation
+                            ? "Upload Proof of Payment (Optional)"
+                            : "Upload Donation Photo (Optional)"}
 
                         <input
                             type="file"
@@ -514,13 +930,19 @@ export default function DonationCenter() {
                         <div className="donation-image-preview">
                             <img
                                 src={donation.image}
-                                alt="Donation"
+                                alt={
+                                    isMoneyDonation
+                                        ? "Proof of payment"
+                                        : "Donation"
+                                }
                             />
 
                             <span>
                                 {uploadingImage
                                     ? "Uploading..."
-                                    : "Image Ready"}
+                                    : isMoneyDonation
+                                        ? "Proof of Payment Ready"
+                                        : "Image Ready"}
                             </span>
                         </div>
                     )}
@@ -545,10 +967,89 @@ export default function DonationCenter() {
                 </form>
             </section>
 
+            <section className="adopter-panel payment-methods-panel">
+                <div className="adopter-panel-heading">
+                    <div>
+                        <h2>
+                            Test Payment Methods
+                        </h2>
+
+                        <p>
+                            These payment details are
+                            for testing only. No actual
+                            payment is processed.
+                        </p>
+                    </div>
+                </div>
+
+                {loadingPaymentMethods ? (
+                    <p>
+                        Loading payment methods...
+                    </p>
+                ) : paymentMethods.length === 0 ? (
+                    <p>
+                        No payment methods are
+                        currently available.
+                    </p>
+                ) : (
+                    <div className="payment-methods-grid">
+                        {paymentMethods.map((method) => (
+                            <article
+                                className="payment-method-card"
+                                key={method._id}
+                            >
+                                <h3>
+                                    {method.method_type}
+                                </h3>
+
+                                {method.is_test && (
+                                    <strong>
+                                        TEST MODE
+                                    </strong>
+                                )}
+
+                                <p>
+                                    <strong>
+                                        Account Name:
+                                    </strong>{" "}
+                                    {method.account_name}
+                                </p>
+
+                                <p>
+                                    <strong>
+                                        Account Number:
+                                    </strong>{" "}
+                                    {method.account_number}
+                                </p>
+
+                                {method.qr_image_url && (
+                                    <img
+                                        src={
+                                            method.qr_image_url
+                                        }
+                                        alt={`${method.method_type} test QR code`}
+                                    />
+                                )}
+
+                                {method.instructions && (
+                                    <p>
+                                        {
+                                            method.instructions
+                                        }
+                                    </p>
+                                )}
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </section>
+
             <section className="adopter-panel donation-info-panel">
                 <div className="adopter-panel-heading">
                     <div>
-                        <h2>Accepted Donations</h2>
+                        <h2>
+                            Accepted Donations
+                        </h2>
 
                         <p>
                             We gladly accept the following
@@ -614,7 +1115,9 @@ export default function DonationCenter() {
                 </div>
 
                 <div className="donation-note">
-                    <h3>Thank you ❤️</h3>
+                    <h3>
+                        Thank you ❤️
+                    </h3>
 
                     <p>
                         Every donation helps RescueBase
