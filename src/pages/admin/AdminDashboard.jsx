@@ -20,7 +20,9 @@ import "../../styles/admin/Analytics.css";
 import "../../styles/admin/Reports.css";
 import "../../styles/foster/UserManagement.css";
 import "../../styles/admin/Donations.css";
-import "../../styles/admin/Behavior.css"
+import "../../styles/admin/Behavior.css";
+import "../../styles/admin/Vaccination.css";
+
 
 // Assets
 import assets from "../../data/assets.json";
