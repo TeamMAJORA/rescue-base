@@ -4,9 +4,13 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 const API = import.meta.env.VITE_BACKEND_URL;
 const cebuCenter = [10.3157, 123.8854];
+const asset = "../../../data/assets.json"
+
 const markerIcon = L.divIcon({
     className: "admin-gis-marker",
-    html: "📍",
+    html: `<img
+        src = "${asset.icons.pawpin}"
+    />`,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -30],
