@@ -1387,7 +1387,9 @@ export default function Dashboard({ onLogout }) {
                     <div className="adopter-notification-wrap">
                         <button
                             type="button"
-                            className="adopter-notification-btn"
+                            className={`adopter-notification-btn ${notificationOpen ? "open" : ""}`}
+                            aria-label="Notifications"
+                            title="Notifications"
                             onClick={() =>
                                 setNotificationOpen(
                                     (current) =>
@@ -1395,7 +1397,18 @@ export default function Dashboard({ onLogout }) {
                                 )
                             }
                         >
-                            Notifications
+                            <img
+                                className="adopter-notification-icon icon-default"
+                                src={ICON_PATH + "notification-brown.svg"}
+                                alt=""
+                                aria-hidden="true"
+                            />
+                            <img
+                                className="adopter-notification-icon icon-active"
+                                src={ICON_PATH + "notification-light.svg"}
+                                alt=""
+                                aria-hidden="true"
+                            />
 
                             {notifications.length >
                                 0 && (
