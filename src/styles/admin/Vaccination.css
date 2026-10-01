@@ -1,37 +1,52 @@
-.admin-behavior-page {
+.admin-vaccination-page {
     display: grid;
     gap: 22px;
 }
 
-.admin-behavior-form-panel,
-.admin-behavior-list-panel {
+
+/* =========================
+   PANELS
+========================= */
+
+.admin-vaccination-form-panel,
+.admin-vaccination-list-panel {
     display: grid;
     gap: 20px;
     padding: 26px 20px;
 }
 
-.admin-behavior-form-panel .admin-panel-heading,
-.admin-behavior-list-panel .admin-panel-heading {
+
+/* =========================
+   PANEL HEADINGS
+========================= */
+
+.admin-vaccination-form-panel .admin-panel-heading,
+.admin-vaccination-list-panel .admin-panel-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
 }
 
-.admin-behavior-form-panel .admin-panel-heading h2,
-.admin-behavior-list-panel .admin-panel-heading h2 {
+.admin-vaccination-form-panel .admin-panel-heading h2,
+.admin-vaccination-list-panel .admin-panel-heading h2 {
     margin: 0;
     color: #5a1b00;
 }
 
-.admin-behavior-form-panel .admin-panel-heading p,
-.admin-behavior-list-panel .admin-panel-heading p {
+.admin-vaccination-form-panel .admin-panel-heading p,
+.admin-vaccination-list-panel .admin-panel-heading p {
     margin: 6px 0 0;
     color: rgba(90, 27, 0, 0.62);
     font-size: 14px;
 }
 
-.admin-behavior-form {
+
+/* =========================
+   VACCINATION FORM
+========================= */
+
+.admin-vaccination-form {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
@@ -44,7 +59,12 @@
     border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
-.admin-behavior-form label {
+
+/* =========================
+   FORM LABELS
+========================= */
+
+.admin-vaccination-form label {
     display: grid;
     gap: 7px;
 
@@ -54,13 +74,18 @@
     font-weight: 800;
 }
 
-.admin-behavior-form input,
-.admin-behavior-form select,
-.admin-behavior-form textarea {
-    width: 100%;
-    box-sizing: border-box;
 
+/* =========================
+   FORM INPUTS
+========================= */
+
+.admin-vaccination-form input,
+.admin-vaccination-form select,
+.admin-vaccination-form textarea {
+    width: 100%;
     min-height: 42px;
+
+    box-sizing: border-box;
 
     border: 1px solid rgba(90, 27, 0, 0.16);
     border-radius: 14px;
@@ -80,40 +105,49 @@
         box-shadow 0.2s ease;
 }
 
-.admin-behavior-form textarea {
+.admin-vaccination-form textarea {
     min-height: 110px;
     resize: vertical;
 }
 
-.admin-behavior-form input:focus,
-.admin-behavior-form select:focus,
-.admin-behavior-form textarea:focus {
+.admin-vaccination-form input:focus,
+.admin-vaccination-form select:focus,
+.admin-vaccination-form textarea:focus {
     border-color: #fb8500;
 
     box-shadow:
         0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
-.admin-behavior-form select {
+.admin-vaccination-form select {
     cursor: pointer;
 }
 
-.admin-behavior-notes-field {
+
+/* =========================
+   NOTES
+========================= */
+
+.admin-vaccination-notes-field {
     grid-column: 1 / -1;
     width: 100%;
 }
 
-.admin-behavior-notes-field textarea {
+.admin-vaccination-notes-field textarea {
     width: 100%;
     min-height: 110px;
     box-sizing: border-box;
 }
 
-.admin-behavior-message {
+
+/* =========================
+   MESSAGES
+========================= */
+
+.admin-vaccination-message {
     grid-column: 1 / -1;
 
     margin: 0;
-
     padding: 12px 16px;
 
     border-radius: 14px;
@@ -127,19 +161,24 @@
     border: 1px solid rgba(251, 133, 0, 0.22);
 }
 
-.admin-behavior-message.success {
+.admin-vaccination-message.success {
     background: #edf7ed;
     color: #3e6b3e;
     border-color: #c9e2c9;
 }
 
-.admin-behavior-message.error {
+.admin-vaccination-message.error {
     background: #fff0ee;
     color: #9a3f35;
     border-color: #edc7c2;
 }
 
-.admin-behavior-form > button {
+
+/* =========================
+   SAVE VACCINATION BUTTON
+========================= */
+
+.admin-vaccination-form > button {
     grid-column: 1 / -1;
 
     width: 100%;
@@ -169,24 +208,35 @@
         transform 0.2s ease;
 }
 
-.admin-behavior-form > button:hover:not(:disabled) {
+.admin-vaccination-form > button:hover:not(:disabled) {
     opacity: 0.9;
     transform: translateY(-1px);
 }
 
-.admin-behavior-form > button:disabled {
+.admin-vaccination-form > button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.admin-secondary-button {
+
+/* =========================
+   SECONDARY BUTTON
+========================= */
+
+.admin-vaccination-secondary-button {
     background: #fff7cb !important;
     color: #5a1b00 !important;
 
     border: 1px solid rgba(251, 133, 0, 0.18) !important;
 }
-.admin-behavior-list-panel > input,
-.admin-behavior-list-panel > select {
+
+
+/* =========================
+   FILTERS
+========================= */
+
+.admin-vaccination-list-panel > input,
+.admin-vaccination-list-panel > select {
     box-sizing: border-box;
 
     min-height: 42px;
@@ -209,28 +259,38 @@
         box-shadow 0.2s ease;
 }
 
-.admin-behavior-list-panel > input {
+.admin-vaccination-list-panel > input {
     width: 100%;
 }
 
-.admin-behavior-list-panel > select {
+.admin-vaccination-list-panel > select {
     width: 220px;
 }
 
-.admin-behavior-list-panel > input:focus,
-.admin-behavior-list-panel > select:focus {
+.admin-vaccination-list-panel > input:focus,
+.admin-vaccination-list-panel > select:focus {
     border-color: #fb8500;
 
     box-shadow:
         0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
-.admin-behavior-list {
+
+/* =========================
+   VACCINATION LIST
+========================= */
+
+.admin-vaccination-list {
     display: grid;
     gap: 14px;
 }
 
-.admin-behavior-row {
+
+/* =========================
+   VACCINATION CARD
+========================= */
+
+.admin-vaccination-row {
     width: 100%;
     box-sizing: border-box;
 
@@ -248,7 +308,7 @@
         transform 0.2s ease;
 }
 
-.admin-behavior-row:hover {
+.admin-vaccination-row:hover {
     border-color: rgba(251, 133, 0, 0.28);
 
     box-shadow:
@@ -257,7 +317,12 @@
     transform: translateY(-1px);
 }
 
-.admin-behavior-row h3 {
+
+/* =========================
+   ANIMAL NAME
+========================= */
+
+.admin-vaccination-row h3 {
     margin: 0 0 8px;
 
     color: #5a1b00;
@@ -265,7 +330,12 @@
     font-size: 18px;
 }
 
-.admin-behavior-row p {
+
+/* =========================
+   RECORD DETAILS
+========================= */
+
+.admin-vaccination-row p {
     margin: 5px 0;
 
     color: rgba(90, 27, 0, 0.72);
@@ -274,11 +344,43 @@
     line-height: 1.5;
 }
 
-.admin-behavior-row p strong {
+.admin-vaccination-row p strong {
     color: #5a1b00;
 }
 
-.admin-behavior-row span {
+
+/* =========================
+   STATUS
+========================= */
+
+.admin-vaccination-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-top: 10px;
+    padding: 7px 11px;
+
+    border-radius: 999px;
+
+    background: #fff7cb;
+
+    color: #5a1b00;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    text-transform: capitalize;
+
+    border: 1px solid rgba(251, 133, 0, 0.18);
+}
+
+
+/* =========================
+   NOTES DISPLAY
+========================= */
+
+.admin-vaccination-row span {
     display: block;
 
     margin-top: 12px;
@@ -295,14 +397,20 @@
 
     border: 1px solid rgba(251, 133, 0, 0.12);
 }
-.admin-behavior-actions {
+
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.admin-vaccination-actions {
     display: flex;
     gap: 8px;
 
     margin-top: 16px;
 }
 
-.admin-behavior-actions button {
+.admin-vaccination-actions button {
     min-height: 38px;
 
     padding: 9px 13px;
@@ -321,22 +429,37 @@
         transform 0.2s ease;
 }
 
-.admin-behavior-actions button:hover {
+.admin-vaccination-actions button:hover {
     opacity: 0.9;
     transform: translateY(-1px);
 }
 
-.admin-edit-button {
+
+/* =========================
+   EDIT BUTTON
+========================= */
+
+.admin-vaccination-edit-button {
     background: #fb8500;
     color: white;
 }
 
-.admin-delete-button {
+
+/* =========================
+   DELETE BUTTON
+========================= */
+
+.admin-vaccination-delete-button {
     background: #d62828;
     color: white;
 }
 
-.admin-empty {
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.admin-vaccination-empty {
     margin: 0;
 
     padding: 30px;
@@ -351,20 +474,24 @@
     background: #fffaf0;
 }
 
-@media (max-width: 1200px) {
 
-    .admin-behavior-form {
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1200px) {
+    .admin-vaccination-form {
         grid-template-columns: repeat(
             2,
             minmax(0, 1fr)
         );
     }
 
-    .admin-behavior-notes-field {
+    .admin-vaccination-notes-field {
         grid-column: 1 / -1;
     }
 
-    .admin-behavior-form > button {
+    .admin-vaccination-form > button {
         grid-column: 1 / -1;
         width: 100%;
     }
@@ -372,34 +499,33 @@
 
 
 @media (max-width: 780px) {
-
-    .admin-behavior-form {
+    .admin-vaccination-form {
         grid-template-columns: 1fr;
     }
 
-    .admin-behavior-notes-field {
+    .admin-vaccination-notes-field {
         grid-column: 1 / -1;
     }
 
-    .admin-behavior-form-panel .admin-panel-heading,
-    .admin-behavior-list-panel .admin-panel-heading {
+    .admin-vaccination-form-panel .admin-panel-heading,
+    .admin-vaccination-list-panel .admin-panel-heading {
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .admin-behavior-list-panel > select {
+    .admin-vaccination-list-panel > select {
         width: 100%;
     }
 
-    .admin-behavior-actions {
+    .admin-vaccination-actions {
         flex-wrap: wrap;
     }
 
-    .admin-behavior-actions button {
+    .admin-vaccination-actions button {
         width: 100%;
     }
 
-    .admin-behavior-form > button {
+    .admin-vaccination-form > button {
         grid-column: 1 / -1;
         width: 100%;
     }

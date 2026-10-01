@@ -1,67 +1,172 @@
 import { useState } from "react";
 
+const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
+
+const INITIAL_FORM = {
+    animalName: "",
+    animalType: "Dog",
+    intakeType: "Rescued",
+    condition: "Healthy",
+    rescueLocation: "",
+    latitude: "",
+    longitude: "",
+    notes: "",
+};
+
 export default function MobileFieldIntake() {
-    const [form, setForm] = useState({
-        volunteerName: "",
-        animalType: "Dog",
-        animalName: "",
-        intakeType: "Rescued",
-        condition: "Healthy",
-        rescueLocation: "",
-        latitude: "",
-        longitude: "",
-        photo: "",
-        notes: "",
-    });
+    const [form, setForm] = useState(INITIAL_FORM);
+    const [photo, setPhoto] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
 
     function updateField(name, value) {
-        setForm({
-            ...form,
+        setForm((previous) => ({
+            ...previous,
             [name]: value,
-        });
+        }));
     }
 
     function getCurrentLocation() {
         if (!navigator.geolocation) {
-            alert("Geolocation is not supported.");
+            setError("Geolocation is not supported by this browser.");
             return;
         }
 
+        setError("");
+        setMessage("Retrieving current location...");
+
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                updateField(
-                    "latitude",
-                    position.coords.latitude.toFixed(6)
-                );
+                setForm((previous) => ({
+                    ...previous,
+                    latitude: position.coords.latitude.toFixed(6),
+                    longitude: position.coords.longitude.toFixed(6),
+                }));
 
-                updateField(
-                    "longitude",
-                    position.coords.longitude.toFixed(6)
+                setMessage("Current location captured.");
+            },
+            () => {
+                setError(
+                    "Unable to retrieve location. Please allow location access."
                 );
-            }, () => {
-                alert("Unable to retrieve location.");
+                setMessage("");
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0,
             }
         );
     }
 
-    function handleSubmit(e) {
+    function getToken() {
+        return (
+            localStorage.getItem("token") ||
+            localStorage.getItem("accessToken") ||
+            localStorage.getItem("authToken")
+        );
+    }
+
+    function getCurrentUser() {
+        try {
+            const storedUser =
+                localStorage.getItem("user") ||
+                localStorage.getItem("currentUser");
+
+            return storedUser
+                ? JSON.parse(storedUser)
+                : null;
+        } catch {
+            return null;
+        }
+    }
+
+    async function handleSubmit(e) {
         e.preventDefault();
-        console.log(form);
 
-        alert("Field intake submitted (This is a demo).");
+        setLoading(true);
+        setError("");
+        setMessage("");
 
-        setForm({
-            volunteerName: "",
-            animalType: "Dog",
-            animalName: "",
-            intakeType: "Rescued",
-            condition: "Healthy",
-            rescueLocation: "",
-            latitude: "",
-            longitude: "",
-            photo: "",
-            notes: "",
-        });
+        const token = getToken();
+        const currentUser = getCurrentUser();
+
+        const volunteerName =
+            currentUser?.name ||
+            currentUser?.username ||
+            currentUser?.fullName ||
+            "";
+
+        const volunteerEmail =
+            currentUser?.email || "";
+
+        if (!token) {
+            setError("Session expired. Please log in again.");
+            setLoading(false);
+            return;
+        }
+
+        const payload = {
+            name: form.animalName.trim(),
+            type: form.animalType,
+            intakeType: form.intakeType,
+            intakeCondition: form.condition,
+            location: form.rescueLocation.trim(),
+            rescuedBy: volunteerName,
+            description: form.notes.trim(),
+            latitude: form.latitude
+                ? Number(form.latitude)
+                : null,
+            longitude: form.longitude
+                ? Number(form.longitude)
+                : null,
+            image: "",
+        };
+
+        if (volunteerEmail) {
+            payload.createdByEmail = volunteerEmail;
+        }
+
+        if (!payload.name) {
+            setError("Animal name is required.");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(API_BASE_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to submit field intake."
+                );
+            }
+
+            setMessage(
+                "Field intake submitted successfully for review."
+            );
+
+            setForm(INITIAL_FORM);
+            setPhoto(null);
+        } catch (submitError) {
+            setError(
+                submitError.message ||
+                "Something went wrong while submitting."
+            );
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -69,9 +174,7 @@ export default function MobileFieldIntake() {
             <section className="admin-panel">
                 <div className="admin-panel-heading">
                     <div>
-                        <h2>
-                            Mobile Field Intake
-                        </h2>
+                        <h2>Mobile Field Intake</h2>
 
                         <p>
                             Record rescued animals directly from the field.
@@ -79,24 +182,22 @@ export default function MobileFieldIntake() {
                     </div>
                 </div>
 
+                {message && (
+                    <p className="success-message">
+                        {message}
+                    </p>
+                )}
+
+                {error && (
+                    <p className="error-message">
+                        {error}
+                    </p>
+                )}
+
                 <form
                     className="admin-mobile-intake-form"
                     onSubmit={handleSubmit}
                 >
-                    <label>
-                        Volunteer / Staff
-                        <input
-                            value={form.volunteerName}
-                            onChange={(e) =>
-                                updateField(
-                                    "volunteerName",
-                                    e.target.value
-                                )
-                            }
-                            required
-                        />
-                    </label>
-
                     <label>
                         Animal Name
                         <input
@@ -107,6 +208,8 @@ export default function MobileFieldIntake() {
                                     e.target.value
                                 )
                             }
+                            placeholder="Enter animal name"
+                            required
                         />
                     </label>
 
@@ -121,9 +224,9 @@ export default function MobileFieldIntake() {
                                 )
                             }
                         >
-                            <option>Dog</option>
-                            <option>Cat</option>
-                            <option>Other</option>
+                            <option value="Dog">Dog</option>
+                            <option value="Cat">Cat</option>
+                            <option value="Other">Other</option>
                         </select>
                     </label>
 
@@ -138,10 +241,14 @@ export default function MobileFieldIntake() {
                                 )
                             }
                         >
-                            <option>Rescued</option>
-                            <option>Stray</option>
-                            <option>Owner Surrender</option>
-                            <option>Transferred</option>
+                            <option value="Rescued">Rescued</option>
+                            <option value="Stray">Stray</option>
+                            <option value="Owner Surrender">
+                                Owner Surrender
+                            </option>
+                            <option value="Transferred">
+                                Transferred
+                            </option>
                         </select>
                     </label>
 
@@ -156,10 +263,13 @@ export default function MobileFieldIntake() {
                                 )
                             }
                         >
-                            <option>Healthy</option>
-                            <option>Injured</option>
-                            <option>Critical</option>
-                            <option>Under Observation</option>
+                            <option value="Healthy">Healthy</option>
+                            <option value="Injured">Injured</option>
+                            <option value="Sick">Sick</option>
+                            <option value="Under Observation">
+                                Under Observation
+                            </option>
+                            <option value="Unknown">Unknown</option>
                         </select>
                     </label>
 
@@ -173,11 +283,11 @@ export default function MobileFieldIntake() {
                                     e.target.value
                                 )
                             }
+                            placeholder="Enter rescue location"
                         />
                     </label>
 
                     <div className="mobile-location-grid">
-
                         <label>
                             Latitude
                             <input
@@ -198,8 +308,9 @@ export default function MobileFieldIntake() {
                     <button
                         type="button"
                         onClick={getCurrentLocation}
+                        disabled={loading}
                     >
-                        📍 Capture Current Location
+                        Capture Current Location
                     </button>
 
                     <label>
@@ -207,8 +318,19 @@ export default function MobileFieldIntake() {
                         <input
                             type="file"
                             accept="image/*"
+                            onChange={(e) =>
+                                setPhoto(
+                                    e.target.files?.[0] || null
+                                )
+                            }
                         />
                     </label>
+
+                    {photo && (
+                        <p>
+                            Selected photo: {photo.name}
+                        </p>
+                    )}
 
                     <label>
                         Notes
@@ -221,15 +343,20 @@ export default function MobileFieldIntake() {
                                     e.target.value
                                 )
                             }
+                            placeholder="Add rescue notes..."
                         />
                     </label>
 
-                    <button type="submit">
-                        Submit Field Intake
+                    <button
+                        type="submit"
+                        disabled={loading}
+                    >
+                        {loading
+                            ? "Submitting..."
+                            : "Submit Field Intake"}
                     </button>
                 </form>
             </section>
         </section>
     );
-
 }

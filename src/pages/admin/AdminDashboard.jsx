@@ -20,7 +20,9 @@ import "../../styles/admin/Analytics.css";
 import "../../styles/admin/Reports.css";
 import "../../styles/foster/UserManagement.css";
 import "../../styles/admin/Donations.css";
-import "../../styles/admin/Behavior.css"
+import "../../styles/admin/Behavior.css";
+import "../../styles/admin/Vaccination.css";
+
 
 // Assets
 import assets from "../../data/assets.json";
@@ -35,6 +37,7 @@ import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
+import NeededSupplies from "./modules/NeededSupplies";
 
 // ANIMALS
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
@@ -45,6 +48,7 @@ import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
 import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 import RescueAssignments from "./modules/Rescue";
+import ActivityLog from "./modules/ActivityLog";
 
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
@@ -81,28 +85,17 @@ const adminMenu = [
             { key: "recommendations", label: "Recommendations" },
         ],
     },
-    { key: "rescue", label: "Rescue Animals"},
+    { key: "rescue", label: "Rescue Animals" },
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
+    { key: "needed-supplies", label: "Needed Supplies" },
     { key: "lost-found", label: "Lost & Found" },
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
     { key: "reports", label: "Reports" },
+    { key: "activity-log", label: "Activity Log"}
 ]
-
-const mockAnimals = [
-    { name: "Max", status: "available" },
-    { name: "Blacky", status: "available" },
-    { name: "Chichay", status: "available" },
-    { name: "Milo", status: "available" },
-    { name: "Luna", status: "available" },
-    { name: "Coco", status: "available" },
-    { name: "Buddy", status: "available" },
-    { name: "Snow", status: "available" },
-    { name: "Oreo", status: "not_available" },
-    { name: "Ming", status: "not_available" },
-];
 
 function AdminStatCard({ label, value, icon }) {
     return (
@@ -168,7 +161,7 @@ export default function AdminDashboard({ setPage }) {
     async function fetchAdminNotifications() {
         try {
             const token = localStorage.getItem("token");
-            
+
             if (!token) {
                 console.error("No RescueBase auth token found");
                 return;
@@ -301,28 +294,36 @@ export default function AdminDashboard({ setPage }) {
             return <Donations />;
         }
 
+        if (activeAdminPage === "needed-supplies") {
+            return <NeededSupplies />;
+        }
+
         if (activeAdminPage === "vaccination-records") {
-            return <VaccinationRecords />
+            return <VaccinationRecords />;
         }
 
         if (activeAdminPage === "behavior-assessment") {
-            return <BehaviorAssessment />
+            return <BehaviorAssessment />;
         }
 
         if (activeAdminPage === "qr-tags") {
-            return <QRTags />
+            return <QRTags />;
         }
 
         if (activeAdminPage === "animal-transfers") {
-            return <AnimalTransfers />
+            return <AnimalTransfers />;
         }
 
         if (activeAdminPage === "mobile-intake") {
-            return <MobileFieldIntake />
+            return <MobileFieldIntake />;
         }
 
         if (activeAdminPage === "rescue") {
-            return <RescueAssignments />
+            return <RescueAssignments />;
+        }
+
+        if (activeAdminPage === "activity-log") {
+            return <ActivityLog />;
         }
 
     }
