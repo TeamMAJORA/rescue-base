@@ -30,42 +30,62 @@ import RoleApplication from "./modules/RoleApplication";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+const ICON_PATH = "/icons/sidebar/";
+
 const adopterMenu = [
     {
         key: "overview",
         label: "Dashboard",
+        icon: "dashboard-brown.svg",
+        activeIcon: "dashboard-light.svg",
     },
     {
         key: "browse-pets",
         label: "Browse Pets",
+        icon: "brown paw.svg",
+        activeIcon: "brown paw-light.svg",
     },
     {
         key: "adoption-application",
         label: "Adoption Application",
+        icon: "clipboard-brown.svg",
+        activeIcon: "clipboard-light.svg",
     },
     {
         key: "matchmaking-quiz",
-        label: "Matchmaking Quiz"
+        label: "Matchmaking Quiz",
+        icon: "quiz-brown.svg",
+        activeIcon: "quiz-light.svg",
     },
     {
         key: "application-status",
         label: "Application Status",
+        icon: "Status.svg",
+        activeIcon: "Status-light.svg",
     },
     {
         key: "lost-found",
         label: "Lost & Found",
+        icon: "LostnFound-brown.svg",
+        activeIcon: "LostnFound-light.svg",
     },
     {
         key: "recommendations",
         label: "Recommendations",
+        icon: "Recommend.svg",
+        activeIcon: "Recommend-light.svg",
     },
     {
         key: "donation",
         label: "Donation",
+        icon: "donation-brown.svg",
+        activeIcon: "donation-light.svg",
     },
     {
         key: "donation-history",
         label: "Donation History",
+        icon: "history.svg",
+        activeIcon: "history-light.svg",
     },
     {
         key: "role-application",
@@ -74,6 +94,8 @@ const adopterMenu = [
     {
         key: "feedback",
         label: "Feedback",
+        icon: "Feedback-brown.svg",
+        activeIcon: "Feedback-light.svg",
     },
 ];
 
@@ -1283,6 +1305,23 @@ export default function Dashboard({ onLogout }) {
                                     }
                                 >
                                     <div className="adopter-menu-text">
+                                        {item.icon && (
+                                            <>
+                                                <img
+                                                    className="adopter-menu-icon icon-default"
+                                                    src={ICON_PATH + item.icon}
+                                                    alt=""
+                                                    aria-hidden="true"
+                                                />
+                                                <img
+                                                    className="adopter-menu-icon icon-active"
+                                                    src={ICON_PATH + item.activeIcon}
+                                                    alt=""
+                                                    aria-hidden="true"
+                                                />
+                                            </>
+                                        )}
+
                                         <strong>
                                             {item.label}
                                         </strong>

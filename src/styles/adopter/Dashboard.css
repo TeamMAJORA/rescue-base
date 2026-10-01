@@ -134,6 +134,33 @@
     font-weight: 700;
 }
 
+.adopter-menu-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.adopter-menu-icon.icon-active {
+    display: none;
+}
+
+.adopter-menu-group>button.active .icon-default {
+    display: none;
+}
+
+.adopter-menu-group>button.active .icon-active {
+    display: block;
+}
+
+.adopter-menu-group>button.active:hover:not(:disabled) .icon-default {
+    display: block;
+}
+/*Cute ksi hihi*/
+.adopter-menu-group>button.active:hover:not(:disabled) .icon-active {
+    display: none;
+}
+
 .adopter-user-card {
     width: 100%;
     display: grid;
