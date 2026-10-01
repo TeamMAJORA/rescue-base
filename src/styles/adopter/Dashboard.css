@@ -439,6 +439,84 @@
     opacity: 0.58;
 }
 
+.adopter-hero {
+    grid-template-columns: 1fr 1fr;
+}
+
+.adopter-hero-content h2 {
+    font-size: clamp(28px, 3vw, 40px);
+}
+
+.adopter-hero-content p {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.adopter-hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.adopter-hero-pills span {
+    padding: 8px 22px;
+    border-radius: 999px;
+    background: var(--adopter-light-cream);
+    color: var(--adopter-brown);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.adopter-hero-actions {
+    margin-top: 18px;
+}
+
+.adopter-hero-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.adopter-hero-actions button img {
+    width: 26px;
+    height: 26px;
+}
+
+.adopter-hero-actions button:last-child {
+    background: var(--adopter-light-yellow);
+}
+
+.adopter-hero-note {
+    margin-top: 14px;
+    color: var(--adopter-brown);
+    font-size: 12px;
+}
+
+.adopter-hero-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 220px;
+    border: 3px dashed #ffffff;
+    border-radius: 6px;
+    color: var(--adopter-brown);
+    text-align: center;
+}
+
+.adopter-hero-placeholder img {
+    width: 48px;
+    height: 48px;
+}
+
+.adopter-hero-placeholder strong {
+    font-size: 15px;
+    font-weight: 800;
+}
+
 .adopter-featured-pet {
     display: flex;
     flex-direction: column;
@@ -777,7 +855,7 @@
 
 .adopter-detail-panel {
     position: sticky;
-    top: 114px;
+    top: 20px;
 }
 
 .adopter-detail-header {
@@ -921,6 +999,21 @@
     background: rgba(90, 27, 0, 0.2);
 }
 
+.adopter-overview-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
+    gap: 22px;
+    align-items: start;
+}
+
+.adopter-overview-main {
+    min-width: 0;
+}
+
+/* the old .adopter-content-grid supplied this gap above the pet list */
+.adopter-overview-main > #available-pets {
+    margin-top: 22px;
+}
 
 @media (max-width: 1200px) {
     .adopter-sidebar {
@@ -938,6 +1031,10 @@
 
     .adopter-detail-panel {
         position: static;
+    }
+    
+    .adopter-overview-layout {
+        grid-template-columns: 1fr;
     }
 }
 
