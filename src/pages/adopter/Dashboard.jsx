@@ -90,6 +90,8 @@ const adopterMenu = [
     {
         key: "role-application",
         label: "Role Application",
+        icon: "role-brown.svg",
+        activeIcon: "role-light.svg",
     },
     {
         key: "feedback",
