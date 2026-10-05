@@ -100,7 +100,7 @@ export default function RoleApplication() {
                         <h2>Role Application</h2>
 
                         <p>
-                            Apply to become a volunteer or staff member
+                            Apply to become a volunteer or foster member
                             and help support RescueBase.
                         </p>
                     </div>
@@ -179,8 +179,8 @@ export default function RoleApplication() {
                                 Volunteer
                             </option>
 
-                            <option value="staff">
-                                Staff
+                            <option value="foster">
+                                Foster Caregiver
                             </option>
                         </select>
 
