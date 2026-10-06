@@ -107,6 +107,63 @@ function buildFormFromAnimal(animal) {
     };
 }
 
+const SHORT_LABELS = {
+    energyLevel: "Energy",
+    activityLevel: "Activity",
+    anxietyLevel: "Anxiety",
+    aggressionLevel: "Aggression",
+    friendliness: "Friendly",
+    humanSociability: "Human",
+    animalSociability: "Animal",
+    trainability: "Trainability",
+};
+
+// Same rules as the Adopter Preview in AnimalProfiles.jsx (frontend only for now)
+function getBehaviorTags(animal) {
+    const has = (value) => typeof value === "number";
+    const tags = [];
+
+    if (has(animal.humanSociability) && animal.humanSociability >= 4) tags.push("Friendly");
+    if (has(animal.trainability) && animal.trainability >= 4) tags.push("Well-trained");
+    if (has(animal.aggressionLevel) && animal.aggressionLevel <= 2) tags.push("Gentle");
+    if (has(animal.energyLevel) && animal.energyLevel <= 2) tags.push("Calm");
+    if (has(animal.energyLevel) && animal.energyLevel >= 4) tags.push("Energetic");
+    if (has(animal.anxietyLevel) && animal.anxietyLevel >= 4) tags.push("Needs patience");
+    if (has(animal.animalSociability) && animal.animalSociability >= 4) tags.push("Pet-friendly");
+
+    return tags;
+}
+
+function ScoreBar({ label, value }) {
+    const score = Number(value) || 0;
+
+    return (
+        <div className="admin-score-row">
+            <span className="admin-score-label">{label}</span>
+            <div className="admin-score-track" aria-hidden="true">
+                {[1, 2, 3, 4, 5].map((n) => (
+                    <i key={n} className={n <= score ? "on" : ""} />
+                ))}
+            </div>
+            <span className="admin-score-value">{score}/5</span>
+        </div>
+    );
+}
+
+function BehaviorPawIcon() {
+    return (
+        <svg width="30" height="30" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <g stroke="var(--orange)" strokeWidth="3.5">
+                <ellipse cx="13" cy="20" rx="4" ry="5" />
+                <ellipse cx="20" cy="12" rx="4" ry="5" />
+                <ellipse cx="28" cy="12" rx="4" ry="5" />
+                <ellipse cx="35" cy="20" rx="4" ry="5" />
+                <path d="M24 23c-6 0-11 7-11 12 0 4 3 6 6 5 2-.7 3.5-1.5 5-1.5s3 .8 5 1.5c3 1 6-1 6-5 0-5-5-12-11-12z" />
+            </g>
+        </svg>
+    );
+}
+
 export default function BehaviorAssessment({ lockedAnimal = null }) {
     const [animals, setAnimals] = useState([]);
     const [form, setForm] = useState(() =>
@@ -533,113 +590,84 @@ export default function BehaviorAssessment({ lockedAnimal = null }) {
                 ) : (
                     <div className="admin-behavior-list">
                         {filteredAnimals.map((animal) => (
-                            <article
-                                className="admin-behavior-row"
-                                key={animal._id}
-                            >
-                                <div>
-                                    <h3>
-                                        {animal.name}
-                                    </h3>
+                            <article className="admin-behavior-row" key={animal._id}>
+                                <header className="admin-behavior-row-head">
+                                    <div className="admin-behavior-row-icon">
+                                        <BehaviorPawIcon />
+                                    </div>
 
-                                    <p>
-                                        <strong>Type:</strong>{" "}
-                                        {animal.type}
-                                        {" | "}
-                                        <strong>Breed:</strong>{" "}
-                                        {animal.breed ||
-                                            "Unknown"}
-                                    </p>
+                                    <div className="admin-behavior-row-title">
+                                        <h3>{animal.name}</h3>
+                                        <p>
+                                            {animal.type}
+                                            {animal.breed ? ` · ${animal.breed}` : ""}
+                                        </p>
+                                    </div>
 
-                                    <p>
-                                        <strong>
-                                            Energy:
-                                        </strong>{" "}
-                                        {animal.energyLevel}/5
-
-                                        {" | "}
-
-                                        <strong>
-                                            Friendly:
-                                        </strong>{" "}
-                                        {animal.friendliness}/5
-
-                                        {" | "}
-
-                                        <strong>
-                                            Human:
-                                        </strong>{" "}
-                                        {animal.humanSociability}/5
-                                    </p>
-
-                                    <p>
-                                        <strong>
-                                            Animal:
-                                        </strong>{" "}
-                                        {animal.animalSociability}/5
-
-                                        {" | "}
-
-                                        <strong>
-                                            Trainability:
-                                        </strong>{" "}
-                                        {animal.trainability}/5
-                                    </p>
-
-                                    <p>
-                                        <strong>
-                                            Anxiety:
-                                        </strong>{" "}
-                                        {animal.anxietyLevel}/5
-
-                                        {" | "}
-
-                                        <strong>
-                                            Aggression:
-                                        </strong>{" "}
-                                        {animal.aggressionLevel}/5
-
-                                        {" | "}
-
-                                        <strong>
-                                            Activity:
-                                        </strong>{" "}
-                                        {animal.activityLevel}/5
-                                    </p>
-
-                                    {animal.behaviorNotes && (
-                                        <span>
-                                            {animal.behaviorNotes}
-                                        </span>
+                                    {(animal.behaviorAssessedBy || animal.behaviorAssessedAt) && (
+                                        <div className="admin-behavior-row-meta">
+                                            {animal.behaviorAssessedBy && (
+                                                <span>Assessed by {animal.behaviorAssessedBy}</span>
+                                            )}
+                                            {animal.behaviorAssessedAt && (
+                                                <span>
+                                                    {new Date(animal.behaviorAssessedAt).toLocaleDateString("en-US", {
+                                                        month: "short",
+                                                        day: "numeric",
+                                                        year: "numeric",
+                                                    })}
+                                                </span>
+                                            )}
+                                        </div>
                                     )}
+                                </header>
 
-                                    <div className="admin-behavior-actions">
+                                {getBehaviorTags(animal).length > 0 && (
+                                    <div className="admin-behavior-row-tags">
+                                        {getBehaviorTags(animal).map((tag) => (
+                                            <span key={tag}>{tag}</span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="admin-behavior-row-scores">
+                                    {TRAIT_GROUPS.map((group) => (
+                                        <div key={group.title} className="admin-behavior-row-column">
+                                            {group.traits.map((trait) => (
+                                                <ScoreBar
+                                                    key={trait.key}
+                                                    label={SHORT_LABELS[trait.key]}
+                                                    value={animal[trait.key]}
+                                                />
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {animal.behaviorNotes && (
+                                    <p className="admin-behavior-row-notes">
+                                        “{animal.behaviorNotes}”
+                                    </p>
+                                )}
+
+                                <div className="admin-behavior-actions">
+                                    <button
+                                        type="button"
+                                        className="admin-behavior-edit"
+                                        onClick={() => handleEditAssessment(animal)}
+                                    >
+                                        Edit Ratings
+                                    </button>
+
+                                    {isAdmin() && (
                                         <button
                                             type="button"
-                                            className="admin-edit-button"
-                                            onClick={() =>
-                                                handleEditAssessment(
-                                                    animal
-                                                )
-                                            }
+                                            className="admin-behavior-profile"
+                                            onClick={() => handleEditAssessment(animal)}
                                         >
-                                            Edit
+                                            Edit Profile
                                         </button>
-
-                                        {isAdmin() && (
-                                            <button
-                                                type="button"
-                                                className="admin-delete-button"
-                                                onClick={() =>
-                                                    handleEditAssessment(
-                                                        animal
-                                                    )
-                                                }
-                                            >
-                                                Edit Profile
-                                            </button>
-                                        )}
-                                    </div>
+                                    )}
                                 </div>
                             </article>
                         ))}
