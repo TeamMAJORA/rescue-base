@@ -384,6 +384,36 @@ export default function AnimalProfiles() {
     const [activeFormTab, setActiveFormTab] = useState("overview");
     const [editingAnimal, setEditingAnimal] = useState(null);
 
+    const viewedAnimal = animals.find((a) => a._id === expandedId) || null;
+
+    function closeAnimalModal() {
+        setExpandedId(null);
+    }
+
+    function openAnimalTab(animal, tabKey) {
+        setExpandedId(null);
+        handleEditAnimal(animal);
+        setActiveFormTab(tabKey);
+    }
+
+    // Close on Esc + stop the page behind from scrolling
+    useEffect(() => {
+        if (!expandedId) return;
+
+        const onKey = (e) => {
+            if (e.key === "Escape") setExpandedId(null);
+        };
+        const previousOverflow = document.body.style.overflow;
+
+        document.body.style.overflow = "hidden";
+        window.addEventListener("keydown", onKey);
+
+        return () => {
+            window.removeEventListener("keydown", onKey);
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [expandedId]);
+
     const currentFormTab =
         ANIMAL_FORM_TABS.find((tab) => tab.key === activeFormTab) ||
         ANIMAL_FORM_TABS[0];
@@ -531,7 +561,7 @@ export default function AnimalProfiles() {
 
     async function handleSubmitAnimal(e) {
         e.preventDefault();
-        
+
         if (!isFormDirty) return;
 
         try {
@@ -1453,11 +1483,9 @@ export default function AnimalProfiles() {
                                                             <button
                                                                 type="button"
                                                                 className="view"
-                                                                onClick={() =>
-                                                                    setExpandedId(isExpanded ? null : animal._id)
-                                                                }
+                                                                onClick={() => setExpandedId(animal._id)}
                                                             >
-                                                                {isExpanded ? "Hide" : "View"}
+                                                                View
                                                             </button>
 
                                                             {canManage && (//updated for edit button
@@ -1482,22 +1510,6 @@ export default function AnimalProfiles() {
                                                         </div>
                                                     </td>
                                                 </tr>
-
-                                                {isExpanded && (
-                                                    <tr className="admin-animal-expanded-row">
-                                                        <td colSpan={9}>
-                                                            <div className="admin-animal-expanded">
-                                                                <div><span>Size</span><p>{animal.size}</p></div>
-                                                                <div><span>Color</span><p>{animal.color || "—"}</p></div>
-                                                                <div><span>Condition</span><p>{animal.intakeCondition}</p></div>
-                                                                <div><span>Location</span><p>{animal.location || "RescueBase Shelter"}</p></div>
-                                                                <div className="wide"><span>Medical Status</span><p>{animal.medicalStatus || "—"}</p></div>
-                                                                <div className="wide"><span>Behavior Notes</span><p>{animal.behaviorNotes || "—"}</p></div>
-                                                                <div className="wide"><span>Description</span><p>{animal.description || "—"}</p></div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                )}
                                             </Fragment>
                                         );
                                     })}
@@ -1559,6 +1571,139 @@ export default function AnimalProfiles() {
                     </div>
                 )}
             </section>
+
+            {viewedAnimal && (
+                <div className="admin-modal-backdrop" onClick={closeAnimalModal}>
+                    <div
+                        className="admin-animal-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="animal-modal-title"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <header className="admin-animal-modal-head">
+                            <div className="admin-animal-modal-photo">
+                                {viewedAnimal.image ? (
+                                    <img src={viewedAnimal.image} alt="" />
+                                ) : (
+                                    <PawIcon />
+                                )}
+                            </div>
+
+                            <div className="admin-animal-modal-title">
+                                <h2 id="animal-modal-title">{viewedAnimal.name}</h2>
+                                <p>
+                                    {viewedAnimal.type}
+                                    {viewedAnimal.breed ? ` · ${viewedAnimal.breed}` : ""}
+                                </p>
+                            </div>
+
+                            <StatusPill status={getAnimalStatus(viewedAnimal)} />
+
+                            <button
+                                type="button"
+                                className="admin-animal-modal-close"
+                                onClick={closeAnimalModal}
+                                aria-label="Close"
+                            >
+                                ✕
+                            </button>
+                        </header>
+
+                        <div className="admin-animal-modal-body">
+                            <div className="admin-animal-modal-grid">
+                                <div><span>Age</span><p>{viewedAnimal.age ?? 0} yrs</p></div>
+                                <div><span>Gender</span><p>{viewedAnimal.gender || "—"}</p></div>
+                                <div><span>Size</span><p>{viewedAnimal.size || "—"}</p></div>
+                                <div><span>Color</span><p>{viewedAnimal.color || "—"}</p></div>
+                                <div><span>Condition</span><p>{viewedAnimal.intakeCondition || "—"}</p></div>
+                                <div><span>Location</span><p>{viewedAnimal.location || "RescueBase Shelter"}</p></div>
+                                <div><span>Intake Date</span><p>{formatIntakeDate(viewedAnimal.intakeDate)}</p></div>
+                                <div>
+                                    <span>QR Code</span>
+                                    {qrCodes[viewedAnimal._id] ? (
+                                        <p>{qrCodes[viewedAnimal._id]}</p>
+                                    ) : (
+                                        <p className="muted">No tag yet</p>
+                                    )}
+                                </div>
+                                <div className="half">
+                                    <span>Medical Status</span>
+                                    <p className="plain">{viewedAnimal.medicalStatus || "—"}</p>
+                                </div>
+                                <div className="half">
+                                    <span>Behavior Notes</span>
+                                    <p className="plain">{viewedAnimal.behaviorNotes || "—"}</p>
+                                </div>
+                                <div className="full">
+                                    <span>Description</span>
+                                    <p className="plain">{viewedAnimal.description || "—"}</p>
+                                </div>
+                            </div>
+
+                            <aside className="admin-animal-modal-side">
+                                <div className="admin-animal-modal-box">
+                                    <h4>Adopters see</h4>
+                                    {getPreviewPersonalityTags(viewedAnimal).length > 0 ? (
+                                        <div className="admin-animal-modal-tags">
+                                            {getPreviewPersonalityTags(viewedAnimal).map((tag) => (
+                                                <span key={tag}>{tag}</span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="muted">No personality tags yet.</p>
+                                    )}
+                                </div>
+
+                                {canManage && (
+                                    <div className="admin-animal-modal-box">
+                                        <h4>Manage records</h4>
+                                        <button type="button" onClick={() => openAnimalTab(viewedAnimal, "behavior")}>
+                                            Behavioral Assessment <span aria-hidden="true">›</span>
+                                        </button>
+                                        <button type="button" onClick={() => openAnimalTab(viewedAnimal, "vaccinations")}>
+                                            Vaccinations <span aria-hidden="true">›</span>
+                                        </button>
+                                        <button type="button" onClick={() => openAnimalTab(viewedAnimal, "medical")}>
+                                            Medical Records <span aria-hidden="true">›</span>
+                                        </button>
+                                    </div>
+                                )}
+                            </aside>
+                        </div>
+
+                        <footer className="admin-animal-modal-foot">
+                            <button type="button" className="admin-animal-modal-back" onClick={closeAnimalModal}>
+                                ← Back to list
+                            </button>
+
+                            <div>
+                                {isAdmin() && (
+                                    <button
+                                        type="button"
+                                        className="admin-animal-modal-delete"
+                                        onClick={() => handleDeleteAnimal(viewedAnimal._id)}
+                                    >
+                                        Delete
+                                    </button>
+                                )}
+                                {canManage && (
+                                    <button
+                                        type="button"
+                                        className="admin-animal-modal-edit"
+                                        onClick={() => {
+                                            closeAnimalModal();
+                                            handleEditAnimal(viewedAnimal);
+                                        }}
+                                    >
+                                        Edit Animal
+                                    </button>
+                                )}
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            )}
 
         </section>
     );
