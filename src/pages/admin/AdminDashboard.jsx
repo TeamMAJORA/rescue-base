@@ -97,15 +97,11 @@ const adminMenu = [
     { key: "activity-log", label: "Activity Log"}
 ]
 
-function AdminStatCard({ label, value, icon }) {
+function AdminStatCard({ label, value }) {
     return (
         <article className="admin-stat-card">
-            <div>
-                <p>{label}</p>
-                <h3>{value}</h3>
-            </div>
-
-            <span>{icon}</span>
+            <span>{label}</span>
+            <strong>{value}</strong>
         </article>
     );
 }

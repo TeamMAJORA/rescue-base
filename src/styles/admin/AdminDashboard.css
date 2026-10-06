@@ -209,47 +209,34 @@
 /* REUSABLE STAT CARD */
 
 .admin-stat-card {
-    min-height: 86px;
-    border-radius: 14px;
-    background: var(--white-yellow);
+    min-height: 58px;
+    padding: 8px 12px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    box-shadow: 0 1px 3px rgba(90, 27, 0, 0.08);
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 18px;
-    border: 1px solid rgba(90, 27, 0, 0.16);
+    flex-direction: column-reverse; /* number on top, label below */
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 2px;
 }
 
-.admin-stat-card p {
-    font-size: 12px;
-    margin-bottom: 8px;
-    color: var(--red);
+.admin-stat-card strong {
+    font-family: "Karma", serif;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+    color: #3a1200;
+}
+
+.admin-stat-card span {
+    font-size: 9px;
     font-weight: 700;
+    line-height: 1.2;
+    color: #7b452d;
+    white-space: nowrap;
 }
-
-.admin-stat-card h3 {
-    font-family: "Itim", cursive;
-    font-size: 30px;
-    color: var(--brown);
-}
-
-.admin-stat-card > span {
-    width: 42px;
-    height: 42px;
-    border-radius: 9px;
-    background: #f6a623;
-    display: grid;
-    place-items: center;
-}
-
-.admin-stat-card img {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-/* REUSABLE STATUS PILL */
 
 .admin-status-pill {
     border-radius: 999px;
