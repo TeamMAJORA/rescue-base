@@ -27,6 +27,8 @@ import DonationHistory from "./modules/DonationHistory";
 import LostFound from "../admin/modules/LostFound";
 import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
+import PetList from "../../components/adopter/PetList";
+import PetDetailPanel from "../../components/adopter/PetDetailPanel";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -670,199 +672,34 @@ export default function Dashboard({ onLogout }) {
 
     function renderPetBrowser() {
         return (
-            <>
-                <section
-                    className="adopter-panel"
-                    id="available-pets"
-                >
-                    <div className="browse-pets-panel-heading">
-                        <div>
-                            <h3>Who's Stealing Your Heart Today?</h3>
-                            <p>Pick a pal below to peek at their story and apply today.</p>
-                        </div>
-                    </div>
-
-                    <div className="browse-pets-filters">
-                        <label>
-                            Search Pets
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Search by name, breed, or type"
-                            />
-                        </label>
-
-                        <label>
-                            Animal Type
-                            <select
-                                value={typeFilter}
-                                onChange={(event) => setTypeFilter(event.target.value)}
-                            >
-                                <option value="all">All Pets</option>
-                                <option value="dog">Dogs</option>
-                                <option value="cat">Cats</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </label>
-                    </div>
-
-                    <div className="browse-pets-list">
-                        {petsLoading && (
-                            <div className="browse-pets-message">
-                                <span>🐾</span>
-                                <p>Loading available pets...</p>
-                            </div>
-                        )}
-
-                        {!petsLoading && petsError && (
-                            <div className="browse-pets-message error">
-                                <span>!</span>
-                                <p>{petsError}</p>
-                                <button type="button" onClick={fetchPets}>
-                                    Try Again
-                                </button>
-                            </div>
-                        )}
-
-                        {!petsLoading && !petsError && filteredPets.length === 0 && (
-                            <div className="browse-pets-message">
-                                <span>🐾</span>
-                                <p>No available animals matched your search.</p>
-                            </div>
-                        )}
-
-                        {!petsLoading &&
-                            !petsError &&
-                            filteredPets.map((pet) => {
-                                const isSelected = selectedPet._id === pet._id;
-
-                                return (
-                                    <article
-                                        key={pet._id}
-                                        className={isSelected ? "browse-pet-card active" : "browse-pet-card"}
-                                        role="button"
-                                        tabIndex={0}
-                                        onClick={() => setSelectedPet(pet)}
-                                        onKeyDown={(event) => {
-                                            if (event.key === "Enter" || event.key === " ") {
-                                                setSelectedPet(pet);
-                                            }
-                                        }}
-                                    >
-                                        <div className="browse-pet-card-image">
-                                            {pet.image ? (
-                                                <img src={pet.image} alt={pet.name} />
-                                            ) : (
-                                                <span>{pet.icon || "🐾"}</span>
-                                            )}
-                                        </div>
-
-                                        <div className="browse-pet-card-content">
-                                            <div>
-                                                <h3>{pet.name}</h3>
-                                                <span className={`adopter-status ${pet.status || "not_available"}`}>
-                                                    {String(pet.status || "not_available").replaceAll("_", " ")}
-                                                </span>
-                                            </div>
-
-                                            <p>
-                                                {pet.type || "Pet"} • {pet.breed || "Unknown breed"}
-                                            </p>
-
-                                            <small>
-                                                {pet.age || "Unknown age"} • {pet.gender || "Unknown"} •{" "}
-                                                {pet.size || "Unknown size"}
-                                            </small>
-                                        </div>
-
-                                        <span className="browse-pet-card-arrow">→</span>
-                                    </article>
-                                );
-                            })}
-                    </div>
-                </section>
-            </>
+            <PetList
+                className="adopter-panel"
+                id="available-pets"
+                loading={petsLoading}
+                error={petsError}
+                search={search}
+                setSearch={setSearch}
+                typeFilter={typeFilter}
+                setTypeFilter={setTypeFilter}
+                filteredPets={filteredPets}
+                selectedPet={selectedPet}
+                setSelectedPet={setSelectedPet}
+                onRefresh={fetchPets}
+            />
         );
     }
 
     function renderPetDetail() {
-    return (
-        <aside className="adopter-panel adopter-detail-panel">
-            <div className="browse-pet-main-image">
-                {selectedPet.image ? (
-                    <img src={selectedPet.image} alt={selectedPet.name} />
-                ) : (
-                    <span>{selectedPet.icon || "🐾"}</span>
-                )}
-            </div>
-
-            <div className="browse-pet-title">
-                <span className={`adopter-status ${selectedPet.status || "not_available"}`}>
-                    {(selectedPet.status || "not_available").replace("_", " ")}
-                </span>
-
-                <h2>{selectedPet.name}</h2>
-
-                <p>
-                    {selectedPet.type || "Pet"} • {selectedPet.breed || "Unknown breed"}
-                </p>
-            </div>
-
-            <div className="browse-pet-details-grid">
-                <article>
-                    <span>Age</span>
-                    <strong>{selectedPet.age || "Unknown"}</strong>
-                </article>
-                <article>
-                    <span>Gender</span>
-                    <strong>{selectedPet.gender || "Unknown"}</strong>
-                </article>
-                <article>
-                    <span>Size</span>
-                    <strong>{selectedPet.size || "Unknown"}</strong>
-                </article>
-                <article>
-                    <span>Location</span>
-                    <strong>{selectedPet.location || "RescueBase Shelter"}</strong>
-                </article>
-            </div>
-
-            <section className="browse-pet-information">
-                <h3>Personality</h3>
-                <p>{selectedPet.personality || "Behavior information has not been added yet."}</p>
-            </section>
-
-            <section className="browse-pet-information">
-                <h3>Ideal Home</h3>
-                <p>{selectedPet.idealHome || "Contact the shelter for additional information."}</p>
-            </section>
-
-            <section className="browse-pet-information">
-                <h3>Health Status</h3>
-                <p>{selectedPet.health || "Health information is not available."}</p>
-            </section>
-
-            <section className="browse-pet-information">
-                <h3>Rescue Story</h3>
-                <p>{selectedPet.story || `${selectedPet.name} is currently under the care of RescueBase.`}</p>
-            </section>
-
-            <button
-                type="button"
-                className="browse-pet-apply-button"
-                onClick={() => handleApply(selectedPet)}
-                disabled={selectedPet.status !== "available" || hasPendingApplication}
-            >
-                {hasPendingApplication
-                    ? `Pending application for ${applicationStatus?.petName || "another animal"}`
-                    : selectedPet.status === "available"
-                        ? `Apply to Adopt ${selectedPet.name}`
-                        : "Currently Not Available"}
-            </button>
-        </aside>
-    );
-}
+        return (
+            <PetDetailPanel
+                className="adopter-panel adopter-detail-panel"
+                pet={selectedPet}
+                hasPendingApplication={hasPendingApplication}
+                applicationStatus={applicationStatus}
+                onApply={handleApply}
+            />
+        );
+    }
     
     function renderOverview() {
         return (
