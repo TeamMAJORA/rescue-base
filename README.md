@@ -9,7 +9,7 @@ Integrated Shelter Management and Adoption Information System  RESCUEBASE
 ## Project Structure
 
 ```
-Rescuebasev2/
+Rescuebase/
 ├── rescue-base/          # Frontend (React + Vite)
 └── rescuebase-server/    # Backend (Node.js + Express API)
 ```
