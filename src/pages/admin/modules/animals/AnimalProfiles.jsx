@@ -215,6 +215,42 @@ export default function AnimalProfiles() {
 
     const [formSnapshot, setFormSnapshot] = useState(emptyAnimalForm);
     const [showDiscardModal, setShowDiscardModal] = useState(false);
+
+    const [toast, setToast] = useState(null);
+
+    // Auto-hide the toast after 4 seconds
+    useEffect(() => {
+        if (!toast) return;
+
+        const timer = setTimeout(() => setToast(null), 4000);
+        return () => clearTimeout(timer);
+    }, [toast]);
+
+    function showToast(text, type = "success") {
+        setToast({ text, type, id: Date.now() });
+    }
+
+    const toastElement = toast && (
+        <div
+            key={toast.id}
+            className={`admin-toast ${toast.type}`}
+            role="status"
+            aria-live="polite"
+        >
+            <span className="admin-toast-icon">
+                {toast.type === "success" ? "✓" : "!"}
+            </span>
+            <p>{toast.text}</p>
+            <button
+                type="button"
+                aria-label="Close"
+                onClick={() => setToast(null)}
+            >
+                ×
+            </button>
+        </div>
+    );
+
     const [activeFormTab, setActiveFormTab] = useState("overview");
     const [editingAnimal, setEditingAnimal] = useState(null);
 
@@ -401,9 +437,13 @@ export default function AnimalProfiles() {
             console.log("Save animal:", data);
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to save animal profile.");
+                const errorText = data.message || "Failed to save animal profile.";
+                setMessage(errorText);
+                showToast(errorText, "error");
                 return;
             }
+
+            setMessage("");
 
             if (!editingId) {
                 const newAnimal = data.animal;
@@ -411,19 +451,19 @@ export default function AnimalProfiles() {
                 if (!newAnimal?._id) {
                     // Fallback: server didn't return the new animal
                     closeForm();
-                    setMessage("Animal profile created successfully.");
+                    showToast(`${animalForm.name} was added successfully.`);
                     fetchAnimals();
                     return;
                 }
 
                 setEditingId(newAnimal._id);
                 setEditingAnimal(newAnimal);
-                setMessage(
-                    "Animal saved. You can now fill in Behavioral Assessment, Vaccinations and Medical Records."
+                showToast(
+                    `${newAnimal.name} was added! You can now fill in the other tabs.`
                 );
             } else {
                 setEditingAnimal((current) => data.animal || { ...current, ...payload });
-                setMessage("Animal profile updated successfully.");
+                showToast(`${animalForm.name}'s profile was updated.`);
             }
 
             setFormSnapshot({ ...animalForm });
@@ -431,6 +471,7 @@ export default function AnimalProfiles() {
         } catch (error) {
             console.error("Save animal error:", error);
             setMessage("Server error while saving animal profile.");
+            showToast("Server error while saving. Please try again.", "error");
         } finally {
             setSubmitting(false);
         }
@@ -613,6 +654,7 @@ export default function AnimalProfiles() {
         if (showForm && canManage) {
         return (
             <section className="admin-animal-page">
+                {toastElement}
                 <div className="admin-page-header">
                     <div>
                         <h2>{editingId ? "Edit Animal" : "Add Animal"}</h2>
@@ -1044,6 +1086,7 @@ export default function AnimalProfiles() {
 
     return (
         <section className="admin-animal-page">
+            {toastElement}
             <div className="admin-page-header">
                 <div>
                     <h2>Animal Profiles</h2>
