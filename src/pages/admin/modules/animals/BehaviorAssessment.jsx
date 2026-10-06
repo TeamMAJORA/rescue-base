@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
+import InfoTip from "../../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -18,16 +19,77 @@ const emptyForm = {
     notes: "",
 };
 
-const factorLabels = [
-    ["Energy Level", "energyLevel"],
-    ["Friendliness", "friendliness"],
-    ["Human Sociability", "humanSociability"],
-    ["Animal Sociability", "animalSociability"],
-    ["Trainability", "trainability"],
-    ["Anxiety Level", "anxietyLevel"],
-    ["Aggression Level", "aggressionLevel"],
-    ["Activity Level", "activityLevel"],
-]
+const SCORE_LABELS = {
+    1: "Very Low",
+    2: "Low",
+    3: "Moderate",
+    4: "High",
+    5: "Very High",
+};
+
+const TRAIT_GROUPS = [
+    {
+        title: "Temperament",
+        traits: [
+            { key: "energyLevel", label: "Energy Level", description: "How much energy the animal shows day to day.", low: "Calm", high: "Hyper" },
+            { key: "activityLevel", label: "Activity Level", description: "How much exercise and play it needs.", low: "Laid-back", high: "Very active" },
+            { key: "anxietyLevel", label: "Anxiety Level", description: "How easily it becomes stressed or fearful.", low: "Relaxed", high: "Very anxious" },
+            { key: "aggressionLevel", label: "Aggression Level", description: "Tendency to growl, snap or guard things.", low: "Gentle", high: "Reactive" },
+        ],
+    },
+    {
+        title: "Social and Learning",
+        traits: [
+            { key: "friendliness", label: "Friendliness", description: "General warmth toward people it meets.", low: "Reserved", high: "Very friendly" },
+            { key: "humanSociability", label: "Human Sociability", description: "Comfort with handling, strangers and kids.", low: "Shy", high: "Loves people" },
+            { key: "animalSociability", label: "Animal Sociability", description: "How it gets along with other animals.", low: "Prefers alone", high: "Loves company" },
+            { key: "trainability", label: "Trainability", description: "How quickly it picks up cues and routines.", low: "Stubborn", high: "Eager learner" },
+        ],
+    },
+];
+
+const BEHAVIOR_TRAITS = TRAIT_GROUPS.flatMap((group) => group.traits);
+
+const countRated = (form) =>
+    BEHAVIOR_TRAITS.filter((t) => form[t.key] !== null && form[t.key] !== "" && form[t.key] !== undefined).length;
+
+function TraitScale({ trait, value, onChange }) {
+    const score = Number(value);
+    const hasScore = score >= 1 && score <= 5;
+
+    return (
+        <div className="admin-trait-card">
+            <div className="admin-trait-head">
+                <div>
+                    <h4>{trait.label}</h4>
+                    <p>{trait.description}</p>
+                </div>
+                <span className={`admin-trait-badge${hasScore ? "" : " empty"}`}>
+                    {hasScore ? `${score} · ${SCORE_LABELS[score]}` : "Not rated"}
+                </span>
+            </div>
+
+            <div className="admin-trait-scale" role="radiogroup" aria-label={trait.label}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                        key={n}
+                        type="button"
+                        role="radio"
+                        aria-checked={score === n}
+                        aria-label={`${n} – ${SCORE_LABELS[n]}`}
+                        className={`admin-trait-segment${hasScore && n <= score ? " filled" : ""}${score === n ? " selected" : ""}`}
+                        onClick={() => onChange(trait.key, n)}
+                    />
+                ))}
+            </div>
+
+            <div className="admin-trait-ends">
+                <span>{trait.low}</span>
+                <span>{trait.high}</span>
+            </div>
+        </div>
+    );
+}
 function buildFormFromAnimal(animal) {
     return {
         ...emptyForm,
@@ -262,10 +324,11 @@ export default function BehaviorAssessment({ lockedAnimal = null }) {
                  {!lockedAnimal && (
                     <div className="admin-panel-heading">
                         <div>
-                            <h2>
+                            <h2 className="admin-heading-with-tip">
                                 {editingId
                                     ? "Edit Behavioral Assessment"
                                     : "Behavioral Assessment"}
+                                <InfoTip text="Rate each of the 8 traits from 1 (Very Low) to 5 (Very High) based on what you observed. These scores feed the adopter compatibility match and the personality tags shown on the animal's profile." />
                             </h2>
 
                             <p>
@@ -280,152 +343,120 @@ export default function BehaviorAssessment({ lockedAnimal = null }) {
                     className="admin-behavior-form"
                     onSubmit={handleSubmit}
                 >
-                    {lockedAnimal ? (
-                        <label>
-                            Animal
-                            <input value={lockedAnimal.name} readOnly />
-                        </label>
-                    ) : (
-                        <label>
-                            Animal
+                    <div className="admin-behavior-top-row">
+                        {lockedAnimal ? (
+                            <label>
+                                Animal
+                                <input value={lockedAnimal.name} readOnly />
+                            </label>
+                        ) : (
+                            <label>
+                                Animal
+                                <select
+                                    value={form.animalId}
+                                    onChange={handleAnimalChange}
+                                    required
+                                >
+                                    <option value="">Select an animal</option>
+                                    {animals.map((animal) => (
+                                        <option key={animal._id} value={animal._id}>
+                                            {animal.name} — {animal.type}
+                                            {animal.breed ? ` — ${animal.breed}` : ""}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                        )}
 
-                            <select
-                                value={form.animalId}
-                                onChange={handleAnimalChange}
+                        <label>
+                            Assessed By
+                            <input
+                                value={form.assessor}
+                                onChange={(e) => updateField("assessor", e.target.value)}
+                                placeholder="Shelter Staff / Volunteer"
                                 required
-                            >
-                                <option value="">
-                                    Select an animal
-                                </option>
+                            />
+                        </label>
 
-                                {animals.map((animal) => (
-                                    <option
-                                        key={animal._id}
-                                        value={animal._id}
-                                    >
-                                        {animal.name} — {animal.type}
-                                        {animal.breed
-                                            ? ` — ${animal.breed}`
-                                            : ""}
-                                    </option>
+                        <label>
+                            Assessment Date
+                            <input
+                                type="date"
+                                value={form.assessmentDate}
+                                onChange={(e) => updateField("assessmentDate", e.target.value)}
+                                required
+                            />
+                        </label>
+                    </div>
+
+                    <div className="admin-behavior-progress">
+                        <div className="admin-behavior-progress-text">
+                            <span>Traits rated</span>
+                            <strong>
+                                {countRated(form)} of {BEHAVIOR_TRAITS.length}
+                            </strong>
+                        </div>
+                        <div className="admin-behavior-progress-track">
+                            <div
+                                className="admin-behavior-progress-fill"
+                                style={{
+                                    width: `${(countRated(form) / BEHAVIOR_TRAITS.length) * 100}%`,
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {TRAIT_GROUPS.map((group) => (
+                        <fieldset key={group.title} className="admin-trait-group">
+                            <legend>{group.title}</legend>
+                            <div className="admin-trait-grid">
+                                {group.traits.map((trait) => (
+                                    <TraitScale
+                                        key={trait.key}
+                                        trait={trait}
+                                        value={form[trait.key]}
+                                        onChange={updateField}
+                                    />
                                 ))}
-                            </select>
-                        </label>
-                    )}
-
-                    <label>
-                        Assessed By
-
-                        <input
-                            value={form.assessor}
-                            onChange={(e) =>
-                                updateField(
-                                    "assessor",
-                                    e.target.value
-                                )
-                            }
-                            placeholder="Shelter Staff / Volunteer"
-                            required
-                        />
-                    </label>
-
-                    <label>
-                        Assessment Date
-
-                        <input
-                            type="date"
-                            value={form.assessmentDate}
-                            onChange={(e) =>
-                                updateField(
-                                    "assessmentDate",
-                                    e.target.value
-                                )
-                            }
-                            required
-                        />
-                    </label>
-
-                    {factorLabels.map(([label, key]) => (
-                        <label key={key}>
-                            {label}
-
-                            <select
-                                value={form[key]}
-                                onChange={(e) =>
-                                    updateField(
-                                        key,
-                                        Number(e.target.value)
-                                    )
-                                }
-                            >
-                                <option value={1}>
-                                    1 — Very Low
-                                </option>
-
-                                <option value={2}>
-                                    2 — Low
-                                </option>
-
-                                <option value={3}>
-                                    3 — Moderate
-                                </option>
-
-                                <option value={4}>
-                                    4 — High
-                                </option>
-
-                                <option value={5}>
-                                    5 — Very High
-                                </option>
-                            </select>
-                        </label>
+                            </div>
+                        </fieldset>
                     ))}
 
                     <label className="admin-behavior-notes-field">
                         Behavior Notes
-
                         <textarea
                             rows="5"
                             value={form.notes}
-                            onChange={(e) =>
-                                updateField(
-                                    "notes",
-                                    e.target.value
-                                )
-                            }
+                            onChange={(e) => updateField("notes", e.target.value)}
                             placeholder="Describe observed behavior..."
                         />
                     </label>
 
                     {message && (
-                        <p
-                            className={`admin-behavior-message ${messageType}`}
-                        >
+                        <p className={`admin-behavior-message ${messageType}`}>
                             {message}
                         </p>
                     )}
 
-                    <button
-                        type="submit"
-                        disabled={submitting}
-                    >
-                        {submitting
-                            ? "Saving..."
-                            : editingId
-                                ? "Update Assessment"
-                                : "Save Assessment"}
-                    </button>
-
-                    {editingId && (
-                        <button
-                            type="button"
-                            className="admin-secondary-button"
-                            onClick={handleCancelEdit}
-                            disabled={submitting}
-                        >
-                            Cancel
+                    <div className="admin-behavior-form-footer">
+                        {editingId && (
+                            <button
+                                type="button"
+                                className="admin-secondary-button"
+                                onClick={handleCancelEdit}
+                                disabled={submitting}
+                            >
+                                Cancel
+                            </button>
+                        )}
+                        <button type="submit" disabled={submitting}>
+                            {submitting
+                                ? "Saving..."
+                                : editingId
+                                    ? "Update Assessment"
+                                    : "Save Assessment"}
                         </button>
-                    )}
+                    </div>
                 </form>
             </section>
 

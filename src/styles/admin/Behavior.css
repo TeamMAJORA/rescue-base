@@ -32,14 +32,11 @@
 }
 
 .admin-behavior-form {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-
-    padding: 18px;
-
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 20px;
     border-radius: 20px;
-
     background: #fffaf0;
     border: 1px solid rgba(90, 27, 0, 0.1);
 }
@@ -47,9 +44,7 @@
 .admin-behavior-form label {
     display: grid;
     gap: 7px;
-
     color: #5a1b00;
-
     font-size: 13px;
     font-weight: 800;
 }
@@ -59,71 +54,207 @@
 .admin-behavior-form textarea {
     width: 100%;
     box-sizing: border-box;
-
     min-height: 42px;
-
     border: 1px solid rgba(90, 27, 0, 0.16);
     border-radius: 14px;
-
     padding: 10px 12px;
-
     background: white;
     color: #5a1b00;
-
     font-family: inherit;
     font-size: 14px;
-
     outline: none;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.admin-behavior-form textarea {
-    min-height: 110px;
-    resize: vertical;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-behavior-form input:focus,
 .admin-behavior-form select:focus,
 .admin-behavior-form textarea:focus {
     border-color: #fb8500;
-
-    box-shadow:
-        0 0 0 3px rgba(251, 133, 0, 0.12);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
 .admin-behavior-form select {
     cursor: pointer;
 }
 
-.admin-behavior-notes-field {
-    grid-column: 1 / -1;
-    width: 100%;
+/* Top row: Animal / Assessed By / Date */
+.admin-behavior-top-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr;
+    gap: 14px;
 }
 
-.admin-behavior-notes-field textarea {
-    width: 100%;
-    min-height: 110px;
-    box-sizing: border-box;
+/* Progress */
+.admin-behavior-progress {
+    display: grid;
+    gap: 8px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #fff7cb;
+    border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
-.admin-behavior-message {
-    grid-column: 1 / -1;
+.admin-behavior-progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
+}
 
+.admin-behavior-progress-text strong {
+    font-family: "Itim", cursive;
+    font-size: 18px;
+    font-weight: 400;
+    color: #fb8500;
+}
+
+.admin-behavior-progress-track {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.1);
+    overflow: hidden;
+}
+
+.admin-behavior-progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: #fb8500;
+    transition: width 0.25s ease;
+}
+
+/* Trait groups */
+.admin-trait-group {
     margin: 0;
+    padding: 0;
+    border: none;
+    min-width: 0;
+}
 
+.admin-trait-group legend {
+    padding: 0;
+    margin-bottom: 10px;
+    color: rgba(90, 27, 0, 0.6);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-trait-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.admin-trait-card {
+    display: grid;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: white;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.admin-trait-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.admin-trait-head h4 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 17px;
+    font-weight: 400;
+    color: #5a1b00;
+}
+
+.admin-trait-head p {
+    margin: 3px 0 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgba(90, 27, 0, 0.62);
+}
+
+.admin-trait-badge {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #c26700;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-trait-badge.empty {
+    background: #f4efe6;
+    color: rgba(90, 27, 0, 0.5);
+    border-color: rgba(90, 27, 0, 0.1);
+}
+
+/* 5-segment bar */
+.admin-trait-scale {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+
+.admin-trait-segment {
+    height: 12px;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.1);
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-trait-segment:hover {
+    background: rgba(251, 133, 0, 0.35);
+}
+
+.admin-trait-segment.filled {
+    background: rgba(251, 133, 0, 0.55);
+}
+
+.admin-trait-segment.selected {
+    background: #fb8500;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px #5a1b00;
+}
+
+.admin-trait-segment:focus-visible {
+    outline: 2px solid #5a1b00;
+    outline-offset: 3px;
+}
+
+.admin-trait-ends {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(90, 27, 0, 0.55);
+}
+
+/* Notes */
+.admin-behavior-notes-field textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+/* Message */
+.admin-behavior-message {
+    margin: 0;
     padding: 12px 16px;
-
     border-radius: 14px;
-
     background: #fff7cb;
     color: #5a1b00;
-
     font-size: 14px;
     font-weight: 800;
-
     border: 1px solid rgba(251, 133, 0, 0.22);
 }
 
@@ -139,42 +270,33 @@
     border-color: #edc7c2;
 }
 
-.admin-behavior-form > button {
-    grid-column: 1 / -1;
+/* Footer buttons */
+.admin-behavior-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
 
-    width: 100%;
+.admin-behavior-form-footer button {
     min-height: 42px;
-
-    justify-self: stretch;
-    align-self: center;
-
-    margin: 0;
-
+    padding: 11px 22px;
     border: none;
     border-radius: 14px;
-
-    padding: 11px 18px;
-
     background: #fb8500;
     color: white;
-
     font-family: inherit;
     font-size: 13px;
     font-weight: 900;
-
     cursor: pointer;
-
-    transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.admin-behavior-form > button:hover:not(:disabled) {
+.admin-behavior-form-footer button:hover:not(:disabled) {
     opacity: 0.9;
     transform: translateY(-1px);
 }
 
-.admin-behavior-form > button:disabled {
+.admin-behavior-form-footer button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
@@ -403,4 +525,53 @@
         grid-column: 1 / -1;
         width: 100%;
     }
+}
+
+@media (max-width: 1200px) {
+    .admin-behavior-top-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-behavior-top-row > label:first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 780px) {
+    .admin-behavior-top-row,
+    .admin-trait-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-behavior-form-footer {
+        flex-direction: column-reverse;
+    }
+
+    .admin-behavior-form-footer button {
+        width: 100%;
+    }
+}
+
+/* "?" tip beside the Behavioral Assessment heading */
+.admin-heading-with-tip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-heading-with-tip .admin-info-tip,
+.admin-heading-with-tip .admin-info-tip-bubble {
+    font-family: "Inter", sans-serif;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.admin-heading-with-tip .admin-info-tip-bubble {
+    left: -12px;
+    right: auto;
+}
+
+.admin-heading-with-tip .admin-info-tip-bubble::before {
+    left: 15px;
+    right: auto;
 }
