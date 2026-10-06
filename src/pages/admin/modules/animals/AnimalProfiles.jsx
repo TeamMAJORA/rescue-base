@@ -531,6 +531,8 @@ export default function AnimalProfiles() {
 
     async function handleSubmitAnimal(e) {
         e.preventDefault();
+        
+        if (!isFormDirty) return;
 
         try {
             setSubmitting(true);
@@ -1143,7 +1145,8 @@ export default function AnimalProfiles() {
                                 <button
                                     type="submit"
                                     className="admin-form-save"
-                                    disabled={submitting || imageUploading}
+                                    disabled={submitting || imageUploading || !isFormDirty}
+                                    title={!isFormDirty ? "No changes to save" : undefined}
                                 >
                                     {submitting
                                         ? "Saving..."
