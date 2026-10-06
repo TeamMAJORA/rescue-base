@@ -139,6 +139,12 @@ export default function AnimalProfiles() {
     const [expandedId, setExpandedId] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
+    const [formSnapshot, setFormSnapshot] = useState(emptyAnimalForm);
+    const [showDiscardModal, setShowDiscardModal] = useState(false);
+
+    const isFormDirty =
+        JSON.stringify(animalForm) !== JSON.stringify(formSnapshot);
+
     const token = localStorage.getItem("token");
 
     const totalAnimals = animals.length;
@@ -379,9 +385,7 @@ export default function AnimalProfiles() {
     }
 
     function handleEditAnimal(animal) {
-        setEditingId(animal._id);
-
-        setAnimalForm({
+        const editForm = {
             name: animal.name || "",
             type: animal.type || "Dog",
             breed: animal.breed || "",
@@ -398,11 +402,14 @@ export default function AnimalProfiles() {
             adoptionStatus: animal.adoptionStatus || "available",
             fosterStatus: animal.fosterStatus || "none",
             location: animal.location || "RescueBase Shelter",
-        });
+        };
 
+        setEditingId(animal._id);
+        setAnimalForm(editForm);
+        setFormSnapshot(editForm);
         setMessage("Editing animal profile.");
-            setShowForm(true);
-            window.scrollTo({ top: 0 });
+        setShowForm(true);
+        window.scrollTo({ top: 0 });
     }
 
     function handleCancelEdit() {
@@ -413,14 +420,25 @@ export default function AnimalProfiles() {
 
     function handleAddAnimal() {
         handleCancelEdit();
+        setFormSnapshot(emptyAnimalForm);
         setShowForm(true);
         window.scrollTo({ top: 0 });
     }
 
-    function handleBackToList() {
+    function closeForm() {
         handleCancelEdit();
+        setShowDiscardModal(false);
         setShowForm(false);
         window.scrollTo({ top: 0 });
+    }
+
+    function handleBackToList() {
+        if (isFormDirty) {
+            setShowDiscardModal(true);
+            return;
+        }
+
+        closeForm();
     }
 
     async function handleDeleteAnimal(id) {
@@ -471,6 +489,18 @@ export default function AnimalProfiles() {
         fetchQrCodes();
     }, []);
 
+    useEffect(() => {
+        if (!showForm || !isFormDirty) return;
+
+        function handleBeforeUnload(e) {
+            e.preventDefault();
+            e.returnValue = "";
+        }
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, [showForm, isFormDirty]);
+
         if (showForm) {
         return (
             <section className="admin-animal-page">
@@ -492,8 +522,6 @@ export default function AnimalProfiles() {
                         ← Back to list
                     </button>
                 </div>
-                
-            {message && <p className="admin-animal-message">{message}</p>}
 
                 <section className="admin-panel admin-animal-form-panel" id="animal-form">
                  <div className="admin-panel-heading">
@@ -748,6 +776,46 @@ export default function AnimalProfiles() {
                     </button>
                 </form>
             </section>
+
+            {showDiscardModal && (
+                <div
+                    className="admin-modal-backdrop"
+                    onClick={() => setShowDiscardModal(false)}
+                >
+                    <div
+                        className="admin-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="discard-title"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 id="discard-title">Discard changes?</h3>
+                        <p>
+                            {editingId
+                                ? "Your edits to this animal haven't been saved. If you leave now, they'll be lost."
+                                : "This new animal hasn't been saved. If you leave now, everything you entered will be lost."}
+                        </p>
+
+                        <div className="admin-modal-actions">
+                            <button
+                                type="button"
+                                className="admin-modal-cancel"
+                                onClick={() => setShowDiscardModal(false)}
+                            >
+                                Keep Editing
+                            </button>
+
+                            <button
+                                type="button"
+                                className="admin-modal-danger"
+                                onClick={closeForm}
+                            >
+                                Discard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             </section>
         );
     }
