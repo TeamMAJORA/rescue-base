@@ -211,6 +211,14 @@ export default function AnimalProfiles() {
         setMessage("");
     }
 
+    function handleAddAnimal() {
+        handleCancelEdit();
+
+        document
+            .getElementById("animal-form")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
     async function handleDeleteAnimal(id) {
 
         if (!isAdmin()) {
@@ -260,6 +268,21 @@ export default function AnimalProfiles() {
 
     return (
         <section className="admin-animal-page">
+            <div className="admin-page-header">
+                <div>
+                    <h2>Animal Profiles</h2>
+                    <p>Manage every animal under shelter care.</p>
+                </div>
+
+                <button
+                    type="button"
+                    className="admin-page-header-btn"
+                    onClick={handleAddAnimal}
+                >
+                    + Add Animal
+                </button>
+            </div>
+            
             <div className="admin-animal-stats">
                 <article className="admin-stat-card">
                     <span>Total Animals</span>
@@ -282,7 +305,7 @@ export default function AnimalProfiles() {
                 </article>
             </div>
 
-            <section className="admin-panel admin-animal-form-panel">
+            <section className="admin-panel admin-animal-form-panel" id="animal-form">
                 <div className="admin-panel-heading">
                     <div>
                         <h2>{editingId ? "Update Animal Profile" : "Create Animal Profile"}</h2>
