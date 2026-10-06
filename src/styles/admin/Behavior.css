@@ -307,45 +307,6 @@
 
     border: 1px solid rgba(251, 133, 0, 0.18) !important;
 }
-.admin-behavior-list-panel > input,
-.admin-behavior-list-panel > select {
-    box-sizing: border-box;
-
-    min-height: 42px;
-
-    border: 1px solid rgba(90, 27, 0, 0.16);
-    border-radius: 14px;
-
-    padding: 10px 12px;
-
-    background: white;
-    color: #5a1b00;
-
-    font-family: inherit;
-    font-size: 14px;
-
-    outline: none;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.admin-behavior-list-panel > input {
-    width: 100%;
-}
-
-.admin-behavior-list-panel > select {
-    width: 220px;
-}
-
-.admin-behavior-list-panel > input:focus,
-.admin-behavior-list-panel > select:focus {
-    border-color: #fb8500;
-
-    box-shadow:
-        0 0 0 3px rgba(251, 133, 0, 0.12);
-}
 
 .admin-behavior-list {
     display: grid;
@@ -574,4 +535,104 @@
 .admin-heading-with-tip .admin-info-tip-bubble::before {
     left: 15px;
     right: auto;
+}
+
+/* ===== Current Behavioral Profiles header + toolbar ===== */
+.admin-behavior-list-panel .admin-panel-heading {
+    align-items: flex-start;
+    margin-bottom: 0;
+}
+
+.admin-behavior-list-panel .admin-panel-heading p {
+    font-size: 13px;
+}
+
+.admin-behavior-list-panel .admin-panel-heading .admin-behavior-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 10px;
+    background: transparent;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.admin-behavior-list-panel .admin-panel-heading .admin-behavior-refresh:hover:not(:disabled) {
+    background: #fff7cb;
+}
+
+.admin-behavior-list-panel .admin-panel-heading .admin-behavior-refresh:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.admin-behavior-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-behavior-toolbar input,
+.admin-behavior-toolbar select {
+    box-sizing: border-box;
+    height: 38px;
+    border: 1.5px solid rgba(90, 27, 0, 0.45);
+    border-radius: 10px;
+    background: white;
+    color: #5a1b00;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-behavior-toolbar input {
+    flex: 1;
+    min-width: 0;
+    padding: 0 14px;
+    font-size: 14px;
+}
+
+.admin-behavior-toolbar input::placeholder {
+    color: rgba(90, 27, 0, 0.45);
+}
+
+.admin-behavior-toolbar select {
+    flex-shrink: 0;
+    width: auto;
+    padding: 0 30px 0 14px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%235a1b00'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.admin-behavior-toolbar input:focus,
+.admin-behavior-toolbar select:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+@media (max-width: 780px) {
+    .admin-behavior-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .admin-behavior-toolbar input {
+        flex-basis: 100%;
+    }
+
+    .admin-behavior-toolbar select {
+        flex: 1;
+    }
 }

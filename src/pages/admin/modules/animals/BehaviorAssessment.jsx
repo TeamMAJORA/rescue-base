@@ -116,6 +116,7 @@ export default function BehaviorAssessment({ lockedAnimal = null }) {
     const [editingId, setEditingId] = useState("");
     const [search, setSearch] = useState("");
     const [filterAssessor, setFilterAssessor] = useState("All");
+    const [filterSpecies, setFilterSpecies] = useState("All");
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState("");
@@ -303,9 +304,12 @@ export default function BehaviorAssessment({ lockedAnimal = null }) {
 
     const assessors = [
         ...new Set(
-            animals
-                .map((animal) => animal.behaiorAssessor).filter(Boolean)
+            animals.map((animal) => animal.behaiorAssessor).filter(Boolean)
         ),
+    ];
+
+    const speciesOptions = [
+        ...new Set(animals.map((animal) => animal.type).filter(Boolean)),
     ];
 
     const filteredAnimals = animals.filter((animal) => {
@@ -314,8 +318,9 @@ export default function BehaviorAssessment({ lockedAnimal = null }) {
             animal.breed?.toLowerCase().includes(searchValue);
         const hasAssessment = animal.energyLevel !== null && animal.energyLevel !== undefined;
         const matchesAssessor = filterAssessor === "All" || animal.behaiorAssessor === filterAssessor;
+        const matchesSpecies = filterSpecies === "All" || animal.type === filterSpecies;
 
-        return matchesSearch && matchesAssessor && hasAssessment;
+        return matchesSearch && matchesAssessor && matchesSpecies && hasAssessment;
     });
 
     return (
@@ -476,41 +481,46 @@ export default function BehaviorAssessment({ lockedAnimal = null }) {
 
                     <button
                         type="button"
+                        className="admin-behavior-refresh"
                         onClick={fetchAnimals}
                         disabled={loading}
                     >
-                        Refresh
+                        <span aria-hidden="true">⟲</span> Refresh
                     </button>
                 </div>
 
-                <input
-                    type="text"
-                    placeholder="Search animal..."
-                    value={search}
-                    onChange={(e) =>
-                        setSearch(e.target.value)
-                    }
-                />
+                <div className="admin-behavior-toolbar">
+                    <input
+                        type="text"
+                        placeholder="Search animal..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
 
-                <select
-                    value={filterAssessor}
-                    onChange={(e) =>
-                        setFilterAssessor(e.target.value)
-                    }
-                >
-                    <option value="All">
-                        All Assessors
-                    </option>
+                    <select
+                        value={filterAssessor}
+                        onChange={(e) => setFilterAssessor(e.target.value)}
+                    >
+                        <option value="All">All Assessors</option>
+                        {assessors.map((assessor) => (
+                            <option key={assessor} value={assessor}>
+                                {assessor}
+                            </option>
+                        ))}
+                    </select>
 
-                    {assessors.map((assessor) => (
-                        <option
-                            key={assessor}
-                            value={assessor}
-                        >
-                            {assessor}
-                        </option>
-                    ))}
-                </select>
+                    <select
+                        value={filterSpecies}
+                        onChange={(e) => setFilterSpecies(e.target.value)}
+                    >
+                        <option value="All">Species: All</option>
+                        {speciesOptions.map((species) => (
+                            <option key={species} value={species}>
+                                {species}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
                 {loading ? (
                     <p className="admin-empty">
