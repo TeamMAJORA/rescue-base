@@ -75,6 +75,144 @@ const STATUS_FILTERS = [
     { key: "adopted", label: "Adopted" },
 ];
 
+// ===== Adopter Preview (live, read-only) =====
+function getPreviewPersonalityTags(animal) {
+    if (!animal) return [];
+
+    const has = (value) => typeof value === "number";
+    const tags = [];
+
+    if (has(animal.trainability) && animal.trainability >= 4) tags.push("Well-trained");
+    if (has(animal.aggressionLevel) && animal.aggressionLevel <= 2) tags.push("Gentle");
+    if (has(animal.energyLevel) && animal.energyLevel <= 2) tags.push("Calm");
+    if (has(animal.energyLevel) && animal.energyLevel >= 4) tags.push("Energetic");
+    if (has(animal.anxietyLevel) && animal.anxietyLevel >= 4) tags.push("Needs patience");
+    if (has(animal.humanSociability) && animal.humanSociability >= 4) tags.push("Friendly");
+    if (has(animal.animalSociability) && animal.animalSociability >= 4) tags.push("Pet-friendly");
+
+    return tags;
+}
+
+function PawIcon() {
+    return (
+        <svg width="46" height="46" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <g stroke="var(--orange)" strokeWidth="3.5">
+                <ellipse cx="13" cy="20" rx="4" ry="5" />
+                <ellipse cx="20" cy="12" rx="4" ry="5" />
+                <ellipse cx="28" cy="12" rx="4" ry="5" />
+                <ellipse cx="35" cy="20" rx="4" ry="5" />
+                <path d="M24 23c-6 0-11 7-11 12 0 4 3 6 6 5 2-.7 3.5-1.5 5-1.5s3 .8 5 1.5c3 1 6-1 6-5 0-5-5-12-11-12z" />
+            </g>
+        </svg>
+    );
+}
+
+function AdopterPreview({ form, savedAnimal }) {
+    const status = getAnimalStatus(form);
+    const personalityTags = getPreviewPersonalityTags(savedAnimal);
+
+    const subtitleParts = [
+        { value: form.type, label: "Species" },
+        { value: form.breed, label: "Breed" },
+        { value: form.color, label: "Color" },
+    ];
+
+    const age =
+        form.age !== "" && form.age !== null && form.age !== undefined
+            ? `${form.age} ${Number(form.age) === 1 ? "year" : "years"}`
+            : "—";
+
+    return (
+        <aside className="admin-panel admin-adopter-preview">
+            <div className="admin-adopter-preview-heading">
+                <h3>
+                    Adopter Preview
+                    <span className="admin-auto-badge">AUTO</span>
+                </h3>
+                <p>Updates as you fill in the form. Not editable.</p>
+            </div>
+
+            <div className="admin-preview-card">
+                <div className="admin-preview-photo">
+                    {form.image ? <img src={form.image} alt="" /> : <PawIcon />}
+                </div>
+
+                {status !== "available" && (
+                    <p className="admin-preview-hidden">
+                        Hidden from adopters ({ANIMAL_STATUS_LABELS[status]})
+                    </p>
+                )}
+
+                <div className="admin-preview-body">
+                    <h4 className={form.name ? "" : "is-empty"}>
+                        {form.name || "New animal"}
+                    </h4>
+
+                    <p className="admin-preview-subtitle">
+                        {subtitleParts.map((part, index) => (
+                            <span key={part.label}>
+                                {index > 0 && " · "}
+                                <span className={part.value ? "" : "is-empty"}>
+                                    {part.value || part.label}
+                                </span>
+                            </span>
+                        ))}
+                    </p>
+
+                    <div className="admin-preview-grid">
+                        <div>
+                            <span>Age</span>
+                            <strong>{age}</strong>
+                        </div>
+                        <div>
+                            <span>Gender</span>
+                            <strong>{form.gender || "—"}</strong>
+                        </div>
+                        <div>
+                            <span>Size</span>
+                            <strong>{form.size || "—"}</strong>
+                        </div>
+                        <div>
+                            <span>Location</span>
+                            <strong>{form.location || "RescueBase Shelter"}</strong>
+                        </div>
+                    </div>
+
+                    <div className="admin-preview-section">
+                        <h5>
+                            Personality
+                            <InfoTip text="Generated from the Behavioral Assessment scores. Save the assessment to update these tags." />
+                        </h5>
+                        {personalityTags.length > 0 ? (
+                            <div className="admin-preview-tags">
+                                {personalityTags.map((tag) => (
+                                    <span key={tag} className="personality">{tag}</span>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="admin-preview-empty">No tags yet</p>
+                        )}
+                    </div>
+
+                    <div className="admin-preview-section">
+                        <h5>
+                            Health
+                            <InfoTip text="Comes from Medical Status. Diagnoses and treatments are never shown to adopters." />
+                        </h5>
+                        {form.medicalStatus ? (
+                            <div className="admin-preview-tags">
+                                <span className="health">{form.medicalStatus}</span>
+                            </div>
+                        ) : (
+                            <p className="admin-preview-empty">No tags yet</p>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </aside>
+    );
+}
+
 function matchesStatus(animal, statusFilter) {
     switch (statusFilter) {
         case "available":
@@ -674,372 +812,377 @@ export default function AnimalProfiles() {
                     </button>
                 </div>
 
-                <section className="admin-panel admin-animal-form-panel" id="animal-form">
-                <nav className="admin-tabs" role="tablist" aria-label="Animal profile sections">
-                    {ANIMAL_FORM_TABS.map((tab) => {
-                        const locked = tab.key !== "overview" && !editingId;
+    <div className="admin-animal-form-layout">
 
-                        return (
-                            <button
-                                key={tab.key}
-                                type="button"
-                                role="tab"
-                                aria-selected={activeFormTab === tab.key}
-                                className={activeFormTab === tab.key ? "active" : ""}
-                                disabled={locked}
-                                title={locked ? "Save the animal first to unlock this tab" : undefined}
-                                onClick={() => setActiveFormTab(tab.key)}
-                            >
-                                {tab.label}
-                            </button>
-                        );
-                    })}
-                </nav>
+                    <section className="admin-panel admin-animal-form-panel" id="animal-form">
+                    <nav className="admin-tabs" role="tablist" aria-label="Animal profile sections">
+                        {ANIMAL_FORM_TABS.map((tab) => {
+                            const locked = tab.key !== "overview" && !editingId;
 
-                <div className="admin-panel-heading admin-tab-heading">
-                    <div>
-                        <h2>{currentFormTab.title}</h2>
-                        <p>{currentFormTab.description}</p>
-                    </div>
-                </div>
+                            return (
+                                <button
+                                    key={tab.key}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={activeFormTab === tab.key}
+                                    className={activeFormTab === tab.key ? "active" : ""}
+                                    disabled={locked}
+                                    title={locked ? "Save the animal first to unlock this tab" : undefined}
+                                    onClick={() => setActiveFormTab(tab.key)}
+                                >
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </nav>
 
-        <div hidden={activeFormTab !== "overview"}>
-
-                <form className="admin-animal-form" onSubmit={handleSubmitAnimal}>
-                    {/* ===== Row 1 ===== */}
-                    <label>
-                        <span className="admin-field-label">
-                            Animal Name <span className="admin-required">*</span>
-                        </span>
-                        <input
-                            value={animalForm.name}
-                            onChange={(e) => setAnimalForm({ ...animalForm, name: e.target.value })}
-                            placeholder="e.g. Max"
-                            required
-                        />
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">
-                            Species <span className="admin-required">*</span>
-                        </span>
-                        <select
-                            value={animalForm.type}
-                            onChange={(e) => setAnimalForm({ ...animalForm, type: e.target.value })}
-                            required
-                        >
-                            <option value="" disabled>Select</option>
-                            <option value="Dog">Dog</option>
-                            <option value="Cat">Cat</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">Breed</span>
-                        <input
-                            value={animalForm.breed}
-                            onChange={(e) => setAnimalForm({ ...animalForm, breed: e.target.value })}
-                            placeholder="e.g. Shih Tzu"
-                        />
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">Color</span>
-                        <input
-                            value={animalForm.color}
-                            onChange={(e) => setAnimalForm({ ...animalForm, color: e.target.value })}
-                            placeholder="e.g. Brown and white"
-                        />
-                    </label>
-
-                    {/* ===== Row 2 ===== */}
-                    <label>
-                        <span className="admin-field-label">Age (years)</span>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.5"
-                            value={animalForm.age}
-                            onChange={(e) => setAnimalForm({ ...animalForm, age: e.target.value })}
-                            placeholder="e.g. 2"
-                        />
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">
-                            Gender <span className="admin-required">*</span>
-                        </span>
-                        <select
-                            value={animalForm.gender}
-                            onChange={(e) => setAnimalForm({ ...animalForm, gender: e.target.value })}
-                            required
-                        >
-                            <option value="" disabled>Select</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Unknown">Unknown</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">
-                            Size <span className="admin-required">*</span>
-                        </span>
-                        <select
-                            value={animalForm.size}
-                            onChange={(e) => setAnimalForm({ ...animalForm, size: e.target.value })}
-                            required
-                        >
-                            <option value="" disabled>Select</option>
-                            <option value="Small">Small</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Large">Large</option>
-                            <option value="Unknown">Unknown</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">
-                            Status <span className="admin-required">*</span>
-                            <InfoTip text="Current shelter status: Available, Pending Adoption, Fostered, Adopted or Unavailable. Changing it updates what adopters see." />
-                        </span>
-                        <select
-                            value={getAnimalStatus(animalForm)}
-                            onChange={(e) =>
-                                setAnimalForm({ ...animalForm, ...STATUS_TO_FIELDS[e.target.value] })
-                            }
-                            required
-                        >
-                            <option value="available">Available</option>
-                            <option value="pending">Pending Adoption</option>
-                            <option value="fostered">Fostered</option>
-                            <option value="adopted">Adopted</option>
-                            <option value="unavailable">Unavailable</option>
-                        </select>
-                    </label>
-
-                    {/* ===== Row 3 ===== */}
-                    <label>
-                        <span className="admin-field-label">
-                            Intake Date <span className="admin-required">*</span>
-                        </span>
-                        <input
-                            type="date"
-                            value={animalForm.intakeDate}
-                            max={todayLocal()}
-                            onChange={(e) => setAnimalForm({ ...animalForm, intakeDate: e.target.value })}
-                            required
-                        />
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">
-                            Shelter Location
-                            <InfoTip text="Where the animal is staying now. Adopters see this on the pet profile. Leave blank for Mayari Animal Rescue." />
-                        </span>
-                        <input
-                            value={animalForm.location}
-                            onChange={(e) => setAnimalForm({ ...animalForm, location: e.target.value })}
-                            placeholder="e.g. Mayari Animal Rescue"
-                        />
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">
-                            Medical Status
-                            <InfoTip text="The animal's overall health status, shown to adopters on the detail page. Diagnosis and treatment stay private in Medical Records." />
-                        </span>
-                        <select
-                            value={animalForm.medicalStatus}
-                            onChange={(e) => setAnimalForm({ ...animalForm, medicalStatus: e.target.value })}
-                        >
-                            <option value="">Select</option>
-                            {MEDICAL_STATUS_OPTIONS.map((option) => (
-                                <option key={option} value={option}>{option}</option>
-                            ))}
-                            {/* Keep older free-text values selectable */}
-                            {animalForm.medicalStatus &&
-                                !MEDICAL_STATUS_OPTIONS.includes(animalForm.medicalStatus) && (
-                                    <option value={animalForm.medicalStatus}>
-                                        {animalForm.medicalStatus}
-                                    </option>
-                                )}
-                        </select>
-                    </label>
-
-                    <label>
-                        <span className="admin-field-label">
-                            QR Code
-                            <InfoTip text="QR tags are created on the QR Tags page after the animal is saved." />
-                        </span>
-                        <input
-                            value={
-                                editingId
-                                    ? qrCodes[editingId] || "Not generated yet"
-                                    : "Available after saving"
-                            }
-                            readOnly
-                        />
-                    </label>
-
-                    {/* ===== Row 4 ===== */}
-                    <label className="admin-photo-field">
-                        <span className="admin-field-label">Photo</span>
-                        <span className="admin-photo-input">
-                            {animalForm.image && <img src={animalForm.image} alt="" />}
-                            <span>
-                                {imageUploading
-                                    ? "Uploading..."
-                                    : animalForm.image
-                                        ? "Change photo"
-                                        : "Upload JPG or PNG"}
-                            </span>
-                        </span>
-                        <input
-                            type="file"
-                            accept="image/png, image/jpeg"
-                            onChange={handleUploadAnimalImage}
-                            disabled={imageUploading}
-                        />
-                    </label>
-
-                    <label className="admin-animal-span-3">
-                        <span className="admin-field-label">Description</span>
-                        <textarea
-                            rows={1}
-                            value={animalForm.description}
-                            onChange={(e) => setAnimalForm({ ...animalForm, description: e.target.value })}
-                            placeholder="Appearance, condition, notes..."
-                        />
-                    </label>
-
-                    {/* ===== Intake record ===== */}
-                    <div className="admin-form-section admin-animal-full">
-                        <h3>Intake Record</h3>
-                        <p>How the animal came into the shelter.</p>
+                    <div className="admin-panel-heading admin-tab-heading">
+                        <div>
+                            <h2>{currentFormTab.title}</h2>
+                            <p>{currentFormTab.description}</p>
+                        </div>
                     </div>
 
-                    <div className="admin-intake-grid admin-animal-full">
+            <div hidden={activeFormTab !== "overview"}>
+
+                    <form className="admin-animal-form" onSubmit={handleSubmitAnimal}>
+                        {/* ===== Row 1 ===== */}
                         <label>
                             <span className="admin-field-label">
-                                Intake Type <span className="admin-required">*</span>
+                                Animal Name <span className="admin-required">*</span>
+                            </span>
+                            <input
+                                value={animalForm.name}
+                                onChange={(e) => setAnimalForm({ ...animalForm, name: e.target.value })}
+                                placeholder="e.g. Max"
+                                required
+                            />
+                        </label>
+
+                        <label>
+                            <span className="admin-field-label">
+                                Species <span className="admin-required">*</span>
                             </span>
                             <select
-                                value={animalForm.intakeType}
-                                onChange={(e) => setAnimalForm({ ...animalForm, intakeType: e.target.value })}
+                                value={animalForm.type}
+                                onChange={(e) => setAnimalForm({ ...animalForm, type: e.target.value })}
                                 required
                             >
-                                <option value="Rescued">Rescue</option>
-                                <option value="Stray">Stray</option>
-                                <option value="Owner Surrender">Owner Surrender</option>
-                                <option value="Transferred">Transfer</option>
+                                <option value="" disabled>Select</option>
+                                <option value="Dog">Dog</option>
+                                <option value="Cat">Cat</option>
+                                <option value="Other">Other</option>
                             </select>
                         </label>
 
                         <label>
-                            <span className="admin-field-label">
-                                Source Location <span className="admin-required">*</span>
-                                <InfoTip text="Where the animal was found or came from. This is not shown to adopters." />
-                            </span>
+                            <span className="admin-field-label">Breed</span>
                             <input
-                                value={animalForm.sourceLocation}
-                                onChange={(e) => setAnimalForm({ ...animalForm, sourceLocation: e.target.value })}
-                                placeholder="e.g. Cebu City"
-                                required
+                                value={animalForm.breed}
+                                onChange={(e) => setAnimalForm({ ...animalForm, breed: e.target.value })}
+                                placeholder="e.g. Shih Tzu"
                             />
                         </label>
 
                         <label>
-                            <span className="admin-field-label">Rescued By</span>
+                            <span className="admin-field-label">Color</span>
                             <input
-                                value={animalForm.rescuedBy}
-                                onChange={(e) => setAnimalForm({ ...animalForm, rescuedBy: e.target.value })}
-                                placeholder="e.g. Juan Dela Cruz"
+                                value={animalForm.color}
+                                onChange={(e) => setAnimalForm({ ...animalForm, color: e.target.value })}
+                                placeholder="e.g. Brown and white"
+                            />
+                        </label>
+
+                        {/* ===== Row 2 ===== */}
+                        <label>
+                            <span className="admin-field-label">Age (years)</span>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.5"
+                                value={animalForm.age}
+                                onChange={(e) => setAnimalForm({ ...animalForm, age: e.target.value })}
+                                placeholder="e.g. 2"
                             />
                         </label>
 
                         <label>
                             <span className="admin-field-label">
-                                Condition <span className="admin-required">*</span>
-                                <InfoTip text="The animal's condition on arrival. Medical Status above is its current condition." />
+                                Gender <span className="admin-required">*</span>
                             </span>
                             <select
-                                value={animalForm.intakeCondition}
-                                onChange={(e) => setAnimalForm({ ...animalForm, intakeCondition: e.target.value })}
+                                value={animalForm.gender}
+                                onChange={(e) => setAnimalForm({ ...animalForm, gender: e.target.value })}
                                 required
                             >
                                 <option value="" disabled>Select</option>
-                                <option value="Healthy">Healthy</option>
-                                <option value="Injured">Injured</option>
-                                <option value="Sick">Sick</option>
-                                <option value="Under Observation">Under Observation</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
                                 <option value="Unknown">Unknown</option>
                             </select>
                         </label>
 
-                        <label className="admin-intake-notes">
-                            <span className="admin-field-label">Notes</span>
+                        <label>
+                            <span className="admin-field-label">
+                                Size <span className="admin-required">*</span>
+                            </span>
+                            <select
+                                value={animalForm.size}
+                                onChange={(e) => setAnimalForm({ ...animalForm, size: e.target.value })}
+                                required
+                            >
+                                <option value="" disabled>Select</option>
+                                <option value="Small">Small</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Large">Large</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            <span className="admin-field-label">
+                                Status <span className="admin-required">*</span>
+                                <InfoTip text="Current shelter status: Available, Pending Adoption, Fostered, Adopted or Unavailable. Changing it updates what adopters see." />
+                            </span>
+                            <select
+                                value={getAnimalStatus(animalForm)}
+                                onChange={(e) =>
+                                    setAnimalForm({ ...animalForm, ...STATUS_TO_FIELDS[e.target.value] })
+                                }
+                                required
+                            >
+                                <option value="available">Available</option>
+                                <option value="pending">Pending Adoption</option>
+                                <option value="fostered">Fostered</option>
+                                <option value="adopted">Adopted</option>
+                                <option value="unavailable">Unavailable</option>
+                            </select>
+                        </label>
+
+                        {/* ===== Row 3 ===== */}
+                        <label>
+                            <span className="admin-field-label">
+                                Intake Date <span className="admin-required">*</span>
+                            </span>
                             <input
-                                value={animalForm.intakeNotes}
-                                onChange={(e) => setAnimalForm({ ...animalForm, intakeNotes: e.target.value })}
-                                placeholder="Optional"
+                                type="date"
+                                value={animalForm.intakeDate}
+                                max={todayLocal()}
+                                onChange={(e) => setAnimalForm({ ...animalForm, intakeDate: e.target.value })}
+                                required
                             />
                         </label>
-                    </div>
 
-                    {message && <p className="admin-animal-message">{message}</p>}
+                        <label>
+                            <span className="admin-field-label">
+                                Shelter Location
+                                <InfoTip text="Where the animal is staying now. Adopters see this on the pet profile. Leave blank for Mayari Animal Rescue." />
+                            </span>
+                            <input
+                                value={animalForm.location}
+                                onChange={(e) => setAnimalForm({ ...animalForm, location: e.target.value })}
+                                placeholder="e.g. Mayari Animal Rescue"
+                            />
+                        </label>
 
-                    {/* ===== Footer ===== */}
-                    <div className="admin-form-footer admin-animal-full">
-                        <p>
-                            {editingId
-                                ? "Behavioral Assessment, Vaccinations and Medical Records are in the tabs above."
-                                : "Next: Behavioral Assessment is optional and can be added after saving."}
-                        </p>
-
-                        <div className="admin-form-footer-actions">
-                            <button
-                                type="button"
-                                className="admin-form-cancel"
-                                onClick={handleBackToList}
-                                disabled={submitting}
+                        <label>
+                            <span className="admin-field-label">
+                                Medical Status
+                                <InfoTip text="The animal's overall health status, shown to adopters on the detail page. Diagnosis and treatment stay private in Medical Records." />
+                            </span>
+                            <select
+                                value={animalForm.medicalStatus}
+                                onChange={(e) => setAnimalForm({ ...animalForm, medicalStatus: e.target.value })}
                             >
-                                Cancel
-                            </button>
+                                <option value="">Select</option>
+                                {MEDICAL_STATUS_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                                {/* Keep older free-text values selectable */}
+                                {animalForm.medicalStatus &&
+                                    !MEDICAL_STATUS_OPTIONS.includes(animalForm.medicalStatus) && (
+                                        <option value={animalForm.medicalStatus}>
+                                            {animalForm.medicalStatus}
+                                        </option>
+                                    )}
+                            </select>
+                        </label>
 
-                            <button
-                                type="submit"
-                                className="admin-form-save"
-                                disabled={submitting || imageUploading}
-                            >
-                                {submitting
-                                    ? "Saving..."
-                                    : editingId
-                                        ? "Update Animal"
-                                        : "Save Animal"}
-                            </button>
+                        <label>
+                            <span className="admin-field-label">
+                                QR Code
+                                <InfoTip text="QR tags are created on the QR Tags page after the animal is saved." />
+                            </span>
+                            <input
+                                value={
+                                    editingId
+                                        ? qrCodes[editingId] || "Not generated yet"
+                                        : "Available after saving"
+                                }
+                                readOnly
+                            />
+                        </label>
+
+                        {/* ===== Row 4 ===== */}
+                        <label className="admin-photo-field">
+                            <span className="admin-field-label">Photo</span>
+                            <span className="admin-photo-input">
+                                {animalForm.image && <img src={animalForm.image} alt="" />}
+                                <span>
+                                    {imageUploading
+                                        ? "Uploading..."
+                                        : animalForm.image
+                                            ? "Change photo"
+                                            : "Upload JPG or PNG"}
+                                </span>
+                            </span>
+                            <input
+                                type="file"
+                                accept="image/png, image/jpeg"
+                                onChange={handleUploadAnimalImage}
+                                disabled={imageUploading}
+                            />
+                        </label>
+
+                        <label className="admin-animal-span-3">
+                            <span className="admin-field-label">Description</span>
+                            <textarea
+                                rows={1}
+                                value={animalForm.description}
+                                onChange={(e) => setAnimalForm({ ...animalForm, description: e.target.value })}
+                                placeholder="Appearance, condition, notes..."
+                            />
+                        </label>
+
+                        {/* ===== Intake record ===== */}
+                        <div className="admin-form-section admin-animal-full">
+                            <h3>Intake Record</h3>
+                            <p>How the animal came into the shelter.</p>
                         </div>
+
+                        <div className="admin-intake-grid admin-animal-full">
+                            <label>
+                                <span className="admin-field-label">
+                                    Intake Type <span className="admin-required">*</span>
+                                </span>
+                                <select
+                                    value={animalForm.intakeType}
+                                    onChange={(e) => setAnimalForm({ ...animalForm, intakeType: e.target.value })}
+                                    required
+                                >
+                                    <option value="Rescued">Rescue</option>
+                                    <option value="Stray">Stray</option>
+                                    <option value="Owner Surrender">Owner Surrender</option>
+                                    <option value="Transferred">Transfer</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                <span className="admin-field-label">
+                                    Source Location <span className="admin-required">*</span>
+                                    <InfoTip text="Where the animal was found or came from. This is not shown to adopters." />
+                                </span>
+                                <input
+                                    value={animalForm.sourceLocation}
+                                    onChange={(e) => setAnimalForm({ ...animalForm, sourceLocation: e.target.value })}
+                                    placeholder="e.g. Cebu City"
+                                    required
+                                />
+                            </label>
+
+                            <label>
+                                <span className="admin-field-label">Rescued By</span>
+                                <input
+                                    value={animalForm.rescuedBy}
+                                    onChange={(e) => setAnimalForm({ ...animalForm, rescuedBy: e.target.value })}
+                                    placeholder="e.g. Juan Dela Cruz"
+                                />
+                            </label>
+
+                            <label>
+                                <span className="admin-field-label">
+                                    Condition <span className="admin-required">*</span>
+                                    <InfoTip text="The animal's condition on arrival. Medical Status above is its current condition." />
+                                </span>
+                                <select
+                                    value={animalForm.intakeCondition}
+                                    onChange={(e) => setAnimalForm({ ...animalForm, intakeCondition: e.target.value })}
+                                    required
+                                >
+                                    <option value="" disabled>Select</option>
+                                    <option value="Healthy">Healthy</option>
+                                    <option value="Injured">Injured</option>
+                                    <option value="Sick">Sick</option>
+                                    <option value="Under Observation">Under Observation</option>
+                                    <option value="Unknown">Unknown</option>
+                                </select>
+                            </label>
+
+                            <label className="admin-intake-notes">
+                                <span className="admin-field-label">Notes</span>
+                                <input
+                                    value={animalForm.intakeNotes}
+                                    onChange={(e) => setAnimalForm({ ...animalForm, intakeNotes: e.target.value })}
+                                    placeholder="Optional"
+                                />
+                            </label>
+                        </div>
+
+                        {message && <p className="admin-animal-message">{message}</p>}
+
+                        {/* ===== Footer ===== */}
+                        <div className="admin-form-footer admin-animal-full">
+                            <p>
+                                {editingId
+                                    ? "Behavioral Assessment, Vaccinations and Medical Records are in the tabs above."
+                                    : "Next: Behavioral Assessment is optional and can be added after saving."}
+                            </p>
+
+                            <div className="admin-form-footer-actions">
+                                <button
+                                    type="button"
+                                    className="admin-form-cancel"
+                                    onClick={handleBackToList}
+                                    disabled={submitting}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className="admin-form-save"
+                                    disabled={submitting || imageUploading}
+                                >
+                                    {submitting
+                                        ? "Saving..."
+                                        : editingId
+                                            ? "Update Animal"
+                                            : "Save Animal"}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+            </div>
+
+            {editingAnimal && (
+                <>
+                    <div className="admin-tab-content" hidden={activeFormTab !== "behavior"}>
+                        <BehaviorAssessment key={editingAnimal._id} lockedAnimal={editingAnimal} />
                     </div>
-                </form>
-        </div>
 
-        {editingAnimal && (
-            <>
-                <div className="admin-tab-content" hidden={activeFormTab !== "behavior"}>
-                    <BehaviorAssessment key={editingAnimal._id} lockedAnimal={editingAnimal} />
-                </div>
+                    <div className="admin-tab-content" hidden={activeFormTab !== "vaccinations"}>
+                        <VaccinationRecords key={editingAnimal._id} lockedAnimal={editingAnimal} />
+                    </div>
 
-                <div className="admin-tab-content" hidden={activeFormTab !== "vaccinations"}>
-                    <VaccinationRecords key={editingAnimal._id} lockedAnimal={editingAnimal} />
-                </div>
+                    <div className="admin-tab-content" hidden={activeFormTab !== "medical"}>
+                        <MedicalRecords key={editingAnimal._id} lockedAnimal={editingAnimal} />
+                    </div>
+                </>
+            )}
+                </section>
 
-                <div className="admin-tab-content" hidden={activeFormTab !== "medical"}>
-                    <MedicalRecords key={editingAnimal._id} lockedAnimal={editingAnimal} />
-                </div>
-            </>
-        )}
-            </section>
+                        <AdopterPreview form={animalForm} savedAnimal={editingAnimal} />
+    </div>
 
             {showDiscardModal && (
                 <div
