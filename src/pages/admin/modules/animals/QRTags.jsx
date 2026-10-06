@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { isAdmin } from "../../../../utils/auth";
+import { isAdmin, isStaff } from "../../../../utils/auth";
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/qr-tags`;
 
@@ -146,8 +146,8 @@ export default function QRTags() {
     }
 
     async function handleDelete(id) {
-        if (!isAdmin()) {
-            alert("Only administrators can delete QR tags.");
+        if (!(isAdmin() || isStaff())) {
+            alert("Only administrators and staff members can delete QR tags.");
             return;
         }
 
@@ -188,9 +188,9 @@ export default function QRTags() {
     }
 
     async function handleRegenerate(id) {
-        if (!isAdmin()) {
+        if (!(isAdmin() || isStaff())) {
             alert(
-                "Only administrators can regenerate QR tags."
+                "Only administrators and staff members can regenerate QR tags."
             );
             return;
         }
@@ -452,8 +452,8 @@ export default function QRTags() {
                                             Print
                                         </button>
 
-                                        {isAdmin() && (
-                                            <>
+                                             {(isAdmin() || isStaff()) && (
+                                            <>  
                                                 <button
                                                     type="button"
                                                     onClick={() =>

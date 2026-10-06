@@ -174,33 +174,6 @@
     opacity: 0.9;
 }
 
-/* Fix User Management stat cards */
-.admin-user-stats .admin-stat-card {
-    min-height: 86px;
-    padding: 20px 22px;
-    border-radius: 14px;
-    background: #fff7cb;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.admin-user-stats .admin-stat-card span {
-    max-width: none;
-    width: auto;
-    line-height: 1.2;
-    font-size: 15px;
-    font-weight: 800;
-    color: #5a1b00;
-    white-space: nowrap;
-}
-
-.admin-user-stats .admin-stat-card strong {
-    font-size: 22px;
-    font-weight: 900;
-    color: #3a1200;
-}
-
 /* Fix User row spacing */
 .admin-user-row {
     grid-template-columns: 1fr auto auto;

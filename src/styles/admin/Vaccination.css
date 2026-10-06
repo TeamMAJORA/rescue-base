@@ -49,74 +49,70 @@
 .admin-vaccination-form {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-
-    padding: 18px;
-
-    border-radius: 20px;
-
-    background: #fffaf0;
-    border: 1px solid rgba(90, 27, 0, 0.1);
+    gap: 16px 18px;
 }
-
-
-/* =========================
-   FORM LABELS
-========================= */
 
 .admin-vaccination-form label {
     display: grid;
-    gap: 7px;
-
-    color: #5a1b00;
-
-    font-size: 13px;
-    font-weight: 800;
+    gap: 6px;
+    min-width: 0;
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 700;
 }
-
-
-/* =========================
-   FORM INPUTS
-========================= */
 
 .admin-vaccination-form input,
 .admin-vaccination-form select,
 .admin-vaccination-form textarea {
     width: 100%;
-    min-height: 42px;
-
+    min-height: 40px;
     box-sizing: border-box;
-
-    border: 1px solid rgba(90, 27, 0, 0.16);
-    border-radius: 14px;
-
-    padding: 10px 12px;
-
-    background: white;
-    color: #5a1b00;
-
-    font-family: inherit;
-    font-size: 14px;
-
+    padding: 8px 14px;
+    border: 1px solid #e8cf8a;
+    border-radius: 8px;
+    background: #fff4c4;
+    color: var(--brown);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
     outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+.admin-vaccination-form input::placeholder,
+.admin-vaccination-form textarea::placeholder {
+    color: #b08f7a;
+}
+
+/* Empty date fields show grey "mm/dd/yyyy" like the placeholders */
+.admin-vaccination-form input[type="date"]:invalid,
+.admin-vaccination-form input[type="date"]:not(:focus):placeholder-shown {
+    color: #b08f7a;
+}
+
+/* Locked Animal Name */
+.admin-vaccination-form input[readonly] {
+    background: #f3ecd6;
+    border-color: #ddd0ae;
+    color: var(--brown);
+    cursor: default;
 }
 
 .admin-vaccination-form textarea {
-    min-height: 110px;
+    min-height: 96px;
     resize: vertical;
 }
 
 .admin-vaccination-form input:focus,
 .admin-vaccination-form select:focus,
 .admin-vaccination-form textarea:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
 
-    box-shadow:
-        0 0 0 3px rgba(251, 133, 0, 0.12);
+.admin-vaccination-form input[readonly]:focus {
+    border-color: #ddd0ae;
+    box-shadow: none;
 }
 
 .admin-vaccination-form select {
@@ -180,37 +176,32 @@
 
 .admin-vaccination-form > button {
     grid-column: 1 / -1;
-
     width: 100%;
-    min-height: 42px;
-
-    justify-self: stretch;
-    align-self: center;
-
-    margin: 0;
-
-    border: none;
-    border-radius: 14px;
-
-    padding: 11px 18px;
-
-    background: #fb8500;
-    color: white;
-
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 900;
-
+    min-height: 46px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
     cursor: pointer;
-
-    transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-.admin-vaccination-form > button:hover:not(:disabled) {
-    opacity: 0.9;
+.admin-vaccination-save {
+    border: 0;
+    background: linear-gradient(90deg, #fb8500, #fca63a);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.22);
+}
+
+.admin-vaccination-save:hover {
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.32);
     transform: translateY(-1px);
+}
+
+.admin-vaccination-form > .admin-secondary-button {
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
+    color: var(--brown);
 }
 
 .admin-vaccination-form > button:disabled {
@@ -528,5 +519,196 @@
     .admin-vaccination-form > button {
         grid-column: 1 / -1;
         width: 100%;
+    }
+}
+
+/* =========================
+   VACCINATION RECORDS TABLE
+========================= */
+
+/* Divider line above the list when shown inside an animal's tab */
+.admin-tab-content .admin-vaccination-list-panel {
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(90, 27, 0, 0.14);
+}
+
+.admin-vacc-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-vacc-list-heading h2 {
+    margin: 0;
+}
+
+.admin-vacc-list-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-vacc-search {
+    width: 220px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #e8cf8a;
+    border-radius: 8px;
+    background: #fff4c4;
+    color: var(--brown);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-vacc-search::placeholder {
+    color: #b08f7a;
+}
+
+.admin-vacc-status-filter {
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: #7b452d;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-vacc-search:focus,
+.admin-vacc-status-filter:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+    outline: none;
+}
+
+.admin-vacc-table-wrap {
+    overflow-x: auto;
+}
+
+.admin-vacc-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: var(--brown);
+}
+
+.admin-vacc-table th {
+    padding: 12px 14px;
+    background: #fff4c4;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-vacc-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(232, 207, 138, 0.6);
+    vertical-align: middle;
+}
+
+.admin-vacc-table tbody tr:hover {
+    background: #fffaf0;
+}
+
+.admin-vacc-name {
+    font-weight: 700;
+}
+
+.admin-vacc-notes {
+    max-width: 220px;
+    color: #7b452d;
+}
+
+.admin-vacc-empty {
+    padding: 24px 14px !important;
+    color: #b08f7a;
+    text-align: center;
+}
+
+/* Status pills */
+.admin-vacc-status {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.admin-vacc-status.completed {
+    background: #dcf0dc;
+    color: #2f6b3a;
+}
+
+.admin-vacc-status.pending {
+    background: #fff1b8;
+    color: #9a6b00;
+}
+
+.admin-vacc-status.overdue {
+    background: #fde8e8;
+    color: var(--red);
+}
+
+/* Row actions */
+.admin-vacc-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.admin-vacc-actions button {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-vacc-actions .edit {
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
+    color: var(--brown);
+}
+
+.admin-vacc-actions .edit:hover {
+    background: #fff7cb;
+}
+
+.admin-vacc-actions .delete {
+    border: 1px solid var(--red);
+    background: #fffdf0;
+    color: var(--red);
+}
+
+.admin-vacc-actions .delete:hover {
+    background: #fde8e8;
+}
+
+@media (max-width: 780px) {
+    .admin-vacc-list-heading {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-vacc-list-controls {
+        flex-wrap: wrap;
+    }
+
+    .admin-vacc-search {
+        flex: 1;
+        width: auto;
     }
 }

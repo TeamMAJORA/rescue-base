@@ -84,18 +84,8 @@ const staffMenu = [
     { key: "feedback", label: "Feedback" },
 ]
 
-const mockAnimals = [
-    { name: "Max", status: "available" },
-    { name: "Blacky", status: "available" },
-    { name: "Chichay", status: "available" },
-    { name: "Milo", status: "available" },
-    { name: "Luna", status: "available" },
-    { name: "Coco", status: "available" },
-    { name: "Buddy", status: "available" },
-    { name: "Snow", status: "available" },
-    { name: "Oreo", status: "not_available" },
-    { name: "Ming", status: "not_available" },
-];
+//removed the mock data
+// mock data for staff statistics
 
 function StaffStatCard({ label, value, icon }) {
     return (

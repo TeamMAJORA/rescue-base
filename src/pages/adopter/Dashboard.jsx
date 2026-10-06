@@ -670,7 +670,7 @@ export default function Dashboard({ onLogout }) {
 
     function renderPetBrowser() {
         return (
-            <section className="adopter-content-grid">
+            <>
                 <section
                     className="adopter-panel"
                     id="available-pets"
@@ -812,25 +812,161 @@ export default function Dashboard({ onLogout }) {
                             ))}
                     </div>
                 </section>
+            </>
+        );
+    }
 
-                <aside className="adopter-panel adopter-detail-panel">
-                    <div className="adopter-detail-header">
-                        <div className="adopter-detail-icon">
-                            {selectedPet.image ? (
-                                <img
-                                    src={
-                                        selectedPet.image
+    function renderPetDetail() {
+    return (
+        <aside className="adopter-panel adopter-detail-panel">
+            <div className="adopter-detail-header">
+                <div className="adopter-detail-icon">
+                    {selectedPet.image ? (
+                        <img src={selectedPet.image} alt={selectedPet.name} />
+                    ) : (
+                        selectedPet.icon
+                    )}
+                </div>
+
+                <div>
+                    <span className={`adopter-status ${selectedPet.status}`}>
+                        {selectedPet.status.replace("_", " ")}
+                    </span>
+                    <h2>{selectedPet.name}</h2>
+                    <p>
+                        {selectedPet.type} • {selectedPet.breed}
+                    </p>
+                </div>
+            </div>
+
+            <div className="adopter-detail-grid">
+                <article>
+                    <span>Age</span>
+                    <strong>{selectedPet.age}</strong>
+                </article>
+                <article>
+                    <span>Gender</span>
+                    <strong>{selectedPet.gender}</strong>
+                </article>
+                <article>
+                    <span>Size</span>
+                    <strong>{selectedPet.size}</strong>
+                </article>
+                <article>
+                    <span>Location</span>
+                    <strong>{selectedPet.location}</strong>
+                </article>
+            </div>
+
+            <div className="adopter-detail-section">
+                <h3>Personality</h3>
+                <p>{selectedPet.personality}</p>
+            </div>
+
+            <div className="adopter-detail-section">
+                <h3>Ideal Home</h3>
+                <p>{selectedPet.idealHome}</p>
+            </div>
+
+            <div className="adopter-detail-section">
+                <h3>Health Status</h3>
+                <p>{selectedPet.health}</p>
+            </div>
+
+            <div className="adopter-detail-section">
+                <h3>Story</h3>
+                <p>{selectedPet.story}</p>
+            </div>
+
+            <button
+                type="button"
+                className="adopter-apply-button"
+                onClick={() => handleApply(selectedPet)}
+                disabled={
+                    selectedPet.status !== "available" ||
+                    hasPendingApplication
+                }
+            >
+                {hasPendingApplication
+                    ? `Pending application: ${applicationStatus.petName}`
+                    : selectedPet.status === "available"
+                        ? `Apply to adopt ${selectedPet.name}`
+                        : "Currently Not Available"}
+            </button>
+        </aside>
+    );
+}
+    
+    function renderOverview() {
+        return (
+            <div className="adopter-overview-layout">
+                <div className="adopter-overview-main">
+                    <section className="adopter-hero">
+                        <div className="adopter-hero-content">
+                            <span>
+                                RescueBase Matching
+                            </span>
+
+                            <h2>
+                                Meet your possible new
+                                companion.
+                            </h2>
+
+                            <p>
+                                Browse available rescued pets,
+                                check their details, and submit
+                                an adoption application when
+                                you find a match.
+                            </p>
+
+                            <div className="adopter-hero-actions">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setActiveAdopterPage(
+                                            "browse-pets"
+                                        )
                                     }
-                                    alt={
-                                        selectedPet.name
+                                >
+                                    Browse Pets
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleApply(
+                                            selectedPet
+                                        )
                                     }
-                                />
-                            ) : (
-                                selectedPet.icon
-                            )}
+                                    disabled={
+                                        selectedPet.status !==
+                                        "available" ||
+                                        hasPendingApplication
+                                    }
+                                >
+                                    {hasPendingApplication
+                                        ? `Pending application for ${applicationStatus.petName}`
+                                        : `Apply for ${selectedPet.name}`}
+                                </button>
+                            </div>
                         </div>
 
-                        <div>
+                        <div className="adopter-featured-pet">
+                            <div className="adopter-pet-icon">
+                                {selectedPet.image ? (
+                                    <img
+                                        src={
+                                            selectedPet.image
+                                        }
+                                        alt={
+                                            selectedPet.name
+                                        }
+                                    />
+                                ) : (
+                                    selectedPet.icon
+                                )}
+                            </div>
+
                             <span
                                 className={`adopter-status ${selectedPet.status}`}
                             >
@@ -840,183 +976,16 @@ export default function Dashboard({ onLogout }) {
                                 )}
                             </span>
 
-                            <h2>
-                                {selectedPet.name}
-                            </h2>
+                            <h3>{selectedPet.name}</h3>
 
                             <p>
-                                {selectedPet.type} •{" "}
-                                {selectedPet.breed}
+                                {selectedPet.breed} •{" "}
+                                {selectedPet.age} •{" "}
+                                {selectedPet.gender}
                             </p>
                         </div>
-                    </div>
-
-                    <div className="adopter-detail-grid">
-                        <article>
-                            <span>Age</span>
-                            <strong>
-                                {selectedPet.age}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Gender</span>
-                            <strong>
-                                {selectedPet.gender}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Size</span>
-                            <strong>
-                                {selectedPet.size}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Location</span>
-                            <strong>
-                                {selectedPet.location}
-                            </strong>
-                        </article>
-                    </div>
-
-                    <div className="adopter-detail-section">
-                        <h3>Personality</h3>
-                        <p>
-                            {selectedPet.personality}
-                        </p>
-                    </div>
-
-                    <div className="adopter-detail-section">
-                        <h3>Ideal Home</h3>
-                        <p>
-                            {selectedPet.idealHome}
-                        </p>
-                    </div>
-
-                    <div className="adopter-detail-section">
-                        <h3>Health Status</h3>
-                        <p>{selectedPet.health}</p>
-                    </div>
-
-                    <div className="adopter-detail-section">
-                        <h3>Story</h3>
-                        <p>{selectedPet.story}</p>
-                    </div>
-
-                    <button
-                        type="button"
-                        className="adopter-apply-button"
-                        onClick={() =>
-                            handleApply(selectedPet)
-                        }
-                        disabled={
-                            selectedPet.status !==
-                            "available" ||
-                            hasPendingApplication
-                        }
-                    >
-                        {hasPendingApplication
-                            ? `Pending application: ${applicationStatus.petName}`
-                            : selectedPet.status ===
-                                "available"
-                                ? `Apply to adopt ${selectedPet.name}`
-                                : "Currently Not Available"}
-                    </button>
-                </aside>
-            </section>
-        );
-    }
-
-    function renderOverview() {
-        return (
-            <>
-                <section className="adopter-hero">
-                    <div className="adopter-hero-content">
-                        <span>
-                            RescueBase Matching
-                        </span>
-
-                        <h2>
-                            Meet your possible new
-                            companion.
-                        </h2>
-
-                        <p>
-                            Browse available rescued pets,
-                            check their details, and submit
-                            an adoption application when
-                            you find a match.
-                        </p>
-
-                        <div className="adopter-hero-actions">
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setActiveAdopterPage(
-                                        "browse-pets"
-                                    )
-                                }
-                            >
-                                Browse Pets
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    handleApply(
-                                        selectedPet
-                                    )
-                                }
-                                disabled={
-                                    selectedPet.status !==
-                                    "available" ||
-                                    hasPendingApplication
-                                }
-                            >
-                                {hasPendingApplication
-                                    ? `Pending application for ${applicationStatus.petName}`
-                                    : `Apply for ${selectedPet.name}`}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="adopter-featured-pet">
-                        <div className="adopter-pet-icon">
-                            {selectedPet.image ? (
-                                <img
-                                    src={
-                                        selectedPet.image
-                                    }
-                                    alt={
-                                        selectedPet.name
-                                    }
-                                />
-                            ) : (
-                                selectedPet.icon
-                            )}
-                        </div>
-
-                        <span
-                            className={`adopter-status ${selectedPet.status}`}
-                        >
-                            {selectedPet.status.replace(
-                                "_",
-                                " "
-                            )}
-                        </span>
-
-                        <h3>{selectedPet.name}</h3>
-
-                        <p>
-                            {selectedPet.breed} •{" "}
-                            {selectedPet.age} •{" "}
-                            {selectedPet.gender}
-                        </p>
-                    </div>
-                </section>
-
+                    </section>
+                                
                 <section className="adopter-stats">
                     <article>
                         <span>Available Pets</span>
@@ -1061,7 +1030,10 @@ export default function Dashboard({ onLogout }) {
                 {renderApplicationBanner()}
 
                 {renderPetBrowser()}
-            </>
+                </div>
+                
+                {renderPetDetail()}
+            </div>
         );
     }
 
