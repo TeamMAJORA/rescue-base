@@ -20,49 +20,73 @@
 .admin-animal-form {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-    padding: 18px;
-    border-radius: 20px;
-    background: #fffaf0;
-    border: 1px solid rgba(90, 27, 0, 0.1);
+    gap: 16px 18px;
 }
 
 .admin-animal-form label {
     display: grid;
-    gap: 7px;
-    color: #5a1b00;
-    font-size: 13px;
-    font-weight: 800;
+    gap: 6px;
+    min-width: 0;
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-field-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .admin-animal-form input,
 .admin-animal-form select,
 .admin-animal-form textarea {
     width: 100%;
-    min-height: 42px;
-    border: 1px solid rgba(90, 27, 0, 0.16);
-    border-radius: 14px;
-    padding: 10px 12px;
-    background: white;
-    color: #5a1b00;
-    font-size: 14px;
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid #e8cf8a;
+    border-radius: 8px;
+    background: #fff4c4;
+    color: var(--brown);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
     outline: none;
 }
 
+.admin-animal-form input::placeholder,
+.admin-animal-form textarea::placeholder {
+    color: #b08f7a;
+}
+
+.admin-animal-form select:invalid {
+    color: #b08f7a;
+}
+
+.admin-animal-form input[readonly] {
+    background: #fffaf0;
+    color: #7b452d;
+    cursor: default;
+}
+
 .admin-animal-form textarea {
-    min-height: 95px;
+    min-height: 38px;
     resize: vertical;
 }
 
 .admin-animal-form input:focus,
 .admin-animal-form select:focus,
 .admin-animal-form textarea:focus {
-    border-color: #fb8500;
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
 }
 
-.admin-animal-wide {
-    grid-column: span 2;
+.admin-animal-full {
+    grid-column: 1 / -1;
+}
+
+.admin-animal-span-3 {
+    grid-column: span 3;
 }
 
 .admin-animal-message {
@@ -77,27 +101,6 @@
     border: 1px solid rgba(251, 133, 0, 0.22);
 }
 
-.admin-animal-form > button[type="submit"] {
-    grid-column: 1 / -1;
-    justify-self: flex-end;
-    min-height: 42px;
-    border: none;
-    border-radius: 14px;
-    padding: 12px 18px;
-    background: #fb8500;
-    color: white;
-    font-weight: 900;
-    cursor: pointer;
-}
-
-.admin-animal-form > button[type="submit"]:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.admin-animal-form > button[type="submit"]:hover {
-    opacity: 0.9;
-}
 
 .admin-animal-list {
     display: grid;
@@ -267,6 +270,14 @@
         flex-direction: row;
         flex-wrap: wrap;
     }
+
+        .admin-animal-span-3 {
+        grid-column: 1 / -1;
+    }
+
+    .admin-intake-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 780px) {
@@ -276,17 +287,18 @@
         grid-template-columns: 1fr;
     }
 
-    .admin-animal-wide {
-        grid-column: auto;
+    .admin-intake-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-form-footer {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .admin-animal-image {
         width: 100%;
         height: 180px;
-    }
-
-    .admin-animal-form > button[type="submit"] {
-        width: 100%;
     }
 
     .admin-animal-actions {
@@ -710,4 +722,188 @@
     .admin-animal-expanded {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+/* ===== Photo upload ===== */
+.admin-photo-field {
+    position: relative;
+}
+
+.admin-photo-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    padding: 4px 14px;
+    border: 1px solid #e8cf8a;
+    border-radius: 8px;
+    background: #fff4c4;
+    color: #b08f7a;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.admin-photo-input img {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.admin-photo-field input[type="file"] {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 38px;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.admin-photo-field:focus-within .admin-photo-input {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+/* ===== "?" info tooltip ===== */
+.admin-info-tip {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: help;
+    outline: none;
+}
+
+.admin-info-tip-bubble {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: -12px;
+    z-index: 20;
+    width: 300px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #4a1a00;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.55;
+    text-align: left;
+    box-shadow: 0 10px 24px rgba(58, 18, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
+}
+
+.admin-info-tip-bubble::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    right: 15px;
+    border-width: 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #4a1a00;
+}
+
+.admin-info-tip:hover .admin-info-tip-bubble,
+.admin-info-tip:focus .admin-info-tip-bubble {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ===== Intake Record section ===== */
+.admin-form-section {
+    margin-top: 8px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(90, 27, 0, 0.14);
+}
+
+.admin-form-section h3 {
+    margin: 0 0 2px;
+    font-family: "Itim", cursive;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--brown);
+}
+
+.admin-form-section p {
+    margin: 0;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.admin-intake-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px 18px;
+}
+
+.admin-intake-notes {
+    grid-column: 1 / -1;
+}
+
+/* ===== Footer ===== */
+.admin-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.admin-form-footer > p {
+    margin: 0;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.admin-form-footer-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.admin-form-cancel,
+.admin-form-save {
+    min-height: 42px;
+    padding: 0 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-form-cancel {
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
+    color: var(--brown);
+}
+
+.admin-form-cancel:hover:not(:disabled) {
+    background: #fff7cb;
+}
+
+.admin-form-save {
+    border: 0;
+    background: linear-gradient(135deg, #fb8500, #fca63a);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+}
+
+.admin-form-save:hover:not(:disabled) {
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.32);
+}
+
+.admin-form-cancel:disabled,
+.admin-form-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
