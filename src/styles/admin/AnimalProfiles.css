@@ -297,3 +297,137 @@
         width: 100%;
     }
 }
+
+/* ===== Toolbar ===== */
+.admin-animal-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.admin-animal-search {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: var(--brown);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-animal-search::placeholder {
+    color: #b08f7a;
+}
+
+.admin-animal-search:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-animal-species {
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: #7b452d;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-view-toggle {
+    display: flex;
+    height: 38px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fffdf0;
+}
+
+.admin-view-toggle button {
+    padding: 0 18px;
+    border: 0;
+    background: transparent;
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-view-toggle button.active {
+    background: var(--brown);
+    color: #ffffff;
+}
+
+/* ===== Table view ===== */
+.admin-animal-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 14px;
+}
+
+.admin-animal-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fffaf0;
+    font-size: 13px;
+}
+
+.admin-animal-table th {
+    padding: 12px 14px;
+    background: #fff7cb;
+    color: #7b452d;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-animal-table td {
+    padding: 12px 14px;
+    border-top: 1px solid rgba(90, 27, 0, 0.08);
+    color: var(--brown);
+    text-transform: capitalize;
+}
+
+.admin-animal-table tbody tr:hover {
+    background: #fff7cb;
+}
+
+.admin-animal-table-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.admin-animal-table-actions button {
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--brown);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-animal-table-actions button.delete {
+    background: #d62828;
+}
+
+@media (max-width: 760px) {
+    .admin-animal-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .admin-animal-search {
+        flex-basis: 100%;
+    }
+}

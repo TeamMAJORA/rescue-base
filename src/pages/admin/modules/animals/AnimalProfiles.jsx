@@ -31,6 +31,10 @@ export default function AnimalProfiles() {
     const [message, setMessage] = useState("");
     const [imageUploading, setImageUploading] = useState(false);
 
+    const [search, setSearch] = useState("");
+    const [speciesFilter, setSpeciesFilter] = useState("All");
+    const [viewMode, setViewMode] = useState("cards");
+
     const token = localStorage.getItem("token");
 
     const totalAnimals = animals.length;
@@ -50,6 +54,22 @@ export default function AnimalProfiles() {
     const adoptedAnimals = useMemo(() => {
         return animals.filter((animal) => animal.adoptionStatus === "adopted").length;
     }, [animals]);
+
+            const filteredAnimals = useMemo(() => {
+                const query = search.trim().toLowerCase();
+
+                return animals.filter((animal) => {
+                    if (speciesFilter !== "All" && animal.type !== speciesFilter) {
+                        return false;
+                    }
+
+                    if (!query) return true;
+
+                    return [animal.name, animal.type]
+                        .filter(Boolean)
+                        .some((value) => value.toLowerCase().includes(query));
+        });
+    }, [animals, search, speciesFilter]);
 
     async function fetchAnimals() {
         try {
@@ -76,6 +96,31 @@ export default function AnimalProfiles() {
             setMessage("Server error while fetching animals.");
         } finally {
             setLoading(false);
+        }
+    }
+
+        async function fetchQrCodes() {
+        try {
+            const response = await fetch(`${API}/api/qr-tags`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const records = Array.isArray(data)
+                ? data
+                : data.qrTags || data.records || [];
+
+            const codeMap = {};
+            records.forEach((record) => {
+                const animalId = record.animal?._id || record.animal;
+                if (animalId) codeMap[animalId] = record.tagCode;
+            });
+
+            setQrCodes(codeMap);
+        } catch {
+            // QR search is optional; name/breed search still works
         }
     }
 
@@ -303,6 +348,44 @@ export default function AnimalProfiles() {
                     <span>Adopted</span>
                     <strong>{adoptedAnimals}</strong>
                 </article>
+            </div>
+
+                        <div className="admin-animal-toolbar">
+                <input
+                    type="text"
+                    className="admin-animal-search"
+                    placeholder="Search by name or species..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+
+                <select
+                    className="admin-animal-species"
+                    value={speciesFilter}
+                    onChange={(e) => setSpeciesFilter(e.target.value)}
+                >
+                    <option value="All">Species: All</option>
+                    <option value="Dog">Species: Dog</option>
+                    <option value="Cat">Species: Cat</option>
+                    <option value="Other">Species: Other</option>
+                </select>
+
+                <div className="admin-view-toggle">
+                    <button
+                        type="button"
+                        className={viewMode === "cards" ? "active" : ""}
+                        onClick={() => setViewMode("cards")}
+                    >
+                        Cards
+                    </button>
+                    <button
+                        type="button"
+                        className={viewMode === "table" ? "active" : ""}
+                        onClick={() => setViewMode("table")}
+                    >
+                        Table
+                    </button>
+                </div>
             </div>
 
             <section className="admin-panel admin-animal-form-panel" id="animal-form">
@@ -577,13 +660,15 @@ export default function AnimalProfiles() {
                     </button>
                 </div>
 
-                {loading ? (
+                                {loading ? (
                     <p className="admin-empty">Loading animal profiles...</p>
                 ) : animals.length === 0 ? (
                     <p className="admin-empty">No animal profiles found.</p>
-                ) : (
+                ) : filteredAnimals.length === 0 ? (
+                    <p className="admin-empty">No animals match your search.</p>
+                ) : viewMode === "cards" ? (
                     <div className="admin-animal-list">
-                        {animals.map((animal) => (
+                        {filteredAnimals.map((animal) => (
                             <article className="admin-animal-card" key={animal._id}>
                                 <div className="admin-animal-image">
                                     {animal.image ? (
@@ -609,39 +694,71 @@ export default function AnimalProfiles() {
                                 </div>
 
                                 <div className="admin-animal-details">
-                                    <p>
-                                        <b>Age:</b> {animal.age || 0}
-                                    </p>
-                                    <p>
-                                        <b>Size:</b> {animal.size}
-                                    </p>
-                                    <p>
-                                        <b>Condition:</b> {animal.intakeCondition}
-                                    </p>
+                                    <p><b>Age:</b> {animal.age || 0}</p>
+                                    <p><b>Size:</b> {animal.size}</p>
+                                    <p><b>Condition:</b> {animal.intakeCondition}</p>
                                 </div>
 
                                 <div className="admin-animal-actions">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleEditAnimal(animal)}
-                                    >
+                                    <button type="button" onClick={() => handleEditAnimal(animal)}>
                                         Edit
                                     </button>
 
-                                    {
-                                        isAdmin() && (
-                                            <button
-                                                type="button"
-                                                className="delete"
-                                                onClick={() => handleDeleteAnimal(animal._id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        )
-                                    }
+                                    {isAdmin() && (
+                                        <button
+                                            type="button"
+                                            className="delete"
+                                            onClick={() => handleDeleteAnimal(animal._id)}
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
                                 </div>
                             </article>
                         ))}
+                    </div>
+                ) : (
+                    <div className="admin-animal-table-wrap">
+                        <table className="admin-animal-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Species</th>
+                                    <th>Breed</th>
+                                    <th>Gender</th>
+                                    <th>Age</th>
+                                    <th>Adoption</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredAnimals.map((animal) => (
+                                    <tr key={animal._id}>
+                                        <td><strong>{animal.name}</strong></td>
+                                        <td>{animal.type}</td>
+                                        <td>{animal.breed || "—"}</td>
+                                        <td>{animal.gender}</td>
+                                        <td>{animal.age || 0}</td>
+                                        <td>{animal.adoptionStatus}</td>
+                                        <td className="admin-animal-table-actions">
+                                            <button type="button" onClick={() => handleEditAnimal(animal)}>
+                                                Edit
+                                            </button>
+
+                                            {isAdmin() && (
+                                                <button
+                                                    type="button"
+                                                    className="delete"
+                                                    onClick={() => handleDeleteAnimal(animal._id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
             </section>
