@@ -1037,13 +1037,13 @@
 }
 
 .admin-preview-card {
-    overflow: hidden;
     border: 1px solid #8a5a44;
     border-radius: 12px;
     background: #fffdf0;
 }
 
 .admin-preview-photo {
+    border-radius: 11px 11px 0 0;
     position: relative;
     display: grid;
     place-items: center;
@@ -1175,4 +1175,18 @@
         position: static;
         max-width: 420px;
     }
+}
+
+/* Info tips inside the Adopter Preview open to the right */
+.admin-adopter-preview .admin-info-tip-bubble {
+    right: auto;
+    left: -10px;
+    width: 220px;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.admin-adopter-preview .admin-info-tip-bubble::before {
+    right: auto;
+    left: 13px;
 }
