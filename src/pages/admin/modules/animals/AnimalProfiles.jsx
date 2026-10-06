@@ -60,6 +60,7 @@ const STATUS_TO_FIELDS = {
 const STATUS_FILTERS = [
     { key: "all", label: "All" },
     { key: "available", label: "Available" },
+    { key: "pending", label: "Pending" },
     { key: "fostered", label: "Fostered" },
     { key: "adopted", label: "Adopted" },
 ];
@@ -209,6 +210,8 @@ function matchesStatus(animal, statusFilter) {
                 animal.availabilityStatus === "available" &&
                 animal.adoptionStatus === "available"
             );
+        case "pending":
+            return getAnimalStatus(animal) === "pending";
         case "fostered":
             return animal.fosterStatus === "in_foster";
         case "adopted":
