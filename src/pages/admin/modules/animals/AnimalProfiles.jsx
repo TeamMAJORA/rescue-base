@@ -22,6 +22,29 @@ const emptyAnimalForm = {
     location: "RescueBase Shelter",
 };
 
+const STATUS_FILTERS = [
+    { key: "all", label: "All" },
+    { key: "available", label: "Available" },
+    { key: "fostered", label: "Fostered" },
+    { key: "adopted", label: "Adopted" },
+];
+
+function matchesStatus(animal, statusFilter) {
+    switch (statusFilter) {
+        case "available":
+            return (
+                animal.availabilityStatus === "available" &&
+                animal.adoptionStatus === "available"
+            );
+        case "fostered":
+            return animal.fosterStatus === "in_foster";
+        case "adopted":
+            return animal.adoptionStatus === "adopted";
+        default:
+            return true;
+    }
+}
+
 export default function AnimalProfiles() {
     const [animals, setAnimals] = useState([]);
     const [animalForm, setAnimalForm] = useState(emptyAnimalForm);
@@ -34,6 +57,7 @@ export default function AnimalProfiles() {
     const [search, setSearch] = useState("");
     const [speciesFilter, setSpeciesFilter] = useState("All");
     const [viewMode, setViewMode] = useState("cards");
+    const [statusFilter, setStatusFilter] = useState("all");
 
     const token = localStorage.getItem("token");
 
@@ -55,21 +79,25 @@ export default function AnimalProfiles() {
         return animals.filter((animal) => animal.adoptionStatus === "adopted").length;
     }, [animals]);
 
-            const filteredAnimals = useMemo(() => {
-                const query = search.trim().toLowerCase();
+    const filteredAnimals = useMemo(() => {
+        const query = search.trim().toLowerCase();
 
-                return animals.filter((animal) => {
-                    if (speciesFilter !== "All" && animal.type !== speciesFilter) {
-                        return false;
-                    }
+        return animals.filter((animal) => {
+            if (!matchesStatus(animal, statusFilter)) {
+                return false;
+            }
 
-                    if (!query) return true;
+            if (speciesFilter !== "All" && animal.type !== speciesFilter) {
+                return false;
+            }
 
-                    return [animal.name, animal.type]
-                        .filter(Boolean)
-                        .some((value) => value.toLowerCase().includes(query));
+            if (!query) return true;
+
+            return [animal.name, animal.type]
+                .filter(Boolean)
+                .some((value) => value.toLowerCase().includes(query));
         });
-    }, [animals, search, speciesFilter]);
+    }, [animals, search, speciesFilter, statusFilter]);
 
     async function fetchAnimals() {
         try {
@@ -386,6 +414,19 @@ export default function AnimalProfiles() {
                         Table
                     </button>
                 </div>
+            </div>
+
+            <div className="admin-status-filters">
+                {STATUS_FILTERS.map((filter) => (
+                    <button
+                        key={filter.key}
+                        type="button"
+                        className={statusFilter === filter.key ? "active" : ""}
+                        onClick={() => setStatusFilter(filter.key)}
+                    >
+                        {filter.label}
+                    </button>
+                ))}
             </div>
 
             <section className="admin-panel admin-animal-form-panel" id="animal-form">

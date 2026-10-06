@@ -431,3 +431,32 @@
         flex-basis: 100%;
     }
 }
+
+/* ===== Status filter pills ===== */
+.admin-status-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-status-filters button {
+    padding: 7px 18px;
+    border: 1px solid #8a5a44;
+    border-radius: 999px;
+    background: #fffdf0;
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-status-filters button:hover:not(.active) {
+    background: #fff7cb;
+}
+
+.admin-status-filters button.active {
+    border-color: var(--brown);
+    background: var(--brown);
+    color: #ffffff;
+}
