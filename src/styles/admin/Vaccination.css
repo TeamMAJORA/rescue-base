@@ -521,3 +521,194 @@
         width: 100%;
     }
 }
+
+/* =========================
+   VACCINATION RECORDS TABLE
+========================= */
+
+/* Divider line above the list when shown inside an animal's tab */
+.admin-tab-content .admin-vaccination-list-panel {
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(90, 27, 0, 0.14);
+}
+
+.admin-vacc-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-vacc-list-heading h2 {
+    margin: 0;
+}
+
+.admin-vacc-list-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-vacc-search {
+    width: 220px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #e8cf8a;
+    border-radius: 8px;
+    background: #fff4c4;
+    color: var(--brown);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-vacc-search::placeholder {
+    color: #b08f7a;
+}
+
+.admin-vacc-status-filter {
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: #7b452d;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-vacc-search:focus,
+.admin-vacc-status-filter:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+    outline: none;
+}
+
+.admin-vacc-table-wrap {
+    overflow-x: auto;
+}
+
+.admin-vacc-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: var(--brown);
+}
+
+.admin-vacc-table th {
+    padding: 12px 14px;
+    background: #fff4c4;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-vacc-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(232, 207, 138, 0.6);
+    vertical-align: middle;
+}
+
+.admin-vacc-table tbody tr:hover {
+    background: #fffaf0;
+}
+
+.admin-vacc-name {
+    font-weight: 700;
+}
+
+.admin-vacc-notes {
+    max-width: 220px;
+    color: #7b452d;
+}
+
+.admin-vacc-empty {
+    padding: 24px 14px !important;
+    color: #b08f7a;
+    text-align: center;
+}
+
+/* Status pills */
+.admin-vacc-status {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.admin-vacc-status.completed {
+    background: #dcf0dc;
+    color: #2f6b3a;
+}
+
+.admin-vacc-status.pending {
+    background: #fff1b8;
+    color: #9a6b00;
+}
+
+.admin-vacc-status.overdue {
+    background: #fde8e8;
+    color: var(--red);
+}
+
+/* Row actions */
+.admin-vacc-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.admin-vacc-actions button {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-vacc-actions .edit {
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
+    color: var(--brown);
+}
+
+.admin-vacc-actions .edit:hover {
+    background: #fff7cb;
+}
+
+.admin-vacc-actions .delete {
+    border: 1px solid var(--red);
+    background: #fffdf0;
+    color: var(--red);
+}
+
+.admin-vacc-actions .delete:hover {
+    background: #fde8e8;
+}
+
+@media (max-width: 780px) {
+    .admin-vacc-list-heading {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-vacc-list-controls {
+        flex-wrap: wrap;
+    }
+
+    .admin-vacc-search {
+        flex: 1;
+        width: auto;
+    }
+}
