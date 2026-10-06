@@ -249,6 +249,22 @@
     box-shadow: 0 8px 18px rgba(251, 133, 0, 0.32);
 }
 
+.admin-page-header-back {
+    flex-shrink: 0;
+    padding: 11px 20px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-page-header-back:hover {
+    background: #fff7cb;
+}
+
 /* REUSABLE STAT CARD */
 
 .admin-stat-card {
