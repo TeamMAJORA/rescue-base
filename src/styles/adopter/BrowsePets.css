@@ -137,8 +137,8 @@
 
 .browse-pets-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(360px, 0.9fr);
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+    gap: 22px;
     align-items: start;
 }
 
@@ -585,7 +585,11 @@
 
 @media (max-width: 1200px) {
     .browse-pets-layout {
-        grid-template-columns: minmax(0, 1fr) minmax(330px, 0.8fr);
+        grid-template-columns: 1fr;
+    }
+
+    .browse-pet-details-panel {
+        position: static;
     }
 
     .browse-pet-main-image {

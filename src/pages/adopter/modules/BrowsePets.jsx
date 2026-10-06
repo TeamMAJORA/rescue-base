@@ -22,26 +22,6 @@ export default function BrowsePets({
 
     return (
         <section className="browse-pets-module">
-            <header className="browse-pets-header">
-                <div>
-                    <span>Animal Profiles</span>
-
-                    <h2>Browse Available Pets</h2>
-
-                    <p>
-                        Select an animal to view its complete profile and
-                        begin an adoption application.
-                    </p>
-                </div>
-
-                <button
-                    type="button"
-                    onClick={() => onRefresh?.()}
-                    disabled={loading}
-                >
-                    {loading ? "Refreshing..." : "Refresh Pets"}
-                </button>
-            </header>
 
             {hasPendingApplication && (
                 <section className="browse-pets-pending-banner">
@@ -73,13 +53,10 @@ export default function BrowsePets({
                 <section className="browse-pets-list-panel">
                     <div className="browse-pets-panel-heading">
                         <div>
-                            <h3>Available Animals</h3>
+                            <h3>Who's Stealing Your Heart Today?</h3>
 
                             <p>
-                                {loading
-                                    ? "Loading animals..."
-                                    : `${pets.length} animal${pets.length === 1 ? "" : "s"
-                                    } currently available`}
+                                Pick a pal below to peek at their story and apply today.
                             </p>
                         </div>
                     </div>
