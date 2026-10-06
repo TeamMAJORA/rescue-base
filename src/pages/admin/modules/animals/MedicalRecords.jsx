@@ -22,19 +22,20 @@ const starterRecords = [
     },
 ];
 
-export default function MedicalRecords() {
-    const [records, setRecords] = useState(starterRecords);
-    const [editingId, setEditingId] = useState(null);
-    const [search, setSearch] = useState("");
-    const [filterType, setFilterType] = useState("All");
-
-    const [recordForm, setRecordForm] = useState({
-        animalName: "",
+export default function MedicalRecords({ lockedAnimal = null }) {
+    const blankForm = {
+        animalName: lockedAnimal?.name || "",
         recordType: "Checkup",
         vetName: "",
         recordDate: "",
         notes: "",
-    });
+    };
+
+    const [records, setRecords] = useState(starterRecords);
+    const [editingId, setEditingId] = useState(null);
+    const [search, setSearch] = useState("");
+    const [filterType, setFilterType] = useState("All");
+    const [recordForm, setRecordForm] = useState(blankForm);
 
     function handleAddRecord(e) {
         e.preventDefault();
@@ -64,13 +65,7 @@ export default function MedicalRecords() {
             ]);
         }
 
-        setRecordForm({
-            animalName: "",
-            recordType: "Checkup",
-            vetName: "",
-            recordDate: "",
-            notes: "",
-        });
+        setRecordForm(blankForm);
     }
 
     function handleEditRecord(record) {
@@ -101,15 +96,18 @@ export default function MedicalRecords() {
     return (
         <section className="admin-medical-page">
             <section className="admin-panel admin-medical-form-panel">
-                <div className="admin-panel-heading">
-                    <h2>Add Medical Record</h2>
-                </div>
+                {!lockedAnimal && (
+                    <div className="admin-panel-heading">
+                        <h2>Add Medical Record</h2>
+                    </div>
+                )}
 
                 <form className="admin-medical-form" onSubmit={handleAddRecord}>
                     <label>
                         Animal Name
                         <input
                             type="text"
+                            readOnly={Boolean(lockedAnimal)}
                             value={recordForm.animalName}
                             onChange={(e) =>
                                 setRecordForm({
@@ -200,13 +198,7 @@ export default function MedicalRecords() {
                                 onClick={() => {
                                     setEditingId(null);
 
-                                    setRecordForm({
-                                        animalName: "",
-                                        recordType: "Checkup",
-                                        vetName: "",
-                                        recordDate: "",
-                                        notes: "",
-                                    });
+                                    setRecordForm(blankForm);
                                 }}
                             >
                                 Cancel
@@ -216,19 +208,21 @@ export default function MedicalRecords() {
                 </form>
             </section>
 
-            <section className="admin-panel admin-medical0list-panel">
+            <section className="admin-panel admin-medical-list-panel">
                 <div className="admin-panel-heading">
                     <h2>Medical Records</h2>
                 </div>
 
-                <input
-                    type="text"
-                    placeholder="Search animal..."
-                    value={search}
-                    onChange={(e) =>
-                        setSearch(e.target.value)
-                    }
-                />
+                {!lockedAnimal && (
+                    <input
+                        type="text"
+                        placeholder="Search animal..."
+                        value={search}
+                        onChange={(e) =>
+                            setSearch(e.target.value)
+                        }
+                    />
+                )}
 
                 <select
                     value={filterType}
@@ -246,10 +240,11 @@ export default function MedicalRecords() {
 
                 <div className="admin-medical-list">
                     {records.filter((record) => {
+                        const matchesAnimal = !lockedAnimal || record.animalName === lockedAnimal.name;
                         const matchesSearch = record.animalName.toLowerCase().includes(search.toLowerCase());
                         const matchesType = filterType === "All" || record.recordType === filterType;
 
-                        return matchesSearch && matchesType
+                        return matchesAnimal && matchesSearch && matchesType;
                     }).map((record) => (
                         <article className="admin-medical-row" key={record.id}>
                             <div>

@@ -28,10 +28,29 @@ const factorLabels = [
     ["Aggression Level", "aggressionLevel"],
     ["Activity Level", "activityLevel"],
 ]
+function buildFormFromAnimal(animal) {
+    return {
+        ...emptyForm,
+        animalId: animal._id,
+        assessmentDate: new Date().toISOString().split("T")[0],
+        energyLevel: animal.energyLevel ?? 3,
+        friendliness: animal.friendliness ?? 3,
+        humanSociability: animal.humanSociability ?? 3,
+        animalSociability: animal.animalSociability ?? 3,
+        trainability: animal.trainability ?? 3,
+        anxietyLevel: animal.anxietyLevel ?? 3,
+        aggressionLevel: animal.aggressionLevel ?? 3,
+        activityLevel: animal.activityLevel ?? 3,
+        notes: animal.behaviorNotes || "",
+    };
+}
 
-export default function BehaviorAssessment() {
+export default function BehaviorAssessment({ lockedAnimal = null }) {
     const [animals, setAnimals] = useState([]);
-    const [form, setForm] = useState(emptyForm);
+    const [form, setForm] = useState(() =>
+        lockedAnimal ? buildFormFromAnimal(lockedAnimal) : emptyForm
+    );
+
     const [editingId, setEditingId] = useState("");
     const [search, setSearch] = useState("");
     const [filterAssessor, setFilterAssessor] = useState("All");
@@ -82,9 +101,9 @@ export default function BehaviorAssessment() {
     function handleAnimalChange(e) {
         const animalId = e.target.value;
 
-        const selectedAnimal = animals.find(
-            (animal) => animal._id === animalId
-        );
+        const selectedAnimal =
+            lockedAnimal ||
+            animals.find((animal) => animal._id === form.animalId);
 
         if (!selectedAnimal) {
             setForm((current) => ({
@@ -163,9 +182,12 @@ export default function BehaviorAssessment() {
                 : `${selectedAnimal.name}'s behavioral profile was saved successfully.`
             );
 
-            setMessage("success");
+            setMessageType("success");
             setEditingId("");
-            setForm(emptyForm);
+
+            if (!lockedAnimal) {
+                setForm(emptyForm);
+            }
 
             await fetchAnimals();
         } catch (error) {
@@ -228,7 +250,7 @@ export default function BehaviorAssessment() {
         const searchValue = search.toLowerCase().trim();
         const matchesSearch = animal.name?.toLowerCase().includes(searchValue) ||
             animal.breed?.toLowerCase().includes(searchValue);
-        const hasAssessment = animal.energyLevel !== null & animal.energyLevel !== undefined;
+        const hasAssessment = animal.energyLevel !== null && animal.energyLevel !== undefined;
         const matchesAssessor = filterAssessor === "All" || animal.behaiorAssessor === filterAssessor;
 
         return matchesSearch && matchesAssessor && hasAssessment;
@@ -237,50 +259,59 @@ export default function BehaviorAssessment() {
     return (
         <section className="admin-behavior-page">
             <section className="admin-panel admin-behavior-form-panel">
-                <div className="admin-panel-heading">
-                    <div>
-                        <h2>
-                            {editingId
-                                ? "Edit Behavioral Assessment"
-                                : "Behavioral Assessment"}
-                        </h2>
+                 {!lockedAnimal && (
+                    <div className="admin-panel-heading">
+                        <div>
+                            <h2>
+                                {editingId
+                                    ? "Edit Behavioral Assessment"
+                                    : "Behavioral Assessment"}
+                            </h2>
 
-                        <p>
-                            Manually evaluate an animal's behavior
-                            using the eight matching factors.
-                        </p>
+                            <p>
+                                Manually evaluate an animal's behavior
+                                using the eight matching factors.
+                            </p>
+                        </div>
                     </div>
-                </div>
-
+                )}
+                
                 <form
                     className="admin-behavior-form"
                     onSubmit={handleSubmit}
                 >
-                    <label>
-                        Animal
+                    {lockedAnimal ? (
+                        <label>
+                            Animal
+                            <input value={lockedAnimal.name} readOnly />
+                        </label>
+                    ) : (
+                        <label>
+                            Animal
 
-                        <select
-                            value={form.animalId}
-                            onChange={handleAnimalChange}
-                            required
-                        >
-                            <option value="">
-                                Select an animal
-                            </option>
-
-                            {animals.map((animal) => (
-                                <option
-                                    key={animal._id}
-                                    value={animal._id}
-                                >
-                                    {animal.name} — {animal.type}
-                                    {animal.breed
-                                        ? ` — ${animal.breed}`
-                                        : ""}
+                            <select
+                                value={form.animalId}
+                                onChange={handleAnimalChange}
+                                required
+                            >
+                                <option value="">
+                                    Select an animal
                                 </option>
-                            ))}
-                        </select>
-                    </label>
+
+                                {animals.map((animal) => (
+                                    <option
+                                        key={animal._id}
+                                        value={animal._id}
+                                    >
+                                        {animal.name} — {animal.type}
+                                        {animal.breed
+                                            ? ` — ${animal.breed}`
+                                            : ""}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    )}
 
                     <label>
                         Assessed By
@@ -398,6 +429,7 @@ export default function BehaviorAssessment() {
                 </form>
             </section>
 
+  {!lockedAnimal && (
             <section className="admin-panel admin-behavior-list-panel">
                 <div className="admin-panel-heading">
                     <div>
@@ -573,6 +605,7 @@ export default function BehaviorAssessment() {
                     </div>
                 )}
             </section>
+        )}
         </section>
     );
 }

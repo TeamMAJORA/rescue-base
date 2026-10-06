@@ -5,7 +5,6 @@ import {
 
 //CSS
 import "../../styles/admin/AdminDashboard.css";
-import "../../styles/admin/AdminDashboardOverview.css"
 import "../../styles/admin/AnimalProfiles.css";
 import "../../styles/admin/MedicalRecords.css";
 import "../../styles/admin/IntakeRecords.css";
@@ -47,7 +46,6 @@ import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
 import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
 import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
-import RescueAssignments from "./modules/Rescue";
 import ActivityLog from "./modules/ActivityLog";
 
 // ADOPTIONS
@@ -84,8 +82,7 @@ const adminMenu = [
             { key: "matching-quiz", label: "Matching Quiz Results" },
             { key: "recommendations", label: "Recommendations" },
         ],
-    },
-    { key: "rescue", label: "Rescue Animals" },
+    },//removed bcs of the new animal intake form
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "needed-supplies", label: "Needed Supplies" },
@@ -312,10 +309,6 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "mobile-intake") {
             return <MobileFieldIntake />;
-        }
-
-        if (activeAdminPage === "rescue") {
-            return <RescueAssignments />;
         }
 
         if (activeAdminPage === "activity-log") {

@@ -337,6 +337,75 @@
     background: #b81f1f;
 }
 
+/* REUSABLE TABS */
+
+.admin-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.14);
+}
+
+.admin-tabs button {
+    flex-shrink: 0;
+    margin-bottom: -1px;
+    padding: 10px 16px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-tabs button:hover:not(:disabled) {
+    color: var(--brown);
+}
+
+.admin-tabs button.active {
+    border-bottom-color: var(--orange);
+    color: var(--brown);
+}
+
+.admin-tabs button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.admin-tab-heading {
+    margin-bottom: 0;
+}
+
+.admin-tab-heading h2 {
+    font-size: 24px;
+}
+
+.admin-tab-heading p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #7b452d;
+}
+
+.admin-required {
+    color: var(--red);
+}
+
+/* Make sure hidden tab panels stay hidden even if a class sets display */
+.admin-animal-form-panel [hidden] {
+    display: none !important;
+}
+
+/* Embedded record pages: drop their own panel boxes so they sit flat inside the tab */
+.admin-tab-content .admin-panel {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
 /* REUSABLE STAT CARD */
 
 .admin-stat-card {

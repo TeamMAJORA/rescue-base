@@ -21,9 +21,6 @@ import LostFound from "../admin/modules/LostFound";
 import AnimalProfiles from "../admin/modules/animals/AnimalProfiles";
 import IntakeRecords from "../admin/modules/animals/IntakeRecords";
 import QRTags from "../admin/modules/animals/QRTags";
-import MobileFieldIntake from "../admin/modules/animals/MobileFieldIntake";
-import RescueAssignments from "./modules/RescueAssignments";
-import RescueHistory from "./modules/RescueHistory";
 import ActivityLog from "./modules/ActivityLog";
 import FeedbackForm from "../FeedbackForm";
 import GISMapping from "../admin/modules/GISMapping";
@@ -38,20 +35,11 @@ const staffMenu = [
         key: "animals",
         label: "Animals",
         children: [
-            { key: "animal-profiles", label: "Animal Profiles" },
-            { key: "qr-tags", label: "QR Tags" },
+            { key: "animal-profiles", label: "Animal Profiles" }//removed the qr they cant access it
         ],
     },
 
-    {
-        key: "rescues",
-        label: "Rescue Operations",
-        children: [
-            { key: "mobile-intake", label: "Mobile Field Intake" },
-            { key: "rescue-assignments", label: "Rescue Assignments" },
-            { key: "rescue-history", label: "My Rescue History" },
-        ],
-    },
+   //removed bcs of the new animal intake form
     {
         key: "gis",
         label: "GIS Mapping"
@@ -217,11 +205,6 @@ export default function VolunteerDashboard({ setPage }) {
         await loadNotifications();
 
         switch (notification.type) {
-            case "rescue_update":
-                setActiveStaffPage(
-                    "rescue-assignments"
-                );
-                break;
 
             default:
                 setActiveStaffPage("overview");
@@ -251,19 +234,7 @@ export default function VolunteerDashboard({ setPage }) {
         if (activeStaffPage === "qr-tags") {
             return <QRTags />
         }
-
-
-        if (activeStaffPage === "mobile-intake") {
-            return <MobileFieldIntake />
-        }
-
-        if (activeStaffPage === "rescue-assignments") {
-            return <RescueAssignments />;
-        }
-
-        if (activeStaffPage === "rescue-history") {
-            return <RescueHistory />;
-        }
+//removed bcs of the new animal intake form
 
         if (activeStaffPage === "activity-log") {
             return <ActivityLog />;

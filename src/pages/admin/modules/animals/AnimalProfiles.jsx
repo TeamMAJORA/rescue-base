@@ -1,5 +1,8 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { getCurrentUser, isAdmin, isStaff } from "../../../../utils/auth";
+import BehaviorAssessment from "./BehaviorAssessment";
+import VaccinationRecords from "./VaccinationRecords";
+import MedicalRecords from "./MedicalRecords";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -119,7 +122,35 @@ function QrIcon() {
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
+const ANIMAL_FORM_TABS = [
+    {
+        key: "overview",
+        label: "Overview",
+        title: "Animal Details",
+        description: "Core profile fields. Fields marked * are required.",
+    },
+    {
+        key: "behavior",
+        label: "Behavioral Assessment",
+        title: "Behavioral Assessment",
+        description: "Rate this animal on the eight matching factors.",
+    },
+    {
+        key: "vaccinations",
+        label: "Vaccinations",
+        title: "Vaccinations",
+        description: "Vaccination history and upcoming schedules.",
+    },
+    {
+        key: "medical",
+        label: "Medical Records",
+        title: "Medical Records",
+        description: "Check-ups, treatments and medical notes.",
+    },
+];
+
 export default function AnimalProfiles() {
+    const canManage = isAdmin() || isStaff();
     const [animals, setAnimals] = useState([]);
     const [animalForm, setAnimalForm] = useState(emptyAnimalForm);
     const [editingId, setEditingId] = useState(null);
@@ -141,7 +172,14 @@ export default function AnimalProfiles() {
 
     const [formSnapshot, setFormSnapshot] = useState(emptyAnimalForm);
     const [showDiscardModal, setShowDiscardModal] = useState(false);
+    const [activeFormTab, setActiveFormTab] = useState("overview");
+    const [editingAnimal, setEditingAnimal] = useState(null);
 
+    const currentFormTab =
+        ANIMAL_FORM_TABS.find((tab) => tab.key === activeFormTab) ||
+        ANIMAL_FORM_TABS[0];
+
+    
     const isFormDirty =
         JSON.stringify(animalForm) !== JSON.stringify(formSnapshot);
 
@@ -322,16 +360,29 @@ export default function AnimalProfiles() {
                 return;
             }
 
-            setMessage(
-                editingId
-                    ? "Animal profile updated successfully."
-                    : "Animal profile created successfully."
-            );
+            if (!editingId) {
+                const newAnimal = data.animal;
 
-            setAnimalForm(emptyAnimalForm);
-            setEditingId(null);
+                if (!newAnimal?._id) {
+                    // Fallback: server didn't return the new animal
+                    closeForm();
+                    setMessage("Animal profile created successfully.");
+                    fetchAnimals();
+                    return;
+                }
+
+                setEditingId(newAnimal._id);
+                setEditingAnimal(newAnimal);
+                setMessage(
+                    "Animal saved. You can now fill in Behavioral Assessment, Vaccinations and Medical Records."
+                );
+            } else {
+                setEditingAnimal((current) => data.animal || { ...current, ...payload });
+                setMessage("Animal profile updated successfully.");
+            }
+
+            setFormSnapshot({ ...animalForm });
             fetchAnimals();
-            setShowForm(false);
         } catch (error) {
             console.error("Save animal error:", error);
             setMessage("Server error while saving animal profile.");
@@ -408,12 +459,15 @@ export default function AnimalProfiles() {
         setAnimalForm(editForm);
         setFormSnapshot(editForm);
         setMessage("Editing animal profile.");
+        setEditingAnimal(animal);
+        setActiveFormTab("overview");
         setShowForm(true);
         window.scrollTo({ top: 0 });
     }
 
     function handleCancelEdit() {
         setEditingId(null);
+        setEditingAnimal(null);
         setAnimalForm(emptyAnimalForm);
         setMessage("");
     }
@@ -421,6 +475,7 @@ export default function AnimalProfiles() {
     function handleAddAnimal() {
         handleCancelEdit();
         setFormSnapshot(emptyAnimalForm);
+        setActiveFormTab("overview");
         setShowForm(true);
         window.scrollTo({ top: 0 });
     }
@@ -501,7 +556,7 @@ export default function AnimalProfiles() {
         return () => window.removeEventListener("beforeunload", handleBeforeUnload);
     }, [showForm, isFormDirty]);
 
-        if (showForm) {
+        if (showForm && canManage) {
         return (
             <section className="admin-animal-page">
                 <div className="admin-page-header">
@@ -524,16 +579,39 @@ export default function AnimalProfiles() {
                 </div>
 
                 <section className="admin-panel admin-animal-form-panel" id="animal-form">
-                 <div className="admin-panel-heading">
+                <nav className="admin-tabs" role="tablist" aria-label="Animal profile sections">
+                    {ANIMAL_FORM_TABS.map((tab) => {
+                        const locked = tab.key !== "overview" && !editingId;
+
+                        return (
+                            <button
+                                key={tab.key}
+                                type="button"
+                                role="tab"
+                                aria-selected={activeFormTab === tab.key}
+                                className={activeFormTab === tab.key ? "active" : ""}
+                                disabled={locked}
+                                title={locked ? "Save the animal first to unlock this tab" : undefined}
+                                onClick={() => setActiveFormTab(tab.key)}
+                            >
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </nav>
+
+                <div className="admin-panel-heading admin-tab-heading">
                     <div>
-                        <h2>Animal Details</h2>
-                        <p>Fill in the animal's information, availability, adoption and foster status.</p>
+                        <h2>{currentFormTab.title}</h2>
+                        <p>{currentFormTab.description}</p>
                     </div>
                 </div>
 
+        <div hidden={activeFormTab !== "overview"}>
+
                 <form className="admin-animal-form" onSubmit={handleSubmitAnimal}>
                     <label>
-                        Name
+                        Name <span className="admin-required">*</span>
                         <input
                             value={animalForm.name}
                             onChange={(e) =>
@@ -775,6 +853,23 @@ export default function AnimalProfiles() {
                                 : "Save Animal"}
                     </button>
                 </form>
+        </div>
+
+        {editingAnimal && (
+            <>
+                <div className="admin-tab-content" hidden={activeFormTab !== "behavior"}>
+                    <BehaviorAssessment key={editingAnimal._id} lockedAnimal={editingAnimal} />
+                </div>
+
+                <div className="admin-tab-content" hidden={activeFormTab !== "vaccinations"}>
+                    <VaccinationRecords key={editingAnimal._id} lockedAnimal={editingAnimal} />
+                </div>
+
+                <div className="admin-tab-content" hidden={activeFormTab !== "medical"}>
+                    <MedicalRecords key={editingAnimal._id} lockedAnimal={editingAnimal} />
+                </div>
+            </>
+        )}
             </section>
 
             {showDiscardModal && (
@@ -828,13 +923,15 @@ export default function AnimalProfiles() {
                     <p>Manage every animal under shelter care.</p>
                 </div>
 
-                <button
-                    type="button"
-                    className="admin-page-header-btn"
-                    onClick={handleAddAnimal}
-                >
-                    + Add Animal
-                </button>
+                 {canManage && (//new up for add button
+                    <button
+                        type="button"
+                        className="admin-page-header-btn"
+                        onClick={handleAddAnimal}
+                    >
+                        + Add Animal
+                    </button>
+                 )}
             </div>
             
             <div className="admin-animal-stats">
@@ -952,9 +1049,11 @@ export default function AnimalProfiles() {
                                 </div>
 
                                 <div className="admin-animal-actions">
-                                    <button type="button" onClick={() => handleEditAnimal(animal)}>
-                                        Edit
-                                    </button>
+                                    {canManage && (//new up for edit button
+                                        <button type="button" onClick={() => handleEditAnimal(animal)}>
+                                            Edit
+                                        </button>
+                                    )}
 
                                     {isAdmin() && (
                                         <button
@@ -1053,13 +1152,15 @@ export default function AnimalProfiles() {
                                                                 {isExpanded ? "Hide" : "View"}
                                                             </button>
 
-                                                            <button
-                                                                type="button"
-                                                                className="edit"
-                                                                onClick={() => handleEditAnimal(animal)}
-                                                            >
-                                                                Edit
-                                                            </button>
+                                                            {canManage && (//updated for edit button
+                                                                <button
+                                                                    type="button"
+                                                                    className="edit"
+                                                                    onClick={() => handleEditAnimal(animal)}
+                                                                >
+                                                                    Edit
+                                                                </button>
+                                                            )}
 
                                                             {isAdmin() && (
                                                                 <button

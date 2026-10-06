@@ -24,21 +24,22 @@ const starterVaccinations = [
     },
 ];
 
-export default function VaccinationRecords() {
-    const [vaccinations, setVaccinations] = useState(starterVaccinations);
-    const [editingId, setEditingId] = useState(null);
-    const [search, setSearch] = useState("");
-    const [filterStatus, setFilterStatus] = useState("All");
-
-    const [vaccinationForm, setVaccinationForm] = useState({
-        animalName: "",
+export default function VaccinationRecords({ lockedAnimal = null }) {
+    const blankForm = {
+        animalName: lockedAnimal?.name || "",
         vaccineName: "",
         veterinarian: "",
         vaccinationDate: "",
         nextDueDate: "",
         status: "Completed",
         notes: "",
-    });
+    };
+
+    const [vaccinations, setVaccinations] = useState(starterVaccinations);
+    const [editingId, setEditingId] = useState(null);
+    const [search, setSearch] = useState("");
+    const [filterStatus, setFilterStatus] = useState("All");
+    const [vaccinationForm, setVaccinationForm] = useState(blankForm);
 
     function handleAddVaccination(e) {
         e.preventDefault();
@@ -68,15 +69,7 @@ export default function VaccinationRecords() {
             ]);
         }
 
-        setVaccinationForm({
-            animalName: "",
-            vaccineName: "",
-            veterinarian: "",
-            vaccinationDate: "",
-            nextDueDate: "",
-            status: "Completed",
-            notes: "",
-        });
+        setVaccinationForm(blankForm);
     }
 
     function handleEditVaccination(vaccination) {
@@ -109,13 +102,15 @@ export default function VaccinationRecords() {
     return (
         <section className="admin-vaccination-page">
             <section className="admin-panel admin-vaccination-form-panel">
-                <div className="admin-panel-heading">
-                    <h2>{
-                        editingId
-                            ? "Editing Vaccination Record"
-                            : "Add Vaccination Record"
-                    }</h2>
-                </div>
+                {!lockedAnimal && (
+                    <div className="admin-panel-heading">
+                        <h2>{
+                            editingId
+                                ? "Editing Vaccination Record"
+                                : "Add Vaccination Record"
+                        }</h2>
+                    </div>
+                )}
                 <form
                     className="admin-vaccination-form"
                     onSubmit={handleAddVaccination}
@@ -125,6 +120,7 @@ export default function VaccinationRecords() {
                         Animal Name
                         <input
                             type="text"
+                            readOnly={Boolean(lockedAnimal)}
                             value={vaccinationForm.animalName}
                             onChange={(e) =>
                                 setVaccinationForm({
@@ -254,15 +250,7 @@ export default function VaccinationRecords() {
                             onClick={() => {
                                 setEditingId(null);
 
-                                setVaccinationForm({
-                                    animalName: "",
-                                    vaccineName: "",
-                                    veterinarian: "",
-                                    vaccinationDate: "",
-                                    nextDueDate: "",
-                                    status: "Completed",
-                                    notes: "",
-                                });
+                                setVaccinationForm(blankForm);
                             }}
                         >
                             Cancel
@@ -276,14 +264,16 @@ export default function VaccinationRecords() {
                     <h2>Vaccination Records</h2>
                 </div>
 
-                <input
-                    type="text"
-                    placeholder="Search animal..."
-                    value={search}
-                    onChange={(e) =>
-                        setSearch(e.target.value)
-                    }
-                />
+                {!lockedAnimal && (
+                    <input
+                        type="text"
+                        placeholder="Search animal..."
+                        value={search}
+                        onChange={(e) =>
+                            setSearch(e.target.value)
+                        }
+                    />
+                )}
 
                 <select
                     value={filterStatus}
@@ -300,9 +290,10 @@ export default function VaccinationRecords() {
                 <div className="admin-vaccination-list">
 
                     {vaccinations.filter((vaccination) => {
+                        const matchesAnimal = !lockedAnimal || vaccination.animalName === lockedAnimal.name;
                         const matchesSearch = vaccination.animalName.toLowerCase().includes(search.toLowerCase());
                         const matchesStatus = filterStatus === "All" || vaccination.status === filterStatus;
-                        return matchesSearch && matchesStatus;
+                        return matchesAnimal && matchesSearch && matchesStatus;
                     }).map((vaccination) => (
                         <article
                             className="admin-vaccination-row"
@@ -365,16 +356,16 @@ export default function VaccinationRecords() {
 
                                 <div className="admin-vaccination-actions">
                                     <button
-                                        button="button"
+                                        type="button"
                                         className="admin-edit-button"
                                         onClick={() =>
-                                            handleAddVaccination(vaccination)
+                                            handleEditVaccination(vaccination)
                                         }
                                     >
                                         Edit
                                     </button>
 
-                                    {isAdmin && (
+                                    {isAdmin() && (
                                         <button
                                             type="button"
                                             className="admin-delete-button"
