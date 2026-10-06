@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
+import InfoTip from "../../../../components/system/InfoTip";
 
 const starterVaccinations = [
     {
@@ -115,33 +116,32 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                     className="admin-vaccination-form"
                     onSubmit={handleAddVaccination}
                 >
-
                     <label>
-                        Animal Name
+                        <span className="admin-field-label">
+                            Animal Name
+                            {!lockedAnimal && <span className="admin-required">*</span>}
+                        </span>
                         <input
                             type="text"
                             readOnly={Boolean(lockedAnimal)}
                             value={vaccinationForm.animalName}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    animalName: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, animalName: e.target.value })
                             }
+                            placeholder="e.g. Max"
                             required
                         />
                     </label>
 
                     <label>
-                        Vaccine Name
+                        <span className="admin-field-label">
+                            Vaccine Name <span className="admin-required">*</span>
+                        </span>
                         <input
                             type="text"
                             value={vaccinationForm.vaccineName}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    vaccineName: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, vaccineName: e.target.value })
                             }
                             placeholder="Example: Anti-Rabies"
                             required
@@ -149,98 +149,80 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                     </label>
 
                     <label>
-                        Veterinarian
+                        <span className="admin-field-label">Veterinarian</span>
                         <input
                             type="text"
                             value={vaccinationForm.veterinarian}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    veterinarian: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, veterinarian: e.target.value })
                             }
-                            required
+                            placeholder="e.g. Dr. Santos"
                         />
                     </label>
 
                     <label>
-                        Vaccination Date
+                        <span className="admin-field-label">
+                            Vaccination Date <span className="admin-required">*</span>
+                        </span>
                         <input
                             type="date"
                             value={vaccinationForm.vaccinationDate}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    vaccinationDate: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, vaccinationDate: e.target.value })
                             }
                             required
                         />
                     </label>
 
                     <label>
-                        Next Due Date
+                        <span className="admin-field-label">
+                            Next Due Date
+                            <InfoTip text="Leave blank for one-time vaccines. Fill it in when a booster is needed. It can't be earlier than the vaccination date." />
+                        </span>
                         <input
                             type="date"
                             value={vaccinationForm.nextDueDate}
+                            min={vaccinationForm.vaccinationDate || undefined}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    nextDueDate: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, nextDueDate: e.target.value })
                             }
-                            required
                         />
                     </label>
 
                     <label>
-                        Status
-
+                        <span className="admin-field-label">
+                            Status <span className="admin-required">*</span>
+                            <InfoTip text="Completed: the vaccine was given. Pending: scheduled but not given yet. Overdue: the due date passed and it wasn't given." />
+                        </span>
                         <select
                             value={vaccinationForm.status}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    status: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, status: e.target.value })
                             }
+                            required
                         >
-                            <option value="Completed">
-                                Completed
-                            </option>
-
-                            <option value="Pending">
-                                Pending
-                            </option>
-
-                            <option value="Overdue">
-                                Overdue
-                            </option>
+                            <option value="Completed">Completed</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Overdue">Overdue</option>
                         </select>
                     </label>
 
-                    <label
-                        className="admin-vaccination-notes-field"
-                    >
-                        Notes
+                    <label className="admin-vaccination-notes-field">
+                        <span className="admin-field-label">Notes</span>
                         <textarea
                             rows="4"
                             value={vaccinationForm.notes}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    notes: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, notes: e.target.value })
                             }
+                            placeholder="Optional: reactions, batch number, reminders..."
                         />
-
                     </label>
-                    <button type="submit">
-                        {
-                            editingId
-                                ? "Update Vaccination Record"
-                                : "Save Vaccination Record"
-                        }
+
+                    <button type="submit" className="admin-vaccination-save">
+                        {editingId
+                            ? "Update Vaccination Record"
+                            : "Save Vaccination Record"}
                     </button>
 
                     {editingId && (
@@ -249,7 +231,6 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                             className="admin-secondary-button"
                             onClick={() => {
                                 setEditingId(null);
-
                                 setVaccinationForm(blankForm);
                             }}
                         >

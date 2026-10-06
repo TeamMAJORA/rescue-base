@@ -3,6 +3,7 @@ import { getCurrentUser, isAdmin, isStaff } from "../../../../utils/auth";
 import BehaviorAssessment from "./BehaviorAssessment";
 import VaccinationRecords from "./VaccinationRecords";
 import MedicalRecords from "./MedicalRecords";
+import InfoTip from "../../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -55,18 +56,6 @@ const STATUS_TO_FIELDS = {
     adopted: { availabilityStatus: "unavailable", adoptionStatus: "adopted", fosterStatus: "none" },
     unavailable: { availabilityStatus: "unavailable", adoptionStatus: "available", fosterStatus: "none" },
 };
-
-// Orange "?" with a hover popup
-function InfoTip({ text }) {
-    return (
-        <span className="admin-info-tip" tabIndex={0} aria-label={text}>
-            ?
-            <span className="admin-info-tip-bubble" role="tooltip">
-                {text}
-            </span>
-        </span>
-    );
-}
 
 const STATUS_FILTERS = [
     { key: "all", label: "All" },
@@ -129,7 +118,7 @@ function AdopterPreview({ form, savedAnimal }) {
                     Adopter Preview
                     <span className="admin-auto-badge">AUTO</span>
                 </h3>
-                <p>Updates as you fill in the form. Not editable.</p>
+                <p>What Adopters see. Not editable.</p>
             </div>
 
             <div className="admin-preview-card">
