@@ -182,6 +182,10 @@
     align-items: start;
 }
 
+.browse-pets-list > .browse-pets-message {
+    grid-column: 1 / -1;
+}
+
 .browse-pets-list::-webkit-scrollbar {
     width: 7px;
 }
