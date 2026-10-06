@@ -53,30 +53,42 @@
 .admin-behavior-form select,
 .admin-behavior-form textarea {
     width: 100%;
+    min-height: 40px;
     box-sizing: border-box;
-    min-height: 42px;
-    border: 1px solid rgba(90, 27, 0, 0.16);
-    border-radius: 14px;
-    padding: 10px 12px;
-    background: white;
-    color: #5a1b00;
-    font-family: inherit;
-    font-size: 14px;
+    padding: 8px 14px;
+    border: 1px solid #e8cf8a;
+    border-radius: 8px;
+    background: #fff4c4;
+    color: var(--brown);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-behavior-form input::placeholder,
+.admin-behavior-form textarea::placeholder {
+    color: #b08f7a;
+}
+
+.admin-behavior-form input[readonly] {
+    background: #f3ecd6;
+    border-color: #ddd0ae;
+    cursor: default;
 }
 
 .admin-behavior-form input:focus,
 .admin-behavior-form select:focus,
 .admin-behavior-form textarea:focus {
-    border-color: #fb8500;
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
 }
 
-.admin-behavior-form select {
-    cursor: pointer;
+.admin-behavior-form input[readonly]:focus {
+    border-color: #ddd0ae;
+    box-shadow: none;
 }
-
 /* Top row: Animal / Assessed By / Date */
 .admin-behavior-top-row {
     display: grid;
