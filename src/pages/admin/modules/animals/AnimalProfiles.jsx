@@ -1323,10 +1323,9 @@ export default function AnimalProfiles() {
                         value={speciesFilter}
                         onChange={(e) => setSpeciesFilter(e.target.value)}
                     >
-                        <option value="All">Species: All</option>
-                        <option value="Dog">Species: Dog</option>
-                        <option value="Cat">Species: Cat</option>
-                        <option value="Other">Species: Other</option>
+                        <option value="All">All</option>
+                        <option value="Dog">Dog</option>
+                        <option value="Cat">Cat</option>
                     </select>
 
                     <div className="admin-view-toggle">
