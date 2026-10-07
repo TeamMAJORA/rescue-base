@@ -343,12 +343,17 @@
     display: flex;
     gap: 6px;
     overflow-x: auto;
-    border-bottom: 1px solid rgba(90, 27, 0, 0.14);
+    overflow-y: hidden;
+    scrollbar-width: none;
+    box-shadow: inset 0 -1px 0 rgba(90, 27, 0, 0.14);
+}
+
+.admin-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 .admin-tabs button {
     flex-shrink: 0;
-    margin-bottom: -1px;
     padding: 10px 16px;
     border: 0;
     border-bottom: 3px solid transparent;
