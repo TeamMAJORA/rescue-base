@@ -887,7 +887,6 @@ export default function AnimalProfiles() {
                                 <option value="" disabled>Select</option>
                                 <option value="Dog">Dog</option>
                                 <option value="Cat">Cat</option>
-                                <option value="Other">Other</option>
                             </select>
                         </label>
 
