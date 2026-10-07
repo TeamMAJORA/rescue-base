@@ -1,25 +1,41 @@
+/* =========================
+   PAGE + PANELS
+========================= */
+
 .admin-medical-page {
     display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 18px;
-    align-items: start;
+    gap: 22px;
 }
 
 .admin-medical-form-panel,
 .admin-medical-list-panel {
-    min-height: 430px;
+    display: grid;
+    gap: 18px;
 }
+
+/* Divider above the list when shown inside an animal's tab */
+.admin-tab-content .admin-medical-list-panel {
+    margin-top: 4px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(90, 27, 0, 0.14);
+}
+
+/* =========================
+   FORM
+========================= */
 
 .admin-medical-form {
     display: grid;
-    gap: 14px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px 18px;
 }
 
 .admin-medical-form label {
     display: grid;
     gap: 6px;
+    min-width: 0;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -27,19 +43,38 @@
 .admin-medical-form select,
 .admin-medical-form textarea {
     width: 100%;
-    border: 1px solid rgba(90, 27, 0, 0.28);
-    border-radius: 12px;
-    background: var(--white-yellow);
+    min-height: 40px;
+    box-sizing: border-box;
+    padding: 8px 14px;
+    border: 1px solid #e8cf8a;
+    border-radius: 8px;
+    background: #fff4c4;
     color: var(--brown);
-    padding: 11px 13px;
-    font-family: "Inter", sans-serif;
+    font: inherit;
     font-size: 13px;
+    font-weight: 500;
     outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.admin-medical-form input,
-.admin-medical-form select {
-    height: 42px;
+.admin-medical-form input::placeholder,
+.admin-medical-form textarea::placeholder {
+    color: #b08f7a;
+}
+
+.admin-medical-form input[type="date"]:invalid {
+    color: #b08f7a;
+}
+
+.admin-medical-form input[readonly] {
+    background: #f3ecd6;
+    border-color: #ddd0ae;
+    cursor: default;
+}
+
+.admin-medical-form textarea {
+    min-height: 78px;
+    resize: vertical;
 }
 
 .admin-medical-form input:focus,
@@ -49,60 +84,227 @@
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
 }
 
-.admin-medical-form textarea {
-    min-height: 120px;
-    resize: vertical;
+.admin-medical-form input[readonly]:focus {
+    border-color: #ddd0ae;
+    box-shadow: none;
 }
 
-.admin-medical-form button {
-    height: 44px;
-    border: none;
-    border-radius: 999px;
-    background: var(--brown);
-    color: var(--yellow);
-    font-family: "Itim", cursive;
-    font-size: 15px;
+.admin-medical-form select {
     cursor: pointer;
 }
 
-.admin-medical-list {
-    display: grid;
-    gap: 12px;
-    max-height: 520px;
-    overflow-y: auto;
-    padding-right: 6px;
+.admin-medical-notes-field {
+    grid-column: 1 / -1;
 }
 
-.admin-medical-row {
-    background: var(--white-yellow);
-    border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 14px;
-    padding: 15px;
+/* Buttons */
+.admin-medical-form > button {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 46px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-.admin-medical-row h3 {
-    font-family: "Itim", cursive;
+.admin-medical-save {
+    border: 0;
+    background: linear-gradient(90deg, #fb8500, #fca63a);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.22);
+}
+
+.admin-medical-save:hover {
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.32);
+    transform: translateY(-1px);
+}
+
+.admin-medical-cancel {
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
     color: var(--brown);
-    font-size: 22px;
 }
 
-.admin-medical-row p {
-    margin-top: 4px;
-    color: #6f4a35;
+.admin-medical-cancel:hover {
+    background: #fff7cb;
+}
+
+/* =========================
+   LIST HEADING + FILTERS
+========================= */
+
+.admin-med-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-med-list-heading h2 {
+    margin: 0;
+}
+
+.admin-med-list-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-med-search {
+    width: 220px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #e8cf8a;
+    border-radius: 8px;
+    background: #fff4c4;
+    color: var(--brown);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.admin-med-search::placeholder {
+    color: #b08f7a;
+}
+
+.admin-med-type-filter {
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: #7b452d;
+    font: inherit;
     font-size: 13px;
     font-weight: 700;
+    cursor: pointer;
 }
 
-.admin-medical-row span {
-    display: block;
-    margin-top: 8px;
-    color: var(--red);
-    font-size: 13px;
-    line-height: 1.5;
+.admin-med-search:focus,
+.admin-med-type-filter:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+    outline: none;
 }
+
+/* =========================
+   TABLE
+========================= */
+
+.admin-med-table-wrap {
+    overflow-x: auto;
+}
+
+.admin-med-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: var(--brown);
+}
+
+.admin-med-table th {
+    padding: 12px 14px;
+    background: #fff4c4;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-med-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(232, 207, 138, 0.6);
+    vertical-align: middle;
+}
+
+.admin-med-table tbody tr:hover {
+    background: #fffaf0;
+}
+
+.admin-med-type {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.admin-med-notes {
+    color: #7b452d;
+}
+
+.admin-med-empty {
+    padding: 24px 14px !important;
+    color: #b08f7a;
+    text-align: center;
+}
+
+/* Row actions */
+.admin-med-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.admin-med-actions button {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-med-actions .edit {
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
+    color: var(--brown);
+}
+
+.admin-med-actions .edit:hover {
+    background: #fff7cb;
+}
+
+.admin-med-actions .delete {
+    border: 1px solid var(--red);
+    background: #fffdf0;
+    color: var(--red);
+}
+
+.admin-med-actions .delete:hover {
+    background: #fde8e8;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media (max-width: 950px) {
-    .admin-medical-page {
+    .admin-medical-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 780px) {
+    .admin-medical-form {
         grid-template-columns: 1fr;
+    }
+
+    .admin-med-list-heading {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-med-list-controls {
+        flex-wrap: wrap;
+    }
+
+    .admin-med-search {
+        flex: 1;
+        width: auto;
     }
 }

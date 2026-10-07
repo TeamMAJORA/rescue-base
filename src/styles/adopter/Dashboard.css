@@ -766,6 +766,21 @@
     margin-top: 22px;
 }
 
+.adopter-overview-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+    gap: 22px;
+    align-items: start;
+}
+
+.adopter-overview-main {
+    min-width: 0;
+}
+
+.adopter-overview-main > .adopter-panel {
+    margin-top: 22px;
+}
+
 .adopter-panel {
     min-width: 0;
     padding: 22px;
@@ -1099,8 +1114,13 @@
     .adopter-detail-panel {
         position: static;
     }
+<<<<<<< HEAD
     
     .adopter-overview-layout {
+=======
+
+        .adopter-overview-layout {
+>>>>>>> 25577cfeaac5b362bcd72faf0152e2bc15f97708
         grid-template-columns: 1fr;
     }
 }
