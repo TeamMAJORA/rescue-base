@@ -4,6 +4,7 @@ import BehaviorAssessment from "./BehaviorAssessment";
 import VaccinationRecords from "./VaccinationRecords";
 import MedicalRecords from "./MedicalRecords";
 import InfoTip from "../../../../components/system/InfoTip";
+import { formatAge } from "../../../../utils/formatAge";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -97,7 +98,7 @@ function AdopterPreview({ form, savedAnimal }) {
 
     const age =
         form.age !== "" && form.age !== null && form.age !== undefined
-            ? `${form.age} ${Number(form.age) === 1 ? "year" : "years"}`
+            ? formatAge(form.age)
             : "—";
 
     return (
@@ -329,6 +330,7 @@ export default function AnimalProfiles() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [expandedId, setExpandedId] = useState(null);
+    const [ageUnit, setAgeUnit] = useState("years");
     const [showForm, setShowForm] = useState(false);
 
     const [formSnapshot, setFormSnapshot] = useState(emptyAnimalForm);
@@ -698,6 +700,7 @@ export default function AnimalProfiles() {
 
         setEditingId(animal._id);
         setAnimalForm(editForm);
+        setAgeUnit(animal.age > 0 && animal.age < 1 ? "months" : "years");
         setFormSnapshot(editForm);
         setMessage("Editing animal profile.");
         setEditingAnimal(animal);
@@ -719,6 +722,7 @@ export default function AnimalProfiles() {
         const freshForm = { ...emptyAnimalForm, intakeDate: todayLocal() };
         setAnimalForm(freshForm);
         setFormSnapshot(freshForm);
+        setAgeUnit("years");
 
         setActiveFormTab("overview");
         setShowForm(true);
@@ -907,15 +911,29 @@ export default function AnimalProfiles() {
 
                         {/* ===== Row 2 ===== */}
                         <label>
-                            <span className="admin-field-label">Age (years)</span>
-                            <input
-                                type="number"
-                                min="0"
-                                step="0.5"
-                                value={animalForm.age}
-                                onChange={(e) => setAnimalForm({ ...animalForm, age: e.target.value })}
-                                placeholder="e.g. 2"
-                            />
+                            <span className="admin-field-label">Age</span>
+                            <div className="admin-age-input">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step={ageUnit === "months" ? "1" : "0.5"}
+                                    value={
+                                        ageUnit === "months" && animalForm.age !== ""
+                                            ? Math.round(Number(animalForm.age) * 12)
+                                            : animalForm.age
+                                    }
+                                    onChange={(e) => {
+                                        const raw = e.target.value;
+                                        const age = raw === "" ? "" : ageUnit === "months" ? Number(raw) / 12 : raw;
+                                        setAnimalForm({ ...animalForm, age });
+                                    }}
+                                    placeholder={ageUnit === "months" ? "e.g. 4" : "e.g. 2"}
+                                />
+                                <select value={ageUnit} onChange={(e) => setAgeUnit(e.target.value)}>
+                                    <option value="years">Years</option>
+                                    <option value="months">Months</option>
+                                </select>
+                            </div>
                         </label>
 
                         <label>
@@ -1376,7 +1394,7 @@ export default function AnimalProfiles() {
                                 </div>
 
                                 <div className="admin-animal-details">
-                                    <p><b>Age:</b> {animal.age || 0}</p>
+                                    <p><b>Age:</b> {formatAge(animal.age)}</p>
                                     <p><b>Size:</b> {animal.size}</p>
                                     <p><b>Condition:</b> {animal.intakeCondition}</p>
                                 </div>
@@ -1418,7 +1436,7 @@ export default function AnimalProfiles() {
                                         </th>
                                         <th>Species</th>
                                         <th>Breed</th>
-                                        <th>Age (yrs)</th>
+                                        <th>Age</th>
                                         <th>Gender</th>
                                         <th>Status</th>
                                         <th>
@@ -1457,7 +1475,7 @@ export default function AnimalProfiles() {
                                                     </td>
                                                     <td>{animal.type}</td>
                                                     <td>{animal.breed || "—"}</td>
-                                                    <td>{animal.age ?? 0}</td>
+                                                    <td>{formatAge(animal.age)}</td>
                                                     <td>{animal.gender}</td>
                                                     <td>
                                                         <StatusPill key={status} status={status} />
@@ -1607,7 +1625,7 @@ export default function AnimalProfiles() {
 
                         <div className="admin-animal-modal-body">
                             <div className="admin-animal-modal-grid">
-                                <div><span>Age</span><p>{viewedAnimal.age ?? 0} yrs</p></div>
+                                <div><span>Age</span><p>{formatAge(viewedAnimal.age)}</p></div>
                                 <div><span>Gender</span><p>{viewedAnimal.gender || "—"}</p></div>
                                 <div><span>Size</span><p>{viewedAnimal.size || "—"}</p></div>
                                 <div><span>Color</span><p>{viewedAnimal.color || "—"}</p></div>

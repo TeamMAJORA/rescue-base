@@ -29,6 +29,7 @@ import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
 import PetList from "../../components/adopter/PetList";
 import PetDetailPanel from "../../components/adopter/PetDetailPanel";
+import { formatAge } from "../../utils/formatAge";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -302,10 +303,6 @@ export default function Dashboard({ onLogout }) {
 
             const normalizedPets = animals.map(
                 (animal) => {
-                    const age = Number(
-                        animal.age || 0
-                    );
-
                     return {
                         ...animal,
 
@@ -319,8 +316,7 @@ export default function Dashboard({ onLogout }) {
                                 ? "available"
                                 : "not_available",
 
-                        age: `${age} ${age === 1 ? "year" : "years"
-                            }`,
+                        age: formatAge(animal.age),
 
                         personalityTags:
                             animal.personality?.tags || [],
