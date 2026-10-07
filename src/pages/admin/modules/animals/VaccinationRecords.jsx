@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
+import InfoTip from "../../../../components/system/InfoTip";
 
 const starterVaccinations = [
     {
@@ -24,21 +25,36 @@ const starterVaccinations = [
     },
 ];
 
-export default function VaccinationRecords() {
-    const [vaccinations, setVaccinations] = useState(starterVaccinations);
-    const [editingId, setEditingId] = useState(null);
-    const [search, setSearch] = useState("");
-    const [filterStatus, setFilterStatus] = useState("All");
+// "2026-06-20" → "Jun 20, 2026"; empty → "—"
+function formatVaccineDate(value) {
+    if (!value) return "—";
 
-    const [vaccinationForm, setVaccinationForm] = useState({
-        animalName: "",
+    const date = new Date(`${value}T00:00:00`); // local date, no timezone shift
+    if (Number.isNaN(date.getTime())) return value;
+
+    return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    });
+}
+
+export default function VaccinationRecords({ lockedAnimal = null }) {
+    const blankForm = {
+        animalName: lockedAnimal?.name || "",
         vaccineName: "",
         veterinarian: "",
         vaccinationDate: "",
         nextDueDate: "",
         status: "Completed",
         notes: "",
-    });
+    };
+
+    const [vaccinations, setVaccinations] = useState(starterVaccinations);
+    const [editingId, setEditingId] = useState(null);
+    const [search, setSearch] = useState("");
+    const [filterStatus, setFilterStatus] = useState("All");
+    const [vaccinationForm, setVaccinationForm] = useState(blankForm);
 
     function handleAddVaccination(e) {
         e.preventDefault();
@@ -68,15 +84,7 @@ export default function VaccinationRecords() {
             ]);
         }
 
-        setVaccinationForm({
-            animalName: "",
-            vaccineName: "",
-            veterinarian: "",
-            vaccinationDate: "",
-            nextDueDate: "",
-            status: "Completed",
-            notes: "",
-        });
+        setVaccinationForm(blankForm);
     }
 
     function handleEditVaccination(vaccination) {
@@ -106,46 +114,57 @@ export default function VaccinationRecords() {
         )
     }
 
+    const filteredVaccinations = vaccinations.filter((vaccination) => {
+        const matchesAnimal = !lockedAnimal || vaccination.animalName === lockedAnimal.name;
+        const matchesSearch = vaccination.animalName.toLowerCase().includes(search.toLowerCase());
+        const matchesStatus = filterStatus === "All" || vaccination.status === filterStatus;
+        return matchesAnimal && matchesSearch && matchesStatus;
+    });
+
+    const columnCount = lockedAnimal ? 7 : 8;
+
     return (
         <section className="admin-vaccination-page">
             <section className="admin-panel admin-vaccination-form-panel">
-                <div className="admin-panel-heading">
-                    <h2>{
-                        editingId
-                            ? "Editing Vaccination Record"
-                            : "Add Vaccination Record"
-                    }</h2>
-                </div>
+                {!lockedAnimal && (
+                    <div className="admin-panel-heading">
+                        <h2>{
+                            editingId
+                                ? "Editing Vaccination Record"
+                                : "Add Vaccination Record"
+                        }</h2>
+                    </div>
+                )}
                 <form
                     className="admin-vaccination-form"
                     onSubmit={handleAddVaccination}
                 >
-
                     <label>
-                        Animal Name
+                        <span className="admin-field-label">
+                            Animal Name
+                            {!lockedAnimal && <span className="admin-required">*</span>}
+                        </span>
                         <input
                             type="text"
+                            readOnly={Boolean(lockedAnimal)}
                             value={vaccinationForm.animalName}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    animalName: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, animalName: e.target.value })
                             }
+                            placeholder="e.g. Max"
                             required
                         />
                     </label>
 
                     <label>
-                        Vaccine Name
+                        <span className="admin-field-label">
+                            Vaccine Name <span className="admin-required">*</span>
+                        </span>
                         <input
                             type="text"
                             value={vaccinationForm.vaccineName}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    vaccineName: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, vaccineName: e.target.value })
                             }
                             placeholder="Example: Anti-Rabies"
                             required
@@ -153,98 +172,80 @@ export default function VaccinationRecords() {
                     </label>
 
                     <label>
-                        Veterinarian
+                        <span className="admin-field-label">Veterinarian</span>
                         <input
                             type="text"
                             value={vaccinationForm.veterinarian}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    veterinarian: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, veterinarian: e.target.value })
                             }
-                            required
+                            placeholder="e.g. Dr. Santos"
                         />
                     </label>
 
                     <label>
-                        Vaccination Date
+                        <span className="admin-field-label">
+                            Vaccination Date <span className="admin-required">*</span>
+                        </span>
                         <input
                             type="date"
                             value={vaccinationForm.vaccinationDate}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    vaccinationDate: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, vaccinationDate: e.target.value })
                             }
                             required
                         />
                     </label>
 
                     <label>
-                        Next Due Date
+                        <span className="admin-field-label">
+                            Next Due Date
+                            <InfoTip text="Leave blank for one-time vaccines. Fill it in when a booster is needed. It can't be earlier than the vaccination date." />
+                        </span>
                         <input
                             type="date"
                             value={vaccinationForm.nextDueDate}
+                            min={vaccinationForm.vaccinationDate || undefined}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    nextDueDate: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, nextDueDate: e.target.value })
                             }
-                            required
                         />
                     </label>
 
                     <label>
-                        Status
-
+                        <span className="admin-field-label">
+                            Status <span className="admin-required">*</span>
+                            <InfoTip text="Completed: the vaccine was given. Pending: scheduled but not given yet. Overdue: the due date passed and it wasn't given." />
+                        </span>
                         <select
                             value={vaccinationForm.status}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    status: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, status: e.target.value })
                             }
+                            required
                         >
-                            <option value="Completed">
-                                Completed
-                            </option>
-
-                            <option value="Pending">
-                                Pending
-                            </option>
-
-                            <option value="Overdue">
-                                Overdue
-                            </option>
+                            <option value="Completed">Completed</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Overdue">Overdue</option>
                         </select>
                     </label>
 
-                    <label
-                        className="admin-vaccination-notes-field"
-                    >
-                        Notes
+                    <label className="admin-vaccination-notes-field">
+                        <span className="admin-field-label">Notes</span>
                         <textarea
                             rows="4"
                             value={vaccinationForm.notes}
                             onChange={(e) =>
-                                setVaccinationForm({
-                                    ...vaccinationForm,
-                                    notes: e.target.value,
-                                })
+                                setVaccinationForm({ ...vaccinationForm, notes: e.target.value })
                             }
+                            placeholder="Optional: reactions, batch number, reminders..."
                         />
-
                     </label>
-                    <button type="submit">
-                        {
-                            editingId
-                                ? "Update Vaccination Record"
-                                : "Save Vaccination Record"
-                        }
+
+                    <button type="submit" className="admin-vaccination-save">
+                        {editingId
+                            ? "Update Vaccination Record"
+                            : "Save Vaccination Record"}
                     </button>
 
                     {editingId && (
@@ -253,16 +254,7 @@ export default function VaccinationRecords() {
                             className="admin-secondary-button"
                             onClick={() => {
                                 setEditingId(null);
-
-                                setVaccinationForm({
-                                    animalName: "",
-                                    vaccineName: "",
-                                    veterinarian: "",
-                                    vaccinationDate: "",
-                                    nextDueDate: "",
-                                    status: "Completed",
-                                    notes: "",
-                                });
+                                setVaccinationForm(blankForm);
                             }}
                         >
                             Cancel
@@ -272,123 +264,99 @@ export default function VaccinationRecords() {
             </section>
 
             <section className="admin-panel admin-vaccination-list-panel">
-                <div className="admin-panel-heading">
+                <div className="admin-vacc-list-heading">
                     <h2>Vaccination Records</h2>
+
+                    <div className="admin-vacc-list-controls">
+                        {!lockedAnimal && (
+                            <input
+                                type="text"
+                                className="admin-vacc-search"
+                                placeholder="Search animal..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        )}
+
+                        <select
+                            className="admin-vacc-status-filter"
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                        >
+                            <option value="All">Status: All</option>
+                            <option value="Completed">Status: Completed</option>
+                            <option value="Pending">Status: Pending</option>
+                            <option value="Overdue">Status: Overdue</option>
+                        </select>
+                    </div>
                 </div>
 
-                <input
-                    type="text"
-                    placeholder="Search animal..."
-                    value={search}
-                    onChange={(e) =>
-                        setSearch(e.target.value)
-                    }
-                />
+                <div className="admin-vacc-table-wrap">
+                    <table className="admin-vacc-table">
+                        <thead>
+                            <tr>
+                                {!lockedAnimal && <th>Animal</th>}
+                                <th>Vaccine</th>
+                                <th>Vaccination Date</th>
+                                <th>Next Due</th>
+                                <th>Veterinarian</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                                <th aria-label="Actions"></th>
+                            </tr>
+                        </thead>
 
-                <select
-                    value={filterStatus}
-                    onChange={(e) =>
-                        setFilterStatus(e.target.value)
-                    }
-                >
-                    <option value="All">All</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Overdue">Overdue</option>
-                </select>
+                        <tbody>
+                            {filteredVaccinations.length === 0 ? (
+                                <tr>
+                                    <td colSpan={columnCount} className="admin-vacc-empty">
+                                        {vaccinations.length === 0
+                                            ? "No vaccinations added yet."
+                                            : "No vaccinations match this filter."}
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredVaccinations.map((vaccination) => (
+                                    <tr key={vaccination.id}>
+                                        {!lockedAnimal && <td>{vaccination.animalName}</td>}
+                                        <td className="admin-vacc-name">{vaccination.vaccineName}</td>
+                                        <td>{formatVaccineDate(vaccination.vaccinationDate)}</td>
+                                        <td>{formatVaccineDate(vaccination.nextDueDate)}</td>
+                                        <td>{vaccination.veterinarian || "—"}</td>
+                                        <td>
+                                            <span
+                                                className={`admin-vacc-status ${String(vaccination.status).toLowerCase()}`}
+                                            >
+                                                {vaccination.status}
+                                            </span>
+                                        </td>
+                                        <td className="admin-vacc-notes">{vaccination.notes || "—"}</td>
+                                        <td>
+                                            <div className="admin-vacc-actions">
+                                                <button
+                                                    type="button"
+                                                    className="edit"
+                                                    onClick={() => handleEditVaccination(vaccination)}
+                                                >
+                                                    Edit
+                                                </button>
 
-                <div className="admin-vaccination-list">
-
-                    {vaccinations.filter((vaccination) => {
-                        const matchesSearch = vaccination.animalName.toLowerCase().includes(search.toLowerCase());
-                        const matchesStatus = filterStatus === "All" || vaccination.status === filterStatus;
-                        return matchesSearch && matchesStatus;
-                    }).map((vaccination) => (
-                        <article
-                            className="admin-vaccination-row"
-                            key={vaccination.id}
-                        >
-                            <div>
-                                <h3>
-                                    {vaccination.animalName}
-                                </h3>
-
-                                <p>
-                                    <strong>
-                                        Vaccine:
-                                    </strong>
-
-                                    {" "}
-
-                                    {vaccination.vaccineName}
-                                </p>
-
-                                <p>
-                                    <strong>
-                                        Veterinarian:
-                                    </strong>
-
-                                    {" "}
-
-                                    {vaccination.veterinarian}
-                                </p>
-
-                                <p>
-                                    <strong>
-                                        Vaccinated:
-                                    </strong>
-
-                                    {" "}
-
-                                    {vaccination.vaccinationDate}
-                                </p>
-
-                                <p>
-                                    <strong>
-                                        Next Due:
-                                    </strong>
-
-                                    {" "}
-
-                                    {vaccination.nextDueDate}
-                                </p>
-
-                                <span
-                                    className={`admin-vaccination-status ${vaccination.status.toLowerCase()}`}
-                                >
-                                    {vaccination.status}
-                                </span>
-
-                                <p>
-                                    {vaccination.notes}
-                                </p>
-
-                                <div className="admin-vaccination-actions">
-                                    <button
-                                        button="button"
-                                        className="admin-edit-button"
-                                        onClick={() =>
-                                            handleAddVaccination(vaccination)
-                                        }
-                                    >
-                                        Edit
-                                    </button>
-
-                                    {isAdmin && (
-                                        <button
-                                            type="button"
-                                            className="admin-delete-button"
-                                            onClick={() =>
-                                                handleDeleteVaccination(vaccination.id)
-                                            }
-                                        >
-                                            Delete
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </article>
-                    ))}
+                                                {isAdmin() && (
+                                                    <button
+                                                        type="button"
+                                                        className="delete"
+                                                        onClick={() => handleDeleteVaccination(vaccination.id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </section>

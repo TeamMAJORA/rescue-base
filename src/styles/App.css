@@ -1056,13 +1056,9 @@ body,
     overflow-x: clip;
 }
 
-html {
-    overflow-y: auto;
-}
 
 body {
     background: var(--cream);
-    overflow-y: auto;
 }
 
 #root {

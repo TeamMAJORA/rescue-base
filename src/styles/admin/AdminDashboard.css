@@ -206,50 +206,242 @@
     font-size: 12px;
 }
 
-/* REUSABLE STAT CARD */
+/* REUSABLE PAGE HEADER */
 
-.admin-stat-card {
-    min-height: 86px;
-    border-radius: 14px;
-    background: var(--white-yellow);
+.admin-page-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 18px;
-    border: 1px solid rgba(90, 27, 0, 0.16);
 }
 
-.admin-stat-card p {
-    font-size: 12px;
-    margin-bottom: 8px;
-    color: var(--red);
-    font-weight: 700;
-}
-
-.admin-stat-card h3 {
+.admin-page-header h2 {
+    margin: 0 0 4px;
     font-family: "Itim", cursive;
-    font-size: 30px;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.1;
     color: var(--brown);
 }
 
-.admin-stat-card > span {
-    width: 42px;
-    height: 42px;
-    border-radius: 9px;
-    background: #f6a623;
+.admin-page-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #7b452d;
+}
+
+.admin-page-header-btn {
+    flex-shrink: 0;
+    padding: 12px 22px;
+    border: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fb8500, #fca63a);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-page-header-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.32);
+}
+
+.admin-page-header-back {
+    flex-shrink: 0;
+    padding: 11px 20px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-page-header-back:hover {
+    background: #fff7cb;
+}
+
+/* REUSABLE CONFIRM MODAL */
+
+.admin-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
     display: grid;
     place-items: center;
+    padding: 16px;
+    background: rgba(58, 18, 0, 0.45);
 }
 
-.admin-stat-card img {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
+.admin-modal {
+    width: 100%;
+    max-width: 400px;
+    padding: 24px;
+    border: 1px solid #8a5a44;
+    border-radius: 14px;
+    background: #fffdf0;
+    box-shadow: 0 20px 40px rgba(58, 18, 0, 0.25);
+}
+
+.admin-modal h3 {
+    margin: 0 0 8px;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--brown);
+}
+
+.admin-modal p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #7b452d;
+}
+
+.admin-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.admin-modal-actions button {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-modal-cancel {
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
+    color: var(--brown);
+}
+
+.admin-modal-cancel:hover {
+    background: #fff7cb;
+}
+
+.admin-modal-danger {
+    border: 1px solid var(--red);
+    background: var(--red);
+    color: #ffffff;
+}
+
+.admin-modal-danger:hover {
+    background: #b81f1f;
+}
+
+/* REUSABLE TABS */
+
+.admin-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    box-shadow: inset 0 -1px 0 rgba(90, 27, 0, 0.14);
+}
+
+.admin-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-tabs button {
     flex-shrink: 0;
+    padding: 10px 16px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
 }
 
-/* REUSABLE STATUS PILL */
+.admin-tabs button:hover:not(:disabled) {
+    color: var(--brown);
+}
+
+.admin-tabs button.active {
+    border-bottom-color: var(--orange);
+    color: var(--brown);
+}
+
+.admin-tabs button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.admin-tab-heading {
+    margin-bottom: 0;
+}
+
+.admin-tab-heading h2 {
+    font-size: 24px;
+}
+
+.admin-tab-heading p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #7b452d;
+}
+
+.admin-required {
+    color: var(--red);
+}
+
+/* Make sure hidden tab panels stay hidden even if a class sets display */
+.admin-animal-form-panel [hidden] {
+    display: none !important;
+}
+
+/* Embedded record pages: drop their own panel boxes so they sit flat inside the tab */
+.admin-tab-content .admin-panel {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* REUSABLE STAT CARD */
+
+.admin-stat-card {
+    min-height: 58px;
+    padding: 8px 12px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    box-shadow: 0 1px 3px rgba(90, 27, 0, 0.08);
+    display: flex;
+    flex-direction: column-reverse; /* number on top, label below */
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.admin-stat-card strong {
+    font-family: "Itim", cursive;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--brown);
+}
+
+.admin-stat-card span {
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #7b452d;
+    white-space: nowrap;
+}
 
 .admin-status-pill {
     border-radius: 999px;
