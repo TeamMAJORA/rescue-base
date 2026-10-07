@@ -114,6 +114,7 @@ const emptyPet = {
     size: "Unknown",
     status: "not_available",
     location: "RescueBase Shelter",
+    personalityTags: [],
     personality: "No animal selected.",
     idealHome: "Please check again later.",
     health: "Not available",
@@ -321,7 +322,11 @@ export default function Dashboard({ onLogout }) {
                         age: `${age} ${age === 1 ? "year" : "years"
                             }`,
 
+                        personalityTags:
+                            animal.personality?.tags || [],
+
                         personality:
+                            animal.personality?.summary ||
                             animal.behaviorNotes ||
                             "Behavior information has not been added yet.",
 

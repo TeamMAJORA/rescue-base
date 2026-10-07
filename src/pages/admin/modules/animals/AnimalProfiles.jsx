@@ -66,21 +66,9 @@ const STATUS_FILTERS = [
 ];
 
 // ===== Adopter Preview (live, read-only) =====
+// Tags come from the backend (personalityService.js), so the rules live in one place.
 function getPreviewPersonalityTags(animal) {
-    if (!animal) return [];
-
-    const has = (value) => typeof value === "number";
-    const tags = [];
-
-    if (has(animal.trainability) && animal.trainability >= 4) tags.push("Well-trained");
-    if (has(animal.aggressionLevel) && animal.aggressionLevel <= 2) tags.push("Gentle");
-    if (has(animal.energyLevel) && animal.energyLevel <= 2) tags.push("Calm");
-    if (has(animal.energyLevel) && animal.energyLevel >= 4) tags.push("Energetic");
-    if (has(animal.anxietyLevel) && animal.anxietyLevel >= 4) tags.push("Needs patience");
-    if (has(animal.humanSociability) && animal.humanSociability >= 4) tags.push("Friendly");
-    if (has(animal.animalSociability) && animal.animalSociability >= 4) tags.push("Pet-friendly");
-
-    return tags;
+    return animal?.personality?.tags || [];
 }
 
 function PawIcon() {
@@ -1192,7 +1180,14 @@ export default function AnimalProfiles() {
             {editingAnimal && (
                 <>
                     <div className="admin-tab-content" hidden={activeFormTab !== "behavior"}>
-                        <BehaviorAssessment key={editingAnimal._id} lockedAnimal={editingAnimal} />
+                        <BehaviorAssessment
+                            key={editingAnimal._id}
+                            lockedAnimal={editingAnimal}
+                            onSaved={(updatedAnimal) => {
+                                setEditingAnimal(updatedAnimal);
+                                fetchAnimals();
+                            }}
+                        />
                     </div>
 
                     <div className="admin-tab-content" hidden={activeFormTab !== "vaccinations"}>

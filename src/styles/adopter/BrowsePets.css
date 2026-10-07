@@ -765,3 +765,21 @@
     font-size: 12px;
     font-weight: 600;
 }
+
+
+/* Personality tags (from backend personalityService) */
+.browse-pet-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 8px;
+}
+
+.browse-pet-tags span {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #fff1e6;
+    color: #c2410c;
+    font-size: 12px;
+    font-weight: 600;
+}
