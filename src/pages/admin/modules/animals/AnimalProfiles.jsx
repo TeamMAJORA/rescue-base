@@ -1387,9 +1387,7 @@ export default function AnimalProfiles() {
                                     <small>{animal.location || "RescueBase Shelter"}</small>
 
                                     <div className="admin-animal-badges">
-                                        <span>{animal.availabilityStatus}</span>
-                                        <span>{animal.adoptionStatus}</span>
-                                        <span>{animal.fosterStatus}</span>
+                                        <StatusPill status={getAnimalStatus(animal)} />
                                     </div>
                                 </div>
 
