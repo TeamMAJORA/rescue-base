@@ -1114,13 +1114,8 @@
     .adopter-detail-panel {
         position: static;
     }
-<<<<<<< HEAD
-    
-    .adopter-overview-layout {
-=======
 
         .adopter-overview-layout {
->>>>>>> 25577cfeaac5b362bcd72faf0152e2bc15f97708
         grid-template-columns: 1fr;
     }
 }
