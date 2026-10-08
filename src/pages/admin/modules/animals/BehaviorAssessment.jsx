@@ -118,20 +118,9 @@ const SHORT_LABELS = {
     trainability: "Trainability",
 };
 
-// Same rules as the Adopter Preview in AnimalProfiles.jsx (frontend only for now)
+// Tags come from the backend (personalityService.js), same as the Adopter Preview
 function getBehaviorTags(animal) {
-    const has = (value) => typeof value === "number";
-    const tags = [];
-
-    if (has(animal.humanSociability) && animal.humanSociability >= 4) tags.push("Friendly");
-    if (has(animal.trainability) && animal.trainability >= 4) tags.push("Well-trained");
-    if (has(animal.aggressionLevel) && animal.aggressionLevel <= 2) tags.push("Gentle");
-    if (has(animal.energyLevel) && animal.energyLevel <= 2) tags.push("Calm");
-    if (has(animal.energyLevel) && animal.energyLevel >= 4) tags.push("Energetic");
-    if (has(animal.anxietyLevel) && animal.anxietyLevel >= 4) tags.push("Needs patience");
-    if (has(animal.animalSociability) && animal.animalSociability >= 4) tags.push("Pet-friendly");
-
-    return tags;
+    return animal?.personality?.tags || [];
 }
 
 function ScoreBar({ label, value }) {
@@ -164,7 +153,7 @@ function BehaviorPawIcon() {
     );
 }
 
-export default function BehaviorAssessment({ lockedAnimal = null }) {
+export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
     const [animals, setAnimals] = useState([]);
     const [form, setForm] = useState(() =>
         lockedAnimal ? buildFormFromAnimal(lockedAnimal) : emptyForm
@@ -304,6 +293,11 @@ export default function BehaviorAssessment({ lockedAnimal = null }) {
 
             setMessageType("success");
             setEditingId("");
+
+            // Let the parent (Animal Profiles) refresh its Adopter Preview
+            if (onSaved && data.animal) {
+                onSaved(data.animal);
+            }
 
             if (!lockedAnimal) {
                 setForm(emptyForm);

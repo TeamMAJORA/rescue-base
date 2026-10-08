@@ -27,6 +27,9 @@ import DonationHistory from "./modules/DonationHistory";
 import LostFound from "../admin/modules/LostFound";
 import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
+import PetList from "../../components/adopter/PetList";
+import PetDetailPanel from "../../components/adopter/PetDetailPanel";
+import { formatAge } from "../../utils/formatAge";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -112,6 +115,7 @@ const emptyPet = {
     size: "Unknown",
     status: "not_available",
     location: "RescueBase Shelter",
+    personalityTags: [],
     personality: "No animal selected.",
     idealHome: "Please check again later.",
     health: "Not available",
@@ -307,10 +311,6 @@ export default function Dashboard({ onLogout }) {
 
             const normalizedPets = animals.map(
                 (animal) => {
-                    const age = Number(
-                        animal.age || 0
-                    );
-
                     return {
                         ...animal,
 
@@ -324,10 +324,13 @@ export default function Dashboard({ onLogout }) {
                                 ? "available"
                                 : "not_available",
 
-                        age: `${age} ${age === 1 ? "year" : "years"
-                            }`,
+                        age: formatAge(animal.age),
+
+                        personalityTags:
+                            animal.personality?.tags || [],
 
                         personality:
+                            animal.personality?.summary ||
                             animal.behaviorNotes ||
                             "Behavior information has not been added yet.",
 

@@ -58,6 +58,13 @@ export default function PetDetailPanel({
 
                     <section className="browse-pet-information">
                         <h3>Personality</h3>
+                        {currentPet.personalityTags?.length > 0 && (
+                            <div className="browse-pet-tags">
+                                {currentPet.personalityTags.map((tag) => (
+                                    <span key={tag}>{tag}</span>
+                                ))}
+                            </div>
+                        )}
                         <p>{currentPet.personality || "Behavior information has not been added yet."}</p>
                     </section>
 
