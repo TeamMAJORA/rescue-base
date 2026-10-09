@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import assets from "../data/assets.json";
 import PublicGISMap from "../components/system/PublicGISMap";
+import { formatAge } from "../utils/formatAge";
 
 import "../styles/Landing.css"
 
@@ -66,9 +67,7 @@ const samplePets = [
 ];
 
 function formatPetForCard(animal) {
-    const ageLabel = animal.age
-        ? animal.age + (animal.age === 1 ? " year" : " years")
-        : "Age unknown";
+    const ageLabel = animal.age ? formatAge(animal.age) : "Age unknown";
 
     const hasRealImage =
         typeof animal.image === "string" &&
