@@ -213,7 +213,7 @@ export default function GISMapping() {
             setShelterLoading(true);
             setShelterError("");
 
-            const response = await fetch(`${API}/api/gis/shelters`);
+            const response = await fetch(`${API}/api/gis/shelters/manage`);
             const data = await readResponse(
                 response,
                 "Failed to load shelters."
