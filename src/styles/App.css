@@ -221,7 +221,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 2;
+    z-index: 1;
 }
 
 
@@ -830,7 +830,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 2;
+    z-index: 3;
 }
 
 .page-paws-footer-bottom1 {
@@ -1071,3 +1071,4 @@ body {
     background: var(--cream);
     overflow: clip;
 }
+
