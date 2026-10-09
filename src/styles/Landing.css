@@ -773,3 +773,34 @@
         font-size: 11px;
     }
 }
+
+
+/* ========================================
+   LANDING PAGE PAW DECORATIONS
+======================================== */
+
+/* Establish a stacking context for the GIS section */
+.gis-section {
+    position: relative;
+    isolation: isolate;
+}
+
+/* Keep the heading, filters, and map above decorations */
+.gis-section .gis-heading,
+.gis-section .gis-filters,
+.gis-section .gis-map-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Keep the map and Leaflet controls functional */
+.gis-map-container {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.gis-map-container .leaflet-container {
+    position: relative;
+    z-index: 0;
+}

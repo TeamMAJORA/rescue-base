@@ -1,14 +1,37 @@
 import { useEffect, useMemo, useState } from "react";
 
+
 const API = import.meta.env.VITE_BACKEND_URL;
+
+const ACTIVE_STATUSES = [
+    "pending",
+    "interview_scheduled",
+    "interview_completed",
+];
+
+function formatDate(date) {
+    if (!date) return "Not scheduled";
+
+    const parsed = new Date(date);
+
+    return Number.isNaN(parsed.getTime())
+        ? "Invalid date"
+        : parsed.toLocaleString();
+}
+
+function getLocalDateTimeValue(date) {
+    const localDate = new Date(
+        date.getTime() - date.getTimezoneOffset() * 60000
+    );
+
+    return localDate.toISOString().slice(0, 16);
+}
 
 function RejectModal({ application, onClose, onConfirm, loading }) {
     const [reason, setReason] = useState("");
 
     useEffect(() => {
-        if (application) {
-            setReason("");
-        }
+        setReason("");
     }, [application]);
 
     if (!application) return null;
@@ -18,9 +41,7 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
 
         const trimmedReason = reason.trim();
 
-        if (!trimmedReason || loading) {
-            return;
-        }
+        if (!trimmedReason || loading) return;
 
         onConfirm(application._id, trimmedReason);
     }
@@ -40,8 +61,9 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
                 <h2>Reject Adoption Application</h2>
 
                 <p>
-                    Please provide a reason for rejecting the application
-                    of <strong>{application.fullName}</strong>.
+                    Provide a reason for rejecting the application of{" "}
+                    <strong>{application.fullName}</strong> for{" "}
+                    <strong>{application.petName}</strong>.
                 </p>
 
                 <form onSubmit={handleSubmit}>
@@ -52,8 +74,10 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
                     <textarea
                         id="rejection-reason"
                         value={reason}
-                        onChange={(event) => setReason(event.target.value)}
-                        placeholder="Enter the reason for rejection..."
+                        onChange={(event) =>
+                            setReason(event.target.value)
+                        }
+                        placeholder="Explain why this application is being rejected..."
                         rows={5}
                         required
                         disabled={loading}
@@ -84,13 +108,137 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
     );
 }
 
-function ApplicationRow({ application, onReview, onUpdateStatus, onReject }) {
+function InterviewModal({
+    application,
+    onClose,
+    onConfirm,
+    loading,
+}) {
+    const [interviewDate, setInterviewDate] = useState("");
+
+    useEffect(() => {
+        if (application?.interviewSchedule) {
+            const parsed = new Date(application.interviewSchedule);
+
+            if (!Number.isNaN(parsed.getTime())) {
+                setInterviewDate(getLocalDateTimeValue(parsed));
+                return;
+            }
+        }
+
+        setInterviewDate("");
+    }, [application]);
+
+    if (!application) return null;
+
+    function handleSubmit(event) {
+        event.preventDefault();
+
+        if (!interviewDate || loading) return;
+
+        const selectedDate = new Date(interviewDate);
+
+        if (
+            Number.isNaN(selectedDate.getTime()) ||
+            selectedDate.getTime() <= Date.now()
+        ) {
+            alert("Please select a valid future interview date and time.");
+            return;
+        }
+
+        onConfirm(application._id, selectedDate.toISOString());
+    }
+
+    return (
+        <div className="admin-modal-overlay">
+            <section className="admin-modal">
+                <button
+                    className="admin-modal-class"
+                    type="button"
+                    onClick={onClose}
+                    disabled={loading}
+                >
+                    x
+                </button>
+
+                <h2>
+                    {application.interviewSchedule
+                        ? "Reschedule Adoption Interview"
+                        : "Schedule Adoption Interview"}
+                </h2>
+
+                <p>
+                    Applicant: <strong>{application.fullName}</strong>
+                </p>
+
+                <p>
+                    Pet: <strong>{application.petName}</strong>
+                </p>
+
+                <form onSubmit={handleSubmit}>
+                    <label htmlFor="adoption-interview-date">
+                        Interview Date and Time
+                    </label>
+
+                    <input
+                        id="adoption-interview-date"
+                        type="datetime-local"
+                        value={interviewDate}
+                        min={getLocalDateTimeValue(new Date())}
+                        onChange={(event) =>
+                            setInterviewDate(event.target.value)
+                        }
+                        required
+                        disabled={loading}
+                    />
+
+                    <p>
+                        The pet will remain available during the interview
+                        and application review process.
+                    </p>
+
+                    <div className="admin-modal-actions">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            disabled={loading}
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            className="approve"
+                            disabled={loading || !interviewDate}
+                        >
+                            {loading
+                                ? "Scheduling..."
+                                : "Confirm Interview"}
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    );
+}
+
+function ApplicationRow({
+    application,
+    onReview,
+    onSchedule,
+    onCompleteInterview,
+    onApprove,
+    onReject,
+    busy,
+}) {
+    const status = String(
+        application.status || "pending"
+    ).toLowerCase();
+
     return (
         <article className="admin-application-row">
             <div>
-                <h3>
-                    {application.fullName || "Unknown Applicant"}
-                </h3>
+                <h3>{application.fullName || "Unknown Applicant"}</h3>
 
                 <p>{application.email}</p>
 
@@ -100,12 +248,19 @@ function ApplicationRow({ application, onReview, onUpdateStatus, onReject }) {
                         {application.petName || "Not Selected"}
                     </strong>
                 </p>
+
+                {application.interviewSchedule && (
+                    <p>
+                        Interview:{" "}
+                        <strong>
+                            {formatDate(application.interviewSchedule)}
+                        </strong>
+                    </p>
+                )}
             </div>
 
-            <span
-                className={`admin-status-pill ${application.status}`}
-            >
-                {application.status}
+            <span className={`admin-status-pill ${status}`}>
+                {status.replaceAll("_", " ")}
             </span>
 
             <div className="admin-application-status">
@@ -116,25 +271,75 @@ function ApplicationRow({ application, onReview, onUpdateStatus, onReject }) {
                     Review
                 </button>
 
-                {application.status === "pending" && (
+                {status === "pending" && (
                     <>
                         <button
                             type="button"
                             className="approve"
-                            onClick={() =>
-                                onUpdateStatus(
-                                    application._id,
-                                    "approved"
-                                )
-                            }
+                            onClick={() => onSchedule(application)}
+                            disabled={busy}
                         >
-                            Approve
+                            Schedule Interview
                         </button>
 
                         <button
                             type="button"
                             className="reject"
                             onClick={() => onReject(application)}
+                            disabled={busy}
+                        >
+                            Reject
+                        </button>
+                    </>
+                )}
+
+                {status === "interview_scheduled" && (
+                    <>
+                        <button
+                            type="button"
+                            className="approve"
+                            onClick={() => onSchedule(application)}
+                            disabled={busy}
+                        >
+                            Reschedule Interview
+                        </button>
+
+                        <button
+                            type="button"
+                            className="approve"
+                            onClick={() => onCompleteInterview(application)}
+                            disabled={busy}
+                        >
+                            Mark Interview Completed
+                        </button>
+
+                        <button
+                            type="button"
+                            className="reject"
+                            onClick={() => onReject(application)}
+                            disabled={busy}
+                        >
+                            Reject
+                        </button>
+                    </>
+                )}
+
+                {status === "interview_completed" && (
+                    <>
+                        <button
+                            type="button"
+                            className="approve"
+                            onClick={() => onApprove(application)}
+                            disabled={busy}
+                        >
+                            Approve Adoption
+                        </button>
+
+                        <button
+                            type="button"
+                            className="reject"
+                            onClick={() => onReject(application)}
+                            disabled={busy}
                         >
                             Reject
                         </button>
@@ -164,27 +369,27 @@ function ApplicationModal({ application, onClose }) {
                 <div className="admin-detail-grid">
                     <p>
                         <strong>Status:</strong>{" "}
-                        {application.status}
+                        {String(application.status || "pending").replaceAll(
+                            "_",
+                            " "
+                        )}
                     </p>
 
                     <p>
-                        <strong>Name:</strong>{" "}
-                        {application.fullName}
+                        <strong>Name:</strong> {application.fullName}
                     </p>
 
                     <p>
-                        <strong>Email:</strong>{" "}
-                        {application.email}
+                        <strong>Email:</strong> {application.email}
                     </p>
 
                     <p>
-                        <strong>Phone:</strong>{" "}
-                        {application.phone}
+                        <strong>Phone:</strong> {application.phone || "N/A"}
                     </p>
 
                     <p>
                         <strong>Address:</strong>{" "}
-                        {application.address}
+                        {application.address || "N/A"}
                     </p>
 
                     <p>
@@ -199,48 +404,98 @@ function ApplicationModal({ application, onClose }) {
 
                     <p>
                         <strong>Home Type:</strong>{" "}
-                        {application.homeType}
+                        {application.homeType || "N/A"}
                     </p>
 
                     <p>
                         <strong>Has Children:</strong>{" "}
-                        {application.hasChildren}
+                        {application.hasChildren || "N/A"}
                     </p>
 
                     <p>
                         <strong>Other Pets:</strong>{" "}
-                        {application.hasOtherPets}
+                        {application.hasOtherPets || "N/A"}
                     </p>
+
+                    <p>
+                        <strong>Documents Verified:</strong>{" "}
+                        {application.documentsVerified ? "Yes" : "No"}
+                    </p>
+
+                    <p>
+                        <strong>Interview Schedule:</strong>{" "}
+                        {formatDate(application.interviewSchedule)}
+                    </p>
+
+                    {application.reviewedByName && (
+                        <p>
+                            <strong>Reviewed By:</strong>{" "}
+                            {application.reviewedByName}
+                        </p>
+                    )}
+
+                    {application.reviewedAt && (
+                        <p>
+                            <strong>Reviewed At:</strong>{" "}
+                            {formatDate(application.reviewedAt)}
+                        </p>
+                    )}
                 </div>
 
                 <div className="admin-detail-box">
                     <h3>Reason for Adoption</h3>
-
-                    <p>
-                        {application.reason ||
-                            "No reason provided."}
-                    </p>
+                    <p>{application.reason || "No reason provided."}</p>
                 </div>
 
                 <div className="admin-detail-box">
                     <h3>Pet Care Experience</h3>
-
                     <p>
-                        {application.experience ||
-                            "No experience provided."}
+                        {application.experience || "No experience provided."}
                     </p>
                 </div>
 
-                {application.status === "rejected" &&
-                    application.reviewNotes && (
+                {Array.isArray(application.documents) &&
+                    application.documents.length > 0 && (
                         <div className="admin-detail-box">
-                            <h3>Rejection Reason</h3>
+                            <h3>Submitted Documents</h3>
 
-                            <p>
-                                {application.reviewNotes}
-                            </p>
+                            {application.documents.map((document, index) => (
+                                <p key={document._id || index}>
+                                    <strong>
+                                        {document.documentName ||
+                                            "Unnamed document"}
+                                    </strong>
+                                    {" — "}
+                                    {document.status || "pending"}
+
+                                    {document.documentUrl && (
+                                        <>
+                                            {" · "}
+                                            <a
+                                                href={document.documentUrl}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                View document
+                                            </a>
+                                        </>
+                                    )}
+                                </p>
+                            ))}
                         </div>
                     )}
+
+                {application.reviewNotes && (
+                    <div className="admin-detail-box">
+                        <h3>
+                            {application.status === "rejected"
+                                ? "Rejection Reason"
+                                : "Review Notes"}
+                        </h3>
+
+                        <p>{application.reviewNotes}</p>
+                    </div>
+                )}
             </section>
         </div>
     );
@@ -248,66 +503,93 @@ function ApplicationModal({ application, onClose }) {
 
 export default function AdoptionApplications() {
     const [applications, setApplications] = useState([]);
-    const [selectedApplication, setSelectedApplication] =
-        useState(null);
-    const [rejectionApplication, setRejectionApplication] =
-        useState(null);
+    const [selectedApplication, setSelectedApplication] = useState(null);
+    const [rejectionApplication, setRejectionApplication] = useState(null);
+    const [interviewApplication, setInterviewApplication] = useState(null);
+
     const [loading, setLoading] = useState(true);
-    const [rejecting, setRejecting] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [busyApplicationId, setBusyApplicationId] = useState(null);
 
     const token = localStorage.getItem("token");
 
-    const pendingApplications = useMemo(() => {
-        return applications.filter(
-            (app) =>
-                String(app.status).toLowerCase() === "pending"
-        );
-    }, [applications]);
+    const activeApplications = useMemo(
+        () =>
+            applications.filter((application) =>
+                ACTIVE_STATUSES.includes(
+                    String(application.status || "pending").toLowerCase()
+                )
+            ),
+        [applications]
+    );
+
+    const pendingCount = useMemo(
+        () =>
+            activeApplications.filter(
+                (application) =>
+                    String(application.status).toLowerCase() === "pending"
+            ).length,
+        [activeApplications]
+    );
+
+    const interviewCount = useMemo(
+        () =>
+            activeApplications.filter((application) =>
+                [
+                    "interview_scheduled",
+                    "interview_completed",
+                ].includes(String(application.status).toLowerCase())
+            ).length,
+        [activeApplications]
+    );
 
     async function fetchApplications() {
         try {
             setLoading(true);
 
-            const response = await fetch(
-                `${API}/api/adoptions`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const response = await fetch(`${API}/api/adoptions`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
             const data = await response.json();
 
-            console.log("Adoption applications:", data);
-
             if (!response.ok || !data.success) {
-                setApplications([]);
-                return;
+                throw new Error(
+                    data.message || "Failed to fetch adoption applications."
+                );
             }
 
             setApplications(
-                Array.isArray(data.applications)
-                    ? data.applications
-                    : []
+                Array.isArray(data.applications) ? data.applications : []
             );
         } catch (error) {
-            console.error(
-                "Fetch applications error:",
-                error
-            );
-
-            setApplications([]);
+            console.error("Fetch applications error:", error);
+            alert(error.message || "Unable to load adoption applications.");
         } finally {
             setLoading(false);
         }
     }
 
-    async function handleUpdateStatus(id, status, reviewNotes = "") {
+    async function handleUpdateStatus(
+        id,
+        status,
+        reviewNotes = "",
+        interviewSchedule = null
+    ) {
         try {
-            const savedUser = JSON.parse(
-                localStorage.getItem("rescuebase_user") || "{}"
-            );
+            setSaving(true);
+            setBusyApplicationId(id);
+
+            const body = {
+                status,
+                reviewNotes,
+            };
+
+            if (status === "interview_scheduled") {
+                body.interviewSchedule = interviewSchedule;
+            }
 
             const response = await fetch(
                 `${API}/api/adoptions/${id}/status`,
@@ -317,71 +599,76 @@ export default function AdoptionApplications() {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({
-                        status,
-                        reviewNotes,
-                        adminName:
-                            savedUser.name ||
-                            savedUser.username ||
-                            "Admin User",
-                        adminEmail:
-                            savedUser.email || "admin",
-                    }),
+                    body: JSON.stringify(body),
                 }
             );
 
             const data = await response.json();
 
-            console.log(
-                "Update application status:",
-                data
-            );
-
             if (!response.ok || !data.success) {
-                alert(
-                    data.message ||
-                    "Failed to update application status."
+                throw new Error(
+                    data.message || "Failed to update application status."
                 );
-
-                return false;
             }
 
             setRejectionApplication(null);
+            setInterviewApplication(null);
             setSelectedApplication(null);
 
             await fetchApplications();
 
             return true;
         } catch (error) {
-            console.error(
-                "Update status error:",
-                error
-            );
-
-            alert(
-                "Server error while updating application status."
-            );
-
+            console.error("Update status error:", error);
+            alert(error.message || "Server error while updating application.");
             return false;
+        } finally {
+            setSaving(false);
+            setBusyApplicationId(null);
         }
     }
 
     async function handleRejectApplication(id, reason) {
-        setRejecting(true);
+        return handleUpdateStatus(id, "rejected", reason);
+    }
 
-        try {
-            await handleUpdateStatus(
-                id,
-                "rejected",
-                reason
-            );
-        } finally {
-            setRejecting(false);
-        }
+    async function handleScheduleInterview(id, interviewSchedule) {
+        return handleUpdateStatus(
+            id,
+            "interview_scheduled",
+            "",
+            interviewSchedule
+        );
+    }
+
+    async function handleCompleteInterview(application) {
+        const confirmed = window.confirm(
+            `Mark the interview for ${application.fullName} as completed?`
+        );
+
+        if (!confirmed) return;
+
+        await handleUpdateStatus(
+            application._id,
+            "interview_completed"
+        );
+    }
+
+    async function handleApproveApplication(application) {
+        const confirmed = window.confirm(
+            `Approve the adoption of ${application.petName} by ` +
+                `${application.fullName}? This will mark the pet as adopted ` +
+                "and close other active applications."
+        );
+
+        if (!confirmed) return;
+
+        await handleUpdateStatus(application._id, "approved");
     }
 
     useEffect(() => {
         fetchApplications();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -389,16 +676,17 @@ export default function AdoptionApplications() {
             <section className="admin-panel admin-adoption-summary">
                 <article>
                     <span>Total Applications</span>
-                    <strong>
-                        {applications.length}
-                    </strong>
+                    <strong>{applications.length}</strong>
                 </article>
 
                 <article>
-                    <span>Pending Applications</span>
-                    <strong>
-                        {pendingApplications.length}
-                    </strong>
+                    <span>Pending Review</span>
+                    <strong>{pendingCount}</strong>
+                </article>
+
+                <article>
+                    <span>Interview Stage</span>
+                    <strong>{interviewCount}</strong>
                 </article>
             </section>
 
@@ -409,56 +697,61 @@ export default function AdoptionApplications() {
                     <button
                         type="button"
                         onClick={fetchApplications}
+                        disabled={loading || saving}
                     >
-                        Refresh
+                        {loading ? "Refreshing..." : "Refresh"}
                     </button>
                 </div>
 
+                <p>
+                    Applications must pass the interview stage before final
+                    approval. Pets remain available during the review process.
+                </p>
+
                 {loading ? (
+                    <p className="admin-empty">Loading applications...</p>
+                ) : activeApplications.length === 0 ? (
                     <p className="admin-empty">
-                        Loading applications...
-                    </p>
-                ) : pendingApplications.length === 0 ? (
-                    <p className="admin-empty">
-                        There are no pending adoption applications.
+                        There are no active adoption applications.
                     </p>
                 ) : (
                     <div className="admin-application-list">
-                        {pendingApplications.map(
-                            (application) => (
-                                <ApplicationRow
-                                    key={application._id}
-                                    application={application}
-                                    onReview={
-                                        setSelectedApplication
-                                    }
-                                    onUpdateStatus={
-                                        handleUpdateStatus
-                                    }
-                                    onReject={
-                                        setRejectionApplication
-                                    }
-                                />
-                            )
-                        )}
+                        {activeApplications.map((application) => (
+                            <ApplicationRow
+                                key={application._id}
+                                application={application}
+                                onReview={setSelectedApplication}
+                                onSchedule={setInterviewApplication}
+                                onCompleteInterview={handleCompleteInterview}
+                                onApprove={handleApproveApplication}
+                                onReject={setRejectionApplication}
+                                busy={
+                                    saving &&
+                                    busyApplicationId === application._id
+                                }
+                            />
+                        ))}
                     </div>
                 )}
             </section>
 
             <ApplicationModal
                 application={selectedApplication}
-                onClose={() =>
-                    setSelectedApplication(null)
-                }
+                onClose={() => setSelectedApplication(null)}
+            />
+
+            <InterviewModal
+                application={interviewApplication}
+                onClose={() => setInterviewApplication(null)}
+                onConfirm={handleScheduleInterview}
+                loading={saving}
             />
 
             <RejectModal
                 application={rejectionApplication}
-                onClose={() =>
-                    setRejectionApplication(null)
-                }
+                onClose={() => setRejectionApplication(null)}
                 onConfirm={handleRejectApplication}
-                loading={rejecting}
+                loading={saving}
             />
         </section>
     );
