@@ -642,6 +642,13 @@
 }
 
 @media (max-width: 580px) {
+    .adopter-overview-layout .browse-pet-main-image {
+        width: calc(100% + 34px);
+        margin: -17px -17px 0;
+    }
+}
+
+@media (max-width: 580px) {
     .browse-pets-list-panel,
     .browse-pet-details-panel {
         padding: 17px;

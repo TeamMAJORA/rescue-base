@@ -32,9 +32,11 @@ export default function PetDetailPanel({
                             {formatPetStatus(currentPet.status)}
                         </span>
                         <h2>{currentPet.name}</h2>
-                        <p>
-                            {currentPet.type || "Pet"} • {currentPet.breed || "Unknown breed"}
-                        </p>
+                            <p>
+                                {[currentPet.type || "Pet", currentPet.breed || "Unknown breed", currentPet.color]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                            </p>
                     </div>
 
                     <div className="browse-pet-details-grid">
