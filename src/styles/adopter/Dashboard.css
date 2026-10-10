@@ -1065,31 +1065,9 @@
         box-shadow 0.2s ease;
 }
 
-
-.adopter-pet-list::-webkit-scrollbar {
-    width: 7px;
-}
-
-.adopter-pet-list::-webkit-scrollbar-thumb {
+.adopter-sidebar::-webkit-scrollbar-thumb{
     border-radius: 999px;
     background: rgba(90, 27, 0, 0.2);
-}
-
-.adopter-sidebar::-webkit-scrollbar-thumb,
-.adopter-pet-list::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: rgba(90, 27, 0, 0.2);
-}
-
-.adopter-overview-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
-    gap: 22px;
-    align-items: start;
-}
-
-.adopter-overview-main {
-    min-width: 0;
 }
 
 /* the old .adopter-content-grid supplied this gap above the pet list */
@@ -1105,14 +1083,6 @@
     .adopter-main {
         width: calc(100% - 235px);
         margin-left: 235px;
-    }
-
-    .adopter-content-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .adopter-detail-panel {
-        position: static;
     }
 
         .adopter-overview-layout {
@@ -1268,35 +1238,8 @@
         width: 100%;
         height: 190px;
     }
+}
 
-    .adopter-filters {
-        grid-template-columns: 1fr;
-    }
-
-    .adopter-pet-card {
-        grid-template-columns: 64px minmax(0, 1fr);
-    }
-
-    .adopter-pet-card-icon {
-        width: 64px;
-        height: 60px;
-    }
-
-    .adopter-pet-card>.adopter-status {
-        grid-column: 2;
-        margin-top: 4px;
-    }
-
-    .adopter-detail-header {
-        grid-template-columns: 88px minmax(0, 1fr);
-    }
-
-    .adopter-detail-icon {
-        width: 88px;
-        height: 88px;
-    }
-
-    .adopter-detail-grid {
-        grid-template-columns: 1fr;
-    }
+.adopter-overview-layout .browse-pet-details-panel {
+    top: 20px;
 }
