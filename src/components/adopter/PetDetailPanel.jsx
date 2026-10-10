@@ -6,6 +6,9 @@ export default function PetDetailPanel({
     hasPendingApplication,
     applicationStatus,
     onApply,
+    showApply = true,
+    showInfo = true,
+    children,
 }) {
     const currentPet = pet || {};
 
@@ -57,7 +60,8 @@ export default function PetDetailPanel({
                             <strong>{currentPet.location || "RescueBase Shelter"}</strong>
                         </article>
                     </div>
-
+            {showInfo && (
+                <>
                     <section className="browse-pet-information">
                         <h3>Personality</h3>
                         {currentPet.personalityTags?.length > 0 && (
@@ -69,7 +73,8 @@ export default function PetDetailPanel({
                         )}
                         <p>{currentPet.personality || "Behavior information has not been added yet."}</p>
                     </section>
-
+                </>
+            )}
                     <section className="browse-pet-information">
                         <h3>Ideal Home</h3>
                         <p>{currentPet.idealHome || "Contact the shelter for additional information."}</p>
@@ -88,18 +93,22 @@ export default function PetDetailPanel({
                         </p>
                     </section>
 
-                    <button
-                        type="button"
-                        className="browse-pet-apply-button"
-                        onClick={() => onApply?.(currentPet)}
-                        disabled={currentPet.status !== "available" || hasPendingApplication}
-                    >
-                        {hasPendingApplication
-                            ? `Pending application for ${applicationStatus?.petName || "another animal"}`
-                            : currentPet.status === "available"
-                                ? `Apply to Adopt ${currentPet.name}`
-                                : "Currently Not Available"}
-                    </button>
+                    {children}
+
+                    {showApply && (
+                        <button
+                            type="button"
+                            className="browse-pet-apply-button"
+                            onClick={() => onApply?.(currentPet)}
+                            disabled={currentPet.status !== "available" || hasPendingApplication}
+                        >
+                            {hasPendingApplication
+                                ? `Pending application for ${applicationStatus?.petName || "another animal"}`
+                                : currentPet.status === "available"
+                                    ? `Apply to Adopt ${currentPet.name}`
+                                    : "Currently Not Available"}
+                        </button>
+                    )}
                 </>
             )}
         </aside>

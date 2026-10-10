@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "../../../styles/adopter/AdoptionApplication.css";
+import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -379,71 +380,11 @@ export default function AdoptionApplication({
             </header>
 
             <div className="adoption-module-layout">
-                <aside className="adoption-selected-pet">
-                    <div className="adoption-selected-pet-image">
-                        {pet.image ? (
-                            <img
-                                src={pet.image}
-                                alt={pet.name}
-                            />
-                        ) : (
-                            <span>🐾</span>
-                        )}
-                    </div>
-
-                    <span
-                        className={`adopter-status ${pet.status ||
-                            "available"
-                            }`}
-                    >
-                        {String(
-                            pet.status ||
-                            "available"
-                        ).replace("_", " ")}
-                    </span>
-
-                    <h2>{pet.name}</h2>
-
-                    <p>
-                        {pet.type || "Pet"} •{" "}
-                        {pet.breed ||
-                            "Unknown breed"}
-                    </p>
-
-                    <div className="adoption-selected-pet-details">
-                        <article>
-                            <span>Age</span>
-                            <strong>
-                                {pet.age ||
-                                    "Unknown"}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Gender</span>
-                            <strong>
-                                {pet.gender ||
-                                    "Unknown"}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Size</span>
-                            <strong>
-                                {pet.size ||
-                                    "Unknown"}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Location</span>
-                            <strong>
-                                {pet.location ||
-                                    "RescueBase Shelter"}
-                            </strong>
-                        </article>
-                    </div>
-
+                <PetDetailPanel
+                    className="browse-pet-details-panel"
+                    pet={pet}
+                    showApply={false}
+                >
                     <div className="adoption-selected-pet-note">
                         <h3>Before submitting</h3>
 
@@ -455,7 +396,7 @@ export default function AdoptionApplication({
                             application is pending.
                         </p>
                     </div>
-                </aside>
+                </PetDetailPanel>
 
                 <form
                     className="adoption-module-form"
