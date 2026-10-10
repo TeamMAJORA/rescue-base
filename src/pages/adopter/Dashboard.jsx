@@ -304,6 +304,31 @@ export default function Dashboard({ onLogout }) {
 
     const nextStep = getNextStep();
 
+
+    const featuredMatch = (() => {
+        try {
+            const results = JSON.parse(
+                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+            );
+
+            const best = (results?.matches || [])
+                .filter((match) => match.eligible && match.score !== null)
+                .sort((a, b) => Number(b.score) - Number(a.score))
+                .find((match) =>
+                    pets.some((pet) => pet._id === String(match.animalId))
+                );
+
+            if (!best) return null;
+
+            return {
+                pet: pets.find((pet) => pet._id === String(best.animalId)),
+                score: Math.round(Number(best.score)),
+            };
+        } catch {
+            return null;
+        }
+    })();
+
     const filteredPets = useMemo(() => {
         const normalizedSearch = search
             .trim()
@@ -807,89 +832,104 @@ export default function Dashboard({ onLogout }) {
                 <div className="adopter-overview-main">
                     <section className="adopter-hero">
                         <div className="adopter-hero-content">
-                            <span>
+                            <span className="adopter-hero-chip">
                                 RescueBase Matching
                             </span>
 
-                            <h2>
-                                Let's find your perfect companion
-                            </h2>
+                            <h2>Let's find your perfect companion</h2>
 
                             <p>
-                                 Share a few quick details about your home, 
-                                 and we'll pair you with your new best pal!
+                                Answer {QUIZ_TOTAL_STEPS} quick steps about your home and
+                                we'll pair you with pets that fit your life.
                             </p>
 
-                             <div className="adopter-hero-pills">
-                                <span>Your Space</span>
-                                <span>Your experience</span>
-                                <span>Their energy level</span>
-                            </div>
+                            <ol className="adopter-hero-steps">
+                                <li><b>1</b> Your space</li>
+                                <li><b>2</b> Your experience</li>
+                                <li><b>3</b> Energy level</li>
+                                <li className="adopter-hero-time">⏱ ~2 min</li>
+                            </ol>
 
                             <div className="adopter-hero-actions">
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setActiveAdopterPage(
-                                            "matchmaking-quiz"
-                                        )
-                                    }
+                                    onClick={() => setActiveAdopterPage("matchmaking-quiz")}
                                 >
-                                    Take Matching Quiz
+                                    {hasTakenQuiz ? "Retake Matching Quiz" : "Take Matching Quiz"}
                                     <img src={assets.icons.lightHeart} alt="" />
                                 </button>
 
                                 <button
-                                        type="button"
-                                        onClick={() => setActiveAdopterPage("browse-pets")}
-                                    >
-                                        Browse All Pets
+                                    type="button"
+                                    onClick={() => setActiveAdopterPage("browse-pets")}
+                                >
+                                    Browse All Pets
                                 </button>
                             </div>
 
-                            <small className="adopter-hero-note">No account changes needed</small>
+                            <small className="adopter-hero-note">
+                                ✓ Free · no account changes needed
+                            </small>
                         </div>
 
-                        {hasTakenQuiz ? (
-                            <div className="adopter-featured-pet">
-                                <div className="adopter-pet-icon">
-                                    {selectedPet.image ? (
-                                        <img
-                                            src={
-                                                selectedPet.image
-                                            }
-                                            alt={
-                                                selectedPet.name
-                                            }
-                                        />
-                                    ) : (
-                                        selectedPet.icon
-                                    )}
+                        <div className="adopter-hero-side">
+                            <span className="adopter-hero-side-label">
+                                {featuredMatch ? "Your top match" : "Your match"}
+                            </span>
+
+                            {featuredMatch ? (
+                                <article className="adopter-match-card">
+                                    <div className="adopter-match-photo">
+                                        {featuredMatch.pet.image ? (
+                                            <img
+                                                src={featuredMatch.pet.image}
+                                                alt={featuredMatch.pet.name}
+                                            />
+                                        ) : (
+                                            <img src={assets.icons.logoPlaceholder} alt="" />
+                                        )}
+                                        <span className="adopter-match-badge">Available</span>
+                                    </div>
+
+                                    <div className="adopter-match-info">
+                                        <h3>{featuredMatch.pet.name}</h3>
+                                        <p>
+                                            {[featuredMatch.pet.breed, featuredMatch.pet.gender]
+                                                .filter(Boolean)
+                                                .join(" · ")}
+                                        </p>
+
+                                        <div className="adopter-match-tags">
+                                            <span>{featuredMatch.pet.age}</span>
+                                            {featuredMatch.pet.size && (
+                                                <span>{featuredMatch.pet.size}</span>
+                                            )}
+                                        </div>
+
+                                        <div className="adopter-match-score">
+                                            <span>Match with you</span>
+                                            <strong>{featuredMatch.score}%</strong>
+                                        </div>
+                                        <div className="adopter-match-bar">
+                                            <i style={{ width: `${featuredMatch.score}%` }} />
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedPet(featuredMatch.pet)}
+                                        >
+                                            Meet {featuredMatch.pet.name} →
+                                        </button>
+                                    </div>
+                                </article>
+                            ) : (
+                                <div className="adopter-hero-placeholder">
+                                    <img src={assets.icons.logoPlaceholder} alt="" />
+                                    <strong>Your match will appear here</strong>
+                                    <small>Take the quiz to see who fits you best.</small>
                                 </div>
-
-                                <span
-                                    className={`adopter-status ${selectedPet.status}`}
-                                >
-                                    {selectedPet.status.replace(
-                                        "_",
-                                        " "
-                                    )}
-                                </span>
-
-                                <h3>{selectedPet.name}</h3>
-
-                                <p>
-                                    {selectedPet.breed} •{" "}
-                                    {selectedPet.age} •{" "}
-                                    {selectedPet.gender}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="adopter-hero-placeholder">
-                                   <img src={assets.icons.logoPlaceholder} alt="" />
-                                <strong>Your match will appear here</strong>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </section>
 
                     <section className="adopter-stats">
