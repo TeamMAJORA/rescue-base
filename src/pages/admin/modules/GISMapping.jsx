@@ -208,18 +208,30 @@ export default function GISMapping() {
     // Load shelters
     // ---------------------------
 
-    async function loadShelters() {
+    async function loadShelters(role = userRole) {
         try {
             setShelterLoading(true);
             setShelterError("");
 
-            const response = await fetch(`${API}/api/gis/shelters`);
+            const canManageShelters = ["admin", "staff"].includes(role);
+            const endpoint = canManageShelters
+                ? `${API}/api/gis/shelters/manage`
+                : `${API}/api/gis/shelters`;
+
+            const response = await fetch(endpoint, {
+                headers: canManageShelters
+                    ? { Authorization: `Bearer ${getToken()}` }
+                    : {},
+            });
+
             const data = await readResponse(
                 response,
                 "Failed to load shelters."
             );
 
-            setShelters(Array.isArray(data.shelters) ? data.shelters : []);
+            setShelters(
+                Array.isArray(data.shelters) ? data.shelters : []
+            );
         } catch (err) {
             console.error("Load shelters error:", err);
             setShelterError(err.message || "Failed to load shelters.");
@@ -258,8 +270,10 @@ export default function GISMapping() {
     }, [userRole]);
 
     useEffect(() => {
-        loadShelters();
-    }, []);
+        if (userRole) {
+            loadShelters(userRole);
+        }
+    }, [userRole]);
 
     // ---------------------------
     // Location form
@@ -338,29 +352,29 @@ export default function GISMapping() {
 
         const body = isVolunteer
             ? {
-                  petName: locationForm.petName.trim() || "Unknown Stray",
-                  species: locationForm.species,
-                  locationName: locationForm.locationName.trim(),
-                  latitude,
-                  longitude,
-                  description: locationForm.description.trim(),
-              }
+                petName: locationForm.petName.trim() || "Unknown Stray",
+                species: locationForm.species,
+                locationName: locationForm.locationName.trim(),
+                latitude,
+                longitude,
+                description: locationForm.description.trim(),
+            }
             : {
-                  petName: locationForm.petName.trim() || "Unknown Animal",
-                  reportType: locationForm.reportType,
-                  species: locationForm.species,
-                  locationName: locationForm.locationName.trim(),
-                  latitude,
-                  longitude,
-                  status: locationForm.status,
-                  description: locationForm.description.trim(),
-              };
+                petName: locationForm.petName.trim() || "Unknown Animal",
+                reportType: locationForm.reportType,
+                species: locationForm.species,
+                locationName: locationForm.locationName.trim(),
+                latitude,
+                longitude,
+                status: locationForm.status,
+                description: locationForm.description.trim(),
+            };
 
         const endpoint = isVolunteer
             ? `${API}/api/gis/stray-sightings`
             : isEditing
-              ? `${API}/api/gis/${editingLocationId}`
-              : `${API}/api/gis`;
+                ? `${API}/api/gis/${editingLocationId}`
+                : `${API}/api/gis`;
 
         try {
             setSubmitting(true);
@@ -388,8 +402,8 @@ export default function GISMapping() {
                 isVolunteer
                     ? "Stray sighting recorded successfully."
                     : isEditing
-                      ? "Location updated successfully."
-                      : "GIS location added successfully."
+                        ? "Location updated successfully."
+                        : "GIS location added successfully."
             );
 
             await loadLocations(userRole);
@@ -685,8 +699,8 @@ export default function GISMapping() {
         const a =
             Math.sin(dLat / 2) ** 2 +
             Math.cos(toRadians(lat1)) *
-                Math.cos(toRadians(lat2)) *
-                Math.sin(dLon / 2) ** 2;
+            Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) ** 2;
 
         return (
             earthRadius *
@@ -811,8 +825,8 @@ export default function GISMapping() {
                             {userRole === "volunteer"
                                 ? "Record Stray Sighting"
                                 : editingLocationId
-                                  ? "Edit Map Location"
-                                  : "Add Map Location"}
+                                    ? "Edit Map Location"
+                                    : "Add Map Location"}
                         </h2>
                     </div>
 
@@ -934,10 +948,10 @@ export default function GISMapping() {
                             {submitting
                                 ? "Saving..."
                                 : userRole === "volunteer"
-                                  ? "Record Stray Sighting"
-                                  : editingLocationId
-                                    ? "Save Changes"
-                                    : "Add Location"}
+                                    ? "Record Stray Sighting"
+                                    : editingLocationId
+                                        ? "Save Changes"
+                                        : "Add Location"}
                         </button>
 
                         {editingLocationId && (
@@ -1320,8 +1334,8 @@ export default function GISMapping() {
                             {savingShelter
                                 ? "Saving..."
                                 : editingShelterId
-                                  ? "Save Shelter Changes"
-                                  : "Register Shelter"}
+                                    ? "Save Shelter Changes"
+                                    : "Register Shelter"}
                         </button>
 
                         {editingShelterId && (
@@ -1405,8 +1419,8 @@ export default function GISMapping() {
                                             {changingShelterId === shelter._id
                                                 ? "Updating..."
                                                 : shelter.status === "active"
-                                                  ? "Deactivate"
-                                                  : "Activate"}
+                                                    ? "Deactivate"
+                                                    : "Activate"}
                                         </button>
                                     </div>
                                 </article>
