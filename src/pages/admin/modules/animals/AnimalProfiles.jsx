@@ -1746,7 +1746,7 @@ export default function AnimalProfiles() {
                     <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", padding: 24, borderRadius: 12, textAlign: "center" }}>
                         <img src={qrOpen.image} alt="QR code" style={{ width: 320, height: 320 }} />
                         <p style={{ marginTop: 12, fontWeight: 600 }}>{qrOpen.name} · {qrOpen.code}</p>
-                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 8, fontSize: 24 }}>❌</button>
+                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 8, fontSize: 25 }}>❌</button>
                     </div>
                 </div>
             )}
