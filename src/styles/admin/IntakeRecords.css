@@ -1177,3 +1177,33 @@
     color: var(--red, #d62828);
     font-weight: 700;
 }
+
+/* ---------- Medical records ---------- */
+.ao-day {
+    margin: 14px 0 8px;
+}
+
+.ao-day:first-child {
+    margin-top: 0;
+}
+
+.ao-med-item {
+    align-items: start;
+}
+
+.ao-type-badge {
+    margin-left: 8px;
+    vertical-align: 2px;
+}
+
+.ao-avatar.ao-type-blue { background: #e6f0fb; color: #1d5fa8; }
+.ao-avatar.ao-type-orange { background: #fff1d6; color: #b45309; }
+.ao-avatar.ao-type-red { background: #fdeaea; color: #b42318; }
+.ao-avatar.ao-type-green { background: #e2f4e8; color: #17803d; }
+
+.ao-med-notes {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #4a3a2a;
+}

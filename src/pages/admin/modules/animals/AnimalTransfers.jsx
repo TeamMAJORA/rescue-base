@@ -492,11 +492,6 @@ export default function AnimalTransfers() {
                 highlight={{
                     value: inTransit,
                     label: inTransit === 1 ? "Transfer still in transit" : "Transfers still in transit",
-                    actionLabel: inTransit > 0 ? "View in transit" : "",
-                    onAction: () => {
-                        setTab("In Transit");
-                        listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    },
                 }}
                 items={[
                     { icon: "swap", label: "Total transfers", value: transfers.length },
