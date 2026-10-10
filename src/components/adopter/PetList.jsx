@@ -38,10 +38,11 @@ export default function PetList({
     selectedPet,
     setSelectedPet,
     onRefresh,
+    initialStatusFilter = "all",
 }) {
     const selectedId = selectedPet?._id;
 
-    const [statusFilter, setStatusFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState(initialStatusFilter);
     const [sortBy, setSortBy] = useState("newest");
     const [savedIds, setSavedIds] = useState(readSavedPets);
 
@@ -160,10 +161,12 @@ export default function PetList({
 
                 {!loading && !error && visiblePets.length === 0 && (
                     <div className="browse-pets-message">
-                        <span>{statusFilter === "saved" ? "♡" : "🐾"}</span>
+                        <span>
+                            <img src="/icons/logoPlaceholder.svg" alt="" />
+                        </span>
                         <p>
                             {statusFilter === "saved"
-                                ? "You haven't saved any pets yet. Tap the heart on a pet to save it."
+                                ? "You don't have any saved pets yet. Tap the heart on any pet to add them to your favorites!"
                                 : "No available animals matched your search."}
                         </p>
                     </div>

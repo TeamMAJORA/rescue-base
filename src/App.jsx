@@ -7,9 +7,12 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import FosterDashboard from "./pages/foster/FosterDashboard";
 import StaffDashboard from "./pages/admin/StaffDashboard";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
+import PublicPetProfile from "./pages/PublicPetProfile";
 import LandingPage from "./pages/LandingPage";
 
 export default function App() {
+    const petMatch = window.location.pathname.match(/^\/pet\/([^/]+)/);
+    if (petMatch) return <PublicPetProfile tagCode={decodeURIComponent(petMatch[1])} />;
     const [page, setPage] = useState("home");
 
     if (page === "auth" || page === "login") {
