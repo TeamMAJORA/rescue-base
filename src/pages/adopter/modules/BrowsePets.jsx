@@ -16,6 +16,7 @@ export default function BrowsePets({
     applicationStatus,
     onApply,
     onRefresh,
+    initialStatusFilter,
 }) {
 
     return (
@@ -60,6 +61,7 @@ export default function BrowsePets({
                     selectedPet={selectedPet}
                     setSelectedPet={setSelectedPet}
                     onRefresh={onRefresh}
+                    initialStatusFilter={initialStatusFilter}
                 />
 
                 <PetDetailPanel
