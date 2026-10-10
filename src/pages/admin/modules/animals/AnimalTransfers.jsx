@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";   
-import "../../../../styles/admin/AnimalTransfers.css";
 const ICONS = {
     search: (
         <>
@@ -521,7 +520,7 @@ export default function AnimalTransfers() {
 
                     <form className="ao-form" onSubmit={handleSubmit}>
                         <label className="ao-field">
-                            Animal
+                            <span>Animal <span className="ao-req">*</span></span>
                             <input
                                 list="ao-animal-names"
                                 value={form.animalName}
@@ -538,7 +537,7 @@ export default function AnimalTransfers() {
 
                         <div className="ao-route">
                             <label className="ao-field">
-                                From
+                                <span>From <span className="ao-req">*</span></span>
                                 <input
                                     value={form.fromLocation}
                                     onChange={(e) => updateField("fromLocation", e.target.value)}
@@ -548,7 +547,7 @@ export default function AnimalTransfers() {
                             </label>
                             <Icon name="arrow" size={20} />
                             <label className="ao-field">
-                                To
+                                <span>To <span className="ao-req">*</span></span>
                                 <input
                                     value={form.toLocation}
                                     onChange={(e) => updateField("toLocation", e.target.value)}
@@ -559,7 +558,7 @@ export default function AnimalTransfers() {
                         </div>
 
                         <label className="ao-field">
-                            Transfer Date
+                            <span>Transfer Date <span className="ao-req">*</span></span>
                             <input
                                 type="date"
                                 value={form.transferDate}
@@ -569,7 +568,7 @@ export default function AnimalTransfers() {
                         </label>
 
                         <label className="ao-field">
-                            Reason
+                            <span>Reason <span className="ao-req">*</span></span>
                             <textarea
                                 value={form.reason}
                                 onChange={(e) => updateField("reason", e.target.value)}
@@ -579,7 +578,7 @@ export default function AnimalTransfers() {
                         </label>
 
                         <div className="ao-field">
-                            Status
+                            <span>Status <span className="ao-req">*</span></span>
                             <ChipGroup
                                 options={STATUS_OPTIONS}
                                 value={form.status}

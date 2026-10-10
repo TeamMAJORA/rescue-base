@@ -853,3 +853,330 @@
         padding: 16px;
     }
 }
+
+/* ====================================================================
+   Redesign: Vaccination Records + Behavior Assessment
+   (muted palette: sage = good, clay = needs care, honey = neutral)
+   ==================================================================== */
+
+.ao-page {
+    --ao-good: #5e9b6a;
+    --ao-good-soft: #8fbf8f;
+    --ao-care: #c8664d;
+    --ao-care-soft: #e4a48f;
+    --ao-neutral: #c9953f;
+    --ao-neutral-soft: #e6c38a;
+}
+
+.ao-embedded .ao-layout {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.ao-alert.info {
+    background: #f6eedb;
+    color: #6b4a2a;
+}
+
+.ao-label-tip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ao-subtle {
+    font-weight: 400;
+    color: var(--ao-muted);
+}
+
+.ao-list-head h2 {
+    margin: 0;
+}
+
+/* ---------- Vaccination ---------- */
+.ao-quick-due {
+    margin-top: -4px;
+}
+
+.ao-item.flag.red {
+    border-left-color: #d64545;
+}
+
+.ao-timeline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #6b5a4a;
+}
+
+.ao-timeline i {
+    width: 36px;
+    height: 2px;
+    background: var(--ao-input);
+}
+
+.ao-due {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ao-due.overdue {
+    color: #b42318;
+}
+
+.ao-due.soon {
+    color: #b45309;
+}
+
+.ao-due.ok {
+    color: #17803d;
+}
+
+.ao-due.none {
+    color: var(--ao-muted);
+    font-weight: 600;
+}
+
+/* ---------- Behavior assessment ---------- */
+.ao-assess-top {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 12px;
+}
+
+.ao-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b5a4a;
+}
+
+.ao-progress-track {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: #f1e6c4;
+    overflow: hidden;
+}
+
+.ao-progress-track i {
+    display: block;
+    height: 100%;
+    background: #c9a15a;
+    transition: width 0.25s;
+}
+
+.ao-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 11px;
+    color: var(--ao-muted);
+}
+
+.ao-legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    border-radius: 3px;
+    vertical-align: -1px;
+}
+
+.ao-legend i.good {
+    background: var(--ao-good);
+}
+
+.ao-legend i.care {
+    background: var(--ao-care);
+}
+
+.ao-legend i.neutral {
+    background: var(--ao-neutral);
+}
+
+.ao-trait-groups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.ao-group-title {
+    margin: 0 0 10px;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--ao-muted);
+}
+
+.ao-trait {
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--ao-line);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.ao-trait-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.ao-trait-top b {
+    font-size: 14px;
+}
+
+.ao-trait-value {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+
+.ao-trait-question {
+    margin: 2px 0 10px;
+    font-size: 12px;
+    color: var(--ao-muted);
+}
+
+.ao-trait-scale {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+}
+
+.ao-trait-scale button {
+    height: 30px;
+    border-radius: 6px;
+    background: #f4ecd8;
+    font-size: 12px;
+    font-weight: 700;
+    color: #a8977f;
+    transition: background 0.15s;
+}
+
+.ao-trait-scale button:hover {
+    background: #ece0c2;
+}
+
+.ao-trait-ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 11px;
+    color: #9a8a7a;
+}
+
+.ao-trait.good .ao-trait-value { color: #4d8058; }
+.ao-trait.good .ao-trait-scale button.on { background: var(--ao-good-soft); color: #fff; }
+.ao-trait.good .ao-trait-scale button.current { background: var(--ao-good); color: #fff; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ao-good); }
+
+.ao-trait.care .ao-trait-value { color: #a9503a; }
+.ao-trait.care .ao-trait-scale button.on { background: var(--ao-care-soft); color: #fff; }
+.ao-trait.care .ao-trait-scale button.current { background: var(--ao-care); color: #fff; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ao-care); }
+
+.ao-trait.neutral .ao-trait-value { color: #9a6f25; }
+.ao-trait.neutral .ao-trait-scale button.on { background: var(--ao-neutral-soft); color: #fff; }
+.ao-trait.neutral .ao-trait-scale button.current { background: var(--ao-neutral); color: #fff; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ao-neutral); }
+
+.ao-trait.empty .ao-trait-top .ao-trait-value {
+    color: #b8a890;
+    font-weight: 600;
+}
+
+.ao-assess-foot {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.ao-assess-foot .ao-field {
+    flex: 1;
+}
+
+.ao-assess-foot .ao-form-actions .ao-btn {
+    height: 44px;
+    padding: 0 26px;
+}
+
+.ao-assess-row {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 16px;
+    border: 1px solid var(--ao-line);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.ao-tag.warm {
+    background: #f3ead6;
+    color: #6b4a2a;
+}
+
+.ao-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ao-mini-row {
+    display: grid;
+    grid-template-columns: 70px 90px;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #6b5a4a;
+}
+
+.ao-mini-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+}
+
+.ao-mini-bar i {
+    height: 6px;
+    border-radius: 2px;
+    background: #f1e6c4;
+}
+
+.ao-mini-bar.good i.on { background: #7fb07f; }
+.ao-mini-bar.care i.on { background: #d98b74; }
+.ao-mini-bar.neutral i.on { background: #d9b06a; }
+
+@media (max-width: 900px) {
+    .ao-assess-top,
+    .ao-trait-groups {
+        grid-template-columns: 1fr;
+    }
+
+    .ao-assess-foot {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ao-assess-row {
+        grid-template-columns: 46px minmax(0, 1fr);
+    }
+
+    .ao-assess-row .ao-mini,
+    .ao-assess-row .ao-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Required-field asterisk */
+.ao-req {
+    margin-left: 2px;
+    color: var(--red, #d62828);
+    font-weight: 700;
+}

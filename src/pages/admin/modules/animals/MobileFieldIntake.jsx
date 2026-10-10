@@ -657,7 +657,7 @@ export default function MobileFieldIntake() {
                         </label>
 
                         <div className="ao-field">
-                            Species
+                            <span>Species <span className="ao-req">*</span></span>
                             <div className="ao-species">
                                 {SPECIES.map((s) => (
                                     <button
@@ -674,7 +674,7 @@ export default function MobileFieldIntake() {
                         </div>
 
                         <label className="ao-field">
-                            Name or Nickname
+                            <span>Name or Nickname <span className="ao-req">*</span></span>
                             <input
                                 value={form.animalName}
                                 onChange={(e) => updateField("animalName", e.target.value)}
@@ -684,7 +684,7 @@ export default function MobileFieldIntake() {
                         </label>
 
                         <div className="ao-field">
-                            How did you find them?
+                            <span>How did you find them? <span className="ao-req">*</span></span>
                             <ChipGroup
                                 options={INTAKE_TYPE_OPTIONS}
                                 value={form.intakeType}
@@ -693,11 +693,12 @@ export default function MobileFieldIntake() {
                         </div>
 
                         <label className="ao-field">
-                            Where?
+                            <span>Where? <span className="ao-req">*</span></span>
                             <input
                                 value={form.rescueLocation}
                                 onChange={(e) => updateField("rescueLocation", e.target.value)}
                                 placeholder="e.g. Lahug, Cebu City"
+                                required
                             />
                         </label>
 
@@ -719,7 +720,7 @@ export default function MobileFieldIntake() {
                         )}
 
                         <div className="ao-field">
-                            Condition
+                            <span>Condition <span className="ao-req">*</span></span>
                             <ChipGroup
                                 options={CONDITION_OPTIONS}
                                 value={form.condition}
@@ -729,11 +730,12 @@ export default function MobileFieldIntake() {
                         </div>
 
                         <label className="ao-field">
-                            What did you see?
+                            <span>What did you see? <span className="ao-req">*</span></span>
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}
                                 placeholder="e.g. Limping, near the jeepney terminal."
+                                required
                             />
                         </label>
 

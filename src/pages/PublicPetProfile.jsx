@@ -12,37 +12,37 @@ const STATUS_LABEL = {
 
 const LEVEL_LABEL = { 1: "Very low", 2: "Low", 3: "Moderate", 4: "High", 5: "Very high" };
 
+// tone: "good" = higher is better, "care" = higher needs care, "neutral" = neither
 const TRAIT_GROUPS = [
     {
         title: "Temperament",
         traits: [
-            { key: "energyLevel", label: "Energy Level", desc: "How much energy it shows day to day", low: "Very calm", high: "Very energetic" },
-            { key: "activityLevel", label: "Activity Level", desc: "How active it is during play and walks", low: "Mostly resting", high: "Always on the move" },
-            { key: "anxietyLevel", label: "Anxiety Level", desc: "How nervous or fearful it gets", low: "Relaxed", high: "Very anxious" },
-            { key: "aggressionLevel", label: "Aggression Level", desc: "Growling, snapping or guarding", low: "Not aggressive", high: "Very aggressive" },
+            { key: "energyLevel", label: "Energy Level", question: "How much energy does {name} have day to day?", low: "Very calm", high: "Very energetic", tone: "neutral" },
+            { key: "activityLevel", label: "Activity Level", question: "How much play and exercise does {name} need?", low: "Mostly resting", high: "Always on the move", tone: "neutral" },
+            { key: "anxietyLevel", label: "Anxiety Level", question: "How easily does {name} get scared or stressed?", low: "Relaxed", high: "Very anxious", tone: "care" },
+            { key: "aggressionLevel", label: "Aggression Level", question: "Does {name} growl, snap, or guard things?", low: "Gentle", high: "Reactive", tone: "care" },
         ],
     },
     {
-        title: "Social and Learning",
+        title: "Social & Learning",
         traits: [
-            { key: "friendliness", label: "Friendliness", desc: "Overall warmth toward others", low: "Aloof", high: "Very friendly" },
-            { key: "humanSociability", label: "Human Sociability", desc: "Comfort around people", low: "Avoids people", high: "Loves people" },
-            { key: "animalSociability", label: "Animal Sociability", desc: "Comfort around other animals", low: "Avoids animals", high: "Loves other animals" },
-            { key: "trainability", label: "Trainability", desc: "How quickly it learns commands", low: "Hard to train", high: "Learns quickly" },
+            { key: "friendliness", label: "Friendliness", question: "How warm is {name} toward people?", low: "Reserved", high: "Very friendly", tone: "good" },
+            { key: "humanSociability", label: "Human Sociability", question: "How comfortable is {name} with strangers and kids?", low: "Shy", high: "Loves people", tone: "good" },
+            { key: "animalSociability", label: "Animal Sociability", question: "How does {name} get along with other animals?", low: "Prefers alone", high: "Loves company", tone: "good" },
+            { key: "trainability", label: "Trainability", question: "How quickly does {name} learn routines?", low: "Needs patience", high: "Eager learner", tone: "good" },
         ],
     },
 ];
 
-
-function TraitBar({ trait, value }) {
+function TraitBar({ trait, value, name }) {
     const score = Number(value) || 0;
     return (
-        <div className="pp-trait">
+        <div className={`pp-trait ${trait.tone}`}>
             <div className="pp-trait-head">
                 <span className="pp-trait-name">{trait.label}</span>
-                {score > 0 && <span className="pp-badge">{score} · {LEVEL_LABEL[score]}</span>}
+                {score > 0 && <span className="pp-badge">{LEVEL_LABEL[score]} ({score}/5)</span>}
             </div>
-            <div className="pp-trait-desc">{trait.desc}</div>
+            <div className="pp-trait-desc">{trait.question.replace("{name}", name)}</div>
             <div className="pp-bar">
                 {[1, 2, 3, 4, 5].map((n) => (
                     <div key={n} className={`pp-seg ${n < score ? "on" : ""} ${n === score ? "current" : ""}`} />
@@ -68,7 +68,7 @@ export default function PublicPetProfile({ tagCode }) {
         return (
             <div className="pp-page">
                 <div className="pp-card" style={{ maxWidth: 400, margin: "0 auto", textAlign: "center" }}>
-                    {error ? `🐾 ${error}` : "Loading..."}
+                    {error || "Loading..."}
                 </div>
             </div>
         );
@@ -94,7 +94,7 @@ export default function PublicPetProfile({ tagCode }) {
 
                     <div className="pp-name-row">
                         <h1 className="pp-name">{animal.name}</h1>
-                        <span className="pp-loc">📍 {animal.location || "RescueBase Shelter"}</span>
+                        <span className="pp-loc">{animal.location || "RescueBase Shelter"}</span>
                     </div>
 
                     <div className="pp-facts">
@@ -110,8 +110,8 @@ export default function PublicPetProfile({ tagCode }) {
                         <div className="pp-section">
                             <div className="pp-label">Personality</div>
                             <div className="pp-chips">
-                                {personality.map((tag, i) => (
-                                    <span key={tag} className={`pp-chip ${i % 2 ? "pink" : ""}`}>{tag}</span>
+                                {personality.map((tag) => (
+                                    <span key={tag} className="pp-chip">{tag}</span>
                                 ))}
                             </div>
                         </div>
@@ -136,7 +136,7 @@ export default function PublicPetProfile({ tagCode }) {
 
                 {/* RIGHT: behavioral assessment */}
                 <main className="pp-card">
-                    <div className="pp-brand">🐾 RescueBase</div>
+                    <div className="pp-brand">RescueBase</div>
                     <h2 className="pp-title">Behavioral Assessment</h2>
                     <p className="pp-intro">
                         Every pet has their own personality. This assessment, based on our shelter staff's daily care
@@ -145,26 +145,33 @@ export default function PublicPetProfile({ tagCode }) {
                     </p>
 
                     {hasAssessment ? (
+                        <>
+                        <div className="pp-legend">
+                            <span><i className="good" />Higher is better</span>
+                            <span><i className="care" />Higher needs extra care</span>
+                            <span><i className="neutral" />Neither good nor bad</span>
+                        </div>
                         <div className="pp-groups">
                             {TRAIT_GROUPS.map((group) => (
                                 <div key={group.title}>
                                     <div className="pp-group-title">{group.title}</div>
                                     {group.traits.map((t) => (
-                                        <TraitBar key={t.key} trait={t} value={animal[t.key]} />
+                                        <TraitBar key={t.key} trait={t} value={animal[t.key]} name={animal.name} />
                                     ))}
                                 </div>
                             ))}
                         </div>
+                        </>
                     ) : (
                         <p className="pp-empty">Not assessed yet. Our staff are still getting to know {animal.name}.</p>
                     )}
 
                     <div className="pp-actions">
-                        <button type="button" className="pp-btn primary" onClick={goHome} disabled={status === "adopted"}>
-                            Apply to Adopt 🐾
+                        <button type="button" className="pp-btn primary" onClick={goHome}>
+                            Apply to Adopt
                         </button>
                         <button type="button" className="pp-btn secondary" onClick={goHome}>
-                            Donate Shelter 🤲
+                            Donate to Shelter
                         </button>
                     </div>
                 </main>

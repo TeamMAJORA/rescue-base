@@ -726,7 +726,7 @@ export default function IntakeRecords() {
 
                     <form className="ao-form" onSubmit={handleSubmit}>
                         <label className="ao-field">
-                            Animal Name
+                            <span>Animal Name <span className="ao-req">*</span></span>
                             <input
                                 value={form.animalName}
                                 onChange={(e) => updateForm("animalName", e.target.value)}
@@ -736,7 +736,7 @@ export default function IntakeRecords() {
                         </label>
 
                         <div className="ao-field">
-                            Species
+                            <span>Species <span className="ao-req">*</span></span>
                             <ChipGroup
                                 options={SPECIES_OPTIONS}
                                 value={form.animalType}
@@ -745,7 +745,7 @@ export default function IntakeRecords() {
                         </div>
 
                         <div className="ao-field">
-                            How did they arrive?
+                            <span>How did they arrive? <span className="ao-req">*</span></span>
                             <ChipGroup
                                 options={INTAKE_TYPE_OPTIONS}
                                 value={form.intakeType}
@@ -755,7 +755,7 @@ export default function IntakeRecords() {
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                Intake Date
+                                <span>Intake Date <span className="ao-req">*</span></span>
                                 <input
                                     type="date"
                                     value={form.intakeDate}
@@ -765,17 +765,18 @@ export default function IntakeRecords() {
                             </label>
 
                             <label className="ao-field">
-                                Rescued By
+                                <span>Rescued By <span className="ao-req">*</span></span>
                                 <input
                                     value={form.rescuedBy}
                                     onChange={(e) => updateForm("rescuedBy", e.target.value)}
                                     placeholder="Name"
+                                    required
                                 />
                             </label>
                         </div>
 
                         <label className="ao-field">
-                            Found / Surrendered At
+                            <span>Found / Surrendered At <span className="ao-req">*</span></span>
                             <input
                                 value={form.rescueLocation}
                                 onChange={(e) => updateForm("rescueLocation", e.target.value)}
@@ -785,7 +786,7 @@ export default function IntakeRecords() {
                         </label>
 
                         <div className="ao-field">
-                            Condition on Arrival
+                            <span>Condition on Arrival <span className="ao-req">*</span></span>
                             <ChipGroup
                                 options={CONDITION_OPTIONS}
                                 value={form.condition}
@@ -795,11 +796,12 @@ export default function IntakeRecords() {
                         </div>
 
                         <label className="ao-field">
-                            Notes
+                            <span>Notes <span className="ao-req">*</span></span>
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateForm("notes", e.target.value)}
                                 placeholder="Anything staff should know..."
+                                required
                             />
                         </label>
 
