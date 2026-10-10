@@ -626,11 +626,6 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                             notAssessed.length === 1
                                 ? "Animal not assessed yet"
                                 : "Animals not assessed yet",
-                        actionLabel: notAssessed.length > 0 ? "Assess next" : "",
-                        onAction: () => {
-                            selectAnimal(notAssessed[0]);
-                            formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                        },
                     }}
                     items={[
                         {

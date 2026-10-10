@@ -608,11 +608,6 @@ export default function MobileFieldIntake() {
                         pendingCount === 1
                             ? "Field entry waiting for staff review"
                             : "Field entries waiting for staff review",
-                    actionLabel: pendingCount > 0 ? "Review now" : "",
-                    onAction: () => {
-                        setTab("pending");
-                        listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    },
                 }}
                 items={[
                     { icon: "phone", label: "Entries today", value: stats.today },

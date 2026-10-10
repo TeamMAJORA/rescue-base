@@ -460,9 +460,6 @@ export default function MedicalRecords({ lockedAnimal = null }) {
                     highlight={{
                         value: thisMonth,
                         label: thisMonth === 1 ? "Medical record this month" : "Medical records this month",
-                        actionLabel: "Add record",
-                        onAction: () =>
-                            formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
                     }}
                     items={[
                         { icon: "pulse", label: "Checkups", value: counts.Checkup || 0 },

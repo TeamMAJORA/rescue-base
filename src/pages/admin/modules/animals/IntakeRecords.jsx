@@ -674,11 +674,6 @@ export default function IntakeRecords() {
         setFilters((current) => ({ ...current, [key]: value }));
     }
 
-    function goToPending() {
-        setTab("pending");
-        listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
     const tabs = [
         { value: "pending", label: "Waiting for Review", count: counts.pending },
         { value: "approved", label: "Approved" },
@@ -704,8 +699,6 @@ export default function IntakeRecords() {
                         counts.pending === 1
                             ? "Intake waiting for your review"
                             : "Intakes waiting for your review",
-                    actionLabel: counts.pending > 0 ? "Review now" : "",
-                    onAction: goToPending,
                 }}
                 items={[
                     { icon: "paw", label: "Intakes this month", value: stats.thisMonth },

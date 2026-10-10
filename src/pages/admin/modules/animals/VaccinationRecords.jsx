@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
 
@@ -28,6 +28,8 @@ const starterVaccinations = [
     },
 ];
 
+const API_ANIMALS = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
+
 const COMMON_VACCINES = ["Anti-Rabies", "5-in-1 (DHPP)", "4-in-1 (FVRCP)", "Deworming"];
 
 const STATUS_OPTIONS = [
@@ -56,6 +58,7 @@ const DEFAULT_FILTERS = {
     search: "",
     vaccine: "All",
     sort: "due",
+    species: "All",
 };
 
 // ---------- Date helpers ----------
@@ -140,6 +143,12 @@ const ICONS = {
         <>
             <circle cx="12" cy="12" r="9" />
             <path d="M12 7v5l3 2" />
+        </>
+    ),
+    alert: (
+        <>
+            <path d="M12 3 2 21h20z" />
+            <path d="M12 10v4M12 17.5v.01" />
         </>
     ),
     syringe: (
@@ -337,11 +346,27 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
     const [vaccinations, setVaccinations] = useState(starterVaccinations);
     const [editingId, setEditingId] = useState(null);
     const [vaccinationForm, setVaccinationForm] = useState(blankForm);
-    const [tab, setTab] = useState("all");
+    const [tab, setTab] = useState(lockedAnimal ? "all" : "unvaccinated");
+    const [animals, setAnimals] = useState([]);
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
     const formRef = useRef(null);
     const listRef = useRef(null);
+
+    // Existing animals: used for the Animal dropdown and the "Not Vaccinated" tab
+    useEffect(() => {
+        if (lockedAnimal) return;
+        fetch(API_ANIMALS)
+            .then((response) => response.json())
+            .then((data) => setAnimals(data.animals || []))
+            .catch(() => setAnimals([]));
+    }, [lockedAnimal]);
+
+    function startVaccinationFor(animal) {
+        setEditingId(null);
+        setVaccinationForm({ ...blankForm, animalName: animal.name });
+        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     function updateField(name, value) {
         setVaccinationForm((current) => ({ ...current, [name]: value }));
@@ -470,6 +495,34 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
         [scoped]
     );
 
+    const animalNames = useMemo(
+        () => [...new Set(animals.map((a) => a.name).filter(Boolean))].sort(),
+        [animals]
+    );
+
+    // Dogs & cats with no completed vaccination on record
+    const unvaccinated = useMemo(() => {
+        const vaccinated = new Set(
+            vaccinations
+                .filter((v) => v.status === "Completed")
+                .map((v) => String(v.animalName).trim().toLowerCase())
+        );
+        return animals
+            .filter((a) => a.type === "Dog" || a.type === "Cat")
+            .filter((a) => !vaccinated.has(String(a.name).trim().toLowerCase()))
+            .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+    }, [animals, vaccinations]);
+
+    const filteredUnvaccinated = useMemo(
+        () =>
+            unvaccinated.filter(
+                (a) =>
+                    String(a.name).toLowerCase().includes(filters.search.trim().toLowerCase()) &&
+                    (filters.species === "All" || a.type === filters.species)
+            ),
+        [unvaccinated, filters]
+    );
+
     const tabRecords = useMemo(() => {
         if (tab === "overdue") return scoped.filter((v) => getDueState(v) === "overdue");
         if (tab === "soon") return scoped.filter((v) => getDueState(v) === "soon");
@@ -500,6 +553,9 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
     }
 
     const tabs = [
+        ...(lockedAnimal
+            ? []
+            : [{ value: "unvaccinated", label: "Not Vaccinated", count: unvaccinated.length }]),
         { value: "all", label: "All" },
         { value: "overdue", label: "Overdue", count: counts.overdue },
         { value: "soon", label: "Due Soon", count: counts.soon },
@@ -514,25 +570,16 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
             {!lockedAnimal && (
                 <StatsStrip
                     highlight={{
-                        value: counts.overdue,
-                        label: counts.overdue === 1 ? "Vaccination overdue" : "Vaccinations overdue",
-                        actionLabel: counts.overdue > 0 ? "Review overdue" : "",
-                        onAction: () => {
-                            setTab("overdue");
-                            listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                        },
+                        value: unvaccinated.length,
+                        label:
+                            unvaccinated.length === 1
+                                ? "Dog or cat not vaccinated yet"
+                                : "Dogs & cats not vaccinated yet",
                     }}
                     items={[
+                        { icon: "alert", label: "Overdue", value: counts.overdue },
                         { icon: "clock", label: "Due in next 30 days", value: counts.soon },
                         { icon: "check", label: "Given this month", value: stats.givenThisMonth },
-                        {
-                            icon: "syringe",
-                            label: "Most given",
-                            value: stats.topVaccine ? stats.topVaccine.value : "—",
-                            note: stats.topVaccine
-                                ? `${stats.topVaccine.count} dose${stats.topVaccine.count === 1 ? "" : "s"}`
-                                : "",
-                        },
                     ]}
                 />
             )}
@@ -546,14 +593,29 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                     <form className="ao-form" onSubmit={handleAddVaccination}>
                         <label className="ao-field">
                             <span>Animal <span className="ao-req">*</span></span>
-                            <input
-                                type="text"
-                                readOnly={Boolean(lockedAnimal)}
-                                value={vaccinationForm.animalName}
-                                onChange={(e) => updateField("animalName", e.target.value)}
-                                placeholder="e.g. Max"
-                                required
-                            />
+                            {lockedAnimal ? (
+                                <input type="text" value={vaccinationForm.animalName} readOnly />
+                            ) : (
+                                <select
+                                    value={vaccinationForm.animalName}
+                                    onChange={(e) => updateField("animalName", e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select an animal</option>
+                                    {animalNames.map((name) => (
+                                        <option key={name} value={name}>
+                                            {name}
+                                        </option>
+                                    ))}
+                                    {/* Keep older records editable if the animal is no longer listed */}
+                                    {vaccinationForm.animalName &&
+                                        !animalNames.includes(vaccinationForm.animalName) && (
+                                            <option value={vaccinationForm.animalName}>
+                                                {vaccinationForm.animalName} (not in Animal Profiles)
+                                            </option>
+                                        )}
+                                </select>
+                            )}
                         </label>
 
                         <div className="ao-field">
@@ -674,6 +736,78 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
                     </div>
 
+                    {tab === "unvaccinated" ? (
+                        <>
+                            <SearchToolbar
+                                searchBy="all"
+                                onSearchByChange={() => {}}
+                                searchByOptions={[{ value: "all", label: "Animal name" }]}
+                                search={filters.search}
+                                onSearchChange={(value) => setFilter("search", value)}
+                                placeholder="Search animal..."
+                                filters={[
+                                    {
+                                        label: "Species",
+                                        value: filters.species,
+                                        onChange: (value) => setFilter("species", value),
+                                        options: [
+                                            { value: "All", label: "Dogs & cats" },
+                                            { value: "Dog", label: "Dogs only" },
+                                            { value: "Cat", label: "Cats only" },
+                                        ],
+                                    },
+                                ]}
+                                shown={filteredUnvaccinated.length}
+                                total={unvaccinated.length}
+                                noun="animals"
+                                onClear={() => setFilters(DEFAULT_FILTERS)}
+                            />
+
+                            {unvaccinated.length === 0 ? (
+                                <p className="ao-empty">
+                                    Every dog and cat has at least one vaccine on record.
+                                </p>
+                            ) : filteredUnvaccinated.length === 0 ? (
+                                <p className="ao-empty">No animals match your search.</p>
+                            ) : (
+                                <div className="ao-list">
+                                    {filteredUnvaccinated.map((animal) => (
+                                        <article key={animal._id} className="ao-item flag red">
+                                            <div className="ao-avatar">
+                                                {animal.image ? (
+                                                    <img src={animal.image} alt="" />
+                                                ) : animal.type === "Cat" ? (
+                                                    "🐱"
+                                                ) : (
+                                                    "🐶"
+                                                )}
+                                            </div>
+                                            <div>
+                                                <h3>{animal.name}</h3>
+                                                <div className="ao-meta">
+                                                    {animal.type}
+                                                    {animal.breed ? ` · ${animal.breed}` : ""}
+                                                </div>
+                                                <div className="ao-tags">
+                                                    <span className="ao-tag red">No vaccine on record</span>
+                                                </div>
+                                            </div>
+                                            <div className="ao-actions">
+                                                <button
+                                                    type="button"
+                                                    className="ao-btn sm ok"
+                                                    onClick={() => startVaccinationFor(animal)}
+                                                >
+                                                    Record Vaccine
+                                                </button>
+                                            </div>
+                                        </article>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <>
                     <SearchToolbar
                         searchBy={filters.searchBy}
                         onSearchByChange={(value) => setFilter("searchBy", value)}
@@ -787,6 +921,8 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                                 );
                             })}
                         </div>
+                    )}
+                        </>
                     )}
                 </section>
             </div>

@@ -7,7 +7,10 @@
 }
 
 .admin-sidebar {
-    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
     background: var(--yellow);
     display: flex;
     flex-direction: column;
@@ -580,6 +583,9 @@
 
     .admin-sidebar {
         min-height: auto;
+        position: static;
+        height: auto;
+        overflow: visible;
     }
 
     .admin-main {

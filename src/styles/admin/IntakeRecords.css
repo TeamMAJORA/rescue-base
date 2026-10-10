@@ -1089,13 +1089,18 @@
 }
 
 .ao-assess-foot {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: end;
 }
 
-.ao-assess-foot .ao-field {
-    flex: 1;
+.ao-assess-foot .ao-form-actions {
+    justify-content: flex-end;
+}
+
+.ao-assess-foot .ao-form-actions .ao-btn.primary {
+    flex: 0 0 auto;
 }
 
 .ao-assess-foot .ao-form-actions .ao-btn {
@@ -1157,8 +1162,7 @@
     }
 
     .ao-assess-foot {
-        flex-direction: column;
-        align-items: stretch;
+        grid-template-columns: 1fr;
     }
 
     .ao-assess-row {
