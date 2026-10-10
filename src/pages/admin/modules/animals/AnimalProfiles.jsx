@@ -326,6 +326,8 @@ export default function AnimalProfiles() {
     const [viewMode, setViewMode] = useState("table");
     const [statusFilter, setStatusFilter] = useState("all");
     const [qrCodes, setQrCodes] = useState({});
+    const [qrImages, setQrImages] = useState({});
+    const [qrOpen, setQrOpen] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
@@ -538,12 +540,14 @@ export default function AnimalProfiles() {
                 : data.qrTags || data.records || [];
 
             const codeMap = {};
+            const imageMap = {};    
             records.forEach((record) => {
                 const animalId = record.animal?._id || record.animal;
-                if (animalId) codeMap[animalId] = record.tagCode;
+                if (animalId) { codeMap[animalId] = record.tagCode; imageMap[animalId] = record.qrImageUrl; }
             });
 
             setQrCodes(codeMap);
+            setQrImages(imageMap);  
         } catch {
             // QR search is optional; name/breed search still works
         }
@@ -1479,7 +1483,15 @@ export default function AnimalProfiles() {
                                                     <td>{formatIntakeDate(animal.intakeDate)}</td>
                                                     <td>
                                                         {qrCodes[animal._id] ? (
-                                                            <span className="admin-qr-chip">
+                                                            <span
+                                                                className="admin-qr-chip"
+                                                                title="Click to view QR"
+                                                                style={{ cursor: "zoom-in" }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (qrImages[animal._id]) setQrOpen({ image: qrImages[animal._id], code: qrCodes[animal._id], name: animal.name });
+                                                                }}
+                                                            >
                                                                 <QrIcon />
                                                                 {qrCodes[animal._id]}
                                                             </span>
@@ -1631,7 +1643,20 @@ export default function AnimalProfiles() {
                                 <div>
                                     <span>QR Code</span>
                                     {qrCodes[viewedAnimal._id] ? (
-                                        <p>{qrCodes[viewedAnimal._id]}</p>
+                                        <div>
+                                            {qrImages[viewedAnimal._id] && (
+                                                <img
+                                                    src={qrImages[viewedAnimal._id]}
+                                                    alt="QR"
+                                                    title="Click to enlarge"
+                                                    onClick={() => setQrOpen({ image: qrImages[viewedAnimal._id], code: qrCodes[viewedAnimal._id], name: viewedAnimal.name })}
+                                                    style={{ width: 72, height: 72, cursor: "zoom-in", transition: "transform .15s" }}
+                                                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                                                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                                                />
+                                            )}
+                                            <p>{qrCodes[viewedAnimal._id]}</p>
+                                        </div>
                                     ) : (
                                         <p className="muted">No tag yet</p>
                                     )}
@@ -1713,7 +1738,18 @@ export default function AnimalProfiles() {
                     </div>
                 </div>
             )}
-
+            {qrOpen && (
+                <div
+                    onClick={() => setQrOpen(null)}
+                    style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000 }}
+                >
+                    <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", padding: 24, borderRadius: 12, textAlign: "center" }}>
+                        <img src={qrOpen.image} alt="QR code" style={{ width: 320, height: 320 }} />
+                        <p style={{ marginTop: 12, fontWeight: 600 }}>{qrOpen.name} · {qrOpen.code}</p>
+                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 8, fontSize: 24 }}>❌</button>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }
