@@ -1,6 +1,7 @@
 {
   "logo": "/Logo.svg",
   "icons": {
+    "logoPlaceholder": "/icons/logoPlaceholder.svg",
     "adopt": "/icons/Adopt.svg",
     "donate": "/icons/Donate.svg",
     "google": "/icons/google.svg",

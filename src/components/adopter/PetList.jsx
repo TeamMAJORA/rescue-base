@@ -161,7 +161,9 @@ export default function PetList({
 
                 {!loading && !error && visiblePets.length === 0 && (
                     <div className="browse-pets-message">
-                        <span>{statusFilter === "saved" ? "♡" : "🐾"}</span>
+                        <span>
+                            <img src="/icons/logoPlaceholder.svg" alt="" />
+                        </span>
                         <p>
                             {statusFilter === "saved"
                                 ? "You haven't saved any pets yet. Tap the heart on a pet to save it."

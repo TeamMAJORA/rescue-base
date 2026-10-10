@@ -886,7 +886,7 @@ export default function Dashboard({ onLogout }) {
                             </div>
                         ) : (
                             <div className="adopter-hero-placeholder">
-                                <img src={assets.icons.adopt} alt="" />
+                                   <img src={assets.icons.logoPlaceholder} alt="" />
                                 <strong>Your match will appear here</strong>
                             </div>
                         )}
