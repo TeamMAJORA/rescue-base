@@ -508,6 +508,11 @@
     font-size: 12px;
 }
 
+.adopter-hero-steps .adopter-hero-time img {
+    width: 14px;
+    height: 14px;
+}
+
 .adopter-hero-actions {
     display: flex;
     flex-wrap: wrap;

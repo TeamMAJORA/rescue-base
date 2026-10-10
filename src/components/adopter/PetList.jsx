@@ -166,7 +166,7 @@ export default function PetList({
                         </span>
                         <p>
                             {statusFilter === "saved"
-                                ? "You haven't saved any pets yet. Tap the heart on a pet to save it."
+                                ? "You don't have any saved pets yet. Tap the heart on any pet to add them to your favorites!"
                                 : "No available animals matched your search."}
                         </p>
                     </div>

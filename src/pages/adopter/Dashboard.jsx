@@ -252,7 +252,7 @@ export default function Dashboard({ onLogout }) {
             return {
                 tone: "success",
                 label: "Action Needed",
-                icon: "✅",
+                icon: "/icons/approved.svg",
                 title: `Meet ${petName}!`,
                 linkText: "Check your interview schedule",
                 page: "application-status",
@@ -263,7 +263,7 @@ export default function Dashboard({ onLogout }) {
             return {
                 tone: "danger",
                 label: "Action Needed",
-                icon: "💔",
+                icon: "/icons/rejected.svg",
                 title: "Find another match",
                 linkText: "See your matches",
                 page: hasTakenQuiz ? "recommendations" : "browse-pets",
@@ -274,7 +274,7 @@ export default function Dashboard({ onLogout }) {
             return {
                 tone: "action",
                 label: "Action Needed",
-                icon: null,
+                icon: "/icons/Action.svg",
                 title: "Finish your match quiz",
                 linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
                 page: "matchmaking-quiz",
@@ -285,7 +285,7 @@ export default function Dashboard({ onLogout }) {
             return {
                 tone: "info",
                 label: "In Review",
-                icon: "⏳",
+                icon: "/icons/in-review.svg",
                 title: `Application for ${petName}`,
                 linkText: "We'll notify you",
                 page: "application-status",
@@ -295,7 +295,7 @@ export default function Dashboard({ onLogout }) {
         return {
             tone: "neutral",
             label: "All Set",
-            icon: "🐾",
+            icon: "/icons/done.svg",
             title: "You're all caught up",
             linkText: `${availablePets} pets available`,
             page: "browse-pets",
@@ -847,7 +847,10 @@ export default function Dashboard({ onLogout }) {
                                 <li><b>1</b> Your space</li>
                                 <li><b>2</b> Your experience</li>
                                 <li><b>3</b> Energy level</li>
-                                <li className="adopter-hero-time">⏱ ~2 min</li>
+                                <li className="adopter-hero-time">
+                                    <img src="/icons/Clock.svg" alt="" />
+                                    ~2 min
+                                </li>
                             </ol>
 
                             <div className="adopter-hero-actions">
@@ -935,10 +938,10 @@ export default function Dashboard({ onLogout }) {
                     <section className="adopter-stats">
                         <article className={`adopter-next-step is-${nextStep.tone}`}>
                             <span className="adopter-stat-label">
-                                {nextStep.icon ? (
-                                    <span aria-hidden="true">{nextStep.icon}</span>
+                                {nextStep.icon.startsWith("/") ? (
+                                    <img src={nextStep.icon} alt="" />
                                 ) : (
-                                    <img src={assets.icons.action} alt="" />
+                                    <span aria-hidden="true">{nextStep.icon}</span>
                                 )}
                                 {nextStep.label}
                             </span>
