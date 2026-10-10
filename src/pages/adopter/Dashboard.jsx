@@ -159,6 +159,14 @@ export default function Dashboard({ onLogout }) {
     const [activeAdopterPage, setActiveAdopterPage] =
         useState("overview");
 
+    const [browseStartFilter, setBrowseStartFilter] = useState("all");
+
+    useEffect(() => {
+        if (activeAdopterPage !== "browse-pets") {
+            setBrowseStartFilter("all");
+        }
+    }, [activeAdopterPage]);
+    
     const [search, setSearch] = useState("");
     const [typeFilter, setTypeFilter] = useState("all");
 
@@ -212,6 +220,89 @@ export default function Dashboard({ onLogout }) {
             (pet) => pet.status === "available"
         ).length;
     }, [pets]);
+
+    
+    const QUIZ_TOTAL_STEPS = 3;
+
+    const savedPetsCount = (() => {
+        try {
+            return (JSON.parse(localStorage.getItem("rescuebase_saved_pets")) || []).length;
+        } catch {
+            return 0;
+        }
+    })();
+
+    const goodMatchesCount = (() => {
+        try {
+            const results = JSON.parse(
+                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+            );
+            return (results?.matches || []).filter(
+                (match) => match.eligible && Number(match.score) >= 60
+            ).length;
+        } catch {
+            return 0;
+        }
+    })();
+
+    function getNextStep() {
+        const petName = applicationStatus?.petName || "your pet";
+
+        if (isApprovedApplication) {
+            return {
+                tone: "success",
+                label: "Action Needed",
+                icon: "✅",
+                title: `Meet ${petName}!`,
+                linkText: "Check your interview schedule",
+                page: "application-status",
+            };
+        }
+
+        if (isRejectedApplication) {
+            return {
+                tone: "danger",
+                label: "Action Needed",
+                icon: "💔",
+                title: "Find another match",
+                linkText: "See your matches",
+                page: hasTakenQuiz ? "recommendations" : "browse-pets",
+            };
+        }
+
+        if (!hasTakenQuiz) {
+            return {
+                tone: "action",
+                label: "Action Needed",
+                icon: null,
+                title: "Finish your match quiz",
+                linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
+                page: "matchmaking-quiz",
+            };
+        }
+
+        if (hasPendingApplication) {
+            return {
+                tone: "info",
+                label: "In Review",
+                icon: "⏳",
+                title: `Application for ${petName}`,
+                linkText: "We'll notify you",
+                page: "application-status",
+            };
+        }
+
+        return {
+            tone: "neutral",
+            label: "All Set",
+            icon: "🐾",
+            title: "You're all caught up",
+            linkText: `${availablePets} pets available`,
+            page: "browse-pets",
+        };
+    }
+
+    const nextStep = getNextStep();
 
     const filteredPets = useMemo(() => {
         const normalizedSearch = search
@@ -802,43 +893,68 @@ export default function Dashboard({ onLogout }) {
                     </section>
 
                     <section className="adopter-stats">
-                        <article>
-                            <span>Available Pets</span>
-                            <strong>
-                                {availablePets}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Pet Categories</span>
-                            <strong>Dog / Cat</strong>
-                        </article>
-
-                        <article>
-                            <span>
-                                Application Status
+                        <article className={`adopter-next-step is-${nextStep.tone}`}>
+                            <span className="adopter-stat-label">
+                                {nextStep.icon ? (
+                                    <span aria-hidden="true">{nextStep.icon}</span>
+                                ) : (
+                                    <img src={assets.icons.action} alt="" />
+                                )}
+                                {nextStep.label}
                             </span>
 
-                            <strong>
-                                {applicationLoading
-                                    ? "Loading"
-                                    : hasPendingApplication
-                                        ? "Pending"
-                                        : isRejectedApplication
-                                            ? "Rejected"
-                                            : isApprovedApplication
-                                                ? "Approved"
-                                                : "Ready"}
+                            <strong className="adopter-stat-title">
+                                {nextStep.title}
                             </strong>
 
-                            {applicationStatus?.petName && (
-                                <small>
-                                    For{" "}
-                                    {
-                                        applicationStatus.petName
-                                    }
-                                </small>
-                            )}
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() => setActiveAdopterPage(nextStep.page)}
+                            >
+                                {nextStep.linkText}
+                            </button>
+                        </article>
+
+                        <article>
+                            <span className="adopter-stat-label">
+                                <img src={assets.icons.saved} alt="" />
+                                Saved Pets
+                            </span>
+
+                            <strong>{savedPetsCount}</strong>
+
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() => {
+                                    setBrowseStartFilter("saved");
+                                    setActiveAdopterPage("browse-pets");
+                                }}
+                            >
+                                View your list
+                            </button>
+                        </article>
+
+                        <article>
+                            <span className="adopter-stat-label">
+                                <img src={assets.icons.spark} alt="" />
+                                New Matches
+                            </span>
+
+                            <strong>{hasTakenQuiz ? goodMatchesCount : "–"}</strong>
+
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() =>
+                                    setActiveAdopterPage(
+                                        hasTakenQuiz ? "recommendations" : "matchmaking-quiz"
+                                    )
+                                }
+                            >
+                                {hasTakenQuiz ? "See who's new" : "Take the quiz first"}
+                            </button>
                         </article>
                     </section>
 
@@ -911,6 +1027,7 @@ export default function Dashboard({ onLogout }) {
                     applicationStatus={applicationStatus}
                     onApply={handleApply}
                     onRefresh={fetchPets}
+                    initialStatusFilter={browseStartFilter}
                 />
             );
         }

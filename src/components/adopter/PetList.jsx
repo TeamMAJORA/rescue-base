@@ -38,10 +38,11 @@ export default function PetList({
     selectedPet,
     setSelectedPet,
     onRefresh,
+    initialStatusFilter = "all",
 }) {
     const selectedId = selectedPet?._id;
 
-    const [statusFilter, setStatusFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState(initialStatusFilter);
     const [sortBy, setSortBy] = useState("newest");
     const [savedIds, setSavedIds] = useState(readSavedPets);
 

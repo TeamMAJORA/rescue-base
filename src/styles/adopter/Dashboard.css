@@ -667,33 +667,88 @@
 }
 
 .adopter-stats article {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 7px;
-    min-height: 112px;
-    padding: 20px;
-    border: 1px solid var(--adopter-border);
-    border-radius: 18px;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: 100px;
+    padding: 14px 18px;
+    border-radius: 14px;
     background: var(--adopter-light-cream);
-    box-shadow: 0 9px 20px rgba(90, 27, 0, 0.07);
+    box-shadow: 0 6px 16px rgba(90, 27, 0, 0.06);
+    overflow: hidden;
 }
 
-.adopter-stats article>span {
-    color: var(--adopter-light-brown);
+.adopter-stat-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--adopter-brown);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
-.adopter-stats article>strong {
+.adopter-stat-label img {
+    width: 18px;
+    height: 18px;
+}
+
+.adopter-stats article > strong {
+    color: var(--adopter-brown);
     font-family: "Itim", cursive;
     font-size: 30px;
     line-height: 1;
 }
 
-.adopter-stats article>small {
-    color: var(--adopter-orange-dark);
+.adopter-stats article > strong.adopter-stat-title {
+    max-width: 160px;
+    font-size: 19px;
+    line-height: 1.2;
+}
+
+.adopter-stat-link {
+    margin-top: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--adopter-light-brown);
     font-size: 11px;
-    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.adopter-stat-link:hover {
+    color: var(--adopter-orange-dark);
+}
+
+/* Next Step card: coloured bar when the adopter must act */
+.adopter-next-step.is-action::before,
+.adopter-next-step.is-success::before,
+.adopter-next-step.is-danger::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+}
+
+.adopter-next-step.is-action::before  { background: var(--adopter-orange); }
+.adopter-next-step.is-success::before { background: var(--adopter-green); }
+.adopter-next-step.is-danger::before  { background: var(--adopter-red); }
+
+.adopter-next-step.is-action .adopter-stat-label  { color: var(--adopter-orange-dark); }
+.adopter-next-step.is-success .adopter-stat-label { color: var(--adopter-green); }
+.adopter-next-step.is-danger .adopter-stat-label  { color: var(--adopter-red); }
+
+/* calm states: no bar */
+.adopter-next-step.is-info {
+    background: var(--adopter-light-yellow);
+}
+
+.adopter-next-step.is-neutral .adopter-stat-label {
+    color: var(--adopter-light-brown);
 }
 
 
