@@ -257,9 +257,6 @@
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
-.ao-form-card {
-    border-top: 6px solid var(--orange, #fb8500);
-}
 
 .ao-card h2 {
     font-family: "Itim", cursive;
