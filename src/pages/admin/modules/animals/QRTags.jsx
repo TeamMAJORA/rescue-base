@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { isAdmin, isStaff } from "../../../../utils/auth";
-
+import "../../../../styles/admin/QRTags.css";
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/qr-tags`;
 
 export default function QRTags() {
@@ -16,7 +16,7 @@ export default function QRTags() {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
-
+    const [zoom, setZoom] = useState(null);
     function getToken() {
         return (
             localStorage.getItem("token") ||
@@ -271,209 +271,138 @@ export default function QRTags() {
             .toLowerCase()
             .includes(search.toLowerCase())
     );
+    
+    const taggedIds = new Set(qrRecords.map((r) => r.animal?._id || r.animal));
+    const untaggedAnimals = animals.filter((a) => !taggedIds.has(a._id));
 
-    return (
-        <section className="admin-qr-page">
-            <section className="admin-panel admin-qr-form-panel">
-                <div className="admin-panel-heading">
-                    <h2>Generate QR Tag</h2>
+    function downloadTag(record, qrImage) {
+        const link = document.createElement("a");
+        link.href = qrImage;
+        link.download = `${getQRId(record)}.png`;
+        link.click();
+    }
+
+    function printTag(record, qrImage) {
+        const win = window.open("", "_blank", "width=400,height=500");
+        if (!win) return;
+        win.document.write(`
+            <html><head><title>${getQRId(record)}</title></head>
+            <body style="font-family:sans-serif;text-align:center;padding:24px">
+                <img src="${qrImage}" style="width:240px;height:240px" onload="window.print();window.close()" />
+                <h2 style="margin:8px 0 4px">${getAnimalName(record)}</h2>
+                <p style="margin:0;font-size:12px">${getQRId(record)}</p>
+                <p style="margin-top:6px;font-size:11px;color:#666">RescueBase</p>
+            </body></html>
+        `);
+        win.document.close();
+    }
+
+       return (
+        <section className="qrt-page">
+            <div className="qrt-generate">
+                <div className="qrt-generate-text">
+                    <h2>Generate a QR Tag</h2>
+                    <p>Pick an animal to create a printable tag for their collar or kennel.</p>
                 </div>
-
-                <form
-                    className="admin-qr-form"
-                    onSubmit={handleSubmit}
-                >
-                    <label>
-                        Select Animal
-
-                        <select
-                            value={form.animalId}
-                            onChange={(e) =>
-                                setForm({
-                                    animalId: e.target.value,
-                                })
-                            }
-                            required
-                        >
-                            <option value="">
-                                Select an animal
-                            </option>
-
-                            {animals.map((animal) => (
-                                <option
-                                    key={animal._id}
-                                    value={animal._id}
-                                >
-                                    {animal.name} (
-                                    {animal.type}
-                                    )
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-
-                    <button
-                        type="submit"
-                        disabled={submitting}
+                <form className="qrt-generate-form" onSubmit={handleSubmit}>
+                    <select
+                        value={form.animalId}
+                        onChange={(e) => setForm({ animalId: e.target.value })}
+                        required
                     >
-                        {submitting
-                            ? "Generating..."
-                            : "Generate QR Tag"}
+                        <option value="">
+                            {untaggedAnimals.length ? "Select an animal" : "All animals already have tags"}
+                        </option>
+                        {untaggedAnimals.map((animal) => (
+                            <option key={animal._id} value={animal._id}>
+                                {animal.name} ({animal.type})
+                            </option>
+                        ))}
+                    </select>
+                    <button type="submit" className="qrt-btn primary" disabled={submitting || !form.animalId}>
+                        {submitting ? "Generating..." : "Generate"}
                     </button>
                 </form>
-            </section>
+            </div>
 
-            {message && (
-                <p className="success-message">
-                    {message}
-                </p>
-            )}
+            {message && <p className="qrt-alert success">{message}</p>}
+            {error && <p className="qrt-alert error">{error}</p>}
 
-            {error && (
-                <p className="error-message">
-                    {error}
-                </p>
-            )}
-
-            <section className="admin-panel admin-qr-list-panel">
-                <div className="admin-panel-heading">
-                    <h2>QR Tag Records</h2>
-
-                    <button
-                        type="button"
-                        onClick={loadData}
-                        disabled={loading}
-                    >
-                        Refresh
-                    </button>
+            <div className="qrt-list-panel">
+                <div className="qrt-list-head">
+                    <div>
+                        <h2>QR Tag Records</h2>
+                        <span className="qrt-count">
+                            {filteredRecords.length} tag{filteredRecords.length === 1 ? "" : "s"}
+                        </span>
+                    </div>
+                    <div className="qrt-tools">
+                        <input
+                            className="qrt-search"
+                            type="search"
+                            placeholder="Search by animal name..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <button type="button" className="qrt-btn ghost" onClick={loadData} disabled={loading}>
+                            ↻ Refresh
+                        </button>
+                    </div>
                 </div>
 
-                <input
-                    type="text"
-                    placeholder="Search animal..."
-                    value={search}
-                    onChange={(e) =>
-                        setSearch(e.target.value)
-                    }
-                />
-
                 {loading ? (
-                    <p>Loading QR tag records...</p>
+                    <p className="qrt-empty">Loading QR tags...</p>
                 ) : filteredRecords.length === 0 ? (
-                    <p>No QR tags found.</p>
+                    <p className="qrt-empty">🐾 No QR tags found. Generate one above.</p>
                 ) : (
-                    <div className="admin-qr-list">
+                    <div className="qrt-grid">
                         {filteredRecords.map((record) => {
                             const qrImage = getQRImage(record);
+                            const animal = record.animal || {};
 
                             return (
-                                <article
-                                    className="admin-qr-row"
-                                    key={record._id}
-                                >
-                                    <div className="admin-qr-placeholder">
+                                <article className="qrt-card" key={record._id}>
+                                    <button
+                                        type="button"
+                                        className="qrt-qr"
+                                        title="Click to enlarge"
+                                        disabled={!qrImage}
+                                        onClick={() =>
+                                            setZoom({ image: qrImage, name: getAnimalName(record), code: getQRId(record) })
+                                        }
+                                    >
                                         {qrImage ? (
-                                            <img
-                                                src={qrImage}
-                                                alt={`QR tag for ${getAnimalName(record)}`}
-                                            />
+                                            <img src={qrImage} alt={`QR tag for ${getAnimalName(record)}`} />
                                         ) : (
-                                            "QR"
+                                            <span>No image</span>
                                         )}
+                                    </button>
+
+                                    <div className="qrt-name-row">
+                                        {animal.image && <img className="qrt-avatar" src={animal.image} alt="" />}
+                                        <div>
+                                            <h3>{getAnimalName(record)}</h3>
+                                            <span className="qrt-meta">
+                                                {animal.type === "Cat" ? "🐱" : "🐶"} {animal.type || "Animal"} · {getCreatedDate(record)}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <h3>
-                                            {getAnimalName(record)}
-                                        </h3>
+                                    <code className="qrt-code">{getQRId(record)}</code>
 
-                                        <p>
-                                            <strong>
-                                                QR ID:
-                                            </strong>{" "}
-                                            {getQRId(record)}
-                                        </p>
-
-                                        <span className="admin-status-pill active">
-                                            Active
-                                        </span>
-
-                                        <p>
-                                            <strong>
-                                                Created:
-                                            </strong>{" "}
-                                            {getCreatedDate(record)}
-                                        </p>
-                                    </div>
-
-                                    <div className="admin-qr-actions">
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                window.open(
-                                                    qrImage,
-                                                    "_blank"
-                                                )
-                                            }
-                                            disabled={!qrImage}
-                                        >
-                                            View
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                if (!qrImage) {
-                                                    return;
-                                                }
-
-                                                const link =
-                                                    document.createElement(
-                                                        "a"
-                                                    );
-
-                                                link.href = qrImage;
-                                                link.download =
-                                                    `${getQRId(record)}.png`;
-
-                                                link.click();
-                                            }}
-                                            disabled={!qrImage}
-                                        >
+                                    <div className="qrt-actions">
+                                        <button type="button" className="qrt-btn small" onClick={() => downloadTag(record, qrImage)} disabled={!qrImage}>
                                             Download
                                         </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                window.print()
-                                            }
-                                        >
+                                        <button type="button" className="qrt-btn small" onClick={() => printTag(record, qrImage)} disabled={!qrImage}>
                                             Print
                                         </button>
-
-                                             {(isAdmin() || isStaff()) && (
-                                            <>  
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        handleRegenerate(
-                                                            record._id
-                                                        )
-                                                    }
-                                                >
+                                        {(isAdmin() || isStaff()) && (
+                                            <>
+                                                <button type="button" className="qrt-btn small" onClick={() => handleRegenerate(record._id)}>
                                                     Regenerate
                                                 </button>
-
-                                                <button
-                                                    type="button"
-                                                    className="admin-delete-button"
-                                                    onClick={() =>
-                                                        handleDelete(
-                                                            record._id
-                                                        )
-                                                    }
-                                                >
+                                                <button type="button" className="qrt-btn small danger" onClick={() => handleDelete(record._id)}>
                                                     Delete
                                                 </button>
                                             </>
@@ -484,7 +413,18 @@ export default function QRTags() {
                         })}
                     </div>
                 )}
-            </section>
+            </div>
+
+            {zoom && (
+                <div className="qrt-zoom" onClick={() => setZoom(null)}>
+                    <div className="qrt-zoom-box" onClick={(e) => e.stopPropagation()}>
+                        <img src={zoom.image} alt="QR code" />
+                        <h3>{zoom.name}</h3>
+                        <code>{zoom.code}</code>
+                        <button type="button" className="qrt-btn ghost" onClick={() => setZoom(null)}>Close</button>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

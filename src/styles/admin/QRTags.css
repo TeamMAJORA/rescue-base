@@ -1,0 +1,95 @@
+.qrt-page { display: flex; flex-direction: column; gap: 20px; }
+
+/* Generate */
+.qrt-generate {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    background: #fffdf5; border-radius: 16px; padding: 22px 26px;
+    border-left: 6px solid #ff9f1c;
+}
+.qrt-generate-text h2 { margin: 0; color: #5a1f00; font-size: 20px; }
+.qrt-generate-text p { margin: 4px 0 0; color: #7a6a5a; font-size: 13px; }
+.qrt-generate-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.qrt-generate-form select {
+    min-width: 240px; padding: 10px 14px; border-radius: 10px;
+    border: 1px solid #e3d5b5; background: #fff; font-size: 14px; color: #3d2410;
+}
+
+/* Buttons */
+.qrt-btn {
+    border: 1px solid #e3d5b5; background: #fff; color: #3d2410;
+    padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background .15s, transform .15s;
+}
+.qrt-btn:hover:not(:disabled) { background: #fff1d6; transform: translateY(-1px); }
+.qrt-btn:disabled { opacity: .5; cursor: not-allowed; }
+.qrt-btn.primary { background: #ff9f1c; border-color: #ff9f1c; color: #fff; }
+.qrt-btn.primary:hover:not(:disabled) { background: #f08a00; }
+.qrt-btn.ghost { background: transparent; }
+.qrt-btn.small { padding: 6px 12px; font-size: 12px; }
+.qrt-btn.danger { color: #c62828; border-color: #f3c4c4; }
+.qrt-btn.danger:hover:not(:disabled) { background: #fdeaea; }
+
+/* Alerts */
+.qrt-alert { margin: 0; padding: 10px 16px; border-radius: 10px; font-size: 14px; }
+.qrt-alert.success { background: #e7f6ec; color: #1b6b3a; }
+.qrt-alert.error { background: #fdeaea; color: #a32020; }
+
+/* List */
+.qrt-list-panel { background: #fffdf5; border-radius: 16px; padding: 22px 26px; }
+.qrt-list-head {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.qrt-list-head h2 { margin: 0; color: #5a1f00; font-size: 20px; display: inline; }
+.qrt-count {
+    margin-left: 10px; font-size: 12px; background: #fff1d6; color: #8a4a00;
+    padding: 2px 10px; border-radius: 999px; font-weight: 600;
+}
+.qrt-tools { display: flex; gap: 10px; }
+.qrt-search {
+    width: 240px; padding: 9px 14px; border-radius: 999px;
+    border: 1px solid #e3d5b5; background: #fff; font-size: 14px;
+}
+.qrt-search:focus, .qrt-generate-form select:focus { outline: 2px solid #ffc04d; border-color: #ffc04d; }
+.qrt-empty { text-align: center; color: #9a8a7a; padding: 40px 0; margin: 0; }
+
+/* Cards */
+.qrt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.qrt-card {
+    background: #fff; border: 1px solid #f0e4c8; border-radius: 14px; padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: box-shadow .15s, transform .15s;
+}
+.qrt-card:hover { box-shadow: 0 6px 18px rgba(90, 31, 0, .08); transform: translateY(-2px); }
+.qrt-qr {
+    background: #fffaf0; border: 1px dashed #e3d5b5; border-radius: 12px; padding: 12px;
+    cursor: zoom-in; display: flex; justify-content: center;
+}
+.qrt-qr img { width: 150px; height: 150px; transition: transform .15s; }
+.qrt-qr:hover img { transform: scale(1.05); }
+.qrt-name-row { display: flex; align-items: center; gap: 10px; }
+.qrt-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #ffc04d; }
+.qrt-name-row h3 { margin: 0; font-size: 16px; color: #3d2410; }
+.qrt-meta { font-size: 12px; color: #8a7a6a; }
+.qrt-code {
+    font-size: 11px; background: #faf5ea; color: #6b5a4a;
+    padding: 6px 10px; border-radius: 8px; word-break: break-all;
+}
+.qrt-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Zoom modal */
+.qrt-zoom {
+    position: fixed; inset: 0; background: rgba(40, 20, 0, .55); z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+}
+.qrt-zoom-box {
+    background: #fffdf5; border-radius: 18px; padding: 28px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.qrt-zoom-box img { width: 300px; height: 300px; }
+.qrt-zoom-box h3 { margin: 6px 0 0; color: #5a1f00; }
+.qrt-zoom-box code { font-size: 12px; color: #6b5a4a; }
+
+@media (max-width: 640px) {
+    .qrt-tools, .qrt-search, .qrt-generate-form, .qrt-generate-form select { width: 100%; }
+}
