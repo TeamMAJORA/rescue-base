@@ -159,12 +159,28 @@ export default function Dashboard({ onLogout }) {
     const [activeAdopterPage, setActiveAdopterPage] =
         useState("overview");
 
+    const [browseStartFilter, setBrowseStartFilter] = useState("all");
+
+    useEffect(() => {
+        if (activeAdopterPage !== "browse-pets") {
+            setBrowseStartFilter("all");
+        }
+    }, [activeAdopterPage]);
+    
     const [search, setSearch] = useState("");
     const [typeFilter, setTypeFilter] = useState("all");
 
     const [pets, setPets] = useState([]);
     const [petsLoading, setPetsLoading] = useState(true);
     const [petsError, setPetsError] = useState("");
+
+    const [hasTakenQuiz] = useState(() => {
+    try {
+        return Boolean(localStorage.getItem("rescuebase_matchmaking_results"));
+    } catch {
+        return false;
+    }
+    });
 
     const [selectedPet, setSelectedPet] =
         useState(emptyPet);
@@ -204,6 +220,114 @@ export default function Dashboard({ onLogout }) {
             (pet) => pet.status === "available"
         ).length;
     }, [pets]);
+
+    
+    const QUIZ_TOTAL_STEPS = 3;
+
+    const savedPetsCount = (() => {
+        try {
+            return (JSON.parse(localStorage.getItem("rescuebase_saved_pets")) || []).length;
+        } catch {
+            return 0;
+        }
+    })();
+
+    const goodMatchesCount = (() => {
+        try {
+            const results = JSON.parse(
+                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+            );
+            return (results?.matches || []).filter(
+                (match) => match.eligible && Number(match.score) >= 60
+            ).length;
+        } catch {
+            return 0;
+        }
+    })();
+
+    function getNextStep() {
+        const petName = applicationStatus?.petName || "your pet";
+
+        if (isApprovedApplication) {
+            return {
+                tone: "success",
+                label: "Action Needed",
+                icon: "/icons/approved.svg",
+                title: `Meet ${petName}!`,
+                linkText: "Check your interview schedule",
+                page: "application-status",
+            };
+        }
+
+        if (isRejectedApplication) {
+            return {
+                tone: "danger",
+                label: "Action Needed",
+                icon: "/icons/rejected.svg",
+                title: "Find another match",
+                linkText: "See your matches",
+                page: hasTakenQuiz ? "recommendations" : "browse-pets",
+            };
+        }
+
+        if (!hasTakenQuiz) {
+            return {
+                tone: "action",
+                label: "Action Needed",
+                icon: "/icons/Action.svg",
+                title: "Finish your match quiz",
+                linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
+                page: "matchmaking-quiz",
+            };
+        }
+
+        if (hasPendingApplication) {
+            return {
+                tone: "info",
+                label: "In Review",
+                icon: "/icons/in-review.svg",
+                title: `Application for ${petName}`,
+                linkText: "We'll notify you",
+                page: "application-status",
+            };
+        }
+
+        return {
+            tone: "neutral",
+            label: "All Set",
+            icon: "/icons/done.svg",
+            title: "You're all caught up",
+            linkText: `${availablePets} pets available`,
+            page: "browse-pets",
+        };
+    }
+
+    const nextStep = getNextStep();
+
+
+    const featuredMatch = (() => {
+        try {
+            const results = JSON.parse(
+                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+            );
+
+            const best = (results?.matches || [])
+                .filter((match) => match.eligible && match.score !== null)
+                .sort((a, b) => Number(b.score) - Number(a.score))
+                .find((match) =>
+                    pets.some((pet) => pet._id === String(match.animalId))
+                );
+
+            if (!best) return null;
+
+            return {
+                pet: pets.find((pet) => pet._id === String(best.animalId)),
+                score: Math.round(Number(best.score)),
+            };
+        } catch {
+            return null;
+        }
+    })();
 
     const filteredPets = useMemo(() => {
         const normalizedSearch = search
@@ -674,7 +798,7 @@ export default function Dashboard({ onLogout }) {
     function renderPetBrowser() {
         return (
             <PetList
-                className="adopter-panel"
+                className="browse-pets-list-panel"
                 id="available-pets"
                 loading={petsLoading}
                 error={petsError}
@@ -693,7 +817,7 @@ export default function Dashboard({ onLogout }) {
     function renderPetDetail() {
         return (
             <PetDetailPanel
-                className="adopter-panel adopter-detail-panel"
+                className="browse-pet-details-panel"
                 pet={selectedPet}
                 hasPendingApplication={hasPendingApplication}
                 applicationStatus={applicationStatus}
@@ -701,140 +825,185 @@ export default function Dashboard({ onLogout }) {
             />
         );
     }
-    
+
     function renderOverview() {
         return (
             <div className="adopter-overview-layout">
                 <div className="adopter-overview-main">
                     <section className="adopter-hero">
                         <div className="adopter-hero-content">
-                            <span>
+                            <span className="adopter-hero-chip">
                                 RescueBase Matching
                             </span>
 
-                            <h2>
-                                Meet your possible new
-                                companion.
-                            </h2>
+                            <h2>Let's find your perfect companion</h2>
 
                             <p>
-                                Browse available rescued pets,
-                                check their details, and submit
-                                an adoption application when
-                                you find a match.
+                                Answer {QUIZ_TOTAL_STEPS} quick steps about your home and
+                                we'll pair you with pets that fit your life.
                             </p>
+
+                            <ol className="adopter-hero-steps">
+                                <li><b>1</b> Your space</li>
+                                <li><b>2</b> Your experience</li>
+                                <li><b>3</b> Energy level</li>
+                                <li className="adopter-hero-time">
+                                    <img src="/icons/Clock.svg" alt="" />
+                                    ~2 min
+                                </li>
+                            </ol>
 
                             <div className="adopter-hero-actions">
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setActiveAdopterPage(
-                                            "browse-pets"
-                                        )
-                                    }
+                                    onClick={() => setActiveAdopterPage("matchmaking-quiz")}
                                 >
-                                    Browse Pets
+                                    {hasTakenQuiz ? "Retake Matching Quiz" : "Take Matching Quiz"}
+                                    <img src={assets.icons.lightHeart} alt="" />
                                 </button>
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        handleApply(
-                                            selectedPet
-                                        )
-                                    }
-                                    disabled={
-                                        selectedPet.status !==
-                                        "available" ||
-                                        hasPendingApplication
-                                    }
+                                    onClick={() => setActiveAdopterPage("browse-pets")}
                                 >
-                                    {hasPendingApplication
-                                        ? `Pending application for ${applicationStatus.petName}`
-                                        : `Apply for ${selectedPet.name}`}
+                                    Browse All Pets
                                 </button>
                             </div>
+
+                            <small className="adopter-hero-note">
+                                ✓ Free · no account changes needed
+                            </small>
                         </div>
 
-                        <div className="adopter-featured-pet">
-                            <div className="adopter-pet-icon">
-                                {selectedPet.image ? (
-                                    <img
-                                        src={
-                                            selectedPet.image
-                                        }
-                                        alt={
-                                            selectedPet.name
-                                        }
-                                    />
-                                ) : (
-                                    selectedPet.icon
-                                )}
-                            </div>
-
-                            <span
-                                className={`adopter-status ${selectedPet.status}`}
-                            >
-                                {selectedPet.status.replace(
-                                    "_",
-                                    " "
-                                )}
+                        <div className="adopter-hero-side">
+                            <span className="adopter-hero-side-label">
+                                {featuredMatch ? "Your top match" : "Your match"}
                             </span>
 
-                            <h3>{selectedPet.name}</h3>
+                            {featuredMatch ? (
+                                <article className="adopter-match-card">
+                                    <div className="adopter-match-photo">
+                                        {featuredMatch.pet.image ? (
+                                            <img
+                                                src={featuredMatch.pet.image}
+                                                alt={featuredMatch.pet.name}
+                                            />
+                                        ) : (
+                                            <img src={assets.icons.logoPlaceholder} alt="" />
+                                        )}
+                                        <span className="adopter-match-badge">Available</span>
+                                    </div>
 
-                            <p>
-                                {selectedPet.breed} •{" "}
-                                {selectedPet.age} •{" "}
-                                {selectedPet.gender}
-                            </p>
+                                    <div className="adopter-match-info">
+                                        <h3>{featuredMatch.pet.name}</h3>
+                                        <p>
+                                            {[featuredMatch.pet.breed, featuredMatch.pet.gender]
+                                                .filter(Boolean)
+                                                .join(" · ")}
+                                        </p>
+
+                                        <div className="adopter-match-tags">
+                                            <span>{featuredMatch.pet.age}</span>
+                                            {featuredMatch.pet.size && (
+                                                <span>{featuredMatch.pet.size}</span>
+                                            )}
+                                        </div>
+
+                                        <div className="adopter-match-score">
+                                            <span>Match with you</span>
+                                            <strong>{featuredMatch.score}%</strong>
+                                        </div>
+                                        <div className="adopter-match-bar">
+                                            <i style={{ width: `${featuredMatch.score}%` }} />
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedPet(featuredMatch.pet)}
+                                        >
+                                            Meet {featuredMatch.pet.name} →
+                                        </button>
+                                    </div>
+                                </article>
+                            ) : (
+                                <div className="adopter-hero-placeholder">
+                                    <img src={assets.icons.logoPlaceholder} alt="" />
+                                    <strong>Your match will appear here</strong>
+                                    <small>Take the quiz to see who fits you best.</small>
+                                </div>
+                            )}
                         </div>
                     </section>
-                                
-                <section className="adopter-stats">
-                    <article>
-                        <span>Available Pets</span>
-                        <strong>
-                            {availablePets}
-                        </strong>
-                    </article>
 
-                    <article>
-                        <span>Pet Categories</span>
-                        <strong>Dog / Cat</strong>
-                    </article>
+                    <section className="adopter-stats">
+                        <article className={`adopter-next-step is-${nextStep.tone}`}>
+                            <span className="adopter-stat-label">
+                                {nextStep.icon.startsWith("/") ? (
+                                    <img src={nextStep.icon} alt="" />
+                                ) : (
+                                    <span aria-hidden="true">{nextStep.icon}</span>
+                                )}
+                                {nextStep.label}
+                            </span>
 
-                    <article>
-                        <span>
-                            Application Status
-                        </span>
+                            <strong className="adopter-stat-title">
+                                {nextStep.title}
+                            </strong>
 
-                        <strong>
-                            {applicationLoading
-                                ? "Loading"
-                                : hasPendingApplication
-                                    ? "Pending"
-                                    : isRejectedApplication
-                                        ? "Rejected"
-                                        : isApprovedApplication
-                                            ? "Approved"
-                                            : "Ready"}
-                        </strong>
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() => setActiveAdopterPage(nextStep.page)}
+                            >
+                                {nextStep.linkText}
+                            </button>
+                        </article>
 
-                        {applicationStatus?.petName && (
-                            <small>
-                                For{" "}
-                                {
-                                    applicationStatus.petName
+                        <article>
+                            <span className="adopter-stat-label">
+                                <img src={assets.icons.saved} alt="" />
+                                Saved Pets
+                            </span>
+
+                            <strong>{savedPetsCount}</strong>
+
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() => {
+                                    setBrowseStartFilter("saved");
+                                    setActiveAdopterPage("browse-pets");
+                                }}
+                            >
+                                View your list
+                            </button>
+                        </article>
+
+                        <article>
+                            <span className="adopter-stat-label">
+                                <img src={assets.icons.spark} alt="" />
+                                New Matches
+                            </span>
+
+                            <strong>{hasTakenQuiz ? goodMatchesCount : "–"}</strong>
+
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() =>
+                                    setActiveAdopterPage(
+                                        hasTakenQuiz ? "recommendations" : "matchmaking-quiz"
+                                    )
                                 }
-                            </small>
-                        )}
-                    </article>
-                </section>
+                            >
+                                {hasTakenQuiz ? "See who's new" : "Take the quiz first"}
+                            </button>
+                        </article>
+                    </section>
 
-                {renderApplicationBanner()}
+                    {renderApplicationBanner()}
 
-                {renderPetBrowser()}
+                    {renderPetBrowser()}
                 </div>
 
                 {renderPetDetail()}
@@ -901,6 +1070,7 @@ export default function Dashboard({ onLogout }) {
                     applicationStatus={applicationStatus}
                     onApply={handleApply}
                     onRefresh={fetchPets}
+                    initialStatusFilter={browseStartFilter}
                 />
             );
         }

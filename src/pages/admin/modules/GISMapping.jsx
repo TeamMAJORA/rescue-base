@@ -1074,7 +1074,7 @@ export default function GISMapping() {
                             ) : (
                                 hotspots.map((hotspot, index) => (
                                     <Circle
-                                        key={`${hotspot.latCell}:${hotspot.lngCell}`}
+                                        key={`hotspot-map-${index}`}
                                         center={[
                                             Number(hotspot.latitude),
                                             Number(hotspot.longitude),
@@ -1630,7 +1630,7 @@ export default function GISMapping() {
                             {hotspots.slice(0, 5).map((hotspot, index) => (
                                 <article
                                     className="admin-gis-hotspot-row"
-                                    key={`${hotspot.latCell}:${hotspot.lngCell}`}
+                                    key={`hotspot-list-${index}`}
                                 >
                                     <div>
                                         <strong>Hotspot #{index + 1}</strong>
@@ -1652,6 +1652,8 @@ export default function GISMapping() {
                                         <small>Lost: {hotspot.lost}</small>
                                         <small>Found: {hotspot.found}</small>
                                         <small>Stray: {hotspot.stray}</small>
+                                        <small>Rescue: {hotspot.rescue}</small>
+                                        <small>Intake: {hotspot.intake}</small>
                                     </div>
                                 </article>
                             ))}
