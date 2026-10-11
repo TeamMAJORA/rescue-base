@@ -1114,3 +1114,149 @@
         display: none;
     }
 }
+
+/* ===== Step 3: ID drag-and-drop ===== */
+.adoption-id-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.adoption-dropzone {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 24px;
+    border: 2px dashed rgba(251, 133, 0, 0.45);
+    border-radius: 15px;
+    background: #fff7d6;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.adoption-dropzone:hover,
+.adoption-dropzone.is-dragging,
+.adoption-dropzone:focus-within {
+    border-color: #fb8500;
+    background: #ffeeb8;
+}
+
+.adoption-dropzone.is-uploading {
+    cursor: progress;
+    opacity: 0.7;
+}
+
+.adoption-dropzone.has-error {
+    border-color: #d62828;
+    background: #fff1ee;
+}
+
+/* hidden but still focusable for the error scroll */
+.adoption-dropzone-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.adoption-dropzone-icon {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #ffe2a8;
+}
+
+.adoption-dropzone-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: #fb8500;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.adoption-dropzone-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.adoption-dropzone-text strong {
+    color: #3a1200;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.adoption-dropzone-text small {
+    color: #86604d;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.adoption-dropzone-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.adoption-dropzone-tags span {
+    padding: 3px 10px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #fffaf0;
+    color: #5a1b00;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.adoption-dropzone-button {
+    flex-shrink: 0;
+    padding: 11px 20px;
+    border-radius: 10px;
+    background: #4a1a00;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    transition: background 0.2s ease;
+}
+
+.adoption-dropzone:hover .adoption-dropzone-button {
+    background: #fb8500;
+}
+
+.adoption-id-field .adoption-field-error {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #c21f1f;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+@media (max-width: 650px) {
+    .adoption-dropzone {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .adoption-dropzone-tags {
+        justify-content: center;
+    }
+
+    .adoption-dropzone-button {
+        width: 100%;
+        text-align: center;
+    }
+}

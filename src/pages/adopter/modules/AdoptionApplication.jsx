@@ -74,6 +74,7 @@ export default function AdoptionApplication({
     );
     const [activeStep, setActiveStep] = useState(null);
     const [errors, setErrors] = useState({});
+    const [dragActive, setDragActive] = useState(false);
     const hasProgress = Boolean(
         form.fullName || form.phone || form.address || form.reason || form.experience || document
     );
@@ -182,11 +183,13 @@ function validateForm() {
     if (!form.reason.trim()) newErrors.reason = `Please tell us why you want to adopt ${pet.name}.`;
 
     if (!form.experience.trim()) newErrors.experience = 'Please describe your pet-care experience, or write "None".';
+    if (!document) newErrors.document = "Please upload a valid ID before submitting.";
+
     return newErrors;
 }
 
     async function handleDocumentUpload(event) {
-        const file = event.target.files?.[0];
+        const file = event.target.files?.[0] || event.dataTransfer?.files?.[0];
 
         if (!file) {
             return;
@@ -250,8 +253,9 @@ function validateForm() {
                 documentUrl: data.imageUrl,
                 publicId: data.publicId || "",
                 status: "pending",
+                
             });
-
+            setErrors((current) => ({ ...current, document: undefined }));
             showMessage(
                 "success",
                 "Identification document uploaded successfully."
@@ -769,67 +773,83 @@ function validateForm() {
                     </section>
 
                     <section className="adoption-form-group" id="adoption-step-3" onFocus={() => setActiveStep(2)}>
-                        <div className="adoption-form-heading">
-                            <span>Step 3</span>
-                            <h3>
-                                Identification Document
-                            </h3>
+                        <div className="adoption-form-heading adoption-form-heading--numbered">
+                            <b className="adoption-step-number">3</b>
+                            <div>
+                                <h3>Identification Document</h3>
+                                <p>We only use this to verify who you are. It is seen by shelter staff only.</p>
+                            </div>
                         </div>
 
-                        <div className="adoption-document-upload">
-                            <label>
-                                Upload identification image
+                        <div className="adoption-id-field">
+                            <span className="adoption-label-text">
+                                Upload identification image <em>*</em>
+                                <InfoTip text="A clear photo of any valid ID, such as a National ID, driver's license, passport, or school ID. Make sure your name and photo are readable." />
+                            </span>
 
-                                <input
-                                    type="file"
-                                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                                    onChange={
-                                        handleDocumentUpload
-                                    }
-                                    disabled={
-                                        documentUploading ||
-                                        submitting
-                                    }
-                                />
+                            {!document && (
+                                <label
+                                    className={`adoption-dropzone ${dragActive ? "is-dragging" : ""} ${errors.document ? "has-error" : ""} ${documentUploading ? "is-uploading" : ""}`}
+                                    onDragOver={(event) => {
+                                        event.preventDefault();
+                                        setDragActive(true);
+                                    }}
+                                    onDragLeave={() => setDragActive(false)}
+                                    onDrop={(event) => {
+                                        event.preventDefault();
+                                        setDragActive(false);
+                                        if (!documentUploading && !submitting) {
+                                            handleDocumentUpload(event);
+                                        }
+                                    }}
+                                >
+                                    <input
+                                        type="file"
+                                        name="document"
+                                        className="adoption-dropzone-input"
+                                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                                        onChange={handleDocumentUpload}
+                                        disabled={documentUploading || submitting}
+                                    />
 
-                                <small>
-                                    PNG, JPG, JPEG, or WEBP.
-                                    Maximum file size is 5
-                                    MB.
-                                </small>
-                            </label>
+                                    <span className="adoption-dropzone-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M12 16V4" />
+                                            <path d="m7 9 5-5 5 5" />
+                                            <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+                                        </svg>
+                                    </span>
+
+                                    <span className="adoption-dropzone-text">
+                                        <strong>
+                                            {documentUploading ? "Uploading your ID..." : "Drag and drop your ID here"}
+                                        </strong>
+                                        <small>or click to browse from your device</small>
+                                        <span className="adoption-dropzone-tags">
+                                            {["PNG", "JPG", "JPEG", "WEBP", "Max 5 MB"].map((tag) => (
+                                                <span key={tag}>{tag}</span>
+                                            ))}
+                                        </span>
+                                    </span>
+
+                                    <span className="adoption-dropzone-button">Choose File</span>
+                                </label>
+                            )}
+
+                            {errors.document && <small className="adoption-field-error">{errors.document}</small>}
                         </div>
 
                         {document && (
                             <div className="adoption-document-preview">
-                                <img
-                                    src={
-                                        document.documentUrl
-                                    }
-                                    alt="Uploaded identification document"
-                                />
+                                <img src={document.documentUrl} alt="Uploaded identification document" />
 
                                 <div>
-                                    <strong>
-                                        {
-                                            document.documentName
-                                        }
-                                    </strong>
-
-                                    <span>
-                                        Pending shelter
-                                        verification
-                                    </span>
-
+                                    <strong>{document.documentName}</strong>
+                                    <span>Pending shelter verification</span>
                                     <button
                                         type="button"
-                                        onClick={
-                                            removeDocument
-                                        }
-                                        disabled={
-                                            submitting ||
-                                            documentUploading
-                                        }
+                                        onClick={removeDocument}
+                                        disabled={submitting || documentUploading}
                                     >
                                         Remove Document
                                     </button>
