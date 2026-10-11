@@ -1208,3 +1208,12 @@
         grid-template-columns: 1fr;
     }
 }
+/* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
+.adopter-menu {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.adopter-menu::-webkit-scrollbar {
+    display: none;
+}

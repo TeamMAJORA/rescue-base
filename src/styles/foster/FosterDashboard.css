@@ -546,3 +546,12 @@
         width: 100%;
     }
 }
+/* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
+.foster-sidebar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.foster-sidebar::-webkit-scrollbar {
+    display: none;
+}
