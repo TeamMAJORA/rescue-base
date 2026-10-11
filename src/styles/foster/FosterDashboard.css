@@ -77,21 +77,20 @@
     padding: 28px;
 }
 
+/* Plain top bar (same as Admin/Staff): page title on the left, bell + refresh on the right */
 .foster-topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 18px;
-    padding: 22px 24px;
-    border-radius: 22px;
-    background: #fffaf0;
-    border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
 .foster-topbar h1 {
-    margin: 0 0 4px;
+    margin: 0 0 2px;
+    font-family: "Itim", cursive;
+    font-weight: 400;
     color: #5a1b00;
-    font-size: 28px;
+    font-size: 30px;
 }
 
 .foster-topbar p {
@@ -608,4 +607,52 @@
 
 .foster-notification-button.open:hover .rb-notif-icon.icon-active {
     display: none;
+}
+
+/* Top bar actions: bell and refresh side by side */
+.foster-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Refresh: light secondary button instead of the orange one */
+.foster-topbar .foster-refresh-button {
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid rgba(90, 27, 0, 0.15);
+    border-radius: 12px;
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.foster-topbar .foster-refresh-button:hover {
+    border-color: #fb8500;
+    background: #ffffff;
+    opacity: 1;
+}
+
+/* Keep the bell's own colors (the generic topbar button rule made it orange) */
+.foster-topbar .foster-notification-button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.15);
+    border-radius: 12px;
+    background: #fffaf0;
+}
+
+.foster-topbar .foster-notification-button:hover {
+    border-color: #fb8500;
+    background: #ffffff;
+    opacity: 1;
+}
+
+.foster-topbar .foster-notification-button.open {
+    background: linear-gradient(135deg, #fb8500, #fca62c);
+    border-color: #fb8500;
+}
+
+.foster-topbar .foster-notification-button.open:hover {
+    background: #fff7cb;
 }

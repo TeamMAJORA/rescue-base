@@ -17,10 +17,25 @@ import "../../styles/foster/DashboardOverview.css"
 import "../../styles/foster/WeeklyUpdates.css";
 import "../../styles/foster/FosterHistory.css";
 import "../../styles/foster/FosterNotifications.css";
+import "../../styles/admin/IntakeRecords.css"; // shared page styles (stats strip, cards, traits)
 
 import assets from "../../data/assets.json";
 
 const API = import.meta.env.VITE_BACKEND_URL;
+
+// Title shown in the top bar for each page
+const PAGE_TITLES = {
+    dashboard: "Dashboard",
+    assignment: "My Foster Pet",
+    updates: "Care Updates",
+    behavior: "Behavior Evaluation",
+    fosterUpdates: "Behavior Evaluation",
+    history: "Foster History",
+    application: "My Application",
+    medical: "Medical Assistance",
+    notifications: "Notifications",
+    feedback: "Feedback",
+};
 
 export default function FosterDashboard({ setPage }) {
 
@@ -194,6 +209,14 @@ export default function FosterDashboard({ setPage }) {
             />
         ),
 
+        behavior: (
+            <FosterUpdates
+                assignment={assignment}
+                refreshAssignment={fetchAssignment}
+            />
+        ),
+
+        // old link name still opens Behavior Evaluation
         fosterUpdates: (
             <FosterUpdates
                 assignment={assignment}
@@ -222,6 +245,7 @@ export default function FosterDashboard({ setPage }) {
         medical: (
             <MedicalAssistance
                 assignment={assignment}
+                refreshAssignment={fetchAssignment}
             />
         ),
 
@@ -292,20 +316,20 @@ export default function FosterDashboard({ setPage }) {
                             setActivePage("updates")
                         }
                     >
-                        Weekly Updates
+                        Care Updates
                     </button>
 
                     <button
                         className={
-                            activePage === "fosterUpdates"
+                            activePage === "behavior" || activePage === "fosterUpdates"
                                 ? "active"
                                 : ""
                         }
                         onClick={() =>
-                            setActivePage("fosterUpdates")
+                            setActivePage("behavior")
                         }
                     >
-                        Foster Updates
+                        Behavior Evaluation
                     </button>
 
                     <button
@@ -365,19 +389,13 @@ export default function FosterDashboard({ setPage }) {
                 <header className="foster-topbar">
 
                     <div>
+                        <h1>{PAGE_TITLES[activePage] || "Foster Dashboard"}</h1>
 
-                        <h1>
-                            Foster Dashboard
-                        </h1>
-
-                        <p>
-                            Welcome back,
-                            {" "}
-                            <strong>
-                                {fosterName}
-                            </strong>
-                        </p>
-
+                        {activePage === "dashboard" && (
+                            <p>
+                                Welcome back, <strong>{fosterName}</strong>
+                            </p>
+                        )}
                     </div>
 
                     <div className="foster-topbar-actions">
@@ -410,6 +428,8 @@ export default function FosterDashboard({ setPage }) {
                         </button>
 
                         <button
+                            type="button"
+                            className="foster-refresh-button"
                             onClick={() => {
                                 loadDashboard();
                                 loadNotifications();

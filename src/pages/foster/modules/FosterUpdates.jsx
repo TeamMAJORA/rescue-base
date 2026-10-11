@@ -1,130 +1,151 @@
 import { useEffect, useState } from "react";
 
+// Behavior Evaluation — foster rates the pet, admin reviews and accepts
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
-const behavioralFactors = [
+const SCORE_LABELS = { 1: "Very low", 2: "Low", 3: "Moderate", 4: "High", 5: "Very high" };
+
+// tone: "good" = higher is better, "care" = higher needs care, "neutral" = neither
+const TRAIT_GROUPS = [
     {
-        key: "energyLevel",
-        label: "Energy Level",
-        description: "How energetic and active is the animal?",
+        title: "Temperament",
+        traits: [
+            { key: "energyLevel", label: "Energy Level", question: "How much energy does {name} show day to day?", low: "Very calm", high: "Very energetic", tone: "neutral" },
+            { key: "activityLevel", label: "Activity Level", question: "How much play and exercise does {name} need?", low: "Mostly resting", high: "Always moving", tone: "neutral" },
+            { key: "anxietyLevel", label: "Anxiety Level", question: "How easily does {name} get scared or stressed?", low: "Relaxed", high: "Very anxious", tone: "care" },
+            { key: "aggressionLevel", label: "Aggression Level", question: "Does {name} growl, snap, or guard things?", low: "Gentle", high: "Reactive", tone: "care" },
+        ],
     },
     {
-        key: "friendliness",
-        label: "Friendliness",
-        description: "How friendly and approachable is the animal?",
-    },
-    {
-        key: "humanSociability",
-        label: "Human Sociability",
-        description: "How comfortable is the animal around people?",
-    },
-    {
-        key: "animalSociability",
-        label: "Animal Sociability",
-        description: "How comfortable is the animal around other animals?",
-    },
-    {
-        key: "trainability",
-        label: "Trainability",
-        description: "How responsive is the animal to training and commands?",
-    },
-    {
-        key: "anxietyLevel",
-        label: "Anxiety Level",
-        description: "How frequently does the animal show signs of anxiety or fear?",
-    },
-    {
-        key: "aggressionLevel",
-        label: "Aggression Level",
-        description: "How frequently does the animal show aggressive behavior?",
-    },
-    {
-        key: "activityLevel",
-        label: "Activity Level",
-        description: "How much daily activity does the animal generally need?",
+        title: "Social & Learning",
+        traits: [
+            { key: "friendliness", label: "Friendliness", question: "How warm is {name} toward people?", low: "Reserved", high: "Very friendly", tone: "good" },
+            { key: "humanSociability", label: "Human Sociability", question: "How comfortable is {name} with strangers and kids?", low: "Shy", high: "Loves people", tone: "good" },
+            { key: "animalSociability", label: "Animal Sociability", question: "How does {name} get along with other animals?", low: "Prefers alone", high: "Loves company", tone: "good" },
+            { key: "trainability", label: "Trainability", question: "How quickly does {name} learn routines?", low: "Stubborn", high: "Eager learner", tone: "good" },
+        ],
     },
 ];
 
+const TRAITS = TRAIT_GROUPS.flatMap((g) => g.traits);
+
 const initialEvaluation = {
-    energyLevel: "",
-    friendliness: "",
-    humanSociability: "",
-    animalSociability: "",
-    trainability: "",
-    anxietyLevel: "",
-    aggressionLevel: "",
-    activityLevel: "",
+    energyLevel: null,
+    friendliness: null,
+    humanSociability: null,
+    animalSociability: null,
+    trainability: null,
+    anxietyLevel: null,
+    aggressionLevel: null,
+    activityLevel: null,
     notes: "",
 };
 
-export default function FosterUpdates({
-    assignment,
-    refreshAssignment,
-}) {
-    const [note, setNote] = useState("");
-    const [photoUrl, setPhotoUrl] = useState("");
-    const [evaluation, setEvaluation] = useState(initialEvaluation);
-    const [loading, setLoading] = useState(false);
-    const [evaluationLoading, setEvaluationLoading] = useState(false);
-    const [message, setMessage] = useState("");
-    const [evaluationMessage, setEvaluationMessage] = useState("");
-    const [medicalIssue, setMedicalIssue] = useState("");
-    const [medicalUrgency, setMedicalUrgency] = useState("Medium");
-    const [medicalLoading, setMedicalLoading] = useState(false);
-    const [medicalMessage, setMedicalMessage] = useState("");
+function isRated(value) {
+    const n = Number(value);
+    return value !== null && value !== "" && value !== undefined && n >= 1 && n <= 5;
+}
+
+function formatDate(value) {
+    if (!value) return "—";
+    return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function TraitScale({ trait, value, name, disabled, onChange }) {
+    const score = Number(value);
+    const rated = isRated(value);
+
+    return (
+        <div className={`ao-trait ${trait.tone}${rated ? "" : " empty"}`}>
+            <div className="ao-trait-top">
+                <b>{trait.label}</b>
+                <span className="ao-trait-value">
+                    {rated ? `${SCORE_LABELS[score]} (${score}/5)` : "Not rated yet"}
+                </span>
+            </div>
+            <p className="ao-trait-question">{trait.question.replace("{name}", name || "the pet")}</p>
+
+            <div className="ao-trait-scale" role="radiogroup" aria-label={trait.label}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                        key={n}
+                        type="button"
+                        role="radio"
+                        aria-checked={score === n}
+                        aria-label={`${n} – ${SCORE_LABELS[n]}`}
+                        className={rated && n === score ? "current" : rated && n < score ? "on" : ""}
+                        disabled={disabled}
+                        onClick={() => onChange(trait.key, n)}
+                    >
+                        {n}
+                    </button>
+                ))}
+            </div>
+
+            <div className="ao-trait-ends">
+                <span>{trait.low}</span>
+                <span>{trait.high}</span>
+            </div>
+        </div>
+    );
+}
+
+
+// Shown when the foster has no active assignment, so the page layout still appears
+const EMPTY_ASSIGNMENT = {
+    _id: "",
+    petName: "your foster pet",
+    updates: [],
+    medicalRequests: [],
+    behaviorEvaluation: null,
+};
+
+export default function FosterUpdates({ assignment: assignedPet, refreshAssignment }) {
+    const hasAssignment = Boolean(assignedPet);
+    const assignment = assignedPet || EMPTY_ASSIGNMENT;
+    const NO_ASSIGNMENT_TEXT = "Once the shelter assigns you a pet, you can rate their behavior here.";
+
     const token = localStorage.getItem("token");
 
-    const savedUser = JSON.parse(
-        localStorage.getItem("rescuebase_user") || "{}"
-    );
+    const [evaluation, setEvaluation] = useState(initialEvaluation);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [messageType, setMessageType] = useState("success");
 
     useEffect(() => {
         setMessage("");
-        setEvaluationMessage("");
+        const saved = assignment?.behaviorEvaluation;
 
-        if (assignment?.behaviorEvaluation) {
-            const savedEvaluation =
-                assignment.behaviorEvaluation;
-
-            setEvaluation({
-                energyLevel:
-                    savedEvaluation.energyLevel ?? "",
-                friendliness:
-                    savedEvaluation.friendliness ?? "",
-                humanSociability:
-                    savedEvaluation.humanSociability ?? "",
-                animalSociability:
-                    savedEvaluation.animalSociability ?? "",
-                trainability:
-                    savedEvaluation.trainability ?? "",
-                anxietyLevel:
-                    savedEvaluation.anxietyLevel ?? "",
-                aggressionLevel:
-                    savedEvaluation.aggressionLevel ?? "",
-                activityLevel:
-                    savedEvaluation.activityLevel ?? "",
-                notes:
-                    savedEvaluation.notes || "",
+        if (saved) {
+            const next = { notes: saved.notes || "" };
+            TRAITS.forEach((t) => {
+                next[t.key] = saved[t.key] ?? null;
             });
+            setEvaluation(next);
         } else {
             setEvaluation(initialEvaluation);
         }
     }, [assignment]);
 
-    if (!assignment) {
-        return (
-            <section className="foster-panel">
-                <h2>Weekly Updates</h2>
-                <p>No active foster assignment.</p>
-            </section>
-        );
+
+    const status = assignment.behaviorEvaluation?.status || "not_submitted";
+    const locked = !hasAssignment || status === "pending" || status === "accepted";
+    const ratedCount = TRAITS.filter((t) => isRated(evaluation[t.key])).length;
+    const allRated = ratedCount === TRAITS.length;
+    const name = assignment.petName;
+
+    function rate(key, value) {
+        setEvaluation((current) => ({ ...current, [key]: value }));
+        if (messageType === "error") setMessage("");
     }
 
     async function handleSubmit(e) {
         e.preventDefault();
 
-        if (!assignment?._id) {
-            setMessage("No active foster assignment.");
+        if (!allRated) {
+            setMessage(`Please rate all ${TRAITS.length} traits (${ratedCount} rated so far).`);
+            setMessageType("error");
             return;
         }
 
@@ -132,144 +153,10 @@ export default function FosterUpdates({
             setLoading(true);
             setMessage("");
 
-            const response = await fetch(
-                `${API}/api/foster/assignments/${assignment._id}/updates`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        note,
-                        photoUrl,
-                        submittedBy:
-                            savedUser.username ||
-                            savedUser.name ||
-                            "Foster User",
-                        submittedByEmail:
-                            savedUser.email || "",
-                    }),
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                setMessage(
-                    data.message ||
-                    "Unable to submit update."
-                );
-                return;
-            }
-
-            setNote("");
-            setPhotoUrl("");
-            setMessage("Weekly update submitted.");
-
-            await refreshAssignment();
-        } catch (error) {
-            console.error(
-                "Foster update error:",
-                error
-            );
-            setMessage("Server error");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function handleMedicalRequest(e) {
-        e.preventDefault();
-
-        if (!assignment?._id) {
-            setMedicalMessage("No active foster assignment.");
-            return;
-        }
-
-        if (!medicalIssue.trim()) {
-            setMedicalMessage("Please describe the medical issue.");
-            return;
-        }
-
-        try {
-            setMedicalLoading(true);
-            setMedicalMessage("");
-
-            const response = await fetch(
-                `${API}/api/foster/assignments/${assignment._id}/medical-requests`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        issue: medicalIssue,
-                        urgency: medicalUrgency,
-                    }),
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                setMedicalMessage(
-                    data.message ||
-                    "Unable to submit medical request."
-                );
-                return;
-            }
-
-            setMedicalIssue("");
-            setMedicalUrgency("Medium");
-
-            setMedicalMessage(
-                "Medical assistance request submitted."
-            );
-
-            await refreshAssignment?.();
-        } catch (error) {
-            console.error(
-                "Medical assistance error:",
-                error
-            );
-
-            setMedicalMessage("Server error.");
-        } finally {
-            setMedicalLoading(false);
-        }
-    }
-
-    function handleEvaluationChange(key, value) {
-        setEvaluation((current) => ({
-            ...current,
-            [key]: value,
-        }));
-    }
-
-    async function handleEvaluationSubmit(e) {
-        e.preventDefault();
-
-        if (!assignment?._id) {
-            setEvaluationMessage(
-                "No active foster assignment."
-            );
-            return;
-        }
-
-        for (const factor of behavioralFactors) {
-            if (!evaluation[factor.key]) {
-                setEvaluationMessage(
-                    `Please rate ${factor.label}.`
-                );
-                return;
-            }
-        }
-
-        try {
-            setEvaluationLoading(true);
-            setEvaluationMessage("");
+            const body = { notes: evaluation.notes.trim() };
+            TRAITS.forEach((t) => {
+                body[t.key] = Number(evaluation[t.key]);
+            });
 
             const response = await fetch(
                 `${API}/api/foster/assignments/${assignment._id}/behavior-evaluation`,
@@ -279,427 +166,164 @@ export default function FosterUpdates({
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({
-                        energyLevel: Number(
-                            evaluation.energyLevel
-                        ),
-                        friendliness: Number(
-                            evaluation.friendliness
-                        ),
-                        humanSociability: Number(
-                            evaluation.humanSociability
-                        ),
-                        animalSociability: Number(
-                            evaluation.animalSociability
-                        ),
-                        trainability: Number(
-                            evaluation.trainability
-                        ),
-                        anxietyLevel: Number(
-                            evaluation.anxietyLevel
-                        ),
-                        aggressionLevel: Number(
-                            evaluation.aggressionLevel
-                        ),
-                        activityLevel: Number(
-                            evaluation.activityLevel
-                        ),
-                        notes: evaluation.notes,
-                    }),
+                    body: JSON.stringify(body),
                 }
             );
 
-            const data = await response.json();
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok || !data.success) {
-                setEvaluationMessage(
-                    data.message ||
-                    "Unable to submit behavioral evaluation."
-                );
-                return;
+                throw new Error(data.message || "Unable to submit the evaluation.");
             }
 
-            setEvaluationMessage(
-                "Behavioral evaluation submitted for admin review."
-            );
-
-            await refreshAssignment();
+            setMessage("Evaluation sent. The shelter will review it soon.");
+            setMessageType("success");
+            await refreshAssignment?.();
         } catch (error) {
-            console.error(
-                "Behavioral evaluation error:",
-                error
-            );
-            setEvaluationMessage("Server error");
+            setMessage(error.message || "Server error.");
+            setMessageType("error");
         } finally {
-            setEvaluationLoading(false);
+            setLoading(false);
         }
     }
 
-    const evaluationStatus =
-        assignment.behaviorEvaluation?.status ||
-        "not_submitted";
+    // Steps: 1 Fill in ratings → 2 Submit for review → 3 Admin accepts
+    const step1 = locked || allRated ? "done" : "current";
+    const step2 = locked ? "done" : allRated ? "current" : "";
+    const step3 = status === "accepted" ? "done" : status === "pending" ? "current" : "";
 
-    const evaluationLocked =
-        evaluationStatus === "pending" ||
-        evaluationStatus === "accepted";
+    const banners = {
+        pending: {
+            tone: "orange",
+            title: "Waiting for admin review",
+            text: `The shelter is checking your ratings for ${name}. You can't edit them while they're being reviewed.`,
+        },
+        accepted: {
+            tone: "green",
+            title: "Accepted by the shelter",
+            text: `Thank you! Your evaluation of ${name} was accepted${assignment.behaviorEvaluation?.reviewedAt ? ` on ${formatDate(assignment.behaviorEvaluation.reviewedAt)}` : ""}.`,
+        },
+        revision: {
+            tone: "red",
+            title: "Admin asked for a revision",
+            text: "Please re-check your ratings and submit again.",
+        },
+    };
+    const banner = banners[status];
 
     return (
-        <section className="foster-updates-page">
-
-            <section className="foster-panel">
-
-                <div className="foster-section-heading">
+        <section className="ao-page">
+            {!hasAssignment && (
+                <div className="ao-banner orange">
+                    <svg className="ao-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 8v4M12 16v.01" />
+                    </svg>
                     <div>
-                        <span>Foster Progress</span>
-                        <h2>Weekly Update</h2>
+                        <b>No foster pet assigned yet</b>
+                        {NO_ASSIGNMENT_TEXT}
                     </div>
                 </div>
+            )}
+            <section className="ao-card">
+                <h2>Behavior Evaluation</h2>
+                <p className="ao-hint">
+                    You know {name} best at home. Rate what you've seen — the shelter reviews it before it
+                    appears on {name}'s adoption profile.
+                </p>
 
-                <form
-                    className="foster-update-form"
-                    onSubmit={handleSubmit}
-                >
+                <div className="ao-steps">
+                    <div className={`ao-step ${step1}`}><b>{step1 === "done" ? "✓" : 1}</b>Fill in ratings</div>
+                    <span className={`ao-step-line ${step1 === "done" ? "done" : ""}`} />
+                    <div className={`ao-step ${step2}`}><b>{step2 === "done" ? "✓" : 2}</b>Submit for review</div>
+                    <span className={`ao-step-line ${step2 === "done" ? "done" : ""}`} />
+                    <div className={`ao-step ${step3}`}><b>{step3 === "done" ? "✓" : 3}</b>Admin accepts</div>
+                </div>
 
-                    <label>
-                        Progress Notes
-
-                        <textarea
-                            rows="6"
-                            value={note}
-                            onChange={(e) =>
-                                setNote(e.target.value)
-                            }
-                            placeholder="Describe the pet's condition, appetite, behavior, health, etc."
-                            required
-                        />
-                    </label>
-
-                    <label>
-                        Photo URL (Optional)
-
-                        <input
-                            type="text"
-                            value={photoUrl}
-                            onChange={(e) =>
-                                setPhotoUrl(e.target.value)
-                            }
-                            placeholder="https://..."
-                        />
-                    </label>
-
-                    {message && (
-                        <div className="foster-alert success">
-                            {message}
+                {banner && (
+                    <div className={`ao-banner ${banner.tone}`}>
+                        <svg className="ao-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            {status === "accepted" ? <path d="M20 6 9 17l-5-5" /> : <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>}
+                        </svg>
+                        <div>
+                            <b>{banner.title}</b>
+                            {banner.text}
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    <button
-                        type="submit"
-                        className="foster-submit-button"
-                        disabled={loading}
-                    >
-                        {loading
-                            ? "Submitting..."
-                            : "Submit Update"}
-                    </button>
-
-                </form>
-
-            </section>
-
-            <section className="foster-panel">
-
-                <div className="foster-section-heading">
+                {hasAssignment && (
+                <div className="ao-petcard">
+                    <div className="ao-avatar">
+                        {assignment.petImage ? <img src={assignment.petImage} alt="" /> : "🐾"}
+                    </div>
                     <div>
-                        <span>Medical Support</span>
-                        <h2>Request Medical Assistance</h2>
+                        <b>{name}</b>
+                        <span>
+                            {assignment.petBreed ? `${assignment.petBreed} · ` : ""}
+                            Fostered since {formatDate(assignment.startDate || assignment.createdAt)}
+                        </span>
                     </div>
                 </div>
+                )}
 
-                <form
-                    className="foster-update-form"
-                    onSubmit={handleMedicalRequest}
-                >
-
-                    <label>
-                        Describe Medical Issue
-
-                        <textarea
-                            rows="5"
-                            value={medicalIssue}
-                            onChange={(e) =>
-                                setMedicalIssue(e.target.value)
-                            }
-                            placeholder="Describe the animal's symptoms, injury, or medical concern..."
-                            required
-                        />
-                    </label>
-
-                    <label>
-                        Urgency
-
-                        <select
-                            value={medicalUrgency}
-                            onChange={(e) =>
-                                setMedicalUrgency(e.target.value)
-                            }
-                        >
-                            <option value="Low">
-                                Low
-                            </option>
-
-                            <option value="Medium">
-                                Medium
-                            </option>
-
-                            <option value="High">
-                                High
-                            </option>
-
-                            <option value="Emergency">
-                                Emergency
-                            </option>
-                        </select>
-                    </label>
-
-                    {medicalMessage && (
-                        <div className="foster-alert success">
-                            {medicalMessage}
+                <form className="ao-form" onSubmit={handleSubmit}>
+                        <fieldset className="ao-fieldset" disabled={!hasAssignment}>
+                    <div className="ao-progress">
+                        <span>{ratedCount} of {TRAITS.length} traits rated</span>
+                        <div className="ao-progress-track">
+                            <i style={{ width: `${(ratedCount / TRAITS.length) * 100}%` }} />
                         </div>
-                    )}
-
-                    <button
-                        type="submit"
-                        className="foster-submit-button"
-                        disabled={medicalLoading}
-                    >
-                        {medicalLoading
-                            ? "Submitting..."
-                            : "Request Medical Assistance"}
-                    </button>
-
-                </form>
-
-                <div className="foster-section-heading">
-                    <div>
-                        <span>Request History</span>
-                        <h2>Previous Medical Requests</h2>
                     </div>
-                </div>
 
-                {assignment.medicalRequests?.length ? (
-                    <div className="foster-update-list">
-
-                        {[...assignment.medicalRequests]
-                            .reverse()
-                            .map((request) => (
-                                <article
-                                    key={request._id}
-                                    className="foster-update-card"
-                                >
-                                    <strong>
-                                        {new Date(
-                                            request.createdAt
-                                        ).toLocaleDateString()}
-                                    </strong>
-
-                                    <p>
-                                        {request.issue}
-                                    </p>
-
-                                    <p>
-                                        <strong>Urgency:</strong>{" "}
-                                        {request.urgency}
-                                    </p>
-
-                                    <p>
-                                        <strong>Status:</strong>{" "}
-                                        {request.status}
-                                    </p>
-
-                                    {request.resolutionNotes && (
-                                        <p>
-                                            <strong>Resolution:</strong>{" "}
-                                            {request.resolutionNotes}
-                                        </p>
-                                    )}
-                                </article>
-                            ))}
-
+                    <div className="ao-legend">
+                        <span><i className="good" />Higher is better</span>
+                        <span><i className="care" />Higher needs care</span>
+                        <span><i className="neutral" />Neither good nor bad</span>
                     </div>
-                ) : (
-                    <p>No medical requests submitted yet.</p>
-                )}
 
-            </section>
-
-            <section className="foster-panel">
-
-                <div className="foster-section-heading">
-                    <div>
-                        <span>Behavior Assessment</span>
-                        <h2>Behavioral Evaluation</h2>
+                    <div className="ao-trait-groups">
+                        {TRAIT_GROUPS.map((group) => (
+                            <div key={group.title}>
+                                <h4 className="ao-group-title">{group.title}</h4>
+                                {group.traits.map((trait) => (
+                                    <TraitScale
+                                        key={trait.key}
+                                        trait={trait}
+                                        value={evaluation[trait.key]}
+                                        name={name}
+                                        disabled={locked}
+                                        onChange={rate}
+                                    />
+                                ))}
+                            </div>
+                        ))}
                     </div>
-                </div>
 
-                {evaluationStatus === "pending" && (
-                    <div className="foster-alert success">
-                        Your behavioral evaluation is pending
-                        admin review.
-                    </div>
-                )}
+                    {message && <div className={`ao-alert ${messageType}`}>{message}</div>}
 
-                {evaluationStatus === "accepted" && (
-                    <div className="foster-alert success">
-                        Your behavioral evaluation has been
-                        accepted.
-                    </div>
-                )}
-
-                {evaluationStatus === "revision" && (
-                    <div className="foster-alert">
-                        Your behavioral evaluation requires
-                        revision. Please update the ratings
-                        and submit again.
-                    </div>
-                )}
-
-                <form
-                    className="foster-update-form"
-                    onSubmit={handleEvaluationSubmit}
-                >
-
-                    {behavioralFactors.map((factor) => (
-                        <label
-                            key={factor.key}
-                        >
-                            {factor.label}
-
-                            <span>
-                                {factor.description}
-                            </span>
-
-                            <select
-                                value={
-                                    evaluation[factor.key]
-                                }
-                                onChange={(e) =>
-                                    handleEvaluationChange(
-                                        factor.key,
-                                        e.target.value
-                                    )
-                                }
-                                disabled={evaluationLocked}
+                    <div className="ao-assess-foot">
+                        <label className="ao-field">
+                            <span>Behavior Notes <span className="ao-req">*</span></span>
+                            <textarea
+                                value={evaluation.notes}
+                                onChange={(e) => setEvaluation((c) => ({ ...c, notes: e.target.value }))}
+                                placeholder="Habits, triggers, how they act with people and other pets..."
+                                disabled={locked}
                                 required
-                            >
-                                <option value="">
-                                    Select rating
-                                </option>
-
-                                <option value="1">
-                                    1 - Very Low
-                                </option>
-
-                                <option value="2">
-                                    2 - Low
-                                </option>
-
-                                <option value="3">
-                                    3 - Moderate
-                                </option>
-
-                                <option value="4">
-                                    4 - High
-                                </option>
-
-                                <option value="5">
-                                    5 - Very High
-                                </option>
-                            </select>
+                            />
                         </label>
-                    ))}
 
-                    <label>
-                        Behavioral Notes
-
-                        <textarea
-                            rows="6"
-                            value={evaluation.notes}
-                            onChange={(e) =>
-                                setEvaluation(
-                                    (current) => ({
-                                        ...current,
-                                        notes: e.target.value,
-                                    })
-                                )
-                            }
-                            disabled={evaluationLocked}
-                            placeholder="Describe the animal's behavior, interactions, habits, triggers, and other observations."
-                        />
-                    </label>
-
-                    {evaluationMessage && (
-                        <div className="foster-alert success">
-                            {evaluationMessage}
+                        <div className="ao-form-actions">
+                            {!locked && (
+                                <button type="submit" className="ao-btn primary" disabled={loading}>
+                                    {loading ? "Sending..." : "Submit for Review"}
+                                </button>
+                            )}
                         </div>
-                    )}
-
-                    {!evaluationLocked && (
-                        <button
-                            type="submit"
-                            className="foster-submit-button"
-                            disabled={evaluationLoading}
-                        >
-                            {evaluationLoading
-                                ? "Submitting..."
-                                : "Submit Behavioral Evaluation"}
-                        </button>
-                    )}
-
-                </form>
-
-            </section>
-
-            <section className="foster-panel">
-
-                <div className="foster-section-heading">
-                    <div>
-                        <span>History</span>
-                        <h2>Previous Updates</h2>
                     </div>
-                </div>
-
-                {assignment.updates?.length ? (
-                    <div className="foster-update-list">
-
-                        {[...assignment.updates]
-                            .reverse()
-                            .map((update) => (
-                                <article
-                                    key={update._id}
-                                    className="foster-update-card"
-                                >
-                                    <strong>
-                                        {new Date(
-                                            update.createdAt
-                                        ).toLocaleDateString()}
-                                    </strong>
-
-                                    <p>{update.note}</p>
-
-                                    {update.photoUrl && (
-                                        <img
-                                            src={update.photoUrl}
-                                            alt="Foster update"
-                                        />
-                                    )}
-                                </article>
-                            ))}
-
-                    </div>
-                ) : (
-                    <p>No updates submitted yet.</p>
-                )}
+                </fieldset>
+                    </form>
             </section>
         </section>
     );
