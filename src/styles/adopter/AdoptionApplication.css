@@ -1064,3 +1064,53 @@
     font-size: 9px;
     font-weight: 800;
 }
+
+/* ===== Step 2: Yes / No buttons ===== */
+.adoption-choice-group.adoption-choice-group--yesno {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.adoption-choice-group.adoption-choice-group--yesno button {
+    grid-column: auto;
+}
+
+/* ===== Textarea with character counter ===== */
+.adoption-textarea-wrap {
+    position: relative;
+    display: block;
+}
+
+.adoption-textarea-wrap textarea {
+    display: block;
+    padding-bottom: 30px;
+}
+
+.adoption-char-count {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    color: #a07c66;
+    font-size: 10px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+/* ===== Info tip: keep the popup on screen on phones ===== */
+@media (max-width: 650px) {
+    .adoption-module .adoption-label-text {
+        position: relative;
+    }
+
+    .adoption-module .adoption-label-text .admin-info-tip {
+        position: static;
+    }
+
+    .adoption-module .adoption-label-text .admin-info-tip-bubble {
+        left: 0;
+        width: min(260px, calc(100vw - 72px));
+    }
+
+    .adoption-module .adoption-label-text .admin-info-tip-bubble::before {
+        display: none;
+    }
+}

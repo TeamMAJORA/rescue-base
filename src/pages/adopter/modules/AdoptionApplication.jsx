@@ -181,6 +181,7 @@ function validateForm() {
 
     if (!form.reason.trim()) newErrors.reason = `Please tell us why you want to adopt ${pet.name}.`;
 
+    if (!form.experience.trim()) newErrors.experience = 'Please describe your pet-care experience, or write "None".';
     return newErrors;
 }
 
@@ -670,91 +671,99 @@ function validateForm() {
                     </section>
 
                     <section className="adoption-form-group" id="adoption-step-2" onFocus={() => setActiveStep(1)}>
-                        <div className="adoption-form-heading">
-                            <span>Step 2</span>
-                            <h3>
-                                Household Information
-                            </h3>
+                        <div className="adoption-form-heading adoption-form-heading--numbered">
+                            <b className="adoption-step-number">2</b>
+                            <div>
+                                <h3>Household Information</h3>
+                                <p>Helps us match {pet.name} with a safe, suitable home.</p>
+                            </div>
                         </div>
 
                         <div className="adoption-form-grid">
-                            <label>
-                                Do you have children at
-                                home?
+                            {[
+                                {
+                                    name: "hasChildren",
+                                    label: "Do you have children at home?",
+                                    tip: "Includes any child under 18 who lives with you or visits often. Some animals are better suited to calm, adult-only homes.",
+                                },
+                                {
+                                    name: "hasOtherPets",
+                                    label: "Do you have other pets?",
+                                    tip: "Dogs, cats, or any other animals in your home. Staff use this to check if the pet gets along with other animals.",
+                                },
+                            ].map((question) => (
+                                <div className="adoption-choice-field" key={question.name}>
+                                    <span className="adoption-label-text">
+                                        {question.label} <em>*</em>
+                                        <InfoTip text={question.tip} />
+                                    </span>
 
-                                <select
-                                    name="hasChildren"
-                                    value={
-                                        form.hasChildren
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                    required
-                                >
-                                    <option value="No">
-                                        No
-                                    </option>
-
-                                    <option value="Yes">
-                                        Yes
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Do you have other pets?
-
-                                <select
-                                    name="hasOtherPets"
-                                    value={
-                                        form.hasOtherPets
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                    required
-                                >
-                                    <option value="No">
-                                        No
-                                    </option>
-
-                                    <option value="Yes">
-                                        Yes
-                                    </option>
-                                </select>
-                            </label>
+                                    <div
+                                        className="adoption-choice-group adoption-choice-group--yesno"
+                                        role="radiogroup"
+                                        aria-label={question.label}
+                                    >
+                                        {["Yes", "No"].map((answer) => (
+                                            <button
+                                                key={answer}
+                                                type="button"
+                                                role="radio"
+                                                aria-checked={form[question.name] === answer}
+                                                className={form[question.name] === answer ? "is-selected" : ""}
+                                                onClick={() =>
+                                                    setForm((current) => ({
+                                                        ...current,
+                                                        [question.name]: answer,
+                                                    }))
+                                                }
+                                            >
+                                                {answer}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
 
                             <label className="adoption-form-wide">
-                                Why do you want to adopt{" "}
-                                {pet.name}?
-
-                                <textarea
-                                    name="reason"
-                                    value={form.reason}
-                                    onChange={handleChange}
-                                    placeholder="Tell us why you want to provide this animal with a permanent home."
-                                    className={errors.reason ? "has-error" : ""}
-                                    aria-invalid={Boolean(errors.reason)}
-                                    required
-                                />
+                                <span className="adoption-label-text">
+                                    Why do you want to adopt {pet.name}? <em>*</em>
+                                    <InfoTip text="Share what draws you to this pet and how they will fit into your daily life. Honest answers help staff during your interview." />
+                                </span>
+                                <span className="adoption-textarea-wrap">
+                                    <textarea
+                                        name="reason"
+                                        value={form.reason}
+                                        onChange={handleChange}
+                                        placeholder="Tell us why you want to provide this animal with a permanent home."
+                                        maxLength={500}
+                                        className={errors.reason ? "has-error" : ""}
+                                        aria-invalid={Boolean(errors.reason)}
+                                        required
+                                    />
+                                    <span className="adoption-char-count">{form.reason.length} / 500</span>
+                                </span>
                                 {errors.reason && <small className="adoption-field-error">{errors.reason}</small>}
-                                </label>
+                            </label>
 
                             <label className="adoption-form-wide">
-                                Previous pet-care
-                                experience
-
-                                <textarea
-                                    name="experience"
-                                    value={
-                                        form.experience
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                    placeholder="Describe your experience caring for animals, or write None."
-                                />
+                                <span className="adoption-label-text">
+                                    Previous pet-care experience <em>*</em>
+                                    <InfoTip text="Mention pets you have owned or cared for, how long, and any training or vet care you handled. No experience is okay, just write None." />
+                                </span>
+                                <span className="adoption-textarea-wrap">
+                                    <textarea
+                                        name="experience"
+                                        value={form.experience}
+                                        onChange={handleChange}
+                                        placeholder='Describe your experience caring for animals, or write "None".'
+                                        maxLength={500}
+                                        className={errors.experience ? "has-error" : ""}
+                                        aria-invalid={Boolean(errors.experience)}
+                                        required
+                                    />
+                                    <span className="adoption-char-count">{form.experience.length} / 500</span>
+                                </span>
+                                {errors.experience && <small className="adoption-field-error">{errors.experience}</small>}
                             </label>
                         </div>
                     </section>
