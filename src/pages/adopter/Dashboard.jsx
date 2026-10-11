@@ -678,7 +678,9 @@ export default function Dashboard({ onLogout }) {
         localStorage.removeItem(
             "rescuebase_pending_application"
         );
-
+        
+        localStorage.removeItem("token");
+        
         Object.keys(localStorage)
         .filter((key) => key.startsWith("rescuebase_adoption_draft_"))
         .forEach((key) => localStorage.removeItem(key));

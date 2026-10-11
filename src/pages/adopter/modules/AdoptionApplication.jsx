@@ -31,23 +31,23 @@ export default function AdoptionApplication({
         }
     }
 
- const [form, setForm] = useState(() => readDraft()?.form || {
-        fullName:
-            savedUser.name ||
-            savedUser.username ||
-            "",
+    const [form, setForm] = useState(() => readDraft()?.form || {
+            fullName:
+                savedUser.name ||
+                savedUser.username ||
+                "",
 
-        email: savedUser.email || "",
-        phone: "",
-        address: "",
+            email: savedUser.email || "",
+            phone: "",
+            address: "",
 
-        homeType: "House",
-        hasChildren: "No",
-        hasOtherPets: "No",
+            homeType: "House",
+            hasChildren: "No",
+            hasOtherPets: "No",
 
-        reason: "",
-        experience: "",
-    });
+            reason: "",
+            experience: "",
+        });
 
     const [document, setDocument] = useState(() => readDraft()?.document || null);
     const [documentUploading, setDocumentUploading] =
@@ -62,20 +62,34 @@ export default function AdoptionApplication({
     const [messageType, setMessageType] =
         useState("");
 
+    const [draftSavedAt, setDraftSavedAt] = useState(
+        () => readDraft()?.savedAt || null
+    );
+    const hasProgress = Boolean(
+        form.phone || form.address || form.reason || form.experience || document
+    );
+
     const token = localStorage.getItem("token")
 
     useEffect(() => {
         if (!pet?._id) return;
+
+        if (!hasProgress) {
+            localStorage.removeItem(DRAFT_KEY);
+            setDraftSavedAt(null);
+            return;
+        }
 
         try {
             localStorage.setItem(
                 DRAFT_KEY,
                 JSON.stringify({ form, document, savedAt: Date.now() })
             );
+            setDraftSavedAt(Date.now());
         } catch {
             // storage full or blocked — the form still works, just without a draft
         }
-    }, [form, document, DRAFT_KEY, pet?._id]);
+    }, [form, document, DRAFT_KEY, pet?._id, hasProgress]);
 
     function showMessage(type, text) {
         setMessageType(type);
@@ -84,6 +98,8 @@ export default function AdoptionApplication({
 
     function handleChange(event) {
         const { name, value } = event.target;
+
+        setMessage("");
 
         setForm((currentForm) => ({
             ...currentForm,
@@ -738,7 +754,9 @@ export default function AdoptionApplication({
                                     experience: "",
                                 });
                                 setDocument(null);
+                                setDraftSavedAt(null);
                                 showMessage("success", "Form cleared. You can start over.");
+                                window.setTimeout(() => setMessage(""), 3000);
                             }}
                             disabled={submitting || documentUploading}
                         >
@@ -761,9 +779,15 @@ export default function AdoptionApplication({
                         </button>
                     </div>
 
-                    <small className="adoption-draft-note">
-                        Your progress is saved automatically on this device.
-                    </small>
+                     {hasProgress && draftSavedAt && (
+                        <small className="adoption-draft-note">
+                            ✓ Draft saved at{" "}
+                            {new Date(draftSavedAt).toLocaleTimeString([], {
+                                hour: "numeric",
+                                minute: "2-digit",
+                            })}
+                        </small>
+                    )}
                 </form>
             </div>
         </section>
