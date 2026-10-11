@@ -1416,7 +1416,6 @@
     }
 }
 
-<<<<<<< HEAD
     .adopter-filters {
         grid-template-columns: 1fr;
     }
@@ -1447,7 +1446,6 @@
     .adopter-detail-grid {
         grid-template-columns: 1fr;
     }
-}
 /* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
 .adopter-menu {
     scrollbar-width: none;
@@ -1457,8 +1455,6 @@
 .adopter-menu::-webkit-scrollbar {
     display: none;
 }
-=======
 .adopter-overview-layout .browse-pet-details-panel {
     top: 20px;
 }
->>>>>>> b01aa83b5ff60be567811e5651f69bec9f44489e
