@@ -65,9 +65,45 @@ export default function AdoptionApplication({
     const [draftSavedAt, setDraftSavedAt] = useState(
         () => readDraft()?.savedAt || null
     );
+    const [activeStep, setActiveStep] = useState(null);
     const hasProgress = Boolean(
         form.phone || form.address || form.reason || form.experience || document
     );
+
+    const trackerSteps = [
+        {
+            key: "applicant",
+            label: "Applicant",
+            done: Boolean(
+                form.fullName.trim() &&
+                form.email.trim() &&
+                form.phone.trim() &&
+                form.address.trim()
+            ),
+        },
+        {
+            key: "household",
+            label: "Household",
+            done: Boolean(form.reason.trim()),
+        },
+        {
+            key: "documents",
+            label: "Documents",
+            done: Boolean(document),
+        },
+    ];
+
+    const currentStepIndex = trackerSteps.findIndex((step) => !step.done);
+    const allStepsDone = currentStepIndex === -1;
+    const highlightedStep =
+        activeStep ?? (allStepsDone ? trackerSteps.length - 1 : currentStepIndex);
+
+    function scrollToStep(index) {
+        setActiveStep(index);
+        window.document
+            .getElementById(`adoption-step-${index + 1}`)
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     const token = localStorage.getItem("token")
 
@@ -417,6 +453,30 @@ export default function AdoptionApplication({
                 </button>
             </header>
 
+            <nav className="adoption-tracker" aria-label="Application progress">
+                <ol>
+                    {trackerSteps.map((step, index) => (
+                        <li
+                            key={step.key}
+                            className={`${step.done ? "is-done" : ""} ${
+                                index === highlightedStep ? "is-current" : ""
+                            }`}
+                        >
+                            <button type="button" onClick={() => scrollToStep(index)}>
+                                <b>{step.done ? "✓" : index + 1}</b>
+                                {step.label}
+                            </button>
+                        </li>
+                    ))}
+                </ol>
+
+                <span className={`adoption-tracker-pill ${allStepsDone ? "is-ready" : ""}`}>
+                    {allStepsDone
+                        ? "Ready to submit"
+                        : `Step ${highlightedStep + 1} of ${trackerSteps.length}`}
+                </span>
+            </nav>
+
             <div className="adoption-module-layout">
                 <PetDetailPanel
                     className="browse-pet-details-panel"
@@ -440,7 +500,7 @@ export default function AdoptionApplication({
                     className="adoption-module-form"
                     onSubmit={handleSubmit}
                 >
-                    <section className="adoption-form-group">
+                    <section className="adoption-form-group" id="adoption-step-1" onFocus={() => setActiveStep(0)}>
                         <div className="adoption-form-heading">
                             <span>Step 1</span>
                             <h3>
@@ -553,7 +613,7 @@ export default function AdoptionApplication({
                         </div>
                     </section>
 
-                    <section className="adoption-form-group">
+                    <section className="adoption-form-group" id="adoption-step-2" onFocus={() => setActiveStep(1)}>
                         <div className="adoption-form-heading">
                             <span>Step 2</span>
                             <h3>
@@ -644,7 +704,7 @@ export default function AdoptionApplication({
                         </div>
                     </section>
 
-                    <section className="adoption-form-group">
+                    <section className="adoption-form-group" id="adoption-step-3" onFocus={() => setActiveStep(2)}>
                         <div className="adoption-form-heading">
                             <span>Step 3</span>
                             <h3>

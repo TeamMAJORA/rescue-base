@@ -629,3 +629,123 @@
     font-size: 11px;
     text-align: right;
 }
+
+.adoption-tracker {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: -8px 0 24px;
+    padding: 12px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 16px;
+    background: #fffaf0;
+}
+
+.adoption-tracker ol {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.adoption-tracker li {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.adoption-tracker li:last-child {
+    flex: 0 0 auto;
+}
+
+/* connector line between steps */
+.adoption-tracker li:not(:last-child)::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    margin: 0 14px;
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.12);
+}
+
+.adoption-tracker li.is-done:not(:last-child)::after {
+    background: #fb8500;
+}
+
+.adoption-tracker button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #a07c66;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.adoption-tracker button b {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #f1e6c8;
+    color: #a07c66;
+    font-size: 11px;
+}
+
+.adoption-tracker li.is-current button {
+    color: #5a1b00;
+}
+
+.adoption-tracker li.is-current button b {
+    background: #fb8500;
+    color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.adoption-tracker li.is-done button {
+    color: #5a1b00;
+}
+
+.adoption-tracker li.is-done button b {
+    background: #2f8f5b;
+    color: #ffffff;
+}
+
+.adoption-tracker-pill {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: #fff4c4;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.adoption-tracker-pill.is-ready {
+    background: #e3f6ea;
+    color: #2f8f5b;
+}
+
+@media (max-width: 650px) {
+    .adoption-tracker {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .adoption-tracker li:not(:last-child)::after {
+        margin: 0 8px;
+    }
+
+    .adoption-tracker-pill {
+        align-self: flex-start;
+    }
+}
