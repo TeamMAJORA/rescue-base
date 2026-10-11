@@ -373,11 +373,24 @@ export default function StaffDashboard({ setPage }) {
 
                     <div className="staff-notification-wrap">
                         <button
-                            className="staff-notification-btn"
+                            className={`staff-notification-btn ${notifOpen ? "open" : ""}`}
                             type="button"
+                            aria-label="Notifications"
+                            title="Notifications"
                             onClick={() => setNotifOpen(!notifOpen)}
                         >
-                            BELL DAW NI
+                            <img
+                                className="rb-notif-icon icon-default"
+                                src="/icons/sidebar/notification-brown.svg"
+                                alt=""
+                                aria-hidden="true"
+                            />
+                            <img
+                                className="rb-notif-icon icon-active"
+                                src="/icons/sidebar/notification-light.svg"
+                                alt=""
+                                aria-hidden="true"
+                            />
 
                             {notifications.length > 0 && (
                                 <span>{notifications.length}</span>

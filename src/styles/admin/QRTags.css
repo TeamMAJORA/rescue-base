@@ -1,13 +1,22 @@
 .qrt-page { display: flex; flex-direction: column; gap: 20px; }
 
 /* Generate */
+/* Split card: brown left half (like the stats strip), cream right half */
 .qrt-generate {
-    display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
-    background: #fffdf5; border-radius: 16px; padding: 22px 26px;
+    display: grid; grid-template-columns: 1fr 1fr; align-items: stretch;
+    background: #fffdf5; border-radius: 16px; overflow: hidden;
+    border: 1px solid rgba(90, 27, 0, 0.08);
 }
-.qrt-generate-text h2 { margin: 0; color: #5a1f00; font-size: 20px; }
-.qrt-generate-text p { margin: 4px 0 0; color: #7a6a5a; font-size: 13px; }
-.qrt-generate-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.qrt-generate-text {
+    background: var(--brown, #5a1b00); padding: 22px 26px;
+    display: flex; flex-direction: column; justify-content: center;
+}
+.qrt-generate-text h2 { margin: 0; color: var(--yellow, #fcbf49); font-size: 20px; }
+.qrt-generate-text p { margin: 4px 0 0; color: #f3dcc0; font-size: 13px; }
+.qrt-generate-form {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+    padding: 22px 26px;
+}
 .qrt-generate-form select {
     min-width: 240px; padding: 10px 14px; border-radius: 10px;
     border: 1px solid #e3d5b5; background: #fff; font-size: 14px; color: #3d2410;
@@ -46,7 +55,7 @@
 }
 .qrt-tools { display: flex; gap: 10px; }
 .qrt-search {
-    width: 240px; padding: 9px 14px; border-radius: 999px;
+    width: 240px; padding: 9px 14px; border-radius: 0;
     border: 1px solid #e3d5b5; background: #fff; font-size: 14px;
 }
 .qrt-search:focus, .qrt-generate-form select:focus { outline: 2px solid #ffc04d; border-color: #ffc04d; }
@@ -90,5 +99,6 @@
 .qrt-zoom-box code { font-size: 12px; color: #6b5a4a; }
 
 @media (max-width: 640px) {
+    .qrt-generate { grid-template-columns: 1fr; }
     .qrt-tools, .qrt-search, .qrt-generate-form, .qrt-generate-form select { width: 100%; }
 }

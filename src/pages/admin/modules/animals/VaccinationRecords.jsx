@@ -477,6 +477,20 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
         });
 
         return {
+            // Distinct pets whose next dose falls in next calendar month
+            dueNextMonth: new Set(
+                scoped
+                    .filter((v) => {
+                        const d = parseLocal(v.nextDueDate);
+                        if (!d) return false;
+                        const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                        return (
+                            d.getMonth() === next.getMonth() &&
+                            d.getFullYear() === next.getFullYear()
+                        );
+                    })
+                    .map((v) => String(v.animalName).trim().toLowerCase())
+            ).size,
             givenThisMonth: scoped.filter((v) => {
                 const d = parseLocal(v.vaccinationDate);
                 return (
@@ -579,7 +593,7 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                     items={[
                         { icon: "alert", label: "Overdue", value: counts.overdue },
                         { icon: "clock", label: "Due in next 30 days", value: counts.soon },
-                        { icon: "check", label: "Given this month", value: stats.givenThisMonth },
+                        { icon: "check", label: "Pets due next month", value: stats.dueNextMonth },
                     ]}
                 />
             )}

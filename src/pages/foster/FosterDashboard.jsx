@@ -382,12 +382,26 @@ export default function FosterDashboard({ setPage }) {
 
                     <div className="foster-topbar-actions">
                         <button
-                            className="foster-notification-button"
+                            className={`foster-notification-button ${notificationsOpen ? "open" : ""}`}
+                            type="button"
+                            aria-label="Notifications"
+                            title="Notifications"
                             onClick={() =>
                                 setNotificationsOpen(!notificationsOpen)
                             }
                         >
-                            B
+                            <img
+                                className="rb-notif-icon icon-default"
+                                src="/icons/sidebar/notification-brown.svg"
+                                alt=""
+                                aria-hidden="true"
+                            />
+                            <img
+                                className="rb-notif-icon icon-active"
+                                src="/icons/sidebar/notification-light.svg"
+                                alt=""
+                                aria-hidden="true"
+                            />
                             {unreadCount > 0 && (
                                 <span className="notification-badge">
                                     {unreadCount}
