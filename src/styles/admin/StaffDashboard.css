@@ -405,3 +405,12 @@
         flex-direction: column;
     }
 }
+/* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
+.staff-sidebar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.staff-sidebar::-webkit-scrollbar {
+    display: none;
+}

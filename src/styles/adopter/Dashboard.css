@@ -1416,6 +1416,45 @@
     }
 }
 
+    .adopter-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .adopter-pet-card {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    .adopter-pet-card-icon {
+        width: 64px;
+        height: 60px;
+    }
+
+    .adopter-pet-card>.adopter-status {
+        grid-column: 2;
+        margin-top: 4px;
+    }
+
+    .adopter-detail-header {
+        grid-template-columns: 88px minmax(0, 1fr);
+    }
+
+    .adopter-detail-icon {
+        width: 88px;
+        height: 88px;
+    }
+
+    .adopter-detail-grid {
+        grid-template-columns: 1fr;
+    }
+/* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
+.adopter-menu {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.adopter-menu::-webkit-scrollbar {
+    display: none;
+}
 .adopter-overview-layout .browse-pet-details-panel {
     top: 20px;
 }
