@@ -245,6 +245,59 @@ export default function Dashboard({ onLogout }) {
         }
     })();
 
+    const draftApplication = (() => {
+        try {
+            const prefix = `rescuebase_adoption_draft_${savedUser.email || "guest"}_`;
+
+            const drafts = Object.keys(localStorage)
+                .filter((key) => key.startsWith(prefix))
+                .map((key) => ({
+                    petId: key.slice(prefix.length),
+                    ...JSON.parse(localStorage.getItem(key) || "null"),
+                }))
+                .filter((draft) => draft.form)
+                .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+
+            for (const draft of drafts) {
+                const pet = pets.find(
+                    (item) => item._id === draft.petId && item.status === "available"
+                );
+
+                if (!pet) continue;
+
+                const form = draft.form;
+
+                const steps = [
+                    {
+                        label: "Applicant",
+                        done: Boolean(
+                            form.fullName?.trim() &&
+                            form.phone?.trim() &&
+                            form.address?.trim() &&
+                            (form.homeType !== "Other" || form.homeTypeOther?.trim())
+                        ),
+                    },
+                    {
+                        label: "Household",
+                        done: Boolean(form.reason?.trim() && form.experience?.trim()),
+                    },
+                    {
+                        label: "Documents",
+                        done: Boolean(draft.document),
+                    },
+                ];
+
+                const nextIndex = steps.findIndex((step) => !step.done);
+
+                return { pet, steps, nextIndex };
+            }
+
+            return null;
+        } catch {
+            return null;
+        }
+    })();
+
     function getNextStep() {
         const petName = applicationStatus?.petName || "your pet";
 
@@ -267,6 +320,23 @@ export default function Dashboard({ onLogout }) {
                 title: "Find another match",
                 linkText: "See your matches",
                 page: hasTakenQuiz ? "recommendations" : "browse-pets",
+            };
+        }
+
+        if (draftApplication && !hasPendingApplication) {
+            const { pet, steps, nextIndex } = draftApplication;
+
+            return {
+                tone: "action",
+                label: "Unfinished",
+                icon: "/icons/Action.svg",
+                title: `Finish applying for ${pet.name}`,
+                linkText:
+                    nextIndex === -1
+                        ? "Ready to submit"
+                        : `Step ${nextIndex + 1} of ${steps.length}: ${steps[nextIndex].label}`,
+                page: "adoption-application",
+                pet,
             };
         }
 
@@ -959,7 +1029,11 @@ export default function Dashboard({ onLogout }) {
                             <button
                                 type="button"
                                 className="adopter-stat-link"
-                                onClick={() => setActiveAdopterPage(nextStep.page)}
+                                onClick={() =>
+                                    nextStep.pet
+                                        ? handleApply(nextStep.pet)
+                                        : setActiveAdopterPage(nextStep.page)
+                                }
                             >
                                 {nextStep.linkText}
                             </button>

@@ -94,7 +94,7 @@ export default function AdoptionApplication({
         {
             key: "household",
             label: "Household",
-            done: Boolean(form.reason.trim()),
+            done: Boolean(form.reason.trim() && form.experience.trim()),
         },
         {
             key: "documents",
