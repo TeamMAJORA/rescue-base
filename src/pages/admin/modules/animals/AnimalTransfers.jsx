@@ -1,5 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";   
+
+// Styled confirm popup + toast from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
+function notify(text, tone = "success") {
+    if (window.rbToast) {
+        window.rbToast(text, tone);
+    } else {
+        window.alert(text);
+    }
+}
+
+function notifyErr(text) {
+    notify(text, "error");
+}
+
 const ICONS = {
     search: (
         <>
@@ -421,15 +441,16 @@ export default function AnimalTransfers() {
         );
     }
 
-    function handleDeleteTransfer(id) {
+    async function handleDeleteTransfer(id) {
         if (!isAdmin()) {
-            alert("Only administrators can delete transfers");
+            notifyErr("Only administrators can delete transfers");
             return;
         }
 
-        if (!window.confirm("Delete this transfer record?")) return;
+        if (!await askConfirm({ title: "Delete this transfer record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
 
         setTransfers((current) => current.filter((transfer) => transfer.id !== id));
+        notify("Transfer record deleted");
 
         if (editingId === id) resetForm();
     }

@@ -2,6 +2,26 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
 
+
+// Styled confirm popup + toast from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
+function notify(text, tone = "success") {
+    if (window.rbToast) {
+        window.rbToast(text, tone);
+    } else {
+        window.alert(text);
+    }
+}
+
+function notifyErr(text) {
+    notify(text, "error");
+}
+
 // NOTE: medical records are still kept in the browser only (no backend yet),
 // so they reset when the page is refreshed — same behavior as before.
 
@@ -375,15 +395,16 @@ export default function MedicalRecords({ lockedAnimal = null }) {
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    function handleDeleteRecord(id) {
+    async function handleDeleteRecord(id) {
         if (!isAdmin()) {
-            alert("Only administrators can delete medical records.");
+            notifyErr("Only administrators can delete medical records.");
             return;
         }
 
-        if (!window.confirm("Delete this medical record?")) return;
+        if (!await askConfirm({ title: "Delete this medical record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
 
         setRecords((current) => current.filter((record) => record.id !== id));
+        notify("Medical record deleted");
 
         if (editingId === id) resetForm();
     }

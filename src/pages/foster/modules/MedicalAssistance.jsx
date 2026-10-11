@@ -200,7 +200,7 @@ const EMPTY_ASSIGNMENT = {
     behaviorEvaluation: null,
 };
 
-export default function MedicalAssistance({ assignment: assignedPet, refreshAssignment }) {
+export default function MedicalAssistance({ assignment: assignedPet, refreshAssignment, onDirtyChange }) {
     const hasAssignment = Boolean(assignedPet);
     const assignment = assignedPet || EMPTY_ASSIGNMENT;
     const NO_ASSIGNMENT_TEXT = "Once the shelter assigns you a pet, you can request medical help here.";
@@ -217,6 +217,17 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("success");
     const [tab, setTab] = useState("all");
+
+    const isDirty =
+        Boolean(issueType || issueOther.trim() || description.trim() || photo) ||
+        urgency !== "Medium";
+
+    // Tell the dashboard when there are unsaved changes (for the "Leave this form?" popup)
+    useEffect(() => {
+        onDirtyChange?.(isDirty);
+    }, [isDirty]);
+
+    useEffect(() => () => onDirtyChange?.(false), []);
 
     useEffect(() => {
         if (!photo) {

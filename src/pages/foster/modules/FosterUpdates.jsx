@@ -101,7 +101,7 @@ const EMPTY_ASSIGNMENT = {
     behaviorEvaluation: null,
 };
 
-export default function FosterUpdates({ assignment: assignedPet, refreshAssignment }) {
+export default function FosterUpdates({ assignment: assignedPet, refreshAssignment, onDirtyChange }) {
     const hasAssignment = Boolean(assignedPet);
     const assignment = assignedPet || EMPTY_ASSIGNMENT;
     const NO_ASSIGNMENT_TEXT = "Once the shelter assigns you a pet, you can rate their behavior here.";
@@ -131,6 +131,25 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
 
     const status = assignment.behaviorEvaluation?.status || "not_submitted";
     const locked = !hasAssignment || status === "pending" || status === "accepted";
+
+    // Unsaved = ratings or notes differ from what was last submitted
+    const savedEvaluation = assignment?.behaviorEvaluation;
+    const isDirty =
+        !locked &&
+        ["notes", ...TRAITS.map((t) => t.key)].some((key) => {
+            const savedValue = savedEvaluation
+                ? (key === "notes" ? savedEvaluation.notes || "" : savedEvaluation[key] ?? null)
+                : initialEvaluation[key] ?? null;
+
+            return String(evaluation[key] ?? "") !== String(savedValue ?? "");
+        });
+
+    // Tell the dashboard when there are unsaved changes (for the "Leave this form?" popup)
+    useEffect(() => {
+        onDirtyChange?.(isDirty);
+    }, [isDirty]);
+
+    useEffect(() => () => onDirtyChange?.(false), []);
     const ratedCount = TRAITS.filter((t) => isRated(evaluation[t.key])).length;
     const allRated = ratedCount === TRAITS.length;
     const name = assignment.petName;

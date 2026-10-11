@@ -2,6 +2,26 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
 
+
+// Styled confirm popup + toast from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
+function notify(text, tone = "success") {
+    if (window.rbToast) {
+        window.rbToast(text, tone);
+    } else {
+        window.alert(text);
+    }
+}
+
+function notifyErr(text) {
+    notify(text, "error");
+}
+
 // NOTE: vaccination records are still kept in the browser only (no backend yet),
 // so they reset when the page is refreshed — same behavior as before.
 
@@ -434,15 +454,16 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
         );
     }
 
-    function handleDeleteVaccination(id) {
+    async function handleDeleteVaccination(id) {
         if (!isAdmin()) {
-            alert("Only administrators can delete vaccination records.");
+            notifyErr("Only administrators can delete vaccination records.");
             return;
         }
 
-        if (!window.confirm("Delete this vaccination record?")) return;
+        if (!await askConfirm({ title: "Delete this vaccination record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
 
         setVaccinations((current) => current.filter((vaccination) => vaccination.id !== id));
+        notify("Vaccination record deleted");
 
         if (editingId === id) resetForm();
     }

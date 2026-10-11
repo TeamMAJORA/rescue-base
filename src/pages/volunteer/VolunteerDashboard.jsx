@@ -109,6 +109,76 @@ export default function VolunteerDashboard({ setPage }) {
     const [notifOpen, setNotifOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
 
+    // ---- Shared states: signed out, confirm popup, toasts ----
+    const savedRole = (() => {
+        try {
+            return String(
+                JSON.parse(localStorage.getItem("rescuebase_user") || "{}").role || ""
+            ).trim().toLowerCase();
+        } catch {
+            return "";
+        }
+    })();
+    const isWrongRole = savedRole !== "volunteer";
+    const volunteerName = (() => {
+        try {
+            const user = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
+            return user.username || user.name || "Volunteer";
+        } catch {
+            return "Volunteer";
+        }
+    })();
+    const [signedOut, setSignedOut] = useState(false);
+    const [confirmBox, setConfirmBox] = useState(null);
+    const [toasts, setToasts] = useState([]);
+
+    useEffect(() => {
+        // Any API call that comes back 401 means the login ran out
+        const originalFetch = window.fetch;
+
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            const url = String(args[0]?.url || args[0] || "");
+
+            if (response.status === 401 && API && url.startsWith(API)) {
+                setSignedOut(true);
+            }
+
+            return response;
+        };
+
+        // Modules call these instead of window.confirm / alert
+        window.rbConfirm = (options) =>
+            new Promise((resolve) => {
+                setConfirmBox({ ...options, resolve });
+            });
+
+        window.rbToast = (text, tone = "success") => {
+            const id = `${Date.now()}-${Math.random()}`;
+            setToasts((current) => [...current, { id, text, tone }]);
+            setTimeout(() => {
+                setToasts((current) => current.filter((toast) => toast.id !== id));
+            }, 3200);
+        };
+
+        return () => {
+            window.fetch = originalFetch;
+            delete window.rbConfirm;
+            delete window.rbToast;
+        };
+    }, []);
+
+    function closeConfirm(answer) {
+        confirmBox?.resolve(answer);
+        setConfirmBox(null);
+    }
+
+    function signOut(goTo) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("rescuebase_user");
+        setPage(goTo);
+    }
+
 
     function handleSidebarClick(item) {
         if (item.children) {
@@ -250,8 +320,31 @@ export default function VolunteerDashboard({ setPage }) {
     }
 
     useEffect(() => {
+        if (isWrongRole || signedOut) return;
+
         loadNotifications();
-    }, []);
+    }, [signedOut]);
+
+
+    if (signedOut || isWrongRole) {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <path d="M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                    </div>
+                    <h2>You've been signed out</h2>
+                    <p>Please log in again to continue.</p>
+                    <button type="button" onClick={() => signOut("auth")}>
+                        Log in again
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     return (
         <main className="staff-page">
@@ -312,12 +405,12 @@ export default function VolunteerDashboard({ setPage }) {
                 <button
                     className="staff-user-card"
                     type="button"
-                    onClick={() => setPage("home")}
+                    onClick={() => signOut("home")}
                 >
                     <span>👤</span>
                     <div>
-                        <strong>Staff User</strong>
-                        <small>Staff</small>
+                        <strong>{volunteerName}</strong>
+                        <small>Volunteer</small>
                     </div>
                     <span>→</span>
                 </button>
@@ -410,6 +503,47 @@ export default function VolunteerDashboard({ setPage }) {
                 </header>
                 {renderStaffContent()}
             </section>
+            {confirmBox && (
+                <div
+                    className="ao-confirm-backdrop"
+                    onClick={() => closeConfirm(false)}
+                    onKeyDown={(event) => {
+                        if (event.key === "Escape") closeConfirm(false);
+                    }}
+                >
+                    <div
+                        className={`ao-confirm${confirmBox.danger ? " danger" : ""}`}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="ao-confirm-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <h3 id="ao-confirm-title">{confirmBox.title}</h3>
+                        {confirmBox.message && <p>{confirmBox.message}</p>}
+                        <div className="ao-confirm-actions">
+                            <button type="button" autoFocus onClick={() => closeConfirm(false)}>
+                                {confirmBox.cancelLabel || "Cancel"}
+                            </button>
+                            <button
+                                type="button"
+                                className="ao-confirm-ok"
+                                onClick={() => closeConfirm(true)}
+                            >
+                                {confirmBox.confirmLabel || "Confirm"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="ao-toasts" aria-live="polite">
+                {toasts.map((toast) => (
+                    <div key={toast.id} className={`ao-toast ${toast.tone}`}>
+                        <i aria-hidden="true">{toast.tone === "error" ? "!" : "✓"}</i>
+                        {toast.text}
+                    </div>
+                ))}
+            </div>
         </main>
     );
 }

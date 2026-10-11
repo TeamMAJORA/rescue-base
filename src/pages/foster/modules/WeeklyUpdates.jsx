@@ -226,7 +226,7 @@ const EMPTY_ASSIGNMENT = {
     behaviorEvaluation: null,
 };
 
-export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignment }) {
+export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignment, onDirtyChange }) {
     const hasAssignment = Boolean(assignedPet);
     const assignment = assignedPet || EMPTY_ASSIGNMENT;
     const NO_ASSIGNMENT_TEXT = "Once the shelter assigns you a pet, you can send weekly care updates here.";
@@ -244,6 +244,19 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
     const [search, setSearch] = useState("");
     const [healthFilter, setHealthFilter] = useState("All");
     const [sort, setSort] = useState("newest");
+
+    const isDirty =
+        Boolean(photo) ||
+        Object.keys(initialForm).some(
+            (key) => String(form[key] ?? "") !== String(initialForm[key] ?? "")
+        );
+
+    // Tell the dashboard when there are unsaved changes (for the "Leave this form?" popup)
+    useEffect(() => {
+        onDirtyChange?.(isDirty);
+    }, [isDirty]);
+
+    useEffect(() => () => onDirtyChange?.(false), []);
 
     useEffect(() => {
         if (!photo) {

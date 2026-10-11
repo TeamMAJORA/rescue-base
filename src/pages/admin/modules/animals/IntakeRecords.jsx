@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 // ---------- Shared UI pieces (stats strip, tabs, search bar, chips) ----------
 
 const ICONS = {
@@ -527,7 +535,7 @@ export default function IntakeRecords() {
             return;
         }
 
-        if (!window.confirm("Are you sure you want to approve this intake?")) {
+        if (!await askConfirm({ title: "Approve this intake?", confirmLabel: "Approve" })) {
             return;
         }
 
@@ -597,7 +605,7 @@ export default function IntakeRecords() {
             return;
         }
 
-        if (!window.confirm("Are you sure you want to delete this intake record?")) {
+        if (!await askConfirm({ title: "Delete this intake record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true })) {
             return;
         }
 

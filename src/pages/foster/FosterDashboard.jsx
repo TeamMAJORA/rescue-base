@@ -1,4 +1,4 @@
-import { act, useEffect, useMemo, useState } from "react";
+import { act, useEffect, useMemo, useRef, useState } from "react";
 
 import DashboardOverview from "./modules/DashboardOverview";
 import FosterApplication from "./modules/FosterApplication";
@@ -62,6 +62,80 @@ export default function FosterDashboard({ setPage }) {
     const [unreadCount, setUnreadCount] = useState(0);
     const token = localStorage.getItem("token");
 
+    // Signed out: login expired (server answered 401) or this account is not a foster
+    const isWrongRole =
+        String(savedUser.role || "").trim().toLowerCase() !== "foster";
+    const [signedOut, setSignedOut] = useState(false);
+    // Server could not be reached: show "Try again" instead of "no assignment"
+    const [loadError, setLoadError] = useState(false);
+
+    useEffect(() => {
+        const originalFetch = window.fetch;
+
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            const url = String(args[0]?.url || args[0] || "");
+
+            if (response.status === 401 && API && url.startsWith(API)) {
+                setSignedOut(true);
+            }
+
+            return response;
+        };
+
+        return () => {
+            window.fetch = originalFetch;
+        };
+    }, []);
+
+    // "Leave this form?" guard: forms report unsaved changes here
+    const formDirtyRef = useRef(false);
+    const reportDirty = useRef((value) => {
+        formDirtyRef.current = Boolean(value);
+    }).current;
+    const [pendingLeave, setPendingLeave] = useState(null);
+
+    function guardLeave(action) {
+        if (formDirtyRef.current) {
+            setPendingLeave({ action });
+            return;
+        }
+
+        action();
+    }
+
+    function goToPage(page) {
+        guardLeave(() => setActivePage(page));
+    }
+
+    function confirmLeave() {
+        const action = pendingLeave?.action;
+
+        formDirtyRef.current = false;
+        setPendingLeave(null);
+        action?.();
+    }
+
+    useEffect(() => {
+        // Closing or reloading the browser tab with unsaved changes
+        function handleBeforeUnload(event) {
+            if (formDirtyRef.current) {
+                event.preventDefault();
+                event.returnValue = "";
+            }
+        }
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, []);
+
+    function signOut(goTo) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("rescuebase_user");
+        setPage(goTo);
+    }
+
     async function fetchApplication() {
         if (!fosterEmail) {
             setApplication(null);
@@ -79,6 +153,10 @@ export default function FosterDashboard({ setPage }) {
             );
             const data = await response.json();
 
+            if (response.status >= 500) {
+                setLoadError(true);
+            }
+
             if (response.ok && data.success) {
                 setApplication(data.application);
             } else {
@@ -88,6 +166,7 @@ export default function FosterDashboard({ setPage }) {
         } catch (error) {
             console.error(error);
             setApplication(null);
+            setLoadError(true);
         }
     }
 
@@ -109,6 +188,10 @@ export default function FosterDashboard({ setPage }) {
 
             const data = await response.json();
 
+            if (response.status >= 500) {
+                setLoadError(true);
+            }
+
             if (response.ok && data.success) {
                 setAssignment(data.assignment);
             } else {
@@ -117,6 +200,7 @@ export default function FosterDashboard({ setPage }) {
         } catch (error) {
             console.error(error);
             setAssignment(null);
+            setLoadError(true);
         }
     }
 
@@ -124,6 +208,7 @@ export default function FosterDashboard({ setPage }) {
         try {
             setLoading(true);
             setMessage("");
+            setLoadError(false);
 
             await Promise.all([
                 fetchApplication(),
@@ -174,9 +259,11 @@ export default function FosterDashboard({ setPage }) {
     }
 
     useEffect(() => {
+        if (isWrongRole || signedOut) return;
+
         loadDashboard();
         loadNotifications();
-    }, []);
+    }, [signedOut]);
 
     const pages = useMemo(() => ({
 
@@ -205,6 +292,7 @@ export default function FosterDashboard({ setPage }) {
         updates: (
             <WeeklyUpdates
                 assignment={assignment}
+                onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
         ),
@@ -212,6 +300,7 @@ export default function FosterDashboard({ setPage }) {
         behavior: (
             <FosterUpdates
                 assignment={assignment}
+                onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
         ),
@@ -237,7 +326,7 @@ export default function FosterDashboard({ setPage }) {
                 onClose={() =>
                     setNotificationsOpen(false)
                 }
-                setActivePage={setActivePage}
+                setActivePage={goToPage}
                 refresh={loadNotifications}
             />
         ),
@@ -245,6 +334,7 @@ export default function FosterDashboard({ setPage }) {
         medical: (
             <MedicalAssistance
                 assignment={assignment}
+                onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
         ),
@@ -258,6 +348,27 @@ export default function FosterDashboard({ setPage }) {
         assignment,
         fosterName,
     ]);
+
+
+    if (signedOut || isWrongRole) {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <path d="M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                    </div>
+                    <h2>You've been signed out</h2>
+                    <p>Please log in again to continue.</p>
+                    <button type="button" onClick={() => signOut("auth")}>
+                        Log in again
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     return (
 
@@ -287,7 +398,7 @@ export default function FosterDashboard({ setPage }) {
                                 : ""
                         }
                         onClick={() =>
-                            setActivePage("dashboard")
+                            goToPage("dashboard")
                         }
                     >
                         Dashboard
@@ -300,7 +411,7 @@ export default function FosterDashboard({ setPage }) {
                                 : ""
                         }
                         onClick={() =>
-                            setActivePage("assignment")
+                            goToPage("assignment")
                         }
                     >
                         My Foster Pet
@@ -313,7 +424,7 @@ export default function FosterDashboard({ setPage }) {
                                 : ""
                         }
                         onClick={() =>
-                            setActivePage("updates")
+                            goToPage("updates")
                         }
                     >
                         Care Updates
@@ -326,7 +437,7 @@ export default function FosterDashboard({ setPage }) {
                                 : ""
                         }
                         onClick={() =>
-                            setActivePage("behavior")
+                            goToPage("behavior")
                         }
                     >
                         Behavior Evaluation
@@ -339,7 +450,7 @@ export default function FosterDashboard({ setPage }) {
                                 : ""
                         }
                         onClick={() =>
-                            setActivePage("history")
+                            goToPage("history")
                         }
                     >
                         Foster History
@@ -352,7 +463,7 @@ export default function FosterDashboard({ setPage }) {
                                 : ""
                         }
                         onClick={() =>
-                            setActivePage("application")
+                            goToPage("application")
                         }
                     >
                         My Application
@@ -365,7 +476,7 @@ export default function FosterDashboard({ setPage }) {
                                 : ""
                         }
                         onClick={() =>
-                            setActivePage("medical")
+                            goToPage("medical")
                         }
                     >
                         Medical Assistance
@@ -376,7 +487,7 @@ export default function FosterDashboard({ setPage }) {
                 <button
                     className="foster-logout"
                     onClick={() =>
-                        setPage("home")
+                        guardLeave(() => signOut("home"))
                     }
                 >
                     Logout
@@ -444,51 +555,53 @@ export default function FosterDashboard({ setPage }) {
                     open={notificationsOpen}
                     notifications={notifications}
                     onClose={() => setNotificationsOpen(false)}
-                    setActivePage={setActivePage}
+                    setActivePage={goToPage}
                     refresh={loadNotifications}
                 />
 
-                <section className="foster-panel foster-dashboard-banner">
-                    <div>
-                        <span className="foster-label">
-                            Foster Status
-                        </span>
+                {!loading && !loadError && (
+                    <section className="foster-panel foster-dashboard-banner">
+                        <div>
+                            <span className="foster-label">
+                                Foster Status
+                            </span>
 
-                        <h2>
-                            {assignment
-                                ? assignment.petName
-                                : "No Active Foster"}
-                        </h2>
+                            <h2>
+                                {assignment
+                                    ? assignment.petName
+                                    : "No Active Foster"}
+                            </h2>
 
-                        <p>
-                            {assignment
-                                ? "You currently have an active foster assignment."
-                                : "You don't have an active foster assignment yet."}
+                            <p>
+                                {assignment
+                                    ? "You currently have an active foster assignment."
+                                    : "You don't have an active foster assignment yet."}
 
-                        </p>
+                            </p>
 
-                    </div>
+                        </div>
 
-                    <div className="foster-dashboard-status">
+                        <div className="foster-dashboard-status">
 
-                        <span>
-                            Application
-                        </span>
+                            <span>
+                                Application
+                            </span>
 
-                        <strong
-                            className={`status ${application?.status ||
-                                "pending"
-                                }`}
-                        >
-                            {
-                                application?.status ||
-                                "Not Submitted"
-                            }
-                        </strong>
+                            <strong
+                                className={`status ${application?.status ||
+                                    "pending"
+                                    }`}
+                            >
+                                {
+                                    application?.status ||
+                                    "Not Submitted"
+                                }
+                            </strong>
 
-                    </div>
+                        </div>
 
-                </section>
+                    </section>
+                )}
 
                 {message && (
 
@@ -502,12 +615,32 @@ export default function FosterDashboard({ setPage }) {
 
                 {loading ? (
 
-                    <section className="foster-panel">
+                    <section className="ao-loading" aria-busy="true">
+                        <div className="ao-skeleton ao-skeleton-strip" />
+                        <div className="ao-loading-grid">
+                            <div className="ao-skeleton ao-skeleton-card" />
+                            <div className="ao-skeleton ao-skeleton-card" />
+                        </div>
+                        <div className="ao-loading-note">
+                            <span className="ao-spinner" />
+                            Loading your foster dashboard...
+                        </div>
+                    </section>
 
-                        <p>
-                            Loading dashboard...
-                        </p>
+                ) : loadError ? (
 
+                    <section className="ao-state-error">
+                        <div className="ao-state-error-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 9v4M12 17h.01" />
+                                <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+                            </svg>
+                        </div>
+                        <h2>We couldn't load your foster details</h2>
+                        <p>The server didn't respond. Check your connection and try again.</p>
+                        <button type="button" onClick={loadDashboard}>
+                            Try again
+                        </button>
                     </section>
 
                 ) : (
@@ -517,6 +650,38 @@ export default function FosterDashboard({ setPage }) {
                 )}
 
             </section>
+
+            {pendingLeave && (
+                <div
+                    className="ao-confirm-backdrop"
+                    onClick={() => setPendingLeave(null)}
+                    onKeyDown={(event) => {
+                        if (event.key === "Escape") setPendingLeave(null);
+                    }}
+                >
+                    <div
+                        className="ao-confirm danger"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="foster-leave-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <h3 id="foster-leave-title">Leave this form?</h3>
+                        <p>
+                            You have changes that haven't been submitted. If you
+                            leave now, they won't be saved.
+                        </p>
+                        <div className="ao-confirm-actions">
+                            <button type="button" autoFocus onClick={() => setPendingLeave(null)}>
+                                Keep editing
+                            </button>
+                            <button type="button" className="ao-confirm-ok" onClick={confirmLeave}>
+                                Leave form
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </main>
 

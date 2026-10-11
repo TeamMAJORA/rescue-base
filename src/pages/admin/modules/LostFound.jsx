@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function LostFoundPage({ setPage }) {
@@ -334,9 +342,7 @@ export default function LostFoundPage({ setPage }) {
     }
 
     async function handleDeleteReport(reportId) {
-        const confirmed = window.confirm(
-            "Are you sure you want to delete this lost and found report?"
-        );
+        const confirmed = await askConfirm({ title: "Delete this lost and found report?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) {
             return;

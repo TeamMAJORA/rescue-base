@@ -6,6 +6,14 @@ import MedicalRecords from "./MedicalRecords";
 import InfoTip from "../../../../components/system/InfoTip";
 import { formatAge } from "../../../../utils/formatAge";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const emptyAnimalForm = {
@@ -756,7 +764,7 @@ export default function AnimalProfiles() {
             return;
         }
 
-        const confirmed = window.confirm("Delete this animal profile?");
+        const confirmed = await askConfirm({ title: "Delete this animal profile?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) return;
 
