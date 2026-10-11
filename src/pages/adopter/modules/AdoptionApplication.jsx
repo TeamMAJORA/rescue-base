@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "../../../styles/adopter/AdoptionApplication.css";
 import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
+import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -12,6 +13,15 @@ function getSavedUser() {
     } catch {
         return {};
     }
+}
+
+function LockIcon() {
+    return (
+        <svg className="adoption-lock-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="10" rx="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
+    );
 }
 
 export default function AdoptionApplication({
@@ -32,16 +42,13 @@ export default function AdoptionApplication({
     }
 
     const [form, setForm] = useState(() => readDraft()?.form || {
-            fullName:
-                savedUser.name ||
-                savedUser.username ||
-                "",
-
+            fullName: "",
             email: savedUser.email || "",
             phone: "",
             address: "",
 
             homeType: "House",
+            homeTypeOther: "",
             hasChildren: "No",
             hasOtherPets: "No",
 
@@ -67,7 +74,7 @@ export default function AdoptionApplication({
     );
     const [activeStep, setActiveStep] = useState(null);
     const hasProgress = Boolean(
-        form.phone || form.address || form.reason || form.experience || document
+        form.fullName || form.phone || form.address || form.reason || form.experience || document
     );
 
     const trackerSteps = [
@@ -78,7 +85,8 @@ export default function AdoptionApplication({
                 form.fullName.trim() &&
                 form.email.trim() &&
                 form.phone.trim() &&
-                form.address.trim()
+                form.address.trim() &&
+                (form.homeType !== "Other" || (form.homeTypeOther || "").trim())
             ),
         },
         {
@@ -141,6 +149,18 @@ export default function AdoptionApplication({
             ...currentForm,
             [name]: value,
         }));
+    }
+
+    
+    function handlePhoneChange(event) {
+        const digits = event.target.value
+            .replace(/\D/g, "")
+            .replace(/^63/, "")
+            .replace(/^0/, "")
+            .slice(0, 10);
+
+        setMessage("");
+        setForm((current) => ({ ...current, phone: digits }));
     }
 
     async function handleDocumentUpload(event) {
@@ -265,6 +285,11 @@ export default function AdoptionApplication({
             return;
         }
 
+        if (form.homeType === "Other" && !(form.homeTypeOther || "").trim()) {
+            showMessage("error", "Please describe your home type.");
+            return;
+        }
+
         if (!form.reason.trim()) {
             showMessage(
                 "error",
@@ -286,7 +311,10 @@ export default function AdoptionApplication({
 
                 animalId: pet._id,
 
-                homeType: form.homeType,
+                homeType:
+                    form.homeType === "Other"
+                        ? `Other: ${(form.homeTypeOther || "").trim()}`
+                        : form.homeType,
                 hasChildren: form.hasChildren,
                 hasOtherPets: form.hasOtherPets,
 
@@ -501,112 +529,122 @@ export default function AdoptionApplication({
                     onSubmit={handleSubmit}
                 >
                     <section className="adoption-form-group" id="adoption-step-1" onFocus={() => setActiveStep(0)}>
-                        <div className="adoption-form-heading">
-                            <span>Step 1</span>
-                            <h3>
-                                Applicant Information
-                            </h3>
+                        <div className="adoption-form-heading adoption-form-heading--numbered">
+                            <b className="adoption-step-number">1</b>
+                            <div>
+                                <h3>Applicant Information</h3>
+                                <p>
+                                    Tell us who you are and where the pet will live.
+                                    Your email comes from your RescueBase account.
+                                </p>
+                            </div>
                         </div>
 
                         <div className="adoption-form-grid">
                             <label>
-                                Full Name
-
+                                <span className="adoption-label-text">
+                                    Full Name <em>*</em>
+                                </span>
                                 <input
                                     type="text"
                                     name="fullName"
-                                    value={
-                                        form.fullName
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
+                                    value={form.fullName}
+                                    onChange={handleChange}
+                                    placeholder="First and last name"
+                                    autoComplete="name"
                                     required
                                 />
                             </label>
 
                             <label>
                                 Email Address
-
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={
-                                        form.email
-                                    }
-                                    readOnly
-                                    required
-                                />
-
-                                <small>
-                                    This uses your
-                                    registered RescueBase
-                                    email.
-                                </small>
+                                <span className="adoption-locked-field">
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={form.email}
+                                        readOnly
+                                        required
+                                    />
+                                    <LockIcon />
+                                </span>
+                                <small>Uses your registered RescueBase email.</small>
                             </label>
 
                             <label>
-                                Phone Number
-
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    value={form.phone}
-                                    onChange={
-                                        handleChange
-                                    }
-                                    placeholder="09XXXXXXXXX"
-                                    required
-                                />
+                                <span className="adoption-label-text">
+                                    Phone Number <em>*</em>
+                                </span>
+                                <span className="adoption-phone-field">
+                                    <span className="adoption-phone-prefix">+63</span>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        inputMode="numeric"
+                                        value={form.phone}
+                                        onChange={handlePhoneChange}
+                                        placeholder="9XX XXX XXXX"
+                                        required
+                                    />
+                                </span>
+                                <small>We call or text this to schedule your interview.</small>
                             </label>
 
-                            <label>
-                                Home Type
+                            <div className="adoption-choice-field">
+                                <span className="adoption-label-text">
+                                    Home Type <em>*</em>
+                                    <InfoTip text="Where the pet will live. This helps shelter staff check that the animal suits your home." />
+                                </span>
 
-                                <select
-                                    name="homeType"
-                                    value={
-                                        form.homeType
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                    required
-                                >
-                                    <option value="House">
-                                        House
-                                    </option>
+                                <div className="adoption-choice-group" role="radiogroup" aria-label="Home type">
+                                    {[
+                                        { value: "House", label: "House" },
+                                        { value: "Apartment", label: "Apartment" },
+                                        { value: "Condominium", label: "Condo" },
+                                        { value: "Boarding House", label: "Boarding House" },
+                                        { value: "Other", label: "Other" },
+                                    ].map((option) => (
+                                        <button
+                                            key={option.value}
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={form.homeType === option.value}
+                                            className={form.homeType === option.value ? "is-selected" : ""}
+                                            onClick={() =>
+                                                setForm((current) => ({
+                                                    ...current,
+                                                    homeType: option.value,
+                                                }))
+                                            }
+                                        >
+                                            {option.label}
+                                        </button>
+                                    ))}
+                                </div>
 
-                                    <option value="Apartment">
-                                        Apartment
-                                    </option>
-
-                                    <option value="Condominium">
-                                        Condominium
-                                    </option>
-
-                                    <option value="Boarding House">
-                                        Boarding House
-                                    </option>
-
-                                    <option value="Other">
-                                        Other
-                                    </option>
-                                </select>
-                            </label>
+                                {form.homeType === "Other" && (
+                                    <input
+                                        type="text"
+                                        name="homeTypeOther"
+                                        value={form.homeTypeOther || ""}
+                                        onChange={handleChange}
+                                        placeholder="Describe your home (e.g. townhouse, dorm, farm)"
+                                        maxLength={60}
+                                        autoFocus
+                                        required
+                                    />
+                                )}
+                            </div>
 
                             <label className="adoption-form-wide">
-                                Complete Address
-
+                                <span className="adoption-label-text">
+                                    Complete Address <em>*</em>
+                                </span>
                                 <textarea
                                     name="address"
-                                    value={
-                                        form.address
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                    placeholder="House number, street, barangay, city, and province"
+                                    value={form.address}
+                                    onChange={handleChange}
+                                    placeholder="House number, street, barangay, and city"
                                     required
                                 />
                             </label>
@@ -803,11 +841,12 @@ export default function AdoptionApplication({
                             onClick={() => {
                                 localStorage.removeItem(DRAFT_KEY);
                                 setForm({
-                                    fullName: savedUser.name || savedUser.username || "",
+                                    fullName: "",
                                     email: savedUser.email || "",
                                     phone: "",
                                     address: "",
                                     homeType: "House",
+                                    homeTypeOther: "",
                                     hasChildren: "No",
                                     hasOtherPets: "No",
                                     reason: "",
