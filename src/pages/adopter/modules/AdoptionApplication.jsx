@@ -73,6 +73,7 @@ export default function AdoptionApplication({
         () => readDraft()?.savedAt || null
     );
     const [activeStep, setActiveStep] = useState(null);
+    const [errors, setErrors] = useState({});
     const hasProgress = Boolean(
         form.fullName || form.phone || form.address || form.reason || form.experience || document
     );
@@ -149,6 +150,8 @@ export default function AdoptionApplication({
             ...currentForm,
             [name]: value,
         }));
+
+        setErrors((current) => ({ ...current, [name]: undefined }));
     }
 
     
@@ -161,7 +164,25 @@ export default function AdoptionApplication({
 
         setMessage("");
         setForm((current) => ({ ...current, phone: digits }));
+        setErrors((current) => ({ ...current, phone: undefined }));
     }
+function validateForm() {
+    const newErrors = {};
+
+    if (!form.fullName.trim()) newErrors.fullName = "Please enter your full name.";
+
+    if (!form.phone.trim()) newErrors.phone = "Please enter your phone number.";
+    else if (!/^9\d{9}$/.test(form.phone)) newErrors.phone = "Enter a valid 10-digit mobile number starting with 9.";
+
+    if (form.homeType === "Other" && !(form.homeTypeOther || "").trim())
+        newErrors.homeTypeOther = "Please describe your home type.";
+
+    if (!form.address.trim()) newErrors.address = "Please enter your complete address.";
+
+    if (!form.reason.trim()) newErrors.reason = `Please tell us why you want to adopt ${pet.name}.`;
+
+    return newErrors;
+}
 
     async function handleDocumentUpload(event) {
         const file = event.target.files?.[0];
@@ -271,33 +292,16 @@ export default function AdoptionApplication({
             return;
         }
 
-        if (
-            !form.fullName.trim() ||
-            !form.email.trim() ||
-            !form.phone.trim() ||
-            !form.address.trim()
-        ) {
-            showMessage(
-                "error",
-                "Please complete all applicant information."
-            );
-
+        const newErrors = validateForm();
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            showMessage("error", "Please fix the highlighted fields before submitting.");
+            const firstField = window.document.querySelector(`[name="${Object.keys(newErrors)[0]}"]`);
+            firstField?.focus();
+            firstField?.scrollIntoView({ behavior: "smooth", block: "center" });
             return;
         }
-
-        if (form.homeType === "Other" && !(form.homeTypeOther || "").trim()) {
-            showMessage("error", "Please describe your home type.");
-            return;
-        }
-
-        if (!form.reason.trim()) {
-            showMessage(
-                "error",
-                "Please explain why you want to adopt this animal."
-            );
-
-            return;
-        }
+        setErrors({});
 
         try {
             setSubmitting(true);
@@ -526,7 +530,7 @@ export default function AdoptionApplication({
 
                 <form
                     className="adoption-module-form"
-                    onSubmit={handleSubmit}
+                    onSubmit={handleSubmit} noValidate
                 >
                     <section className="adoption-form-group" id="adoption-step-1" onFocus={() => setActiveStep(0)}>
                         <div className="adoption-form-heading adoption-form-heading--numbered">
@@ -552,9 +556,12 @@ export default function AdoptionApplication({
                                     onChange={handleChange}
                                     placeholder="First and last name"
                                     autoComplete="name"
+                                    className={errors.fullName ? "has-error" : ""}
+                                    aria-invalid={Boolean(errors.fullName)}
                                     required
                                 />
-                            </label>
+                                {errors.fullName && <small className="adoption-field-error">{errors.fullName}</small>}
+                                </label>
 
                             <label>
                                 Email Address
@@ -575,7 +582,7 @@ export default function AdoptionApplication({
                                 <span className="adoption-label-text">
                                     Phone Number <em>*</em>
                                 </span>
-                                <span className="adoption-phone-field">
+                                <span className={`adoption-phone-field ${errors.phone ? "has-error" : ""}`}>
                                     <span className="adoption-phone-prefix">+63</span>
                                     <input
                                         type="tel"
@@ -587,6 +594,7 @@ export default function AdoptionApplication({
                                         required
                                     />
                                 </span>
+                                {errors.phone && <small className="adoption-field-error">{errors.phone}</small>}
                                 <small>We call or text this to schedule your interview.</small>
                             </label>
 
@@ -623,16 +631,23 @@ export default function AdoptionApplication({
                                 </div>
 
                                 {form.homeType === "Other" && (
-                                    <input
-                                        type="text"
-                                        name="homeTypeOther"
-                                        value={form.homeTypeOther || ""}
-                                        onChange={handleChange}
-                                        placeholder="Describe your home (e.g. townhouse, dorm, farm)"
-                                        maxLength={60}
-                                        autoFocus
-                                        required
-                                    />
+                                    <>
+                                        <input
+                                            type="text"
+                                            name="homeTypeOther"
+                                            value={form.homeTypeOther || ""}
+                                            onChange={handleChange}
+                                            placeholder="Describe your home (e.g. townhouse, dorm, farm)"
+                                            maxLength={60}
+                                            autoFocus
+                                            className={errors.homeTypeOther ? "has-error" : ""}
+                                            aria-invalid={Boolean(errors.homeTypeOther)}
+                                            required
+                                        />
+                                        {errors.homeTypeOther && (
+                                            <small className="adoption-field-error">{errors.homeTypeOther}</small>
+                                        )}
+                                    </>
                                 )}
                             </div>
 
@@ -640,13 +655,16 @@ export default function AdoptionApplication({
                                 <span className="adoption-label-text">
                                     Complete Address <em>*</em>
                                 </span>
-                                <textarea
-                                    name="address"
-                                    value={form.address}
-                                    onChange={handleChange}
-                                    placeholder="House number, street, barangay, and city"
-                                    required
-                                />
+                            <textarea
+                                name="address"
+                                value={form.address}
+                                onChange={handleChange}
+                                placeholder="House number, street, barangay, and city"
+                                className={errors.address ? "has-error" : ""}
+                                aria-invalid={Boolean(errors.address)}
+                                required
+                            />
+                            {errors.address && <small className="adoption-field-error">{errors.address}</small>}
                             </label>
                         </div>
                     </section>
@@ -713,16 +731,15 @@ export default function AdoptionApplication({
 
                                 <textarea
                                     name="reason"
-                                    value={
-                                        form.reason
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
+                                    value={form.reason}
+                                    onChange={handleChange}
                                     placeholder="Tell us why you want to provide this animal with a permanent home."
+                                    className={errors.reason ? "has-error" : ""}
+                                    aria-invalid={Boolean(errors.reason)}
                                     required
                                 />
-                            </label>
+                                {errors.reason && <small className="adoption-field-error">{errors.reason}</small>}
+                                </label>
 
                             <label className="adoption-form-wide">
                                 Previous pet-care
