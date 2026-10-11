@@ -679,6 +679,10 @@ export default function Dashboard({ onLogout }) {
             "rescuebase_pending_application"
         );
 
+        Object.keys(localStorage)
+        .filter((key) => key.startsWith("rescuebase_adoption_draft_"))
+        .forEach((key) => localStorage.removeItem(key));
+
         onLogout?.();
     }
 

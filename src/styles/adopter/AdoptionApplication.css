@@ -621,3 +621,11 @@
         width: 100%;
     }
 }
+
+.adoption-draft-note {
+    display: block;
+    margin-top: 10px;
+    color: #75432f;
+    font-size: 11px;
+    text-align: right;
+}

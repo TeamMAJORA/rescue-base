@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../../styles/adopter/AdoptionApplication.css";
 import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
 
@@ -21,7 +21,17 @@ export default function AdoptionApplication({
 }) {
     const savedUser = getSavedUser();
 
-    const [form, setForm] = useState({
+    const DRAFT_KEY = `rescuebase_adoption_draft_${savedUser.email || "guest"}_${pet?._id || "none"}`;
+
+    function readDraft() {
+        try {
+            return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+        } catch {
+            return null;
+        }
+    }
+
+ const [form, setForm] = useState(() => readDraft()?.form || {
         fullName:
             savedUser.name ||
             savedUser.username ||
@@ -39,8 +49,7 @@ export default function AdoptionApplication({
         experience: "",
     });
 
-    const [document, setDocument] = useState(null);
-
+    const [document, setDocument] = useState(() => readDraft()?.document || null);
     const [documentUploading, setDocumentUploading] =
         useState(false);
 
@@ -54,6 +63,19 @@ export default function AdoptionApplication({
         useState("");
 
     const token = localStorage.getItem("token")
+
+    useEffect(() => {
+        if (!pet?._id) return;
+
+        try {
+            localStorage.setItem(
+                DRAFT_KEY,
+                JSON.stringify({ form, document, savedAt: Date.now() })
+            );
+        } catch {
+            // storage full or blocked — the form still works, just without a draft
+        }
+    }, [form, document, DRAFT_KEY, pet?._id]);
 
     function showMessage(type, text) {
         setMessageType(type);
@@ -296,7 +318,7 @@ export default function AdoptionApplication({
                     pendingApplication
                 )
             );
-
+            localStorage.removeItem(DRAFT_KEY);
             showMessage(
                 "success",
                 `Your adoption application for ${pet.name} was submitted successfully.`
@@ -700,6 +722,30 @@ export default function AdoptionApplication({
                         </button>
 
                         <button
+                            type="button"
+                            className="adoption-cancel-button"
+                            onClick={() => {
+                                localStorage.removeItem(DRAFT_KEY);
+                                setForm({
+                                    fullName: savedUser.name || savedUser.username || "",
+                                    email: savedUser.email || "",
+                                    phone: "",
+                                    address: "",
+                                    homeType: "House",
+                                    hasChildren: "No",
+                                    hasOtherPets: "No",
+                                    reason: "",
+                                    experience: "",
+                                });
+                                setDocument(null);
+                                showMessage("success", "Form cleared. You can start over.");
+                            }}
+                            disabled={submitting || documentUploading}
+                        >
+                            Clear Form
+                        </button>
+
+                        <button
                             type="submit"
                             className="adoption-submit-button"
                             disabled={
@@ -714,6 +760,10 @@ export default function AdoptionApplication({
                                     : `Submit Application for ${pet.name}`}
                         </button>
                     </div>
+
+                    <small className="adoption-draft-note">
+                        Your progress is saved automatically on this device.
+                    </small>
                 </form>
             </div>
         </section>
