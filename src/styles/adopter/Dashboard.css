@@ -2206,3 +2206,17 @@
     width: 12px;
     height: auto;
 }
+
+/* Role Application: reuse the Application Status refresh button */
+.adopter-panel-heading > .application-status-refresh {
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1.5px solid #5a1b00;
+    background: #ffffff;
+    font-weight: 800;
+}
+
+.adopter-panel-heading > .application-status-refresh:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fff7cb;
+}

@@ -157,10 +157,12 @@ export default function RoleApplication() {
 
                     <button
                         type="button"
+                        className={`application-status-refresh ${loading ? "is-loading" : ""}`}
                         onClick={fetchApplication}
                         disabled={loading}
                     >
-                        Refresh
+                        <img src="/icons/Refresh cw.svg" alt="" />
+                        {loading ? "Refreshing..." : "Refresh"}
                     </button>
                 </div>
 
