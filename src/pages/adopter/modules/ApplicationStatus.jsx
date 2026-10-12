@@ -42,13 +42,13 @@ function getStatusContent(status) {
             eyebrow: "Application Update",
             title: "Your application was not approved",
             description:
-                "You may reviewe the shelter's notes below and browse other animal available",
+                "You may review the shelter's notes below and browse other animal available",
         };
     }
 
     return {
         eyebrow: "Application Under Review",
-        title: "Your application was approved!",
+        title: "Your application is being reviewed",
         description:
             "RescueBase staff approved your adoption application. Check the instructions and interview schedule below.",
     };
@@ -81,7 +81,7 @@ export default function ApplicationStatus({
         return (
             <section className="application-status-empty">
                 <div className="application-status-empty-icon">
-                    🐾
+                    <img src="/icons/sidebar/brown paw-light.svg" alt="" />
                 </div>
 
                 <span>Adoption Management</span>
@@ -89,8 +89,8 @@ export default function ApplicationStatus({
                 <h2>No adoption application yet</h2>
 
                 <p>
-                    Select an available animal and submit an adoption
-                    application to track its progress here.
+                    When you apply for a pet, you can follow every step of
+                    your application right here.
                 </p>
 
                 <div className="application-status-empty-actions">
@@ -98,7 +98,7 @@ export default function ApplicationStatus({
                         type="button"
                         onClick={() => onBrowsePets?.()}
                     >
-                        Browse Available Pets
+                        Browse Available Pets <span aria-hidden="true">→</span>
                     </button>
 
                     <button
@@ -106,6 +106,7 @@ export default function ApplicationStatus({
                         onClick={() => onRefresh?.()}
                         disabled={loading}
                     >
+                        <img src="/icons/Refresh cw.svg" alt="" />
                         {loading ? "Refreshing..." : "Refresh"}
                     </button>
                 </div>
@@ -122,6 +123,54 @@ export default function ApplicationStatus({
     const isPending = status === "pending";
     const isApproved = status === "approved";
     const isRejected = status === "rejected";
+    const hasInterview = Boolean(application.interviewSchedule);
+
+    const stageIndex = {
+        pending: 1,
+        interview_scheduled: 2,
+        interview_completed: 3,
+        approved: 4,
+        rejected: 4,
+    }[status] ?? 1;
+
+    const progressSteps = [
+        {
+            label: "Submitted",
+            detail: formatDate(application.submittedAt),
+        },
+        {
+            label: "Review",
+            detail: stageIndex > 1 ? "Completed" : "In progress",
+        },
+        {
+            label: "Meet & Greet",
+            detail: hasInterview
+                ? formatDate(application.interviewSchedule, true)
+                : isApproved || isRejected
+                    ? "Not held"
+                    : "To be scheduled",
+        },
+        {
+            label: "Decision",
+            detail: isApproved
+                ? "Approved"
+                : isRejected
+                    ? "Not approved"
+                    : "Waiting",
+        },
+    ].map((step, index) => {
+        let state = "upcoming";
+
+        if (index < stageIndex) state = "done";
+        if (index === stageIndex) state = "current";
+        if (index === 2 && (isApproved || isRejected) && !hasInterview) state = "skipped";
+        if (index === 3 && isRejected) state = "rejected";
+        if (index === 3 && isApproved) state = "approved";
+
+        return { ...step, state };
+    });
+
+    const progressFill = (Math.min(stageIndex, 3) / 3) * 100;
 
     return (
         <section className="application-status-module">
@@ -229,72 +278,31 @@ export default function ApplicationStatus({
                             <h3>Current review stage</h3>
                         </div>
 
-                        <div className="application-progress-track">
-                            <article className="complete">
-                                <div>1</div>
+                        <ol className={`application-stepper ${isRejected ? "is-rejected" : ""}`}>
+                            <span className="application-stepper-line" aria-hidden="true">
+                                <span style={{ width: `${progressFill}%` }} />
+                            </span>
 
-                                <section>
-                                    <strong>
-                                        Application Submitted
-                                    </strong>
-
-                                    <p>
-                                        Submitted on{" "}
-                                        {formatDate(
-                                            application.submittedAt
+                            {progressSteps.map((step) => (
+                                <li key={step.label} className={`is-${step.state}`}>
+                                    <span className="application-stepper-dot" aria-hidden="true">
+                                        {(step.state === "done" || step.state === "approved") && (
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="m5 12.5 4.5 4.5L19 7.5" />
+                                            </svg>
                                         )}
-                                    </p>
-                                </section>
-                            </article>
+                                        {step.state === "rejected" && (
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M7 7l10 10M17 7 7 17" />
+                                            </svg>
+                                        )}
+                                    </span>
 
-                            <article
-                                className={
-                                    isPending
-                                        ? "active"
-                                        : "complete"
-                                }
-                            >
-                                <div>2</div>
-
-                                <section>
-                                    <strong>
-                                        Shelter Review
-                                    </strong>
-
-                                    <p>
-                                        {isPending
-                                            ? "Your information and identification document are being reviewed."
-                                            : "The shelter has completed its initial review."}
-                                    </p>
-                                </section>
-                            </article>
-
-                            <article
-                                className={
-                                    isApproved
-                                        ? "complete"
-                                        : isRejected
-                                            ? "rejected"
-                                            : ""
-                                }
-                            >
-                                <div>3</div>
-
-                                <section>
-                                    <strong>
-                                        Final Decision
-                                    </strong>
-
-                                    <p>
-                                        {isApproved
-                                            ? "Your application was approved."
-                                            : isRejected
-                                                ? "Your application was not approved."
-                                                : "Waiting for the shelter’s final decision."}
-                                    </p>
-                                </section>
-                            </article>
-                        </div>
+                                    <strong>{step.label}</strong>
+                                    <small>{step.detail}</small>
+                                </li>
+                            ))}
+                        </ol>
                     </section>
 
                     {isPending && (

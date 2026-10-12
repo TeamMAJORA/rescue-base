@@ -662,3 +662,245 @@
         left: 18px;
     }
 }
+
+/* ===== Progress stepper (Submitted → Review → Meet & Greet → Decision) ===== */
+.application-stepper {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 6px 0 0;
+    list-style: none;
+}
+
+/* grey line from the first dot to the last dot */
+.application-stepper-line {
+    position: absolute;
+    top: 22px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 5px;
+    border-radius: 999px;
+    background: #ebe3bd;
+}
+
+/* orange filled part */
+.application-stepper-line > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #fb8500;
+    transition: width 0.4s ease;
+}
+
+.application-stepper li {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+}
+
+.application-stepper-dot {
+    box-sizing: border-box;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 6px;
+    border-radius: 50%;
+    background: #ebe3bd;
+}
+
+.application-stepper-dot svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.application-stepper strong {
+    color: #a8987a;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.application-stepper small {
+    max-width: 150px;
+    color: #a8987a;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* done */
+.application-stepper li.is-done .application-stepper-dot {
+    background: #fb8500;
+    box-shadow: 0 4px 10px rgba(251, 133, 0, 0.3);
+}
+
+/* current */
+.application-stepper li.is-current .application-stepper-dot {
+    border: 3px solid #fb8500;
+    background: #fffaf0;
+    box-shadow: 0 0 0 5px rgba(251, 133, 0, 0.14);
+}
+
+.application-stepper li.is-current .application-stepper-dot::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fb8500;
+}
+
+.application-stepper li.is-done strong,
+.application-stepper li.is-current strong {
+    color: #d96f00;
+}
+
+.application-stepper li.is-done small,
+.application-stepper li.is-current small {
+    color: #75432f;
+}
+
+/* approved */
+.application-stepper li.is-approved .application-stepper-dot {
+    background: #2f8f5b;
+    box-shadow: 0 4px 10px rgba(47, 143, 91, 0.3);
+}
+
+.application-stepper li.is-approved strong,
+.application-stepper li.is-approved small {
+    color: #2f8f5b;
+}
+
+/* rejected */
+.application-stepper li.is-rejected .application-stepper-dot {
+    background: #d62828;
+    box-shadow: 0 4px 10px rgba(214, 40, 40, 0.28);
+}
+
+.application-stepper li.is-rejected strong,
+.application-stepper li.is-rejected small {
+    color: #d62828;
+}
+
+/* skipped (rejected before an interview) */
+.application-stepper li.is-skipped .application-stepper-dot::after {
+    content: "";
+    width: 12px;
+    height: 3px;
+    border-radius: 2px;
+    background: #c9bb92;
+}
+
+@media (max-width: 520px) {
+    .application-stepper-line {
+        top: 19px;
+    }
+
+    .application-stepper-dot {
+        width: 30px;
+        height: 30px;
+    }
+
+    .application-stepper strong,
+    .application-stepper small {
+        font-size: 9px;
+    }
+}
+
+/* ===== Empty state (no application yet) ===== */
+.application-status-empty {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    max-width: 680px;
+    padding: 46px 36px 40px;
+    border-radius: 26px;
+}
+
+/* paw background, top-right and bottom-left (reuses heroPaw.svg) */
+.application-status-empty::before,
+.application-status-empty::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 260px;
+    height: 200px;
+    background: url("/icons/heroPaw.svg") no-repeat center / contain;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.application-status-empty::before {
+    top: -50px;
+    right: -70px;
+    transform: rotate(-20deg);
+}
+
+.application-status-empty::after {
+    bottom: -70px;
+    left: -90px;
+    transform: rotate(160deg);
+}
+
+/* orange paw badge */
+.application-status-empty .application-status-empty-icon {
+    width: 92px;
+    height: 92px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fb8500, #ffa53a);
+    box-shadow:
+        0 0 0 9px rgba(252, 191, 73, 0.32),
+        0 12px 26px rgba(251, 133, 0, 0.32);
+}
+
+.application-status-empty-icon img {
+    width: 40px;
+    height: 40px;
+}
+
+/* buttons */
+.application-status-empty-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 170px;
+    min-height: 48px;
+    padding: 10px 22px;
+}
+
+.application-status-empty-actions button:first-child {
+    background: linear-gradient(115deg, #fb8500, #ffa53a);
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.3);
+}
+
+.application-status-empty-actions button:first-child:hover {
+    background: linear-gradient(115deg, #d96f00, #fb8500);
+}
+
+.application-status-empty-actions button:last-child {
+    border: 1.5px solid #5a1b00;
+    background: #ffffff;
+}
+
+.application-status-empty-actions button:last-child:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+.application-status-empty-actions button img {
+    width: 15px;
+    height: 15px;
+}

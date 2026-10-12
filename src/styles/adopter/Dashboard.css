@@ -421,7 +421,7 @@
     padding: 34px 38px;
     border-radius: 24px;
         background:
-        url("/icons/heroPaw.svg") no-repeat right -30px bottom -90px / auto 135%,
+        url("/icons/heroPaw.svg") no-repeat right -30px bottom -150px / auto 135%,
         linear-gradient(90deg, var(--adopter-orange) 0%, #ff9d2e 55%, #ffad42 100%);
     box-shadow: 0 18px 36px rgba(251, 133, 0, 0.28);
     overflow: hidden;
