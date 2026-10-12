@@ -1279,3 +1279,486 @@
         flex-direction: column-reverse;
     }
 }
+
+/* ===== Schedule interview modal ===== */
+.admin-schedule-modal {
+    width: min(720px, 100%);
+    max-height: 92vh;
+    overflow-y: auto;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 22px;
+    background: #fffaf0;
+    box-shadow: 0 24px 60px rgba(58, 18, 0, 0.3);
+    color: #5a1b00;
+}
+
+.admin-schedule-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    background:
+        radial-gradient(circle at right top, rgba(252, 191, 73, 0.35), transparent 50%),
+        #fff3d0;
+}
+
+.admin-schedule-header-icon {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #fb8500, #ffa53a);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.3);
+}
+
+.admin-schedule-header-icon .admin-review-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.admin-schedule-header h2 {
+    margin: 0 0 6px;
+    padding-right: 44px;
+    font-family: "Itim", cursive;
+    font-size: 24px;
+    line-height: 1.1;
+    color: #3a1200;
+}
+
+.admin-schedule-header p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+}
+
+.admin-schedule-header p span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.admin-schedule-header p img {
+    width: 12px;
+    height: 12px;
+}
+
+/* body: calendar + time slots */
+.admin-schedule-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 18px;
+    padding: 20px 24px 14px;
+}
+
+.admin-schedule-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #9a6400;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-schedule-label em {
+    color: #d62828;
+    font-style: normal;
+}
+
+.admin-schedule-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.admin-schedule-label-row small {
+    color: #86604d;
+    font-size: 11px;
+}
+
+.admin-schedule-calendar {
+    padding: 12px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 16px;
+    background: #fff7d6;
+}
+
+.admin-schedule-month {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.admin-schedule-month strong {
+    font-family: "Itim", cursive;
+    font-size: 18px;
+    font-weight: 400;
+    color: #3a1200;
+}
+
+.admin-schedule-month button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(90, 27, 0, 0.25);
+    border-radius: 50%;
+    background: #ffffff;
+    color: #5a1b00;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.admin-schedule-month button:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+}
+
+.admin-schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.admin-schedule-weekday {
+    padding: 4px 0;
+    color: #a07c66;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.admin-schedule-day {
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #3a1200;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+button.admin-schedule-day:hover:not(:disabled) {
+    background: #ffe2a8;
+}
+
+.admin-schedule-day.is-outside,
+.admin-schedule-day:disabled {
+    color: #cbbd9c;
+    font-weight: 600;
+    cursor: default;
+}
+
+.admin-schedule-day.is-today {
+    border-color: #fb8500;
+}
+
+.admin-schedule-day.is-selected {
+    border-color: transparent;
+    background: linear-gradient(135deg, #fb8500, #ffa53a);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(251, 133, 0, 0.35);
+}
+
+.admin-schedule-slots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.admin-schedule-slot {
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 11px;
+    background: #fff0bf;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.admin-schedule-slot.is-open:hover {
+    background: #ffe2a8;
+    transform: translateY(-1px);
+}
+
+.admin-schedule-slot.is-selected,
+.admin-schedule-slot.is-selected:hover {
+    border-color: transparent;
+    background: #4a1a00;
+    color: #ffffff;
+}
+
+.admin-schedule-slot.is-booked,
+.admin-schedule-slot.is-disabled {
+    background: #f1ead2;
+    color: #b3a58a;
+    cursor: not-allowed;
+}
+
+.admin-schedule-slot.is-booked span {
+    text-decoration: line-through;
+}
+
+.admin-schedule-slot small {
+    color: #d62828;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.admin-schedule-empty {
+    margin: 0;
+    padding: 16px;
+    border: 1px dashed rgba(251, 133, 0, 0.4);
+    border-radius: 12px;
+    color: #86604d;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* summary + note */
+.admin-schedule-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 24px;
+    padding: 12px 14px;
+    border: 1px dashed rgba(251, 133, 0, 0.45);
+    border-radius: 14px;
+    background: #fffdf4;
+}
+
+.admin-schedule-summary.is-ready {
+    border-style: solid;
+    border-color: #fb8500;
+    background: #ffffff;
+}
+
+.admin-schedule-summary-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #ffe2a8;
+    color: #d96f00;
+}
+
+.admin-schedule-summary small {
+    display: block;
+    color: #9a6400;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-schedule-summary strong {
+    font-family: "Itim", cursive;
+    font-size: 19px;
+    font-weight: 400;
+    color: #3a1200;
+}
+
+.admin-schedule-summary:not(.is-ready) strong {
+    color: #b3967f;
+}
+
+.admin-schedule-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 24px 0;
+    padding: 9px 12px;
+    border-radius: 11px;
+    background: #dff5e8;
+    color: #1f6e43;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.admin-schedule-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px 20px;
+}
+
+.admin-schedule-confirm {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.admin-schedule-modal button:disabled {
+    cursor: not-allowed;
+}
+
+.admin-schedule-footer button:disabled {
+    opacity: 0.45;
+}
+
+@media (max-width: 680px) {
+    .admin-schedule-body {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-schedule-footer {
+        flex-direction: column-reverse;
+    }
+
+    .admin-schedule-footer button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ===== Time wheel picker ===== */
+.admin-wheel {
+    position: relative;
+    height: 180px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 10px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 16px;
+    background: #fff7d6;
+    overflow: hidden;
+}
+
+/* highlighted center band */
+.admin-wheel::before {
+    content: "";
+    position: absolute;
+    top: 72px;
+    left: 10px;
+    right: 10px;
+    height: 36px;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(90, 27, 0, 0.08);
+    pointer-events: none;
+}
+
+/* fade the top and bottom rows */
+.admin-wheel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        #fff7d6 0%,
+        rgba(255, 247, 214, 0) 35%,
+        rgba(255, 247, 214, 0) 65%,
+        #fff7d6 100%
+    );
+    pointer-events: none;
+}
+
+.admin-wheel-column {
+    position: relative;
+    z-index: 1;
+    width: 64px;
+    height: 100%;
+    padding: 72px 0;
+    box-sizing: border-box;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+}
+
+.admin-wheel-column::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-wheel-item {
+    width: 100%;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: #c9b48f;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    scroll-snap-align: center;
+    cursor: pointer;
+    transition: color 0.15s ease, font-size 0.15s ease;
+}
+
+.admin-wheel-item.is-near {
+    color: #a07c66;
+    font-size: 16px;
+}
+
+.admin-wheel-item.is-selected {
+    color: #3a1200;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.admin-wheel-colon {
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    color: #3a1200;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.admin-wheel-hint {
+    margin: 8px 0 0;
+    color: #a07c66;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* summary turns red when the time can't be used */
+.admin-schedule-summary.has-error {
+    border-style: solid;
+    border-color: #d62828;
+    background: #fff1ee;
+}
+
+.admin-schedule-summary.has-error small {
+    color: #c21f1f;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 11px;
+}
+
+.admin-schedule-summary.has-error .admin-schedule-summary-icon {
+    background: #ffd9d3;
+    color: #d62828;
+}
+
+/* keep the selected date orange while hovered */
+button.admin-schedule-day.is-selected:hover {
+    background: linear-gradient(135deg, #fb8500, #ffa53a);
+}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -122,115 +122,351 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
     );
 }
 
+const WEEK_DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const WHEEL_ITEM_HEIGHT = 36;
+const WHEEL_HOURS = Array.from({ length: 12 }, (_, index) => String(index + 1));
+const WHEEL_MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"));
+const WHEEL_PERIODS = ["AM", "PM"];
+const SHELTER_OPEN_HOUR = 8;
+const SHELTER_CLOSE_HOUR = 17;
+
+function isSameDay(a, b) {
+    return (
+        a &&
+        b &&
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate()
+    );
+}
+
+function to24Hour(hour, period) {
+    return (Number(hour) % 12) + (period === "PM" ? 12 : 0);
+}
+
+function WheelColumn({ items, value, onChange, label }) {
+    const columnRef = useRef(null);
+    const scrollTimer = useRef(null);
+    const selectedIndex = Math.max(0, items.indexOf(value));
+
+    useEffect(() => {
+        const column = columnRef.current;
+        if (!column) return;
+
+        const target = selectedIndex * WHEEL_ITEM_HEIGHT;
+
+        if (Math.abs(column.scrollTop - target) > 2) {
+            column.scrollTo({ top: target });
+        }
+    }, [selectedIndex]);
+
+    function handleScroll() {
+        clearTimeout(scrollTimer.current);
+
+        scrollTimer.current = setTimeout(() => {
+            const column = columnRef.current;
+            if (!column) return;
+
+            const nextIndex = Math.min(
+                items.length - 1,
+                Math.max(0, Math.round(column.scrollTop / WHEEL_ITEM_HEIGHT))
+            );
+
+            if (items[nextIndex] !== value) {
+                onChange(items[nextIndex]);
+            }
+        }, 120);
+    }
+
+    return (
+        <div
+            ref={columnRef}
+            className="admin-wheel-column"
+            onScroll={handleScroll}
+            role="listbox"
+            aria-label={label}
+        >
+            {items.map((item, index) => {
+                const distance = Math.abs(index - selectedIndex);
+
+                return (
+                    <button
+                        key={item}
+                        type="button"
+                        role="option"
+                        aria-selected={item === value}
+                        className={`admin-wheel-item ${distance === 0 ? "is-selected" : distance === 1 ? "is-near" : ""}`}
+                        onClick={() =>
+                            columnRef.current?.scrollTo({
+                                top: index * WHEEL_ITEM_HEIGHT,
+                                behavior: "smooth",
+                            })
+                        }
+                    >
+                        {item}
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
 function InterviewModal({
     application,
     onClose,
     onConfirm,
     loading,
+    bookedSlots = [],
 }) {
-    const [interviewDate, setInterviewDate] = useState("");
+    const [viewMonth, setViewMonth] = useState(() => new Date());
+    const [selectedDay, setSelectedDay] = useState(null);
+    const [hour, setHour] = useState("9");
+    const [minute, setMinute] = useState("00");
+    const [period, setPeriod] = useState("AM");
 
     useEffect(() => {
-        if (application?.interviewSchedule) {
-            const parsed = new Date(application.interviewSchedule);
+        const existing = application?.interviewSchedule
+            ? new Date(application.interviewSchedule)
+            : null;
 
-            if (!Number.isNaN(parsed.getTime())) {
-                setInterviewDate(getLocalDateTimeValue(parsed));
-                return;
-            }
+        if (existing && !Number.isNaN(existing.getTime()) && existing > new Date()) {
+            const existingHour = existing.getHours();
+            const roundedMinute = Math.round(existing.getMinutes() / 5) * 5;
+
+            setViewMonth(new Date(existing.getFullYear(), existing.getMonth(), 1));
+            setSelectedDay(new Date(existing.getFullYear(), existing.getMonth(), existing.getDate()));
+            setHour(String(existingHour % 12 || 12));
+            setMinute(String(Math.min(roundedMinute, 55)).padStart(2, "0"));
+            setPeriod(existingHour >= 12 ? "PM" : "AM");
+            return;
         }
 
-        setInterviewDate("");
+        const now = new Date();
+        setViewMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+        setSelectedDay(null);
+        setHour("9");
+        setMinute("00");
+        setPeriod("AM");
     }, [application]);
 
     if (!application) return null;
 
-    function handleSubmit(event) {
-        event.preventDefault();
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const year = viewMonth.getFullYear();
+    const month = viewMonth.getMonth();
+    const firstWeekday = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
 
-        if (!interviewDate || loading) return;
+    const calendarCells = [
+        ...Array.from({ length: firstWeekday }, (_, index) => ({
+            day: daysInPrevMonth - firstWeekday + index + 1,
+            outside: true,
+        })),
+        ...Array.from({ length: daysInMonth }, (_, index) => ({
+            day: index + 1,
+            date: new Date(year, month, index + 1),
+        })),
+    ];
 
-        const selectedDate = new Date(interviewDate);
+    const hour24 = to24Hour(hour, period);
 
-        if (
-            Number.isNaN(selectedDate.getTime()) ||
-            selectedDate.getTime() <= Date.now()
-        ) {
-            alert("Please select a valid future interview date and time.");
-            return;
+    const finalDate = selectedDay
+        ? new Date(
+            selectedDay.getFullYear(),
+            selectedDay.getMonth(),
+            selectedDay.getDate(),
+            hour24,
+            Number(minute)
+        )
+        : null;
+
+    const isBooked =
+        finalDate &&
+        bookedSlots.some((value) => new Date(value).getTime() === finalDate.getTime());
+
+    let timeError = "";
+
+    if (finalDate) {
+        if (finalDate <= now) {
+            timeError = "This time has already passed.";
+        } else if (hour24 < SHELTER_OPEN_HOUR || hour24 >= SHELTER_CLOSE_HOUR) {
+            timeError = "Interviews run from 8:00 AM to 5:00 PM only.";
+        } else if (isBooked) {
+            timeError = "Another applicant already has an interview at this time.";
         }
+    }
 
-        onConfirm(application._id, selectedDate.toISOString());
+    function handleConfirm() {
+        if (!finalDate || timeError || loading) return;
+        onConfirm(application._id, finalDate.toISOString());
     }
 
     return (
         <div className="admin-modal-overlay">
-            <section className="admin-modal">
-                <button
-                    className="admin-modal-class"
-                    type="button"
-                    onClick={onClose}
-                    disabled={loading}
-                >
-                    x
-                </button>
+            <section className="admin-schedule-modal" role="dialog" aria-modal="true">
+                <header className="admin-schedule-header">
+                    <span className="admin-schedule-header-icon" aria-hidden="true">
+                        <ReviewIcon name="calendar" />
+                    </span>
 
-                <h2>
-                    {application.interviewSchedule
-                        ? "Reschedule Adoption Interview"
-                        : "Schedule Adoption Interview"}
-                </h2>
+                    <div>
+                        <h2>
+                            {application.interviewSchedule
+                                ? "Reschedule Adoption Interview"
+                                : "Schedule Adoption Interview"}
+                        </h2>
 
-                <p>
-                    Applicant: <strong>{application.fullName}</strong>
-                </p>
-
-                <p>
-                    Pet: <strong>{application.petName}</strong>
-                </p>
-
-                <form onSubmit={handleSubmit}>
-                    <label htmlFor="adoption-interview-date">
-                        Interview Date and Time
-                    </label>
-
-                    <input
-                        id="adoption-interview-date"
-                        type="datetime-local"
-                        value={interviewDate}
-                        min={getLocalDateTimeValue(new Date())}
-                        onChange={(event) =>
-                            setInterviewDate(event.target.value)
-                        }
-                        required
-                        disabled={loading}
-                    />
-
-                    <p>
-                        The pet will remain available during the interview
-                        and application review process.
-                    </p>
-
-                    <div className="admin-modal-actions">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            disabled={loading}
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            className="approve"
-                            disabled={loading || !interviewDate}
-                        >
-                            {loading
-                                ? "Scheduling..."
-                                : "Confirm Interview"}
-                        </button>
+                        <p>
+                            <span>{application.fullName}</span>
+                            <span>
+                                <img src="/icons/sidebar/brown paw.svg" alt="" />
+                                {application.petName}
+                            </span>
+                        </p>
                     </div>
-                </form>
+
+                    <button
+                        type="button"
+                        className="admin-review-close"
+                        onClick={onClose}
+                        disabled={loading}
+                        aria-label="Close"
+                    >
+                        <ReviewIcon name="x" />
+                    </button>
+                </header>
+
+                <div className="admin-schedule-body">
+                    <div className="admin-schedule-section">
+                        <span className="admin-schedule-label">
+                            Select date <em>*</em>
+                        </span>
+
+                        <div className="admin-schedule-calendar">
+                            <div className="admin-schedule-month">
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMonth(new Date(year, month - 1, 1))}
+                                    disabled={isCurrentMonth}
+                                    aria-label="Previous month"
+                                >
+                                    ‹
+                                </button>
+
+                                <strong>
+                                    {viewMonth.toLocaleString("en-PH", { month: "long", year: "numeric" })}
+                                </strong>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMonth(new Date(year, month + 1, 1))}
+                                    aria-label="Next month"
+                                >
+                                    ›
+                                </button>
+                            </div>
+
+                            <div className="admin-schedule-grid">
+                                {WEEK_DAYS.map((day) => (
+                                    <span key={day} className="admin-schedule-weekday">{day}</span>
+                                ))}
+
+                                {calendarCells.map((cell, index) => {
+                                    if (cell.outside) {
+                                        return (
+                                            <span key={`out-${index}`} className="admin-schedule-day is-outside">
+                                                {cell.day}
+                                            </span>
+                                        );
+                                    }
+
+                                    const isPast = cell.date < today;
+                                    const isSelected = isSameDay(cell.date, selectedDay);
+                                    const isToday = isSameDay(cell.date, today);
+
+                                    return (
+                                        <button
+                                            key={cell.day}
+                                            type="button"
+                                            className={`admin-schedule-day ${isSelected ? "is-selected" : ""} ${isToday ? "is-today" : ""}`}
+                                            disabled={isPast}
+                                            onClick={() => setSelectedDay(cell.date)}
+                                        >
+                                            {cell.day}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="admin-schedule-section">
+                        <div className="admin-schedule-label-row">
+                            <span className="admin-schedule-label">
+                                Select time <em>*</em>
+                            </span>
+                            <small>8:00 AM – 5:00 PM</small>
+                        </div>
+
+                        <div className="admin-wheel">
+                            <WheelColumn items={WHEEL_HOURS} value={hour} onChange={setHour} label="Hour" />
+                            <span className="admin-wheel-colon">:</span>
+                            <WheelColumn items={WHEEL_MINUTES} value={minute} onChange={setMinute} label="Minute" />
+                            <WheelColumn items={WHEEL_PERIODS} value={period} onChange={setPeriod} label="AM or PM" />
+                        </div>
+
+                        <p className="admin-wheel-hint">Scroll or tap a number to change it.</p>
+                    </div>
+                </div>
+
+                <div className={`admin-schedule-summary ${finalDate && !timeError ? "is-ready" : ""} ${timeError ? "has-error" : ""}`}>
+                    <span className="admin-schedule-summary-icon" aria-hidden="true">
+                        <ReviewIcon name="calendar" />
+                    </span>
+
+                    <div>
+                        <small>{timeError || "Interview will be set for"}</small>
+                        <strong>
+                            {finalDate
+                                ? `${finalDate.toLocaleDateString("en-PH", {
+                                    weekday: "long",
+                                    month: "long",
+                                    day: "numeric",
+                                    year: "numeric",
+                                })} · ${hour}:${minute} ${period}`
+                                : "Pick a date first"}
+                        </strong>
+                    </div>
+                </div>
+
+                <p className="admin-schedule-note">
+                    <ReviewIcon name="check" />
+                    The pet will remain available during the interview and application review process.
+                </p>
+
+                <footer className="admin-schedule-footer">
+                    <button
+                        type="button"
+                        className="admin-review-secondary"
+                        onClick={onClose}
+                        disabled={loading}
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        className="admin-review-approve admin-schedule-confirm"
+                        onClick={handleConfirm}
+                        disabled={loading || !finalDate || Boolean(timeError)}
+                    >
+                        <ReviewIcon name="check" />
+                        {loading ? "Scheduling..." : "Confirm Interview"}
+                    </button>
+                </footer>
             </section>
         </div>
     );
@@ -943,6 +1179,19 @@ export default function AdoptionApplications() {
         setStatusFilter("all");
     }
 
+    const bookedSlots = useMemo(
+    () =>
+        applications
+            .filter(
+                (application) =>
+                    application.status === "interview_scheduled" &&
+                    application.interviewSchedule &&
+                    application._id !== interviewApplication?._id
+            )
+            .map((application) => application.interviewSchedule),
+    [applications, interviewApplication]
+    );
+
     const pendingCount = useMemo(
         () =>
             activeApplications.filter(
@@ -1235,6 +1484,7 @@ export default function AdoptionApplications() {
                 onClose={() => setInterviewApplication(null)}
                 onConfirm={handleScheduleInterview}
                 loading={saving}
+                bookedSlots={bookedSlots}
             />
 
             <RejectModal
