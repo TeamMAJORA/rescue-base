@@ -496,10 +496,12 @@ export default function AnimalProfiles() {
         return sortConfig.direction === "asc" ? "▲" : "▼";
     }
 
-    async function fetchAnimals() {
+    async function fetchAnimals({ silent = false } = {}) {
         try {
-            setLoading(true);
-            setMessage("");
+            if (!silent) {
+                setLoading(true);
+                setMessage("");
+            }
 
             const response = await fetch(`${API}/api/animals`, {
                 headers: {
@@ -508,17 +510,15 @@ export default function AnimalProfiles() {
             });
             const data = await response.json();
 
-            console.log("Animals:", data);
-
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to fetch animals.");
+                if (!silent) setMessage(data.message || "Failed to fetch animals.");
                 return;
             }
 
             setAnimals(data.animals || []);
         } catch (error) {
             console.error("Fetch animals error:", error);
-            setMessage("Server error while fetching animals.");
+            if (!silent) setMessage("Server error while fetching animals.");
         } finally {
             setLoading(false);
         }
@@ -792,6 +792,26 @@ export default function AnimalProfiles() {
         fetchAnimals();
         fetchQrCodes();
     }, []);
+
+    // Keep statuses fresh 
+    useEffect(() => {
+        if (showForm) return;
+
+        const interval = setInterval(() => {
+            fetchAnimals({ silent: true });
+        }, 30000);
+
+        function handleFocus() {
+            fetchAnimals({ silent: true });
+        }
+
+        window.addEventListener("focus", handleFocus);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("focus", handleFocus);
+        };
+    }, [showForm]);
 
     useEffect(() => {
         if (!showForm || !isFormDirty) return;
