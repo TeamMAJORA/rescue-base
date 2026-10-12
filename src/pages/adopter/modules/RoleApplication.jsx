@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -44,6 +45,7 @@ export default function RoleApplication() {
 
         if (!reason.trim()) {
             setError("Please provide a reason for your application");
+            return;
         }
 
         try {
@@ -117,16 +119,35 @@ export default function RoleApplication() {
         },
     ];
 
+    
+    // Role choices shown as cards
+    const ROLE_OPTIONS = [
+        {
+            value: "volunteer",
+            title: "Volunteer",
+            description: "Help at the shelter with daily care, events and adoption days.",
+            tags: ["On-site", "Flexible schedule"],
+            icon: "/icons/Volunteer-white.svg",
+        },
+        {
+            value: "foster",
+            title: "Foster",
+            description: "Give a pet a temporary home until it is ready for adoption.",
+            tags: ["At home", "Short or long term"],
+            icon: "/icons/Foster.svg",
+        },
+    ];
+
     return (
         <section className="role-application-module">
-            <div className="adopter-panel">
+            <div className="adopter-panel ra-form-panel">
                 <div className="adopter-panel-heading">
                     <div>
                         <span className="adopter-dashboard-eyebrow">
                             RescueBase Community
                         </span>
 
-                        <h2>Role Application</h2>
+                        <h2>Join the RescueBase team</h2>
 
                         <p>
                             Apply to become a volunteer or foster member
@@ -143,81 +164,110 @@ export default function RoleApplication() {
                     </button>
                 </div>
 
-                {loading && <p>Loading application...</p>}
+                {loading && <p className="ra-loading">Loading application...</p>}
 
-                {error && (
-                    <p className="role-application-error">
-                        {error}
-                    </p>
-                )}
+                {error && <p className="role-application-error">{error}</p>}
 
-                {success && (
-                    <p className="role-application-success">
-                        {success}
-                    </p>
-                )}
+                {success && <p className="role-application-success">{success}</p>}
 
                 {!hasPendingApplication && (
-                    <form
-                        className="role-application-form"
-                        onSubmit={handleSubmit}
-                    >
-                        <label htmlFor="targetRole">
-                            Apply For
-                        </label>
+                    <form className="role-application-form" onSubmit={handleSubmit}>
+                        <div className="ra-field">
+                            <span className="ra-label">
+                                Apply for <em>*</em>
+                                <InfoTip text="Volunteers help at the shelter. Fosters care for a pet at home until it gets adopted." />
+                            </span>
 
-                        <select
-                            id="targetRole"
-                            value={targetRole}
-                            onChange={(event) =>
-                                setTargetRole(event.target.value)
-                            }
-                            disabled={submitting}
-                        >
-                            <option value="volunteer">
-                                Volunteer
-                            </option>
+                            <div className="ra-role-grid" role="radiogroup" aria-label="Apply for">
+                                {ROLE_OPTIONS.map((option) => (
+                                    <label
+                                        key={option.value}
+                                        className={`ra-role-card ${targetRole === option.value ? "is-selected" : ""}`}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="targetRole"
+                                            value={option.value}
+                                            checked={targetRole === option.value}
+                                            onChange={(event) => setTargetRole(event.target.value)}
+                                            disabled={submitting}
+                                        />
 
-                            <option value="foster">
-                                Foster Caregiver
-                            </option>
-                        </select>
+                                        <span className="ra-role-icon" aria-hidden="true">
+                                            <img src={option.icon} alt="" />
+                                        </span>
 
-                        <label htmlFor="reason">
-                            Why do you want to apply?
-                        </label>
+                                        <span className="ra-role-text">
+                                            <b>{option.title}</b>
+                                            <small>{option.description}</small>
+                                            <span className="ra-role-tags">
+                                                {option.tags.map((tag) => (
+                                                    <span key={tag}>{tag}</span>
+                                                ))}
+                                            </span>
+                                        </span>
 
-                        <textarea
-                            id="reason"
-                            value={reason}
-                            onChange={(event) =>
-                                setReason(event.target.value)
-                            }
-                            placeholder="Explain why you want to join the RescueBase team..."
-                            rows={6}
-                            disabled={submitting}
-                            required
-                        />
+                                        <span className="ra-role-check" aria-hidden="true">
+                                            <img src="/icons/checkmark.svg" alt="" />
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
 
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                        >
-                            {submitting
-                                ? "Submitting..."
-                                : "Submit Application"}
-                        </button>
+                        <div className="ra-field">
+                            <label className="ra-label" htmlFor="reason">
+                                Why do you want to apply? <em>*</em>
+                            </label>
+
+                            <div className="ra-textarea-wrap">
+                                <textarea
+                                    id="reason"
+                                    value={reason}
+                                    onChange={(event) => setReason(event.target.value)}
+                                    placeholder="Explain why you want to join the RescueBase team..."
+                                    rows={6}
+                                    maxLength={500}
+                                    disabled={submitting}
+                                    required
+                                />
+                                <span className="ra-counter">{reason.length} / 500</span>
+                            </div>
+
+                            <small className="ra-hint">
+                                Tell us about your experience with animals and when you are available.
+                            </small>
+                        </div>
+
+                        <div className="ra-form-footer">
+                            <p>
+                                Staff review every application. You will get a
+                                notification when it is decided.
+                            </p>
+
+                            <button
+                                type="submit"
+                                className="ra-submit"
+                                disabled={submitting || !reason.trim()}
+                            >
+                                {submitting ? "Submitting..." : "Submit Application"}
+                            </button>
+                        </div>
                     </form>
                 )}
 
                 {hasPendingApplication && (
-                    <p>
-                        Your application is currently under review.
-                        Please wait for an administrator's decision.
-                    </p>
+                    <div className="ra-pending">
+                        <span className="ra-pending-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                        </span>
+                        <div>
+                            <b>Your application is under review</b>
+                            <p>Please wait for an administrator's decision. You can check its progress on the right.</p>
+                        </div>
+                    </div>
                 )}
             </div>
-
             <aside className="role-application-side">
                 <div className="ra-card">
                     <div className="ra-card-head">
@@ -241,7 +291,9 @@ export default function RoleApplication() {
                         {raSteps.map((step, index) => (
                             <li key={step.title} className={`ra-step is-${step.state}`}>
                                 <span className="ra-step-dot">
-                                    {step.state === "done" ? "✓" : step.state === "declined" ? "✕" : index + 1}
+                                    {step.state === "done"
+                                        ? <img src="/icons/checkmark.svg" alt="" />
+                                        : step.state === "declined" ? "✕" : index + 1}
                                 </span>
                                 <div>
                                     <b>{step.title}</b>
