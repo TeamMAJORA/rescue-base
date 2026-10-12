@@ -88,6 +88,7 @@ export default function ApplicationStatus({
     onRefresh,
     onBrowsePets,
     onWithdraw,
+    history = [],
 }) {
 
     const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
@@ -177,6 +178,9 @@ export default function ApplicationStatus({
     const hasInterview = Boolean(application.interviewSchedule);
     const isWithdrawn = status === "withdrawn";
     const isActive = isPending || isInterviewScheduled || isInterviewCompleted;
+    const pastApplications = history.filter(
+        (item) => String(item.applicationId) !== String(application.applicationId)
+    );
 
     const stageMap = {
     pending: 1,
@@ -604,6 +608,55 @@ export default function ApplicationStatus({
                     )}
                 </div>
             </div>
+                {pastApplications.length > 0 && (
+                    <section className="application-history">
+                        <div className="application-status-section-heading">
+                            <span>Application History</span>
+                            <h3>Your past applications</h3>
+                        </div>
+
+                        <ul className="application-history-list">
+                            {pastApplications.map((item) => (
+                                <li key={item.applicationId} className="application-history-item">
+                                    <div className="application-history-thumb">
+                                        {item.petImage ? (
+                                            <img src={item.petImage} alt={item.petName} />
+                                        ) : (
+                                            <img
+                                                src="/icons/sidebar/brown paw.svg"
+                                                alt=""
+                                                className="is-placeholder"
+                                            />
+                                        )}
+                                    </div>
+
+                                    <div className="application-history-info">
+                                        <strong>{item.petName}</strong>
+                                        <small>{item.petBreed || "Breed not available"}</small>
+                                    </div>
+
+                                    <div className="application-history-date">
+                                        <span>Submitted</span>
+                                        <strong>{formatDate(item.submittedAt)}</strong>
+                                    </div>
+
+                                    <div className="application-history-date">
+                                        <span>Closed</span>
+                                        <strong>{formatDate(item.closedAt)}</strong>
+                                    </div>
+
+                                    <span className={`application-status-pill ${item.status}`}>
+                                        {item.status.replaceAll("_", " ")}
+                                    </span>
+
+                                    {item.note && (
+                                        <p className="application-history-note">{item.note}</p>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+            )}
         </section>
     );
 }

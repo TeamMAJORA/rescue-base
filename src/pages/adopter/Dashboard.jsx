@@ -200,6 +200,7 @@ export default function Dashboard({ onLogout }) {
 
     const [applicationLoading, setApplicationLoading] =
         useState(true);
+    const [applicationHistory, setApplicationHistory] = useState([]);
 
     const [notificationOpen, setNotificationOpen] =
         useState(false);
@@ -736,6 +737,62 @@ export default function Dashboard({ onLogout }) {
 
         await fetchApplicationStatus();
     }
+
+    async function fetchApplicationHistory() {
+        if (!token) return;
+
+        try {
+            const response = await fetch(
+                `${API}/api/adoptions/user/history`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) return;
+
+            setApplicationHistory(
+                (data.applications || []).map((application) => ({
+                    applicationId: application._id,
+                    status: application.status || "pending",
+                    petName:
+                        application.petName ||
+                        application.animalId?.name ||
+                        "Selected Pet",
+                    petBreed:
+                        application.petBreed ||
+                        application.animalId?.breed ||
+                        "",
+                    petImage:
+                        application.petImage ||
+                        application.animalId?.image ||
+                        "",
+                    submittedAt: application.createdAt,
+                    closedAt:
+                        application.withdrawnAt ||
+                        application.reviewedAt ||
+                        application.updatedAt,
+                    note:
+                        application.status === "rejected"
+                            ? application.rejectionReason
+                            : application.status === "withdrawn"
+                                ? application.withdrawalReason
+                                : "",
+                }))
+            );
+        } catch (error) {
+            console.error("Fetch application history error:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchApplicationHistory();
+    }, [applicationStatus?.applicationId, applicationStatus?.status]);
+
     async function refreshDashboard() {
         await Promise.all([
             fetchPets(),
@@ -1167,6 +1224,7 @@ export default function Dashboard({ onLogout }) {
                     loading={applicationLoading}
                     onRefresh={fetchApplicationStatus}
                     onWithdraw={handleWithdrawApplication}
+                    history={applicationHistory}
                     onBrowsePets={() =>
                         setActiveAdopterPage("browse-pets")
                     }
