@@ -9,6 +9,20 @@ const ACTIVE_STATUSES = [
     "interview_completed",
 ];
 
+const FILTER_OPTIONS = {
+    active: [
+        { value: "all", label: "All" },
+        { value: "pending", label: "Pending" },
+        { value: "interview", label: "Interview" },
+    ],
+    history: [
+        { value: "all", label: "All" },
+        { value: "approved", label: "Approved" },
+        { value: "rejected", label: "Rejected" },
+        { value: "withdrawn", label: "Withdrawn" },
+    ],
+};
+
 function formatDate(date) {
     if (!date) return "Not scheduled";
 
@@ -222,6 +236,31 @@ function InterviewModal({
     );
 }
 
+function getInitials(name) {
+    return String(name || "?")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase();
+}
+
+function formatShortDate(date, withTime = false) {
+    if (!date) return "";
+
+    const parsed = new Date(date);
+
+    if (Number.isNaN(parsed.getTime())) return "";
+
+    return parsed.toLocaleString(
+        "en-PH",
+        withTime
+            ? { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }
+            : { month: "short", day: "numeric", year: "numeric" }
+    );
+}
+
 function ApplicationRow({
     application,
     onReview,
@@ -235,33 +274,70 @@ function ApplicationRow({
         application.status || "pending"
     ).toLowerCase();
 
+    const statusLabel = {
+        pending: "Pending review",
+        interview_scheduled: "Interview scheduled",
+        interview_completed: "Interview done",
+        approved: "Approved",
+        rejected: "Rejected",
+        withdrawn: "Withdrawn",
+    }[status] || status.replaceAll("_", " ");
+
+    const household = [
+        application.homeType,
+        application.hasChildren === "Yes" ? "Has kids" : "No kids",
+        application.hasOtherPets === "Yes" ? "Has pets" : "No pets",
+    ].filter(Boolean);
+
     return (
         <article className="admin-application-row">
-            <div>
-                <h3>{application.fullName || "Unknown Applicant"}</h3>
+            <div className="admin-application-applicant">
+                <span className="admin-application-avatar" aria-hidden="true">
+                    {getInitials(application.fullName)}
+                </span>
 
-                <p>{application.email}</p>
-
-                <p>
-                    Pet:{" "}
-                    <strong>
-                        {application.petName || "Not Selected"}
-                    </strong>
-                </p>
-
-                {application.interviewSchedule && (
-                    <p>
-                        Interview:{" "}
-                        <strong>
-                            {formatDate(application.interviewSchedule)}
-                        </strong>
-                    </p>
-                )}
+                <div>
+                    <h3>{application.fullName || "Unknown Applicant"}</h3>
+                    <p>{application.email}</p>
+                </div>
             </div>
 
-            <span className={`admin-status-pill ${status}`}>
-                {status.replaceAll("_", " ")}
-            </span>
+            <div className="admin-application-pet">
+                <span className="admin-application-pet-thumb">
+                    {application.petImage ? (
+                        <img src={application.petImage} alt={application.petName} />
+                    ) : (
+                        <img
+                            src="/icons/sidebar/brown paw.svg"
+                            alt=""
+                            className="is-placeholder"
+                        />
+                    )}
+                </span>
+
+                <div>
+                    <strong>{application.petName || "Not Selected"}</strong>
+                    <small>{application.petBreed || "Breed not available"}</small>
+                </div>
+            </div>
+
+            <div className="admin-application-household">
+                {household.map((item) => (
+                    <span key={item}>{item}</span>
+                ))}
+            </div>
+
+            <div className="admin-application-state">
+                <span className={`admin-status-pill ${status}`}>
+                    {statusLabel}
+                </span>
+
+                <small>
+                    {status === "interview_scheduled" && application.interviewSchedule
+                        ? `Interview ${formatShortDate(application.interviewSchedule, true)}`
+                        : `Applied ${formatShortDate(application.createdAt)}`}
+                </small>
+            </div>
 
             <div className="admin-application-status">
                 <button
@@ -297,11 +373,11 @@ function ApplicationRow({
                     <>
                         <button
                             type="button"
-                            className="approve"
+                            className="secondary"
                             onClick={() => onSchedule(application)}
                             disabled={busy}
                         >
-                            Reschedule Interview
+                            Reschedule
                         </button>
 
                         <button
@@ -310,7 +386,7 @@ function ApplicationRow({
                             onClick={() => onCompleteInterview(application)}
                             disabled={busy}
                         >
-                            Mark Interview Completed
+                            Mark Completed
                         </button>
 
                         <button
@@ -523,6 +599,65 @@ export default function AdoptionApplications() {
         [applications]
     );
 
+    const [activeTab, setActiveTab] = useState("active");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [sortOrder, setSortOrder] = useState("newest");
+
+    const historyApplications = useMemo(
+        () =>
+            applications.filter(
+                (application) =>
+                    !ACTIVE_STATUSES.includes(
+                        String(application.status || "pending").toLowerCase()
+                    )
+            ),
+        [applications]
+    );
+
+    const visibleApplications = useMemo(() => {
+        const source =
+            activeTab === "active" ? activeApplications : historyApplications;
+
+        const query = searchTerm.trim().toLowerCase();
+
+        return source
+            .filter((application) => {
+                const status = String(application.status || "pending").toLowerCase();
+
+                if (statusFilter === "all") return true;
+                if (statusFilter === "interview") return status.startsWith("interview");
+                return status === statusFilter;
+            })
+            .filter((application) => {
+                if (!query) return true;
+
+                return [
+                    application.fullName,
+                    application.email,
+                    application.petName,
+                ].some((value) =>
+                    String(value || "").toLowerCase().includes(query)
+                );
+            })
+            .sort((a, b) => {
+                const difference = new Date(b.createdAt) - new Date(a.createdAt);
+                return sortOrder === "newest" ? difference : -difference;
+            });
+    }, [
+        activeTab,
+        activeApplications,
+        historyApplications,
+        searchTerm,
+        statusFilter,
+        sortOrder,
+    ]);
+
+    function switchTab(tab) {
+        setActiveTab(tab);
+        setStatusFilter("all");
+    }
+
     const pendingCount = useMemo(
         () =>
             activeApplications.filter(
@@ -691,11 +826,27 @@ export default function AdoptionApplications() {
             </section>
 
             <section className="admin-panel admin-adoption-list-panel">
-                <div className="admin-panel-heading">
-                    <h2>Adoption Applications</h2>
+                <div className="admin-adoption-tabs" role="tablist">
+                    {[
+                        { key: "active", label: "Active", count: activeApplications.length },
+                        { key: "history", label: "History", count: historyApplications.length },
+                    ].map((tab) => (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === tab.key}
+                            className={activeTab === tab.key ? "is-active" : ""}
+                            onClick={() => switchTab(tab.key)}
+                        >
+                            {tab.label}
+                            <span>{tab.count}</span>
+                        </button>
+                    ))}
 
                     <button
                         type="button"
+                        className="admin-adoption-refresh"
                         onClick={fetchApplications}
                         disabled={loading || saving}
                     >
@@ -703,35 +854,84 @@ export default function AdoptionApplications() {
                     </button>
                 </div>
 
-                <p>
-                    Applications must pass the interview stage before final
-                    approval. Pets remain available during the review process.
-                </p>
+                <div className="admin-adoption-toolbar">
+                    <label className="admin-adoption-search">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="m20 20-3.5-3.5" />
+                        </svg>
+
+                        <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            placeholder="Search applicant, email or pet…"
+                            aria-label="Search applications"
+                        />
+                    </label>
+
+                    <div className="admin-adoption-filters">
+                        {FILTER_OPTIONS[activeTab].map((option) => (
+                            <button
+                                key={option.value}
+                                type="button"
+                                className={statusFilter === option.value ? "is-active" : ""}
+                                onClick={() => setStatusFilter(option.value)}
+                            >
+                                {option.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <select
+                        className="admin-adoption-sort"
+                        value={sortOrder}
+                        onChange={(event) => setSortOrder(event.target.value)}
+                        aria-label="Sort applications"
+                    >
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                    </select>
+                </div>
 
                 {loading ? (
                     <p className="admin-empty">Loading applications...</p>
-                ) : activeApplications.length === 0 ? (
+                ) : visibleApplications.length === 0 ? (
                     <p className="admin-empty">
-                        There are no active adoption applications.
+                        {searchTerm || statusFilter !== "all"
+                            ? "No applications match your search or filter."
+                            : activeTab === "active"
+                                ? "There are no active adoption applications."
+                                : "No closed applications yet."}
                     </p>
                 ) : (
-                    <div className="admin-application-list">
-                        {activeApplications.map((application) => (
-                            <ApplicationRow
-                                key={application._id}
-                                application={application}
-                                onReview={setSelectedApplication}
-                                onSchedule={setInterviewApplication}
-                                onCompleteInterview={handleCompleteInterview}
-                                onApprove={handleApproveApplication}
-                                onReject={setRejectionApplication}
-                                busy={
-                                    saving &&
-                                    busyApplicationId === application._id
-                                }
-                            />
-                        ))}
-                    </div>
+                    <>
+                        <div className="admin-application-columns" aria-hidden="true">
+                            <span>Applicant</span>
+                            <span>Pet</span>
+                            <span>Household</span>
+                            <span>Status</span>
+                            <span>Actions</span>
+                        </div>
+
+                        <div className="admin-application-list">
+                            {visibleApplications.map((application) => (
+                                <ApplicationRow
+                                    key={application._id}
+                                    application={application}
+                                    onReview={setSelectedApplication}
+                                    onSchedule={setInterviewApplication}
+                                    onCompleteInterview={handleCompleteInterview}
+                                    onApprove={handleApproveApplication}
+                                    onReject={setRejectionApplication}
+                                    busy={
+                                        saving &&
+                                        busyApplicationId === application._id
+                                    }
+                                />
+                            ))}
+                        </div>
+                    </>
                 )}
             </section>
 

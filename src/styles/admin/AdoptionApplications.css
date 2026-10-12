@@ -213,3 +213,445 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Tabs: Active / History ===== */
+.admin-adoption-tabs {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(251, 133, 0, 0.35);
+}
+
+.admin-adoption-tabs [role="tab"] {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px 12px;
+    border: 0;
+    background: none;
+    color: #a07c66;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-adoption-tabs [role="tab"] span {
+    min-width: 24px;
+    padding: 2px 8px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #fff0bf;
+    color: #9a6400;
+    font-size: 11px;
+    text-align: center;
+}
+
+.admin-adoption-tabs [role="tab"].is-active {
+    color: #3a1200;
+}
+
+.admin-adoption-tabs [role="tab"].is-active span {
+    border-color: transparent;
+    background: #fb8500;
+    color: #ffffff;
+}
+
+.admin-adoption-tabs [role="tab"].is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: #fb8500;
+}
+
+.admin-adoption-refresh {
+    margin-left: auto;
+    margin-bottom: 8px;
+    height: 32px;
+    padding: 0 14px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-adoption-refresh:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+/* ===== Toolbar: search, filters, sort ===== */
+.admin-adoption-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.admin-adoption-search {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 14px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 10px;
+    background: #fff0bf;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-adoption-search:focus-within {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.admin-adoption-search svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: #a07c66;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+}
+
+.admin-adoption-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.admin-adoption-search input::placeholder {
+    color: #b3967f;
+}
+
+.admin-adoption-filters {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-adoption-filters button {
+    height: 34px;
+    padding: 0 16px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.admin-adoption-filters button:hover {
+    background: #fff0bf;
+}
+
+.admin-adoption-filters button.is-active {
+    border-color: #4a1a00;
+    background: #4a1a00;
+    color: #ffffff;
+}
+
+.admin-adoption-sort {
+    height: 40px;
+    padding: 0 32px 0 14px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 10px;
+    background: #ffffff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%235a1b00'/%3E%3C/svg%3E")
+        no-repeat right 12px center / 9px;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* status pill for withdrawn applications */
+.admin-status-pill.withdrawn {
+    background: #efe8d4;
+    color: #7b6658;
+}
+
+@media (max-width: 950px) {
+    .admin-adoption-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .admin-adoption-search {
+        flex-basis: 100%;
+    }
+
+    .admin-adoption-filters {
+        flex: 1;
+        overflow-x: auto;
+    }
+
+    .admin-status-pill {
+        justify-self: start;
+    }
+}
+
+/* ===== Application rows: table-style layout ===== */
+.admin-adoption-list-panel {
+    --application-columns: minmax(200px, 1.4fr) minmax(150px, 1fr) minmax(170px, 1.1fr) minmax(130px, 0.9fr) 380px;
+}
+
+.admin-application-columns {
+    display: grid;
+    grid-template-columns: var(--application-columns);
+    gap: 16px;
+    padding: 0 18px 8px;
+    color: #a07c66;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-application-columns span:last-child {
+    text-align: right;
+}
+
+.admin-application-list {
+    gap: 10px;
+}
+
+.admin-application-row {
+    grid-template-columns: var(--application-columns);
+    gap: 16px;
+    padding: 14px 18px;
+    border: 1px solid rgba(251, 133, 0, 0.22);
+    border-radius: 16px;
+    background: #fff7d6;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-application-row:hover {
+    border-color: rgba(251, 133, 0, 0.5);
+    box-shadow: 0 6px 16px rgba(90, 27, 0, 0.08);
+}
+
+/* applicant */
+.admin-application-applicant {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-application-avatar {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fb8500, #ffa53a);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 0 0 4px rgba(252, 191, 73, 0.3);
+}
+
+.admin-application-applicant > div,
+.admin-application-pet > div {
+    min-width: 0;
+}
+
+.admin-application-row h3 {
+    margin: 0;
+    overflow: hidden;
+    font-size: 18px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-application-row .admin-application-applicant p {
+    margin-top: 2px;
+    overflow: hidden;
+    color: #86604d;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* pet */
+.admin-application-pet {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-application-pet-thumb {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 11px;
+    background: #ffe2a8;
+}
+
+.admin-application-pet-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-application-pet-thumb img.is-placeholder {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.7;
+}
+
+.admin-application-pet strong {
+    display: block;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.admin-application-pet small {
+    color: #86604d;
+    font-size: 11px;
+}
+
+/* household chips */
+.admin-application-household {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.admin-application-household span {
+    padding: 3px 10px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #fffaf0;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* status */
+.admin-application-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.admin-application-state .admin-status-pill {
+    padding: 5px 11px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: none;
+}
+
+.admin-application-state small {
+    color: #86604d;
+    font-size: 11px;
+}
+
+.admin-status-pill.interview_scheduled,
+.admin-status-pill.interview_completed {
+    background: #ffe2c2;
+    color: #d96f00;
+}
+
+/* actions */
+.admin-application-status {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.admin-application-status button {
+    height: 34px;
+    padding: 0 14px;
+    border: 1.5px solid transparent;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.admin-application-status button:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.admin-application-status button.approve {
+    background: #2f8f5b;
+    color: #ffffff;
+}
+
+.admin-application-status button.secondary {
+    border-color: #5a1b00;
+    background: #ffffff;
+    color: #5a1b00;
+}
+
+.admin-application-status button.reject {
+    border-color: #d62828;
+    background: #ffffff;
+    color: #d62828;
+}
+
+.admin-application-status button.reject:hover:not(:disabled) {
+    background: #d62828;
+    color: #ffffff;
+}
+
+.admin-application-status button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+/* smaller screens: rows become cards */
+@media (max-width: 1150px) {
+    .admin-application-columns {
+        display: none;
+    }
+
+    .admin-application-row {
+        grid-template-columns: 1fr 1fr;
+        row-gap: 14px;
+    }
+
+    .admin-application-status {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-application-row {
+        grid-template-columns: 1fr;
+    }
+}
