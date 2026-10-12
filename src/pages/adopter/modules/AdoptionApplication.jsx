@@ -59,9 +59,6 @@ export default function AdoptionApplication({
     // Snapshot of the starting form, used to know if the adopter typed anything
     const [initialForm] = useState(() => form);
     const [leaveOpen, setLeaveOpen] = useState(false);
-            reason: "",
-            experience: "",
-        });
 
     const [document, setDocument] = useState(() => readDraft()?.document || null);
     const [documentUploading, setDocumentUploading] =
@@ -85,6 +82,11 @@ export default function AdoptionApplication({
     const hasProgress = Boolean(
         form.fullName || form.phone || form.address || form.reason || form.experience || document
     );
+    function requestLeave() {
+        if (submitting || documentUploading) return;
+        if (hasProgress) { setLeaveOpen(true); return; }
+        onBack?.();
+    }
 
     const trackerSteps = [
         {

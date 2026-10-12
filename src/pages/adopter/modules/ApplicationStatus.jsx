@@ -88,7 +88,29 @@ export default function ApplicationStatus({
     error,
     onRefresh,
     onBrowsePets,
+    onWithdraw,
+    history = [],
 }) {
+
+    const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
+    const [withdrawReason, setWithdrawReason] = useState("");
+    const [withdrawing, setWithdrawing] = useState(false);
+    const [withdrawError, setWithdrawError] = useState("");
+
+    async function handleWithdraw() {
+        try {
+            setWithdrawing(true);
+            setWithdrawError("");
+            await onWithdraw?.(withdrawReason.trim());
+            setConfirmingWithdraw(false);
+            setWithdrawReason("");
+        } catch (error) {
+            setWithdrawError(error.message || "Failed to withdraw your application.");
+        } finally {
+            setWithdrawing(false);
+        }
+    }
+
     // Check failed: don't pretend there is no application
     if (error && !application) {
         return (
@@ -116,29 +138,6 @@ export default function ApplicationStatus({
                 </button>
             </section>
         );
-    }
-
-    onWithdraw,
-    history = [],
-}) {
-
-    const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
-    const [withdrawReason, setWithdrawReason] = useState("");
-    const [withdrawing, setWithdrawing] = useState(false);
-    const [withdrawError, setWithdrawError] = useState("");
-
-    async function handleWithdraw() {
-        try {
-            setWithdrawing(true);
-            setWithdrawError("");
-            await onWithdraw?.(withdrawReason.trim());
-            setConfirmingWithdraw(false);
-            setWithdrawReason("");
-        } catch (error) {
-            setWithdrawError(error.message || "Failed to withdraw your application.");
-        } finally {
-            setWithdrawing(false);
-        }
     }
 
     if (loading && !application) {

@@ -270,23 +270,7 @@ function InterviewModal({
     }, [application]);
 
     if (!application) return null;
-
-    function handleSubmit(event) {
-        event.preventDefault();
-
-        if (!interviewDate || loading) return;
-
-        const selectedDate = new Date(interviewDate);
-
-        if (
-            Number.isNaN(selectedDate.getTime()) ||
-            selectedDate.getTime() <= Date.now()
-        ) {
-            notifyErr("Please select a valid future interview date and time.");
-            return;
-        }
-
-        onConfirm(application._id, selectedDate.toISOString());
+    
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const year = viewMonth.getFullYear();

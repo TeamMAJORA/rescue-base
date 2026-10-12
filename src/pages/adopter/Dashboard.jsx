@@ -1432,6 +1432,25 @@ async function fetchPets({ silent = false } = {}) {
         };
     }, [savedEmail, signedOut]);
 
+    // Keep pet availability fresh
+    useEffect(() => {
+        if (applicationStatus?.status === "approved") {
+            fetchPets({ silent: true });
+        }
+    }, [applicationStatus?.status]);
+    
+    useEffect(() => {
+        fetchPets({ silent: true });
+    }, [activeAdopterPage]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchPets({ silent: true });
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, []);
+    
     if (signedOut || isWrongRole) {
         return (
             <main className="adopter-signed-out">
@@ -1455,24 +1474,7 @@ async function fetchPets({ silent = false } = {}) {
         );
     }
 
-    // Keep pet availability fresh
-    useEffect(() => {
-        if (applicationStatus?.status === "approved") {
-            fetchPets({ silent: true });
-        }
-    }, [applicationStatus?.status]);
-    
-    useEffect(() => {
-        fetchPets({ silent: true });
-    }, [activeAdopterPage]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            fetchPets({ silent: true });
-        }, 30000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     return (
         <main className="adopter-dashboard-page">
