@@ -12,6 +12,14 @@ import "leaflet/dist/leaflet.css";
 
 import assets from "../../../data/assets.json";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 const cebuCenter = [10.3157, 123.8854];
 
@@ -459,7 +467,7 @@ export default function GISMapping() {
         const label =
             location.petName || location.locationName || "this location";
 
-        if (!window.confirm(`Delete "${label}"? This cannot be undone.`)) {
+        if (!await askConfirm({ title: `Delete "${label}"?`, message: "This can't be undone.", confirmLabel: "Delete", danger: true })) {
             return;
         }
 
@@ -643,9 +651,7 @@ export default function GISMapping() {
             shelter.status === "active" ? "inactive" : "active";
 
         if (
-            !window.confirm(
-                `${nextStatus === "active" ? "Activate" : "Deactivate"} "${shelter.name}"?`
-            )
+            !await askConfirm({ title: `${nextStatus === "active" ? "Activate" : "Deactivate"} "${shelter.name}"?`, confirmLabel: nextStatus === "active" ? "Activate" : "Deactivate", danger: nextStatus !== "active" })
         ) {
             return;
         }
@@ -1074,7 +1080,7 @@ export default function GISMapping() {
                             ) : (
                                 hotspots.map((hotspot, index) => (
                                     <Circle
-                                        key={`${hotspot.latCell}:${hotspot.lngCell}`}
+                                        key={`hotspot-map-${index}`}
                                         center={[
                                             Number(hotspot.latitude),
                                             Number(hotspot.longitude),
@@ -1630,7 +1636,7 @@ export default function GISMapping() {
                             {hotspots.slice(0, 5).map((hotspot, index) => (
                                 <article
                                     className="admin-gis-hotspot-row"
-                                    key={`${hotspot.latCell}:${hotspot.lngCell}`}
+                                    key={`hotspot-list-${index}`}
                                 >
                                     <div>
                                         <strong>Hotspot #{index + 1}</strong>
@@ -1652,6 +1658,8 @@ export default function GISMapping() {
                                         <small>Lost: {hotspot.lost}</small>
                                         <small>Found: {hotspot.found}</small>
                                         <small>Stray: {hotspot.stray}</small>
+                                        <small>Rescue: {hotspot.rescue}</small>
+                                        <small>Intake: {hotspot.intake}</small>
                                     </div>
                                 </article>
                             ))}

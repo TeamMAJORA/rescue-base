@@ -3,6 +3,14 @@ import {
     useState
 } from "react";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const emptyForm = {
@@ -380,9 +388,7 @@ export default function RescueAssignments() {
         id
     ) {
         const confirmed =
-            window.confirm(
-                "Cancel this rescue assignment?"
-            );
+            await askConfirm({ title: "Cancel this rescue assignment?", confirmLabel: "Cancel assignment", cancelLabel: "Keep it", danger: true });
 
         if (!confirmed) {
             return;
@@ -443,9 +449,7 @@ export default function RescueAssignments() {
         id
     ) {
         const confirmed =
-            window.confirm(
-                "Delete this rescue assignment?"
-            );
+            await askConfirm({ title: "Delete this rescue assignment?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) {
             return;

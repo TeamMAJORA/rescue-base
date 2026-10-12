@@ -85,8 +85,39 @@ function getStatusContent(status) {
 export default function ApplicationStatus({
     application,
     loading,
+    error,
     onRefresh,
     onBrowsePets,
+}) {
+    // Check failed: don't pretend there is no application
+    if (error && !application) {
+        return (
+            <section className="adopter-state-error">
+                <div className="adopter-state-error-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 9v4M12 17h.01" />
+                        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+                    </svg>
+                </div>
+
+                <h2>We couldn't check your application</h2>
+
+                <p>
+                    Your application is safe. We just couldn't reach the
+                    shelter's server.
+                </p>
+
+                <button
+                    type="button"
+                    onClick={() => onRefresh?.()}
+                    disabled={loading}
+                >
+                    {loading ? "Checking..." : "Try again"}
+                </button>
+            </section>
+        );
+    }
+
     onWithdraw,
     history = [],
 }) {

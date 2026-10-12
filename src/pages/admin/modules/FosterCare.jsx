@@ -4,6 +4,14 @@ import {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const emptyAssignmentForm = {
     fosterApplicationId: "",
     fosterName: "",
@@ -303,9 +311,7 @@ export default function FosterCare() {
     }
 
     async function handleDeleteAssignment(id) {
-        const confirmDelete = window.confirm(
-            "Delete this in-progress foster assignment?"
-        );
+        const confirmDelete = await askConfirm({ title: "Delete this foster assignment?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmDelete) return;
 

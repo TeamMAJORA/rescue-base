@@ -1,55 +1,133 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const monthlyStats = [
-    { month: "Jan", adoptions: 8, rescues: 12, lostFound: 5, foster: 4 },
-    { month: "Feb", adoptions: 11, rescues: 9, lostFound: 7, foster: 5 },
-    { month: "Mar", adoptions: 6, rescues: 14, lostFound: 4, foster: 6 },
-    { month: "Apr", adoptions: 13, rescues: 11, lostFound: 8, foster: 7 },
-    { month: "May", adoptions: 15, rescues: 16, lostFound: 9, foster: 8 },
-    { month: "Jun", adoptions: 10, rescues: 13, lostFound: 6, foster: 5 },
-];
+const API = import.meta.env.VITE_BACKEND_URL;
 
-const recentInsights = [
-    {
-        id: 1,
-        title: "Adoption activity increased",
-        detail: "May recorded the highest adoption count in the current dataset.",
-        type: "positive",
-    },
-    {
-        id: 2,
-        title: "Lost & Found reports need monitoring",
-        detail: "There are multiple open pet reports that may need admin follow-up.",
-        type: "warning",
-    },
-    {
-        id: 3,
-        title: "Foster care is active",
-        detail: "Foster assignments are helping reduce shelter capacity pressure.",
-        type: "info",
-    },
+const emptyTotals = {
+    adoptions: 0,
+    rescues: 0,
+    lostFound: 0,
+    foster: 0,
+};
+
+const metricOptions = [
+    { value: "adoptions", label: "Adoptions" },
+    { value: "rescues", label: "Rescues" },
+    { value: "lostFound", label: "Lost & Found" },
+    { value: "foster", label: "Foster Care" },
 ];
 
 export default function Analytics() {
     const [selectedMetric, setSelectedMetric] = useState("adoptions");
+    const [totals, setTotals] = useState(emptyTotals);
+    const [monthlyStats, setMonthlyStats] = useState([]);
+    const [insights, setInsights] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    const totals = useMemo(() => {
-        return monthlyStats.reduce(
-            (sum, item) => ({
-                adoptions: sum.adoptions + item.adoptions,
-                rescues: sum.rescues + item.rescues,
-                lostFound: sum.lostFound + item.lostFound,
-                foster: sum.foster + item.foster,
-            }),
-            { adoptions: 0, rescues: 0, lostFound: 0, foster: 0 }
-        );
+    useEffect(() => {
+        const controller = new AbortController();
+
+        async function loadAnalytics() {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                setError("Please log in to view analytics.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError("");
+
+                const response = await fetch(
+                    `${API}/api/analytics/overview`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        signal: controller.signal,
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(
+                        data.message || "Failed to load analytics."
+                    );
+                }
+
+                setTotals({
+                    ...emptyTotals,
+                    ...(data.totals || {}),
+                });
+
+                setMonthlyStats(
+                    Array.isArray(data.monthlyStats)
+                        ? data.monthlyStats
+                        : []
+                );
+
+                setInsights(
+                    Array.isArray(data.insights)
+                        ? data.insights
+                        : []
+                );
+            } catch (err) {
+                if (err.name === "AbortError") return;
+
+                console.error("Analytics loading error:", err);
+                setError(err.message || "Failed to load analytics.");
+            } finally {
+                if (!controller.signal.aborted) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        loadAnalytics();
+
+        return () => controller.abort();
     }, []);
 
     const maxValue = useMemo(() => {
-        return Math.max(...monthlyStats.map((item) => item[selectedMetric]));
-    }, [selectedMetric]);
+        return Math.max(
+            1,
+            ...monthlyStats.map((item) =>
+                Number(item[selectedMetric]) || 0
+            )
+        );
+    }, [monthlyStats, selectedMetric]);
 
-    const selectedTotal = totals[selectedMetric];
+    const selectedTotal = totals[selectedMetric] || 0;
+
+    if (loading) {
+        return (
+            <section className="admin-analytics-page">
+                <div className="admin-panel">
+                    <p>Loading analytics...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (error) {
+        return (
+            <section className="admin-analytics-page">
+                <div className="admin-panel" role="alert">
+                    <h2>Unable to load analytics</h2>
+                    <p>{error}</p>
+                    <button
+                        type="button"
+                        onClick={() => window.location.reload()}
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="admin-analytics-page">
@@ -83,12 +161,18 @@ export default function Analytics() {
                         <select
                             className="admin-analytics-filter"
                             value={selectedMetric}
-                            onChange={(e) => setSelectedMetric(e.target.value)}
+                            onChange={(event) =>
+                                setSelectedMetric(event.target.value)
+                            }
                         >
-                            <option value="adoptions">Adoptions</option>
-                            <option value="rescues">Rescues</option>
-                            <option value="lostFound">Lost & Found</option>
-                            <option value="foster">Foster Care</option>
+                            {metricOptions.map((option) => (
+                                <option
+                                    key={option.value}
+                                    value={option.value}
+                                >
+                                    {option.label}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
@@ -98,22 +182,36 @@ export default function Analytics() {
                     </div>
 
                     <div className="admin-analytics-chart">
-                        {monthlyStats.map((item) => (
-                            <article className="admin-analytics-bar-item" key={item.month}>
-                                <div className="admin-analytics-bar-track">
-                                    <span
-                                        className={`admin-analytics-bar ${selectedMetric}`}
-                                        style={{
-                                            height: `${(item[selectedMetric] / maxValue) * 100}%`,
-                                        }}
-                                    />
-                                </div>
+                        {monthlyStats.map((item) => {
+                            const value =
+                                Number(item[selectedMetric]) || 0;
 
-                                <small>{item.month}</small>
-                                <strong>{item[selectedMetric]}</strong>
-                            </article>
-                        ))}
+                            return (
+                                <article
+                                    className="admin-analytics-bar-item"
+                                    key={item.key || item.month}
+                                >
+                                    <div className="admin-analytics-bar-track">
+                                        <span
+                                            className={`admin-analytics-bar ${selectedMetric}`}
+                                            style={{
+                                                height: `${
+                                                    (value / maxValue) * 100
+                                                }%`,
+                                            }}
+                                        />
+                                    </div>
+
+                                    <small>{item.month}</small>
+                                    <strong>{value}</strong>
+                                </article>
+                            );
+                        })}
                     </div>
+
+                    {monthlyStats.length === 0 && (
+                        <p>No monthly activity data is available.</p>
+                    )}
                 </section>
 
                 <section className="admin-panel admin-analytics-breakdown-panel">
@@ -122,25 +220,12 @@ export default function Analytics() {
                     </div>
 
                     <div className="admin-analytics-breakdown-list">
-                        <article>
-                            <span>Adoptions</span>
-                            <strong>{totals.adoptions}</strong>
-                        </article>
-
-                        <article>
-                            <span>Rescues</span>
-                            <strong>{totals.rescues}</strong>
-                        </article>
-
-                        <article>
-                            <span>Lost & Found</span>
-                            <strong>{totals.lostFound}</strong>
-                        </article>
-
-                        <article>
-                            <span>Foster Care</span>
-                            <strong>{totals.foster}</strong>
-                        </article>
+                        {metricOptions.map((option) => (
+                            <article key={option.value}>
+                                <span>{option.label}</span>
+                                <strong>{totals[option.value]}</strong>
+                            </article>
+                        ))}
                     </div>
                 </section>
             </section>
@@ -151,9 +236,14 @@ export default function Analytics() {
                 </div>
 
                 <div className="admin-analytics-insight-list">
-                    {recentInsights.map((insight) => (
-                        <article className="admin-analytics-insight-row" key={insight.id}>
-                            <span className={`admin-analytics-insight-dot ${insight.type}`} />
+                    {insights.map((insight) => (
+                        <article
+                            className="admin-analytics-insight-row"
+                            key={insight.id}
+                        >
+                            <span
+                                className={`admin-analytics-insight-dot ${insight.type}`}
+                            />
 
                             <div>
                                 <h3>{insight.title}</h3>
@@ -161,6 +251,10 @@ export default function Analytics() {
                             </div>
                         </article>
                     ))}
+
+                    {insights.length === 0 && (
+                        <p>No insights are available yet.</p>
+                    )}
                 </div>
             </section>
         </section>

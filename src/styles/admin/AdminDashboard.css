@@ -7,7 +7,10 @@
 }
 
 .admin-sidebar {
-    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
     background: var(--yellow);
     display: flex;
     flex-direction: column;
@@ -344,13 +347,9 @@
     gap: 6px;
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: none;
     box-shadow: inset 0 -1px 0 rgba(90, 27, 0, 0.14);
 }
 
-.admin-tabs::-webkit-scrollbar {
-    display: none;
-}
 
 .admin-tabs button {
     flex-shrink: 0;
@@ -580,6 +579,9 @@
 
     .admin-sidebar {
         min-height: auto;
+        position: static;
+        height: auto;
+        overflow: visible;
     }
 
     .admin-main {
@@ -590,4 +592,67 @@
         align-items: flex-start;
         flex-direction: column;
     }
+}
+/* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
+.admin-sidebar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+/* ---------- Notification bell (same look and hover as the Adopter dashboard) ---------- */
+.admin-notification-btn {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.15);
+    background: #fffaf0;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.admin-notification-btn:hover {
+    border-color: #fb8500;
+    background: #ffffff;
+}
+
+.admin-notification-btn .rb-notif-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.admin-notification-btn .rb-notif-icon.icon-active {
+    display: none;
+}
+
+.admin-notification-btn.open {
+    background: linear-gradient(135deg, #fb8500, #fca62c);
+    border-color: #fb8500;
+}
+
+.admin-notification-btn.open .rb-notif-icon.icon-default {
+    display: none;
+}
+
+.admin-notification-btn.open .rb-notif-icon.icon-active {
+    display: block;
+}
+
+/* Hovering while open flips back to the light look with the brown bell */
+.admin-notification-btn.open:hover {
+    background: #fff7cb;
+}
+
+.admin-notification-btn.open:hover .rb-notif-icon.icon-default {
+    display: block;
+}
+
+.admin-notification-btn.open:hover .rb-notif-icon.icon-active {
+    display: none;
 }

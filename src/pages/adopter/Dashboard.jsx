@@ -147,8 +147,13 @@ function getAdopterPageTitle(activeAdopterPage) {
     return currentItem?.label || "Dashboard";
 }
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard({ onLogout, onLoginAgain }) {
     const savedUser = getSavedUser();
+
+    // Signed out: login expired (server answered 401) or this account is not an adopter
+    const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
+    const isWrongRole = savedRole !== "adopter";
+    const [signedOut, setSignedOut] = useState(false);
 
     const token = getAuthToken();
 
@@ -201,6 +206,8 @@ export default function Dashboard({ onLogout }) {
     const [applicationLoading, setApplicationLoading] =
         useState(true);
     const [applicationHistory, setApplicationHistory] = useState([]);
+
+    const [applicationError, setApplicationError] = useState("");
 
     const [notificationOpen, setNotificationOpen] =
         useState(false);
@@ -607,7 +614,7 @@ async function fetchPets({ silent = false } = {}) {
             }
 
             if (!token) {
-                console.error("No rescuebase Auth token found");
+                setSignedOut(true);
                 return;
             }
 
@@ -623,13 +630,15 @@ async function fetchPets({ silent = false } = {}) {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                console.error(
+                setApplicationError(
                     data.message ||
                     "Failed to load application status."
                 );
 
                 return;
             }
+
+            setApplicationError("");
 
             const application = data.application;
 
@@ -709,6 +718,10 @@ async function fetchPets({ silent = false } = {}) {
             console.error(
                 "Fetch adopter application status error:",
                 error
+            );
+
+            setApplicationError(
+                "We couldn't reach the shelter's server."
             );
         } finally {
             setApplicationLoading(false);
@@ -840,6 +853,8 @@ async function fetchPets({ silent = false } = {}) {
     }
 
     function handleLogout() {
+        localStorage.removeItem("token");
+
         localStorage.removeItem(
             "rescuebase_user"
         );
@@ -855,6 +870,18 @@ async function fetchPets({ silent = false } = {}) {
         .forEach((key) => localStorage.removeItem(key));
 
         onLogout?.();
+    }
+
+    function handleLoginAgain() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("rescuebase_user");
+        localStorage.removeItem("rescuebase_pending_application");
+
+        if (onLoginAgain) {
+            onLoginAgain();
+        } else {
+            onLogout?.();
+        }
     }
 
     function formatApplicationDate(dateValue) {
@@ -1222,6 +1249,7 @@ async function fetchPets({ silent = false } = {}) {
                 <ApplicationStatus
                     application={applicationStatus}
                     loading={applicationLoading}
+                    error={applicationError}
                     onRefresh={fetchApplicationStatus}
                     onWithdraw={handleWithdrawApplication}
                     history={applicationHistory}
@@ -1367,7 +1395,31 @@ async function fetchPets({ silent = false } = {}) {
         setNotificationOpen(false);
     }
 
+    // Any API call that comes back 401 means the login ran out -> show the signed-out card
     useEffect(() => {
+        const originalFetch = window.fetch;
+
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            const url = String(args[0]?.url || args[0] || "");
+
+            if (response.status === 401 && API && url.startsWith(API)) {
+                setSignedOut(true);
+            }
+
+            return response;
+        };
+
+        return () => {
+            window.fetch = originalFetch;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (isWrongRole || signedOut) {
+            return;
+        }
+
         refreshDashboard();
         loadNotifications();
 
@@ -1378,7 +1430,30 @@ async function fetchPets({ silent = false } = {}) {
         return () => {
             clearInterval(interval);
         };
-    }, [savedEmail]);
+    }, [savedEmail, signedOut]);
+
+    if (signedOut || isWrongRole) {
+        return (
+            <main className="adopter-signed-out">
+                <section className="adopter-signed-out-card">
+                    <div className="adopter-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <path d="M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                    </div>
+
+                    <h2>You've been signed out</h2>
+
+                    <p>Please log in again to continue.</p>
+
+                    <button type="button" onClick={handleLoginAgain}>
+                        Log in again
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     // Keep pet availability fresh
     useEffect(() => {

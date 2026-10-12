@@ -6,6 +6,14 @@ import MedicalRecords from "./MedicalRecords";
 import InfoTip from "../../../../components/system/InfoTip";
 import { formatAge } from "../../../../utils/formatAge";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const emptyAnimalForm = {
@@ -326,6 +334,8 @@ export default function AnimalProfiles() {
     const [viewMode, setViewMode] = useState("table");
     const [statusFilter, setStatusFilter] = useState("all");
     const [qrCodes, setQrCodes] = useState({});
+    const [qrImages, setQrImages] = useState({});
+    const [qrOpen, setQrOpen] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
@@ -538,12 +548,14 @@ export default function AnimalProfiles() {
                 : data.qrTags || data.records || [];
 
             const codeMap = {};
+            const imageMap = {};    
             records.forEach((record) => {
                 const animalId = record.animal?._id || record.animal;
-                if (animalId) codeMap[animalId] = record.tagCode;
+                if (animalId) { codeMap[animalId] = record.tagCode; imageMap[animalId] = record.qrImageUrl; }
             });
 
             setQrCodes(codeMap);
+            setQrImages(imageMap);  
         } catch {
             // QR search is optional; name/breed search still works
         }
@@ -752,7 +764,7 @@ export default function AnimalProfiles() {
             return;
         }
 
-        const confirmed = window.confirm("Delete this animal profile?");
+        const confirmed = await askConfirm({ title: "Delete this animal profile?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) return;
 
@@ -1304,26 +1316,40 @@ export default function AnimalProfiles() {
                  )}
             </div>
             
-            <div className="admin-animal-stats">
-                <article className="admin-stat-card">
-                    <span>Total Animals</span>
-                    <strong>{totalAnimals}</strong>
-                </article>
+            {/* Stats strip — same design as the other Animal pages (styles in IntakeRecords.css) */}
+            <div className="ao-page">
+                <div className="ao-strip">
+                    <div className="ao-strip-cta">
+                        <div>
+                            <b>{totalAnimals}</b>
+                            <small>{totalAnimals === 1 ? "Animal under shelter care" : "Animals under shelter care"}</small>
+                        </div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Available</span>
-                    <strong>{availableAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" /></svg>
+                            Available
+                        </div>
+                        <div className="ao-strip-value">{availableAnimals}</div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Pending Adoption</span>
-                    <strong>{pendingAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                            Pending Adoption
+                        </div>
+                        <div className="ao-strip-value">{pendingAnimals}</div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Adopted</span>
-                    <strong>{adoptedAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>
+                            Adopted
+                        </div>
+                        <div className="ao-strip-value">{adoptedAnimals}</div>
+                    </div>
+                </div>
             </div>
 
 
@@ -1499,7 +1525,15 @@ export default function AnimalProfiles() {
                                                     <td>{formatIntakeDate(animal.intakeDate)}</td>
                                                     <td>
                                                         {qrCodes[animal._id] ? (
-                                                            <span className="admin-qr-chip">
+                                                            <span
+                                                                className="admin-qr-chip"
+                                                                title="Click to view QR"
+                                                                style={{ cursor: "zoom-in" }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (qrImages[animal._id]) setQrOpen({ image: qrImages[animal._id], code: qrCodes[animal._id], name: animal.name });
+                                                                }}
+                                                            >
                                                                 <QrIcon />
                                                                 {qrCodes[animal._id]}
                                                             </span>
@@ -1651,7 +1685,20 @@ export default function AnimalProfiles() {
                                 <div>
                                     <span>QR Code</span>
                                     {qrCodes[viewedAnimal._id] ? (
-                                        <p>{qrCodes[viewedAnimal._id]}</p>
+                                        <div>
+                                            {qrImages[viewedAnimal._id] && (
+                                                <img
+                                                    src={qrImages[viewedAnimal._id]}
+                                                    alt="QR"
+                                                    title="Click to enlarge"
+                                                    onClick={() => setQrOpen({ image: qrImages[viewedAnimal._id], code: qrCodes[viewedAnimal._id], name: viewedAnimal.name })}
+                                                    style={{ width: 72, height: 72, cursor: "zoom-in", transition: "transform .15s" }}
+                                                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                                                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                                                />
+                                            )}
+                                            <p>{qrCodes[viewedAnimal._id]}</p>
+                                        </div>
                                     ) : (
                                         <p className="muted">No tag yet</p>
                                     )}
@@ -1733,7 +1780,18 @@ export default function AnimalProfiles() {
                     </div>
                 </div>
             )}
-
+            {qrOpen && (
+                <div
+                    onClick={() => setQrOpen(null)}
+                    style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000 }}
+                >
+                    <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", padding: 24, borderRadius: 12, textAlign: "center" }}>
+                        <img src={qrOpen.image} alt="QR code" style={{ width: 320, height: 320 }} />
+                        <p style={{ marginTop: 12, fontWeight: 600 }}>{qrOpen.name} · {qrOpen.code}</p>
+                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 8, fontSize: 25 }}>❌</button>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }
