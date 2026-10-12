@@ -426,152 +426,437 @@ function ApplicationRow({
     );
 }
 
-function ApplicationModal({ application, onClose }) {
+const STATUS_LABELS = {
+    pending: "Pending review",
+    interview_scheduled: "Interview scheduled",
+    interview_completed: "Interview done",
+    approved: "Approved",
+    rejected: "Rejected",
+    withdrawn: "Withdrawn",
+};
+
+function ReviewIcon({ name }) {
+    const paths = {
+        mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
+        phone: <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />,
+        home: <><path d="m3 11 9-7 9 7" /><path d="M5 10v10h14V10" /></>,
+        pin: <><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z" /><circle cx="12" cy="9" r="2.5" /></>,
+        file: <><rect x="4" y="3" width="16" height="18" rx="2" /><circle cx="9.5" cy="9.5" r="1.8" /><path d="m20 16-5-5-9 9" /></>,
+        calendar: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>,
+        check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+        x: <path d="M7 7l10 10M17 7 7 17" />,
+        lock: <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></>,
+    };
+
+    return (
+        <svg className="admin-review-icon" viewBox="0 0 24 24" aria-hidden="true">
+            {paths[name]}
+        </svg>
+    );
+}
+
+function getReviewSteps(application) {
+    const status = String(application.status || "pending").toLowerCase();
+    const hasInterview = Boolean(application.interviewSchedule);
+    const isClosed = ["approved", "rejected", "withdrawn"].includes(status);
+
+    return [
+        {
+            label: "Submitted",
+            detail: formatShortDate(application.createdAt),
+            state: "done",
+        },
+        {
+            label: "Review",
+            detail: status === "pending" ? "Awaiting check" : "Checked",
+            state: status === "pending" ? "current" : "done",
+        },
+        {
+            label: "Interview",
+            detail: hasInterview
+                ? formatShortDate(application.interviewSchedule, true)
+                : isClosed
+                    ? "Not held"
+                    : "Not scheduled",
+            state:
+                status === "interview_scheduled"
+                    ? "current"
+                    : status === "interview_completed" || (isClosed && hasInterview)
+                        ? "done"
+                        : "upcoming",
+        },
+        {
+            label: "Decision",
+            detail: isClosed ? STATUS_LABELS[status] : "Approve or reject",
+            state:
+                status === "approved"
+                    ? "done"
+                    : status === "rejected" || status === "withdrawn"
+                        ? "rejected"
+                        : status === "interview_completed"
+                            ? "current"
+                            : "upcoming",
+        },
+    ];
+}
+
+function ApplicationModal({
+    application,
+    onClose,
+    onScheduleInterview,
+    onCompleteInterview,
+    onApprove,
+    onReject,
+    loading,
+}) {
+    const [interviewDay, setInterviewDay] = useState("");
+    const [interviewTime, setInterviewTime] = useState("");
+    const [rescheduling, setRescheduling] = useState(false);
+    const [interviewError, setInterviewError] = useState("");
+
+    useEffect(() => {
+        setInterviewDay("");
+        setInterviewTime("");
+        setRescheduling(false);
+        setInterviewError("");
+    }, [application?._id]);
+
     if (!application) return null;
+
+    const status = String(application.status || "pending").toLowerCase();
+    const isPending = status === "pending";
+    const isScheduled = status === "interview_scheduled";
+    const isCompleted = status === "interview_completed";
+    const isClosed = ["approved", "rejected", "withdrawn"].includes(status);
+    const documents = Array.isArray(application.documents) ? application.documents : [];
+    const showInterviewForm = isPending || (isScheduled && rescheduling);
+    const today = getLocalDateTimeValue(new Date()).slice(0, 10);
+
+    async function handleSchedule() {
+        if (!interviewDay || !interviewTime || loading) return;
+
+        const selected = new Date(`${interviewDay}T${interviewTime}`);
+
+        if (Number.isNaN(selected.getTime()) || selected <= new Date()) {
+            setInterviewError("Please pick a future date and time.");
+            return;
+        }
+
+        setInterviewError("");
+        await onScheduleInterview(application._id, selected.toISOString());
+    }
 
     return (
         <div className="admin-modal-overlay">
-            <section className="admin-modal">
-                <button
-                    className="admin-modal-class"
-                    type="button"
-                    onClick={onClose}
-                >
-                    x
-                </button>
+            <section className="admin-review-modal" role="dialog" aria-modal="true">
+                <header className="admin-review-header">
+                    <span className="admin-application-avatar admin-review-avatar" aria-hidden="true">
+                        {getInitials(application.fullName)}
+                    </span>
 
-                <h2>Application Details</h2>
+                    <div className="admin-review-identity">
+                        <span>Application Details</span>
+                        <h2>{application.fullName || "Unknown Applicant"}</h2>
+                        <p>
+                            <span><ReviewIcon name="mail" />{application.email}</span>
+                            {application.phone && (
+                                <span><ReviewIcon name="phone" />{application.phone}</span>
+                            )}
+                        </p>
+                    </div>
 
-                <div className="admin-detail-grid">
-                    <p>
-                        <strong>Status:</strong>{" "}
-                        {String(application.status || "pending").replaceAll(
-                            "_",
-                            " "
+                    <span className={`admin-status-pill admin-review-pill ${status}`}>
+                        {STATUS_LABELS[status] || status}
+                    </span>
+
+                    <button
+                        type="button"
+                        className="admin-review-close"
+                        onClick={onClose}
+                        aria-label="Close"
+                    >
+                        <ReviewIcon name="x" />
+                    </button>
+                </header>
+
+                <ol className="admin-review-steps">
+                    {getReviewSteps(application).map((step, index) => (
+                        <li key={step.label} className={`is-${step.state}`}>
+                            <span className="admin-review-step-dot">
+                                {step.state === "done" ? (
+                                    <ReviewIcon name="check" />
+                                ) : step.state === "rejected" ? (
+                                    <ReviewIcon name="x" />
+                                ) : (
+                                    index + 1
+                                )}
+                            </span>
+                            <div>
+                                <strong>{step.label}</strong>
+                                <small>{step.detail}</small>
+                            </div>
+                        </li>
+                    ))}
+                </ol>
+
+                <div className="admin-review-body">
+                    <div className="admin-review-column">
+                        <article className="admin-review-card">
+                            <h3>Applicant</h3>
+
+                            <div className="admin-review-facts">
+                                <div>
+                                    <span className="admin-review-fact-icon"><ReviewIcon name="phone" /></span>
+                                    <p><small>Phone</small>{application.phone || "Not provided"}</p>
+                                </div>
+
+                                <div>
+                                    <span className="admin-review-fact-icon"><ReviewIcon name="home" /></span>
+                                    <p><small>Home type</small>{application.homeType || "Not provided"}</p>
+                                </div>
+
+                                <div className="is-wide">
+                                    <span className="admin-review-fact-icon"><ReviewIcon name="pin" /></span>
+                                    <p><small>Address</small>{application.address || "Not provided"}</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article className="admin-review-card">
+                            <h3>Household</h3>
+
+                            <div className="admin-review-household">
+                                <div>
+                                    <span>Has children</span>
+                                    <b className={application.hasChildren === "Yes" ? "is-yes" : "is-no"}>
+                                        {application.hasChildren || "N/A"}
+                                    </b>
+                                </div>
+
+                                <div>
+                                    <span>Other pets</span>
+                                    <b className={application.hasOtherPets === "Yes" ? "is-yes" : "is-no"}>
+                                        {application.hasOtherPets || "N/A"}
+                                    </b>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article className="admin-review-card">
+                            <h3>Reason for adoption</h3>
+                            <p className="admin-review-text">
+                                {application.reason || "No reason provided."}
+                            </p>
+                        </article>
+
+                        <article className="admin-review-card">
+                            <h3>Pet-care experience</h3>
+                            <p className="admin-review-text">
+                                {application.experience || "No experience provided."}
+                            </p>
+                        </article>
+
+                        {application.reviewNotes && (
+                            <article className={`admin-review-card ${status === "rejected" ? "is-rejected" : ""}`}>
+                                <h3>{status === "rejected" ? "Rejection reason" : "Review notes"}</h3>
+                                <p className="admin-review-text">{application.reviewNotes}</p>
+                                {application.reviewedByName && (
+                                    <small className="admin-review-meta">
+                                        By {application.reviewedByName}
+                                        {application.reviewedAt && ` · ${formatShortDate(application.reviewedAt)}`}
+                                    </small>
+                                )}
+                            </article>
                         )}
-                    </p>
+                    </div>
 
-                    <p>
-                        <strong>Name:</strong> {application.fullName}
-                    </p>
+                    <div className="admin-review-column">
+                        <article className="admin-review-card">
+                            <h3>Applying for</h3>
 
-                    <p>
-                        <strong>Email:</strong> {application.email}
-                    </p>
+                            <div className="admin-review-pet">
+                                <span className="admin-application-pet-thumb admin-review-pet-thumb">
+                                    {application.petImage ? (
+                                        <img src={application.petImage} alt={application.petName} />
+                                    ) : (
+                                        <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
+                                    )}
+                                </span>
 
-                    <p>
-                        <strong>Phone:</strong> {application.phone || "N/A"}
-                    </p>
+                                <div>
+                                    <strong>{application.petName || "Not selected"}</strong>
+                                    <small>{application.petBreed || "Breed not available"}</small>
+                                </div>
+                            </div>
+                        </article>
 
-                    <p>
-                        <strong>Address:</strong>{" "}
-                        {application.address || "N/A"}
-                    </p>
+                        <article className="admin-review-card">
+                            <div className="admin-review-card-heading">
+                                <h3>Submitted documents</h3>
+                                <span className="admin-review-count">
+                                    {documents.length} {documents.length === 1 ? "file" : "files"}
+                                </span>
+                            </div>
 
-                    <p>
-                        <strong>Pet Name:</strong>{" "}
-                        {application.petName || "Not selected"}
-                    </p>
+                            {documents.length === 0 ? (
+                                <p className="admin-review-text">No documents uploaded.</p>
+                            ) : (
+                                documents.map((document, index) => (
+                                    <div className="admin-review-document" key={document._id || index}>
+                                        <span className="admin-review-fact-icon"><ReviewIcon name="file" /></span>
 
-                    <p>
-                        <strong>Pet Breed:</strong>{" "}
-                        {application.petBreed || "N/A"}
-                    </p>
+                                        <p>
+                                            <strong>{document.documentName || "Unnamed document"}</strong>
+                                            <small className={application.documentsVerified ? "is-verified" : ""}>
+                                                {application.documentsVerified ? "Verified" : "Pending verification"}
+                                            </small>
+                                        </p>
 
-                    <p>
-                        <strong>Home Type:</strong>{" "}
-                        {application.homeType || "N/A"}
-                    </p>
-
-                    <p>
-                        <strong>Has Children:</strong>{" "}
-                        {application.hasChildren || "N/A"}
-                    </p>
-
-                    <p>
-                        <strong>Other Pets:</strong>{" "}
-                        {application.hasOtherPets || "N/A"}
-                    </p>
-
-                    <p>
-                        <strong>Documents Verified:</strong>{" "}
-                        {application.documentsVerified ? "Yes" : "No"}
-                    </p>
-
-                    <p>
-                        <strong>Interview Schedule:</strong>{" "}
-                        {formatDate(application.interviewSchedule)}
-                    </p>
-
-                    {application.reviewedByName && (
-                        <p>
-                            <strong>Reviewed By:</strong>{" "}
-                            {application.reviewedByName}
-                        </p>
-                    )}
-
-                    {application.reviewedAt && (
-                        <p>
-                            <strong>Reviewed At:</strong>{" "}
-                            {formatDate(application.reviewedAt)}
-                        </p>
-                    )}
-                </div>
-
-                <div className="admin-detail-box">
-                    <h3>Reason for Adoption</h3>
-                    <p>{application.reason || "No reason provided."}</p>
-                </div>
-
-                <div className="admin-detail-box">
-                    <h3>Pet Care Experience</h3>
-                    <p>
-                        {application.experience || "No experience provided."}
-                    </p>
-                </div>
-
-                {Array.isArray(application.documents) &&
-                    application.documents.length > 0 && (
-                        <div className="admin-detail-box">
-                            <h3>Submitted Documents</h3>
-
-                            {application.documents.map((document, index) => (
-                                <p key={document._id || index}>
-                                    <strong>
-                                        {document.documentName ||
-                                            "Unnamed document"}
-                                    </strong>
-                                    {" — "}
-                                    {document.status || "pending"}
-
-                                    {document.documentUrl && (
-                                        <>
-                                            {" · "}
+                                        {document.documentUrl && (
                                             <a
                                                 href={document.documentUrl}
                                                 target="_blank"
                                                 rel="noreferrer"
                                             >
-                                                View document
+                                                View
                                             </a>
-                                        </>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </article>
+
+                        <article className="admin-review-card">
+                            <div className="admin-review-card-heading">
+                                <h3>Interview</h3>
+                                <span className={`admin-review-count ${application.interviewSchedule ? "is-set" : ""}`}>
+                                    {isCompleted || (isClosed && application.interviewSchedule)
+                                        ? "Completed"
+                                        : application.interviewSchedule
+                                            ? "Scheduled"
+                                            : "Not scheduled"}
+                                </span>
+                            </div>
+
+                            {application.interviewSchedule && !showInterviewForm && (
+                                <div className="admin-review-interview-date">
+                                    <ReviewIcon name="calendar" />
+                                    {formatShortDate(application.interviewSchedule, true)}
+                                </div>
+                            )}
+
+                            {isScheduled && !rescheduling && (
+                                <button
+                                    type="button"
+                                    className="admin-review-link"
+                                    onClick={() => setRescheduling(true)}
+                                >
+                                    Reschedule interview
+                                </button>
+                            )}
+
+                            {showInterviewForm && (
+                                <>
+                                    <p className="admin-review-hint">
+                                        <ReviewIcon name="calendar" />
+                                        Pick a date and time to invite the applicant.
+                                    </p>
+
+                                    <div className="admin-review-interview-inputs">
+                                        <input
+                                            type="date"
+                                            min={today}
+                                            value={interviewDay}
+                                            onChange={(event) => setInterviewDay(event.target.value)}
+                                            disabled={loading}
+                                            aria-label="Interview date"
+                                        />
+
+                                        <input
+                                            type="time"
+                                            value={interviewTime}
+                                            onChange={(event) => setInterviewTime(event.target.value)}
+                                            disabled={loading}
+                                            aria-label="Interview time"
+                                        />
+                                    </div>
+
+                                    {interviewError && (
+                                        <p className="admin-review-error">{interviewError}</p>
                                     )}
-                                </p>
-                            ))}
-                        </div>
-                    )}
 
-                {application.reviewNotes && (
-                    <div className="admin-detail-box">
-                        <h3>
-                            {application.status === "rejected"
-                                ? "Rejection Reason"
-                                : "Review Notes"}
-                        </h3>
+                                    <button
+                                        type="button"
+                                        className="admin-review-primary"
+                                        onClick={handleSchedule}
+                                        disabled={loading || !interviewDay || !interviewTime}
+                                    >
+                                        <ReviewIcon name="calendar" />
+                                        {loading
+                                            ? "Saving..."
+                                            : isScheduled
+                                                ? "Save New Schedule"
+                                                : "Schedule Interview"}
+                                    </button>
+                                </>
+                            )}
 
-                        <p>{application.reviewNotes}</p>
+                            {isClosed && !application.interviewSchedule && (
+                                <p className="admin-review-text">No interview was held.</p>
+                            )}
+                        </article>
                     </div>
-                )}
+                </div>
+
+                <footer className="admin-review-footer">
+                    <p>
+                        {!isClosed && !isCompleted && (
+                            <>
+                                <ReviewIcon name="lock" />
+                                Approve unlocks after the interview is done.
+                            </>
+                        )}
+                    </p>
+
+                    <div>
+                        <button type="button" className="admin-review-secondary" onClick={onClose}>
+                            Close
+                        </button>
+
+                        {!isClosed && (
+                            <button
+                                type="button"
+                                className="admin-review-danger"
+                                onClick={() => onReject(application)}
+                                disabled={loading}
+                            >
+                                Reject Application
+                            </button>
+                        )}
+
+                        {isScheduled && (
+                            <button
+                                type="button"
+                                className="admin-review-approve"
+                                onClick={() => onCompleteInterview(application)}
+                                disabled={loading}
+                            >
+                                Mark Interview Done
+                            </button>
+                        )}
+
+                        {!isClosed && !isScheduled && (
+                            <button
+                                type="button"
+                                className="admin-review-approve"
+                                onClick={() => onApprove(application)}
+                                disabled={loading || !isCompleted}
+                            >
+                                Approve
+                            </button>
+                        )}
+                    </div>
+                </footer>
             </section>
         </div>
     );
@@ -938,6 +1223,11 @@ export default function AdoptionApplications() {
             <ApplicationModal
                 application={selectedApplication}
                 onClose={() => setSelectedApplication(null)}
+                onScheduleInterview={handleScheduleInterview}
+                onCompleteInterview={handleCompleteInterview}
+                onApprove={handleApproveApplication}
+                onReject={setRejectionApplication}
+                loading={saving}
             />
 
             <InterviewModal
