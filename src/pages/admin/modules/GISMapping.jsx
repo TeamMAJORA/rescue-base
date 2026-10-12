@@ -12,6 +12,14 @@ import "leaflet/dist/leaflet.css";
 
 import assets from "../../../data/assets.json";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 const cebuCenter = [10.3157, 123.8854];
 
@@ -459,7 +467,7 @@ export default function GISMapping() {
         const label =
             location.petName || location.locationName || "this location";
 
-        if (!window.confirm(`Delete "${label}"? This cannot be undone.`)) {
+        if (!await askConfirm({ title: `Delete "${label}"?`, message: "This can't be undone.", confirmLabel: "Delete", danger: true })) {
             return;
         }
 
@@ -643,9 +651,7 @@ export default function GISMapping() {
             shelter.status === "active" ? "inactive" : "active";
 
         if (
-            !window.confirm(
-                `${nextStatus === "active" ? "Activate" : "Deactivate"} "${shelter.name}"?`
-            )
+            !await askConfirm({ title: `${nextStatus === "active" ? "Activate" : "Deactivate"} "${shelter.name}"?`, confirmLabel: nextStatus === "active" ? "Activate" : "Deactivate", danger: nextStatus !== "active" })
         ) {
             return;
         }

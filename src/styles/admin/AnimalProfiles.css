@@ -442,6 +442,13 @@
 
 .admin-animal-table-scroll {
     overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+/* Hide the table scrollbar (it still scrolls with trackpad / shift + wheel) */
+.admin-animal-table-scroll::-webkit-scrollbar {
+    display: none;
 }
 
 .admin-animal-table {

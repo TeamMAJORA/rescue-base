@@ -2,31 +2,74 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
 
-// NOTE: vaccination records are still kept in the browser only (no backend yet),
-// so they reset when the page is refreshed — same behavior as before.
 
-const starterVaccinations = [
-    {
-        id: 1,
-        animalName: "Max",
-        vaccineName: "Anti-Rabies",
-        veterinarian: "Dr. Santos",
-        vaccinationDate: "2026-06-20",
-        nextDueDate: "2027-06-20",
-        status: "Completed",
-        notes: "Annual anti-rabies vaccination completed.",
-    },
-    {
-        id: 2,
-        animalName: "Luna",
-        vaccineName: "5-in-1 Vaccine",
-        veterinarian: "Dr. Reyes",
-        vaccinationDate: "2026-07-05",
-        nextDueDate: "2027-07-05",
-        status: "Completed",
-        notes: "No adverse reactions observed.",
-    },
-];
+// Styled confirm popup + toast from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
+function notify(text, tone = "success") {
+    if (window.rbToast) {
+        window.rbToast(text, tone);
+    } else {
+        window.alert(text);
+    }
+}
+
+function notifyErr(text) {
+    notify(text, "error");
+}
+
+const API_VACCINATIONS = `${import.meta.env.VITE_BACKEND_URL}/api/vaccinations`;
+
+// Calls the backend with the login token; throws the server's message on failure
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.success === false) {
+        throw new Error(data.message || "Request failed.");
+    }
+
+    return data;
+}
+
+// Database record -> the shape this page already uses
+function fromApi(record) {
+    return {
+        id: record._id,
+        animalId: record.animal_id?._id || record.animal_id || "",
+        animalName: record.animal_id?.name || "(deleted animal)",
+        vaccineName: record.vaccine_name || "",
+        veterinarian: record.veterinarian || "",
+        vaccinationDate: String(record.vaccination_date || "").slice(0, 10),
+        nextDueDate: String(record.next_due_date || "").slice(0, 10),
+        status: record.status || "Completed",
+        notes: record.notes || "",
+    };
+}
+
+// Form -> what the backend expects
+function toApi(form, animalId) {
+    return {
+        animal_id: animalId,
+        vaccine_name: form.vaccineName,
+        veterinarian: form.veterinarian,
+        vaccination_date: form.vaccinationDate,
+        next_due_date: form.nextDueDate || null,
+        status: form.status,
+        notes: form.notes,
+    };
+}
 
 const API_ANIMALS = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
 
@@ -343,7 +386,7 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
         notes: "",
     };
 
-    const [vaccinations, setVaccinations] = useState(starterVaccinations);
+    const [vaccinations, setVaccinations] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [vaccinationForm, setVaccinationForm] = useState(blankForm);
     const [tab, setTab] = useState(lockedAnimal ? "all" : "unvaccinated");
@@ -360,7 +403,21 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
             .then((response) => response.json())
             .then((data) => setAnimals(data.animals || []))
             .catch(() => setAnimals([]));
-    }, [lockedAnimal]);
+        }, [lockedAnimal]);
+
+    // Vaccination records saved in the database
+    async function loadVaccinations() {
+        try {
+            const data = await apiRequest(API_VACCINATIONS);
+            setVaccinations((data.vaccinations || []).map(fromApi));
+        } catch (error) {
+            notifyErr(error.message || "Couldn't load vaccination records.");
+        }
+    }
+
+    useEffect(() => {
+        loadVaccinations();
+    }, []);
 
     function startVaccinationFor(animal) {
         setEditingId(null);
@@ -377,22 +434,47 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
         setVaccinationForm(blankForm);
     }
 
-    function handleAddVaccination(e) {
+        // Animal name in the form -> the animal's database ID
+    function findAnimalId(name) {
+        if (lockedAnimal) return lockedAnimal._id;
+
+        const match = animals.find((animal) => animal.name === name);
+        if (match) return match._id;
+
+        // Editing an old record whose animal is not in the list anymore
+        return vaccinations.find((v) => v.id === editingId)?.animalId || "";
+    }
+
+    async function handleAddVaccination(e) {
         e.preventDefault();
 
-        if (editingId) {
-            setVaccinations((current) =>
-                current.map((vaccination) =>
-                    vaccination.id === editingId
-                        ? { ...vaccination, ...vaccinationForm }
-                        : vaccination
-                )
-            );
-        } else {
-            setVaccinations((current) => [{ id: Date.now(), ...vaccinationForm }, ...current]);
+        const animalId = findAnimalId(vaccinationForm.animalName);
+
+        if (!animalId) {
+            notifyErr("Pick an animal from Animal Profiles.");
+            return;
         }
 
-        resetForm();
+        try {
+            if (editingId) {
+                await apiRequest(`${API_VACCINATIONS}/${editingId}`, {
+                    method: "PATCH",
+                    body: JSON.stringify(toApi(vaccinationForm, animalId)),
+                });
+                notify("Vaccination record updated");
+            } else {
+                await apiRequest(API_VACCINATIONS, {
+                    method: "POST",
+                    body: JSON.stringify(toApi(vaccinationForm, animalId)),
+                });
+                notify("Vaccination record saved");
+            }
+
+            resetForm();
+            await loadVaccinations();
+        } catch (error) {
+            notifyErr(error.message || "Couldn't save the vaccination record.");
+        }
     }
 
     function handleEditVaccination(vaccination) {
@@ -411,8 +493,8 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    // Records that the dose was given today and keeps the same booster interval.
-    function handleMarkGiven(vaccination) {
+        // Records that the dose was given today and keeps the same booster interval.
+    async function handleMarkGiven(vaccination) {
         const today = todayISO();
         let nextDueDate = "";
 
@@ -425,26 +507,39 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
             }
         }
 
-        setVaccinations((current) =>
-            current.map((v) =>
-                v.id === vaccination.id
-                    ? { ...v, status: "Completed", vaccinationDate: today, nextDueDate }
-                    : v
-            )
-        );
+        try {
+            await apiRequest(`${API_VACCINATIONS}/${vaccination.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                    status: "Completed",
+                    vaccination_date: today,
+                    next_due_date: nextDueDate || null,
+                }),
+            });
+            notify(`${vaccination.animalName} marked as vaccinated`);
+            await loadVaccinations();
+        } catch (error) {
+            notifyErr(error.message || "Couldn't update the vaccination record.");
+        }
     }
 
-    function handleDeleteVaccination(id) {
+    async function handleDeleteVaccination(id) {
         if (!isAdmin()) {
-            alert("Only administrators can delete vaccination records.");
+            notifyErr("Only administrators can delete vaccination records.");
             return;
         }
 
-        if (!window.confirm("Delete this vaccination record?")) return;
+        if (!await askConfirm({ title: "Delete this vaccination record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
 
-        setVaccinations((current) => current.filter((vaccination) => vaccination.id !== id));
+        try {
+            await apiRequest(`${API_VACCINATIONS}/${id}`, { method: "DELETE" });
+            setVaccinations((current) => current.filter((vaccination) => vaccination.id !== id));
+            notify("Vaccination record deleted");
 
-        if (editingId === id) resetForm();
+            if (editingId === id) resetForm();
+        } catch (error) {
+            notifyErr(error.message || "Couldn't delete the vaccination record.");
+        }
     }
 
     // ---------- Stats, tabs, filtering ----------
@@ -477,6 +572,20 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
         });
 
         return {
+            // Distinct pets whose next dose falls in next calendar month
+            dueNextMonth: new Set(
+                scoped
+                    .filter((v) => {
+                        const d = parseLocal(v.nextDueDate);
+                        if (!d) return false;
+                        const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                        return (
+                            d.getMonth() === next.getMonth() &&
+                            d.getFullYear() === next.getFullYear()
+                        );
+                    })
+                    .map((v) => String(v.animalName).trim().toLowerCase())
+            ).size,
             givenThisMonth: scoped.filter((v) => {
                 const d = parseLocal(v.vaccinationDate);
                 return (
@@ -579,7 +688,7 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                     items={[
                         { icon: "alert", label: "Overdue", value: counts.overdue },
                         { icon: "clock", label: "Due in next 30 days", value: counts.soon },
-                        { icon: "check", label: "Given this month", value: stats.givenThisMonth },
+                        { icon: "check", label: "Pets due next month", value: stats.dueNextMonth },
                     ]}
                 />
             )}

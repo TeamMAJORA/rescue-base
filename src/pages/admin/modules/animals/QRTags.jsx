@@ -2,6 +2,26 @@
 import { useEffect, useState } from "react";
 import { isAdmin, isStaff } from "../../../../utils/auth";
 import "../../../../styles/admin/QRTags.css";
+
+// Styled confirm popup + toast from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
+function notify(text, tone = "success") {
+    if (window.rbToast) {
+        window.rbToast(text, tone);
+    } else {
+        window.alert(text);
+    }
+}
+
+function notifyErr(text) {
+    notify(text, "error");
+}
+
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/qr-tags`;
 
 export default function QRTags() {
@@ -147,13 +167,11 @@ export default function QRTags() {
 
     async function handleDelete(id) {
         if (!(isAdmin() || isStaff())) {
-            alert("Only administrators and staff members can delete QR tags.");
+            notifyErr("Only administrators and staff members can delete QR tags.");
             return;
         }
 
-        const confirmed = window.confirm(
-            "Are you sure you want to delete this QR tag?"
-        );
+        const confirmed = await askConfirm({ title: "Delete this QR tag?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) {
             return;
@@ -189,15 +207,13 @@ export default function QRTags() {
 
     async function handleRegenerate(id) {
         if (!(isAdmin() || isStaff())) {
-            alert(
+            notifyErr(
                 "Only administrators and staff members can regenerate QR tags."
             );
             return;
         }
 
-        const confirmed = window.confirm(
-            "Regenerate this QR tag?"
-        );
+        const confirmed = await askConfirm({ title: "Regenerate this QR tag?", confirmLabel: "Regenerate" });
 
         if (!confirmed) {
             return;

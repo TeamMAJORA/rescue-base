@@ -1,6 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 
 
+
+// Styled confirm popup + toast from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
+function notify(text, tone = "success") {
+    if (window.rbToast) {
+        window.rbToast(text, tone);
+    } else {
+        window.alert(text);
+    }
+}
+
+function notifyErr(text) {
+    notify(text, "error");
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const ACTIVE_STATUSES = [
@@ -142,7 +162,7 @@ function InterviewModal({
             Number.isNaN(selectedDate.getTime()) ||
             selectedDate.getTime() <= Date.now()
         ) {
-            alert("Please select a valid future interview date and time.");
+            notifyErr("Please select a valid future interview date and time.");
             return;
         }
 
@@ -566,7 +586,7 @@ export default function AdoptionApplications() {
             );
         } catch (error) {
             console.error("Fetch applications error:", error);
-            alert(error.message || "Unable to load adoption applications.");
+            notifyErr(error.message || "Unable to load adoption applications.");
         } finally {
             setLoading(false);
         }
@@ -620,7 +640,7 @@ export default function AdoptionApplications() {
             return true;
         } catch (error) {
             console.error("Update status error:", error);
-            alert(error.message || "Server error while updating application.");
+            notifyErr(error.message || "Server error while updating application.");
             return false;
         } finally {
             setSaving(false);
@@ -642,9 +662,7 @@ export default function AdoptionApplications() {
     }
 
     async function handleCompleteInterview(application) {
-        const confirmed = window.confirm(
-            `Mark the interview for ${application.fullName} as completed?`
-        );
+        const confirmed = await askConfirm({ title: "Mark interview as completed?", message: `Mark the interview for ${application.fullName} as completed?`, confirmLabel: "Mark completed" });
 
         if (!confirmed) return;
 
@@ -655,11 +673,9 @@ export default function AdoptionApplications() {
     }
 
     async function handleApproveApplication(application) {
-        const confirmed = window.confirm(
-            `Approve the adoption of ${application.petName} by ` +
+        const confirmed = await askConfirm({ title: "Approve this adoption?", message: `Approve the adoption of ${application.petName} by ` +
                 `${application.fullName}? This will mark the pet as adopted ` +
-                "and close other active applications."
-        );
+                "and close other active applications.", confirmLabel: "Approve" });
 
         if (!confirmed) return;
 

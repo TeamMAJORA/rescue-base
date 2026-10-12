@@ -6,6 +6,14 @@ import MedicalRecords from "./MedicalRecords";
 import InfoTip from "../../../../components/system/InfoTip";
 import { formatAge } from "../../../../utils/formatAge";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const emptyAnimalForm = {
@@ -756,7 +764,7 @@ export default function AnimalProfiles() {
             return;
         }
 
-        const confirmed = window.confirm("Delete this animal profile?");
+        const confirmed = await askConfirm({ title: "Delete this animal profile?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) return;
 
@@ -1288,26 +1296,40 @@ export default function AnimalProfiles() {
                  )}
             </div>
             
-            <div className="admin-animal-stats">
-                <article className="admin-stat-card">
-                    <span>Total Animals</span>
-                    <strong>{totalAnimals}</strong>
-                </article>
+            {/* Stats strip — same design as the other Animal pages (styles in IntakeRecords.css) */}
+            <div className="ao-page">
+                <div className="ao-strip">
+                    <div className="ao-strip-cta">
+                        <div>
+                            <b>{totalAnimals}</b>
+                            <small>{totalAnimals === 1 ? "Animal under shelter care" : "Animals under shelter care"}</small>
+                        </div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Available</span>
-                    <strong>{availableAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" /></svg>
+                            Available
+                        </div>
+                        <div className="ao-strip-value">{availableAnimals}</div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Pending Adoption</span>
-                    <strong>{pendingAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                            Pending Adoption
+                        </div>
+                        <div className="ao-strip-value">{pendingAnimals}</div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Adopted</span>
-                    <strong>{adoptedAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>
+                            Adopted
+                        </div>
+                        <div className="ao-strip-value">{adoptedAnimals}</div>
+                    </div>
+                </div>
             </div>
 
 

@@ -39,6 +39,10 @@ export default function AdoptionApplication({
         experience: "",
     });
 
+    // Snapshot of the starting form, used to know if the adopter typed anything
+    const [initialForm] = useState(() => form);
+    const [leaveOpen, setLeaveOpen] = useState(false);
+
     const [document, setDocument] = useState(null);
 
     const [documentUploading, setDocumentUploading] =
@@ -54,6 +58,21 @@ export default function AdoptionApplication({
         useState("");
 
     const token = localStorage.getItem("token")
+
+    const isDirty =
+        Boolean(document) ||
+        Object.keys(initialForm).some(
+            (key) => String(form[key] ?? "") !== String(initialForm[key] ?? "")
+        );
+
+    function requestLeave() {
+        if (isDirty) {
+            setLeaveOpen(true);
+            return;
+        }
+
+        onBack?.();
+    }
 
     function showMessage(type, text) {
         setMessageType(type);
@@ -369,7 +388,7 @@ export default function AdoptionApplication({
                 <button
                     type="button"
                     className="adoption-module-back"
-                    onClick={() => onBack?.()}
+                    onClick={requestLeave}
                     disabled={
                         submitting ||
                         documentUploading
@@ -688,9 +707,7 @@ export default function AdoptionApplication({
                         <button
                             type="button"
                             className="adoption-cancel-button"
-                            onClick={() =>
-                                onBack?.()
-                            }
+                            onClick={requestLeave}
                             disabled={
                                 submitting ||
                                 documentUploading
@@ -716,6 +733,60 @@ export default function AdoptionApplication({
                     </div>
                 </form>
             </div>
+
+            {leaveOpen && (
+                <div
+                    className="adopter-confirm-backdrop"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="leave-application-title"
+                    onClick={() => setLeaveOpen(false)}
+                >
+                    <div
+                        className="adopter-confirm"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="adopter-confirm-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 8v4M12 16h.01" />
+                            </svg>
+                        </div>
+
+                        <h3 id="leave-application-title">
+                            Leave your application?
+                        </h3>
+
+                        <p>
+                            You've filled in part of the form for{" "}
+                            <strong>{pet.name}</strong>. If you leave now,
+                            your answers won't be saved.
+                        </p>
+
+                        <div className="adopter-confirm-actions">
+                            <button
+                                type="button"
+                                className="adopter-confirm-keep"
+                                onClick={() => setLeaveOpen(false)}
+                                autoFocus
+                            >
+                                Keep editing
+                            </button>
+
+                            <button
+                                type="button"
+                                className="adopter-confirm-leave"
+                                onClick={() => {
+                                    setLeaveOpen(false);
+                                    onBack?.();
+                                }}
+                            >
+                                Leave form
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

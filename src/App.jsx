@@ -37,6 +37,7 @@ export default function App() {
         return (
             <Dashboard
                 onLogout={() => setPage("home")}
+                onLoginAgain={() => setPage("auth")}
             />
         );
     }

@@ -4,6 +4,14 @@ import {
     useState
 } from "react";
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const initialAddForm = {
@@ -133,9 +141,7 @@ export default function UserManagement() {
     }
 
     async function handleDeactivateUser(user) {
-        const confirmed = window.confirm(
-            `Are you sure you want to deactivate ${user.username || user.name || "this user"}?`
-        );
+        const confirmed = await askConfirm({ title: `Deactivate ${user.username || user.name || "this user"}?`, confirmLabel: "Deactivate", danger: true });
 
         if (!confirmed) return;
 
@@ -283,9 +289,7 @@ export default function UserManagement() {
             reviewingApplication.name ||
             "this user";
 
-        const confirmed = window.confirm(
-            `Are you sure you want to ${decision} ${applicantName}'s role application?`
-        );
+        const confirmed = await askConfirm({ title: `Are you sure you want to ${decision} ${applicantName}'s role application?`, confirmLabel: decision.charAt(0).toUpperCase() + decision.slice(1), danger: decision === "reject" });
 
         if (!confirmed) return;
 
