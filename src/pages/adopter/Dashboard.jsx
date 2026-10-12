@@ -688,6 +688,8 @@ export default function Dashboard({ onLogout }) {
                 documentsVerified: Boolean(
                     application.documentsVerified
                 ),
+                withdrawnAt: application.withdrawnAt || null,
+                withdrawnFromStatus: application.withdrawnFromStatus || "",
             };
 
             setApplicationStatus(updatedStatus);
@@ -711,7 +713,29 @@ export default function Dashboard({ onLogout }) {
             setApplicationLoading(false);
         }
     }
+    async function handleWithdrawApplication(reason) {
+        if (!applicationStatus?.applicationId) return;
 
+        const response = await fetch(
+            `${API}/api/adoptions/${applicationStatus.applicationId}/withdraw`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ reason }),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to withdraw your application.");
+        }
+
+        await fetchApplicationStatus();
+    }
     async function refreshDashboard() {
         await Promise.all([
             fetchPets(),
@@ -1142,6 +1166,7 @@ export default function Dashboard({ onLogout }) {
                     application={applicationStatus}
                     loading={applicationLoading}
                     onRefresh={fetchApplicationStatus}
+                    onWithdraw={handleWithdrawApplication}
                     onBrowsePets={() =>
                         setActiveAdopterPage("browse-pets")
                     }

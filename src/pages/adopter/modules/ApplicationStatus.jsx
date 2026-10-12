@@ -1,3 +1,4 @@
+import { useState } from "react";
 function formatDate(dateValue, includeTime = false) {
     if (!dateValue) {
         return "Not Available";
@@ -52,8 +53,17 @@ function getStatusContent(status) {
         title: "Your interview is scheduled",
         description:
             "Shelter staff want to meet you. Please come to the shelter on the date and time below.",
-    };
-}
+        };
+    }
+
+    if (status === "withdrawn") {
+        return {
+            eyebrow: "Application Withdrawn",
+            title: "You withdrew this application",
+            description:
+                "This application is closed. You can now apply for another pet.",
+        };
+    }
 
     if (status === "interview_completed") {
         return {
@@ -77,7 +87,28 @@ export default function ApplicationStatus({
     loading,
     onRefresh,
     onBrowsePets,
+    onWithdraw,
 }) {
+
+    const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
+    const [withdrawReason, setWithdrawReason] = useState("");
+    const [withdrawing, setWithdrawing] = useState(false);
+    const [withdrawError, setWithdrawError] = useState("");
+
+    async function handleWithdraw() {
+        try {
+            setWithdrawing(true);
+            setWithdrawError("");
+            await onWithdraw?.(withdrawReason.trim());
+            setConfirmingWithdraw(false);
+            setWithdrawReason("");
+        } catch (error) {
+            setWithdrawError(error.message || "Failed to withdraw your application.");
+        } finally {
+            setWithdrawing(false);
+        }
+    }
+
     if (loading && !application) {
         return (
             <section className="application-status-loading">
@@ -144,14 +175,20 @@ export default function ApplicationStatus({
     const isInterviewScheduled = status === "interview_scheduled";
     const isInterviewCompleted = status === "interview_completed";
     const hasInterview = Boolean(application.interviewSchedule);
+    const isWithdrawn = status === "withdrawn";
+    const isActive = isPending || isInterviewScheduled || isInterviewCompleted;
 
-    const stageIndex = {
-        pending: 1,
-        interview_scheduled: 2,
-        interview_completed: 3,
-        approved: 4,
-        rejected: 4,
-    }[status] ?? 1;
+    const stageMap = {
+    pending: 1,
+    interview_scheduled: 2,
+    interview_completed: 3,
+    approved: 4,
+    rejected: 4,
+    };
+
+    const stageIndex = isWithdrawn
+        ? stageMap[application.withdrawnFromStatus] ?? 1
+        : stageMap[status] ?? 1;
 
     const progressSteps = [
         {
@@ -160,19 +197,25 @@ export default function ApplicationStatus({
         },
         {
             label: "Review",
-            detail: stageIndex > 1 ? "Completed" : "In progress",
+            detail: stageIndex > 1
+                ? "Completed"
+                : isWithdrawn
+                    ? "Stopped"
+                    : "In progress",
         },
         {
             label: "Interview",
             detail: hasInterview
                 ? formatDate(application.interviewSchedule, true)
-                : isApproved || isRejected
+                : isApproved || isRejected || isWithdrawn
                     ? "Not held"
                     : "To be scheduled",
         },
         {
             label: "Decision",
-            detail: isApproved
+            detail: isWithdrawn
+                ? "Withdrawn"
+                : isApproved
                 ? "Approved"
                 : isRejected
                     ? "Not approved"
@@ -186,11 +229,17 @@ export default function ApplicationStatus({
         if (index === 2 && (isApproved || isRejected) && !hasInterview) state = "skipped";
         if (index === 3 && isRejected) state = "rejected";
         if (index === 3 && isApproved) state = "approved";
+        if (isWithdrawn) {
+            state = index < stageIndex ? "done" : "upcoming";
+            if (index === 3) state = "withdrawn";
+        }
 
         return { ...step, state };
     });
 
-    const progressFill = (Math.min(stageIndex, 3) / 3) * 100;
+    const progressFill = isWithdrawn
+    ? ((stageIndex - 1) / 3) * 100
+    : (Math.min(stageIndex, 3) / 3) * 100;
 
     return (
         <section className="application-status-module">
@@ -235,7 +284,7 @@ export default function ApplicationStatus({
                     <span
                         className={`application-status-pill ${status}`}
                     >
-                        {status}
+                        {status.replaceAll("_", " ")}
                     </span>
 
                     <h2>
@@ -312,7 +361,7 @@ export default function ApplicationStatus({
                                                 <path d="m5 12.5 4.5 4.5L19 7.5" />
                                             </svg>
                                         )}
-                                        {step.state === "rejected" && (
+                                        {(step.state === "rejected" || step.state === "withdrawn") && (
                                             <svg viewBox="0 0 24 24">
                                                 <path d="M7 7l10 10M17 7 7 17" />
                                             </svg>
@@ -372,6 +421,103 @@ export default function ApplicationStatus({
                                     ? "Bring a valid ID. You will meet the pet and talk with shelter staff about your home and care plans."
                                     : "Shelter staff are now making the final decision on your application."}
                             </p>
+                        </section>
+                    )}
+
+                    {isActive && (
+                        <section className="application-withdraw">
+                            {!confirmingWithdraw ? (
+                                <div className="application-withdraw-row">
+                                    <div>
+                                        <strong>Changed your mind?</strong>
+                                        <p>
+                                            You can withdraw this application anytime
+                                            before the shelter makes its final decision.
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        className="application-withdraw-button"
+                                        onClick={() => setConfirmingWithdraw(true)}
+                                    >
+                                        Withdraw Application
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="application-withdraw-confirm">
+                                    <strong>
+                                        Withdraw your application for {application.petName}?
+                                    </strong>
+
+                                    <p>
+                                        This cannot be undone. {application.petName} will stay
+                                        available to other adopters, and you can apply for
+                                        another pet right away.
+                                    </p>
+
+                                    <label htmlFor="withdraw-reason">Reason (optional)</label>
+
+                                    <textarea
+                                        id="withdraw-reason"
+                                        rows={3}
+                                        maxLength={300}
+                                        value={withdrawReason}
+                                        onChange={(event) => setWithdrawReason(event.target.value)}
+                                        placeholder="Let the shelter know why you are withdrawing."
+                                        disabled={withdrawing}
+                                    />
+
+                                    {withdrawError && (
+                                        <p className="application-withdraw-error">{withdrawError}</p>
+                                    )}
+
+                                    <div className="application-withdraw-actions">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setConfirmingWithdraw(false);
+                                                setWithdrawError("");
+                                            }}
+                                            disabled={withdrawing}
+                                        >
+                                            Keep Application
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="application-withdraw-button"
+                                            onClick={handleWithdraw}
+                                            disabled={withdrawing}
+                                        >
+                                            {withdrawing ? "Withdrawing..." : "Yes, Withdraw"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </section>
+                    )}
+
+                    {isWithdrawn && (
+                        <section className="application-status-information withdrawn">
+                            <div className="application-status-section-heading">
+                                <span>Application Closed</span>
+                                <h3>You can apply again</h3>
+                            </div>
+
+                            <p>
+                                You withdrew this application on{" "}
+                                {formatDate(application.withdrawnAt)}. You are free to
+                                apply for another available pet.
+                            </p>
+
+                            <button
+                                type="button"
+                                className="application-browse-button"
+                                onClick={() => onBrowsePets?.()}
+                            >
+                                Browse Available Pets
+                            </button>
                         </section>
                     )}
 
