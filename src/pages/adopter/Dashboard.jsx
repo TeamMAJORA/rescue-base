@@ -485,10 +485,10 @@ export default function Dashboard({ onLogout }) {
         }
     }
 
-    async function fetchPets() {
-        try {
-            setPetsLoading(true);
-            setPetsError("");
+async function fetchPets({ silent = false } = {}) {
+    try {
+        if (!silent) setPetsLoading(true);
+        setPetsError("");
 
             const response = await fetch(
                 `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`, {
@@ -1379,6 +1379,25 @@ export default function Dashboard({ onLogout }) {
             clearInterval(interval);
         };
     }, [savedEmail]);
+
+    // Keep pet availability fresh
+    useEffect(() => {
+        if (applicationStatus?.status === "approved") {
+            fetchPets({ silent: true });
+        }
+    }, [applicationStatus?.status]);
+    
+    useEffect(() => {
+        fetchPets({ silent: true });
+    }, [activeAdopterPage]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchPets({ silent: true });
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <main className="adopter-dashboard-page">
