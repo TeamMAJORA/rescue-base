@@ -206,8 +206,10 @@ export default function Dashboard({ onLogout }) {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
+    const activeApplicationStatuses = ["pending", "interview_scheduled", "interview_completed"];
+
     const hasPendingApplication =
-        applicationStatus?.status === "pending";
+     activeApplicationStatuses.includes(applicationStatus?.status);
 
     const isRejectedApplication =
         applicationStatus?.status === "rejected";
@@ -320,6 +322,24 @@ export default function Dashboard({ onLogout }) {
                 title: "Find another match",
                 linkText: "See your matches",
                 page: hasTakenQuiz ? "recommendations" : "browse-pets",
+            };
+        }
+
+        if (applicationStatus?.status === "interview_scheduled") {
+            return {
+                tone: "action",
+                label: "Action Needed",
+                icon: "/icons/Clock.svg",
+                title: `Interview for ${petName}`,
+                linkText: applicationStatus.interviewSchedule
+                    ? new Date(applicationStatus.interviewSchedule).toLocaleString("en-PH", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                    })
+                    : "See your schedule",
+                page: "application-status",
             };
         }
 
@@ -672,9 +692,7 @@ export default function Dashboard({ onLogout }) {
 
             setApplicationStatus(updatedStatus);
 
-            if (
-                updatedStatus.status === "pending"
-            ) {
+            if (activeApplicationStatuses.includes(updatedStatus.status)) {
                 localStorage.setItem(
                     "rescuebase_pending_application",
                     JSON.stringify(updatedStatus)

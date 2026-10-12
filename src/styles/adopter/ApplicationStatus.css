@@ -904,3 +904,49 @@
     width: 15px;
     height: 15px;
 }
+
+/* ===== Refresh Status button ===== */
+.application-status-refresh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(90, 27, 0, 0.08);
+}
+
+.application-status-refresh img {
+    width: 15px;
+    height: 15px;
+    transition: transform 0.4s ease;
+}
+
+.application-status-refresh:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fff7cb;
+    transform: translateY(-1px);
+}
+
+/* small turn on hover */
+.application-status-refresh:hover:not(:disabled) img {
+    transform: rotate(90deg);
+}
+
+/* spinning while refreshing */
+.application-status-refresh.is-loading {
+    opacity: 0.7;
+}
+
+.application-status-refresh.is-loading img {
+    animation: application-refresh-spin 0.8s linear infinite;
+}
+
+@keyframes application-refresh-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

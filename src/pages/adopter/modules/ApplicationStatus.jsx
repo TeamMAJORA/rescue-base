@@ -46,11 +46,29 @@ function getStatusContent(status) {
         };
     }
 
+    if (status === "interview_scheduled") {
+    return {
+        eyebrow: "Interview Scheduled",
+        title: "Your interview is scheduled",
+        description:
+            "Shelter staff want to meet you. Please come to the shelter on the date and time below.",
+    };
+}
+
+    if (status === "interview_completed") {
+        return {
+            eyebrow: "Interview Completed",
+            title: "Waiting for the final decision",
+            description:
+                "Thank you for meeting with the shelter. Staff will post their final decision here soon.",
+        };
+    }
+
     return {
         eyebrow: "Application Under Review",
         title: "Your application is being reviewed",
         description:
-            "RescueBase staff approved your adoption application. Check the instructions and interview schedule below.",
+            "Shelter staff are reviewing your information and ID. You will be notified once there is an update.",
     };
 }
 
@@ -123,6 +141,8 @@ export default function ApplicationStatus({
     const isPending = status === "pending";
     const isApproved = status === "approved";
     const isRejected = status === "rejected";
+    const isInterviewScheduled = status === "interview_scheduled";
+    const isInterviewCompleted = status === "interview_completed";
     const hasInterview = Boolean(application.interviewSchedule);
 
     const stageIndex = {
@@ -143,7 +163,7 @@ export default function ApplicationStatus({
             detail: stageIndex > 1 ? "Completed" : "In progress",
         },
         {
-            label: "Meet & Greet",
+            label: "Interview",
             detail: hasInterview
                 ? formatDate(application.interviewSchedule, true)
                 : isApproved || isRejected
@@ -187,10 +207,11 @@ export default function ApplicationStatus({
 
                 <button
                     type="button"
-                    className="application-status-refresh"
+                    className={`application-status-refresh ${loading ? "is-loading" : ""}`}
                     onClick={() => onRefresh?.()}
                     disabled={loading}
                 >
+                    <img src="/icons/Refresh cw.svg" alt="" />
                     {loading ? "Refreshing..." : "Refresh Status"}
                 </button>
             </header>
@@ -324,6 +345,32 @@ export default function ApplicationStatus({
                             <p>
                                 You will see the updated decision here
                                 once the review is complete.
+                            </p>
+                        </section>
+                    )}
+
+                    {(isInterviewScheduled || isInterviewCompleted) && (
+                        <section className="application-status-information pending">
+                            <div className="application-status-section-heading">
+                                <span>Interview</span>
+                                <h3>
+                                    {isInterviewScheduled
+                                        ? "Prepare for your interview"
+                                        : "Interview done"}
+                                </h3>
+                            </div>
+
+                            {isInterviewScheduled && application.interviewSchedule && (
+                                <div className="application-interview-card">
+                                    <span>Interview Schedule</span>
+                                    <strong>{formatDate(application.interviewSchedule, true)}</strong>
+                                </div>
+                            )}
+
+                            <p>
+                                {isInterviewScheduled
+                                    ? "Bring a valid ID. You will meet the pet and talk with shelter staff about your home and care plans."
+                                    : "Shelter staff are now making the final decision on your application."}
                             </p>
                         </section>
                     )}
