@@ -45,6 +45,9 @@ export default function DonationCenter() {
     const [donation, setDonation] =
         useState(emptyDonation);
 
+    const [donationType, setSelected] 
+        = useState("monetary");
+
     const [submitting, setSubmitting] =
         useState(false);
 
@@ -488,7 +491,7 @@ export default function DonationCenter() {
     return (
         <section className="adopter-donation-page">
             <section className="adopter-donation-hero">
-                <span>❤️ Donation</span>
+                <span> Donation</span>
 
                 <h2>
                     Support RescueBase by donating
@@ -611,12 +614,10 @@ export default function DonationCenter() {
             <section className="adopter-panel donation-form-panel">
                 <div className="adopter-panel-heading">
                     <div>
-                        <h2>Donation Form</h2>
+                        <h2>Donate to Shelter Care</h2>
 
                         <p>
-                            Fill out the details below.
-                            Our shelter staff will review
-                            your donation request.
+                            Your kindness provides food, medical care, and a safe shelter.
                         </p>
                     </div>
                 </div>
@@ -625,6 +626,23 @@ export default function DonationCenter() {
                     className="donation-form"
                     onSubmit={handleSubmit}
                 >
+                    <button
+        type="button"
+        className=
+		{donationType === "monetary" ? "active" : ""}
+        onClick={() => setSelected("monetary")}
+      >
+        Monetary
+      </button>
+      <button
+        type="button"
+        className={donationType === "in-kind" ? "active" : ""}
+        onClick={() => setSelected("in-kind")}
+      >
+        In-Kind
+      </button>
+
+
                     <label>
                         Donation Category
 
@@ -1048,7 +1066,7 @@ export default function DonationCenter() {
                 <div className="adopter-panel-heading">
                     <div>
                         <h2>
-                            Accepted Donations
+                            Shelter's Current Needs
                         </h2>
 
                         <p>
@@ -1061,7 +1079,7 @@ export default function DonationCenter() {
                 <div className="donation-category-grid">
                     <article>
                         <span>🍖</span>
-                        <h3>Pet Food</h3>
+                        <h3>Puppy Food</h3>
                         <p>
                             Dry food, wet food,
                             treats and milk.
@@ -1079,7 +1097,7 @@ export default function DonationCenter() {
 
                     <article>
                         <span>🛏️</span>
-                        <h3>Blankets</h3>
+                        <h3>Pet Beds</h3>
                         <p>
                             Beds, blankets,
                             towels and cushions.
@@ -1088,7 +1106,7 @@ export default function DonationCenter() {
 
                     <article>
                         <span>🧸</span>
-                        <h3>Pet Toys</h3>
+                        <h3>Leashes</h3>
                         <p>
                             Balls, ropes and chew
                             toys.
@@ -1105,11 +1123,10 @@ export default function DonationCenter() {
                     </article>
 
                     <article>
-                        <span>🐾</span>
-                        <h3>Accessories</h3>
+                        <span>💰</span>
+                        <h3>Monetary</h3>
                         <p>
-                            Leashes, collars,
-                            bowls and carriers.
+                            Every donation helps an animal in need
                         </p>
                     </article>
                 </div>
