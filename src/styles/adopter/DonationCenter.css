@@ -26,11 +26,14 @@
 }
 
 .adopter-donation-hero h2 {
-    margin: 0 0 12px;
-    font-size: 2rem;
+    font-family: "Itim", cursive;
+    margin: 0 0 10px;
+    font-size: 3rem;
+    font-weight: 500;
 }
 
 .adopter-donation-hero p {
+    font-family: "Itim", cursive;
     margin: 0;
     max-width: 700px;
     line-height: 1.7;
@@ -134,21 +137,28 @@
 }
 
 .donation-form button {
+    font-family: "Itim", cursive;
+    margin: 1px;
     grid-column: 1 / -1;
     padding: 15px;
-    border: none;
-    border-radius: 14px;
+    border-radius: 15px;
     background: #ff8a5c;
     color: #fff;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 100;
     cursor: pointer;
     transition: .25s;
+}
+
+.donation-form-buttons-panel .active {
+    background: #ff8a5c;     /* orange when active */
+    color: #fff;
 }
 
 .donation-form button:hover:not(:disabled) {
     background: #f97316;
     transform: translateY(-2px);
+    background: #ccc;        /* gray by default */
 }
 
 .donation-form button:disabled {

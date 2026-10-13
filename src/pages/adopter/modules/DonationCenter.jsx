@@ -45,8 +45,8 @@ export default function DonationCenter() {
     const [donation, setDonation] =
         useState(emptyDonation);
 
-    const [donationType, setSelected] 
-        = useState("monetary");
+    const [selected, setSelected] = 
+        useState("monetary");
 
     const [submitting, setSubmitting] =
         useState(false);
@@ -494,14 +494,12 @@ export default function DonationCenter() {
                 <span> Donation</span>
 
                 <h2>
-                    Support RescueBase by donating
-                    essential supplies.
+                    Donate essential supplies and change a rescue pet's life.
                 </h2>
 
                 <p>
-                    Every donation helps rescued
-                    animals receive proper care while
-                    waiting for their forever homes.
+                   Your kindness keeps sweet souls safe, healthy, and
+                   loved as they dream their forever home.
                 </p>
             </section>
 
@@ -626,21 +624,20 @@ export default function DonationCenter() {
                     className="donation-form"
                     onSubmit={handleSubmit}
                 >
-                    <button
-        type="button"
-        className=
-		{donationType === "monetary" ? "active" : ""}
-        onClick={() => setSelected("monetary")}
-      >
-        Monetary
-      </button>
-      <button
-        type="button"
-        className={donationType === "in-kind" ? "active" : ""}
-        onClick={() => setSelected("in-kind")}
-      >
-        In-Kind
-      </button>
+            <div className="donation-form-buttons-panel">
+                <button
+                className={selected === "monetary" ? "active" : ""}
+                    onClick={() => setSelected("monetary")}
+                > Monetary
+         
+                </button>
+      
+                <button
+                className={selected === "inKind" ? "active" : ""}
+                    onClick={() => setSelected("inKind")}
+                > In-Kind
+                </button>
+            </div>
 
 
                     <label>
