@@ -1726,3 +1726,96 @@
         padding-right: 18px;
     }
 }
+
+/* ===== Assign pop-up (reuses the .afr-modal look) ===== */
+.afr-facts.is-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.afr-pill.is-slots {
+    text-transform: none;
+}
+
+.afr-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.afr-form label {
+    display: grid;
+    gap: 6px;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.afr-form label.is-wide {
+    grid-column: 1 / -1;
+}
+
+.afr-form em {
+    color: #b42318;
+    font-style: normal;
+}
+
+.afr-form input,
+.afr-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1.5px solid rgba(90, 27, 0, 0.15);
+    border-radius: 12px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.afr-form input::placeholder,
+.afr-form textarea::placeholder {
+    color: rgba(90, 27, 0, 0.45);
+}
+
+.afr-form input:focus,
+.afr-form textarea:focus {
+    border-color: #fb8500;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.afr-btn.is-assign {
+    border: none;
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.3);
+}
+
+.afr-btn.is-assign .ao-icon {
+    fill: currentColor;
+    stroke: none;
+}
+
+.afr-btn.is-assign:hover:not(:disabled) {
+    background: #d96f00;
+    transform: translateY(-1px);
+}
+
+.afr-btn.is-assign:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+@media (max-width: 640px) {
+    .afr-facts.is-three {
+        grid-template-columns: 1fr;
+    }
+
+    .afr-form {
+        grid-template-columns: 1fr;
+    }
+}
