@@ -1,7 +1,6 @@
 import {
     useEffect, useState
 } from "react"
-import { isAdmin } from "../../../utils/auth";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1214,19 +1213,17 @@ export default function FosterCare() {
                                                 </button>
                                             )}
 
-                                            {isAdmin() && (
-                                                <button
-                                                    type="button"
-                                                    className="delete"
-                                                    onClick={() =>
-                                                        handleDeleteAssignment(
-                                                            assignment._id
-                                                        )
-                                                    }
-                                                >
-                                                    Delete
-                                                </button>
-                                            )}
+                                            <button
+                                                type="button"
+                                                className="delete"
+                                                onClick={() =>
+                                                    handleDeleteAssignment(
+                                                        assignment._id
+                                                    )
+                                                }
+                                            >
+                                                Delete
+                                            </button>
                                         </>
                                     )}
 
