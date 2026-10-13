@@ -82,6 +82,8 @@ export default function FosterCare() {
     const [medicalRequests, setMedicalRequests] = useState([]);
     const [listFilter, setListFilter] = useState("all");
     const [listSearch, setListSearch] = useState("");
+    const [appFilter, setAppFilter] = useState("all");
+    const [reviewingApplication, setReviewingApplication] = useState(null);
     const token = localStorage.getItem("token")
 
     const [assignmentForm, setAssignmentForm] =
@@ -644,6 +646,71 @@ export default function FosterCare() {
         fetchMedicalRequests();
     }, []);
 
+    // ----- Foster Applications -----
+    const APP_FILTERS = [
+        { value: "all", label: "All" },
+        { value: "pending", label: "Pending" },
+        { value: "approved", label: "Approved" },
+    ];
+
+    const pendingApplicationCount = applications.filter(
+        (application) => application.status === "pending"
+    ).length;
+
+    const visibleApplications =
+        appFilter === "all"
+            ? applications
+            : applications.filter((application) => application.status === appFilter);
+
+    // Active animals per foster email (used for "Full")
+    const activeCountByEmail = assignments.reduce((counts, assignment) => {
+        if (assignment.status === "active") {
+            counts[assignment.fosterEmail] = (counts[assignment.fosterEmail] || 0) + 1;
+        }
+        return counts;
+    }, {});
+
+    function isFosterFull(application) {
+        const used = activeCountByEmail[application.applicantEmail] || 0;
+        return used >= (Number(application.capacity) || 1);
+    }
+
+    // Assign: pre-select this foster in "Create Foster Assignment" and scroll there
+    function startAssign(application) {
+        setAssignmentForm((current) => ({
+            ...current,
+            fosterApplicationId: application._id,
+            fosterName: application.applicantName,
+            fosterEmail: application.applicantEmail,
+        }));
+
+        document
+            .getElementById("foster-assign-form")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function decideFromReview(status) {
+        if (!reviewingApplication) return;
+        await handleReviewFosterApplication(reviewingApplication._id, status);
+        setReviewingApplication(null);
+    }
+
+    function yesNo(value) {
+        return value ? "Yes" : "No";
+    }
+
+    function getInitials(name) {
+        return String(name || "?")
+            .trim()
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((part) => part[0])
+            .join("")
+            .toUpperCase();
+    }
+
+    const PREFERS_LABEL = { Dog: "Dogs", Cat: "Cats", Both: "Both", Other: "Other" };
+
     // ----- Current Foster Assignments list -----
     const LIST_FILTERS = [
         { value: "all", label: "All" },
@@ -764,7 +831,7 @@ export default function FosterCare() {
                     </div>
                 </div>
             </div>
-
+           
             <section className="admin-panel admin-foster-list-panel">
                 <div className="admin-panel-heading">
                     <div>
@@ -989,19 +1056,204 @@ export default function FosterCare() {
                 )}
             </section>
 
-            <section id="foster-applications" className="admin-panel admin-foster-application-panel">
-                <div className="admin-panel-heading">
+            <section id="foster-applications" className="admin-panel afa-panel">
+                <div className="afa-heading">
                     <div>
-                        <h2>Foster Applications</h2>
-                        <p>Register and approve foster caregivers before assigning animals.</p>
+                        <h2>
+                            Foster Applications
+                            {pendingApplicationCount > 0 && (
+                                <span className="afc-new">{pendingApplicationCount} new</span>
+                            )}
+                        </h2>
+                        <p>Review caregivers, then assign animals to approved fosters.</p>
                     </div>
 
-                    <button type="button" onClick={fetchFosterApplications}>
-                        Refresh Applications
-                    </button>
+                    <div className="afl-filters">
+                        {APP_FILTERS.map((filter) => (
+                            <button
+                                key={filter.value}
+                                type="button"
+                                className={appFilter === filter.value ? "is-active" : ""}
+                                onClick={() => setAppFilter(filter.value)}
+                            >
+                                {filter.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                <section className="admin-panel admin-foster-assignment-panel">
+                <div className="afa-list">
+                    {visibleApplications.length === 0 ? (
+                        <p className="afc-empty">
+                            {appFilter === "all"
+                                ? "No foster applications found."
+                                : `No ${appFilter} applications.`}
+                        </p>
+                    ) : (
+                        visibleApplications.map((application) => {
+                            const full = application.status === "approved" && isFosterFull(application);
+
+                            return (
+                                <article className="afa-row" key={application._id}>
+                                    <span className="afc-initials" aria-hidden="true">
+                                        {getInitials(application.applicantName)}
+                                    </span>
+
+                                    <div className="afa-person">
+                                        <b>{application.applicantName}</b>
+                                        <small>{application.applicantEmail}</small>
+                                    </div>
+
+                                    <div className="afa-chips">
+                                        <span>Capacity {application.capacity || 1}</span>
+                                        <span>
+                                            Prefers{" "}
+                                            {PREFERS_LABEL[application.preferredAnimalType] ||
+                                                application.preferredAnimalType ||
+                                                "Any"}
+                                        </span>
+                                    </div>
+
+                                    <span className={`afa-status is-${application.status}`}>
+                                        {application.status}
+                                    </span>
+
+                                    <div className="afa-actions">
+                                        <button
+                                            type="button"
+                                            className="afa-review"
+                                            onClick={() => setReviewingApplication(application)}
+                                        >
+                                            Review
+                                        </button>
+
+                                        {application.status !== "approved" ? (
+                                            <button type="button" className="afa-assign" disabled>
+                                                Assign
+                                            </button>
+                                        ) : full ? (
+                                            <button type="button" className="afa-assign is-full" disabled>
+                                                Full
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className="afa-assign"
+                                                onClick={() => startAssign(application)}
+                                            >
+                                                Assign
+                                            </button>
+                                        )}
+                                    </div>
+                                </article>
+                            );
+                        })
+                    )}
+                </div>
+            </section>
+
+            {reviewingApplication && (
+                <div
+                    className="admin-modal-overlay"
+                    onClick={() => setReviewingApplication(null)}
+                >
+                    <div
+                        className="admin-modal afa-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`Review ${reviewingApplication.applicantName}`}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            className="admin-modal-close"
+                            onClick={() => setReviewingApplication(null)}
+                            aria-label="Close"
+                        >
+                            ×
+                        </button>
+
+                        <div className="afa-modal-head">
+                            <span className="afc-initials">
+                                {getInitials(reviewingApplication.applicantName)}
+                            </span>
+                            <div>
+                                <h2>{reviewingApplication.applicantName}</h2>
+                                <small>{reviewingApplication.applicantEmail}</small>
+                            </div>
+                            <span className={`afa-status is-${reviewingApplication.status}`}>
+                                {reviewingApplication.status}
+                            </span>
+                        </div>
+
+                        <h3 className="afa-modal-title">Home</h3>
+                        <div className="afa-detail-grid">
+                            <p><span>Phone</span>{reviewingApplication.phoneNumber || "—"}</p>
+                            <p><span>Address</span>{reviewingApplication.address || "—"}</p>
+                            <p><span>Housing</span>{reviewingApplication.housingType || "—"}</p>
+                            <p><span>Available space</span>{reviewingApplication.availableSpace || "—"}</p>
+                            <p><span>Has pets</span>{yesNo(reviewingApplication.hasPets)}</p>
+                            <p><span>Has children</span>{yesNo(reviewingApplication.hasChildren)}</p>
+                        </div>
+
+                        <h3 className="afa-modal-title">Fostering</h3>
+                        <div className="afa-detail-grid">
+                            <p><span>Capacity</span>{reviewingApplication.capacity || 1}</p>
+                            <p><span>Duration</span>{reviewingApplication.fosterDuration || "—"}</p>
+                            <p><span>Prefers</span>{reviewingApplication.preferredAnimalType || "—"}</p>
+                            <p><span>Preferred size</span>{reviewingApplication.preferredSize || "—"}</p>
+                            <p><span>Available time</span>{reviewingApplication.availableTime || "—"}</p>
+                            <p><span>Experience</span>{reviewingApplication.fosterExperience || "—"}</p>
+                        </div>
+
+                        <h3 className="afa-modal-title">Emergency contact</h3>
+                        <div className="afa-detail-grid">
+                            <p><span>Name</span>{reviewingApplication.emergencyName || "—"}</p>
+                            <p><span>Relationship</span>{reviewingApplication.emergencyRelationship || "—"}</p>
+                            <p><span>Phone</span>{reviewingApplication.emergencyPhone || "—"}</p>
+                        </div>
+
+                        {reviewingApplication.notes && (
+                            <>
+                                <h3 className="afa-modal-title">Notes</h3>
+                                <p className="afa-notes">{reviewingApplication.notes}</p>
+                            </>
+                        )}
+
+                        <div className="afa-modal-actions">
+                            {reviewingApplication.status === "pending" && (
+                                <button
+                                    type="button"
+                                    className="afc-reject"
+                                    onClick={() => decideFromReview("rejected")}
+                                >
+                                    Reject
+                                </button>
+                            )}
+
+                            {reviewingApplication.status !== "approved" && (
+                                <button
+                                    type="button"
+                                    className="afc-approve"
+                                    onClick={() => decideFromReview("approved")}
+                                >
+                                    <StatIcon name="check" size={13} />
+                                    Approve
+                                </button>
+                            )}
+
+                            {reviewingApplication.status === "approved" && (
+                                <span className="afa-modal-note">
+                                    This foster is approved. Use Assign to place an animal.
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            <section className="admin-panel admin-foster-application-panel">
+                <section id="foster-assign-form" className="admin-panel admin-foster-assignment-panel">
 
                     <div className="admin-panel-heading">
                         <div>
@@ -1128,53 +1380,6 @@ export default function FosterCare() {
                     </form>
 
                 </section>
-
-                <div className="admin-foster-application-list">
-                    {applications.length === 0 ? (
-                        <p className="admin-empty">No foster applications found.</p>
-                    ) : (
-                        applications.map((application) => (
-                            <article className="admin-foster-application-card" key={application._id}>
-                                <div>
-                                    <h3>{application.applicantName}</h3>
-                                    <p>{application.applicantEmail}</p>
-                                    <small>
-                                        Capacity: {application.capacity} • Preferred: {application.preferredAnimalType}
-                                    </small>
-                                </div>
-
-                                <strong className={`admin-foster-status ${application.status}`}>
-                                    {application.status}
-                                </strong>
-
-                                <div className="admin-foster-application-actions">
-                                    {application.status !== "approved" && (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleReviewFosterApplication(application._id, "approved")
-                                            }
-                                        >
-                                            Approve
-                                        </button>
-                                    )}
-
-                                    {application.status !== "rejected" && (
-                                        <button
-                                            type="button"
-                                            className="reject"
-                                            onClick={() =>
-                                                handleReviewFosterApplication(application._id, "rejected")
-                                            }
-                                        >
-                                            Reject
-                                        </button>
-                                    )}
-                                </div>
-                            </article>
-                        ))
-                    )}
-                </div>
             </section>
 
             {editingId && (

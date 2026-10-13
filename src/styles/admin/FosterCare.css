@@ -740,3 +740,439 @@
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* ===== Assignments (left) + Foster Applications (right) ===== */
+.afc-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    gap: 22px;
+    align-items: start;
+}
+
+.afc-apps-panel {
+    display: grid;
+    gap: 14px;
+}
+
+.afc-apps-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.afc-apps-heading h2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 22px;
+    white-space: nowrap;
+}
+
+.afc-apps-heading p {
+    margin: 4px 0 0;
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 12px;
+}
+
+.afc-new {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: #fb8500;
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.afc-apps-list {
+    display: grid;
+    gap: 10px;
+}
+
+.afc-app {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.afc-app:hover {
+    border-color: rgba(251, 133, 0, 0.5);
+    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.08);
+}
+
+.afc-initials {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.afc-app-info {
+    min-width: 0;
+}
+
+.afc-app-info b {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.afc-app-info small {
+    display: block;
+    overflow: hidden;
+    color: rgba(90, 27, 0, 0.72);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.afc-app-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.afc-approve,
+.afc-reject {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.afc-approve {
+    border: 1.5px solid #2f8f5b;
+    background: #2f8f5b;
+    color: #fff;
+}
+
+.afc-approve:hover {
+    background: #257549;
+}
+
+.afc-reject {
+    border: 1.5px solid rgba(180, 35, 24, 0.55);
+    background: #fff;
+    color: #b42318;
+}
+
+.afc-reject:hover {
+    border-color: #b42318;
+    background: #fdeaea;
+}
+
+.afc-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.afc-badge.is-approved { background: #dff3e6; color: #17803d; }
+.afc-badge.is-rejected { background: #fdeaea; color: #b42318; }
+
+.afc-empty {
+    margin: 0;
+    padding: 24px 12px;
+    color: rgba(90, 27, 0, 0.55);
+    font-size: 13px;
+    text-align: center;
+}
+
+/* stack under the assignments list on smaller screens */
+@media (max-width: 1280px) {
+    .afc-split {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .afc-app {
+        grid-template-columns: 40px minmax(0, 1fr);
+    }
+
+    .afc-app-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+}
+
+/* ===== Foster Applications (full width, below assignments) ===== */
+.afa-panel {
+    display: grid;
+    gap: 14px;
+}
+
+.afa-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.afa-heading h2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.afa-heading p {
+    margin: 4px 0 0;
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 13px;
+}
+
+.afa-list {
+    display: grid;
+    gap: 10px;
+}
+
+.afa-row {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1.4fr) minmax(0, 1.3fr) 110px auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 18px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.afa-row:hover {
+    border-color: rgba(251, 133, 0, 0.5);
+    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.08);
+}
+
+.afa-person {
+    min-width: 0;
+}
+
+.afa-person b {
+    display: block;
+    color: #5a1b00;
+    font-size: 15px;
+}
+
+.afa-person small {
+    display: block;
+    overflow: hidden;
+    color: rgba(90, 27, 0, 0.72);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.afa-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.afa-chips span {
+    padding: 3px 10px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 999px;
+    background: #fffaf0;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.afa-status {
+    justify-self: start;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.afa-status.is-pending  { background: #fde3bf; color: #d96f00; }
+.afa-status.is-approved { background: #dff3e6; color: #17803d; }
+.afa-status.is-rejected { background: #fdeaea; color: #b42318; }
+
+.afa-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.afa-review,
+.afa-assign {
+    min-width: 76px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.afa-review {
+    background: #5a1b00;
+    color: #fcbf49;
+}
+
+.afa-review:hover {
+    background: #3d1200;
+}
+
+.afa-assign {
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+}
+
+.afa-assign:hover:not(:disabled) {
+    background: #d96f00;
+    transform: translateY(-1px);
+}
+
+.afa-assign:disabled {
+    background: rgba(90, 27, 0, 0.1);
+    color: rgba(90, 27, 0, 0.4);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* ----- Review modal (uses the shared admin-modal styles) ----- */
+.afa-modal {
+    width: min(640px, 100%);
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.afa-modal-head {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    margin: 0 40px 18px 0;
+}
+
+.afa-modal-head .afc-initials {
+    width: 48px;
+    height: 48px;
+    font-size: 15px;
+}
+
+.afa-modal-head h2 {
+    margin: 0;
+    font-size: 26px;
+}
+
+.afa-modal-head small {
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 13px;
+}
+
+.afa-modal .afa-modal-title {
+    margin: 16px 0 8px;
+    font-family: "Inter", sans-serif;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.afa-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.afa-detail-grid p {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.afa-detail-grid p span {
+    display: block;
+    color: rgba(90, 27, 0, 0.6);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.afa-notes {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 13px;
+}
+
+.afa-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(90, 27, 0, 0.12);
+}
+
+.afa-modal-note {
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 13px;
+}
+
+/* ----- smaller screens ----- */
+@media (max-width: 900px) {
+    .afa-heading {
+        flex-direction: column;
+    }
+
+    .afa-row {
+        grid-template-columns: 40px minmax(0, 1fr) auto;
+    }
+
+    .afa-chips {
+        grid-column: 2 / -1;
+        grid-row: 2;
+    }
+
+    .afa-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 520px) {
+    .afa-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
