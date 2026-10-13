@@ -254,6 +254,23 @@ export default function Feedback() {
                     <option value="archived">
                         Archived Feedback
                     </option>
+
+                    <option value= "all">
+                        View All Feedback
+                    </option>
+
+                    <option value= "one">
+                        View One Feedback
+                    </option>
+                     
+                    <option value= "restore">
+                        Restore Feedback    
+                    </option> 
+                    
+                    <option value= "Delete">
+                        Delete Feedback    
+                    </option> 
+                     
                 </select>
             </div>
 
