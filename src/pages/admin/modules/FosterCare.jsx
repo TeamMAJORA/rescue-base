@@ -84,6 +84,7 @@ export default function FosterCare() {
     const [listSearch, setListSearch] = useState("");
     const [appFilter, setAppFilter] = useState("all");
     const [reviewingApplication, setReviewingApplication] = useState(null);
+    const [reviewingRequest, setReviewingRequest] = useState(null);
     const token = localStorage.getItem("token")
 
     const [assignmentForm, setAssignmentForm] =
@@ -775,6 +776,38 @@ export default function FosterCare() {
             ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
+    // ----- Medical Requests -----
+    // Open requests first, newest first inside each group
+    const sortedMedicalRequests = [...medicalRequests].sort((a, b) => {
+        const aOpen = a.status !== "resolved";
+        const bOpen = b.status !== "resolved";
+        if (aOpen !== bOpen) return aOpen ? -1 : 1;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    const URGENCY_LABEL = {
+        Low: "Low",
+        Medium: "Medium",
+        High: "Urgent",
+        Emergency: "Emergency",
+    };
+
+    const MEDICAL_STATUS_LABEL = {
+        pending: "Pending",
+        in_progress: "In progress",
+        resolved: "Resolved",
+    };
+
+    async function updateFromReview(status) {
+        if (!reviewingRequest) return;
+        await handleUpdateMedicalRequest(
+            reviewingRequest.assignmentId,
+            reviewingRequest._id,
+            status
+        );
+        setReviewingRequest(null);
+    }
+
     return (
         <section className="admin-foster-page">
             {/* Stats strip — same design as the Animal pages (styles in IntakeRecords.css) */}
@@ -831,7 +864,8 @@ export default function FosterCare() {
                     </div>
                 </div>
             </div>
-           
+    <div className="afc-layout">
+        <div className="afc-main">
             <section className="admin-panel admin-foster-list-panel">
                 <div className="admin-panel-heading">
                     <div>
@@ -1482,110 +1516,175 @@ export default function FosterCare() {
                 </section>
 
             )}
-
-            <section className="admin-panel admin-medical-requests-panel">
-                <div className="admin-panel-heading">
+        </div>
+        <aside className="afc-side">
+            <section className="admin-panel admin-medical-requests-panel amr-panel">
+                <div className="amr-heading">
                     <div>
-                        <h2>Medical Assistance Requests</h2>
-                        <p>
-                            Review medical concerns submitted by foster caregivers.
-                        </p>
+                        <h2>
+                            Medical Requests
+                            {openMedicalRequests > 0 && (
+                                <span className="amr-open">{openMedicalRequests} open</span>
+                            )}
+                        </h2>
+                        <p>Concerns sent by foster caregivers.</p>
                     </div>
 
                     <button
                         type="button"
+                        className="afl-refresh"
                         onClick={fetchMedicalRequests}
                     >
-                        Refresh Requests
+                        <img src="/icons/Refresh cw.svg" alt="" />
+                        Refresh
                     </button>
                 </div>
 
-                {medicalRequests.length === 0 ? (
-                    <p className="admin-empty">
-                        No medical assistance requests found.
-                    </p>
+                {sortedMedicalRequests.length === 0 ? (
+                    <p className="afc-empty">No medical requests yet.</p>
                 ) : (
-                    <div className="admin-medical-request-list">
-                        {medicalRequests.map((request) => (
+                    <div className="amr-list">
+                        {sortedMedicalRequests.map((request) => (
                             <article
-                                className="admin-medical-request-card"
+                                className={`amr-row ${request.status === "resolved" ? "is-resolved" : ""}`}
                                 key={`${request.assignmentId}-${request._id}`}
                             >
-                                <h3>{request.petName}</h3>
+                                <span className="amr-icon" aria-hidden="true">
+                                    <StatIcon name="heart" size={20} />
+                                </span>
 
-                                <p>
-                                    <strong>Foster:</strong>{" "}
-                                    {request.fosterName}
-                                </p>
-
-                                <p>
-                                    <strong>Email:</strong>{" "}
-                                    {request.fosterEmail}
-                                </p>
-
-                                <p>
-                                    <strong>Issue:</strong>{" "}
-                                    {request.issue}
-                                </p>
-
-                                <p>
-                                    <strong>Urgency:</strong>{" "}
-                                    {request.urgency}
-                                </p>
-
-                                <p>
-                                    <strong>Status:</strong>{" "}
-                                    {request.status}
-                                </p>
-
-                                <small>
-                                    Submitted:{" "}
-                                    {request.createdAt
-                                        ? new Date(
-                                            request.createdAt
-                                        ).toLocaleString()
-                                        : "Unknown"}
-                                </small>
-
-                                <div className="medical-request-actions">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleUpdateMedicalRequest(
-                                                request.assignmentId,
-                                                request._id,
-                                                "in_progress"
-                                            )
-                                        }
-                                        disabled={
-                                            request.status === "in_progress" ||
-                                            request.status === "resolved"
-                                        }
-                                    >
-                                        In Progress
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleUpdateMedicalRequest(
-                                                request.assignmentId,
-                                                request._id,
-                                                "resolved"
-                                            )
-                                        }
-                                        disabled={
-                                            request.status === "resolved"
-                                        }
-                                    >
-                                        Mark Resolved
-                                    </button>
+                                <div className="amr-info">
+                                    <b>
+                                        {request.petName} · {request.issueType || request.issue}
+                                    </b>
+                                    <small>
+                                        {request.fosterName} · {formatShortDate(request.createdAt)}
+                                    </small>
                                 </div>
+
+                                <span
+                                    className={`amr-badge ${
+                                        request.status === "resolved"
+                                            ? "is-resolved"
+                                            : `is-${String(request.urgency || "low").toLowerCase()}`
+                                    }`}
+                                >
+                                    {request.status === "resolved"
+                                        ? "Resolved"
+                                        : URGENCY_LABEL[request.urgency] || request.urgency || "Low"}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    className="afa-review"
+                                    onClick={() => setReviewingRequest(request)}
+                                >
+                                    Review
+                                </button>
                             </article>
                         ))}
                     </div>
                 )}
             </section>
+            </aside>
+            </div>
+            
+            {reviewingRequest && (
+                <div
+                    className="admin-modal-overlay"
+                    onClick={() => setReviewingRequest(null)}
+                >
+                    <div
+                        className="admin-modal afa-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`Medical request for ${reviewingRequest.petName}`}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            className="admin-modal-close"
+                            onClick={() => setReviewingRequest(null)}
+                            aria-label="Close"
+                        >
+                            ×
+                        </button>
+
+                        <div className="afa-modal-head">
+                            <span className="amr-icon" aria-hidden="true">
+                                <StatIcon name="heart" size={22} />
+                            </span>
+                            <div>
+                                <h2>{reviewingRequest.petName}</h2>
+                                <small>
+                                    {reviewingRequest.fosterName} · {reviewingRequest.fosterEmail}
+                                </small>
+                            </div>
+                            <span
+                                className={`amr-badge is-${String(
+                                    reviewingRequest.urgency || "low"
+                                ).toLowerCase()}`}
+                            >
+                                {URGENCY_LABEL[reviewingRequest.urgency] ||
+                                    reviewingRequest.urgency ||
+                                    "Low"}
+                            </span>
+                        </div>
+
+                        <h3 className="afa-modal-title">Concern</h3>
+                        <div className="afa-detail-grid">
+                            <p><span>Type</span>{reviewingRequest.issueType || "—"}</p>
+                            <p>
+                                <span>Status</span>
+                                {MEDICAL_STATUS_LABEL[reviewingRequest.status] || reviewingRequest.status}
+                            </p>
+                            <p>
+                                <span>Sent</span>
+                                {reviewingRequest.createdAt
+                                    ? new Date(reviewingRequest.createdAt).toLocaleString()
+                                    : "—"}
+                            </p>
+                            <p><span>Breed</span>{reviewingRequest.petBreed || "—"}</p>
+                        </div>
+
+                        <h3 className="afa-modal-title">Details</h3>
+                        <p className="afa-notes">{reviewingRequest.issue}</p>
+
+                        {reviewingRequest.photoUrl && (
+                            <img
+                                className="amr-photo"
+                                src={reviewingRequest.photoUrl}
+                                alt={`Photo sent for ${reviewingRequest.petName}`}
+                            />
+                        )}
+
+                        <div className="afa-modal-actions">
+                            {reviewingRequest.status === "pending" && (
+                                <button
+                                    type="button"
+                                    className="afc-reject amr-progress"
+                                    onClick={() => updateFromReview("in_progress")}
+                                >
+                                    Mark In Progress
+                                </button>
+                            )}
+
+                            {reviewingRequest.status !== "resolved" ? (
+                                <button
+                                    type="button"
+                                    className="afc-approve"
+                                    onClick={() => updateFromReview("resolved")}
+                                >
+                                    <StatIcon name="check" size={13} />
+                                    Mark Resolved
+                                </button>
+                            ) : (
+                                <span className="afa-modal-note">This request is resolved.</span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

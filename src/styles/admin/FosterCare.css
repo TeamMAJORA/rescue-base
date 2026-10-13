@@ -1176,3 +1176,232 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Medical Requests ===== */
+.amr-panel {
+    display: grid;
+    gap: 14px;
+}
+
+.amr-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.amr-heading h2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.amr-heading p {
+    margin: 4px 0 0;
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 13px;
+}
+
+/* refresh button reuses .afl-refresh look outside the admin heading */
+.amr-heading .afl-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 12px;
+    background: #fff;
+    color: #5a1b00;
+    font-family: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.amr-heading .afl-refresh:hover {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+.amr-open {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: #b42318;
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.amr-list {
+    display: grid;
+    gap: 10px;
+}
+
+.amr-row {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) auto auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.amr-row:hover {
+    border-color: rgba(251, 133, 0, 0.5);
+    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.08);
+}
+
+.amr-row.is-resolved {
+    opacity: 0.7;
+}
+
+.amr-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #fdeaea;
+    color: #b42318;
+}
+
+.amr-row.is-resolved .amr-icon {
+    background: #dff3e6;
+    color: #17803d;
+}
+
+.amr-info {
+    min-width: 0;
+}
+
+.amr-info b {
+    display: block;
+    overflow: hidden;
+    color: #5a1b00;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.amr-info small {
+    display: block;
+    margin-top: 2px;
+    color: rgba(90, 27, 0, 0.72);
+    font-size: 12px;
+}
+
+.amr-badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.amr-badge.is-low       { background: #ece3c7; color: #7a6a3a; }
+.amr-badge.is-medium    { background: #fde3bf; color: #d96f00; }
+.amr-badge.is-high      { background: #fdeaea; color: #b42318; }
+.amr-badge.is-emergency { background: #b42318; color: #fff; }
+.amr-badge.is-resolved  { background: #dff3e6; color: #17803d; }
+
+/* review modal extras */
+.amr-photo {
+    width: 100%;
+    max-height: 260px;
+    margin-top: 12px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.amr-progress {
+    border-color: rgba(251, 133, 0, 0.6);
+    color: #d96f00;
+}
+
+.amr-progress:hover {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+@media (max-width: 600px) {
+    .amr-heading {
+        flex-direction: column;
+    }
+
+    .amr-row {
+        grid-template-columns: 42px minmax(0, 1fr);
+    }
+
+    .amr-badge {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .amr-row .afa-review {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ===== Two-column layout: main (left) + Medical Requests (right) ===== */
+.afc-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 22px;
+    align-items: start;
+}
+
+.afc-main {
+    display: grid;
+    gap: 22px;
+    min-width: 0;
+}
+
+.afc-side {
+    position: sticky;
+    top: 20px;
+    min-width: 0;
+}
+
+/* narrower rows inside the side column */
+.afc-side .amr-heading {
+    align-items: center;
+    gap: 10px;
+}
+
+.afc-side .amr-heading h2 {
+    font-size: 24px;
+    white-space: nowrap;
+}
+
+.afc-side .amr-row {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    row-gap: 8px;
+}
+
+.afc-side .amr-badge {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+}
+
+.afc-side .amr-row .afa-review {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+}
+
+/* stack on smaller screens */
+@media (max-width: 1280px) {
+    .afc-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .afc-side {
+        position: static;
+    }
+}
