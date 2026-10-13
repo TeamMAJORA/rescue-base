@@ -214,7 +214,7 @@ export default function FosterCare() {
             setMessage("");
 
             const response = await fetch(
-                `${API}/api/foster/assignments/${id}/bevahior-evaluation/accept`,
+                `${API}/api/foster/assignments/${id}/behavior-evaluation/accept`,
                 {
                     method: "PATCH",
                     headers: {

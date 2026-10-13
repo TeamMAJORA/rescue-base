@@ -23,6 +23,7 @@ export default function Analytics() {
     const [insights, setInsights] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [reloadKey, setReloadKey] = useState(0);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -89,7 +90,7 @@ export default function Analytics() {
         loadAnalytics();
 
         return () => controller.abort();
-    }, []);
+    }, [reloadKey]);
 
     const maxValue = useMemo(() => {
         return Math.max(
@@ -120,7 +121,7 @@ export default function Analytics() {
                     <p>{error}</p>
                     <button
                         type="button"
-                        onClick={() => window.location.reload()}
+                        onClick={() => setReloadKey((key) => key + 1)}
                     >
                         Try Again
                     </button>
