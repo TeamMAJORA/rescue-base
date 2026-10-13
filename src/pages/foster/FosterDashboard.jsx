@@ -370,6 +370,39 @@ export default function FosterDashboard({ setPage }) {
         );
     }
 
+    // ----- Foster status banner -----
+    const FOSTER_STEPS = ["Personal", "Household", "Preferences", "Experience & Contact"];
+    const applicationStatus = application?.status || "none";
+    const applicationSubmitted = Boolean(application);
+
+    const BANNER_TEXT = {
+        none: {
+            title: "No application yet",
+            text: "Fill in the foster application so RescueBase staff can review you.",
+        },
+        pending: {
+            title: "Application under review",
+            text: "Staff are checking your answers. You'll get a notification once it's decided.",
+        },
+        approved: {
+            title: "Approved — waiting for a match",
+            text: "You're an approved foster. The shelter will assign an animal to you soon.",
+        },
+        rejected: {
+            title: "Application not approved",
+            text: "You can review your answers and apply again.",
+        },
+    };
+
+    const banner = assignment
+        ? {
+            title: `Caring for ${assignment.petName}`,
+            text: "You currently have an active foster assignment. Thank you for giving them a home.",
+        }
+        : BANNER_TEXT[applicationStatus] || BANNER_TEXT.none;
+
+    const STATUS_LABEL = { none: "None", pending: "Pending", approved: "Approved", rejected: "Rejected" };
+
     return (
 
         <main className="foster-page">
@@ -560,47 +593,59 @@ export default function FosterDashboard({ setPage }) {
                 />
 
                 {!loading && !loadError && (
-                    <section className="foster-panel foster-dashboard-banner">
-                        <div>
-                            <span className="foster-label">
-                                Foster Status
+                    <>
+                        <header className="fdb-header">
+                            <div>
+                                <span className="fdb-eyebrow">Foster Status</span>
+                                <h2>{banner.title}</h2>
+                                <p>{banner.text}</p>
+                            </div>
+
+                            <div className="fdb-side">
+                                <span className={`fdb-status is-${applicationStatus}`}>
+                                    Application: {STATUS_LABEL[applicationStatus] || applicationStatus}
+                                </span>
+
+                                {(applicationStatus === "none" || applicationStatus === "rejected") && (
+                                    <button
+                                        type="button"
+                                        className="fdb-action"
+                                        onClick={() => goToPage("application")}
+                                    >
+                                        {applicationStatus === "none" ? "Start application →" : "Apply again →"}
+                                    </button>
+                                )}
+                            </div>
+                        </header>
+
+                        <nav className="fdb-tracker" aria-label="Foster application progress">
+                            <ol>
+                                {FOSTER_STEPS.map((label, index) => (
+                                    <li
+                                        key={label}
+                                        className={
+                                            applicationSubmitted
+                                                ? "is-done"
+                                                : index === 0
+                                                    ? "is-current"
+                                                    : ""
+                                        }
+                                    >
+                                        <button type="button" onClick={() => goToPage("application")}>
+                                            <b>{applicationSubmitted ? "✓" : index + 1}</b>
+                                            {label}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ol>
+
+                            <span className={`fdb-tracker-pill ${applicationSubmitted ? "is-ready" : ""}`}>
+                                {applicationSubmitted
+                                    ? "Submitted"
+                                    : `Step 1 of ${FOSTER_STEPS.length}`}
                             </span>
-
-                            <h2>
-                                {assignment
-                                    ? assignment.petName
-                                    : "No Active Foster"}
-                            </h2>
-
-                            <p>
-                                {assignment
-                                    ? "You currently have an active foster assignment."
-                                    : "You don't have an active foster assignment yet."}
-
-                            </p>
-
-                        </div>
-
-                        <div className="foster-dashboard-status">
-
-                            <span>
-                                Application
-                            </span>
-
-                            <strong
-                                className={`status ${application?.status ||
-                                    "pending"
-                                    }`}
-                            >
-                                {
-                                    application?.status ||
-                                    "Not Submitted"
-                                }
-                            </strong>
-
-                        </div>
-
-                    </section>
+                        </nav>
+                    </>
                 )}
 
                 {message && (
