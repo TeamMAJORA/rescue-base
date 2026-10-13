@@ -147,8 +147,13 @@ function getAdopterPageTitle(activeAdopterPage) {
     return currentItem?.label || "Dashboard";
 }
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard({ onLogout, onLoginAgain }) {
     const savedUser = getSavedUser();
+
+    // Signed out: login expired (server answered 401) or this account is not an adopter
+    const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
+    const isWrongRole = savedRole !== "adopter";
+    const [signedOut, setSignedOut] = useState(false);
 
     const token = getAuthToken();
 
@@ -200,14 +205,19 @@ export default function Dashboard({ onLogout }) {
 
     const [applicationLoading, setApplicationLoading] =
         useState(true);
+    const [applicationHistory, setApplicationHistory] = useState([]);
+
+    const [applicationError, setApplicationError] = useState("");
 
     const [notificationOpen, setNotificationOpen] =
         useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
+    const activeApplicationStatuses = ["pending", "interview_scheduled", "interview_completed"];
+
     const hasPendingApplication =
-        applicationStatus?.status === "pending";
+     activeApplicationStatuses.includes(applicationStatus?.status);
 
     const isRejectedApplication =
         applicationStatus?.status === "rejected";
@@ -245,6 +255,59 @@ export default function Dashboard({ onLogout }) {
         }
     })();
 
+    const draftApplication = (() => {
+        try {
+            const prefix = `rescuebase_adoption_draft_${savedUser.email || "guest"}_`;
+
+            const drafts = Object.keys(localStorage)
+                .filter((key) => key.startsWith(prefix))
+                .map((key) => ({
+                    petId: key.slice(prefix.length),
+                    ...JSON.parse(localStorage.getItem(key) || "null"),
+                }))
+                .filter((draft) => draft.form)
+                .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+
+            for (const draft of drafts) {
+                const pet = pets.find(
+                    (item) => item._id === draft.petId && item.status === "available"
+                );
+
+                if (!pet) continue;
+
+                const form = draft.form;
+
+                const steps = [
+                    {
+                        label: "Applicant",
+                        done: Boolean(
+                            form.fullName?.trim() &&
+                            form.phone?.trim() &&
+                            form.address?.trim() &&
+                            (form.homeType !== "Other" || form.homeTypeOther?.trim())
+                        ),
+                    },
+                    {
+                        label: "Household",
+                        done: Boolean(form.reason?.trim() && form.experience?.trim()),
+                    },
+                    {
+                        label: "Documents",
+                        done: Boolean(draft.document),
+                    },
+                ];
+
+                const nextIndex = steps.findIndex((step) => !step.done);
+
+                return { pet, steps, nextIndex };
+            }
+
+            return null;
+        } catch {
+            return null;
+        }
+    })();
+
     function getNextStep() {
         const petName = applicationStatus?.petName || "your pet";
 
@@ -267,6 +330,41 @@ export default function Dashboard({ onLogout }) {
                 title: "Find another match",
                 linkText: "See your matches",
                 page: hasTakenQuiz ? "recommendations" : "browse-pets",
+            };
+        }
+
+        if (applicationStatus?.status === "interview_scheduled") {
+            return {
+                tone: "action",
+                label: "Action Needed",
+                icon: "/icons/Clock.svg",
+                title: `Interview for ${petName}`,
+                linkText: applicationStatus.interviewSchedule
+                    ? new Date(applicationStatus.interviewSchedule).toLocaleString("en-PH", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                    })
+                    : "See your schedule",
+                page: "application-status",
+            };
+        }
+
+        if (draftApplication && !hasPendingApplication) {
+            const { pet, steps, nextIndex } = draftApplication;
+
+            return {
+                tone: "action",
+                label: "Unfinished",
+                icon: "/icons/Action.svg",
+                title: `Finish applying for ${pet.name}`,
+                linkText:
+                    nextIndex === -1
+                        ? "Ready to submit"
+                        : `Step ${nextIndex + 1} of ${steps.length}: ${steps[nextIndex].label}`,
+                page: "adoption-application",
+                pet,
             };
         }
 
@@ -394,10 +492,10 @@ export default function Dashboard({ onLogout }) {
         }
     }
 
-    async function fetchPets() {
-        try {
-            setPetsLoading(true);
-            setPetsError("");
+async function fetchPets({ silent = false } = {}) {
+    try {
+        if (!silent) setPetsLoading(true);
+        setPetsError("");
 
             const response = await fetch(
                 `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`, {
@@ -516,7 +614,7 @@ export default function Dashboard({ onLogout }) {
             }
 
             if (!token) {
-                console.error("No rescuebase Auth token found");
+                setSignedOut(true);
                 return;
             }
 
@@ -532,13 +630,15 @@ export default function Dashboard({ onLogout }) {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                console.error(
+                setApplicationError(
                     data.message ||
                     "Failed to load application status."
                 );
 
                 return;
             }
+
+            setApplicationError("");
 
             const application = data.application;
 
@@ -598,13 +698,13 @@ export default function Dashboard({ onLogout }) {
                 documentsVerified: Boolean(
                     application.documentsVerified
                 ),
+                withdrawnAt: application.withdrawnAt || null,
+                withdrawnFromStatus: application.withdrawnFromStatus || "",
             };
 
             setApplicationStatus(updatedStatus);
 
-            if (
-                updatedStatus.status === "pending"
-            ) {
+            if (activeApplicationStatuses.includes(updatedStatus.status)) {
                 localStorage.setItem(
                     "rescuebase_pending_application",
                     JSON.stringify(updatedStatus)
@@ -619,10 +719,92 @@ export default function Dashboard({ onLogout }) {
                 "Fetch adopter application status error:",
                 error
             );
+
+            setApplicationError(
+                "We couldn't reach the shelter's server."
+            );
         } finally {
             setApplicationLoading(false);
         }
     }
+    async function handleWithdrawApplication(reason) {
+        if (!applicationStatus?.applicationId) return;
+
+        const response = await fetch(
+            `${API}/api/adoptions/${applicationStatus.applicationId}/withdraw`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ reason }),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to withdraw your application.");
+        }
+
+        await fetchApplicationStatus();
+    }
+
+    async function fetchApplicationHistory() {
+        if (!token) return;
+
+        try {
+            const response = await fetch(
+                `${API}/api/adoptions/user/history`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) return;
+
+            setApplicationHistory(
+                (data.applications || []).map((application) => ({
+                    applicationId: application._id,
+                    status: application.status || "pending",
+                    petName:
+                        application.petName ||
+                        application.animalId?.name ||
+                        "Selected Pet",
+                    petBreed:
+                        application.petBreed ||
+                        application.animalId?.breed ||
+                        "",
+                    petImage:
+                        application.petImage ||
+                        application.animalId?.image ||
+                        "",
+                    submittedAt: application.createdAt,
+                    closedAt:
+                        application.withdrawnAt ||
+                        application.reviewedAt ||
+                        application.updatedAt,
+                    note:
+                        application.status === "rejected"
+                            ? application.rejectionReason
+                            : application.status === "withdrawn"
+                                ? application.withdrawalReason
+                                : "",
+                }))
+            );
+        } catch (error) {
+            console.error("Fetch application history error:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchApplicationHistory();
+    }, [applicationStatus?.applicationId, applicationStatus?.status]);
 
     async function refreshDashboard() {
         await Promise.all([
@@ -671,6 +853,8 @@ export default function Dashboard({ onLogout }) {
     }
 
     function handleLogout() {
+        localStorage.removeItem("token");
+
         localStorage.removeItem(
             "rescuebase_user"
         );
@@ -678,8 +862,26 @@ export default function Dashboard({ onLogout }) {
         localStorage.removeItem(
             "rescuebase_pending_application"
         );
+        
+        localStorage.removeItem("token");
+        
+        Object.keys(localStorage)
+        .filter((key) => key.startsWith("rescuebase_adoption_draft_"))
+        .forEach((key) => localStorage.removeItem(key));
 
         onLogout?.();
+    }
+
+    function handleLoginAgain() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("rescuebase_user");
+        localStorage.removeItem("rescuebase_pending_application");
+
+        if (onLoginAgain) {
+            onLoginAgain();
+        } else {
+            onLogout?.();
+        }
     }
 
     function formatApplicationDate(dateValue) {
@@ -953,7 +1155,11 @@ export default function Dashboard({ onLogout }) {
                             <button
                                 type="button"
                                 className="adopter-stat-link"
-                                onClick={() => setActiveAdopterPage(nextStep.page)}
+                                onClick={() =>
+                                    nextStep.pet
+                                        ? handleApply(nextStep.pet)
+                                        : setActiveAdopterPage(nextStep.page)
+                                }
                             >
                                 {nextStep.linkText}
                             </button>
@@ -1043,7 +1249,10 @@ export default function Dashboard({ onLogout }) {
                 <ApplicationStatus
                     application={applicationStatus}
                     loading={applicationLoading}
+                    error={applicationError}
                     onRefresh={fetchApplicationStatus}
+                    onWithdraw={handleWithdrawApplication}
+                    history={applicationHistory}
                     onBrowsePets={() =>
                         setActiveAdopterPage("browse-pets")
                     }
@@ -1186,7 +1395,31 @@ export default function Dashboard({ onLogout }) {
         setNotificationOpen(false);
     }
 
+    // Any API call that comes back 401 means the login ran out -> show the signed-out card
     useEffect(() => {
+        const originalFetch = window.fetch;
+
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            const url = String(args[0]?.url || args[0] || "");
+
+            if (response.status === 401 && API && url.startsWith(API)) {
+                setSignedOut(true);
+            }
+
+            return response;
+        };
+
+        return () => {
+            window.fetch = originalFetch;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (isWrongRole || signedOut) {
+            return;
+        }
+
         refreshDashboard();
         loadNotifications();
 
@@ -1197,7 +1430,51 @@ export default function Dashboard({ onLogout }) {
         return () => {
             clearInterval(interval);
         };
-    }, [savedEmail]);
+    }, [savedEmail, signedOut]);
+
+    // Keep pet availability fresh
+    useEffect(() => {
+        if (applicationStatus?.status === "approved") {
+            fetchPets({ silent: true });
+        }
+    }, [applicationStatus?.status]);
+    
+    useEffect(() => {
+        fetchPets({ silent: true });
+    }, [activeAdopterPage]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchPets({ silent: true });
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, []);
+    
+    if (signedOut || isWrongRole) {
+        return (
+            <main className="adopter-signed-out">
+                <section className="adopter-signed-out-card">
+                    <div className="adopter-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <path d="M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                    </div>
+
+                    <h2>You've been signed out</h2>
+
+                    <p>Please log in again to continue.</p>
+
+                    <button type="button" onClick={handleLoginAgain}>
+                        Log in again
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
+
 
     return (
         <main className="adopter-dashboard-page">

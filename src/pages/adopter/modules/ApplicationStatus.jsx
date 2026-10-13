@@ -1,3 +1,4 @@
+import { useState } from "react";
 function formatDate(dateValue, includeTime = false) {
     if (!dateValue) {
         return "Not Available";
@@ -42,24 +43,103 @@ function getStatusContent(status) {
             eyebrow: "Application Update",
             title: "Your application was not approved",
             description:
-                "You may reviewe the shelter's notes below and browse other animal available",
+                "You may review the shelter's notes below and browse other animal available",
+        };
+    }
+
+    if (status === "interview_scheduled") {
+    return {
+        eyebrow: "Interview Scheduled",
+        title: "Your interview is scheduled",
+        description:
+            "Shelter staff want to meet you. Please come to the shelter on the date and time below.",
+        };
+    }
+
+    if (status === "withdrawn") {
+        return {
+            eyebrow: "Application Withdrawn",
+            title: "You withdrew this application",
+            description:
+                "This application is closed. You can now apply for another pet.",
+        };
+    }
+
+    if (status === "interview_completed") {
+        return {
+            eyebrow: "Interview Completed",
+            title: "Waiting for the final decision",
+            description:
+                "Thank you for meeting with the shelter. Staff will post their final decision here soon.",
         };
     }
 
     return {
         eyebrow: "Application Under Review",
-        title: "Your application was approved!",
+        title: "Your application is being reviewed",
         description:
-            "RescueBase staff approved your adoption application. Check the instructions and interview schedule below.",
+            "Shelter staff are reviewing your information and ID. You will be notified once there is an update.",
     };
 }
 
 export default function ApplicationStatus({
     application,
     loading,
+    error,
     onRefresh,
     onBrowsePets,
+    onWithdraw,
+    history = [],
 }) {
+
+    const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
+    const [withdrawReason, setWithdrawReason] = useState("");
+    const [withdrawing, setWithdrawing] = useState(false);
+    const [withdrawError, setWithdrawError] = useState("");
+
+    async function handleWithdraw() {
+        try {
+            setWithdrawing(true);
+            setWithdrawError("");
+            await onWithdraw?.(withdrawReason.trim());
+            setConfirmingWithdraw(false);
+            setWithdrawReason("");
+        } catch (error) {
+            setWithdrawError(error.message || "Failed to withdraw your application.");
+        } finally {
+            setWithdrawing(false);
+        }
+    }
+
+    // Check failed: don't pretend there is no application
+    if (error && !application) {
+        return (
+            <section className="adopter-state-error">
+                <div className="adopter-state-error-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 9v4M12 17h.01" />
+                        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+                    </svg>
+                </div>
+
+                <h2>We couldn't check your application</h2>
+
+                <p>
+                    Your application is safe. We just couldn't reach the
+                    shelter's server.
+                </p>
+
+                <button
+                    type="button"
+                    onClick={() => onRefresh?.()}
+                    disabled={loading}
+                >
+                    {loading ? "Checking..." : "Try again"}
+                </button>
+            </section>
+        );
+    }
+
     if (loading && !application) {
         return (
             <section className="application-status-loading">
@@ -81,7 +161,7 @@ export default function ApplicationStatus({
         return (
             <section className="application-status-empty">
                 <div className="application-status-empty-icon">
-                    🐾
+                    <img src="/icons/sidebar/brown paw-light.svg" alt="" />
                 </div>
 
                 <span>Adoption Management</span>
@@ -89,8 +169,8 @@ export default function ApplicationStatus({
                 <h2>No adoption application yet</h2>
 
                 <p>
-                    Select an available animal and submit an adoption
-                    application to track its progress here.
+                    When you apply for a pet, you can follow every step of
+                    your application right here.
                 </p>
 
                 <div className="application-status-empty-actions">
@@ -98,7 +178,7 @@ export default function ApplicationStatus({
                         type="button"
                         onClick={() => onBrowsePets?.()}
                     >
-                        Browse Available Pets
+                        Browse Available Pets <span aria-hidden="true">→</span>
                     </button>
 
                     <button
@@ -106,6 +186,7 @@ export default function ApplicationStatus({
                         onClick={() => onRefresh?.()}
                         disabled={loading}
                     >
+                        <img src="/icons/Refresh cw.svg" alt="" />
                         {loading ? "Refreshing..." : "Refresh"}
                     </button>
                 </div>
@@ -122,6 +203,77 @@ export default function ApplicationStatus({
     const isPending = status === "pending";
     const isApproved = status === "approved";
     const isRejected = status === "rejected";
+    const isInterviewScheduled = status === "interview_scheduled";
+    const isInterviewCompleted = status === "interview_completed";
+    const hasInterview = Boolean(application.interviewSchedule);
+    const isWithdrawn = status === "withdrawn";
+    const isActive = isPending || isInterviewScheduled || isInterviewCompleted;
+    const pastApplications = history.filter(
+        (item) => String(item.applicationId) !== String(application.applicationId)
+    );
+
+    const stageMap = {
+    pending: 1,
+    interview_scheduled: 2,
+    interview_completed: 3,
+    approved: 4,
+    rejected: 4,
+    };
+
+    const stageIndex = isWithdrawn
+        ? stageMap[application.withdrawnFromStatus] ?? 1
+        : stageMap[status] ?? 1;
+
+    const progressSteps = [
+        {
+            label: "Submitted",
+            detail: formatDate(application.submittedAt),
+        },
+        {
+            label: "Review",
+            detail: stageIndex > 1
+                ? "Completed"
+                : isWithdrawn
+                    ? "Stopped"
+                    : "In progress",
+        },
+        {
+            label: "Interview",
+            detail: hasInterview
+                ? formatDate(application.interviewSchedule, true)
+                : isApproved || isRejected || isWithdrawn
+                    ? "Not held"
+                    : "To be scheduled",
+        },
+        {
+            label: "Decision",
+            detail: isWithdrawn
+                ? "Withdrawn"
+                : isApproved
+                ? "Approved"
+                : isRejected
+                    ? "Not approved"
+                    : "Waiting",
+        },
+    ].map((step, index) => {
+        let state = "upcoming";
+
+        if (index < stageIndex) state = "done";
+        if (index === stageIndex) state = "current";
+        if (index === 2 && (isApproved || isRejected) && !hasInterview) state = "skipped";
+        if (index === 3 && isRejected) state = "rejected";
+        if (index === 3 && isApproved) state = "approved";
+        if (isWithdrawn) {
+            state = index < stageIndex ? "done" : "upcoming";
+            if (index === 3) state = "withdrawn";
+        }
+
+        return { ...step, state };
+    });
+
+    const progressFill = isWithdrawn
+    ? ((stageIndex - 1) / 3) * 100
+    : (Math.min(stageIndex, 3) / 3) * 100;
 
     return (
         <section className="application-status-module">
@@ -138,10 +290,11 @@ export default function ApplicationStatus({
 
                 <button
                     type="button"
-                    className="application-status-refresh"
+                    className={`application-status-refresh ${loading ? "is-loading" : ""}`}
                     onClick={() => onRefresh?.()}
                     disabled={loading}
                 >
+                    <img src="/icons/Refresh cw.svg" alt="" />
                     {loading ? "Refreshing..." : "Refresh Status"}
                 </button>
             </header>
@@ -165,7 +318,7 @@ export default function ApplicationStatus({
                     <span
                         className={`application-status-pill ${status}`}
                     >
-                        {status}
+                        {status.replaceAll("_", " ")}
                     </span>
 
                     <h2>
@@ -229,72 +382,31 @@ export default function ApplicationStatus({
                             <h3>Current review stage</h3>
                         </div>
 
-                        <div className="application-progress-track">
-                            <article className="complete">
-                                <div>1</div>
+                        <ol className={`application-stepper ${isRejected ? "is-rejected" : ""}`}>
+                            <span className="application-stepper-line" aria-hidden="true">
+                                <span style={{ width: `${progressFill}%` }} />
+                            </span>
 
-                                <section>
-                                    <strong>
-                                        Application Submitted
-                                    </strong>
-
-                                    <p>
-                                        Submitted on{" "}
-                                        {formatDate(
-                                            application.submittedAt
+                            {progressSteps.map((step) => (
+                                <li key={step.label} className={`is-${step.state}`}>
+                                    <span className="application-stepper-dot" aria-hidden="true">
+                                        {(step.state === "done" || step.state === "approved") && (
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="m5 12.5 4.5 4.5L19 7.5" />
+                                            </svg>
                                         )}
-                                    </p>
-                                </section>
-                            </article>
+                                        {(step.state === "rejected" || step.state === "withdrawn") && (
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M7 7l10 10M17 7 7 17" />
+                                            </svg>
+                                        )}
+                                    </span>
 
-                            <article
-                                className={
-                                    isPending
-                                        ? "active"
-                                        : "complete"
-                                }
-                            >
-                                <div>2</div>
-
-                                <section>
-                                    <strong>
-                                        Shelter Review
-                                    </strong>
-
-                                    <p>
-                                        {isPending
-                                            ? "Your information and identification document are being reviewed."
-                                            : "The shelter has completed its initial review."}
-                                    </p>
-                                </section>
-                            </article>
-
-                            <article
-                                className={
-                                    isApproved
-                                        ? "complete"
-                                        : isRejected
-                                            ? "rejected"
-                                            : ""
-                                }
-                            >
-                                <div>3</div>
-
-                                <section>
-                                    <strong>
-                                        Final Decision
-                                    </strong>
-
-                                    <p>
-                                        {isApproved
-                                            ? "Your application was approved."
-                                            : isRejected
-                                                ? "Your application was not approved."
-                                                : "Waiting for the shelter’s final decision."}
-                                    </p>
-                                </section>
-                            </article>
-                        </div>
+                                    <strong>{step.label}</strong>
+                                    <small>{step.detail}</small>
+                                </li>
+                            ))}
+                        </ol>
                     </section>
 
                     {isPending && (
@@ -317,6 +429,129 @@ export default function ApplicationStatus({
                                 You will see the updated decision here
                                 once the review is complete.
                             </p>
+                        </section>
+                    )}
+
+                    {(isInterviewScheduled || isInterviewCompleted) && (
+                        <section className="application-status-information pending">
+                            <div className="application-status-section-heading">
+                                <span>Interview</span>
+                                <h3>
+                                    {isInterviewScheduled
+                                        ? "Prepare for your interview"
+                                        : "Interview done"}
+                                </h3>
+                            </div>
+
+                            {isInterviewScheduled && application.interviewSchedule && (
+                                <div className="application-interview-card">
+                                    <span>Interview Schedule</span>
+                                    <strong>{formatDate(application.interviewSchedule, true)}</strong>
+                                </div>
+                            )}
+
+                            <p>
+                                {isInterviewScheduled
+                                    ? "Bring a valid ID. You will meet the pet and talk with shelter staff about your home and care plans."
+                                    : "Shelter staff are now making the final decision on your application."}
+                            </p>
+                        </section>
+                    )}
+
+                    {isActive && (
+                        <section className="application-withdraw">
+                            {!confirmingWithdraw ? (
+                                <div className="application-withdraw-row">
+                                    <div>
+                                        <strong>Changed your mind?</strong>
+                                        <p>
+                                            You can withdraw this application anytime
+                                            before the shelter makes its final decision.
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        className="application-withdraw-button"
+                                        onClick={() => setConfirmingWithdraw(true)}
+                                    >
+                                        Withdraw Application
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="application-withdraw-confirm">
+                                    <strong>
+                                        Withdraw your application for {application.petName}?
+                                    </strong>
+
+                                    <p>
+                                        This cannot be undone. {application.petName} will stay
+                                        available to other adopters, and you can apply for
+                                        another pet right away.
+                                    </p>
+
+                                    <label htmlFor="withdraw-reason">Reason (optional)</label>
+
+                                    <textarea
+                                        id="withdraw-reason"
+                                        rows={3}
+                                        maxLength={300}
+                                        value={withdrawReason}
+                                        onChange={(event) => setWithdrawReason(event.target.value)}
+                                        placeholder="Let the shelter know why you are withdrawing."
+                                        disabled={withdrawing}
+                                    />
+
+                                    {withdrawError && (
+                                        <p className="application-withdraw-error">{withdrawError}</p>
+                                    )}
+
+                                    <div className="application-withdraw-actions">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setConfirmingWithdraw(false);
+                                                setWithdrawError("");
+                                            }}
+                                            disabled={withdrawing}
+                                        >
+                                            Keep Application
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="application-withdraw-button"
+                                            onClick={handleWithdraw}
+                                            disabled={withdrawing}
+                                        >
+                                            {withdrawing ? "Withdrawing..." : "Yes, Withdraw"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </section>
+                    )}
+
+                    {isWithdrawn && (
+                        <section className="application-status-information withdrawn">
+                            <div className="application-status-section-heading">
+                                <span>Application Closed</span>
+                                <h3>You can apply again</h3>
+                            </div>
+
+                            <p>
+                                You withdrew this application on{" "}
+                                {formatDate(application.withdrawnAt)}. You are free to
+                                apply for another available pet.
+                            </p>
+
+                            <button
+                                type="button"
+                                className="application-browse-button"
+                                onClick={() => onBrowsePets?.()}
+                            >
+                                Browse Available Pets
+                            </button>
                         </section>
                     )}
 
@@ -403,6 +638,55 @@ export default function ApplicationStatus({
                     )}
                 </div>
             </div>
+                {pastApplications.length > 0 && (
+                    <section className="application-history">
+                        <div className="application-status-section-heading">
+                            <span>Application History</span>
+                            <h3>Your past applications</h3>
+                        </div>
+
+                        <ul className="application-history-list">
+                            {pastApplications.map((item) => (
+                                <li key={item.applicationId} className="application-history-item">
+                                    <div className="application-history-thumb">
+                                        {item.petImage ? (
+                                            <img src={item.petImage} alt={item.petName} />
+                                        ) : (
+                                            <img
+                                                src="/icons/sidebar/brown paw.svg"
+                                                alt=""
+                                                className="is-placeholder"
+                                            />
+                                        )}
+                                    </div>
+
+                                    <div className="application-history-info">
+                                        <strong>{item.petName}</strong>
+                                        <small>{item.petBreed || "Breed not available"}</small>
+                                    </div>
+
+                                    <div className="application-history-date">
+                                        <span>Submitted</span>
+                                        <strong>{formatDate(item.submittedAt)}</strong>
+                                    </div>
+
+                                    <div className="application-history-date">
+                                        <span>Closed</span>
+                                        <strong>{formatDate(item.closedAt)}</strong>
+                                    </div>
+
+                                    <span className={`application-status-pill ${item.status}`}>
+                                        {item.status.replaceAll("_", " ")}
+                                    </span>
+
+                                    {item.note && (
+                                        <p className="application-history-note">{item.note}</p>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+            )}
         </section>
     );
 }

@@ -11,10 +11,10 @@ import PublicPetProfile from "./pages/PublicPetProfile";
 import LandingPage from "./pages/LandingPage";
 
 export default function App() {
+    const [page, setPage] = useState("home");
     const petMatch = window.location.pathname.match(/^\/pet\/([^/]+)/);
     if (petMatch) return <PublicPetProfile tagCode={decodeURIComponent(petMatch[1])} />;
-    const [page, setPage] = useState("home");
-
+    
     if (page === "auth" || page === "login") {
         return (
             <AuthPage
@@ -37,6 +37,7 @@ export default function App() {
         return (
             <Dashboard
                 onLogout={() => setPage("home")}
+                onLoginAgain={() => setPage("auth")}
             />
         );
     }

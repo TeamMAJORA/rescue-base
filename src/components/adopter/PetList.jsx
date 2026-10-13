@@ -143,10 +143,28 @@ export default function PetList({
 
             <div className="browse-pets-list">
                 {loading && (
-                    <div className="browse-pets-message">
-                        <span>🐾</span>
-                        <p>Loading available pets...</p>
-                    </div>
+                    <>
+                        {[0, 1, 2].map((index) => (
+                            <article
+                                key={`skeleton-${index}`}
+                                className="browse-pet-card adopter-skeleton-card"
+                                aria-hidden="true"
+                            >
+                                <div className="browse-pet-card-image adopter-skeleton" />
+
+                                <div className="browse-pet-card-content">
+                                    <div className="adopter-skeleton adopter-skeleton-line short" />
+                                    <div className="adopter-skeleton adopter-skeleton-line" />
+                                    <div className="adopter-skeleton adopter-skeleton-pill" />
+                                </div>
+                            </article>
+                        ))}
+
+                        <div className="adopter-loading-note">
+                            <span className="adopter-spinner" />
+                            Finding pets for you...
+                        </div>
+                    </>
                 )}
 
                 {!loading && error && (

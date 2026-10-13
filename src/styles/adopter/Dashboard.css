@@ -422,7 +422,7 @@
     padding: 34px 38px;
     border-radius: 24px;
         background:
-        url("/icons/heroPaw.svg") no-repeat right -30px bottom -90px / auto 135%,
+        url("/icons/heroPaw.svg") no-repeat right -30px bottom -150px / auto 135%,
         linear-gradient(90deg, var(--adopter-orange) 0%, #ff9d2e 55%, #ffad42 100%);
     box-shadow: 0 18px 36px rgba(251, 133, 0, 0.28);
     overflow: hidden;
@@ -1416,6 +1416,807 @@
     }
 }
 
+    .adopter-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .adopter-pet-card {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    .adopter-pet-card-icon {
+        width: 64px;
+        height: 60px;
+    }
+
+    .adopter-pet-card>.adopter-status {
+        grid-column: 2;
+        margin-top: 4px;
+    }
+
+    .adopter-detail-header {
+        grid-template-columns: 88px minmax(0, 1fr);
+    }
+
+    .adopter-detail-icon {
+        width: 88px;
+        height: 88px;
+    }
+
+    .adopter-detail-grid {
+        grid-template-columns: 1fr;
+    }
+/* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
+.adopter-menu {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.adopter-menu::-webkit-scrollbar {
+    display: none;
+}
 .adopter-overview-layout .browse-pet-details-panel {
     top: 20px;
+}
+
+/* ============================================================
+   Cross-cutting states (loading, error, confirm, signed out)
+   ============================================================ */
+
+/* Loading: placeholder pet cards */
+.adopter-skeleton {
+    background: linear-gradient(90deg, #f6edd2 0%, #fdf7e6 50%, #f6edd2 100%);
+    background-size: 200% 100%;
+    animation: adopter-shimmer 1.4s ease-in-out infinite;
+    border-radius: 8px;
+}
+
+.adopter-skeleton-card {
+    pointer-events: none;
+}
+
+.adopter-skeleton-card .browse-pet-card-image.adopter-skeleton {
+    background: linear-gradient(90deg, #f6edd2 0%, #fdf7e6 50%, #f6edd2 100%);
+    background-size: 200% 100%;
+    border-radius: 12px;
+}
+
+.adopter-skeleton-line {
+    height: 11px;
+    width: 80%;
+    margin-top: 10px;
+}
+
+.adopter-skeleton-line.short {
+    width: 50%;
+    margin-top: 4px;
+}
+
+.adopter-skeleton-pill {
+    height: 22px;
+    width: 45%;
+    margin-top: 12px;
+    border-radius: 999px;
+}
+
+.adopter-loading-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: #8a7a6a;
+    padding: 4px 2px;
+}
+
+.adopter-spinner {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    border: 2px solid #fde1b0;
+    border-top-color: #fb8500;
+    border-radius: 50%;
+    animation: adopter-spin 0.8s linear infinite;
+}
+
+@keyframes adopter-shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+@keyframes adopter-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Error card (Application Status) */
+.adopter-state-error {
+    max-width: 560px;
+    margin: 24px auto;
+    padding: 34px 24px;
+    text-align: center;
+    background: #fffaf0;
+    border: 1px dashed #efcfa8;
+    border-radius: 18px;
+}
+
+.adopter-state-error-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fbe1e1;
+    color: #b42318;
+}
+
+.adopter-state-error h2 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    color: #5a1b00;
+}
+
+.adopter-state-error p {
+    margin: 0 0 18px;
+    font-size: 14px;
+    color: #7a6a5a;
+}
+
+/* Shared icon + button look */
+.adopter-state-error-icon svg,
+.adopter-confirm-icon svg,
+.adopter-signed-out-icon svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.adopter-state-error button,
+.adopter-signed-out-card button,
+.adopter-confirm-actions button {
+    border: 1px solid #ecd9a8;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.adopter-state-error button,
+.adopter-signed-out-card button {
+    background: linear-gradient(135deg, #fb8500, #f5a623);
+    border-color: #fb8500;
+    color: #ffffff;
+}
+
+.adopter-state-error button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* Confirm popup (leave adoption form) */
+.adopter-confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(60, 30, 5, 0.45);
+}
+
+.adopter-confirm {
+    width: 100%;
+    max-width: 380px;
+    padding: 22px;
+    background: #fffaf0;
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+.adopter-confirm-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #fff1d6;
+    color: #b45309;
+}
+
+.adopter-confirm h3 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    color: #5a1b00;
+}
+
+.adopter-confirm p {
+    margin: 0 0 18px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #6b5a4a;
+}
+
+.adopter-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.adopter-confirm-keep {
+    background: #ffffff;
+    color: #5a1b00;
+}
+
+.adopter-confirm-keep:hover {
+    background: #fff7cb;
+}
+
+.adopter-confirm-leave {
+    background: #c62828;
+    border-color: #c62828 !important;
+    color: #ffffff;
+}
+
+.adopter-confirm-leave:hover {
+    background: #a51f1f;
+}
+
+/* Signed out (login expired or not an adopter account) */
+.adopter-signed-out {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: #f4edce;
+}
+
+.adopter-signed-out-card {
+    width: 100%;
+    max-width: 380px;
+    padding: 36px 24px;
+    text-align: center;
+    background: #fffaf0;
+    border: 1px solid #f0e2b8;
+    border-radius: 18px;
+}
+
+.adopter-signed-out-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fff1d6;
+    color: #b45309;
+}
+
+.adopter-signed-out-card h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    color: #5a1b00;
+}
+
+.adopter-signed-out-card p {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: #7a6a5a;
+}
+
+
+/* ---------- Role Application: two-column layout ---------- */
+.role-application-module {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 20px;
+    align-items: start;
+}
+
+.role-application-side {
+    display: grid;
+    gap: 14px;
+    position: sticky;
+    top: 20px;
+}
+
+.ra-card {
+    padding: 20px;
+    border: 1px solid var(--adopter-border);
+    border-radius: 20px;
+    background: var(--adopter-light-cream);
+    box-shadow: var(--adopter-shadow);
+}
+
+.ra-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.ra-card-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.ra-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    background: rgba(90, 27, 0, 0.08);
+    color: var(--adopter-light-brown);
+}
+
+.ra-badge-pending { background: var(--adopter-light-yellow); color: var(--adopter-orange-dark); }
+.ra-badge-approved { background: rgba(47, 143, 91, 0.14); color: var(--adopter-green); }
+.ra-badge-rejected { background: rgba(214, 40, 40, 0.1); color: var(--adopter-red); }
+
+.ra-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--adopter-border);
+    font-size: 13px;
+}
+
+.ra-row span { color: var(--adopter-light-brown); }
+.ra-row strong { text-align: right; }
+
+.ra-steps {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ra-step {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    padding-bottom: 16px;
+}
+
+.ra-step:last-child { padding-bottom: 0; }
+
+/* connector line between dots */
+.ra-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 26px;
+    bottom: 2px;
+    width: 2px;
+    background: var(--adopter-border);
+}
+
+.ra-step.is-done:not(:last-child)::before { background: var(--adopter-yellow); }
+
+.ra-step-dot {
+    flex: 0 0 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(90, 27, 0, 0.08);
+    color: var(--adopter-light-brown);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ra-step b { display: block; font-size: 13px; }
+.ra-step small { display: block; margin-top: 2px; color: var(--adopter-light-brown); font-size: 12px; }
+
+.ra-step.is-upcoming b { color: var(--adopter-light-brown); }
+.ra-step.is-done .ra-step-dot { background: var(--adopter-yellow); color: var(--adopter-brown); }
+.ra-step.is-active .ra-step-dot { background: var(--adopter-orange); color: #fff; box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18); }
+.ra-step.is-declined .ra-step-dot { background: var(--adopter-red); color: #fff; }
+.ra-step.is-declined small { color: var(--adopter-red); }
+
+.ra-reason {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(214, 40, 40, 0.07);
+    color: var(--adopter-red);
+    font-size: 12px;
+}
+
+.ra-note {
+    display: flex;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 16px;
+    background: var(--adopter-light-yellow);
+}
+
+.ra-note-dot {
+    flex: 0 0 8px;
+    height: 8px;
+    margin-top: 5px;
+    border-radius: 50%;
+    background: var(--adopter-orange);
+}
+
+.ra-note p {
+    margin: 0;
+    color: var(--adopter-light-brown);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* stack on smaller screens */
+@media (max-width: 900px) {
+    .role-application-module { grid-template-columns: 1fr; }
+    .role-application-side { position: static; }
+}
+
+/* ---------- Role Application: left form panel ---------- */
+.ra-form-panel .adopter-panel-heading { align-items: flex-start; }
+
+.ra-loading {
+    margin: 16px 0 0;
+    color: var(--adopter-light-brown);
+    font-size: 13px;
+}
+
+.role-application-error,
+.role-application-success {
+    margin: 16px 0 0;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.role-application-error { background: rgba(214, 40, 40, 0.08); color: var(--adopter-red); }
+.role-application-success { background: rgba(47, 143, 91, 0.12); color: var(--adopter-green); }
+
+.role-application-form {
+    display: grid;
+    gap: 20px;
+    margin-top: 22px;
+}
+
+.ra-field { display: grid; gap: 9px; }
+
+.ra-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--adopter-brown);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.ra-label em { color: var(--adopter-red); font-style: normal; }
+
+/* role cards */
+.ra-role-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.ra-role-card {
+    position: relative;
+    display: flex;
+    gap: 14px;
+    padding: 18px 44px 18px 18px;
+    border: 1.5px solid var(--adopter-border);
+    border-radius: 16px;
+    background: var(--adopter-light-yellow);
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.ra-role-card:hover {
+    border-color: rgba(251, 133, 0, 0.45);
+    transform: translateY(-1px);
+}
+
+.ra-role-card.is-selected {
+    border-color: var(--adopter-orange);
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(251, 133, 0, 0.16);
+}
+
+.ra-role-card input { position: absolute; opacity: 0; pointer-events: none; }
+.ra-role-card:has(input:focus-visible) { box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3); }
+
+.ra-role-icon {
+    flex: 0 0 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: rgba(252, 191, 73, 0.35);
+    color: var(--adopter-orange-dark);
+}
+
+.ra-role-card.is-selected .ra-role-icon { background: var(--adopter-orange); color: #fff; }
+
+.ra-role-icon svg,
+.ra-role-check svg,
+.ra-submit svg,
+.ra-pending-icon svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ra-role-icon svg { width: 24px; height: 24px; }
+
+.ra-role-text b {
+    display: block;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.ra-role-text small {
+    display: block;
+    margin-top: 4px;
+    color: var(--adopter-light-brown);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.ra-role-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+.ra-role-tags span {
+    padding: 3px 9px;
+    border: 1px solid var(--adopter-border);
+    border-radius: 999px;
+    background: var(--adopter-light-cream);
+    color: var(--adopter-brown);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ra-role-check {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 2px solid rgba(90, 27, 0, 0.2);
+    border-radius: 50%;
+    background: #fff;
+    color: transparent;
+}
+
+.ra-role-check svg { width: 13px; height: 13px; stroke-width: 3; }
+
+.ra-role-card.is-selected .ra-role-check {
+    border-color: var(--adopter-orange);
+    background: var(--adopter-orange);
+    color: #fff;
+}
+
+/* textarea */
+.ra-textarea-wrap { position: relative; }
+
+.ra-textarea-wrap textarea {
+    width: 100%;
+    min-height: 150px;
+    box-sizing: border-box;
+    padding: 14px 16px 30px;
+    border: 1.5px solid var(--adopter-border);
+    border-radius: 14px;
+    background: var(--adopter-light-yellow);
+    color: var(--adopter-brown);
+    font: inherit;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.ra-textarea-wrap textarea::placeholder { color: rgba(123, 69, 45, 0.55); }
+
+.ra-textarea-wrap textarea:focus {
+    border-color: var(--adopter-orange);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.18);
+}
+
+.ra-counter {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    color: var(--adopter-light-brown);
+    font-size: 11px;
+}
+
+.ra-hint { color: var(--adopter-light-brown); font-size: 12px; }
+
+/* footer */
+.ra-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 18px;
+    border-top: 1px solid var(--adopter-border);
+}
+
+.ra-form-footer p { margin: 0; color: var(--adopter-light-brown); font-size: 12px; }
+
+.ra-submit {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 12px;
+    background: var(--adopter-orange);
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.25);
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.ra-submit svg { width: 16px; height: 16px; }
+.ra-submit:hover:not(:disabled) { background: var(--adopter-orange-dark); transform: translateY(-1px); }
+.ra-submit:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+/* pending message */
+.ra-pending {
+    display: flex;
+    gap: 14px;
+    margin-top: 22px;
+    padding: 18px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 16px;
+    background: var(--adopter-light-yellow);
+}
+
+.ra-pending-icon {
+    flex: 0 0 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--adopter-orange);
+    color: #fff;
+}
+
+.ra-pending-icon svg { width: 22px; height: 22px; }
+.ra-pending b { font-size: 14px; }
+.ra-pending p { margin: 4px 0 0; color: var(--adopter-light-brown); font-size: 13px; }
+
+/* "?" info tip (same look as the adoption form) */
+.role-application-module .admin-info-tip {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    display: inline-grid;
+    place-items: center;
+    margin-left: 4px;
+    border-radius: 50%;
+    background: var(--adopter-orange);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: help;
+    outline: none;
+}
+
+.role-application-module .admin-info-tip-bubble {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: -12px;
+    z-index: 20;
+    width: 240px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #4a1a00;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.55;
+    box-shadow: 0 10px 24px rgba(58, 18, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
+}
+
+.role-application-module .admin-info-tip-bubble::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 15px;
+    border-width: 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #4a1a00;
+}
+
+.role-application-module .admin-info-tip:hover .admin-info-tip-bubble,
+.role-application-module .admin-info-tip:focus .admin-info-tip-bubble {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+    .ra-role-grid { grid-template-columns: 1fr; }
+    .ra-form-footer { flex-direction: column; align-items: stretch; }
+    .ra-submit { justify-content: center; }
+}
+
+/* ---------- Role cards: image icons from /public/icons ---------- */
+.ra-role-icon {
+    background: rgba(251, 133, 0, 0.55);
+}
+
+.ra-role-card.is-selected .ra-role-icon {
+    background: var(--adopter-orange);
+}
+
+.ra-role-icon img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.ra-role-check img {
+    width: 12px;
+    height: auto;
+    opacity: 0;
+}
+
+.ra-role-card.is-selected .ra-role-check img {
+    opacity: 1;
+}
+
+/* Status card: done steps use checkmark.svg */
+.ra-step.is-done .ra-step-dot {
+    background: var(--adopter-orange);
+    color: #fff;
+}
+
+.ra-step-dot img {
+    width: 12px;
+    height: auto;
+}
+
+/* Role Application: reuse the Application Status refresh button */
+.adopter-panel-heading > .application-status-refresh {
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1.5px solid #5a1b00;
+    background: #ffffff;
+    font-weight: 800;
+}
+
+.adopter-panel-heading > .application-status-refresh:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fff7cb;
 }

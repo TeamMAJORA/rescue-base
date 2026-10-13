@@ -405,3 +405,66 @@
         flex-direction: column;
     }
 }
+/* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
+.staff-sidebar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.staff-sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+/* ---------- Notification bell (same look and hover as the Adopter dashboard) ---------- */
+.staff-notification-btn {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.15);
+    background: #fffaf0;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.staff-notification-btn:hover {
+    border-color: #fb8500;
+    background: #ffffff;
+}
+
+.staff-notification-btn .rb-notif-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.staff-notification-btn .rb-notif-icon.icon-active {
+    display: none;
+}
+
+.staff-notification-btn.open {
+    background: linear-gradient(135deg, #fb8500, #fca62c);
+    border-color: #fb8500;
+}
+
+.staff-notification-btn.open .rb-notif-icon.icon-default {
+    display: none;
+}
+
+.staff-notification-btn.open .rb-notif-icon.icon-active {
+    display: block;
+}
+
+/* Hovering while open flips back to the light look with the brown bell */
+.staff-notification-btn.open:hover {
+    background: #fff7cb;
+}
+
+.staff-notification-btn.open:hover .rb-notif-icon.icon-default {
+    display: block;
+}
+
+.staff-notification-btn.open:hover .rb-notif-icon.icon-active {
+    display: none;
+}

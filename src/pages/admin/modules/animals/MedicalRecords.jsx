@@ -2,8 +2,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
 
-// NOTE: medical records are still kept in the browser only (no backend yet),
-// so they reset when the page is refreshed — same behavior as before.
+
+// Styled confirm popup + toast from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
+function notify(text, tone = "success") {
+    if (window.rbToast) {
+        window.rbToast(text, tone);
+    } else {
+        window.alert(text);
+    }
+}
+
+function notifyErr(text) {
+    notify(text, "error");
+}
 
 const API_ANIMALS = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
 
@@ -17,24 +34,50 @@ const TYPE_STYLE = {
     Deworming: { tone: "green", icon: "worm" },
 };
 
-const starterRecords = [
-    {
-        id: 1,
-        animalName: "Max",
-        recordType: "Vaccine",
-        vetName: "Dr. Santos",
-        recordDate: "2026-06-20",
-        notes: "Anti-rabies vaccine completed.",
-    },
-    {
-        id: 2,
-        animalName: "Luna",
-        recordType: "Checkup",
-        vetName: "Dr. Reyes",
-        recordDate: "2026-06-22",
-        notes: "General checkup. Healthy condition.",
-    },
-];
+const API_MEDICAL = `${import.meta.env.VITE_BACKEND_URL}/api/medical-records`;
+
+// Calls the backend with the login token; throws the server's message on failure
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.success === false) {
+        throw new Error(data.message || "Request failed.");
+    }
+
+    return data;
+}
+
+// Database record -> the shape this page already uses
+function fromApi(record) {
+    return {
+        id: record._id,
+        animalId: record.animal_id?._id || record.animal_id || "",
+        animalName: record.animal_id?.name || "(deleted animal)",
+        recordType: record.record_type || "",
+        vetName: record.veterinarian || "",
+        recordDate: String(record.record_date || "").slice(0, 10),
+        notes: record.notes || "",
+    };
+}
+
+// Form -> what the backend expects
+function toApi(form, animalId) {
+    return {
+        animal_id: animalId,
+        record_type: form.recordType,
+        veterinarian: form.vetName,
+        record_date: form.recordDate,
+        notes: form.notes,
+    };
+}
 
 const SEARCH_FIELDS = {
     animal: (r) => r.animalName,
@@ -314,7 +357,8 @@ export default function MedicalRecords({ lockedAnimal = null }) {
         notes: "",
     };
 
-    const [records, setRecords] = useState(starterRecords);
+    const [records, setRecords] = useState([]);
+    const [animals, setAnimals] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [recordForm, setRecordForm] = useState(blankForm);
     const [animalNames, setAnimalNames] = useState([]);
@@ -328,14 +372,30 @@ export default function MedicalRecords({ lockedAnimal = null }) {
         if (lockedAnimal) return;
         fetch(API_ANIMALS)
             .then((response) => response.json())
-            .then((data) =>
-                setAnimalNames(
-                    [...new Set((data.animals || []).map((a) => a.name).filter(Boolean))].sort()
-                )
-            )
-            .catch(() => setAnimalNames([]));
+            .then((data) => {
+                const list = data.animals || [];
+                setAnimals(list);
+                setAnimalNames([...new Set(list.map((a) => a.name).filter(Boolean))].sort());
+            })
+            .catch(() => {
+                setAnimals([]);
+                setAnimalNames([]);
+            });
     }, [lockedAnimal]);
 
+    // Medical records saved in the database
+    async function loadRecords() {
+        try {
+            const data = await apiRequest(API_MEDICAL);
+            setRecords((data.records || []).map(fromApi));
+        } catch (error) {
+            notifyErr(error.message || "Couldn't load medical records.");
+        }
+    }
+
+    useEffect(() => {
+        loadRecords();
+    }, []);
     function updateField(name, value) {
         setRecordForm((current) => ({ ...current, [name]: value }));
     }
@@ -345,20 +405,47 @@ export default function MedicalRecords({ lockedAnimal = null }) {
         setRecordForm(blankForm);
     }
 
-    function handleAddRecord(e) {
+        // Animal name in the form -> the animal's database ID
+    function findAnimalId(name) {
+        if (lockedAnimal) return lockedAnimal._id;
+
+        const match = animals.find((animal) => animal.name === name);
+        if (match) return match._id;
+
+        // Editing an old record whose animal is not in the list anymore
+        return records.find((record) => record.id === editingId)?.animalId || "";
+    }
+
+    async function handleAddRecord(e) {
         e.preventDefault();
 
-        if (editingId) {
-            setRecords((current) =>
-                current.map((record) =>
-                    record.id === editingId ? { ...record, ...recordForm } : record
-                )
-            );
-        } else {
-            setRecords((current) => [{ id: Date.now(), ...recordForm }, ...current]);
+        const animalId = findAnimalId(recordForm.animalName);
+
+        if (!animalId) {
+            notifyErr("Pick an animal from Animal Profiles.");
+            return;
         }
 
-        resetForm();
+        try {
+            if (editingId) {
+                await apiRequest(`${API_MEDICAL}/${editingId}`, {
+                    method: "PATCH",
+                    body: JSON.stringify(toApi(recordForm, animalId)),
+                });
+                notify("Medical record updated");
+            } else {
+                await apiRequest(API_MEDICAL, {
+                    method: "POST",
+                    body: JSON.stringify(toApi(recordForm, animalId)),
+                });
+                notify("Medical record saved");
+            }
+
+            resetForm();
+            await loadRecords();
+        } catch (error) {
+            notifyErr(error.message || "Couldn't save the medical record.");
+        }
     }
 
     function handleEditRecord(record) {
@@ -375,17 +462,23 @@ export default function MedicalRecords({ lockedAnimal = null }) {
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    function handleDeleteRecord(id) {
+    async function handleDeleteRecord(id) {
         if (!isAdmin()) {
-            alert("Only administrators can delete medical records.");
+            notifyErr("Only administrators can delete medical records.");
             return;
         }
 
-        if (!window.confirm("Delete this medical record?")) return;
+        if (!await askConfirm({ title: "Delete this medical record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
 
-        setRecords((current) => current.filter((record) => record.id !== id));
+        try {
+            await apiRequest(`${API_MEDICAL}/${id}`, { method: "DELETE" });
+            setRecords((current) => current.filter((record) => record.id !== id));
+            notify("Medical record deleted");
 
-        if (editingId === id) resetForm();
+            if (editingId === id) resetForm();
+        } catch (error) {
+            notifyErr(error.message || "Couldn't delete the medical record.");
+        }
     }
 
     // ---------- Stats, tabs, filtering ----------

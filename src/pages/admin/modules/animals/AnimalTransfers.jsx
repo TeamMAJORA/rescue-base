@@ -1,5 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";   
+
+// Styled confirm popup + toast from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
+function notify(text, tone = "success") {
+    if (window.rbToast) {
+        window.rbToast(text, tone);
+    } else {
+        window.alert(text);
+    }
+}
+
+function notifyErr(text) {
+    notify(text, "error");
+}
+
 const ICONS = {
     search: (
         <>
@@ -250,41 +270,53 @@ function withinRange(date, range) {
     return true;
 }
 
-// NOTE: transfers are still kept in the browser only (no backend yet),
-// so they reset when the page is refreshed — same behavior as before.
-
 const API_ANIMALS = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
+const API_TRANSFERS = `${import.meta.env.VITE_BACKEND_URL}/api/animal-transfers`;
 
-const starterTransfers = [
-    {
-        id: 1,
-        animalName: "Bella",
-        fromLocation: "MARO Shelter",
-        toLocation: "Cebu City Veterinary Office",
-        transferDate: "2026-07-20",
-        reason: "Medical treatment",
-        status: "Completed",
-    },
-    {
-        id: 2,
-        animalName: "Max",
-        fromLocation: "MARO Shelter",
-        toLocation: "Foster home – Ana L.",
-        transferDate: "2026-07-27",
-        reason: "Recovery in foster care",
-        status: "In Transit",
-    },
-    {
-        id: 3,
-        animalName: "Luna",
-        fromLocation: "MARO Shelter",
-        toLocation: "Cebu City Veterinary Office",
-        transferDate: "2026-07-29",
-        reason: "Spay surgery",
-        status: "Pending",
-    },
-];
+// Calls the backend with the login token; throws the server's message on failure
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
 
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.success === false) {
+        throw new Error(data.message || "Request failed.");
+    }
+
+    return data;
+}
+
+// Database record -> the shape this page already uses
+function fromApi(transfer) {
+    return {
+        id: transfer._id,
+        animalId: transfer.animal_id?._id || transfer.animal_id || "",
+        animalName: transfer.animal_id?.name || "(deleted animal)",
+        fromLocation: transfer.from_location || "",
+        toLocation: transfer.to_location || "",
+        transferDate: String(transfer.transfer_date || "").slice(0, 10),
+        reason: transfer.reason || "",
+        status: transfer.status || "Pending",
+    };
+}
+
+// Form -> what the backend expects
+function toApi(form, animalId) {
+    return {
+        animal_id: animalId,
+        from_location: form.fromLocation,
+        to_location: form.toLocation,
+        transfer_date: form.transferDate,
+        reason: form.reason,
+        status: form.status,
+    };
+}
 const emptyForm = {
     animalName: "",
     fromLocation: "",
@@ -346,7 +378,8 @@ function formatDate(date) {
 }
 
 export default function AnimalTransfers() {
-    const [transfers, setTransfers] = useState(starterTransfers);
+    const [transfers, setTransfers] = useState([]);
+    const [animals, setAnimals] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [form, setForm] = useState(emptyForm);
     const [animalNames, setAnimalNames] = useState([]);
@@ -357,16 +390,33 @@ export default function AnimalTransfers() {
     const formRef = useRef(null);
     const listRef = useRef(null);
 
-    // Suggest existing animal names in the Animal field.
+    // Existing animals for the Animal field
     useEffect(() => {
         fetch(API_ANIMALS)
             .then((response) => response.json())
-            .then((data) =>
-                setAnimalNames(
-                    [...new Set((data.animals || []).map((a) => a.name).filter(Boolean))].sort()
-                )
-            )
-            .catch(() => setAnimalNames([]));
+            .then((data) => {
+                const list = data.animals || [];
+                setAnimals(list);
+                setAnimalNames([...new Set(list.map((a) => a.name).filter(Boolean))].sort());
+            })
+            .catch(() => {
+                setAnimals([]);
+                setAnimalNames([]);
+            });
+    }, []);
+
+    // Transfers saved in the database
+    async function loadTransfers() {
+        try {
+            const data = await apiRequest(API_TRANSFERS);
+            setTransfers((data.transfers || []).map(fromApi));
+        } catch (error) {
+            notifyErr(error.message || "Couldn't load transfers.");
+        }
+    }
+
+    useEffect(() => {
+        loadTransfers();
     }, []);
 
     function updateField(name, value) {
@@ -381,20 +431,45 @@ export default function AnimalTransfers() {
         setForm(emptyForm);
     }
 
-    function handleSubmit(e) {
+        // Animal name in the form -> the animal's database ID
+    function findAnimalId(name) {
+        const match = animals.find((animal) => animal.name === name);
+        if (match) return match._id;
+
+        // Editing an old transfer whose animal is not in the list anymore
+        return transfers.find((transfer) => transfer.id === editingId)?.animalId || "";
+    }
+
+    async function handleSubmit(e) {
         e.preventDefault();
 
-        if (editingId) {
-            setTransfers((current) =>
-                current.map((transfer) =>
-                    transfer.id === editingId ? { ...transfer, ...form } : transfer
-                )
-            );
-        } else {
-            setTransfers((current) => [{ id: Date.now(), ...form }, ...current]);
+        const animalId = findAnimalId(form.animalName);
+
+        if (!animalId) {
+            notifyErr("Pick an animal from Animal Profiles.");
+            return;
         }
 
-        resetForm();
+        try {
+            if (editingId) {
+                await apiRequest(`${API_TRANSFERS}/${editingId}`, {
+                    method: "PATCH",
+                    body: JSON.stringify(toApi(form, animalId)),
+                });
+                notify("Transfer updated");
+            } else {
+                await apiRequest(API_TRANSFERS, {
+                    method: "POST",
+                    body: JSON.stringify(toApi(form, animalId)),
+                });
+                notify("Transfer saved");
+            }
+
+            resetForm();
+            await loadTransfers();
+        } catch (error) {
+            notifyErr(error.message || "Couldn't save the transfer.");
+        }
     }
 
     function handleEditTransfer(transfer) {
@@ -412,26 +487,40 @@ export default function AnimalTransfers() {
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    function handleAdvance(transfer) {
+    async function handleAdvance(transfer) {
         const next = NEXT_STEP[transfer.status];
         if (!next) return;
 
-        setTransfers((current) =>
-            current.map((t) => (t.id === transfer.id ? { ...t, status: next.status } : t))
-        );
+        try {
+            await apiRequest(`${API_TRANSFERS}/${transfer.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({ status: next.status }),
+            });
+            setTransfers((current) =>
+                current.map((t) => (t.id === transfer.id ? { ...t, status: next.status } : t))
+            );
+        } catch (error) {
+            notifyErr(error.message || "Couldn't update the transfer.");
+        }
     }
 
-    function handleDeleteTransfer(id) {
+    async function handleDeleteTransfer(id) {
         if (!isAdmin()) {
-            alert("Only administrators can delete transfers");
+            notifyErr("Only administrators can delete transfers");
             return;
         }
 
-        if (!window.confirm("Delete this transfer record?")) return;
+        if (!await askConfirm({ title: "Delete this transfer record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true })) return;
 
-        setTransfers((current) => current.filter((transfer) => transfer.id !== id));
+        try {
+            await apiRequest(`${API_TRANSFERS}/${id}`, { method: "DELETE" });
+            setTransfers((current) => current.filter((transfer) => transfer.id !== id));
+            notify("Transfer record deleted");
 
-        if (editingId === id) resetForm();
+            if (editingId === id) resetForm();
+        } catch (error) {
+            notifyErr(error.message || "Couldn't delete the transfer.");
+        }
     }
 
     // --------------------------------------------------

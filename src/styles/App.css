@@ -355,18 +355,27 @@ img {
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     padding: 6px 4px 16px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--brown) transparent;
+    /* Scrollbar hidden: slide by dragging with the mouse, the arrows, or swiping */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    cursor: grab;
+    user-select: none;
 }
 
 .pet-track::-webkit-scrollbar {
-    height: 6px;
+    display: none;
 }
 
-.pet-track::-webkit-scrollbar-thumb {
-    background: var(--brown);
-    border-radius: 999px;
-    opacity: 0.4;
+/* While dragging: follow the mouse exactly, snap again on release */
+.pet-track.dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+}
+
+.pet-track img {
+    -webkit-user-drag: none;
+    pointer-events: none;
 }
 
 .pet-slide {
