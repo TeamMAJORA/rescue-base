@@ -37,6 +37,7 @@ import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
 import NeededSupplies from "./modules/NeededSupplies";
+import GlobalSettings from "./GlobalSettings";
 
 // ANIMALS
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
@@ -91,7 +92,8 @@ const adminMenu = [
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
     { key: "reports", label: "Reports" },
-    { key: "activity-log", label: "Activity Log"}
+    { key: "activity-log", label: "Activity Log"},
+    { key: "global-settings", label: "Global Settings"}
 ]
 
 function AdminStatCard({ label, value }) {
@@ -313,6 +315,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "activity-log") {
             return <ActivityLog />;
+        }
+
+        if (activeAdminPage === "global-settings") {
+            return <GlobalSettings />;
         }
 
     }
