@@ -1,182 +1,164 @@
-import {
-    useEffect,
-    useState,
-} from "react";
 
-const API = import.meta.env.VITE_BACKEND_URL;
+import { useCallback, useEffect, useState } from "react";
 
-function ActivityLog() {
-    const [logs, setLogs] = useState([]);
+const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
-    const [users, setUsers] = useState([]);
+function normalizeArray(value) {
+    return Array.isArray(value)
+        ? value.filter(
+              (item) =>
+                  item !== null &&
+                  typeof item === "object" &&
+                  !Array.isArray(item)
+          )
+        : [];
+}
 
-    const [loading, setLoading] =
-        useState(true);
+function getToken() {
+    return localStorage.getItem("token");
+}
 
-    const [userFilter, setUserFilter] =
-        useState("");
+async function fetchJson(url) {
+    const token = getToken();
 
-    const [startDate, setStartDate] =
-        useState("");
+    const response = await fetch(url, {
+        headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+    });
 
-    const [endDate, setEndDate] =
-        useState("");
+    const data = await response.json().catch(() => ({}));
 
-    async function fetchUsers() {
-        try {
-            const token =
-                localStorage.getItem("token");
-
-            const response = await fetch(
-                `${API}/api/users`,
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`,
-                    },
-                }
-            );
-
-            const data =
-                await response.json();
-
-            if (
-                response.ok &&
-                data.success
-            ) {
-                setUsers(
-                    data.users || []
-                );
-            }
-        } catch (error) {
-            console.error(
-                "Fetch activity log users error:",
-                error
-            );
-        }
-    }
-
-    async function fetchLogs() {
-        try {
-            setLoading(true);
-
-            const token =
-                localStorage.getItem("token");
-
-            const params =
-                new URLSearchParams();
-
-            if (userFilter) {
-                params.set(
-                    "userId",
-                    userFilter
-                );
-            }
-
-            if (startDate) {
-                params.set(
-                    "startDate",
-                    startDate
-                );
-            }
-
-            if (endDate) {
-                params.set(
-                    "endDate",
-                    endDate
-                );
-            }
-
-            const query =
-                params.toString();
-
-            const response = await fetch(
-                `${API}/api/activity-logs${
-                    query
-                        ? `?${query}`
-                        : ""
-                }`,
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`,
-                    },
-                }
-            );
-
-            const data =
-                await response.json();
-
-            if (
-                !response.ok ||
-                !data.success
-            ) {
-                console.error(
-                    data.message ||
-                    "Failed to fetch activity logs."
-                );
-
-                setLogs([]);
-
-                return;
-            }
-
-            setLogs(
-                data.logs || []
-            );
-        } catch (error) {
-            console.error(
-                "Fetch activity logs error:",
-                error
-            );
-
-            setLogs([]);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    function formatDate(dateValue) {
-        if (!dateValue) {
-            return "Date not available";
-        }
-
-        const date =
-            new Date(dateValue);
-
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-            return "Date not available";
-        }
-
-        return date.toLocaleString(
-            "en-PH",
-            {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-                second: "2-digit",
-            }
+    if (!response.ok || data.success === false) {
+        throw new Error(
+            data.message || `Request failed (${response.status}).`
         );
     }
 
-    function getUserName(log) {
-        if (!log.user) {
-            return "Unknown User";
-        }
+    return data;
+}
 
+function formatDate(dateValue) {
+    if (!dateValue) return "Date not available";
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Date not available";
+    }
+
+    return date.toLocaleString("en-PH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+    });
+}
+
+function getUserName(log) {
+    const user = log?.user;
+
+    if (user && typeof user === "object") {
         return (
-            log.user.username ||
-            log.user.name ||
-            log.user.email ||
+            user.username ||
+            user.name ||
+            user.email ||
             "Unknown User"
         );
     }
+
+    return "Unknown User";
+}
+
+function getUserLabel(user) {
+    return (
+        user?.username ||
+        user?.name ||
+        user?.email ||
+        "Unnamed User"
+    );
+}
+
+function ActivityLog() {
+    const [logs, setLogs] = useState([]);
+    const [users, setUsers] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+    const [usersLoading, setUsersLoading] = useState(true);
+
+    const [userFilter, setUserFilter] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+
+    const [error, setError] = useState("");
+    const [usersError, setUsersError] = useState("");
+
+    const fetchUsers = useCallback(async () => {
+        try {
+            setUsersLoading(true);
+            setUsersError("");
+
+            const data = await fetchJson(`${API}/api/users`);
+
+            setUsers(normalizeArray(data.users));
+        } catch (err) {
+            console.error("Fetch activity log users error:", err);
+            setUsers([]);
+            setUsersError(
+                err.message || "Failed to load users."
+            );
+        } finally {
+            setUsersLoading(false);
+        }
+    }, []);
+
+    const fetchLogs = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError("");
+
+            const params = new URLSearchParams();
+
+            if (userFilter) {
+                params.set("userId", userFilter);
+            }
+
+            if (startDate) {
+                params.set("startDate", startDate);
+            }
+
+            if (endDate) {
+                params.set("endDate", endDate);
+            }
+
+            const query = params.toString();
+            const url = `${API}/api/activity-logs${
+                query ? `?${query}` : ""
+            }`;
+
+            const data = await fetchJson(url);
+
+            setLogs(normalizeArray(data.logs));
+        } catch (err) {
+            console.error("Fetch activity logs error:", err);
+            setLogs([]);
+            setError(
+                err.message || "Failed to fetch activity logs."
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [userFilter, startDate, endDate]);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    useEffect(() => {
+        fetchLogs();
+    }, [fetchLogs]);
 
     function handleClearFilters() {
         setUserFilter("");
@@ -184,39 +166,33 @@ function ActivityLog() {
         setEndDate("");
     }
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    useEffect(() => {
+    function handleRefresh() {
         fetchLogs();
-    }, [
-        userFilter,
-        startDate,
-        endDate,
-    ]);
+        fetchUsers();
+    }
+
+    const validDateRange =
+        !startDate || !endDate || startDate <= endDate;
 
     return (
         <section className="admin-activity-log-page">
             <section className="admin-panel">
                 <div className="admin-panel-heading">
                     <div>
-                        <h2>
-                            Activity Logs
-                        </h2>
-
+                        <h2>Activity Logs</h2>
                         <p>
-                            Monitor system
-                            activities performed
-                            by users.
+                            Monitor system activities performed by users.
                         </p>
                     </div>
 
                     <button
                         type="button"
-                        onClick={fetchLogs}
+                        onClick={handleRefresh}
+                        disabled={loading || usersLoading}
                     >
-                        Refresh
+                        {loading || usersLoading
+                            ? "Refreshing..."
+                            : "Refresh"}
                     </button>
                 </div>
 
@@ -227,31 +203,28 @@ function ActivityLog() {
                         <select
                             value={userFilter}
                             onChange={(event) =>
-                                setUserFilter(
-                                    event.target.value
-                                )
+                                setUserFilter(event.target.value)
                             }
+                            disabled={usersLoading}
                         >
                             <option value="">
                                 All Users
                             </option>
 
-                            {users.map(
-                                (user) => (
+                            {users.map((user, index) => {
+                                const id = user._id;
+
+                                if (!id) return null;
+
+                                return (
                                     <option
-                                        key={
-                                            user._id
-                                        }
-                                        value={
-                                            user._id
-                                        }
+                                        key={id || index}
+                                        value={id}
                                     >
-                                        {user.username ||
-                                            user.name ||
-                                            user.email}
+                                        {getUserLabel(user)}
                                     </option>
-                                )
-                            )}
+                                );
+                            })}
                         </select>
                     </label>
 
@@ -261,10 +234,9 @@ function ActivityLog() {
                         <input
                             type="date"
                             value={startDate}
+                            max={endDate || undefined}
                             onChange={(event) =>
-                                setStartDate(
-                                    event.target.value
-                                )
+                                setStartDate(event.target.value)
                             }
                         />
                     </label>
@@ -275,45 +247,62 @@ function ActivityLog() {
                         <input
                             type="date"
                             value={endDate}
+                            min={startDate || undefined}
                             onChange={(event) =>
-                                setEndDate(
-                                    event.target.value
-                                )
+                                setEndDate(event.target.value)
                             }
                         />
                     </label>
 
                     <button
                         type="button"
-                        onClick={
-                            handleClearFilters
+                        onClick={handleClearFilters}
+                        disabled={
+                            !userFilter && !startDate && !endDate
                         }
                     >
                         Clear Filters
                     </button>
                 </div>
+
+                {!validDateRange && (
+                    <p className="admin-reports-error" role="alert">
+                        The start date cannot be later than the end date.
+                    </p>
+                )}
+
+                {usersError && (
+                    <p className="admin-reports-error" role="alert">
+                        {usersError}
+                    </p>
+                )}
             </section>
 
             <section className="admin-panel">
                 <div className="admin-panel-heading">
                     <div>
-                        <h2>
-                            System Activity
-                        </h2>
+                        <h2>System Activity</h2>
 
                         <p>
-                            {logs.length}{" "}
-                            activity record
-                            {logs.length === 1
-                                ? ""
-                                : "s"}
+                            {logs.length} activity record
+                            {logs.length === 1 ? "" : "s"}
                         </p>
                     </div>
                 </div>
 
+                {error && (
+                    <p className="admin-reports-error" role="alert">
+                        {error}
+                    </p>
+                )}
+
                 {loading ? (
                     <p className="admin-empty">
                         Loading activity logs...
+                    </p>
+                ) : !validDateRange ? (
+                    <p className="admin-empty">
+                        Adjust the date range to view activity logs.
                     </p>
                 ) : logs.length === 0 ? (
                     <p className="admin-empty">
@@ -321,65 +310,48 @@ function ActivityLog() {
                     </p>
                 ) : (
                     <div className="admin-activity-list">
-                        {logs.map(
-                            (log) => (
+                        {logs.map((log, index) => {
+                            const id = log._id || `activity-${index}`;
+
+                            return (
                                 <article
-                                    key={
-                                        log._id
-                                    }
+                                    key={id}
                                     className="admin-activity-row"
                                 >
                                     <div>
                                         <h3>
-                                            {
-                                                log.activity
-                                            }
+                                            {log.activity ||
+                                                "Activity not specified"}
                                         </h3>
 
                                         <p>
-                                            <strong>
-                                                User:
-                                            </strong>{" "}
-                                            {
-                                                getUserName(
-                                                    log
-                                                )
-                                            }
+                                            <strong>User:</strong>{" "}
+                                            {getUserName(log)}
                                         </p>
 
-                                        {log.user
-                                            ?.email && (
+                                        {log.user?.email && (
                                             <p>
-                                                <strong>
-                                                    Email:
-                                                </strong>{" "}
-                                                {
-                                                    log
-                                                        .user
-                                                        .email
-                                                }
+                                                <strong>Email:</strong>{" "}
+                                                {log.user.email}
                                             </p>
                                         )}
                                     </div>
 
                                     <div>
                                         <span>
-                                            {
-                                                log.activityType
-                                            }
+                                            {log.activityType ||
+                                                "Uncategorized"}
                                         </span>
 
                                         <small>
-                                            {
-                                                formatDate(
-                                                    log.activityDate
-                                                )
-                                            }
+                                            {formatDate(
+                                                log.activityDate
+                                            )}
                                         </small>
                                     </div>
                                 </article>
-                            )
-                        )}
+                            );
+                        })}
                     </div>
                 )}
             </section>
