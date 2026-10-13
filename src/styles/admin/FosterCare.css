@@ -318,3 +318,425 @@
     }
 
 }
+
+/* Foster Care: highlight Medical Requests when any are open */
+.ao-strip-item.is-alert {
+    background: #fdf1f1;
+    box-shadow: inset 0 0 0 1.5px rgba(214, 40, 40, 0.45);
+}
+
+.ao-strip-item.is-alert .ao-strip-label .ao-icon,
+.ao-strip-item.is-alert .ao-strip-value {
+    color: #d62828;
+}
+
+/* ===== Current Foster Assignments: table layout ===== */
+.admin-foster-list-panel .admin-panel-heading h2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.afl-count {
+    min-width: 24px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #fb8500;
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+/* Refresh: same look as the adopter "Refresh Status" button */
+.admin-panel-heading .afl-refresh {
+    height: auto;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 12px;
+    background: #fff;
+    color: #5a1b00;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.afl-refresh img {
+    width: 15px;
+    height: 15px;
+    transition: transform 0.4s ease;
+}
+
+.admin-panel-heading .afl-refresh:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+.afl-refresh:hover:not(:disabled) img {
+    transform: rotate(90deg);
+}
+
+.afl-refresh.is-loading img {
+    animation: afl-spin 0.8s linear infinite;
+}
+
+@keyframes afl-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* toolbar */
+.afl-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.afl-search {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 12px;
+    background: #fff7cb;
+    color: rgba(90, 27, 0, 0.55);
+}
+
+.afl-search:focus-within {
+    border-color: #fb8500;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.afl-search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+}
+
+.afl-filters {
+    display: flex;
+    gap: 8px;
+}
+
+.afl-filters button {
+    padding: 7px 14px;
+    border: 1.5px solid rgba(90, 27, 0, 0.55);
+    border-radius: 999px;
+    background: #fff;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.afl-filters button:hover {
+    border-color: #fb8500;
+}
+
+.afl-filters button.is-active {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #fff;
+}
+
+/* table */
+.afl-table {
+    display: grid;
+    gap: 10px;
+}
+
+.afl-head,
+.afl-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.6fr) 0.7fr 0.6fr 0.9fr 110px;
+    gap: 14px;
+    align-items: center;
+}
+
+.afl-head {
+    padding: 0 18px;
+    color: rgba(90, 27, 0, 0.6);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.afl-right {
+    text-align: right;
+}
+
+.afl-item {
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.afl-item:hover {
+    border-color: rgba(251, 133, 0, 0.5);
+    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.08);
+}
+
+.afl-row {
+    padding: 10px 18px;
+}
+
+.afl-pet {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.afl-avatar {
+    flex: 0 0 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.afl-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.afl-avatar.is-orange { background: #fde3bf; color: #fb8500; }
+.afl-avatar.is-plum   { background: #ead9ec; color: #8d4f97; }
+.afl-avatar.is-sage   { background: #d6e6da; color: #5e9b6a; }
+.afl-avatar.is-sky    { background: #d7e4f2; color: #3f6f9f; }
+
+.afl-avatar .ao-icon {
+    fill: currentColor;
+    stroke: none;
+}
+
+.afl-pet b,
+.afl-foster b {
+    display: block;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.afl-pet b {
+    font-family: "Itim", cursive;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.afl-pet small,
+.afl-foster small {
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.afl-cell {
+    color: #5a1b00;
+    font-size: 13px;
+}
+
+.afl-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.afl-status.is-active    { background: #dff3e6; color: #17803d; }
+.afl-status.is-completed { background: #ece3c7; color: #7a6a3a; }
+.afl-status.is-deleted   { background: #fdeaea; color: #b42318; }
+
+.afl-flag {
+    display: block;
+    margin-top: 4px;
+    color: #d96f00;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.afl-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.afl-icon-btn {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 8px;
+    background: #fff;
+    color: #5a1b00;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.afl-icon-btn img {
+    width: 14px;
+    height: 14px;
+}
+
+.afl-icon-btn:hover {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+.afl-icon-btn.is-danger {
+    border-color: rgba(214, 40, 40, 0.35);
+    color: #d62828;
+}
+
+.afl-icon-btn.is-danger:hover {
+    border-color: #d62828;
+    background: #fdeaea;
+}
+
+.afl-muted {
+    color: rgba(90, 27, 0, 0.4);
+}
+
+/* the pending behavioral review sits under its row */
+.afl-item .admin-foster-behavior-review {
+    display: grid;
+    gap: 12px;
+    margin: 0 18px 14px;
+    padding: 14px 16px;
+    border: 1px dashed rgba(251, 133, 0, 0.45);
+    border-radius: 12px;
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.afl-item .admin-foster-behavior-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.afl-item .admin-foster-behavior-heading span {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #d96f00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.afl-item .admin-foster-behavior-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.afl-item .admin-foster-behavior-grid > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #fff7cb;
+    font-size: 12px;
+}
+
+.afl-item .admin-foster-behavior-grid strong {
+    font-weight: 600;
+}
+
+.afl-item .admin-foster-behavior-grid span {
+    font-weight: 800;
+}
+
+.afl-item .admin-foster-behavior-notes p {
+    margin: 4px 0 0;
+    font-size: 13px;
+}
+
+.afl-item .admin-foster-behavior-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    color: rgba(90, 27, 0, 0.65);
+    font-size: 12px;
+}
+
+.afl-item .admin-foster-behavior-review > button {
+    justify-self: start;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #fb8500;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.afl-item .admin-foster-behavior-review > button:hover {
+    background: #d96f00;
+}
+
+/* tablets/phones: stack each row as a card */
+@media (max-width: 900px) {
+    .afl-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .afl-head {
+        display: none;
+    }
+
+    .afl-row {
+        grid-template-columns: 1fr 1fr;
+        row-gap: 10px;
+    }
+
+    .afl-pet,
+    .afl-foster {
+        grid-column: 1 / -1;
+    }
+
+    .afl-cell::before {
+        content: attr(data-label);
+        display: block;
+        color: rgba(90, 27, 0, 0.6);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .afl-actions {
+        justify-content: flex-start;
+    }
+
+    .afl-item .admin-foster-behavior-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
