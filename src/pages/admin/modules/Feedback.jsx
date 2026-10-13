@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { isAdmin } from "../../../utils/auth";
 
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
@@ -409,17 +410,19 @@ export default function Feedback() {
                                                     </button>
                                                 )}
 
-                                                <button
-                                                    type="button"
-                                                    className="danger"
-                                                    onClick={() =>
-                                                        deleteFeedback(
-                                                            item._id
-                                                        )
-                                                    }
-                                                >
-                                                    Delete
-                                                </button>
+                                                {isAdmin() && (
+                                                    <button
+                                                        type="button"
+                                                        className="danger"
+                                                        onClick={() =>
+                                                            deleteFeedback(
+                                                                item._id
+                                                            )
+                                                        }
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

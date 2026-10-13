@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { isAdmin } from "../../../utils/auth";
 
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
@@ -459,13 +460,15 @@ export default function Donations() {
                                             </button>
                                         )}
 
-                                        <button
-                                            type="button"
-                                            className="delete"
-                                            onClick={() => handleDeleteDonation(donation._id)}
-                                        >
-                                            Delete
-                                        </button>
+                                        {isAdmin() && (
+                                            <button
+                                                type="button"
+                                                className="delete"
+                                                onClick={() => handleDeleteDonation(donation._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
                                     </div>
                                 </article>
                             ))}

@@ -278,7 +278,8 @@ export default function AdminDashboard({ setPage }) {
                 newNotifications.push({
                     id: "completed-fosters",
                     title: "Completed Foster Assignment",
-                    message: `${activeFosters.length} foster assignment(s) completed.`,
+                    message: `${completedFosters.length} foster assignment(s) completed.`,
+                    page: "foster-care",
                 });
             }
 

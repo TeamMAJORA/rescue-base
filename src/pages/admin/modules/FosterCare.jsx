@@ -1,6 +1,7 @@
 import {
     useEffect, useState
 } from "react"
+import { isAdmin } from "../../../utils/auth";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -214,7 +215,7 @@ export default function FosterCare() {
             setMessage("");
 
             const response = await fetch(
-                `${API}/api/foster/assignments/${id}/bevahior-evaluation/accept`,
+                `${API}/api/foster/assignments/${id}/behavior-evaluation/accept`,
                 {
                     method: "PATCH",
                     headers: {
@@ -1213,17 +1214,19 @@ export default function FosterCare() {
                                                 </button>
                                             )}
 
-                                            <button
-                                                type="button"
-                                                className="delete"
-                                                onClick={() =>
-                                                    handleDeleteAssignment(
-                                                        assignment._id
-                                                    )
-                                                }
-                                            >
-                                                Delete
-                                            </button>
+                                            {isAdmin() && (
+                                                <button
+                                                    type="button"
+                                                    className="delete"
+                                                    onClick={() =>
+                                                        handleDeleteAssignment(
+                                                            assignment._id
+                                                        )
+                                                    }
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
                                         </>
                                     )}
 
