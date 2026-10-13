@@ -1405,3 +1405,324 @@
         position: static;
     }
 }
+
+/* ===== Foster application review modal ===== */
+.afr-modal {
+    width: min(680px, 100%);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(90, 27, 0, 0.15);
+    border-radius: 22px;
+    background: #fffaf0;
+    box-shadow: 0 24px 60px rgba(58, 18, 0, 0.3);
+    color: #5a1b00;
+}
+
+.afr-modal .ao-icon {
+    flex-shrink: 0;
+}
+
+/* header */
+.afr-head {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 22px 26px;
+    background:
+        radial-gradient(circle at right top, rgba(252, 191, 73, 0.4), transparent 55%),
+        #fff3d0;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.afr-avatar {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+    box-shadow: 0 0 0 5px #fff, 0 6px 16px rgba(251, 133, 0, 0.3);
+}
+
+.afr-who {
+    min-width: 0;
+}
+
+.afr-eyebrow {
+    display: block;
+    color: #b42318;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.afr-who h2 {
+    margin: 2px 0 4px;
+    overflow: hidden;
+    font-family: "Itim", cursive;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.afr-who small {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(90, 27, 0, 0.75);
+    font-size: 13px;
+}
+
+.afr-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.afr-pill i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.afr-pill.is-pending  { color: #d96f00; }
+.afr-pill.is-approved { color: #17803d; }
+.afr-pill.is-rejected { color: #b42318; }
+
+.afr-close {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    align-self: start;
+    border: none;
+    border-radius: 50%;
+    background: #fff;
+    color: #5a1b00;
+    box-shadow: 0 4px 12px rgba(90, 27, 0, 0.15);
+    cursor: pointer;
+}
+
+.afr-close:hover {
+    background: #5a1b00;
+    color: #fcbf49;
+}
+
+/* body */
+.afr-body {
+    display: grid;
+    gap: 14px;
+    padding: 20px 26px;
+    overflow-y: auto;
+}
+
+.afr-facts {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.afr-fact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+}
+
+.afr-fact-icon {
+    flex: 0 0 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 9px;
+    background: #fff;
+    color: #d96f00;
+}
+
+.afr-fact-icon img {
+    width: 16px;
+    height: 16px;
+}
+
+.afr-fact small {
+    display: block;
+    color: rgba(90, 27, 0, 0.6);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.afr-fact b {
+    display: block;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.afr-why {
+    padding: 16px 18px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+}
+
+.afr-modal .afr-why h3 {
+    margin: 0 0 6px;
+    font-family: "Itim", cursive;
+    color: #5a1b00;
+    font-size: 20px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.afr-why p {
+    margin: 0;
+    color: rgba(90, 27, 0, 0.85);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.afr-more summary {
+    color: #d96f00;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.afr-more[open] summary {
+    margin-bottom: 10px;
+}
+
+.afr-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+}
+
+.afr-note.is-pending,
+.afr-note.is-approved { background: #e4f3e9; color: #17803d; }
+.afr-note.is-rejected { background: #fdeaea; color: #b42318; }
+
+/* footer */
+.afr-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 26px;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+    background: #fffdf6;
+}
+
+.afr-foot-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.afr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 22px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.afr-btn.is-ghost {
+    border: 1.5px solid #5a1b00;
+    background: #fff;
+    color: #5a1b00;
+}
+
+.afr-btn.is-ghost:hover {
+    background: #fff7cb;
+}
+
+.afr-btn.is-reject {
+    border: 1.5px solid rgba(180, 35, 24, 0.6);
+    background: #fff;
+    color: #b42318;
+}
+
+.afr-btn.is-reject:hover {
+    background: #fdeaea;
+}
+
+.afr-btn.is-approve {
+    border: none;
+    background: #2f8f5b;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(47, 143, 91, 0.3);
+}
+
+.afr-btn.is-approve:hover {
+    background: #257549;
+    transform: translateY(-1px);
+}
+
+/* small screens */
+@media (max-width: 640px) {
+    .afr-head {
+        grid-template-columns: 52px minmax(0, 1fr) auto;
+        padding: 18px;
+    }
+
+    .afr-avatar {
+        width: 52px;
+        height: 52px;
+        font-size: 16px;
+    }
+
+    .afr-pill {
+        grid-column: 2;
+        grid-row: 2;
+        justify-self: start;
+    }
+
+    .afr-close {
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .afr-facts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .afr-body,
+    .afr-foot {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+}

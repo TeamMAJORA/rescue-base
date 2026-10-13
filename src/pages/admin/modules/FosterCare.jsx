@@ -23,7 +23,7 @@ const emptyAssignmentForm = {
 };
 
 
-// Icons reused from the Animal pages (IntakeRecords / AnimalProfiles)
+// Update icons here, add nako sa public and mga svgs later
 const STAT_ICONS = {
     check: <path d="M20 6 9 17l-5-5" />,
     home: <path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
@@ -51,6 +51,28 @@ const STAT_ICONS = {
             <path d="M8 6V4h8v2" />
             <path d="M19 6l-1 14H6L5 6" />
             <path d="M10 11v6M14 11v6" />
+        </>
+    ),
+
+        // reused from AdoptionApplications review modal
+    mail: (
+        <>
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3 7 9 6 9-6" />
+        </>
+    ),
+    calendar: (
+        <>
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M3 10h18M8 3v4M16 3v4" />
+        </>
+    ),
+    x: <path d="M7 7l10 10M17 7 7 17" />,
+    // new: small "i" for the info note
+    info: (
+        <>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v5M12 8h.01" />
         </>
     ),
 };
@@ -1192,96 +1214,181 @@ export default function FosterCare() {
                     onClick={() => setReviewingApplication(null)}
                 >
                     <div
-                        className="admin-modal afa-modal"
+                        className="afr-modal"
                         role="dialog"
                         aria-modal="true"
                         aria-label={`Review ${reviewingApplication.applicantName}`}
                         onClick={(event) => event.stopPropagation()}
                     >
-                        <button
-                            type="button"
-                            className="admin-modal-close"
-                            onClick={() => setReviewingApplication(null)}
-                            aria-label="Close"
-                        >
-                            ×
-                        </button>
-
-                        <div className="afa-modal-head">
-                            <span className="afc-initials">
+                        {/* Header */}
+                        <header className="afr-head">
+                            <span className="afr-avatar" aria-hidden="true">
                                 {getInitials(reviewingApplication.applicantName)}
                             </span>
-                            <div>
+
+                            <div className="afr-who">
+                                <span className="afr-eyebrow">Foster Application</span>
                                 <h2>{reviewingApplication.applicantName}</h2>
-                                <small>{reviewingApplication.applicantEmail}</small>
+                                <small>
+                                    <StatIcon name="mail" size={14} />
+                                    {reviewingApplication.applicantEmail}
+                                </small>
                             </div>
-                            <span className={`afa-status is-${reviewingApplication.status}`}>
-                                {reviewingApplication.status}
+
+                            <span className={`afr-pill is-${reviewingApplication.status}`}>
+                                <i aria-hidden="true" />
+                                {reviewingApplication.status === "pending"
+                                    ? "Pending review"
+                                    : reviewingApplication.status}
                             </span>
+
+                            <button
+                                type="button"
+                                className="afr-close"
+                                onClick={() => setReviewingApplication(null)}
+                                aria-label="Close"
+                            >
+                                <StatIcon name="x" size={16} />
+                            </button>
+                        </header>
+
+                        {/* Body */}
+                        <div className="afr-body">
+                            <div className="afr-facts">
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <img src="/icons/User-brown.svg" alt="" />
+                                    </span>
+                                    <div>
+                                        <small>Requested role</small>
+                                        <b>Foster</b>
+                                    </div>
+                                </div>
+
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="calendar" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Applied on</small>
+                                        <b>
+                                            {reviewingApplication.createdAt
+                                                ? new Date(reviewingApplication.createdAt).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric",
+                                                })
+                                                : "—"}
+                                        </b>
+                                    </div>
+                                </div>
+
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="home" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Capacity</small>
+                                        <b>
+                                            {reviewingApplication.capacity || 1}{" "}
+                                            {(reviewingApplication.capacity || 1) === 1 ? "animal" : "animals"}
+                                        </b>
+                                    </div>
+                                </div>
+
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="paw" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Prefers</small>
+                                        <b>
+                                            {PREFERS_LABEL[reviewingApplication.preferredAnimalType] ||
+                                                reviewingApplication.preferredAnimalType ||
+                                                "Any"}
+                                        </b>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="afr-why">
+                                <h3>Why they want to foster</h3>
+                                <p>
+                                    {reviewingApplication.notes ||
+                                        reviewingApplication.fosterExperience ||
+                                        "No reason given."}
+                                </p>
+                            </div>
+
+                            {/* Everything else from the application, folded away */}
+                            <details className="afr-more">
+                                <summary>Full application details</summary>
+
+                                <div className="afa-detail-grid">
+                                    <p><span>Phone</span>{reviewingApplication.phoneNumber || "—"}</p>
+                                    <p><span>Address</span>{reviewingApplication.address || "—"}</p>
+                                    <p><span>Housing</span>{reviewingApplication.housingType || "—"}</p>
+                                    <p><span>Available space</span>{reviewingApplication.availableSpace || "—"}</p>
+                                    <p><span>Has pets</span>{yesNo(reviewingApplication.hasPets)}</p>
+                                    <p><span>Has children</span>{yesNo(reviewingApplication.hasChildren)}</p>
+                                    <p><span>Duration</span>{reviewingApplication.fosterDuration || "—"}</p>
+                                    <p><span>Preferred size</span>{reviewingApplication.preferredSize || "—"}</p>
+                                    <p><span>Available time</span>{reviewingApplication.availableTime || "—"}</p>
+                                    <p><span>Experience</span>{reviewingApplication.fosterExperience || "—"}</p>
+                                    <p><span>Emergency contact</span>{reviewingApplication.emergencyName || "—"}</p>
+                                    <p>
+                                        <span>Emergency phone</span>
+                                        {reviewingApplication.emergencyPhone || "—"}
+                                        {reviewingApplication.emergencyRelationship
+                                            ? ` (${reviewingApplication.emergencyRelationship})`
+                                            : ""}
+                                    </p>
+                                </div>
+                            </details>
+
+                            <p className={`afr-note is-${reviewingApplication.status}`}>
+                                <StatIcon name="info" size={16} />
+                                {reviewingApplication.status === "approved"
+                                    ? `${reviewingApplication.applicantName.split(" ")[0]} is an approved foster. Use Assign in the list to place an animal.`
+                                    : reviewingApplication.status === "rejected"
+                                        ? "This application was rejected. Approving it now will make them an approved foster."
+                                        : `Approving makes ${reviewingApplication.applicantName.split(" ")[0]} an approved foster. You can then assign animals from the list.`}
+                            </p>
                         </div>
 
-                        <h3 className="afa-modal-title">Home</h3>
-                        <div className="afa-detail-grid">
-                            <p><span>Phone</span>{reviewingApplication.phoneNumber || "—"}</p>
-                            <p><span>Address</span>{reviewingApplication.address || "—"}</p>
-                            <p><span>Housing</span>{reviewingApplication.housingType || "—"}</p>
-                            <p><span>Available space</span>{reviewingApplication.availableSpace || "—"}</p>
-                            <p><span>Has pets</span>{yesNo(reviewingApplication.hasPets)}</p>
-                            <p><span>Has children</span>{yesNo(reviewingApplication.hasChildren)}</p>
-                        </div>
+                        {/* Footer */}
+                        <footer className="afr-foot">
+                            <button
+                                type="button"
+                                className="afr-btn is-ghost"
+                                onClick={() => setReviewingApplication(null)}
+                            >
+                                Close
+                            </button>
 
-                        <h3 className="afa-modal-title">Fostering</h3>
-                        <div className="afa-detail-grid">
-                            <p><span>Capacity</span>{reviewingApplication.capacity || 1}</p>
-                            <p><span>Duration</span>{reviewingApplication.fosterDuration || "—"}</p>
-                            <p><span>Prefers</span>{reviewingApplication.preferredAnimalType || "—"}</p>
-                            <p><span>Preferred size</span>{reviewingApplication.preferredSize || "—"}</p>
-                            <p><span>Available time</span>{reviewingApplication.availableTime || "—"}</p>
-                            <p><span>Experience</span>{reviewingApplication.fosterExperience || "—"}</p>
-                        </div>
+                            <div className="afr-foot-actions">
+                                {reviewingApplication.status === "pending" && (
+                                    <button
+                                        type="button"
+                                        className="afr-btn is-reject"
+                                        onClick={() => decideFromReview("rejected")}
+                                    >
+                                        Reject
+                                    </button>
+                                )}
 
-                        <h3 className="afa-modal-title">Emergency contact</h3>
-                        <div className="afa-detail-grid">
-                            <p><span>Name</span>{reviewingApplication.emergencyName || "—"}</p>
-                            <p><span>Relationship</span>{reviewingApplication.emergencyRelationship || "—"}</p>
-                            <p><span>Phone</span>{reviewingApplication.emergencyPhone || "—"}</p>
-                        </div>
-
-                        {reviewingApplication.notes && (
-                            <>
-                                <h3 className="afa-modal-title">Notes</h3>
-                                <p className="afa-notes">{reviewingApplication.notes}</p>
-                            </>
-                        )}
-
-                        <div className="afa-modal-actions">
-                            {reviewingApplication.status === "pending" && (
-                                <button
-                                    type="button"
-                                    className="afc-reject"
-                                    onClick={() => decideFromReview("rejected")}
-                                >
-                                    Reject
-                                </button>
-                            )}
-
-                            {reviewingApplication.status !== "approved" && (
-                                <button
-                                    type="button"
-                                    className="afc-approve"
-                                    onClick={() => decideFromReview("approved")}
-                                >
-                                    <StatIcon name="check" size={13} />
-                                    Approve
-                                </button>
-                            )}
-
-                            {reviewingApplication.status === "approved" && (
-                                <span className="afa-modal-note">
-                                    This foster is approved. Use Assign to place an animal.
-                                </span>
-                            )}
-                        </div>
+                                {reviewingApplication.status !== "approved" && (
+                                    <button
+                                        type="button"
+                                        className="afr-btn is-approve"
+                                        onClick={() => decideFromReview("approved")}
+                                    >
+                                        <StatIcon name="check" size={16} />
+                                        Approve
+                                    </button>
+                                )}
+                            </div>
+                        </footer>
                     </div>
                 </div>
             )}
@@ -1588,7 +1695,7 @@ export default function FosterCare() {
             </section>
             </aside>
             </div>
-            
+
             {reviewingRequest && (
                 <div
                     className="admin-modal-overlay"
