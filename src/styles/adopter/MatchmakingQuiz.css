@@ -642,3 +642,681 @@
         padding: 16px 40px 32px;
     }
 }
+
+/* ===== Step cards: numbered heading ===== */
+.matchmaking-step-heading {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.matchmaking-step-heading .mqs-num {
+    grid-row: span 2;
+    align-self: start;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.matchmaking-step-heading h3 {
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.matchmaking-step-heading p {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ===== Choice-button form (step 1) ===== */
+.mqs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+}
+
+.mqs-full {
+    grid-column: 1 / -1;
+}
+
+.mqs-field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mqs-label {
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mqs-label em {
+    color: #d62828;
+    font-style: normal;
+}
+
+/* box style: equal-width buttons */
+.mqs-choices {
+    gap: 8px;
+}
+
+.mqs-choices button {
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 10px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.mqs-choices button:hover {
+    border-color: #fb8500;
+    background: #ffeeb0;
+}
+
+.mqs-choices button.is-selected {
+    border-color: #fb8500;
+    background: linear-gradient(90deg, #fb8500, #ffa63d);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.28);
+}
+
+.mqs-choices button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.mqs-choices.is-pill button {
+    min-height: 38px;
+    padding: 7px 16px;
+    border-radius: 999px;
+}
+
+/* "What are you looking for?" divider */
+.mqs-subhead {
+    margin: 6px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+@media (max-width: 700px) {
+    .mqs-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Choice buttons: compact width + softer colors ===== */
+.mqs-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mqs-choices button {
+    flex: 0 0 auto;
+    min-width: 110px;
+    min-height: 38px;
+    padding: 7px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    background: #fffdf7;
+    color: #5a1b00;
+    font-weight: 600;
+}
+
+.mqs-choices button:hover {
+    border-color: rgba(251, 133, 0, 0.55);
+    background: #fff7e6;
+}
+
+.mqs-choices button.is-selected {
+    border-color: #fb8500;
+    background: #ffe9cc;
+    color: #8a3a00;
+    font-weight: 800;
+    box-shadow: inset 0 0 0 1px #fb8500;
+}
+
+.mqs-choices.is-pill button {
+    min-width: 0;
+}
+
+@media (max-width: 700px) {
+    .mqs-choices {
+        display: flex;
+    }
+
+    .mqs-choices button {
+        flex: 1 1 auto;
+    }
+}
+
+/* ===== Layout: step card on the left, "Why we ask" card on the right ===== */
+.matchmaking-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 290px;
+    column-gap: 20px;
+    align-items: start;
+}
+
+.matchmaking-form > * {
+    grid-column: 1;
+}
+
+.matchmaking-form > .mq-why {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    position: sticky;
+    top: 20px;
+}
+
+/* ===== "Why we ask" card ===== */
+.mq-why {
+    padding: 22px 22px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
+}
+
+.mq-why-eyebrow {
+    display: block;
+    color: #d62828;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mq-why h3 {
+    margin: 4px 0 14px;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.mq-why ul {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mq-why li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #75432f;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.mq-why-check {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: #e4f3e9;
+}
+
+.mq-why-check svg {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: #17803d;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* stack on smaller screens: card goes below the buttons */
+@media (max-width: 1000px) {
+    .matchmaking-form {
+        grid-template-columns: 1fr;
+    }
+
+    .matchmaking-form > .mq-why {
+        grid-column: 1;
+        grid-row: auto;
+        position: static;
+        margin-top: 18px;
+    }
+}
+
+/* ===== One-question-at-a-time card ===== */
+.mq-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 22px 30px 26px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
+    text-align: center;
+    animation: mq-card-in 0.25s ease;
+}
+
+@keyframes mq-card-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* "3 / 18" + thin bar */
+.mq-card-count {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.mq-card-count span {
+    flex-shrink: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 20px;
+}
+
+.mq-card-count b {
+    color: #fb8500;
+    font-weight: 400;
+}
+
+.mq-card-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 999px;
+    background: #ebe3b6;
+    overflow: hidden;
+}
+
+.mq-card-bar > div {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #fb8500, #ffa63d);
+    transition: width 0.3s ease;
+}
+
+.mq-card-chip {
+    padding: 5px 12px;
+    border: 1px solid rgba(214, 40, 40, 0.25);
+    border-radius: 999px;
+    background: #fffdf7;
+    color: #d62828;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mq-card-title {
+    max-width: 560px;
+    margin: 14px 0 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: clamp(26px, 2.6vw, 34px);
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.mq-card-hint {
+    margin: 8px 0 20px;
+    color: #75432f;
+    font-size: 13px;
+}
+
+/* answer list */
+.mq-options {
+    width: 100%;
+    max-width: 560px;
+    display: grid;
+    gap: 10px;
+}
+
+.mq-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 14px;
+    background: #fffdf7;
+    color: #5a1b00;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mq-option:hover {
+    border-color: rgba(251, 133, 0, 0.55);
+    background: #fff7e6;
+}
+
+.mq-option.is-selected {
+    border-color: #fb8500;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px #fb8500, 0 6px 14px rgba(251, 133, 0, 0.12);
+}
+
+.mq-option:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.mq-option-dot {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    border: 2px solid rgba(251, 133, 0, 0.45);
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+.mq-option.is-selected .mq-option-dot {
+    border-color: #fb8500;
+    background: #fb8500;
+}
+
+.mq-option-dot img {
+    width: 11px;
+    height: 8px;
+}
+
+.mq-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.mq-option-text b {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.mq-option-text small {
+    color: #86604d;
+    font-size: 12px;
+}
+
+@media (max-width: 700px) {
+    .mq-card {
+        padding: 18px 16px 20px;
+    }
+}
+
+/* ===== Small animations ===== */
+
+/* answers slide in one after another */
+.mq-option {
+    animation: mq-option-in 0.35s ease both;
+}
+
+.mq-option:nth-child(1) { animation-delay: 0.05s; }
+.mq-option:nth-child(2) { animation-delay: 0.10s; }
+.mq-option:nth-child(3) { animation-delay: 0.15s; }
+.mq-option:nth-child(4) { animation-delay: 0.20s; }
+.mq-option:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes mq-option-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* title and chip fade in with the card */
+.mq-card-chip,
+.mq-card-title,
+.mq-card-hint {
+    animation: mq-fade-in 0.35s ease both;
+}
+
+@keyframes mq-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* selected answer: small bump + checkmark pop */
+.mq-option.is-selected {
+    animation: mq-option-pick 0.25s ease;
+}
+
+@keyframes mq-option-pick {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.015); }
+    100% { transform: scale(1); }
+}
+
+.mq-option.is-selected .mq-option-dot img {
+    animation: mq-check-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes mq-check-pop {
+    from { opacity: 0; transform: scale(0.3); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* current step in the tracker pulses softly */
+.mq-step.is-active .mq-step-dot {
+    animation: mq-step-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes mq-step-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 133, 0, 0.35); }
+    50% { box-shadow: 0 0 0 7px rgba(251, 133, 0, 0); }
+}
+
+/* buttons lift a little on hover */
+.matchmaking-back-button:hover:not(:disabled),
+.matchmaking-next-button:hover:not(:disabled),
+.matchmaking-submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+/* respect "reduce motion" in the user's device settings */
+@media (prefers-reduced-motion: reduce) {
+    .mq-card,
+    .mq-option,
+    .mq-card-chip,
+    .mq-card-title,
+    .mq-card-hint,
+    .mq-option.is-selected,
+    .mq-option.is-selected .mq-option-dot img,
+    .mq-step.is-active .mq-step-dot {
+        animation: none;
+    }
+}
+
+/* ===== Preferences: paw slider ===== */
+.mq-slider {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 22px 18px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 18px;
+    background: #fffdf7;
+}
+
+/* big level label that pops when it changes */
+.mq-slider-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    animation: mq-value-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mq-slider-value b {
+    color: #fb8500;
+    font-family: "Itim", cursive;
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.mq-slider-value small {
+    color: #86604d;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+@keyframes mq-value-pop {
+    0% { opacity: 0; transform: scale(0.7) translateY(4px); }
+    100% { opacity: 1; transform: none; }
+}
+
+/* the track */
+.mq-slider input[type="range"] {
+    width: 100%;
+    height: 10px;
+    margin: 6px 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 999px;
+    outline: none;
+    background: linear-gradient(
+        90deg,
+        #fb8500 0%,
+        #ffa63d var(--fill),
+        #ebe3b6 var(--fill),
+        #ebe3b6 100%
+    );
+    cursor: pointer;
+}
+
+/* the thumb: orange circle with your white paw */
+.mq-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 34px;
+    height: 34px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    background: #fb8500 url("/icons/sidebar/brown%20paw-light.svg") no-repeat center / 16px;
+    box-shadow: 0 4px 12px rgba(251, 133, 0, 0.4);
+    cursor: grab;
+    transition: transform 0.15s ease;
+}
+
+.mq-slider input[type="range"]::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    background: #fb8500 url("/icons/sidebar/brown%20paw-light.svg") no-repeat center / 16px;
+    box-shadow: 0 4px 12px rgba(251, 133, 0, 0.4);
+    cursor: grab;
+}
+
+.mq-slider input[type="range"]:hover::-webkit-slider-thumb {
+    transform: scale(1.08);
+}
+
+/* little wiggle while dragging */
+.mq-slider input[type="range"]:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    animation: mq-paw-wiggle 0.4s ease-in-out infinite;
+}
+
+@keyframes mq-paw-wiggle {
+    0%, 100% { transform: scale(1.12) rotate(0deg); }
+    25% { transform: scale(1.12) rotate(-12deg); }
+    75% { transform: scale(1.12) rotate(12deg); }
+}
+
+.mq-slider input[type="range"]:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.3);
+}
+
+/* clickable labels under the track,
+   sized so each label sits right under its thumb position */
+.mq-slider-ticks {
+    width: calc(125% - 42.5px);
+    margin-left: calc(21.25px - 12.5%);
+    align-self: flex-start;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.mq-slider-ticks button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: #b3a27a;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.mq-slider-ticks button span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ebe3b6;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.mq-slider-ticks button.is-on {
+    color: #8a3a00;
+}
+
+.mq-slider-ticks button.is-on span {
+    background: #fb8500;
+    transform: scale(1.2);
+}
+
+.mq-slider-ticks button:hover span {
+    transform: scale(1.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mq-slider-value,
+    .mq-slider input[type="range"]:active::-webkit-slider-thumb {
+        animation: none;
+    }
+}
