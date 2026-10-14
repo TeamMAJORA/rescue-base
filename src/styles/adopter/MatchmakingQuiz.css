@@ -1250,18 +1250,6 @@
     transform: scale(1.08);
 }
 
-/* little wiggle while dragging */
-.mq-slider input[type="range"]:active::-webkit-slider-thumb {
-    cursor: grabbing;
-    animation: mq-paw-wiggle 0.4s ease-in-out infinite;
-}
-
-@keyframes mq-paw-wiggle {
-    0%, 100% { transform: scale(1.12) rotate(0deg); }
-    25% { transform: scale(1.12) rotate(-12deg); }
-    75% { transform: scale(1.12) rotate(12deg); }
-}
-
 .mq-slider input[type="range"]:focus-visible::-webkit-slider-thumb {
     box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.3);
 }
@@ -1317,6 +1305,40 @@
 @media (prefers-reduced-motion: reduce) {
     .mq-slider-value,
     .mq-slider input[type="range"]:active::-webkit-slider-thumb {
+        animation: none;
+    }
+}
+
+/* ===== Paw wiggle: stronger and faster at higher levels ===== */
+.mq-slider input[type="range"]::-webkit-slider-thumb {
+    animation: mq-paw-wiggle var(--wiggle-speed, 0.7s) ease-in-out infinite;
+}
+
+.mq-slider input[type="range"]::-moz-range-thumb {
+    animation: mq-paw-wiggle var(--wiggle-speed, 0.7s) ease-in-out infinite;
+}
+
+/* dragging: slightly bigger */
+.mq-slider input[type="range"]:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    scale: 1.12;
+}
+
+@keyframes mq-paw-wiggle {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(calc(var(--wiggle, 10deg) * -1)) scale(var(--wiggle-bounce, 1));
+    }
+    75% {
+        transform: rotate(var(--wiggle, 10deg)) scale(var(--wiggle-bounce, 1));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mq-slider input[type="range"]::-webkit-slider-thumb,
+    .mq-slider input[type="range"]::-moz-range-thumb {
         animation: none;
     }
 }

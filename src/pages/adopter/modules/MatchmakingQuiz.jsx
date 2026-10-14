@@ -482,7 +482,12 @@ export default function MatchmakingQuiz({
                                 onChange={(event) => chooseAnswer(Number(event.target.value))}
                                 aria-label={question.title}
                                 aria-valuetext={factorLabels[form[question.name]]}
-                                style={{ "--fill": `${(form[question.name] - 1) * 25}%` }}
+                                style={{
+                                    "--fill": `${(form[question.name] - 1) * 25}%`,
+                                    "--wiggle": `${[0, 4, 8, 13, 19, 26][form[question.name]]}deg`,
+                                    "--wiggle-speed": `${[0, 1.2, 0.9, 0.7, 0.5, 0.32][form[question.name]]}s`,
+                                    "--wiggle-bounce": form[question.name] === 5 ? 1.12 : 1,
+                                }}
                             />
 
                             <div className="mq-slider-ticks">
