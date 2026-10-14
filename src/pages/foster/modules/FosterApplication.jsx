@@ -2,6 +2,15 @@ import { useState } from "react";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+// Lock icon (same one the adoption form uses for account fields)
+function LockIcon() {
+    return (
+        <svg className="ffc-lock-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="10" rx="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
+    );
+}
 export default function FosterApplication() {
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
@@ -129,56 +138,76 @@ export default function FosterApplication() {
                 onSubmit={handleSubmit}
             >
 
-                <section className="foster-form-card">
-                    <h3>Personal Information</h3>
-                    <div className="foster-form-grid">
+                <section className="foster-form-card ffc-card">
+                    <div className="ffc-head">
+                        <b className="ffc-step">1</b>
+                        <div>
+                            <h3>Personal Information</h3>
+                            <p>Taken from your RescueBase account. Only the phone and address need filling in.</p>
+                        </div>
+                    </div>
 
+                    <div className="foster-form-grid">
                         <label>
                             Full Name
-                            <input
-                                type="text"
-                                name="fullName"
-                                value={form.fullName}
-                                onChange={handleChange}
-                                required
-                            />
-
+                            <span className="ffc-locked">
+                                <input
+                                    type="text"
+                                    name="fullName"
+                                    value={form.fullName}
+                                    readOnly
+                                    required
+                                />
+                                <LockIcon />
+                            </span>
                         </label>
 
                         <label>
-                            Email
-                            <input
-                                type="email"
-                                name="email"
-                                value={form.email}
-                                onChange={handleChange}
-                                required
-                            />
+                            Email Address
+                            <span className="ffc-locked">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={form.email}
+                                    readOnly
+                                    required
+                                />
+                                <LockIcon />
+                            </span>
                         </label>
 
                         <label>
-                            Phone Number
-                            <input
-                                type="text"
-                                name="phone"
-                                value={form.phone}
-                                onChange={handleChange}
-                                required
-                            />
+                            <span>
+                                Phone Number <em className="ffc-required">*</em>
+                            </span>
+                            <span className="ffc-phone">
+                                <span className="ffc-phone-prefix">+63</span>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    inputMode="numeric"
+                                    value={form.phone}
+                                    onChange={handleChange}
+                                    placeholder="9XX XXX XXXX"
+                                    required
+                                />
+                            </span>
                         </label>
 
                         <label>
-                            Address
+                            <span>
+                                Address <em className="ffc-required">*</em>
+                            </span>
                             <input
                                 type="text"
                                 name="address"
                                 value={form.address}
                                 onChange={handleChange}
+                                placeholder="House no., street, barangay, city"
                                 required
                             />
                         </label>
                     </div>
-
                 </section>
 
                 <section className="foster-form-card">

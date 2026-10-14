@@ -160,3 +160,142 @@
 
 }
 
+/* ===== Personal Information card (same look as the adoption form) ===== */
+.foster-form-card.ffc-card {
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    background: #fffaf0;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.07);
+}
+
+.ffc-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ffc-step {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.foster-form-card.ffc-card .ffc-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #5a1b00;
+}
+
+.ffc-head p {
+    margin: 4px 0 0;
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* labels + inputs in the theme colors */
+.ffc-card .foster-form-grid label {
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ffc-card .foster-form-grid input {
+    border-color: rgba(251, 133, 0, 0.28);
+    background: #fff7d6;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.ffc-card .foster-form-grid input::placeholder {
+    color: #b3967f;
+}
+
+.ffc-card .foster-form-grid input:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.ffc-required {
+    color: #d62828;
+    font-style: normal;
+}
+
+/* locked (account) fields */
+.ffc-locked {
+    position: relative;
+    display: block;
+}
+
+.ffc-card .ffc-locked input[readonly] {
+    padding-right: 38px;
+    border-color: rgba(90, 27, 0, 0.12);
+    background: #f6efd6;
+    color: #7b6658;
+    cursor: default;
+}
+
+.ffc-card .ffc-locked input[readonly]:focus {
+    border-color: rgba(90, 27, 0, 0.12);
+    box-shadow: none;
+}
+
+.ffc-lock-icon {
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    width: 15px;
+    height: 15px;
+    transform: translateY(-50%);
+    fill: none;
+    stroke: #a07c66;
+    stroke-width: 2;
+    stroke-linecap: round;
+    pointer-events: none;
+}
+
+/* +63 phone field */
+.ffc-phone {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 12px;
+    background: #fff7d6;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ffc-phone:focus-within {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.ffc-phone-prefix {
+    display: grid;
+    place-items: center;
+    padding: 0 14px;
+    border-right: 1px solid rgba(251, 133, 0, 0.28);
+    background: #ffeeb8;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.ffc-card .ffc-phone input,
+.ffc-card .ffc-phone input:focus {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
