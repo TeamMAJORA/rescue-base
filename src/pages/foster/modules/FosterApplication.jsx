@@ -1,4 +1,5 @@
 import { useState } from "react";
+import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -9,6 +10,26 @@ function LockIcon() {
             <rect x="5" y="11" width="14" height="10" rx="2" />
             <path d="M8 11V8a4 4 0 0 1 8 0v3" />
         </svg>
+    );
+}
+
+// Row of pill buttons that works like a radio group
+function ChoiceGroup({ name, value, options, onPick, label }) {
+    return (
+        <div className="ffc-choices" role="radiogroup" aria-label={label}>
+            {options.map((option) => (
+                <button
+                    key={option}
+                    type="button"
+                    role="radio"
+                    aria-checked={value === option}
+                    className={value === option ? "is-selected" : ""}
+                    onClick={() => onPick(name, option)}
+                >
+                    {option}
+                </button>
+            ))}
+        </div>
     );
 }
 export default function FosterApplication() {
@@ -52,6 +73,11 @@ export default function FosterApplication() {
                     ? checked
                     : value,
         }));
+    }
+
+        // Used by the choice buttons (Household card)
+    function pickChoice(name, value) {
+        setForm((prev) => ({ ...prev, [name]: value }));
     }
 
     async function handleSubmit(e) {
@@ -210,63 +236,71 @@ export default function FosterApplication() {
                     </div>
                 </section>
 
-                <section className="foster-form-card">
-                    <h3>Household Information</h3>
-                    <div className="foster-form-grid">
-                        <label>
-                            Home Type
-                            <select
-                                name="homeType"
-                                value={form.homeType}
-                                onChange={handleChange}
-                            >
-                                <option>House</option>
-                                <option>Apartment</option>
-                                <option>Condo</option>
-                                <option>Boarding House</option>
-                            </select>
-                        </label>
-
-                        <label>
-                            Children
-                            <select
-                                name="hasChildren"
-                                value={form.hasChildren}
-                                onChange={handleChange}
-                            >
-                                <option>No</option>
-                                <option>Yes</option>
-
-                            </select>
-
-                        </label>
-
-                        <label>
-                            Existing Pets
-                            <select
-                                name="hasPets"
-                                value={form.hasPets}
-                                onChange={handleChange}
-                            >
-                                <option>No</option>
-                                <option>Yes</option>
-                            </select>
-
-                        </label>
-
-                        <label>
-                            Pet Friendly Home
-                            <select
-                                name="petFriendly"
-                                value={form.petFriendly}
-                                onChange={handleChange}
-                            >
-                                <option>Yes</option>
-                                <option>No</option>
-                            </select>
-                        </label>
+                <section className="foster-form-card ffc-card">
+                    <div className="ffc-head">
+                        <b className="ffc-step">2</b>
+                        <div>
+                            <h3>Household Information</h3>
+                            <p>Helps us match you with a pet that fits your home.</p>
+                        </div>
                     </div>
 
+                    <div className="foster-form-grid">
+                        <div className="ffc-field foster-full-field">
+                            <span className="ffc-label">
+                                Home Type <em className="ffc-required">*</em>
+                                <InfoTip text="Where the foster animal will stay. This helps staff match an animal that suits your space." />
+                            </span>
+                            <ChoiceGroup
+                                name="homeType"
+                                label="Home type"
+                                value={form.homeType}
+                                options={["House", "Apartment", "Condo", "Other"]}
+                                onPick={pickChoice}
+                            />
+                        </div>
+
+                        <div className="ffc-field">
+                            <span className="ffc-label">
+                                Children at home? <em className="ffc-required">*</em>
+                            </span>
+                            <ChoiceGroup
+                                name="hasChildren"
+                                label="Children at home"
+                                value={form.hasChildren}
+                                options={["Yes", "No"]}
+                                onPick={pickChoice}
+                            />
+                        </div>
+
+                        <div className="ffc-field">
+                            <span className="ffc-label">
+                                Existing pets? <em className="ffc-required">*</em>
+                            </span>
+                            <ChoiceGroup
+                                name="hasPets"
+                                label="Existing pets"
+                                value={form.hasPets}
+                                options={["Yes", "No"]}
+                                onPick={pickChoice}
+                            />
+                        </div>
+
+                        <div className="ffc-field">
+                            <span className="ffc-label">
+                                Is your home pet friendly? <em className="ffc-required">*</em>
+                                <InfoTip text="Choose Yes only if your landlord, condo or building rules allow keeping animals." />
+                            </span>
+                            <ChoiceGroup
+                                name="petFriendly"
+                                label="Is your home pet friendly"
+                                value={form.petFriendly}
+                                options={["Yes", "No"]}
+                                onPick={pickChoice}
+                            />
+                            <small className="ffc-hint">Landlord or building rules allow keeping animals.</small>
+                        </div>
+                    </div>
                 </section>
 
                 <section className="foster-form-card">
