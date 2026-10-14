@@ -2220,3 +2220,9 @@
     border-color: #fb8500;
     background: #fff7cb;
 }
+
+/* Role Application: role cards sit outside the form now */
+.ra-role-field { margin-top: 22px; }
+
+/* Foster form shown inside the Role Application page */
+.ffa-embedded { display: grid; margin-top: 20px; }

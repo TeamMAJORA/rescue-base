@@ -32,7 +32,12 @@ function ChoiceGroup({ name, value, options, onPick, label }) {
         </div>
     );
 }
-export default function FosterApplication() {
+
+// Red message under a field
+function FieldError({ message }) {
+    return message ? <small className="ffc-error" role="alert">{message}</small> : null;
+}
+export default function FosterApplication({ embedded = false, onSubmitted }) {
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
@@ -65,7 +70,7 @@ export default function FosterApplication() {
         try {
             const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
             return draft
-                ? { ...initialForm, ...draft, fullName: initialForm.fullName, email: initialForm.email }
+                ? { ...initialForm, ...draft, fullName: draft.fullName || initialForm.fullName, email: initialForm.email }
                 : initialForm;
         } catch {
             return initialForm;
@@ -75,18 +80,59 @@ export default function FosterApplication() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
+    const [errors, setErrors] = useState({});
     const token = localStorage.getItem("token");
+
+    // Phone fields: digits only, drop a leading 0, max 10 (the number after +63)
+    const PHONE_FIELDS = ["phone", "emergencyPhone"];
 
     function handleChange(e) {
         const { name, value, type, checked } = e.target;
+
+        const cleanValue = PHONE_FIELDS.includes(name)
+            ? value.replace(/\D/g, "").replace(/^0/, "").slice(0, 10)
+            : value;
 
         setForm((prev) => ({
             ...prev,
             [name]:
                 type === "checkbox"
                     ? checked
-                    : value,
+                    : cleanValue,
         }));
+
+        // remove that field's error once the user edits it
+        setErrors((prev) => {
+            if (!prev[name]) return prev;
+            const next = { ...prev };
+            delete next[name];
+            return next;
+        });
+    }
+
+    function validateForm(f) {
+        const found = {};
+        const phonePattern = /^9\d{9}$/;
+
+        if (!f.fullName.trim()) found.fullName = "Full name is required.";
+        if (!f.phone) found.phone = "Phone number is required.";
+        else if (!phonePattern.test(f.phone)) found.phone = "Enter a valid 10-digit mobile number starting with 9.";
+
+        if (!f.address.trim()) found.address = "Address is required.";
+
+        if (!f.experience.trim()) found.experience = 'Describe your experience, or write "None".';
+
+        if (!f.emergencyName.trim()) found.emergencyName = "Emergency contact name is required.";
+
+        if (!f.emergencyRelationship.trim()) found.emergencyRelationship = "Relationship is required.";
+
+        if (!f.emergencyPhone) found.emergencyPhone = "Emergency contact phone is required.";
+        else if (!phonePattern.test(f.emergencyPhone)) found.emergencyPhone = "Enter a valid 10-digit mobile number starting with 9.";
+        else if (f.emergencyPhone === f.phone) found.emergencyPhone = "Use a different number from your own.";
+
+        if (!f.agree) found.agree = "Please agree to the foster guidelines.";
+
+        return found;
     }
 
         // Used by the choice buttons (Household card)
@@ -97,6 +143,7 @@ export default function FosterApplication() {
     function handleClear() {
         setForm(initialForm);
         localStorage.removeItem(DRAFT_KEY);
+        setErrors({});
         setMessage("");
         setMessageType("");
     }
@@ -107,24 +154,16 @@ export default function FosterApplication() {
         setMessageType("success");
     }
 
-    // Submit stays disabled until these are filled and the guidelines are ticked
-    const canSubmit =
-        form.agree &&
-        [
-            form.phone,
-            form.address,
-            form.experience,
-            form.emergencyName,
-            form.emergencyRelationship,
-            form.emergencyPhone,
-        ].every((value) => String(value).trim() !== "");
-
     async function handleSubmit(e) {
         e.preventDefault();
 
-        if (!form.agree) {
-            setMessage("Please accept the foster agreement.");
+        const found = validateForm(form);
+        setErrors(found);
+
+        if (Object.keys(found).length > 0) {
+            setMessage("Please fix the highlighted fields before submitting.");
             setMessageType("error");
+            document.querySelector(`[name="${Object.keys(found)[0]}"]`)?.focus();
             return;
         }
 
@@ -180,6 +219,7 @@ export default function FosterApplication() {
             setMessageType("success");
             setForm(initialForm);
             localStorage.removeItem(DRAFT_KEY);
+            onSubmitted?.();
         } catch (error) {
             console.error(error);
 
@@ -191,18 +231,21 @@ export default function FosterApplication() {
     }
 
     return (
-        <section className="foster-panel">
+        <section className={embedded ? "ffa-embedded" : "foster-panel"}>
 
-            <div className="foster-section-heading">
-                <div>
-                    <span>Become a Volunteer</span>
-                    <h2>Foster Application</h2>
+            {!embedded && (
+                <div className="foster-section-heading">
+                    <div>
+                        <span>Become a Volunteer</span>
+                        <h2>Foster Application</h2>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <form
-                className="foster-application-form"
+                className="ffa-form"                
                 onSubmit={handleSubmit}
+                noValidate
             >
 
                 <section className="foster-form-card ffc-card">
@@ -210,8 +253,7 @@ export default function FosterApplication() {
                         <b className="ffc-step">1</b>
                         <div>
                             <h3>Personal Information</h3>
-                            <p>Taken from your RescueBase account. Only the phone and address need filling in.</p>
-                        </div>
+                            <p>Your name is filled in from your account. You can edit it if needed.</p>                        </div>
                     </div>
 
                     <div className="foster-form-grid">
@@ -222,10 +264,11 @@ export default function FosterApplication() {
                                     type="text"
                                     name="fullName"
                                     value={form.fullName}
-                                    readOnly
+                                    onChange={handleChange}
+                                    placeholder="First and last name"
+                                    maxLength={80}
                                     required
-                                />
-                                <LockIcon />
+                                />                                
                             </span>
                         </label>
 
@@ -259,12 +302,14 @@ export default function FosterApplication() {
                                     required
                                 />
                             </span>
+                            <FieldError message={errors.phone} />
                         </label>
 
                         <label>
                             <span>
                                 Address <em className="ffc-required">*</em>
                             </span>
+                            <FieldError message={errors.address} />
                             <input
                                 type="text"
                                 name="address"
@@ -448,12 +493,14 @@ export default function FosterApplication() {
                                 />
                                 <small className="ffc-count">{form.experience.length} / 500</small>
                             </span>
+                            <FieldError message={errors.experience} />
                         </label>
 
                         <label>
                             <span>
                                 Emergency Contact Name <em className="ffc-required">*</em>
                             </span>
+                            <FieldError message={errors.emergencyName} />
                             <input
                                 type="text"
                                 name="emergencyName"
@@ -468,6 +515,7 @@ export default function FosterApplication() {
                             <span>
                                 Relationship <em className="ffc-required">*</em>
                             </span>
+                            <FieldError message={errors.emergencyRelationship} />
                             <input
                                 type="text"
                                 name="emergencyRelationship"
@@ -482,6 +530,7 @@ export default function FosterApplication() {
                             <span>
                                 Emergency Contact Phone <em className="ffc-required">*</em>
                             </span>
+                            <FieldError message={errors.emergencyPhone} />
                             <span className="ffc-phone">
                                 <span className="ffc-phone-prefix">+63</span>
                                 <input
@@ -534,6 +583,7 @@ export default function FosterApplication() {
                             <small>Includes regular updates on the pet, vet visits through the shelter, and returning the pet when requested.</small>
                         </span>
                     </label>
+                    <FieldError message={errors.agree} />
                 </section>
 
                 {message && (
@@ -546,8 +596,7 @@ export default function FosterApplication() {
 
                 <div className="ffc-actions">
                     <p className="ffc-actions-note">
-                        Staff review every application. Submit stays disabled until required fields and the guidelines are ticked.
-                    </p>
+                        Staff review every application. Fields marked <em className="ffc-required">*</em> are required.                    </p>
 
                     <div className="ffc-actions-buttons">
                         <button
@@ -569,8 +618,7 @@ export default function FosterApplication() {
                         <button
                             type="submit"
                             className="ffc-btn ffc-btn-submit"
-                            disabled={loading || !canSubmit}
-                        >
+                            disabled={loading}                        >
                             {loading
                                 ? "Submitting..."
                                 : "Submit Application"}

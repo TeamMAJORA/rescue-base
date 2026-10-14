@@ -106,6 +106,14 @@ export default function FosterCare() {
     const [listSearch, setListSearch] = useState("");
     const [appFilter, setAppFilter] = useState("all");
     const [reviewingApplication, setReviewingApplication] = useState(null);
+    const [rejectNote, setRejectNote] = useState("");
+    const [rejectError, setRejectError] = useState("");
+
+    useEffect(() => {
+        setRejectNote("");
+        setRejectError("");
+    }, [reviewingApplication]);
+
     const [reviewingRequest, setReviewingRequest] = useState(null);
     const [assigningApplication, setAssigningApplication] = useState(null);
     const token = localStorage.getItem("token")
@@ -169,7 +177,7 @@ export default function FosterCare() {
         }
     }
 
-    async function handleReviewFosterApplication(applicationId, status) {
+    async function handleReviewFosterApplication(applicationId, status, note = "") {
         try {
             setMessage("");
 
@@ -196,7 +204,7 @@ export default function FosterCare() {
                         reviewNotes:
                             status === "approved"
                                 ? "Approved for foster care."
-                                : "Rejected foster application.",
+                                : note.trim(),
                     }),
                 }
             );
@@ -207,7 +215,7 @@ export default function FosterCare() {
 
             if (!response.ok || !data.success) {
                 setMessage(data.message || "Failed to review foster application.");
-                return;
+                return false;
             }
 
             setMessage(`Foster application ${status}.`);
@@ -222,15 +230,17 @@ export default function FosterCare() {
                 message:
                     status === "approved"
                         ? "Congratulations! Your foster application has been approved. You can now receive foster assignments."
-                        : "Unfortunately, your foster application was not approved. Please contact the shelter for more information.",
+                        : `Unfortunately, your foster application was not approved. Reason: ${note.trim()}`,
 
                 type: "application_update",
             });
 
             fetchFosterApplications();
+            return true;
         } catch (error) {
             console.error("Review foster application error:", error);
             setMessage("Server error while reviewing foster application.");
+            return false;
         }
     }
 
@@ -719,8 +729,15 @@ export default function FosterCare() {
 
     async function decideFromReview(status) {
         if (!reviewingApplication) return;
-        await handleReviewFosterApplication(reviewingApplication._id, status);
-        setReviewingApplication(null);
+
+        // A reason is required to reject; the applicant sees it
+        if (status === "rejected" && !rejectNote.trim()) {
+            setRejectError("Please write a reason. The applicant will see it.");
+            return;
+        }
+
+        const ok = await handleReviewFosterApplication(reviewingApplication._id, status, rejectNote);
+        if (ok) setReviewingApplication(null);
     }
 
     function yesNo(value) {
@@ -1350,6 +1367,31 @@ export default function FosterCare() {
                                     </p>
                                 </div>
                             </details>
+
+                            {reviewingApplication.status === "pending" && (
+                                <label className="afr-reason">
+                                    <span>
+                                        Reason for rejection <em>(needed only to reject, shown to the applicant)</em>
+                                    </span>
+                                    <textarea
+                                        rows={3}
+                                        maxLength={300}
+                                        value={rejectNote}
+                                        onChange={(event) => {
+                                            setRejectNote(event.target.value);
+                                            setRejectError("");
+                                        }}
+                                        placeholder="e.g. Your building does not allow pets."
+                                    />
+                                    {rejectError && <small className="afr-reason-error">{rejectError}</small>}
+                                </label>
+                            )}
+
+                            {reviewingApplication.status === "rejected" && reviewingApplication.rejectionReason && (
+                                <p className="afr-reason-shown">
+                                    <b>Rejection reason:</b> {reviewingApplication.rejectionReason}
+                                </p>
+                            )}
 
                             <p className={`afr-note is-${reviewingApplication.status}`}>
                                 <StatIcon name="info" size={16} />

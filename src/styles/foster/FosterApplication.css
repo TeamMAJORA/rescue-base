@@ -1,4 +1,4 @@
-.foster-application-form{
+.ffa-form{
     display:flex;
     flex-direction:column;
     gap:24px;
@@ -685,4 +685,35 @@
     .ffc-btn {
         width: 100%;
     }
+}
+
+/* ===== Field errors ===== */
+.ffc-error {
+    color: #d62828;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ffc-card label:has(> .ffc-error) input,
+.ffc-card label:has(> .ffc-error) textarea,
+.ffc-card label:has(> .ffc-error) .ffc-phone {
+    border-color: #d62828;
+    background: #fff1f1;
+}
+
+.ffc-card label:has(> .ffc-error) .ffc-phone input {
+    background: transparent;
+}
+
+.ffc-agree-card .ffc-error {
+    display: block;
+    margin: 8px 0 0 38px;
+}
+
+.foster-form-card.ffc-agree-card:has(.ffc-error) {
+    border-color: #d62828;
+}
+
+.foster-form-card.ffc-agree-card:has(.ffc-error) .ffc-agree-box {
+    border-color: #d62828;
 }

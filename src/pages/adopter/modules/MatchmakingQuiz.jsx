@@ -23,6 +23,9 @@ const factorDescriptions = {
         "How active should the pet be during the day?",
 };
 
+// Labels for the step tracker under the header
+const QUIZ_STEPS = ["Home", "Lifestyle", "Preferences"];
+
 const factorLabels = {
     1: "Very Low",
     2: "Low",
@@ -314,16 +317,32 @@ export default function MatchmakingQuiz({
                 </div>
             </header>
 
-            <div className="matchmaking-progress-bar">
-                <div
-                    style={{
-                        width: `${(currentStep /
-                            totalSteps) *
-                            100
-                            }%`,
-                    }}
-                />
-            </div>
+            <ol className="matchmaking-steps" aria-label="Quiz progress">
+                {QUIZ_STEPS.map((label, index) => {
+                    const step = index + 1;
+                    const state =
+                        step < currentStep
+                            ? "is-done"
+                            : step === currentStep
+                                ? "is-active"
+                                : "";
+
+                    return (
+                        <li
+                            key={label}
+                            className={`mq-step ${state}`}
+                            aria-current={step === currentStep ? "step" : undefined}
+                        >
+                            <span className="mq-step-dot">
+                                {step < currentStep && (
+                                    <img src="/icons/checkmark.svg" alt="" />
+                                )}
+                                <small>{label}</small>
+                            </span>
+                        </li>
+                    );
+                })}
+            </ol>
 
             <form
                 className="matchmaking-form"
