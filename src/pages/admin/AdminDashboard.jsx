@@ -37,7 +37,7 @@ import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
 import NeededSupplies from "./modules/NeededSupplies";
-import GlobalSettings from "./GlobalSettings";
+import GlobalSettings from "./modules/GlobalSettings";
 
 // ANIMALS
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
