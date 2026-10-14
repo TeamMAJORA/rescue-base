@@ -70,7 +70,7 @@ export default function FosterApplication({ embedded = false, onSubmitted }) {
         try {
             const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
             return draft
-                ? { ...initialForm, ...draft, fullName: initialForm.fullName, email: initialForm.email }
+                ? { ...initialForm, ...draft, fullName: draft.fullName || initialForm.fullName, email: initialForm.email }
                 : initialForm;
         } catch {
             return initialForm;
@@ -114,6 +114,7 @@ export default function FosterApplication({ embedded = false, onSubmitted }) {
         const found = {};
         const phonePattern = /^9\d{9}$/;
 
+        if (!f.fullName.trim()) found.fullName = "Full name is required.";
         if (!f.phone) found.phone = "Phone number is required.";
         else if (!phonePattern.test(f.phone)) found.phone = "Enter a valid 10-digit mobile number starting with 9.";
 
@@ -242,7 +243,8 @@ export default function FosterApplication({ embedded = false, onSubmitted }) {
             )}
 
             <form
-                className="ffa-form"                onSubmit={handleSubmit}
+                className="ffa-form"                
+                onSubmit={handleSubmit}
                 noValidate
             >
 
@@ -251,8 +253,7 @@ export default function FosterApplication({ embedded = false, onSubmitted }) {
                         <b className="ffc-step">1</b>
                         <div>
                             <h3>Personal Information</h3>
-                            <p>Taken from your RescueBase account. Only the phone and address need filling in.</p>
-                        </div>
+                            <p>Your name is filled in from your account. You can edit it if needed.</p>                        </div>
                     </div>
 
                     <div className="foster-form-grid">
@@ -263,10 +264,11 @@ export default function FosterApplication({ embedded = false, onSubmitted }) {
                                     type="text"
                                     name="fullName"
                                     value={form.fullName}
-                                    readOnly
+                                    onChange={handleChange}
+                                    placeholder="First and last name"
+                                    maxLength={80}
                                     required
-                                />
-                                <LockIcon />
+                                />                                
                             </span>
                         </label>
 
