@@ -381,62 +381,97 @@ export default function FosterApplication() {
                     </div>
                 </section>
 
-                <section className="foster-form-card">
-                    <h3>Experience</h3>
-                    <textarea
-                        rows="6"
-                        name="experience"
-                        value={form.experience}
-                        onChange={handleChange}
-                        placeholder="Tell us about your experience caring for animals..."
-                    />
+                <section className="foster-form-card ffc-card">
+                    <div className="ffc-head">
+                        <b className="ffc-step">4</b>
+                        <div>
+                            <h3>Experience &amp; Emergency Contact</h3>
+                            <p>Shown to staff only when they review your application.</p>
+                        </div>
+                    </div>
 
-                </section>
-
-                <section className="foster-form-card">
-                    <h3>Emergency Contact</h3>
                     <div className="foster-form-grid">
+                        <label className="foster-full-field">
+                            <span>
+                                Foster or pet-care experience <em className="ffc-required">*</em>
+                            </span>
+                            <span className="ffc-textarea">
+                                <textarea
+                                    rows="4"
+                                    name="experience"
+                                    value={form.experience}
+                                    onChange={handleChange}
+                                    maxLength={500}
+                                    placeholder='Describe any experience caring for animals, or write "None".'
+                                    required
+                                />
+                                <small className="ffc-count">{form.experience.length} / 500</small>
+                            </span>
+                        </label>
 
                         <label>
-                            Name
+                            <span>
+                                Emergency Contact Name <em className="ffc-required">*</em>
+                            </span>
                             <input
+                                type="text"
                                 name="emergencyName"
                                 value={form.emergencyName}
                                 onChange={handleChange}
+                                placeholder="Full name"
+                                required
                             />
                         </label>
 
                         <label>
-                            Relationship
+                            <span>
+                                Relationship <em className="ffc-required">*</em>
+                            </span>
                             <input
+                                type="text"
                                 name="emergencyRelationship"
                                 value={form.emergencyRelationship}
                                 onChange={handleChange}
+                                placeholder="e.g. Mother, Sibling"
+                                required
                             />
+                        </label>
+
+                        <label>
+                            <span>
+                                Emergency Contact Phone <em className="ffc-required">*</em>
+                            </span>
+                            <span className="ffc-phone">
+                                <span className="ffc-phone-prefix">+63</span>
+                                <input
+                                    type="tel"
+                                    name="emergencyPhone"
+                                    inputMode="numeric"
+                                    value={form.emergencyPhone}
+                                    onChange={handleChange}
+                                    placeholder="9XX XXX XXXX"
+                                    required
+                                />
+                            </span>
                         </label>
 
                         <label className="foster-full-field">
-                            Phone Number
-                            <input
-                                name="emergencyPhone"
-                                value={form.emergencyPhone}
-                                onChange={handleChange}
-                            />
+                            <span>
+                                Additional Notes <em className="ffc-optional">(optional)</em>
+                            </span>
+                            <span className="ffc-textarea">
+                                <textarea
+                                    rows="3"
+                                    name="notes"
+                                    value={form.notes}
+                                    onChange={handleChange}
+                                    maxLength={300}
+                                    placeholder="Anything else the staff should know?"
+                                />
+                                <small className="ffc-count">{form.notes.length} / 300</small>
+                            </span>
                         </label>
-
                     </div>
-
-                </section>
-
-                <section className="foster-form-card">
-                    <h3>Additional Notes</h3>
-                    <textarea
-                        rows="5"
-                        name="notes"
-                        value={form.notes}
-                        onChange={handleChange}
-                        placeholder="Anything else you'd like us to know?"
-                    />
                 </section>
 
                 <section className="foster-form-card">

@@ -483,3 +483,43 @@
 .ffc-duration .ffc-choices button {
     flex: 1 1 auto;
 }
+
+/* ===== Experience & Emergency Contact card ===== */
+.ffc-textarea {
+    position: relative;
+    display: block;
+}
+
+.foster-form-card.ffc-card textarea {
+    min-height: 0;
+    padding: 12px 14px 26px;
+    border-color: rgba(251, 133, 0, 0.28);
+    background: #fff7d6;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.foster-form-card.ffc-card textarea::placeholder {
+    color: #b3967f;
+}
+
+.foster-form-card.ffc-card textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.ffc-count {
+    position: absolute;
+    right: 12px;
+    bottom: 9px;
+    color: #a07c66;
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.ffc-optional {
+    color: #a07c66;
+    font-style: normal;
+    font-weight: 500;
+}
