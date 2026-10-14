@@ -303,69 +303,82 @@ export default function FosterApplication() {
                     </div>
                 </section>
 
-                <section className="foster-form-card">
-                    <h3>Foster Preferences</h3>
-                    <div className="foster-form-grid">
-                        <label>
-                            Preferred Animal
-                            <select
-                                name="preferredAnimal"
-                                value={form.preferredAnimal}
-                                onChange={handleChange}
-                            >
-                                <option>Dog</option>
-                                <option>Cat</option>
-                                <option>Both</option>
-
-                            </select>
-
-                        </label>
-
-                        <label>
-                            Preferred Size
-                            <select
-                                name="preferredSize"
-                                value={form.preferredSize}
-                                onChange={handleChange}
-                            >
-                                <option>Any</option>
-                                <option>Small</option>
-                                <option>Medium</option>
-                                <option>Large</option>
-                            </select>
-
-                        </label>
-
-                        <label>
-                            Maximum Animals
-                            <input
-                                type="number"
-                                min="1"
-                                max="10"
-                                name="maxAnimals"
-                                value={form.maxAnimals}
-                                onChange={handleChange}
-                            />
-                        </label>
-
-                        <label>
-                            Foster Duration
-                            <select
-                                name="fosterDuration"
-                                value={form.fosterDuration}
-                                onChange={handleChange}
-                            >
-
-                                <option>1 Week</option>
-                                <option>2 Weeks</option>
-                                <option>1 Month</option>
-                                <option>2 Months</option>
-                                <option>Until Adopted</option>
-                            </select>
-                        </label>
-
+                <section className="foster-form-card ffc-card">
+                    <div className="ffc-head">
+                        <b className="ffc-step">3</b>
+                        <div>
+                            <h3>Foster Preferences</h3>
+                            <p>Tell us what kind of animals you can take in.</p>
+                        </div>
                     </div>
 
+                    <div className="foster-form-grid">
+                        <div className="ffc-field">
+                            <span className="ffc-label">
+                                Preferred Animal <em className="ffc-required">*</em>
+                            </span>
+                            <ChoiceGroup
+                                name="preferredAnimal"
+                                label="Preferred animal"
+                                value={form.preferredAnimal}
+                                options={["Dog", "Cat", "Both"]}
+                                onPick={pickChoice}
+                            />
+                        </div>
+
+                        <div className="ffc-field">
+                            <span className="ffc-label">
+                                Preferred Size <em className="ffc-required">*</em>
+                            </span>
+                            <ChoiceGroup
+                                name="preferredSize"
+                                label="Preferred size"
+                                value={form.preferredSize}
+                                options={["Small", "Medium", "Large", "Any"]}
+                                onPick={pickChoice}
+                            />
+                        </div>
+
+                        <div className="ffc-field">
+                            <span className="ffc-label">
+                                Maximum Animals <em className="ffc-required">*</em>
+                                <InfoTip text="The most animals you can foster at the same time. Staff will not assign more than this number to you." />
+                            </span>
+                            <div className="ffc-stepper">
+                                <button
+                                    type="button"
+                                    aria-label="Decrease maximum animals"
+                                    disabled={Number(form.maxAnimals) <= 1}
+                                    onClick={() => pickChoice("maxAnimals", Math.max(1, Number(form.maxAnimals) - 1))}
+                                >
+                                    −
+                                </button>
+                                <output aria-live="polite">{form.maxAnimals}</output>
+                                <button
+                                    type="button"
+                                    aria-label="Increase maximum animals"
+                                    disabled={Number(form.maxAnimals) >= 10}
+                                    onClick={() => pickChoice("maxAnimals", Math.min(10, Number(form.maxAnimals) + 1))}
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <small className="ffc-hint">How many you can care for at the same time.</small>
+                        </div>
+
+                        <div className="ffc-field ffc-duration">
+                            <span className="ffc-label">
+                                Foster Duration <em className="ffc-required">*</em>
+                            </span>
+                            <ChoiceGroup
+                                name="fosterDuration"
+                                label="Foster duration"
+                                value={form.fosterDuration}
+                                options={["1 Week", "2 Weeks", "1 Month", "2 Months", "Until Adopted"]}
+                                onPick={pickChoice}
+                            />
+                        </div>
+                    </div>
                 </section>
 
                 <section className="foster-form-card">
