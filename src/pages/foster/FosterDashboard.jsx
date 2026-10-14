@@ -592,7 +592,7 @@ export default function FosterDashboard({ setPage }) {
                     refresh={loadNotifications}
                 />
 
-                {!loading && !loadError && (
+                {!loading && !loadError && activePage === "application" && (
                     <>
                         <header className="fdb-header">
                             <div>
