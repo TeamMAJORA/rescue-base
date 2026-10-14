@@ -1,162 +1,376 @@
+
 import { useEffect, useState } from "react";
+
 import {
     MapContainer,
     Marker,
     Popup,
-    TileLayer
+    TileLayer,
 } from "react-leaflet";
+
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "../../styles/components/PublicGIS.css";
 
-import assets from "../../data/assets.json"
+import assets from "../../data/assets.json";
 
 const API = import.meta.env.VITE_BACKEND_URL;
+const cebuCenter = [10.3157, 123.8854];
 
-const cebuCenter = [
-    10.3157,
-    123.8854,
-];
+const createMarkerIcon = (image, className) =>
+    L.divIcon({
+        className,
+        html: `<img src="${image}" alt="" />`,
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -36],
+    });
 
-const markerIcon = L.divIcon({
-    className: "public-gis-marker",
-    html: `<img
-            src="${assets.icons.straymapbrown}"
-            width="40"
-            height="40"
-            alt="Shelter location"
-        />`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -30],
-});
+const markerIcon = createMarkerIcon(
+    assets.icons.straymapbrown,
+    "public-gis-marker"
+);
+
+const shelterIcon = createMarkerIcon(
+    assets.icons.pawpin,
+    "public-gis-shelter-marker"
+);
+
+function hasValidCoordinates(item) {
+    if (
+        item.latitude === "" ||
+        item.longitude === "" ||
+        item.latitude == null ||
+        item.longitude == null
+    ) {
+        return false;
+    }
+
+    const latitude = Number(item.latitude);
+    const longitude = Number(item.longitude);
+
+    return (
+        Number.isFinite(latitude) &&
+        Number.isFinite(longitude) &&
+        latitude >= -90 &&
+        latitude <= 90 &&
+        longitude >= -180 &&
+        longitude <= 180
+    );
+}
+
+async function fetchJSON(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to load map data."
+        );
+    }
+
+    return data;
+}
 
 export default function PublicGISMap({
     landingMode = false,
 }) {
     const [locations, setLocations] = useState([]);
+    const [shelters, setShelters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [shelterError, setShelterError] = useState("");
 
     useEffect(() => {
-        async function loadPublicLocations() {
-            try {
-                setLoading(true);
-                setError("");
+        let cancelled = false;
 
-                const response = await fetch(
-                    `${API}/api/gis/public`
+        async function loadPublicMap() {
+            setLoading(true);
+            setError("");
+            setShelterError("");
+
+            const [locationsResult, sheltersResult] =
+                await Promise.allSettled([
+                    fetchJSON(`${API}/api/gis/public`),
+                    fetchJSON(`${API}/api/gis/shelters`),
+                ]);
+
+            if (cancelled) return;
+
+            if (locationsResult.status === "fulfilled") {
+                setLocations(
+                    locationsResult.value.locations || []
                 );
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(
-                        data.message ||
-                        "Failed to load public GIS locations"
-                    );
-                }
-
-                setLocations(data.locations || []);
-            } catch (error) {
+            } else {
                 console.error(
-                    "Public GIS Error: ",
-                    error
+                    "Public GIS locations error:",
+                    locationsResult.reason
                 );
 
                 setError(
-                    error.message ||
-                    "Unable to load the map."
+                    locationsResult.reason?.message ||
+                    "Unable to load animal reports."
                 );
-            } finally {
-                setLoading(false);
             }
+
+            if (sheltersResult.status === "fulfilled") {
+                setShelters(
+                    sheltersResult.value.shelters || []
+                );
+            } else {
+                console.error(
+                    "Public GIS shelters error:",
+                    sheltersResult.reason
+                );
+
+                setShelterError(
+                    "Shelter locations could not be loaded."
+                );
+            }
+
+            setLoading(false);
         }
 
-        loadPublicLocations();
+        loadPublicMap();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
+
+    const validLocations = locations.filter(
+        hasValidCoordinates
+    );
+
+    const validShelters = shelters.filter(
+        (shelter) =>
+            shelter.status === "active" &&
+            hasValidCoordinates(shelter)
+    );
 
     return (
         <section
-            className={
-                landingMode
-                    ? "public-gis-section public-gis-landing"
-                    : "public-gis-section"
-            }
+            className={`public-gis-section ${
+                landingMode ? "public-gis-landing" : ""
+            }`}
         >
             {!landingMode && (
-                <div className="public-gis-heading">
-                    <h2>
-                        Lost & Found Map
-                    </h2>
+                <>
+                    <header className="public-gis-heading">
+                        <div className="public-gis-heading-icon">
+                            <img
+                                src={assets.icons.pawpin}
+                                alt=""
+                            />
+                        </div>
 
-                    <p>
-                        View reported lost,
-                        found, and stray
-                        animals around the
-                        community.
-                    </p>
-                </div>
+                        <div>
+                            <span className="public-gis-eyebrow">
+                                RESCUEBASE GIS
+                            </span>
+
+                            <h2>Animal Rescue Map</h2>
+
+                            <p>
+                                Explore reported lost, found, and stray
+                                animals alongside active shelters in
+                                the community.
+                            </p>
+                        </div>
+                    </header>
+
+                    <div className="public-gis-stats">
+                        <article className="public-gis-stat">
+                            <div className="public-gis-stat-icon report">
+                                <img
+                                    src={assets.icons.straymapbrown}
+                                    alt=""
+                                />
+                            </div>
+
+                            <div className="public-gis-stat-content">
+                                <span>Animal Reports</span>
+
+                                <strong>
+                                    {loading ? "—" : validLocations.length}
+                                </strong>
+
+                                <small>Mapped report locations</small>
+                            </div>
+                        </article>
+
+                        <article className="public-gis-stat">
+                            <div className="public-gis-stat-icon shelter">
+                                <img
+                                    src={assets.icons.pawpin}
+                                    alt=""
+                                />
+                            </div>
+
+                            <div className="public-gis-stat-content">
+                                <span>Active Shelters</span>
+
+                                <strong>
+                                    {loading ? "—" : validShelters.length}
+                                </strong>
+
+                                <small>Available shelter locations</small>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div className="public-gis-map-toolbar">
+                        <div>
+                            <h3>Community Locations</h3>
+                            <p>Select a marker to view its details.</p>
+                        </div>
+
+                        <div className="public-gis-legend">
+                            <span>
+                                <img
+                                    src={assets.icons.straymapbrown}
+                                    alt=""
+                                />
+                                Reports
+                            </span>
+
+                            <span>
+                                <img
+                                    src={assets.icons.pawpin}
+                                    alt=""
+                                />
+                                Shelters
+                            </span>
+                        </div>
+                    </div>
+                </>
             )}
 
             {loading && (
-                <div className="public-gis-loading">
-                    Loading map...
+                <div className="public-gis-message">
+                    Loading map data...
                 </div>
             )}
 
             {error && (
-                <div className="public-gis-error">
+                <div className="public-gis-message error">
                     {error}
                 </div>
             )}
 
-            {!loading && !error && (
-                <div className="public-gis-map-wrap">
-                    <MapContainer
-                        center={cebuCenter}
-                        zoom={11}
-                        scrollWheelZoom={true}
-                        className="public-gis-map"
-                    >
-                        <TileLayer
-                            attribution="&copy; OpenStreetMap contributors"
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
+            {shelterError && !loading && (
+                <div className="public-gis-message warning">
+                    {shelterError}
+                </div>
+            )}
 
-                        {locations.map(
-                            (location) => (
+            {!loading && !error && (
+                <>
+                    <div className="public-gis-map-wrap">
+                        <MapContainer
+                            center={cebuCenter}
+                            zoom={11}
+                            scrollWheelZoom={!landingMode}
+                            className="public-gis-map"
+                        >
+                            <TileLayer
+                                attribution="&copy; OpenStreetMap contributors"
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+
+                            {validLocations.map((location) => (
                                 <Marker
-                                    key={location._id}
+                                    key={`report-${location._id}`}
                                     position={[
-                                        location.latitude,
-                                        location.longitude,
+                                        Number(location.latitude),
+                                        Number(location.longitude),
                                     ]}
                                     icon={markerIcon}
                                 >
                                     <Popup>
                                         <strong>
-                                            {location.petName}
+                                            {location.petName ||
+                                                "Animal report"}
                                         </strong>
 
                                         <br />
-
-                                        {location.reportType}{" "}
-                                        •{" "}
-                                        {location.species}
+                                        Report: {location.reportType}
 
                                         <br />
-
-                                        {location.locationName}
+                                        Species: {location.species || "Unknown"}
 
                                         <br />
+                                        Location: {location.locationName ||
+                                            "Not specified"}
 
-                                        {location.description}
+                                        {location.description && (
+                                            <>
+                                                <br />
+                                                {location.description}
+                                            </>
+                                        )}
                                     </Popup>
                                 </Marker>
-                            )
-                        )}
-                    </MapContainer>
-                </div>
+                            ))}
+
+                            {validShelters.map((shelter) => (
+                                <Marker
+                                    key={`shelter-${shelter._id}`}
+                                    position={[
+                                        Number(shelter.latitude),
+                                        Number(shelter.longitude),
+                                    ]}
+                                    icon={shelterIcon}
+                                >
+                                    <Popup>
+                                        <strong>
+                                            {shelter.name || "Animal Shelter"}
+                                        </strong>
+
+                                        {shelter.address && (
+                                            <>
+                                                <br />
+                                                {shelter.address}
+                                            </>
+                                        )}
+
+                                        {shelter.description && (
+                                            <>
+                                                <br />
+                                                {shelter.description}
+                                            </>
+                                        )}
+
+                                        {shelter.contact && (
+                                            <>
+                                                <br />
+                                                Contact: {shelter.contact}
+                                            </>
+                                        )}
+
+                                        <br />
+                                        <span>Active shelter</span>
+                                    </Popup>
+                                </Marker>
+                            ))}
+                        </MapContainer>
+                    </div>
+
+                    {!landingMode && (
+                        <footer className="public-gis-map-footer">
+                            <span>
+                                Showing{" "}
+                                <strong>{validLocations.length}</strong>{" "}
+                                animal reports
+                            </span>
+
+                            <span>
+                                <strong>{validShelters.length}</strong>{" "}
+                                active shelters
+                            </span>
+                        </footer>
+                    )}
+                </>
             )}
         </section>
     );

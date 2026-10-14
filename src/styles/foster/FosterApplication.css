@@ -159,3 +159,530 @@
     }
 
 }
+
+/* ===== Personal Information card (same look as the adoption form) ===== */
+.foster-form-card.ffc-card {
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    background: #fffaf0;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.07);
+}
+
+.ffc-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ffc-step {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.foster-form-card.ffc-card .ffc-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #5a1b00;
+}
+
+.ffc-head p {
+    margin: 4px 0 0;
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* labels + inputs in the theme colors */
+.ffc-card .foster-form-grid label {
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ffc-card .foster-form-grid input {
+    border-color: rgba(251, 133, 0, 0.28);
+    background: #fff7d6;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.ffc-card .foster-form-grid input::placeholder {
+    color: #b3967f;
+}
+
+.ffc-card .foster-form-grid input:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.ffc-required {
+    color: #d62828;
+    font-style: normal;
+}
+
+/* locked (account) fields */
+.ffc-locked {
+    position: relative;
+    display: block;
+}
+
+.ffc-card .ffc-locked input[readonly] {
+    padding-right: 38px;
+    border-color: rgba(90, 27, 0, 0.12);
+    background: #f6efd6;
+    color: #7b6658;
+    cursor: default;
+}
+
+.ffc-card .ffc-locked input[readonly]:focus {
+    border-color: rgba(90, 27, 0, 0.12);
+    box-shadow: none;
+}
+
+.ffc-lock-icon {
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    width: 15px;
+    height: 15px;
+    transform: translateY(-50%);
+    fill: none;
+    stroke: #a07c66;
+    stroke-width: 2;
+    stroke-linecap: round;
+    pointer-events: none;
+}
+
+/* +63 phone field */
+.ffc-phone {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 12px;
+    background: #fff7d6;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ffc-phone:focus-within {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.ffc-phone-prefix {
+    display: grid;
+    place-items: center;
+    padding: 0 14px;
+    border-right: 1px solid rgba(251, 133, 0, 0.28);
+    background: #ffeeb8;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.ffc-card .ffc-phone input,
+.ffc-card .ffc-phone input:focus {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* ===== Household card: choice buttons + info tip ===== */
+.ffc-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.ffc-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ffc-choices {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: 8px;
+}
+
+.ffc-choices button {
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 10px;
+    background: #fff7d6;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.ffc-choices button:hover {
+    border-color: #fb8500;
+    background: #ffeeb8;
+}
+
+.ffc-choices button.is-selected {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+}
+
+.ffc-choices button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.ffc-hint {
+    color: #75432f;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* "?" info tip (same look as the adoption form) */
+.ffc-card .admin-info-tip {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    display: inline-grid;
+    place-items: center;
+    margin-left: 4px;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: help;
+    outline: none;
+}
+
+.ffc-card .admin-info-tip-bubble {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: -12px;
+    z-index: 20;
+    width: 240px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #4a1a00;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.55;
+    box-shadow: 0 10px 24px rgba(58, 18, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
+}
+
+.ffc-card .admin-info-tip-bubble::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 15px;
+    border-width: 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #4a1a00;
+}
+
+.ffc-card .admin-info-tip:hover .admin-info-tip-bubble,
+.ffc-card .admin-info-tip:focus .admin-info-tip-bubble {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+@media (max-width: 520px) {
+    .ffc-choices {
+        grid-auto-flow: row;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ===== Foster Preferences card: stepper + wrapping duration pills ===== */
+.ffc-stepper {
+    display: inline-flex;
+    align-items: stretch;
+    width: fit-content;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 10px;
+    background: #fff7d6;
+    overflow: hidden;
+}
+
+.ffc-stepper button {
+    width: 44px;
+    min-height: 40px;
+    border: 0;
+    background: transparent;
+    color: #fb8500;
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.ffc-stepper button:hover:not(:disabled) {
+    background: #ffeeb8;
+}
+
+.ffc-stepper button:disabled {
+    color: #d9c3a5;
+    cursor: not-allowed;
+}
+
+.ffc-stepper button:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px #fb8500;
+}
+
+.ffc-stepper output {
+    min-width: 52px;
+    display: grid;
+    place-items: center;
+    border-left: 1px solid rgba(251, 133, 0, 0.28);
+    border-right: 1px solid rgba(251, 133, 0, 0.28);
+    background: #fff;
+    color: #5a1b00;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+/* 5 duration options: let them wrap instead of squeezing */
+.ffc-duration .ffc-choices {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.ffc-duration .ffc-choices button {
+    flex: 1 1 auto;
+}
+
+/* ===== Experience & Emergency Contact card ===== */
+.ffc-textarea {
+    position: relative;
+    display: block;
+}
+
+.foster-form-card.ffc-card textarea {
+    min-height: 0;
+    padding: 12px 14px 26px;
+    border-color: rgba(251, 133, 0, 0.28);
+    background: #fff7d6;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.foster-form-card.ffc-card textarea::placeholder {
+    color: #b3967f;
+}
+
+.foster-form-card.ffc-card textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.ffc-count {
+    position: absolute;
+    right: 12px;
+    bottom: 9px;
+    color: #a07c66;
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.ffc-optional {
+    color: #a07c66;
+    font-style: normal;
+    font-weight: 500;
+}
+
+/* ===== Guidelines checkbox card ===== */
+.foster-form-card.ffc-agree-card {
+    padding: 16px 20px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    background: #fff7cb;
+    box-shadow: none;
+}
+
+.foster-form-card .ffc-agree {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+}
+
+/* hide the real checkbox but keep it clickable + focusable */
+.ffc-agree input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.ffc-agree-box {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    border: 2px solid #fb8500;
+    border-radius: 6px;
+    background: #fff;
+    transition: background 0.15s ease;
+}
+
+.ffc-agree-box img {
+    width: 12px;
+    height: 9px;
+}
+
+.ffc-agree input:checked + .ffc-agree-box {
+    background: #fb8500;
+}
+
+.ffc-agree input:focus-visible + .ffc-agree-box {
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.ffc-agree-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ffc-agree-text strong {
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.ffc-agree-text small {
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ===== Bottom action bar ===== */
+.ffc-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+    border-radius: 16px;
+    background: #fffaf0;
+}
+
+.ffc-actions-note {
+    margin: 0;
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.ffc-actions-buttons {
+    display: flex;
+    flex-shrink: 0;
+    gap: 10px;
+}
+
+.ffc-btn {
+    min-height: 40px;
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.ffc-btn-clear {
+    border: 1.5px solid #5a1b00;
+    background: #fff;
+    color: #5a1b00;
+}
+
+.ffc-btn-clear:hover {
+    background: #fff7d6;
+}
+
+.ffc-btn-draft {
+    border: 1.5px solid #fb8500;
+    background: #fff7cb;
+    color: #5a1b00;
+}
+
+.ffc-btn-draft:hover {
+    background: #fcbf49;
+}
+
+.ffc-btn-submit {
+    border: 1.5px solid #fb8500;
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+}
+
+.ffc-btn-submit:hover:not(:disabled) {
+    background: #e67600;
+    transform: translateY(-1px);
+}
+
+.ffc-btn-submit:disabled {
+    opacity: 0.45;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.ffc-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+@media (max-width: 900px) {
+    .ffc-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ffc-actions-buttons {
+        flex-direction: column;
+    }
+
+    .ffc-btn {
+        width: 100%;
+    }
+}

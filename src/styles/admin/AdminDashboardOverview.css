@@ -25,3 +25,23 @@
     font-weight: 700;
     font-size: 13px;
 }
+
+
+.admin-dashboard-stat-value {
+    color: var(--brown) !important;
+    font-size: 32px !important;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.admin-simple-actions article p {
+    margin: 0;
+    color: var(--brown);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.admin-dashboard-error {
+    color: var(--red);
+    margin-top: 16px;
+}

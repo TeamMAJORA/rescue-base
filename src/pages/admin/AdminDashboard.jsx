@@ -37,6 +37,7 @@ import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
 import NeededSupplies from "./modules/NeededSupplies";
+import GlobalSettings from "./modules/GlobalSettings";
 
 // ANIMALS
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
@@ -91,7 +92,8 @@ const adminMenu = [
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
     { key: "reports", label: "Reports" },
-    { key: "activity-log", label: "Activity Log"}
+    { key: "activity-log", label: "Activity Log"},
+    { key: "global-settings", label: "Global Settings"}
 ]
 
 function AdminStatCard({ label, value }) {
@@ -135,6 +137,68 @@ export default function AdminDashboard({ setPage }) {
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotification] = useState([]);
     const [notifOpen, setNotifOpen] = useState(false);
+
+    // ---- Shared states: signed out, confirm popup, toasts ----
+    const savedRole = (() => {
+        try {
+            return String(
+                JSON.parse(localStorage.getItem("rescuebase_user") || "{}").role || ""
+            ).trim().toLowerCase();
+        } catch {
+            return "";
+        }
+    })();
+    const isWrongRole = savedRole !== "admin";
+    const [signedOut, setSignedOut] = useState(false);
+    const [confirmBox, setConfirmBox] = useState(null);
+    const [toasts, setToasts] = useState([]);
+
+    useEffect(() => {
+        // Any API call that comes back 401 means the login ran out
+        const originalFetch = window.fetch;
+
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            const url = String(args[0]?.url || args[0] || "");
+
+            if (response.status === 401 && API && url.startsWith(API)) {
+                setSignedOut(true);
+            }
+
+            return response;
+        };
+
+        // Modules call these instead of window.confirm / alert
+        window.rbConfirm = (options) =>
+            new Promise((resolve) => {
+                setConfirmBox({ ...options, resolve });
+            });
+
+        window.rbToast = (text, tone = "success") => {
+            const id = `${Date.now()}-${Math.random()}`;
+            setToasts((current) => [...current, { id, text, tone }]);
+            setTimeout(() => {
+                setToasts((current) => current.filter((toast) => toast.id !== id));
+            }, 3200);
+        };
+
+        return () => {
+            window.fetch = originalFetch;
+            delete window.rbConfirm;
+            delete window.rbToast;
+        };
+    }, []);
+
+    function closeConfirm(answer) {
+        confirmBox?.resolve(answer);
+        setConfirmBox(null);
+    }
+
+    function signOut(goTo) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("rescuebase_user");
+        setPage(goTo);
+    }
 
 
     function handleSidebarClick(item) {
@@ -216,7 +280,8 @@ export default function AdminDashboard({ setPage }) {
                 newNotifications.push({
                     id: "completed-fosters",
                     title: "Completed Foster Assignment",
-                    message: `${activeFosters.length} foster assignment(s) completed.`,
+                    message: `${completedFosters.length} foster assignment(s) completed.`,
+                    page: "foster-care",
                 });
             }
 
@@ -315,9 +380,15 @@ export default function AdminDashboard({ setPage }) {
             return <ActivityLog />;
         }
 
+        if (activeAdminPage === "global-settings") {
+            return <GlobalSettings />;
+        }
+
     }
 
     useEffect(() => {
+        if (isWrongRole || signedOut) return;
+
         fetchAdminNotifications();
 
         const interval = setInterval(() => {
@@ -325,7 +396,28 @@ export default function AdminDashboard({ setPage }) {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [signedOut]);
+
+
+    if (signedOut || isWrongRole) {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <path d="M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                    </div>
+                    <h2>You've been signed out</h2>
+                    <p>Please log in again to continue.</p>
+                    <button type="button" onClick={() => signOut("auth")}>
+                        Log in again
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     return (
         <main className="admin-page">
@@ -386,7 +478,7 @@ export default function AdminDashboard({ setPage }) {
                 <button
                     className="admin-user-card"
                     type="button"
-                    onClick={() => setPage("home")}
+                    onClick={() => signOut("home")}
                 >
                     <span>👤</span>
                     <div>
@@ -403,11 +495,24 @@ export default function AdminDashboard({ setPage }) {
 
                     <div className="admin-notification-wrap">
                         <button
-                            className="admin-notification-btn"
+                            className={`admin-notification-btn ${notifOpen ? "open" : ""}`}
                             type="button"
+                            aria-label="Notifications"
+                            title="Notifications"
                             onClick={() => setNotifOpen(!notifOpen)}
                         >
-                            BELL DAW NI
+                            <img
+                                className="rb-notif-icon icon-default"
+                                src="/icons/sidebar/notification-brown.svg"
+                                alt=""
+                                aria-hidden="true"
+                            />
+                            <img
+                                className="rb-notif-icon icon-active"
+                                src="/icons/sidebar/notification-light.svg"
+                                alt=""
+                                aria-hidden="true"
+                            />
 
                             {notifications.length > 0 && (
                                 <span>{notifications.length}</span>
@@ -447,6 +552,47 @@ export default function AdminDashboard({ setPage }) {
                 </header>
                 {renderAdminContent()}
             </section>
+            {confirmBox && (
+                <div
+                    className="ao-confirm-backdrop"
+                    onClick={() => closeConfirm(false)}
+                    onKeyDown={(event) => {
+                        if (event.key === "Escape") closeConfirm(false);
+                    }}
+                >
+                    <div
+                        className={`ao-confirm${confirmBox.danger ? " danger" : ""}`}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="ao-confirm-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <h3 id="ao-confirm-title">{confirmBox.title}</h3>
+                        {confirmBox.message && <p>{confirmBox.message}</p>}
+                        <div className="ao-confirm-actions">
+                            <button type="button" autoFocus onClick={() => closeConfirm(false)}>
+                                {confirmBox.cancelLabel || "Cancel"}
+                            </button>
+                            <button
+                                type="button"
+                                className="ao-confirm-ok"
+                                onClick={() => closeConfirm(true)}
+                            >
+                                {confirmBox.confirmLabel || "Confirm"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="ao-toasts" aria-live="polite">
+                {toasts.map((toast) => (
+                    <div key={toast.id} className={`ao-toast ${toast.tone}`}>
+                        <i aria-hidden="true">{toast.tone === "error" ? "!" : "✓"}</i>
+                        {toast.text}
+                    </div>
+                ))}
+            </div>
         </main>
     );
 }

@@ -38,10 +38,11 @@ export default function PetList({
     selectedPet,
     setSelectedPet,
     onRefresh,
+    initialStatusFilter = "all",
 }) {
     const selectedId = selectedPet?._id;
 
-    const [statusFilter, setStatusFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState(initialStatusFilter);
     const [sortBy, setSortBy] = useState("newest");
     const [savedIds, setSavedIds] = useState(readSavedPets);
 
@@ -142,10 +143,28 @@ export default function PetList({
 
             <div className="browse-pets-list">
                 {loading && (
-                    <div className="browse-pets-message">
-                        <span>🐾</span>
-                        <p>Loading available pets...</p>
-                    </div>
+                    <>
+                        {[0, 1, 2].map((index) => (
+                            <article
+                                key={`skeleton-${index}`}
+                                className="browse-pet-card adopter-skeleton-card"
+                                aria-hidden="true"
+                            >
+                                <div className="browse-pet-card-image adopter-skeleton" />
+
+                                <div className="browse-pet-card-content">
+                                    <div className="adopter-skeleton adopter-skeleton-line short" />
+                                    <div className="adopter-skeleton adopter-skeleton-line" />
+                                    <div className="adopter-skeleton adopter-skeleton-pill" />
+                                </div>
+                            </article>
+                        ))}
+
+                        <div className="adopter-loading-note">
+                            <span className="adopter-spinner" />
+                            Finding pets for you...
+                        </div>
+                    </>
                 )}
 
                 {!loading && error && (
@@ -160,10 +179,12 @@ export default function PetList({
 
                 {!loading && !error && visiblePets.length === 0 && (
                     <div className="browse-pets-message">
-                        <span>{statusFilter === "saved" ? "♡" : "🐾"}</span>
+                        <span>
+                            <img src="/icons/logoPlaceholder.svg" alt="" />
+                        </span>
                         <p>
                             {statusFilter === "saved"
-                                ? "You haven't saved any pets yet. Tap the heart on a pet to save it."
+                                ? "You don't have any saved pets yet. Tap the heart on any pet to add them to your favorites!"
                                 : "No available animals matched your search."}
                         </p>
                     </div>

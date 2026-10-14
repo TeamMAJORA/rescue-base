@@ -10,6 +10,7 @@
     position: sticky;
     top: 0;
     height: 100vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 22px;
@@ -76,21 +77,20 @@
     padding: 28px;
 }
 
+/* Plain top bar (same as Admin/Staff): page title on the left, bell + refresh on the right */
 .foster-topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 18px;
-    padding: 22px 24px;
-    border-radius: 22px;
-    background: #fffaf0;
-    border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
 .foster-topbar h1 {
-    margin: 0 0 4px;
+    margin: 0 0 2px;
+    font-family: "Itim", cursive;
+    font-weight: 400;
     color: #5a1b00;
-    font-size: 28px;
+    font-size: 30px;
 }
 
 .foster-topbar p {
@@ -488,6 +488,7 @@
     .foster-sidebar {
         position: static;
         height: auto;
+        overflow: visible;
     }
 
     .foster-menu {
@@ -542,5 +543,327 @@
     .foster-application-form button,
     .foster-update-form button {
         width: 100%;
+    }
+}
+/* Hide the sidebar scrollbar (it still scrolls with the mouse wheel) */
+.foster-sidebar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.foster-sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+/* ---------- Notification bell (same look and hover as the Adopter dashboard) ---------- */
+.foster-notification-button {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.15);
+    background: #fffaf0;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.foster-notification-button:hover {
+    border-color: #fb8500;
+    background: #ffffff;
+}
+
+.foster-notification-button .rb-notif-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.foster-notification-button .rb-notif-icon.icon-active {
+    display: none;
+}
+
+.foster-notification-button.open {
+    background: linear-gradient(135deg, #fb8500, #fca62c);
+    border-color: #fb8500;
+}
+
+.foster-notification-button.open .rb-notif-icon.icon-default {
+    display: none;
+}
+
+.foster-notification-button.open .rb-notif-icon.icon-active {
+    display: block;
+}
+
+/* Hovering while open flips back to the light look with the brown bell */
+.foster-notification-button.open:hover {
+    background: #fff7cb;
+}
+
+.foster-notification-button.open:hover .rb-notif-icon.icon-default {
+    display: block;
+}
+
+.foster-notification-button.open:hover .rb-notif-icon.icon-active {
+    display: none;
+}
+
+/* Top bar actions: bell and refresh side by side */
+.foster-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Refresh: light secondary button instead of the orange one */
+.foster-topbar .foster-refresh-button {
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid rgba(90, 27, 0, 0.15);
+    border-radius: 12px;
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.foster-topbar .foster-refresh-button:hover {
+    border-color: #fb8500;
+    background: #ffffff;
+    opacity: 1;
+}
+
+/* Keep the bell's own colors (the generic topbar button rule made it orange) */
+.foster-topbar .foster-notification-button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.15);
+    border-radius: 12px;
+    background: #fffaf0;
+}
+
+.foster-topbar .foster-notification-button:hover {
+    border-color: #fb8500;
+    background: #ffffff;
+    opacity: 1;
+}
+
+.foster-topbar .foster-notification-button.open {
+    background: linear-gradient(135deg, #fb8500, #fca62c);
+    border-color: #fb8500;
+}
+
+.foster-topbar .foster-notification-button.open:hover {
+    background: #fff7cb;
+}
+
+/* ===== Foster status banner (same layout as the adoption application header) ===== */
+.fdb-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 16px;
+    padding: 24px 26px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at right top, rgba(252, 191, 73, 0.25), transparent 40%),
+        #fffaf0;
+    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
+}
+
+.fdb-header > div:first-child {
+    min-width: 0;
+}
+
+.fdb-eyebrow {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: #d62828;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.fdb-header h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: clamp(29px, 3vw, 39px);
+    font-weight: 400;
+    line-height: 1.08;
+    color: #5a1b00;
+}
+
+.fdb-header p {
+    max-width: 720px;
+    margin: 9px 0 0;
+    color: #75432f;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.fdb-side {
+    flex-shrink: 0;
+    display: grid;
+    justify-items: end;
+    gap: 10px;
+}
+
+.fdb-status {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.fdb-status.is-none     { background: #f1e6c8; color: #7a5a3a; }
+.fdb-status.is-pending  { background: #fde3bf; color: #d96f00; }
+.fdb-status.is-approved { background: #e3f6ea; color: #2f8f5b; }
+.fdb-status.is-rejected { background: #fdeaea; color: #b42318; }
+
+.fdb-action {
+    min-height: 43px;
+    padding: 10px 15px;
+    border: 1px solid rgba(90, 27, 0, 0.17);
+    border-radius: 12px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.fdb-action:hover {
+    border-color: #fb8500;
+    background: #fcbf49;
+    transform: translateY(-1px);
+}
+
+/* step tracker */
+.fdb-tracker {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 24px;
+    padding: 12px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 16px;
+    background: #fffaf0;
+}
+
+.fdb-tracker ol {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fdb-tracker li {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.fdb-tracker li:last-child {
+    flex: 0 0 auto;
+}
+
+.fdb-tracker li:not(:last-child)::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    margin: 0 14px;
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.12);
+}
+
+.fdb-tracker li.is-done:not(:last-child)::after {
+    background: #fb8500;
+}
+
+.fdb-tracker button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #a07c66;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.fdb-tracker button b {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #f1e6c8;
+    color: #a07c66;
+    font-size: 11px;
+}
+
+.fdb-tracker li.is-current button,
+.fdb-tracker li.is-done button {
+    color: #5a1b00;
+}
+
+.fdb-tracker li.is-current button b {
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.fdb-tracker li.is-done button b {
+    background: #2f8f5b;
+    color: #fff;
+}
+
+.fdb-tracker-pill {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: #fff4c4;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.fdb-tracker-pill.is-ready {
+    background: #e3f6ea;
+    color: #2f8f5b;
+}
+
+@media (max-width: 760px) {
+    .fdb-header {
+        flex-direction: column;
+    }
+
+    .fdb-side {
+        justify-items: start;
+    }
+
+    .fdb-tracker {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .fdb-tracker ol {
+        overflow-x: auto;
+    }
+
+    .fdb-tracker li:not(:last-child)::after {
+        min-width: 16px;
     }
 }

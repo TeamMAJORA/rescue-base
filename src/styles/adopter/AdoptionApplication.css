@@ -621,3 +621,642 @@
         width: 100%;
     }
 }
+
+.adoption-draft-note {
+    display: block;
+    margin-top: 10px;
+    color: #75432f;
+    font-size: 11px;
+    text-align: right;
+}
+
+.adoption-tracker {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: -8px 0 24px;
+    padding: 12px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 16px;
+    background: #fffaf0;
+}
+
+.adoption-tracker ol {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.adoption-tracker li {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.adoption-tracker li:last-child {
+    flex: 0 0 auto;
+}
+
+/* connector line between steps */
+.adoption-tracker li:not(:last-child)::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    margin: 0 14px;
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.12);
+}
+
+.adoption-tracker li.is-done:not(:last-child)::after {
+    background: #fb8500;
+}
+
+.adoption-tracker button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #a07c66;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.adoption-tracker button b {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #f1e6c8;
+    color: #a07c66;
+    font-size: 11px;
+}
+
+.adoption-tracker li.is-current button {
+    color: #5a1b00;
+}
+
+.adoption-tracker li.is-current button b {
+    background: #fb8500;
+    color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.adoption-tracker li.is-done button {
+    color: #5a1b00;
+}
+
+.adoption-tracker li.is-done button b {
+    background: #2f8f5b;
+    color: #ffffff;
+}
+
+.adoption-tracker-pill {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: #fff4c4;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.adoption-tracker-pill.is-ready {
+    background: #e3f6ea;
+    color: #2f8f5b;
+}
+
+@media (max-width: 650px) {
+    .adoption-tracker {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .adoption-tracker li:not(:last-child)::after {
+        margin: 0 8px;
+    }
+
+    .adoption-tracker-pill {
+        align-self: flex-start;
+    }
+}
+
+.adoption-tracker li.is-done.is-current button b {
+    background: #fb8500;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+/* ===== Step heading with number badge ===== */
+.adoption-form-heading--numbered {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.adoption-step-number {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.adoption-form-heading--numbered h3 {
+    line-height: 1.1;
+}
+
+.adoption-form-heading--numbered p {
+    margin: 4px 0 0;
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ===== Softer yellow inputs ===== */
+.adoption-form-grid input,
+.adoption-form-grid select,
+.adoption-form-grid textarea {
+    border-color: rgba(251, 133, 0, 0.28);
+    background: #fff7d6;
+}
+
+.adoption-form-grid input::placeholder,
+.adoption-form-grid textarea::placeholder {
+    color: #b3967f;
+}
+
+/* required star */
+.adoption-label-text em {
+    color: #d62828;
+    font-style: normal;
+}
+
+/* ===== Locked (account) fields ===== */
+.adoption-locked-field {
+    position: relative;
+    display: block;
+}
+
+.adoption-locked-field input[readonly] {
+    padding-right: 38px;
+    border-color: rgba(90, 27, 0, 0.12);
+    background: #f6efd6;
+    color: #7b6658;
+}
+
+.adoption-lock-icon {
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    width: 15px;
+    height: 15px;
+    transform: translateY(-50%);
+    fill: none;
+    stroke: #a07c66;
+    stroke-width: 2;
+    stroke-linecap: round;
+    pointer-events: none;
+}
+
+/* ===== +63 phone field ===== */
+.adoption-phone-field {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 12px;
+    background: #fff7d6;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.adoption-phone-field:focus-within {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.adoption-phone-prefix {
+    display: grid;
+    place-items: center;
+    padding: 0 14px;
+    border-right: 1px solid rgba(251, 133, 0, 0.28);
+    background: #ffeeb8;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.adoption-form-grid .adoption-phone-field input {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* ===== Home type choice buttons ===== */
+.adoption-choice-field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.adoption-label-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.adoption-choice-group {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.adoption-choice-group button {
+    min-height: 46px;
+    padding: 8px 6px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 12px;
+    background: #fff7d6;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.adoption-choice-group button:hover {
+    background: #ffeeb8;
+}
+
+.adoption-choice-group button.is-selected {
+    border-color: transparent;
+    background: linear-gradient(115deg, #fb8500, #ffa53a);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.3);
+}
+
+@media (max-width: 650px) {
+    .adoption-choice-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ===== Info tip ("?") — same look as the admin forms ===== */
+.adoption-module .admin-info-tip {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    display: inline-grid;
+    place-items: center;
+    margin-left: 4px;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: help;
+    outline: none;
+}
+
+.adoption-module .admin-info-tip:focus-visible {
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.adoption-module .admin-info-tip-bubble {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: -12px;
+    right: auto;
+    z-index: 20;
+    width: 260px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #4a1a00;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.55;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: normal;
+    box-shadow: 0 10px 24px rgba(58, 18, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
+}
+
+.adoption-module .admin-info-tip-bubble::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 15px;
+    border-width: 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #4a1a00;
+}
+
+.adoption-module .admin-info-tip:hover .admin-info-tip-bubble,
+.adoption-module .admin-info-tip:focus .admin-info-tip-bubble {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ===== Home type: row 1 House · Apartment · Condo, row 2 Boarding House · Other ===== */
+.adoption-choice-group {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.adoption-choice-group button {
+    grid-column: span 2;
+}
+
+.adoption-choice-group button:nth-child(n + 4) {
+    grid-column: span 3;
+}
+
+/* the "Other" text box */
+.adoption-choice-field > input {
+    min-height: 46px;
+    margin-top: 2px;
+    padding: 10px 13px;
+}
+
+@media (max-width: 650px) {
+    .adoption-choice-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .adoption-choice-group button,
+    .adoption-choice-group button:nth-child(n + 4) {
+        grid-column: auto;
+    }
+
+    .adoption-choice-group button:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+.adoption-form-grid input.has-error,
+.adoption-form-grid textarea.has-error,
+.adoption-choice-field > input.has-error,
+.adoption-phone-field.has-error {
+    border-color: #d62828;
+    background: #fff1ee;
+}
+
+.adoption-form-grid input.has-error:focus,
+.adoption-form-grid textarea.has-error:focus,
+.adoption-phone-field.has-error:focus-within {
+    border-color: #d62828;
+    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.14);
+}
+
+.adoption-phone-field.has-error .adoption-phone-prefix {
+    border-right-color: rgba(214, 40, 40, 0.35);
+    background: #ffe1db;
+}
+
+.adoption-form-grid .adoption-field-error,
+.adoption-choice-field .adoption-field-error {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #c21f1f;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.adoption-field-error::before {
+    content: "!";
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #d62828;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+/* ===== Step 2: Yes / No buttons ===== */
+.adoption-choice-group.adoption-choice-group--yesno {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.adoption-choice-group.adoption-choice-group--yesno button {
+    grid-column: auto;
+}
+
+/* ===== Textarea with character counter ===== */
+.adoption-textarea-wrap {
+    position: relative;
+    display: block;
+}
+
+.adoption-textarea-wrap textarea {
+    display: block;
+    padding-bottom: 30px;
+}
+
+.adoption-char-count {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    color: #a07c66;
+    font-size: 10px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+/* ===== Info tip: keep the popup on screen on phones ===== */
+@media (max-width: 650px) {
+    .adoption-module .adoption-label-text {
+        position: relative;
+    }
+
+    .adoption-module .adoption-label-text .admin-info-tip {
+        position: static;
+    }
+
+    .adoption-module .adoption-label-text .admin-info-tip-bubble {
+        left: 0;
+        width: min(260px, calc(100vw - 72px));
+    }
+
+    .adoption-module .adoption-label-text .admin-info-tip-bubble::before {
+        display: none;
+    }
+}
+
+/* ===== Step 3: ID drag-and-drop ===== */
+.adoption-id-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.adoption-dropzone {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 24px;
+    border: 2px dashed rgba(251, 133, 0, 0.45);
+    border-radius: 15px;
+    background: #fff7d6;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.adoption-dropzone:hover,
+.adoption-dropzone.is-dragging,
+.adoption-dropzone:focus-within {
+    border-color: #fb8500;
+    background: #ffeeb8;
+}
+
+.adoption-dropzone.is-uploading {
+    cursor: progress;
+    opacity: 0.7;
+}
+
+.adoption-dropzone.has-error {
+    border-color: #d62828;
+    background: #fff1ee;
+}
+
+/* hidden but still focusable for the error scroll */
+.adoption-dropzone-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.adoption-dropzone-icon {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #ffe2a8;
+}
+
+.adoption-dropzone-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: #fb8500;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.adoption-dropzone-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.adoption-dropzone-text strong {
+    color: #3a1200;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.adoption-dropzone-text small {
+    color: #86604d;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.adoption-dropzone-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.adoption-dropzone-tags span {
+    padding: 3px 10px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #fffaf0;
+    color: #5a1b00;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.adoption-dropzone-button {
+    flex-shrink: 0;
+    padding: 11px 20px;
+    border-radius: 10px;
+    background: #4a1a00;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    transition: background 0.2s ease;
+}
+
+.adoption-dropzone:hover .adoption-dropzone-button {
+    background: #fb8500;
+}
+
+.adoption-id-field .adoption-field-error {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #c21f1f;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+@media (max-width: 650px) {
+    .adoption-dropzone {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .adoption-dropzone-tags {
+        justify-content: center;
+    }
+
+    .adoption-dropzone-button {
+        width: 100%;
+        text-align: center;
+    }
+}

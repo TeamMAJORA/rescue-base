@@ -1,4 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
+import { isAdmin } from "../../../utils/auth";
+
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -167,7 +176,7 @@ export default function Donations() {
     }
 
     async function handleDeleteDonation(donationId) {
-        const confirmed = window.confirm("Are you sure you want to delete this donation record?");
+        const confirmed = await askConfirm({ title: "Delete this donation record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) return;
 
@@ -451,13 +460,15 @@ export default function Donations() {
                                             </button>
                                         )}
 
-                                        <button
-                                            type="button"
-                                            className="delete"
-                                            onClick={() => handleDeleteDonation(donation._id)}
-                                        >
-                                            Delete
-                                        </button>
+                                        {isAdmin() && (
+                                            <button
+                                                type="button"
+                                                className="delete"
+                                                onClick={() => handleDeleteDonation(donation._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
                                     </div>
                                 </article>
                             ))}

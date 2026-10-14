@@ -4,6 +4,14 @@ import {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
+
 const emptyAssignmentForm = {
     fosterApplicationId: "",
     fosterName: "",
@@ -15,7 +23,78 @@ const emptyAssignmentForm = {
 };
 
 
+// Update icons here, add nako sa public and mga svgs later
+const STAT_ICONS = {
+    check: <path d="M20 6 9 17l-5-5" />,
+    home: <path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
+    heart: <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" />,
 
+    // reused from IntakeRecords / BehaviorAssessment
+    search: (
+        <>
+            <circle cx="11" cy="11" r="7" />
+            <path d="m21 21-4.3-4.3" />
+        </>
+    ),
+    paw: (
+        <>
+            <circle cx="11" cy="4" r="2" />
+            <circle cx="18" cy="8" r="2" />
+            <circle cx="4" cy="8" r="2" />
+            <path d="M8 14c0-2 2-4 4-4s4 2 4 4-1 6-4 6-4-4-4-6z" />
+        </>
+    ),
+    // new: no trash icon exists in the project yet
+    trash: (
+        <>
+            <path d="M3 6h18" />
+            <path d="M8 6V4h8v2" />
+            <path d="M19 6l-1 14H6L5 6" />
+            <path d="M10 11v6M14 11v6" />
+        </>
+    ),
+
+        // reused from AdoptionApplications review modal
+    mail: (
+        <>
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3 7 9 6 9-6" />
+        </>
+    ),
+    calendar: (
+        <>
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M3 10h18M8 3v4M16 3v4" />
+        </>
+    ),
+    x: <path d="M7 7l10 10M17 7 7 17" />,
+    // new: small "i" for the info note
+    info: (
+        <>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v5M12 8h.01" />
+        </>
+    ),
+};
+
+function StatIcon({ name, size = 15 }) {
+    return (
+        <svg
+            className="ao-icon"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            {STAT_ICONS[name]}
+        </svg>
+    );
+}
 export default function FosterCare() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,6 +102,12 @@ export default function FosterCare() {
     const [editingId, setEditingId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [medicalRequests, setMedicalRequests] = useState([]);
+    const [listFilter, setListFilter] = useState("all");
+    const [listSearch, setListSearch] = useState("");
+    const [appFilter, setAppFilter] = useState("all");
+    const [reviewingApplication, setReviewingApplication] = useState(null);
+    const [reviewingRequest, setReviewingRequest] = useState(null);
+    const [assigningApplication, setAssigningApplication] = useState(null);
     const token = localStorage.getItem("token")
 
     const [assignmentForm, setAssignmentForm] =
@@ -206,7 +291,7 @@ export default function FosterCare() {
             setMessage("");
 
             const response = await fetch(
-                `${API}/api/foster/assignments/${id}/bevahior-evaluation/accept`,
+                `${API}/api/foster/assignments/${id}/behavior-evaluation/accept`,
                 {
                     method: "PATCH",
                     headers: {
@@ -303,9 +388,7 @@ export default function FosterCare() {
     }
 
     async function handleDeleteAssignment(id) {
-        const confirmDelete = window.confirm(
-            "Delete this in-progress foster assignment?"
-        );
+        const confirmDelete = await askConfirm({ title: "Delete this foster assignment?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmDelete) return;
 
@@ -412,6 +495,7 @@ export default function FosterCare() {
             });
 
             setAssignmentForm(emptyAssignmentForm);
+            setAssigningApplication(null);
             fetchAssignments();
             fetchFosterApplications();
         } catch (error) {
@@ -587,195 +671,901 @@ export default function FosterCare() {
         fetchMedicalRequests();
     }, []);
 
+    // ----- Foster Applications -----
+    const APP_FILTERS = [
+        { value: "all", label: "All" },
+        { value: "pending", label: "Pending" },
+        { value: "approved", label: "Approved" },
+    ];
+
+    const pendingApplicationCount = applications.filter(
+        (application) => application.status === "pending"
+    ).length;
+
+    const visibleApplications =
+        appFilter === "all"
+            ? applications
+            : applications.filter((application) => application.status === appFilter);
+
+    // Active animals per foster email (used for "Full")
+    const activeCountByEmail = assignments.reduce((counts, assignment) => {
+        if (assignment.status === "active") {
+            counts[assignment.fosterEmail] = (counts[assignment.fosterEmail] || 0) + 1;
+        }
+        return counts;
+    }, {});
+
+    function isFosterFull(application) {
+        const used = activeCountByEmail[application.applicantEmail] || 0;
+        return used >= (Number(application.capacity) || 1);
+    }
+
+    // Assign: open the "New Foster Assignment" pop-up for this foster
+    function startAssign(application) {
+        setMessage("");
+        setAssignmentForm({
+            ...emptyAssignmentForm,
+            fosterApplicationId: application._id,
+            fosterName: application.applicantName,
+            fosterEmail: application.applicantEmail,
+        });
+        setAssigningApplication(application);
+    }
+
+    function closeAssign() {
+        setAssigningApplication(null);
+        setAssignmentForm(emptyAssignmentForm);
+    }
+
+    async function decideFromReview(status) {
+        if (!reviewingApplication) return;
+        await handleReviewFosterApplication(reviewingApplication._id, status);
+        setReviewingApplication(null);
+    }
+
+    function yesNo(value) {
+        return value ? "Yes" : "No";
+    }
+
+    function getInitials(name) {
+        return String(name || "?")
+            .trim()
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((part) => part[0])
+            .join("")
+            .toUpperCase();
+    }
+
+    const PREFERS_LABEL = { Dog: "Dogs", Cat: "Cats", Both: "Both", Other: "Other" };
+
+    // ----- Current Foster Assignments list -----
+    const LIST_FILTERS = [
+        { value: "all", label: "All" },
+        { value: "active", label: "Active" },
+        { value: "completed", label: "Completed" },
+    ];
+
+    const PET_TINTS = ["is-orange", "is-plum", "is-sage", "is-sky"];
+
+    const listQuery = listSearch.trim().toLowerCase();
+
+    const visibleAssignments = assignments.filter((assignment) => {
+        if (listFilter !== "all" && assignment.status !== listFilter) return false;
+        if (!listQuery) return true;
+
+        return [
+            assignment.petName,
+            assignment.petBreed,
+            assignment.fosterName,
+            assignment.fosterEmail,
+        ].some((value) => String(value || "").toLowerCase().includes(listQuery));
+    });
+
+    function formatShortDate(value) {
+        if (!value) return "—";
+        return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+
+    // ----- Stats strip numbers -----
+    const pendingApplications = applications.filter(
+        (application) => application.status === "pending"
+    ).length;
+
+    // One approved application per foster (keep the latest)
+    const approvedByEmail = new Map();
+    applications
+        .filter((application) => application.status === "approved")
+        .forEach((application) => {
+            if (!approvedByEmail.has(application.applicantEmail)) {
+                approvedByEmail.set(application.applicantEmail, application);
+            }
+        });
+
+    const approvedFosters = approvedByEmail.size;
+
+    const totalSlots = [...approvedByEmail.values()].reduce(
+        (sum, application) => sum + (Number(application.capacity) || 1),
+        0
+    );
+
+    const activeAssignments = assignments.filter(
+        (assignment) => assignment.status === "active"
+    ).length;
+
+    const openMedicalRequests = medicalRequests.filter(
+        (request) => request.status !== "resolved"
+    ).length;
+
+    function scrollToApplications() {
+        document
+            .getElementById("foster-applications")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // ----- Medical Requests -----
+    // Open requests first, newest first inside each group
+    const sortedMedicalRequests = [...medicalRequests].sort((a, b) => {
+        const aOpen = a.status !== "resolved";
+        const bOpen = b.status !== "resolved";
+        if (aOpen !== bOpen) return aOpen ? -1 : 1;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    const URGENCY_LABEL = {
+        Low: "Low",
+        Medium: "Medium",
+        High: "Urgent",
+        Emergency: "Emergency",
+    };
+
+    const MEDICAL_STATUS_LABEL = {
+        pending: "Pending",
+        in_progress: "In progress",
+        resolved: "Resolved",
+    };
+
+    async function updateFromReview(status) {
+        if (!reviewingRequest) return;
+        await handleUpdateMedicalRequest(
+            reviewingRequest.assignmentId,
+            reviewingRequest._id,
+            status
+        );
+        setReviewingRequest(null);
+    }
+
     return (
         <section className="admin-foster-page">
-            <section className="admin-panel admin-foster-application-panel">
-                <div className="admin-panel-heading">
-                    <div>
-                        <h2>Foster Applications</h2>
-                        <p>Register and approve foster caregivers before assigning animals.</p>
+            {/* Stats strip — same design as the Animal pages (styles in IntakeRecords.css) */}
+            <div className="ao-page">
+                <div className="ao-strip">
+                    <div className="ao-strip-cta">
+                        <div>
+                            <b>{pendingApplications}</b>
+                            <small>
+                                {pendingApplications === 1
+                                    ? "Application to review"
+                                    : "Applications to review"}
+                            </small>
+                        </div>
+
+                        {pendingApplications > 0 && (
+                            <button type="button" onClick={scrollToApplications}>
+                                Review →
+                            </button>
+                        )}
                     </div>
 
-                    <button type="button" onClick={fetchFosterApplications}>
-                        Refresh Applications
-                    </button>
-                </div>
-
-                <section className="admin-panel admin-foster-assignment-panel">
-
-                    <div className="admin-panel-heading">
-                        <div>
-                            <h2>Create Foster Assignment</h2>
-                            <p>
-                                Assign an approved foster caregiver to a rescued animal.
-                            </p>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <StatIcon name="check" />
+                            Approved Fosters
+                        </div>
+                        <div className="ao-strip-value">
+                            {approvedFosters}
+                            <em>{totalSlots} {totalSlots === 1 ? "slot" : "slots"} total</em>
                         </div>
                     </div>
 
-                    <form
-                        className="admin-foster-assignment-form"
-                        onSubmit={handleCreateAssignment}
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <StatIcon name="home" />
+                            Active Assignments
+                        </div>
+                        <div className="ao-strip-value">
+                            {activeAssignments}
+                            <em>of {totalSlots} {totalSlots === 1 ? "slot" : "slots"}</em>
+                        </div>
+                    </div>
+
+                    <div className={`ao-strip-item ${openMedicalRequests > 0 ? "is-alert" : ""}`}>
+                        <div className="ao-strip-label">
+                            <StatIcon name="heart" />
+                            Medical Requests
+                        </div>
+                        <div className="ao-strip-value">
+                            {openMedicalRequests}
+                            <em>open</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <div className="afc-layout">
+        <div className="afc-main">
+            <section className="admin-panel admin-foster-list-panel">
+                <div className="admin-panel-heading">
+                    <div>
+                        <h2>
+                            Current Foster Assignments
+                            <span className="afl-count">{assignments.length}</span>
+                        </h2>
+                        <p>
+                            Manage all active and completed foster assignments.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        className={`afl-refresh ${loading ? "is-loading" : ""}`}
+                        onClick={fetchAssignments}
+                        disabled={loading}
                     >
+                        <img src="/icons/Refresh cw.svg" alt="" />
+                        {loading ? "Refreshing..." : "Refresh"}
+                    </button>
+                </div>
 
-                        <label>
-                            Approved Foster
+                <div className="afl-toolbar">
+                    <label className="afl-search">
+                        <StatIcon name="search" />
+                        <input
+                            type="search"
+                            value={listSearch}
+                            onChange={(event) => setListSearch(event.target.value)}
+                            placeholder="Search pet or foster..."
+                        />
+                    </label>
 
-                            <select
-                                value={assignmentForm.fosterApplicationId}
-                                onChange={handleApplicationSelect}
-                                required
+                    <div className="afl-filters" role="tablist" aria-label="Filter assignments">
+                        {LIST_FILTERS.map((filter) => (
+                            <button
+                                key={filter.value}
+                                type="button"
+                                className={listFilter === filter.value ? "is-active" : ""}
+                                onClick={() => setListFilter(filter.value)}
                             >
+                                {filter.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-                                <option value="">
-                                    Select Approved Foster
-                                </option>
+                {loading && assignments.length === 0 ? (
+                    <p className="admin-empty">Loading assignments...</p>
+                ) : visibleAssignments.length === 0 ? (
+                    <p className="admin-empty">
+                        {assignments.length === 0
+                            ? "No foster assignments found."
+                            : "No assignments match your search."}
+                    </p>
+                ) : (
+                    <div className="afl-table">
+                        <div className="afl-head" aria-hidden="true">
+                            <span>Pet</span>
+                            <span>Foster</span>
+                            <span>Started</span>
+                            <span>Updates</span>
+                            <span>Status</span>
+                            <span className="afl-right">Actions</span>
+                        </div>
 
-                                {applications
-                                    .filter(
-                                        (application) =>
-                                            application.status === "approved"
-                                    )
-                                    .map((application) => (
-                                        <option
-                                            key={application._id}
-                                            value={application._id}
-                                        >
-                                            {application.applicantName}
-                                        </option>
-                                    ))}
+                        {visibleAssignments.map((assignment, index) => (
+                            <article className="afl-item" key={assignment._id}>
+                                <div className="afl-row">
+                                    <div className="afl-pet">
+                                        <span className={`afl-avatar ${PET_TINTS[index % PET_TINTS.length]}`}>
+                                            {assignment.petImage ? (
+                                                <img src={assignment.petImage} alt="" />
+                                            ) : (
+                                                <StatIcon name="paw" size={24} />
+                                            )}
+                                        </span>
+                                        <div>
+                                            <b>{assignment.petName}</b>
+                                            <small>{assignment.petBreed || "Unknown breed"}</small>
+                                        </div>
+                                    </div>
 
-                            </select>
-                        </label>
+                                    <div className="afl-foster">
+                                        <b>{assignment.fosterName}</b>
+                                        <small>{assignment.fosterEmail}</small>
+                                    </div>
 
-                        <label>
-                            Foster Email
+                                    <span className="afl-cell" data-label="Started">
+                                        {formatShortDate(assignment.startDate)}
+                                    </span>
 
-                            <input
-                                value={assignmentForm.fosterEmail}
-                                readOnly
-                            />
-                        </label>
+                                    <span className="afl-cell" data-label="Updates">
+                                        {assignment.updates?.length || 0}
+                                    </span>
 
-                        <label>
-                            Pet Name
+                                    <div className="afl-cell" data-label="Status">
+                                        <span className={`afl-status is-${assignment.status}`}>
+                                            {assignment.status}
+                                        </span>
+                                        {assignment.behaviorEvaluation?.status === "pending" && (
+                                            <span className="afl-flag">Evaluation to review</span>
+                                        )}
+                                    </div>
 
-                            <input
-                                value={assignmentForm.petName}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petName: e.target.value,
-                                    })
-                                }
-                                required
-                            />
-                        </label>
+                                    <div className="afl-actions">
+                                        {assignment.status === "active" ? (
+                                            <>
+                                                {assignment.behaviorEvaluation?.status === "accepted" && (
+                                                    <button
+                                                        type="button"
+                                                        className="afl-icon-btn"
+                                                        title="Mark completed"
+                                                        aria-label={`Complete ${assignment.petName}'s assignment`}
+                                                        onClick={() => handleCompleteAssignment(assignment._id)}
+                                                    >
+                                                        <StatIcon name="check" />
+                                                    </button>
+                                                )}
 
-                        <label>
-                            Breed
+                                                <button
+                                                    type="button"
+                                                    className="afl-icon-btn"
+                                                    title="Edit"
+                                                    aria-label={`Edit ${assignment.petName}'s assignment`}
+                                                    onClick={() => handleEditAssignment(assignment)}
+                                                >
+                                                    <img src="/icons/edit.svg" alt="" />
+                                                </button>
 
-                            <input
-                                value={assignmentForm.petBreed}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petBreed: e.target.value,
-                                    })
-                                }
-                            />
-                        </label>
-
-                        <label>
-                            Pet Image URL
-
-                            <input
-                                value={assignmentForm.petImage}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petImage: e.target.value,
-                                    })
-                                }
-                            />
-                        </label>
-
-                        <label className="admin-foster-care-field">
-
-                            Care Instructions
-
-                            <textarea
-                                rows="4"
-                                value={assignmentForm.careInstructions}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        careInstructions: e.target.value,
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                        >
-                            {submitting
-                                ? "Assigning..."
-                                : "Assign Foster"}
-                        </button>
-
-                    </form>
-
-                </section>
-
-                <div className="admin-foster-application-list">
-                    {applications.length === 0 ? (
-                        <p className="admin-empty">No foster applications found.</p>
-                    ) : (
-                        applications.map((application) => (
-                            <article className="admin-foster-application-card" key={application._id}>
-                                <div>
-                                    <h3>{application.applicantName}</h3>
-                                    <p>{application.applicantEmail}</p>
-                                    <small>
-                                        Capacity: {application.capacity} • Preferred: {application.preferredAnimalType}
-                                    </small>
+                                                <button
+                                                    type="button"
+                                                    className="afl-icon-btn is-danger"
+                                                    title="Delete"
+                                                    aria-label={`Delete ${assignment.petName}'s assignment`}
+                                                    onClick={() => handleDeleteAssignment(assignment._id)}
+                                                >
+                                                    <StatIcon name="trash" />
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <span className="afl-muted">—</span>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <strong className={`admin-foster-status ${application.status}`}>
-                                    {application.status}
-                                </strong>
+                                {assignment.behaviorEvaluation?.status === "pending" && (
+                                    <div className="admin-foster-behavior-review">
+                                        <div className="admin-foster-behavior-heading">
+                                            <strong>Behavioral Evaluation</strong>
+                                            <span>Pending Review</span>
+                                        </div>
 
-                                <div className="admin-foster-application-actions">
-                                    {application.status !== "approved" && (
+                                        <div className="admin-foster-behavior-grid">
+                                            <div>
+                                                <strong>Energy Level</strong>
+                                                <span>{assignment.behaviorEvaluation.energyLevel}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Friendliness</strong>
+                                                <span>{assignment.behaviorEvaluation.friendliness}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Human Sociability</strong>
+                                                <span>{assignment.behaviorEvaluation.humanSociability}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Animal Sociability</strong>
+                                                <span>{assignment.behaviorEvaluation.animalSociability}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Trainability</strong>
+                                                <span>{assignment.behaviorEvaluation.trainability}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Anxiety Level</strong>
+                                                <span>{assignment.behaviorEvaluation.anxietyLevel}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Aggression Level</strong>
+                                                <span>{assignment.behaviorEvaluation.aggressionLevel}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Activity Level</strong>
+                                                <span>{assignment.behaviorEvaluation.activityLevel}/5</span>
+                                            </div>
+                                        </div>
+
+                                        {assignment.behaviorEvaluation.notes && (
+                                            <div className="admin-foster-behavior-notes">
+                                                <strong>Foster Notes</strong>
+                                                <p>{assignment.behaviorEvaluation.notes}</p>
+                                            </div>
+                                        )}
+
+                                        <div className="admin-foster-behavior-meta">
+                                            <span>
+                                                Submitted by:{" "}
+                                                {assignment.behaviorEvaluation.submittedBy || assignment.fosterName}
+                                            </span>
+
+                                            {assignment.behaviorEvaluation.submittedAt && (
+                                                <span>
+                                                    Submitted:{" "}
+                                                    {new Date(assignment.behaviorEvaluation.submittedAt).toLocaleDateString()}
+                                                </span>
+                                            )}
+                                        </div>
+
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                handleReviewFosterApplication(application._id, "approved")
-                                            }
+                                            onClick={() => handleAcceptBehaviorEvaluation(assignment._id)}
                                         >
-                                            Approve
+                                            Accept Evaluation
                                         </button>
-                                    )}
-
-                                    {application.status !== "rejected" && (
-                                        <button
-                                            type="button"
-                                            className="reject"
-                                            onClick={() =>
-                                                handleReviewFosterApplication(application._id, "rejected")
-                                            }
-                                        >
-                                            Reject
-                                        </button>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </article>
-                        ))
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            <section id="foster-applications" className="admin-panel afa-panel">
+                <div className="afa-heading">
+                    <div>
+                        <h2>
+                            Foster Applications
+                            {pendingApplicationCount > 0 && (
+                                <span className="afc-new">{pendingApplicationCount} new</span>
+                            )}
+                        </h2>
+                        <p>Review caregivers, then assign animals to approved fosters.</p>
+                    </div>
+
+                    <div className="afl-filters">
+                        {APP_FILTERS.map((filter) => (
+                            <button
+                                key={filter.value}
+                                type="button"
+                                className={appFilter === filter.value ? "is-active" : ""}
+                                onClick={() => setAppFilter(filter.value)}
+                            >
+                                {filter.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="afa-list">
+                    {visibleApplications.length === 0 ? (
+                        <p className="afc-empty">
+                            {appFilter === "all"
+                                ? "No foster applications found."
+                                : `No ${appFilter} applications.`}
+                        </p>
+                    ) : (
+                        visibleApplications.map((application) => {
+                            const full = application.status === "approved" && isFosterFull(application);
+
+                            return (
+                                <article className="afa-row" key={application._id}>
+                                    <span className="afc-initials" aria-hidden="true">
+                                        {getInitials(application.applicantName)}
+                                    </span>
+
+                                    <div className="afa-person">
+                                        <b>{application.applicantName}</b>
+                                        <small>{application.applicantEmail}</small>
+                                    </div>
+
+                                    <div className="afa-chips">
+                                        <span>Capacity {application.capacity || 1}</span>
+                                        <span>
+                                            Prefers{" "}
+                                            {PREFERS_LABEL[application.preferredAnimalType] ||
+                                                application.preferredAnimalType ||
+                                                "Any"}
+                                        </span>
+                                    </div>
+
+                                    <span className={`afa-status is-${application.status}`}>
+                                        {application.status}
+                                    </span>
+
+                                    <div className="afa-actions">
+                                        <button
+                                            type="button"
+                                            className="afa-review"
+                                            onClick={() => setReviewingApplication(application)}
+                                        >
+                                            Review
+                                        </button>
+
+                                        {application.status !== "approved" ? (
+                                            <button type="button" className="afa-assign" disabled>
+                                                Assign
+                                            </button>
+                                        ) : full ? (
+                                            <button type="button" className="afa-assign is-full" disabled>
+                                                Full
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className="afa-assign"
+                                                onClick={() => startAssign(application)}
+                                            >
+                                                Assign
+                                            </button>
+                                        )}
+                                    </div>
+                                </article>
+                            );
+                        })
                     )}
                 </div>
             </section>
+
+            {reviewingApplication && (
+                <div
+                    className="admin-modal-overlay"
+                    onClick={() => setReviewingApplication(null)}
+                >
+                    <div
+                        className="afr-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`Review ${reviewingApplication.applicantName}`}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <header className="afr-head">
+                            <span className="afr-avatar" aria-hidden="true">
+                                {getInitials(reviewingApplication.applicantName)}
+                            </span>
+
+                            <div className="afr-who">
+                                <span className="afr-eyebrow">Foster Application</span>
+                                <h2>{reviewingApplication.applicantName}</h2>
+                                <small>
+                                    <StatIcon name="mail" size={14} />
+                                    {reviewingApplication.applicantEmail}
+                                </small>
+                            </div>
+
+                            <span className={`afr-pill is-${reviewingApplication.status}`}>
+                                <i aria-hidden="true" />
+                                {reviewingApplication.status === "pending"
+                                    ? "Pending review"
+                                    : reviewingApplication.status}
+                            </span>
+
+                            <button
+                                type="button"
+                                className="afr-close"
+                                onClick={() => setReviewingApplication(null)}
+                                aria-label="Close"
+                            >
+                                <StatIcon name="x" size={16} />
+                            </button>
+                        </header>
+
+                        {/* Body */}
+                        <div className="afr-body">
+                            <div className="afr-facts">
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <img src="/icons/User-brown.svg" alt="" />
+                                    </span>
+                                    <div>
+                                        <small>Requested role</small>
+                                        <b>Foster</b>
+                                    </div>
+                                </div>
+
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="calendar" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Applied on</small>
+                                        <b>
+                                            {reviewingApplication.createdAt
+                                                ? new Date(reviewingApplication.createdAt).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric",
+                                                })
+                                                : "—"}
+                                        </b>
+                                    </div>
+                                </div>
+
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="home" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Capacity</small>
+                                        <b>
+                                            {reviewingApplication.capacity || 1}{" "}
+                                            {(reviewingApplication.capacity || 1) === 1 ? "animal" : "animals"}
+                                        </b>
+                                    </div>
+                                </div>
+
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="paw" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Prefers</small>
+                                        <b>
+                                            {PREFERS_LABEL[reviewingApplication.preferredAnimalType] ||
+                                                reviewingApplication.preferredAnimalType ||
+                                                "Any"}
+                                        </b>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="afr-why">
+                                <h3>Why they want to foster</h3>
+                                <p>
+                                    {reviewingApplication.notes ||
+                                        reviewingApplication.fosterExperience ||
+                                        "No reason given."}
+                                </p>
+                            </div>
+
+                            {/* Everything else from the application, folded away */}
+                            <details className="afr-more">
+                                <summary>Full application details</summary>
+
+                                <div className="afa-detail-grid">
+                                    <p><span>Phone</span>{reviewingApplication.phoneNumber || "—"}</p>
+                                    <p><span>Address</span>{reviewingApplication.address || "—"}</p>
+                                    <p><span>Housing</span>{reviewingApplication.housingType || "—"}</p>
+                                    <p><span>Available space</span>{reviewingApplication.availableSpace || "—"}</p>
+                                    <p><span>Has pets</span>{yesNo(reviewingApplication.hasPets)}</p>
+                                    <p><span>Has children</span>{yesNo(reviewingApplication.hasChildren)}</p>
+                                    <p><span>Duration</span>{reviewingApplication.fosterDuration || "—"}</p>
+                                    <p><span>Preferred size</span>{reviewingApplication.preferredSize || "—"}</p>
+                                    <p><span>Available time</span>{reviewingApplication.availableTime || "—"}</p>
+                                    <p><span>Experience</span>{reviewingApplication.fosterExperience || "—"}</p>
+                                    <p><span>Emergency contact</span>{reviewingApplication.emergencyName || "—"}</p>
+                                    <p>
+                                        <span>Emergency phone</span>
+                                        {reviewingApplication.emergencyPhone || "—"}
+                                        {reviewingApplication.emergencyRelationship
+                                            ? ` (${reviewingApplication.emergencyRelationship})`
+                                            : ""}
+                                    </p>
+                                </div>
+                            </details>
+
+                            <p className={`afr-note is-${reviewingApplication.status}`}>
+                                <StatIcon name="info" size={16} />
+                                {reviewingApplication.status === "approved"
+                                    ? `${reviewingApplication.applicantName.split(" ")[0]} is an approved foster. Use Assign in the list to place an animal.`
+                                    : reviewingApplication.status === "rejected"
+                                        ? "This application was rejected. Approving it now will make them an approved foster."
+                                        : `Approving makes ${reviewingApplication.applicantName.split(" ")[0]} an approved foster. You can then assign animals from the list.`}
+                            </p>
+                        </div>
+
+                        {/* Footer */}
+                        <footer className="afr-foot">
+                            <button
+                                type="button"
+                                className="afr-btn is-ghost"
+                                onClick={() => setReviewingApplication(null)}
+                            >
+                                Close
+                            </button>
+
+                            <div className="afr-foot-actions">
+                                {reviewingApplication.status === "pending" && (
+                                    <button
+                                        type="button"
+                                        className="afr-btn is-reject"
+                                        onClick={() => decideFromReview("rejected")}
+                                    >
+                                        Reject
+                                    </button>
+                                )}
+
+                                {reviewingApplication.status !== "approved" && (
+                                    <button
+                                        type="button"
+                                        className="afr-btn is-approve"
+                                        onClick={() => decideFromReview("approved")}
+                                    >
+                                        <StatIcon name="check" size={16} />
+                                        Approve
+                                    </button>
+                                )}
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            )}
+            
+            {assigningApplication && (
+                <div
+                    className="admin-modal-overlay"
+                    onClick={closeAssign}
+                >
+                    <form
+                        className="afr-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`Assign an animal to ${assigningApplication.applicantName}`}
+                        onClick={(event) => event.stopPropagation()}
+                        onSubmit={handleCreateAssignment}
+                    >
+                        {/* Header */}
+                        <header className="afr-head">
+                            <span className="afr-avatar" aria-hidden="true">
+                                {getInitials(assigningApplication.applicantName)}
+                            </span>
+
+                            <div className="afr-who">
+                                <span className="afr-eyebrow">New Foster Assignment</span>
+                                <h2>{assigningApplication.applicantName}</h2>
+                                <small>
+                                    <StatIcon name="mail" size={14} />
+                                    {assigningApplication.applicantEmail}
+                                </small>
+                            </div>
+
+                            <span className="afr-pill is-approved is-slots">
+                                <i aria-hidden="true" />
+                                {activeCountByEmail[assigningApplication.applicantEmail] || 0} of{" "}
+                                {assigningApplication.capacity || 1} slots used
+                            </span>
+
+                            <button
+                                type="button"
+                                className="afr-close"
+                                onClick={closeAssign}
+                                aria-label="Close"
+                            >
+                                <StatIcon name="x" size={16} />
+                            </button>
+                        </header>
+
+                        {/* Body */}
+                        <div className="afr-body">
+                            <div className="afr-facts is-three">
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="home" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Capacity</small>
+                                        <b>
+                                            {assigningApplication.capacity || 1}{" "}
+                                            {(assigningApplication.capacity || 1) === 1 ? "animal" : "animals"}
+                                        </b>
+                                    </div>
+                                </div>
+
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="paw" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Prefers</small>
+                                        <b>
+                                            {PREFERS_LABEL[assigningApplication.preferredAnimalType] ||
+                                                assigningApplication.preferredAnimalType ||
+                                                "Any"}
+                                        </b>
+                                    </div>
+                                </div>
+
+                                <div className="afr-fact">
+                                    <span className="afr-fact-icon">
+                                        <StatIcon name="calendar" size={16} />
+                                    </span>
+                                    <div>
+                                        <small>Duration</small>
+                                        <b>{assigningApplication.fosterDuration || "—"}</b>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="afr-form">
+                                <label>
+                                    <span>Pet name <em>*</em></span>
+                                    <input
+                                        value={assignmentForm.petName}
+                                        onChange={(e) =>
+                                            setAssignmentForm({ ...assignmentForm, petName: e.target.value })
+                                        }
+                                        placeholder="e.g. Bantay"
+                                        required
+                                    />
+                                </label>
+
+                                <label>
+                                    Breed
+                                    <input
+                                        value={assignmentForm.petBreed}
+                                        onChange={(e) =>
+                                            setAssignmentForm({ ...assignmentForm, petBreed: e.target.value })
+                                        }
+                                        placeholder="e.g. Aspin"
+                                    />
+                                </label>
+
+                                <label className="is-wide">
+                                    Pet image URL
+                                    <input
+                                        value={assignmentForm.petImage}
+                                        onChange={(e) =>
+                                            setAssignmentForm({ ...assignmentForm, petImage: e.target.value })
+                                        }
+                                        placeholder="https://..."
+                                    />
+                                </label>
+
+                                <label className="is-wide">
+                                    Care instructions
+                                    <textarea
+                                        rows="3"
+                                        value={assignmentForm.careInstructions}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                careInstructions: e.target.value,
+                                            })
+                                        }
+                                        placeholder="Provide food, water, shelter, and weekly updates."
+                                    />
+                                </label>
+                            </div>
+
+                            {message ? (
+                                <p className="afr-note is-rejected">
+                                    <StatIcon name="info" size={16} />
+                                    {message}
+                                </p>
+                            ) : (
+                                <p className="afr-note is-approved">
+                                    <StatIcon name="info" size={16} />
+                                    {assigningApplication.applicantName.split(" ")[0]} will get an email and a
+                                    notification with the care instructions.
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <footer className="afr-foot">
+                            <button type="button" className="afr-btn is-ghost" onClick={closeAssign}>
+                                Cancel
+                            </button>
+
+                            <button
+                                type="submit"
+                                className="afr-btn is-assign"
+                                disabled={submitting}
+                            >
+                                <StatIcon name="paw" size={16} />
+                                {submitting ? "Assigning..." : "Assign Foster"}
+                            </button>
+                        </footer>
+                    </form>
+                </div>
+            )}
 
             {editingId && (
 
@@ -877,357 +1667,175 @@ export default function FosterCare() {
                 </section>
 
             )}
-
-            <section className="admin-panel admin-medical-requests-panel">
-                <div className="admin-panel-heading">
+        </div>
+        <aside className="afc-side">
+            <section className="admin-panel admin-medical-requests-panel amr-panel">
+                <div className="amr-heading">
                     <div>
-                        <h2>Medical Assistance Requests</h2>
-                        <p>
-                            Review medical concerns submitted by foster caregivers.
-                        </p>
+                        <h2>
+                            Medical Requests
+                            {openMedicalRequests > 0 && (
+                                <span className="amr-open">{openMedicalRequests} open</span>
+                            )}
+                        </h2>
+                        <p>Concerns sent by foster caregivers.</p>
                     </div>
 
                     <button
                         type="button"
+                        className="afl-refresh"
                         onClick={fetchMedicalRequests}
                     >
-                        Refresh Requests
-                    </button>
-                </div>
-
-                {medicalRequests.length === 0 ? (
-                    <p className="admin-empty">
-                        No medical assistance requests found.
-                    </p>
-                ) : (
-                    <div className="admin-medical-request-list">
-                        {medicalRequests.map((request) => (
-                            <article
-                                className="admin-medical-request-card"
-                                key={`${request.assignmentId}-${request._id}`}
-                            >
-                                <h3>{request.petName}</h3>
-
-                                <p>
-                                    <strong>Foster:</strong>{" "}
-                                    {request.fosterName}
-                                </p>
-
-                                <p>
-                                    <strong>Email:</strong>{" "}
-                                    {request.fosterEmail}
-                                </p>
-
-                                <p>
-                                    <strong>Issue:</strong>{" "}
-                                    {request.issue}
-                                </p>
-
-                                <p>
-                                    <strong>Urgency:</strong>{" "}
-                                    {request.urgency}
-                                </p>
-
-                                <p>
-                                    <strong>Status:</strong>{" "}
-                                    {request.status}
-                                </p>
-
-                                <small>
-                                    Submitted:{" "}
-                                    {request.createdAt
-                                        ? new Date(
-                                            request.createdAt
-                                        ).toLocaleString()
-                                        : "Unknown"}
-                                </small>
-
-                                <div className="medical-request-actions">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleUpdateMedicalRequest(
-                                                request.assignmentId,
-                                                request._id,
-                                                "in_progress"
-                                            )
-                                        }
-                                        disabled={
-                                            request.status === "in_progress" ||
-                                            request.status === "resolved"
-                                        }
-                                    >
-                                        In Progress
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleUpdateMedicalRequest(
-                                                request.assignmentId,
-                                                request._id,
-                                                "resolved"
-                                            )
-                                        }
-                                        disabled={
-                                            request.status === "resolved"
-                                        }
-                                    >
-                                        Mark Resolved
-                                    </button>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-                )}
-            </section>
-
-            <section className="admin-panel admin-foster-list-panel">
-                <div className="admin-panel-heading">
-                    <div>
-                        <h2>Current Foster Assignments</h2>
-                        <p>
-                            Manage all active and completed foster assignments.
-                        </p>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={fetchAssignments}
-                    >
+                        <img src="/icons/Refresh cw.svg" alt="" />
                         Refresh
                     </button>
                 </div>
 
-                {loading ? (
-                    <p className="admin-empty">
-                        Loading assignments...
-                    </p>
-                ) : assignments.length === 0 ? (
-                    <p className="admin-empty">
-                        No foster assignments found.
-                    </p>
+                {sortedMedicalRequests.length === 0 ? (
+                    <p className="afc-empty">No medical requests yet.</p>
                 ) : (
-
-                    <div className="admin-foster-list">
-                        {assignments.map((assignment) => (
+                    <div className="amr-list">
+                        {sortedMedicalRequests.map((request) => (
                             <article
-                                className="admin-foster-row"
-                                key={assignment._id}
+                                className={`amr-row ${request.status === "resolved" ? "is-resolved" : ""}`}
+                                key={`${request.assignmentId}-${request._id}`}
                             >
+                                <span className="amr-icon" aria-hidden="true">
+                                    <StatIcon name="heart" size={20} />
+                                </span>
 
-                                <div className="admin-foster-pet">
-                                    <img
-                                        src={
-                                            assignment.petImage ||
-                                            "https://placehold.co/120x120?text=Pet"
-                                        }
-                                        alt={assignment.petName}
-                                    />
-                                </div>
-
-                                <div className="admin-foster-details">
-
-                                    <h3>{assignment.petName}</h3>
-
-                                    <p>
-                                        <strong>Breed:</strong>{" "}
-                                        {assignment.petBreed || "Unknown"}
-                                    </p>
-
-                                    <p>
-                                        <strong>Foster:</strong>{" "}
-                                        {assignment.fosterName}
-                                    </p>
-
-                                    <p>
-                                        <strong>Email:</strong>{" "}
-                                        {assignment.fosterEmail}
-                                    </p>
-
-                                    <p>
-                                        <strong>Started:</strong>{" "}
-                                        {new Date(
-                                            assignment.startDate
-                                        ).toLocaleDateString()}
-                                    </p>
-
-                                    <p>
-                                        <strong>Updates:</strong>{" "}
-                                        {assignment.updates?.length || 0}
-                                    </p>
-
+                                <div className="amr-info">
+                                    <b>
+                                        {request.petName} · {request.issueType || request.issue}
+                                    </b>
                                     <small>
-                                        {assignment.careInstructions}
+                                        {request.fosterName} · {formatShortDate(request.createdAt)}
                                     </small>
-
                                 </div>
 
-                                {assignment.behaviorEvaluation?.status === "pending" && (
-                                    <div className="admin-foster-behavior-review">
+                                <span
+                                    className={`amr-badge ${
+                                        request.status === "resolved"
+                                            ? "is-resolved"
+                                            : `is-${String(request.urgency || "low").toLowerCase()}`
+                                    }`}
+                                >
+                                    {request.status === "resolved"
+                                        ? "Resolved"
+                                        : URGENCY_LABEL[request.urgency] || request.urgency || "Low"}
+                                </span>
 
-                                        <div className="admin-foster-behavior-heading">
-                                            <strong>Behavioral Evaluation</strong>
-                                            <span>Pending Review</span>
-                                        </div>
-
-                                        <div className="admin-foster-behavior-grid">
-
-                                            <div>
-                                                <strong>Energy Level</strong>
-                                                <span>
-                                                    {assignment.behaviorEvaluation.energyLevel}/5
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <strong>Friendliness</strong>
-                                                <span>
-                                                    {assignment.behaviorEvaluation.friendliness}/5
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <strong>Human Sociability</strong>
-                                                <span>
-                                                    {assignment.behaviorEvaluation.humanSociability}/5
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <strong>Animal Sociability</strong>
-                                                <span>
-                                                    {assignment.behaviorEvaluation.animalSociability}/5
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <strong>Trainability</strong>
-                                                <span>
-                                                    {assignment.behaviorEvaluation.trainability}/5
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <strong>Anxiety Level</strong>
-                                                <span>
-                                                    {assignment.behaviorEvaluation.anxietyLevel}/5
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <strong>Aggression Level</strong>
-                                                <span>
-                                                    {assignment.behaviorEvaluation.aggressionLevel}/5
-                                                </span>
-                                            </div>
-
-                                            <div>
-                                                <strong>Activity Level</strong>
-                                                <span>
-                                                    {assignment.behaviorEvaluation.activityLevel}/5
-                                                </span>
-                                            </div>
-
-                                        </div>
-
-                                        {assignment.behaviorEvaluation.notes && (
-                                            <div className="admin-foster-behavior-notes">
-                                                <strong>Foster Notes</strong>
-
-                                                <p>
-                                                    {assignment.behaviorEvaluation.notes}
-                                                </p>
-                                            </div>
-                                        )}
-
-                                        <div className="admin-foster-behavior-meta">
-
-                                            <span>
-                                                Submitted by:{" "}
-                                                {assignment.behaviorEvaluation.submittedBy ||
-                                                    assignment.fosterName}
-                                            </span>
-
-                                            {assignment.behaviorEvaluation.submittedAt && (
-                                                <span>
-                                                    Submitted:{" "}
-                                                    {new Date(
-                                                        assignment.behaviorEvaluation.submittedAt
-                                                    ).toLocaleDateString()}
-                                                </span>
-                                            )}
-
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleAcceptBehaviorEvaluation(
-                                                    assignment._id
-                                                )
-                                            }
-                                        >
-                                            Accept Evaluation
-                                        </button>
-
-                                    </div>
-                                )}
-
-                                <div className="admin-foster-actions">
-
-                                    <span
-                                        className={`admin-foster-status ${assignment.status}`}
-                                    >
-                                        {assignment.status}
-                                    </span>
-
-                                    {assignment.status === "active" && (
-                                        <>
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleEditAssignment(
-                                                        assignment
-                                                    )
-                                                }
-                                            >
-                                                Edit
-                                            </button>
-
-                                            {assignment.behaviorEvaluation?.status === "accepted" && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        handleCompleteAssignment(
-                                                            assignment._id
-                                                        )
-                                                    }
-                                                >
-                                                    Complete
-                                                </button>
-                                            )}
-
-                                            <button
-                                                type="button"
-                                                className="delete"
-                                                onClick={() =>
-                                                    handleDeleteAssignment(
-                                                        assignment._id
-                                                    )
-                                                }
-                                            >
-                                                Delete
-                                            </button>
-                                        </>
-                                    )}
-
-                                </div>
-
+                                <button
+                                    type="button"
+                                    className="afa-review"
+                                    onClick={() => setReviewingRequest(request)}
+                                >
+                                    Review
+                                </button>
                             </article>
                         ))}
                     </div>
                 )}
             </section>
+            </aside>
+            </div>
+
+            {reviewingRequest && (
+                <div
+                    className="admin-modal-overlay"
+                    onClick={() => setReviewingRequest(null)}
+                >
+                    <div
+                        className="admin-modal afa-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`Medical request for ${reviewingRequest.petName}`}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            className="admin-modal-close"
+                            onClick={() => setReviewingRequest(null)}
+                            aria-label="Close"
+                        >
+                            ×
+                        </button>
+
+                        <div className="afa-modal-head">
+                            <span className="amr-icon" aria-hidden="true">
+                                <StatIcon name="heart" size={22} />
+                            </span>
+                            <div>
+                                <h2>{reviewingRequest.petName}</h2>
+                                <small>
+                                    {reviewingRequest.fosterName} · {reviewingRequest.fosterEmail}
+                                </small>
+                            </div>
+                            <span
+                                className={`amr-badge is-${String(
+                                    reviewingRequest.urgency || "low"
+                                ).toLowerCase()}`}
+                            >
+                                {URGENCY_LABEL[reviewingRequest.urgency] ||
+                                    reviewingRequest.urgency ||
+                                    "Low"}
+                            </span>
+                        </div>
+
+                        <h3 className="afa-modal-title">Concern</h3>
+                        <div className="afa-detail-grid">
+                            <p><span>Type</span>{reviewingRequest.issueType || "—"}</p>
+                            <p>
+                                <span>Status</span>
+                                {MEDICAL_STATUS_LABEL[reviewingRequest.status] || reviewingRequest.status}
+                            </p>
+                            <p>
+                                <span>Sent</span>
+                                {reviewingRequest.createdAt
+                                    ? new Date(reviewingRequest.createdAt).toLocaleString()
+                                    : "—"}
+                            </p>
+                            <p><span>Breed</span>{reviewingRequest.petBreed || "—"}</p>
+                        </div>
+
+                        <h3 className="afa-modal-title">Details</h3>
+                        <p className="afa-notes">{reviewingRequest.issue}</p>
+
+                        {reviewingRequest.photoUrl && (
+                            <img
+                                className="amr-photo"
+                                src={reviewingRequest.photoUrl}
+                                alt={`Photo sent for ${reviewingRequest.petName}`}
+                            />
+                        )}
+
+                        <div className="afa-modal-actions">
+                            {reviewingRequest.status === "pending" && (
+                                <button
+                                    type="button"
+                                    className="afc-reject amr-progress"
+                                    onClick={() => updateFromReview("in_progress")}
+                                >
+                                    Mark In Progress
+                                </button>
+                            )}
+
+                            {reviewingRequest.status !== "resolved" ? (
+                                <button
+                                    type="button"
+                                    className="afc-approve"
+                                    onClick={() => updateFromReview("resolved")}
+                                >
+                                    <StatIcon name="check" size={13} />
+                                    Mark Resolved
+                                </button>
+                            ) : (
+                                <span className="afa-modal-note">This request is resolved.</span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

@@ -7,11 +7,31 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import FosterDashboard from "./pages/foster/FosterDashboard";
 import StaffDashboard from "./pages/admin/StaffDashboard";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
+import PublicPetProfile from "./pages/PublicPetProfile";
 import LandingPage from "./pages/LandingPage";
 
-export default function App() {
-    const [page, setPage] = useState("home");
+// After a browser refresh, reopen the logged-in user's dashboard instead of the landing page
+function getStartPage() {
+    try {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("rescuebase_user") || "null");
 
+        if (!token || !user) return "home";
+
+        const role = String(user.role || "adopter").trim().toLowerCase();
+        const pages = { admin: "admin", staff: "staff", foster: "foster", volunteer: "volunteer" };
+
+        return pages[role] || "dashboard";
+    } catch {
+        return "home";
+    }
+}
+
+export default function App() {
+    const [page, setPage] = useState(getStartPage);
+    const petMatch = window.location.pathname.match(/^\/pet\/([^/]+)/);
+    if (petMatch) return <PublicPetProfile tagCode={decodeURIComponent(petMatch[1])} />;
+    
     if (page === "auth" || page === "login") {
         return (
             <AuthPage
@@ -34,6 +54,7 @@ export default function App() {
         return (
             <Dashboard
                 onLogout={() => setPage("home")}
+                onLoginAgain={() => setPage("auth")}
             />
         );
     }

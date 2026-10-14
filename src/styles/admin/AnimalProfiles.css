@@ -54,6 +54,12 @@
     outline: none;
 }
 
+.admin-age-input {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 96px;
+    gap: 6px;
+}
+
 .admin-animal-form input::placeholder,
 .admin-animal-form textarea::placeholder {
     color: #b08f7a;
@@ -436,6 +442,13 @@
 
 .admin-animal-table-scroll {
     overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+/* Hide the table scrollbar (it still scrolls with trackpad / shift + wheel) */
+.admin-animal-table-scroll::-webkit-scrollbar {
+    display: none;
 }
 
 .admin-animal-table {

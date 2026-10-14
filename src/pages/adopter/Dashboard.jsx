@@ -29,6 +29,7 @@ import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
 import PetList from "../../components/adopter/PetList";
 import PetDetailPanel from "../../components/adopter/PetDetailPanel";
+import { formatAge } from "../../utils/formatAge";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -114,6 +115,7 @@ const emptyPet = {
     size: "Unknown",
     status: "not_available",
     location: "RescueBase Shelter",
+    personalityTags: [],
     personality: "No animal selected.",
     idealHome: "Please check again later.",
     health: "Not available",
@@ -145,8 +147,13 @@ function getAdopterPageTitle(activeAdopterPage) {
     return currentItem?.label || "Dashboard";
 }
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard({ onLogout, onLoginAgain }) {
     const savedUser = getSavedUser();
+
+    // Signed out: login expired (server answered 401) or this account is not an adopter
+    const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
+    const isWrongRole = savedRole !== "adopter";
+    const [signedOut, setSignedOut] = useState(false);
 
     const token = getAuthToken();
 
@@ -157,12 +164,28 @@ export default function Dashboard({ onLogout }) {
     const [activeAdopterPage, setActiveAdopterPage] =
         useState("overview");
 
+    const [browseStartFilter, setBrowseStartFilter] = useState("all");
+
+    useEffect(() => {
+        if (activeAdopterPage !== "browse-pets") {
+            setBrowseStartFilter("all");
+        }
+    }, [activeAdopterPage]);
+    
     const [search, setSearch] = useState("");
     const [typeFilter, setTypeFilter] = useState("all");
 
     const [pets, setPets] = useState([]);
     const [petsLoading, setPetsLoading] = useState(true);
     const [petsError, setPetsError] = useState("");
+
+    const [hasTakenQuiz] = useState(() => {
+    try {
+        return Boolean(localStorage.getItem("rescuebase_matchmaking_results"));
+    } catch {
+        return false;
+    }
+    });
 
     const [selectedPet, setSelectedPet] =
         useState(emptyPet);
@@ -182,14 +205,19 @@ export default function Dashboard({ onLogout }) {
 
     const [applicationLoading, setApplicationLoading] =
         useState(true);
+    const [applicationHistory, setApplicationHistory] = useState([]);
+
+    const [applicationError, setApplicationError] = useState("");
 
     const [notificationOpen, setNotificationOpen] =
         useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
+    const activeApplicationStatuses = ["pending", "interview_scheduled", "interview_completed"];
+
     const hasPendingApplication =
-        applicationStatus?.status === "pending";
+     activeApplicationStatuses.includes(applicationStatus?.status);
 
     const isRejectedApplication =
         applicationStatus?.status === "rejected";
@@ -202,6 +230,202 @@ export default function Dashboard({ onLogout }) {
             (pet) => pet.status === "available"
         ).length;
     }, [pets]);
+
+    
+    const QUIZ_TOTAL_STEPS = 3;
+
+    const savedPetsCount = (() => {
+        try {
+            return (JSON.parse(localStorage.getItem("rescuebase_saved_pets")) || []).length;
+        } catch {
+            return 0;
+        }
+    })();
+
+    const goodMatchesCount = (() => {
+        try {
+            const results = JSON.parse(
+                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+            );
+            return (results?.matches || []).filter(
+                (match) => match.eligible && Number(match.score) >= 60
+            ).length;
+        } catch {
+            return 0;
+        }
+    })();
+
+    const draftApplication = (() => {
+        try {
+            const prefix = `rescuebase_adoption_draft_${savedUser.email || "guest"}_`;
+
+            const drafts = Object.keys(localStorage)
+                .filter((key) => key.startsWith(prefix))
+                .map((key) => ({
+                    petId: key.slice(prefix.length),
+                    ...JSON.parse(localStorage.getItem(key) || "null"),
+                }))
+                .filter((draft) => draft.form)
+                .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+
+            for (const draft of drafts) {
+                const pet = pets.find(
+                    (item) => item._id === draft.petId && item.status === "available"
+                );
+
+                if (!pet) continue;
+
+                const form = draft.form;
+
+                const steps = [
+                    {
+                        label: "Applicant",
+                        done: Boolean(
+                            form.fullName?.trim() &&
+                            form.phone?.trim() &&
+                            form.address?.trim() &&
+                            (form.homeType !== "Other" || form.homeTypeOther?.trim())
+                        ),
+                    },
+                    {
+                        label: "Household",
+                        done: Boolean(form.reason?.trim() && form.experience?.trim()),
+                    },
+                    {
+                        label: "Documents",
+                        done: Boolean(draft.document),
+                    },
+                ];
+
+                const nextIndex = steps.findIndex((step) => !step.done);
+
+                return { pet, steps, nextIndex };
+            }
+
+            return null;
+        } catch {
+            return null;
+        }
+    })();
+
+    function getNextStep() {
+        const petName = applicationStatus?.petName || "your pet";
+
+        if (isApprovedApplication) {
+            return {
+                tone: "success",
+                label: "Action Needed",
+                icon: "/icons/approved.svg",
+                title: `Meet ${petName}!`,
+                linkText: "Check your interview schedule",
+                page: "application-status",
+            };
+        }
+
+        if (isRejectedApplication) {
+            return {
+                tone: "danger",
+                label: "Action Needed",
+                icon: "/icons/rejected.svg",
+                title: "Find another match",
+                linkText: "See your matches",
+                page: hasTakenQuiz ? "recommendations" : "browse-pets",
+            };
+        }
+
+        if (applicationStatus?.status === "interview_scheduled") {
+            return {
+                tone: "action",
+                label: "Action Needed",
+                icon: "/icons/Clock.svg",
+                title: `Interview for ${petName}`,
+                linkText: applicationStatus.interviewSchedule
+                    ? new Date(applicationStatus.interviewSchedule).toLocaleString("en-PH", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                    })
+                    : "See your schedule",
+                page: "application-status",
+            };
+        }
+
+        if (draftApplication && !hasPendingApplication) {
+            const { pet, steps, nextIndex } = draftApplication;
+
+            return {
+                tone: "action",
+                label: "Unfinished",
+                icon: "/icons/Action.svg",
+                title: `Finish applying for ${pet.name}`,
+                linkText:
+                    nextIndex === -1
+                        ? "Ready to submit"
+                        : `Step ${nextIndex + 1} of ${steps.length}: ${steps[nextIndex].label}`,
+                page: "adoption-application",
+                pet,
+            };
+        }
+
+        if (!hasTakenQuiz) {
+            return {
+                tone: "action",
+                label: "Action Needed",
+                icon: "/icons/Action.svg",
+                title: "Finish your match quiz",
+                linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
+                page: "matchmaking-quiz",
+            };
+        }
+
+        if (hasPendingApplication) {
+            return {
+                tone: "info",
+                label: "In Review",
+                icon: "/icons/in-review.svg",
+                title: `Application for ${petName}`,
+                linkText: "We'll notify you",
+                page: "application-status",
+            };
+        }
+
+        return {
+            tone: "neutral",
+            label: "All Set",
+            icon: "/icons/done.svg",
+            title: "You're all caught up",
+            linkText: `${availablePets} pets available`,
+            page: "browse-pets",
+        };
+    }
+
+    const nextStep = getNextStep();
+
+
+    const featuredMatch = (() => {
+        try {
+            const results = JSON.parse(
+                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+            );
+
+            const best = (results?.matches || [])
+                .filter((match) => match.eligible && match.score !== null)
+                .sort((a, b) => Number(b.score) - Number(a.score))
+                .find((match) =>
+                    pets.some((pet) => pet._id === String(match.animalId))
+                );
+
+            if (!best) return null;
+
+            return {
+                pet: pets.find((pet) => pet._id === String(best.animalId)),
+                score: Math.round(Number(best.score)),
+            };
+        } catch {
+            return null;
+        }
+    })();
 
     const filteredPets = useMemo(() => {
         const normalizedSearch = search
@@ -268,10 +492,10 @@ export default function Dashboard({ onLogout }) {
         }
     }
 
-    async function fetchPets() {
-        try {
-            setPetsLoading(true);
-            setPetsError("");
+async function fetchPets({ silent = false } = {}) {
+    try {
+        if (!silent) setPetsLoading(true);
+        setPetsError("");
 
             const response = await fetch(
                 `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`, {
@@ -301,10 +525,6 @@ export default function Dashboard({ onLogout }) {
 
             const normalizedPets = animals.map(
                 (animal) => {
-                    const age = Number(
-                        animal.age || 0
-                    );
-
                     return {
                         ...animal,
 
@@ -318,10 +538,13 @@ export default function Dashboard({ onLogout }) {
                                 ? "available"
                                 : "not_available",
 
-                        age: `${age} ${age === 1 ? "year" : "years"
-                            }`,
+                        age: formatAge(animal.age),
+
+                        personalityTags:
+                            animal.personality?.tags || [],
 
                         personality:
+                            animal.personality?.summary ||
                             animal.behaviorNotes ||
                             "Behavior information has not been added yet.",
 
@@ -391,7 +614,7 @@ export default function Dashboard({ onLogout }) {
             }
 
             if (!token) {
-                console.error("No rescuebase Auth token found");
+                setSignedOut(true);
                 return;
             }
 
@@ -407,13 +630,15 @@ export default function Dashboard({ onLogout }) {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                console.error(
+                setApplicationError(
                     data.message ||
                     "Failed to load application status."
                 );
 
                 return;
             }
+
+            setApplicationError("");
 
             const application = data.application;
 
@@ -473,13 +698,13 @@ export default function Dashboard({ onLogout }) {
                 documentsVerified: Boolean(
                     application.documentsVerified
                 ),
+                withdrawnAt: application.withdrawnAt || null,
+                withdrawnFromStatus: application.withdrawnFromStatus || "",
             };
 
             setApplicationStatus(updatedStatus);
 
-            if (
-                updatedStatus.status === "pending"
-            ) {
+            if (activeApplicationStatuses.includes(updatedStatus.status)) {
                 localStorage.setItem(
                     "rescuebase_pending_application",
                     JSON.stringify(updatedStatus)
@@ -494,10 +719,92 @@ export default function Dashboard({ onLogout }) {
                 "Fetch adopter application status error:",
                 error
             );
+
+            setApplicationError(
+                "We couldn't reach the shelter's server."
+            );
         } finally {
             setApplicationLoading(false);
         }
     }
+    async function handleWithdrawApplication(reason) {
+        if (!applicationStatus?.applicationId) return;
+
+        const response = await fetch(
+            `${API}/api/adoptions/${applicationStatus.applicationId}/withdraw`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ reason }),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to withdraw your application.");
+        }
+
+        await fetchApplicationStatus();
+    }
+
+    async function fetchApplicationHistory() {
+        if (!token) return;
+
+        try {
+            const response = await fetch(
+                `${API}/api/adoptions/user/history`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) return;
+
+            setApplicationHistory(
+                (data.applications || []).map((application) => ({
+                    applicationId: application._id,
+                    status: application.status || "pending",
+                    petName:
+                        application.petName ||
+                        application.animalId?.name ||
+                        "Selected Pet",
+                    petBreed:
+                        application.petBreed ||
+                        application.animalId?.breed ||
+                        "",
+                    petImage:
+                        application.petImage ||
+                        application.animalId?.image ||
+                        "",
+                    submittedAt: application.createdAt,
+                    closedAt:
+                        application.withdrawnAt ||
+                        application.reviewedAt ||
+                        application.updatedAt,
+                    note:
+                        application.status === "rejected"
+                            ? application.rejectionReason
+                            : application.status === "withdrawn"
+                                ? application.withdrawalReason
+                                : "",
+                }))
+            );
+        } catch (error) {
+            console.error("Fetch application history error:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchApplicationHistory();
+    }, [applicationStatus?.applicationId, applicationStatus?.status]);
 
     async function refreshDashboard() {
         await Promise.all([
@@ -546,6 +853,8 @@ export default function Dashboard({ onLogout }) {
     }
 
     function handleLogout() {
+        localStorage.removeItem("token");
+
         localStorage.removeItem(
             "rescuebase_user"
         );
@@ -553,8 +862,26 @@ export default function Dashboard({ onLogout }) {
         localStorage.removeItem(
             "rescuebase_pending_application"
         );
+        
+        localStorage.removeItem("token");
+        
+        Object.keys(localStorage)
+        .filter((key) => key.startsWith("rescuebase_adoption_draft_"))
+        .forEach((key) => localStorage.removeItem(key));
 
         onLogout?.();
+    }
+
+    function handleLoginAgain() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("rescuebase_user");
+        localStorage.removeItem("rescuebase_pending_application");
+
+        if (onLoginAgain) {
+            onLoginAgain();
+        } else {
+            onLogout?.();
+        }
     }
 
     function formatApplicationDate(dateValue) {
@@ -673,7 +1000,7 @@ export default function Dashboard({ onLogout }) {
     function renderPetBrowser() {
         return (
             <PetList
-                className="adopter-panel"
+                className="browse-pets-list-panel"
                 id="available-pets"
                 loading={petsLoading}
                 error={petsError}
@@ -692,7 +1019,7 @@ export default function Dashboard({ onLogout }) {
     function renderPetDetail() {
         return (
             <PetDetailPanel
-                className="adopter-panel adopter-detail-panel"
+                className="browse-pet-details-panel"
                 pet={selectedPet}
                 hasPendingApplication={hasPendingApplication}
                 applicationStatus={applicationStatus}
@@ -700,140 +1027,189 @@ export default function Dashboard({ onLogout }) {
             />
         );
     }
-    
+
     function renderOverview() {
         return (
             <div className="adopter-overview-layout">
                 <div className="adopter-overview-main">
                     <section className="adopter-hero">
                         <div className="adopter-hero-content">
-                            <span>
+                            <span className="adopter-hero-chip">
                                 RescueBase Matching
                             </span>
 
-                            <h2>
-                                Meet your possible new
-                                companion.
-                            </h2>
+                            <h2>Let's find your perfect companion</h2>
 
                             <p>
-                                Browse available rescued pets,
-                                check their details, and submit
-                                an adoption application when
-                                you find a match.
+                                Answer {QUIZ_TOTAL_STEPS} quick steps about your home and
+                                we'll pair you with pets that fit your life.
                             </p>
+
+                            <ol className="adopter-hero-steps">
+                                <li><b>1</b> Your space</li>
+                                <li><b>2</b> Your experience</li>
+                                <li><b>3</b> Energy level</li>
+                                <li className="adopter-hero-time">
+                                    <img src="/icons/Clock.svg" alt="" />
+                                    ~2 min
+                                </li>
+                            </ol>
 
                             <div className="adopter-hero-actions">
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setActiveAdopterPage(
-                                            "browse-pets"
-                                        )
-                                    }
+                                    onClick={() => setActiveAdopterPage("matchmaking-quiz")}
                                 >
-                                    Browse Pets
+                                    {hasTakenQuiz ? "Retake Matching Quiz" : "Take Matching Quiz"}
+                                    <img src={assets.icons.lightHeart} alt="" />
                                 </button>
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        handleApply(
-                                            selectedPet
-                                        )
-                                    }
-                                    disabled={
-                                        selectedPet.status !==
-                                        "available" ||
-                                        hasPendingApplication
-                                    }
+                                    onClick={() => setActiveAdopterPage("browse-pets")}
                                 >
-                                    {hasPendingApplication
-                                        ? `Pending application for ${applicationStatus.petName}`
-                                        : `Apply for ${selectedPet.name}`}
+                                    Browse All Pets
                                 </button>
                             </div>
+
+                            <small className="adopter-hero-note">
+                                ✓ Free · no account changes needed
+                            </small>
                         </div>
 
-                        <div className="adopter-featured-pet">
-                            <div className="adopter-pet-icon">
-                                {selectedPet.image ? (
-                                    <img
-                                        src={
-                                            selectedPet.image
-                                        }
-                                        alt={
-                                            selectedPet.name
-                                        }
-                                    />
-                                ) : (
-                                    selectedPet.icon
-                                )}
-                            </div>
-
-                            <span
-                                className={`adopter-status ${selectedPet.status}`}
-                            >
-                                {selectedPet.status.replace(
-                                    "_",
-                                    " "
-                                )}
+                        <div className="adopter-hero-side">
+                            <span className="adopter-hero-side-label">
+                                {featuredMatch ? "Your top match" : "Your match"}
                             </span>
 
-                            <h3>{selectedPet.name}</h3>
+                            {featuredMatch ? (
+                                <article className="adopter-match-card">
+                                    <div className="adopter-match-photo">
+                                        {featuredMatch.pet.image ? (
+                                            <img
+                                                src={featuredMatch.pet.image}
+                                                alt={featuredMatch.pet.name}
+                                            />
+                                        ) : (
+                                            <img src={assets.icons.logoPlaceholder} alt="" />
+                                        )}
+                                        <span className="adopter-match-badge">Available</span>
+                                    </div>
 
-                            <p>
-                                {selectedPet.breed} •{" "}
-                                {selectedPet.age} •{" "}
-                                {selectedPet.gender}
-                            </p>
+                                    <div className="adopter-match-info">
+                                        <h3>{featuredMatch.pet.name}</h3>
+                                        <p>
+                                            {[featuredMatch.pet.breed, featuredMatch.pet.gender]
+                                                .filter(Boolean)
+                                                .join(" · ")}
+                                        </p>
+
+                                        <div className="adopter-match-tags">
+                                            <span>{featuredMatch.pet.age}</span>
+                                            {featuredMatch.pet.size && (
+                                                <span>{featuredMatch.pet.size}</span>
+                                            )}
+                                        </div>
+
+                                        <div className="adopter-match-score">
+                                            <span>Match with you</span>
+                                            <strong>{featuredMatch.score}%</strong>
+                                        </div>
+                                        <div className="adopter-match-bar">
+                                            <i style={{ width: `${featuredMatch.score}%` }} />
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedPet(featuredMatch.pet)}
+                                        >
+                                            Meet {featuredMatch.pet.name} →
+                                        </button>
+                                    </div>
+                                </article>
+                            ) : (
+                                <div className="adopter-hero-placeholder">
+                                    <img src={assets.icons.logoPlaceholder} alt="" />
+                                    <strong>Your match will appear here</strong>
+                                    <small>Take the quiz to see who fits you best.</small>
+                                </div>
+                            )}
                         </div>
                     </section>
-                                
-                <section className="adopter-stats">
-                    <article>
-                        <span>Available Pets</span>
-                        <strong>
-                            {availablePets}
-                        </strong>
-                    </article>
 
-                    <article>
-                        <span>Pet Categories</span>
-                        <strong>Dog / Cat</strong>
-                    </article>
+                    <section className="adopter-stats">
+                        <article className={`adopter-next-step is-${nextStep.tone}`}>
+                            <span className="adopter-stat-label">
+                                {nextStep.icon.startsWith("/") ? (
+                                    <img src={nextStep.icon} alt="" />
+                                ) : (
+                                    <span aria-hidden="true">{nextStep.icon}</span>
+                                )}
+                                {nextStep.label}
+                            </span>
 
-                    <article>
-                        <span>
-                            Application Status
-                        </span>
+                            <strong className="adopter-stat-title">
+                                {nextStep.title}
+                            </strong>
 
-                        <strong>
-                            {applicationLoading
-                                ? "Loading"
-                                : hasPendingApplication
-                                    ? "Pending"
-                                    : isRejectedApplication
-                                        ? "Rejected"
-                                        : isApprovedApplication
-                                            ? "Approved"
-                                            : "Ready"}
-                        </strong>
-
-                        {applicationStatus?.petName && (
-                            <small>
-                                For{" "}
-                                {
-                                    applicationStatus.petName
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() =>
+                                    nextStep.pet
+                                        ? handleApply(nextStep.pet)
+                                        : setActiveAdopterPage(nextStep.page)
                                 }
-                            </small>
-                        )}
-                    </article>
-                </section>
+                            >
+                                {nextStep.linkText}
+                            </button>
+                        </article>
 
-                {renderApplicationBanner()}
+                        <article>
+                            <span className="adopter-stat-label">
+                                <img src={assets.icons.saved} alt="" />
+                                Saved Pets
+                            </span>
 
-                {renderPetBrowser()}
+                            <strong>{savedPetsCount}</strong>
+
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() => {
+                                    setBrowseStartFilter("saved");
+                                    setActiveAdopterPage("browse-pets");
+                                }}
+                            >
+                                View your list
+                            </button>
+                        </article>
+
+                        <article>
+                            <span className="adopter-stat-label">
+                                <img src={assets.icons.spark} alt="" />
+                                New Matches
+                            </span>
+
+                            <strong>{hasTakenQuiz ? goodMatchesCount : "–"}</strong>
+
+                            <button
+                                type="button"
+                                className="adopter-stat-link"
+                                onClick={() =>
+                                    setActiveAdopterPage(
+                                        hasTakenQuiz ? "recommendations" : "matchmaking-quiz"
+                                    )
+                                }
+                            >
+                                {hasTakenQuiz ? "See who's new" : "Take the quiz first"}
+                            </button>
+                        </article>
+                    </section>
+
+                    {renderApplicationBanner()}
+
+                    {renderPetBrowser()}
                 </div>
 
                 {renderPetDetail()}
@@ -873,7 +1249,10 @@ export default function Dashboard({ onLogout }) {
                 <ApplicationStatus
                     application={applicationStatus}
                     loading={applicationLoading}
+                    error={applicationError}
                     onRefresh={fetchApplicationStatus}
+                    onWithdraw={handleWithdrawApplication}
+                    history={applicationHistory}
                     onBrowsePets={() =>
                         setActiveAdopterPage("browse-pets")
                     }
@@ -900,6 +1279,7 @@ export default function Dashboard({ onLogout }) {
                     applicationStatus={applicationStatus}
                     onApply={handleApply}
                     onRefresh={fetchPets}
+                    initialStatusFilter={browseStartFilter}
                 />
             );
         }
@@ -1015,7 +1395,31 @@ export default function Dashboard({ onLogout }) {
         setNotificationOpen(false);
     }
 
+    // Any API call that comes back 401 means the login ran out -> show the signed-out card
     useEffect(() => {
+        const originalFetch = window.fetch;
+
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            const url = String(args[0]?.url || args[0] || "");
+
+            if (response.status === 401 && API && url.startsWith(API)) {
+                setSignedOut(true);
+            }
+
+            return response;
+        };
+
+        return () => {
+            window.fetch = originalFetch;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (isWrongRole || signedOut) {
+            return;
+        }
+
         refreshDashboard();
         loadNotifications();
 
@@ -1026,7 +1430,51 @@ export default function Dashboard({ onLogout }) {
         return () => {
             clearInterval(interval);
         };
-    }, [savedEmail]);
+    }, [savedEmail, signedOut]);
+
+    // Keep pet availability fresh
+    useEffect(() => {
+        if (applicationStatus?.status === "approved") {
+            fetchPets({ silent: true });
+        }
+    }, [applicationStatus?.status]);
+    
+    useEffect(() => {
+        fetchPets({ silent: true });
+    }, [activeAdopterPage]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchPets({ silent: true });
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, []);
+    
+    if (signedOut || isWrongRole) {
+        return (
+            <main className="adopter-signed-out">
+                <section className="adopter-signed-out-card">
+                    <div className="adopter-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <path d="M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                    </div>
+
+                    <h2>You've been signed out</h2>
+
+                    <p>Please log in again to continue.</p>
+
+                    <button type="button" onClick={handleLoginAgain}>
+                        Log in again
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
+
 
     return (
         <main className="adopter-dashboard-page">

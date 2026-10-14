@@ -662,3 +662,591 @@
         left: 18px;
     }
 }
+
+/* ===== Progress stepper (Submitted → Review → Meet & Greet → Decision) ===== */
+.application-stepper {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 6px 0 0;
+    list-style: none;
+}
+
+/* grey line from the first dot to the last dot */
+.application-stepper-line {
+    position: absolute;
+    top: 22px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 5px;
+    border-radius: 999px;
+    background: #ebe3bd;
+}
+
+/* orange filled part */
+.application-stepper-line > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #fb8500;
+    transition: width 0.4s ease;
+}
+
+.application-stepper li {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+}
+
+.application-stepper-dot {
+    box-sizing: border-box;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 6px;
+    border-radius: 50%;
+    background: #ebe3bd;
+}
+
+.application-stepper-dot svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.application-stepper strong {
+    color: #a8987a;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.application-stepper small {
+    max-width: 150px;
+    color: #a8987a;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* done */
+.application-stepper li.is-done .application-stepper-dot {
+    background: #fb8500;
+    box-shadow: 0 4px 10px rgba(251, 133, 0, 0.3);
+}
+
+/* current */
+.application-stepper li.is-current .application-stepper-dot {
+    border: 3px solid #fb8500;
+    background: #fffaf0;
+    box-shadow: 0 0 0 5px rgba(251, 133, 0, 0.14);
+}
+
+.application-stepper li.is-current .application-stepper-dot::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fb8500;
+}
+
+.application-stepper li.is-done strong,
+.application-stepper li.is-current strong {
+    color: #d96f00;
+}
+
+.application-stepper li.is-done small,
+.application-stepper li.is-current small {
+    color: #75432f;
+}
+
+/* approved */
+.application-stepper li.is-approved .application-stepper-dot {
+    background: #2f8f5b;
+    box-shadow: 0 4px 10px rgba(47, 143, 91, 0.3);
+}
+
+.application-stepper li.is-approved strong,
+.application-stepper li.is-approved small {
+    color: #2f8f5b;
+}
+
+/* rejected */
+.application-stepper li.is-rejected .application-stepper-dot {
+    background: #d62828;
+    box-shadow: 0 4px 10px rgba(214, 40, 40, 0.28);
+}
+
+.application-stepper li.is-rejected strong,
+.application-stepper li.is-rejected small {
+    color: #d62828;
+}
+
+/* skipped (rejected before an interview) */
+.application-stepper li.is-skipped .application-stepper-dot::after {
+    content: "";
+    width: 12px;
+    height: 3px;
+    border-radius: 2px;
+    background: #c9bb92;
+}
+
+@media (max-width: 520px) {
+    .application-stepper-line {
+        top: 19px;
+    }
+
+    .application-stepper-dot {
+        width: 30px;
+        height: 30px;
+    }
+
+    .application-stepper strong,
+    .application-stepper small {
+        font-size: 9px;
+    }
+}
+
+/* ===== Empty state (no application yet) ===== */
+.application-status-empty {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    max-width: 680px;
+    padding: 46px 36px 40px;
+    border-radius: 26px;
+}
+
+/* paw background, top-right and bottom-left (reuses heroPaw.svg) */
+.application-status-empty::before,
+.application-status-empty::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 260px;
+    height: 200px;
+    background: url("/icons/heroPaw.svg") no-repeat center / contain;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.application-status-empty::before {
+    top: -50px;
+    right: -70px;
+    transform: rotate(-20deg);
+}
+
+.application-status-empty::after {
+    bottom: -70px;
+    left: -90px;
+    transform: rotate(160deg);
+}
+
+/* orange paw badge */
+.application-status-empty .application-status-empty-icon {
+    width: 92px;
+    height: 92px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fb8500, #ffa53a);
+    box-shadow:
+        0 0 0 9px rgba(252, 191, 73, 0.32),
+        0 12px 26px rgba(251, 133, 0, 0.32);
+}
+
+.application-status-empty-icon img {
+    width: 40px;
+    height: 40px;
+}
+
+/* buttons */
+.application-status-empty-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 170px;
+    min-height: 48px;
+    padding: 10px 22px;
+}
+
+.application-status-empty-actions button:first-child {
+    background: linear-gradient(115deg, #fb8500, #ffa53a);
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.3);
+}
+
+.application-status-empty-actions button:first-child:hover {
+    background: linear-gradient(115deg, #d96f00, #fb8500);
+}
+
+.application-status-empty-actions button:last-child {
+    border: 1.5px solid #5a1b00;
+    background: #ffffff;
+}
+
+.application-status-empty-actions button:last-child:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+.application-status-empty-actions button img {
+    width: 15px;
+    height: 15px;
+}
+
+/* ===== Refresh Status button ===== */
+.application-status-refresh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(90, 27, 0, 0.08);
+}
+
+.application-status-refresh img {
+    width: 15px;
+    height: 15px;
+    transition: transform 0.4s ease;
+}
+
+.application-status-refresh:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fff7cb;
+    transform: translateY(-1px);
+}
+
+/* small turn on hover */
+.application-status-refresh:hover:not(:disabled) img {
+    transform: rotate(90deg);
+}
+
+/* spinning while refreshing */
+.application-status-refresh.is-loading {
+    opacity: 0.7;
+}
+
+.application-status-refresh.is-loading img {
+    animation: application-refresh-spin 0.8s linear infinite;
+}
+
+@keyframes application-refresh-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Withdraw application ===== */
+.application-withdraw {
+    padding: 18px 22px;
+    border: 1px dashed rgba(90, 27, 0, 0.25);
+    border-radius: 18px;
+    background: #fffaf0;
+}
+
+.application-withdraw-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.application-withdraw strong {
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.application-withdraw p {
+    margin: 4px 0 0;
+    color: #75432f;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.application-withdraw-button {
+    flex-shrink: 0;
+    min-height: 42px;
+    padding: 9px 16px;
+    border: 1.5px solid #d62828;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #d62828;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.application-withdraw-button:hover:not(:disabled) {
+    background: #d62828;
+    color: #ffffff;
+}
+
+.application-withdraw-confirm {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.application-withdraw-confirm label {
+    margin-top: 6px;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.application-withdraw-confirm textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 12px;
+    background: #fff7d6;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+}
+
+.application-withdraw-confirm textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.application-withdraw-error {
+    color: #c21f1f !important;
+    font-weight: 700;
+}
+
+.application-withdraw-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.application-withdraw-actions button:first-child {
+    min-height: 42px;
+    padding: 9px 16px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.application-withdraw button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+/* withdrawn: info box, header, stepper dot, pill */
+.application-status-information.withdrawn {
+    border-left: 6px solid #a8987a;
+}
+
+.application-status-information.withdrawn
+    .application-status-section-heading
+    > span {
+    background: #efe8d4;
+    color: #7b6658;
+}
+
+.application-status-header.withdrawn {
+    border-left-color: #a8987a;
+}
+
+.application-stepper li.is-withdrawn .application-stepper-dot {
+    background: #a8987a;
+}
+
+.application-stepper li.is-withdrawn strong,
+.application-stepper li.is-withdrawn small {
+    color: #7b6658;
+}
+
+.application-status-pill.withdrawn {
+    background: #efe8d4;
+    color: #7b6658;
+}
+
+@media (max-width: 650px) {
+    .application-withdraw-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .application-withdraw-actions {
+        flex-direction: column-reverse;
+    }
+}
+
+/* ===== Application history ===== */
+.application-history {
+    margin-top: 24px;
+    padding: 23px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.08);
+}
+
+.application-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.application-history-item {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) 150px 150px 110px;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+    border-radius: 15px;
+    background: #fff7d6;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.application-history-item:hover {
+    border-color: rgba(251, 133, 0, 0.45);
+    transform: translateY(-1px);
+}
+
+.application-history-thumb {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #ffeeb8;
+}
+
+.application-history-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.application-history-thumb img.is-placeholder {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    opacity: 0.6;
+}
+
+.application-history-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.application-history-info strong {
+    overflow: hidden;
+    color: #5a1b00;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.application-history-info small {
+    color: #86604d;
+    font-size: 11px;
+}
+
+.application-history-date {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.application-history-date span {
+    color: #a07c66;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.application-history-date strong {
+    color: #5a1b00;
+    font-size: 12px;
+}
+
+.application-history-item .application-status-pill {
+    justify-self: end;
+    text-transform: capitalize;
+}
+
+.application-history-note {
+    grid-column: 2 / -1;
+    margin: -4px 0 0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #fffaf0;
+    color: #75432f;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* pill colors for the interview stages */
+.application-status-pill.interview_scheduled,
+.application-status-pill.interview_completed {
+    background: #ffe2c2;
+    color: #d96f00;
+}
+
+@media (max-width: 760px) {
+    .application-history-item {
+        grid-template-columns: 56px minmax(0, 1fr) auto;
+        row-gap: 10px;
+    }
+
+    .application-history-date {
+        grid-row: 2;
+    }
+
+    .application-history-date:nth-of-type(3) {
+        grid-column: 2;
+    }
+
+    .application-history-date:nth-of-type(4) {
+        grid-column: 3;
+    }
+
+    .application-history-item .application-status-pill {
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .application-history-note {
+        grid-column: 1 / -1;
+        margin: 0;
+    }
+}

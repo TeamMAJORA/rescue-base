@@ -227,6 +227,8 @@
     font-weight: 800;
 }
 
+
+
 .browse-pets-message p {
     margin: 0;
     font-size: 13px;
@@ -380,6 +382,7 @@
     display: grid;
     gap: 2px;
     padding: 8px 6px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 10px;
     background: #fff4c4;
     text-align: center;
@@ -479,14 +482,11 @@
 }
 
 .browse-pet-main-image {
-    width: 100%;
-    max-width: 520px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    padding: 10px;
-    border-radius: 17px;
+    position: relative;
+    width: calc(100% + 44px);
+    margin: -22px -22px 0;
+    aspect-ratio: 4 / 3;
+    border-radius: 19px 19px 0 0;
     background: #fff7cb;
     overflow: hidden;
     line-height: 0;
@@ -495,17 +495,15 @@
 
 .browse-pet-main-image img {
     width: 100%;
-    height: auto;
-    max-width: 100%;
+    height: 100%;
     display: block;
-    border-radius: 12px;
-    object-fit: contain;
-    object-position: center;
+    object-fit: cover;
+    object-position: center 30%;
 }
 
 .browse-pet-main-image > span {
     width: 100%;
-    min-height: 260px;
+    height: 100%;
     display: grid;
     place-items: center;
     line-height: 1;
@@ -540,6 +538,7 @@
 .browse-pet-details-grid article {
     min-width: 0;
     padding: 12px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 12px;
     background: #fff7cb;
 }
@@ -621,10 +620,6 @@
     .browse-pet-details-panel {
         position: static;
     }
-
-    .browse-pet-main-image {
-        max-width: 460px;
-    }
 }
 
 @media (max-width: 1000px) {
@@ -635,9 +630,12 @@
     .browse-pet-details-panel {
         position: static;
     }
+}
 
+@media (max-width: 580px) {
     .browse-pet-main-image {
-        max-width: 540px;
+        width: calc(100% + 34px);
+        margin: -17px -17px 0;
     }
 }
 
@@ -661,8 +659,9 @@
         padding: 7px;
     }
 
-    .browse-pet-main-image > span {
-        min-height: 210px;
+    .browse-pet-main-image {
+        width: calc(100% + 34px);
+        margin: -17px -17px 0;
     }
 
     .browse-pet-details-grid {
@@ -762,6 +761,24 @@
 .pet-list-count {
     flex-shrink: 0;
     color: rgba(90, 27, 0, 0.6);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* Personality tags (from backend personalityService) */
+.browse-pet-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 8px;
+}
+
+.browse-pet-tags span {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #fff1e6;
+    color: #c2410c;
     font-size: 12px;
     font-weight: 600;
 }

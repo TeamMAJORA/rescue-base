@@ -4,6 +4,15 @@ import BehaviorAssessment from "./BehaviorAssessment";
 import VaccinationRecords from "./VaccinationRecords";
 import MedicalRecords from "./MedicalRecords";
 import InfoTip from "../../../../components/system/InfoTip";
+import { formatAge } from "../../../../utils/formatAge";
+
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -66,21 +75,9 @@ const STATUS_FILTERS = [
 ];
 
 // ===== Adopter Preview (live, read-only) =====
+// Tags come from the backend (personalityService.js), so the rules live in one place.
 function getPreviewPersonalityTags(animal) {
-    if (!animal) return [];
-
-    const has = (value) => typeof value === "number";
-    const tags = [];
-
-    if (has(animal.trainability) && animal.trainability >= 4) tags.push("Well-trained");
-    if (has(animal.aggressionLevel) && animal.aggressionLevel <= 2) tags.push("Gentle");
-    if (has(animal.energyLevel) && animal.energyLevel <= 2) tags.push("Calm");
-    if (has(animal.energyLevel) && animal.energyLevel >= 4) tags.push("Energetic");
-    if (has(animal.anxietyLevel) && animal.anxietyLevel >= 4) tags.push("Needs patience");
-    if (has(animal.humanSociability) && animal.humanSociability >= 4) tags.push("Friendly");
-    if (has(animal.animalSociability) && animal.animalSociability >= 4) tags.push("Pet-friendly");
-
-    return tags;
+    return animal?.personality?.tags || [];
 }
 
 function PawIcon() {
@@ -109,7 +106,7 @@ function AdopterPreview({ form, savedAnimal }) {
 
     const age =
         form.age !== "" && form.age !== null && form.age !== undefined
-            ? `${form.age} ${Number(form.age) === 1 ? "year" : "years"}`
+            ? formatAge(form.age)
             : "—";
 
     return (
@@ -337,10 +334,13 @@ export default function AnimalProfiles() {
     const [viewMode, setViewMode] = useState("table");
     const [statusFilter, setStatusFilter] = useState("all");
     const [qrCodes, setQrCodes] = useState({});
+    const [qrImages, setQrImages] = useState({});
+    const [qrOpen, setQrOpen] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [expandedId, setExpandedId] = useState(null);
+    const [ageUnit, setAgeUnit] = useState("years");
     const [showForm, setShowForm] = useState(false);
 
     const [formSnapshot, setFormSnapshot] = useState(emptyAnimalForm);
@@ -506,10 +506,12 @@ export default function AnimalProfiles() {
         return sortConfig.direction === "asc" ? "▲" : "▼";
     }
 
-    async function fetchAnimals() {
+    async function fetchAnimals({ silent = false } = {}) {
         try {
-            setLoading(true);
-            setMessage("");
+            if (!silent) {
+                setLoading(true);
+                setMessage("");
+            }
 
             const response = await fetch(`${API}/api/animals`, {
                 headers: {
@@ -518,17 +520,15 @@ export default function AnimalProfiles() {
             });
             const data = await response.json();
 
-            console.log("Animals:", data);
-
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to fetch animals.");
+                if (!silent) setMessage(data.message || "Failed to fetch animals.");
                 return;
             }
 
             setAnimals(data.animals || []);
         } catch (error) {
             console.error("Fetch animals error:", error);
-            setMessage("Server error while fetching animals.");
+            if (!silent) setMessage("Server error while fetching animals.");
         } finally {
             setLoading(false);
         }
@@ -548,12 +548,14 @@ export default function AnimalProfiles() {
                 : data.qrTags || data.records || [];
 
             const codeMap = {};
+            const imageMap = {};    
             records.forEach((record) => {
                 const animalId = record.animal?._id || record.animal;
-                if (animalId) codeMap[animalId] = record.tagCode;
+                if (animalId) { codeMap[animalId] = record.tagCode; imageMap[animalId] = record.qrImageUrl; }
             });
 
             setQrCodes(codeMap);
+            setQrImages(imageMap);  
         } catch {
             // QR search is optional; name/breed search still works
         }
@@ -710,6 +712,7 @@ export default function AnimalProfiles() {
 
         setEditingId(animal._id);
         setAnimalForm(editForm);
+        setAgeUnit(animal.age > 0 && animal.age < 1 ? "months" : "years");
         setFormSnapshot(editForm);
         setMessage("Editing animal profile.");
         setEditingAnimal(animal);
@@ -731,6 +734,7 @@ export default function AnimalProfiles() {
         const freshForm = { ...emptyAnimalForm, intakeDate: todayLocal() };
         setAnimalForm(freshForm);
         setFormSnapshot(freshForm);
+        setAgeUnit("years");
 
         setActiveFormTab("overview");
         setShowForm(true);
@@ -760,7 +764,7 @@ export default function AnimalProfiles() {
             return;
         }
 
-        const confirmed = window.confirm("Delete this animal profile?");
+        const confirmed = await askConfirm({ title: "Delete this animal profile?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) return;
 
@@ -800,6 +804,26 @@ export default function AnimalProfiles() {
         fetchAnimals();
         fetchQrCodes();
     }, []);
+
+    // Keep statuses fresh 
+    useEffect(() => {
+        if (showForm) return;
+
+        const interval = setInterval(() => {
+            fetchAnimals({ silent: true });
+        }, 30000);
+
+        function handleFocus() {
+            fetchAnimals({ silent: true });
+        }
+
+        window.addEventListener("focus", handleFocus);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("focus", handleFocus);
+        };
+    }, [showForm]);
 
     useEffect(() => {
         if (!showForm || !isFormDirty) return;
@@ -895,7 +919,6 @@ export default function AnimalProfiles() {
                                 <option value="" disabled>Select</option>
                                 <option value="Dog">Dog</option>
                                 <option value="Cat">Cat</option>
-                                <option value="Other">Other</option>
                             </select>
                         </label>
 
@@ -919,15 +942,29 @@ export default function AnimalProfiles() {
 
                         {/* ===== Row 2 ===== */}
                         <label>
-                            <span className="admin-field-label">Age (years)</span>
-                            <input
-                                type="number"
-                                min="0"
-                                step="0.5"
-                                value={animalForm.age}
-                                onChange={(e) => setAnimalForm({ ...animalForm, age: e.target.value })}
-                                placeholder="e.g. 2"
-                            />
+                            <span className="admin-field-label">Age</span>
+                            <div className="admin-age-input">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step={ageUnit === "months" ? "1" : "0.5"}
+                                    value={
+                                        ageUnit === "months" && animalForm.age !== ""
+                                            ? Math.round(Number(animalForm.age) * 12)
+                                            : animalForm.age
+                                    }
+                                    onChange={(e) => {
+                                        const raw = e.target.value;
+                                        const age = raw === "" ? "" : ageUnit === "months" ? Number(raw) / 12 : raw;
+                                        setAnimalForm({ ...animalForm, age });
+                                    }}
+                                    placeholder={ageUnit === "months" ? "e.g. 4" : "e.g. 2"}
+                                />
+                                <select value={ageUnit} onChange={(e) => setAgeUnit(e.target.value)}>
+                                    <option value="years">Years</option>
+                                    <option value="months">Months</option>
+                                </select>
+                            </div>
                         </label>
 
                         <label>
@@ -1192,7 +1229,14 @@ export default function AnimalProfiles() {
             {editingAnimal && (
                 <>
                     <div className="admin-tab-content" hidden={activeFormTab !== "behavior"}>
-                        <BehaviorAssessment key={editingAnimal._id} lockedAnimal={editingAnimal} />
+                        <BehaviorAssessment
+                            key={editingAnimal._id}
+                            lockedAnimal={editingAnimal}
+                            onSaved={(updatedAnimal) => {
+                                setEditingAnimal(updatedAnimal);
+                                fetchAnimals();
+                            }}
+                        />
                     </div>
 
                     <div className="admin-tab-content" hidden={activeFormTab !== "vaccinations"}>
@@ -1272,26 +1316,40 @@ export default function AnimalProfiles() {
                  )}
             </div>
             
-            <div className="admin-animal-stats">
-                <article className="admin-stat-card">
-                    <span>Total Animals</span>
-                    <strong>{totalAnimals}</strong>
-                </article>
+            {/* Stats strip — same design as the other Animal pages (styles in IntakeRecords.css) */}
+            <div className="ao-page">
+                <div className="ao-strip">
+                    <div className="ao-strip-cta">
+                        <div>
+                            <b>{totalAnimals}</b>
+                            <small>{totalAnimals === 1 ? "Animal under shelter care" : "Animals under shelter care"}</small>
+                        </div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Available</span>
-                    <strong>{availableAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" /></svg>
+                            Available
+                        </div>
+                        <div className="ao-strip-value">{availableAnimals}</div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Pending Adoption</span>
-                    <strong>{pendingAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                            Pending Adoption
+                        </div>
+                        <div className="ao-strip-value">{pendingAnimals}</div>
+                    </div>
 
-                <article className="admin-stat-card">
-                    <span>Adopted</span>
-                    <strong>{adoptedAnimals}</strong>
-                </article>
+                    <div className="ao-strip-item">
+                        <div className="ao-strip-label">
+                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>
+                            Adopted
+                        </div>
+                        <div className="ao-strip-value">{adoptedAnimals}</div>
+                    </div>
+                </div>
             </div>
 
 
@@ -1310,10 +1368,9 @@ export default function AnimalProfiles() {
                         value={speciesFilter}
                         onChange={(e) => setSpeciesFilter(e.target.value)}
                     >
-                        <option value="All">Species: All</option>
-                        <option value="Dog">Species: Dog</option>
-                        <option value="Cat">Species: Cat</option>
-                        <option value="Other">Species: Other</option>
+                        <option value="All">All</option>
+                        <option value="Dog">Dog</option>
+                        <option value="Cat">Cat</option>
                     </select>
 
                     <div className="admin-view-toggle">
@@ -1374,14 +1431,12 @@ export default function AnimalProfiles() {
                                     <small>{animal.location || "RescueBase Shelter"}</small>
 
                                     <div className="admin-animal-badges">
-                                        <span>{animal.availabilityStatus}</span>
-                                        <span>{animal.adoptionStatus}</span>
-                                        <span>{animal.fosterStatus}</span>
+                                        <StatusPill status={getAnimalStatus(animal)} />
                                     </div>
                                 </div>
 
                                 <div className="admin-animal-details">
-                                    <p><b>Age:</b> {animal.age || 0}</p>
+                                    <p><b>Age:</b> {formatAge(animal.age)}</p>
                                     <p><b>Size:</b> {animal.size}</p>
                                     <p><b>Condition:</b> {animal.intakeCondition}</p>
                                 </div>
@@ -1423,7 +1478,7 @@ export default function AnimalProfiles() {
                                         </th>
                                         <th>Species</th>
                                         <th>Breed</th>
-                                        <th>Age (yrs)</th>
+                                        <th>Age</th>
                                         <th>Gender</th>
                                         <th>Status</th>
                                         <th>
@@ -1462,7 +1517,7 @@ export default function AnimalProfiles() {
                                                     </td>
                                                     <td>{animal.type}</td>
                                                     <td>{animal.breed || "—"}</td>
-                                                    <td>{animal.age ?? 0}</td>
+                                                    <td>{formatAge(animal.age)}</td>
                                                     <td>{animal.gender}</td>
                                                     <td>
                                                         <StatusPill key={status} status={status} />
@@ -1470,7 +1525,15 @@ export default function AnimalProfiles() {
                                                     <td>{formatIntakeDate(animal.intakeDate)}</td>
                                                     <td>
                                                         {qrCodes[animal._id] ? (
-                                                            <span className="admin-qr-chip">
+                                                            <span
+                                                                className="admin-qr-chip"
+                                                                title="Click to view QR"
+                                                                style={{ cursor: "zoom-in" }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (qrImages[animal._id]) setQrOpen({ image: qrImages[animal._id], code: qrCodes[animal._id], name: animal.name });
+                                                                }}
+                                                            >
                                                                 <QrIcon />
                                                                 {qrCodes[animal._id]}
                                                             </span>
@@ -1612,7 +1675,7 @@ export default function AnimalProfiles() {
 
                         <div className="admin-animal-modal-body">
                             <div className="admin-animal-modal-grid">
-                                <div><span>Age</span><p>{viewedAnimal.age ?? 0} yrs</p></div>
+                                <div><span>Age</span><p>{formatAge(viewedAnimal.age)}</p></div>
                                 <div><span>Gender</span><p>{viewedAnimal.gender || "—"}</p></div>
                                 <div><span>Size</span><p>{viewedAnimal.size || "—"}</p></div>
                                 <div><span>Color</span><p>{viewedAnimal.color || "—"}</p></div>
@@ -1622,7 +1685,20 @@ export default function AnimalProfiles() {
                                 <div>
                                     <span>QR Code</span>
                                     {qrCodes[viewedAnimal._id] ? (
-                                        <p>{qrCodes[viewedAnimal._id]}</p>
+                                        <div>
+                                            {qrImages[viewedAnimal._id] && (
+                                                <img
+                                                    src={qrImages[viewedAnimal._id]}
+                                                    alt="QR"
+                                                    title="Click to enlarge"
+                                                    onClick={() => setQrOpen({ image: qrImages[viewedAnimal._id], code: qrCodes[viewedAnimal._id], name: viewedAnimal.name })}
+                                                    style={{ width: 72, height: 72, cursor: "zoom-in", transition: "transform .15s" }}
+                                                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                                                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                                                />
+                                            )}
+                                            <p>{qrCodes[viewedAnimal._id]}</p>
+                                        </div>
                                     ) : (
                                         <p className="muted">No tag yet</p>
                                     )}
@@ -1704,7 +1780,18 @@ export default function AnimalProfiles() {
                     </div>
                 </div>
             )}
-
+            {qrOpen && (
+                <div
+                    onClick={() => setQrOpen(null)}
+                    style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000 }}
+                >
+                    <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", padding: 24, borderRadius: 12, textAlign: "center" }}>
+                        <img src={qrOpen.image} alt="QR code" style={{ width: 320, height: 320 }} />
+                        <p style={{ marginTop: 12, fontWeight: 600 }}>{qrOpen.name} · {qrOpen.code}</p>
+                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 8, fontSize: 25 }}>❌</button>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }
