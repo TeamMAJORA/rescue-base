@@ -37,7 +37,7 @@ export default function FosterApplication() {
         localStorage.getItem("rescuebase_user") || "{}"
     );
 
-    const [form, setForm] = useState({
+    const initialForm = {
         fullName: savedUser.username || savedUser.name || "",
         email: savedUser.email || "",
         phone: "",
@@ -56,7 +56,9 @@ export default function FosterApplication() {
         emergencyPhone: "",
         notes: "",
         agree: false,
-    });
+    };
+
+    const [form, setForm] = useState(initialForm);
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -80,6 +82,11 @@ export default function FosterApplication() {
         setForm((prev) => ({ ...prev, [name]: value }));
     }
 
+    function handleClear() {
+        setForm(initialForm);
+        setMessage("");
+        setMessageType("");
+    }
     async function handleSubmit(e) {
         e.preventDefault();
 
@@ -498,6 +505,7 @@ export default function FosterApplication() {
                     <button
                         type="reset"
                         className="foster-secondary-button"
+                        onClick={handleClear}
                     >
                         Clear
                     </button>
