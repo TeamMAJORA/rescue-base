@@ -58,7 +58,19 @@ export default function FosterApplication() {
         agree: false,
     };
 
-    const [form, setForm] = useState(initialForm);
+    // Draft is saved per account on this browser only
+    const DRAFT_KEY = `rescuebase_foster_draft_${savedUser.email || "guest"}`;
+
+    const [form, setForm] = useState(() => {
+        try {
+            const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+            return draft
+                ? { ...initialForm, ...draft, fullName: initialForm.fullName, email: initialForm.email }
+                : initialForm;
+        } catch {
+            return initialForm;
+        }
+    });
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -84,9 +96,29 @@ export default function FosterApplication() {
 
     function handleClear() {
         setForm(initialForm);
+        localStorage.removeItem(DRAFT_KEY);
         setMessage("");
         setMessageType("");
     }
+
+    function handleSaveDraft() {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...form, agree: false }));
+        setMessage("Draft saved on this device.");
+        setMessageType("success");
+    }
+
+    // Submit stays disabled until these are filled and the guidelines are ticked
+    const canSubmit =
+        form.agree &&
+        [
+            form.phone,
+            form.address,
+            form.experience,
+            form.emergencyName,
+            form.emergencyRelationship,
+            form.emergencyPhone,
+        ].every((value) => String(value).trim() !== "");
+
     async function handleSubmit(e) {
         e.preventDefault();
 
@@ -146,6 +178,8 @@ export default function FosterApplication() {
                 "Your foster application was submitted successfully."
             );
             setMessageType("success");
+            setForm(initialForm);
+            localStorage.removeItem(DRAFT_KEY);
         } catch (error) {
             console.error(error);
 
@@ -481,18 +515,27 @@ export default function FosterApplication() {
                     </div>
                 </section>
 
-                <section className="foster-form-card">
-                    <label className="foster-checkbox">
+                <section className="foster-form-card ffc-agree-card">
+                    <label className="ffc-agree">
                         <input
                             type="checkbox"
                             name="agree"
                             checked={form.agree}
                             onChange={handleChange}
+                            required
                         />
-                        I agree to follow RescueBase Foster Guidelines.
+                        <span className="ffc-agree-box" aria-hidden="true">
+                            {form.agree && <img src="/icons/checkmark.svg" alt="" />}
+                        </span>
+                        <span className="ffc-agree-text">
+                            <strong>
+                                I agree to follow the RescueBase Foster Guidelines. <em className="ffc-required">*</em>
+                            </strong>
+                            <small>Includes regular updates on the pet, vet visits through the shelter, and returning the pet when requested.</small>
+                        </span>
                     </label>
-
                 </section>
+
                 {message && (
                     <div
                         className={`foster-alert ${messageType}`}
@@ -501,24 +544,38 @@ export default function FosterApplication() {
                     </div>
                 )}
 
-                <div className="foster-form-actions">
-                    <button
-                        type="reset"
-                        className="foster-secondary-button"
-                        onClick={handleClear}
-                    >
-                        Clear
-                    </button>
+                <div className="ffc-actions">
+                    <p className="ffc-actions-note">
+                        Staff review every application. Submit stays disabled until required fields and the guidelines are ticked.
+                    </p>
 
-                    <button
-                        type="submit"
-                        className="foster-submit-button"
-                        disabled={loading}
-                    >
-                        {loading
-                            ? "Submitting..."
-                            : "Submit Application"}
-                    </button>
+                    <div className="ffc-actions-buttons">
+                        <button
+                            type="button"
+                            className="ffc-btn ffc-btn-clear"
+                            onClick={handleClear}
+                        >
+                            Clear
+                        </button>
+
+                        <button
+                            type="button"
+                            className="ffc-btn ffc-btn-draft"
+                            onClick={handleSaveDraft}
+                        >
+                            Save Draft
+                        </button>
+
+                        <button
+                            type="submit"
+                            className="ffc-btn ffc-btn-submit"
+                            disabled={loading || !canSubmit}
+                        >
+                            {loading
+                                ? "Submitting..."
+                                : "Submit Application"}
+                        </button>
+                    </div>
                 </div>
             </form>
         </section>

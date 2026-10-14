@@ -523,3 +523,166 @@
     font-style: normal;
     font-weight: 500;
 }
+
+/* ===== Guidelines checkbox card ===== */
+.foster-form-card.ffc-agree-card {
+    padding: 16px 20px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    background: #fff7cb;
+    box-shadow: none;
+}
+
+.foster-form-card .ffc-agree {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+}
+
+/* hide the real checkbox but keep it clickable + focusable */
+.ffc-agree input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.ffc-agree-box {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    border: 2px solid #fb8500;
+    border-radius: 6px;
+    background: #fff;
+    transition: background 0.15s ease;
+}
+
+.ffc-agree-box img {
+    width: 12px;
+    height: 9px;
+}
+
+.ffc-agree input:checked + .ffc-agree-box {
+    background: #fb8500;
+}
+
+.ffc-agree input:focus-visible + .ffc-agree-box {
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.ffc-agree-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ffc-agree-text strong {
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.ffc-agree-text small {
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ===== Bottom action bar ===== */
+.ffc-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+    border-radius: 16px;
+    background: #fffaf0;
+}
+
+.ffc-actions-note {
+    margin: 0;
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.ffc-actions-buttons {
+    display: flex;
+    flex-shrink: 0;
+    gap: 10px;
+}
+
+.ffc-btn {
+    min-height: 40px;
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.ffc-btn-clear {
+    border: 1.5px solid #5a1b00;
+    background: #fff;
+    color: #5a1b00;
+}
+
+.ffc-btn-clear:hover {
+    background: #fff7d6;
+}
+
+.ffc-btn-draft {
+    border: 1.5px solid #fb8500;
+    background: #fff7cb;
+    color: #5a1b00;
+}
+
+.ffc-btn-draft:hover {
+    background: #fcbf49;
+}
+
+.ffc-btn-submit {
+    border: 1.5px solid #fb8500;
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+}
+
+.ffc-btn-submit:hover:not(:disabled) {
+    background: #e67600;
+    transform: translateY(-1px);
+}
+
+.ffc-btn-submit:disabled {
+    opacity: 0.45;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.ffc-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+@media (max-width: 900px) {
+    .ffc-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ffc-actions-buttons {
+        flex-direction: column;
+    }
+
+    .ffc-btn {
+        width: 100%;
+    }
+}
