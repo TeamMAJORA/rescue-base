@@ -37,7 +37,7 @@ function ChoiceGroup({ name, value, options, onPick, label }) {
 function FieldError({ message }) {
     return message ? <small className="ffc-error" role="alert">{message}</small> : null;
 }
-export default function FosterApplication() {
+export default function FosterApplication({ embedded = false, onSubmitted }) {
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
@@ -218,6 +218,7 @@ export default function FosterApplication() {
             setMessageType("success");
             setForm(initialForm);
             localStorage.removeItem(DRAFT_KEY);
+            onSubmitted?.();
         } catch (error) {
             console.error(error);
 
@@ -229,18 +230,19 @@ export default function FosterApplication() {
     }
 
     return (
-        <section className="foster-panel">
+        <section className={embedded ? "ffa-embedded" : "foster-panel"}>
 
-            <div className="foster-section-heading">
-                <div>
-                    <span>Become a Volunteer</span>
-                    <h2>Foster Application</h2>
+            {!embedded && (
+                <div className="foster-section-heading">
+                    <div>
+                        <span>Become a Volunteer</span>
+                        <h2>Foster Application</h2>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <form
-                className="foster-application-form"
-                onSubmit={handleSubmit}
+                className="ffa-form"                onSubmit={handleSubmit}
                 noValidate
             >
 

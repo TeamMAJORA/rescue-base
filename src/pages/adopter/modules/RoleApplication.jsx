@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import InfoTip from "../../../components/system/InfoTip";
+import FosterApplication from "../../foster/modules/FosterApplication";
+import "../../../styles/foster/FosterApplication.css";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -7,7 +9,8 @@ export default function RoleApplication() {
     const token = localStorage.getItem("token");
     const [targetRole, setTargetRole] = useState("volunteer");
     const [reason, setReason] = useState("");
-    const [application, setApplication] = useState(null)
+    const [roleApp, setApplication] = useState(null); // volunteer (Role Application)
+    const [fosterApp, setFosterApp] = useState(null); // foster (FosterApplication form)
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -40,6 +43,31 @@ export default function RoleApplication() {
         }
     }
 
+    // Latest foster application (the full foster form)
+    async function fetchFosterApplication() {
+        try {
+            const response = await fetch(`${API}/api/foster/applications/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to load foster application.");
+            }
+
+            setFosterApp(data.application || null);
+
+            // open the Foster tab if that application is the one under review
+            if (data.application?.status === "pending") setTargetRole("foster");
+        } catch (error) {
+            setError(error.message);
+        }
+    }
+
+    function refreshAll() {
+        fetchApplication();
+        fetchFosterApplication();
+    }
     async function handleSubmit(event) {
         event.preventDefault();
 
@@ -84,11 +112,27 @@ export default function RoleApplication() {
     }
 
     useEffect(() => {
-        fetchApplication();
+        refreshAll();
     }, []);
 
+    // The side card shows whichever application matches the selected role
+    const application = targetRole === "foster"
+        ? fosterApp && {
+            targetRole: "foster",
+            status: fosterApp.status,
+            submittedAt: fosterApp.createdAt,
+            rejectionReason: fosterApp.rejectionReason ||
+                (fosterApp.status === "rejected" ? fosterApp.reviewNotes : ""),
+        }
+        : roleApp;
+
     const status = application?.status || "none";
-    const hasPendingApplication = status === "pending";
+
+    // Only one application can be under review at a time
+    const pendingRole = roleApp?.status === "pending"
+        ? roleApp.targetRole
+        : fosterApp?.status === "pending" ? "foster" : null;
+    const hasPendingApplication = Boolean(pendingRole);
 
         // Labels + step states for the right-side status card
     const ROLE_LABELS = { volunteer: "Volunteer", foster: "Foster Caregiver" };
@@ -158,7 +202,7 @@ export default function RoleApplication() {
                     <button
                         type="button"
                         className={`application-status-refresh ${loading ? "is-loading" : ""}`}
-                        onClick={fetchApplication}
+                        onClick={refreshAll}
                         disabled={loading}
                     >
                         <img src="/icons/Refresh cw.svg" alt="" />
@@ -172,51 +216,73 @@ export default function RoleApplication() {
 
                 {success && <p className="role-application-success">{success}</p>}
 
-                {!hasPendingApplication && (
-                    <form className="role-application-form" onSubmit={handleSubmit}>
-                        <div className="ra-field">
-                            <span className="ra-label">
-                                Apply for <em>*</em>
-                                <InfoTip text="Volunteers help at the shelter. Fosters care for a pet at home until it gets adopted." />
-                            </span>
+                {!loading && (
+                    <div className="ra-field ra-role-field">
+                        <span className="ra-label">
+                            Apply for <em>*</em>
+                            <InfoTip text="Volunteers help at the shelter. Fosters care for a pet at home until it gets adopted." />
+                        </span>
 
-                            <div className="ra-role-grid" role="radiogroup" aria-label="Apply for">
-                                {ROLE_OPTIONS.map((option) => (
-                                    <label
-                                        key={option.value}
-                                        className={`ra-role-card ${targetRole === option.value ? "is-selected" : ""}`}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="targetRole"
-                                            value={option.value}
-                                            checked={targetRole === option.value}
-                                            onChange={(event) => setTargetRole(event.target.value)}
-                                            disabled={submitting}
-                                        />
+                        <div className="ra-role-grid" role="radiogroup" aria-label="Apply for">
+                            {ROLE_OPTIONS.map((option) => (
+                                <label
+                                    key={option.value}
+                                    className={`ra-role-card ${targetRole === option.value ? "is-selected" : ""}`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="targetRole"
+                                        value={option.value}
+                                        checked={targetRole === option.value}
+                                        onChange={(event) => {
+                                            setTargetRole(event.target.value);
+                                            setError("");
+                                            setSuccess("");
+                                        }}
+                                        disabled={submitting}
+                                    />
 
-                                        <span className="ra-role-icon" aria-hidden="true">
-                                            <img src={option.icon} alt="" />
+                                    <span className="ra-role-icon" aria-hidden="true">
+                                        <img src={option.icon} alt="" />
+                                    </span>
+
+                                    <span className="ra-role-text">
+                                        <b>{option.title}</b>
+                                        <small>{option.description}</small>
+                                        <span className="ra-role-tags">
+                                            {option.tags.map((tag) => (
+                                                <span key={tag}>{tag}</span>
+                                            ))}
                                         </span>
+                                    </span>
 
-                                        <span className="ra-role-text">
-                                            <b>{option.title}</b>
-                                            <small>{option.description}</small>
-                                            <span className="ra-role-tags">
-                                                {option.tags.map((tag) => (
-                                                    <span key={tag}>{tag}</span>
-                                                ))}
-                                            </span>
-                                        </span>
-
-                                        <span className="ra-role-check" aria-hidden="true">
-                                            <img src="/icons/checkmark.svg" alt="" />
-                                        </span>
-                                    </label>
-                                ))}
-                            </div>
+                                    <span className="ra-role-check" aria-hidden="true">
+                                        <img src="/icons/checkmark.svg" alt="" />
+                                    </span>
+                                </label>
+                            ))}
                         </div>
+                    </div>
+                )}
 
+                {!loading && hasPendingApplication && (
+                    <div className="ra-pending">
+                        <span className="ra-pending-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                        </span>
+                        <div>
+                            <b>Your {ROLE_LABELS[pendingRole] || pendingRole} application is under review</b>
+                            <p>You can only have one application at a time. Please wait for a staff decision.</p>
+                        </div>
+                    </div>
+                )}
+
+                {!loading && !hasPendingApplication && targetRole === "foster" && (
+                    <FosterApplication embedded onSubmitted={fetchFosterApplication} />
+                )}
+
+                {!loading && !hasPendingApplication && targetRole === "volunteer" && (
+                    <form className="role-application-form" onSubmit={handleSubmit}>
                         <div className="ra-field">
                             <label className="ra-label" htmlFor="reason">
                                 Why do you want to apply? <em>*</em>
@@ -256,18 +322,6 @@ export default function RoleApplication() {
                             </button>
                         </div>
                     </form>
-                )}
-
-                {hasPendingApplication && (
-                    <div className="ra-pending">
-                        <span className="ra-pending-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                        </span>
-                        <div>
-                            <b>Your application is under review</b>
-                            <p>Please wait for an administrator's decision. You can check its progress on the right.</p>
-                        </div>
-                    </div>
                 )}
             </div>
             <aside className="role-application-side">
