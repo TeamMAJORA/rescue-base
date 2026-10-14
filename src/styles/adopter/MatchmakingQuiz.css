@@ -493,3 +493,152 @@
         width: 100%;
     }
 }
+
+/* ===== Header: same look as the dashboard hero ===== */
+.matchmaking-header {
+    align-items: center;
+    padding: 34px 38px;
+    border: 0;
+    border-radius: 24px;
+    background:
+        url("/icons/heroPaw.svg") no-repeat right -30px bottom -150px / auto 135%,
+        linear-gradient(90deg, #fb8500 0%, #ff9d2e 55%, #ffad42 100%);
+    box-shadow: 0 18px 36px rgba(251, 133, 0, 0.28);
+    overflow: hidden;
+}
+
+/* "Behavioral Matching" becomes the white chip */
+.matchmaking-header > div:first-child > span {
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #d62828;
+}
+
+.matchmaking-header h2 {
+    margin-top: 14px;
+    color: #5a1b00;
+    font-size: clamp(32px, 3.4vw, 46px);
+}
+
+.matchmaking-header p {
+    max-width: 520px;
+    margin-top: 10px;
+    color: #4a1a05;
+    line-height: 1.55;
+}
+
+.matchmaking-progress-summary {
+    border: 0;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.12);
+}
+
+/* ===== Step tracker (Home -> Lifestyle -> Preferences) ===== */
+.matchmaking-steps {
+    display: flex;
+    align-items: flex-start;
+    margin: 0 0 24px;
+    padding: 18px 44px 34px;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+    border-radius: 18px;
+    background: #fffaf0;
+    list-style: none;
+}
+
+.mq-step {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.mq-step:last-child {
+    flex: 0 0 auto;
+}
+
+/* line to the next step */
+.mq-step:not(:last-child)::after {
+    content: "";
+    flex: 1;
+    height: 4px;
+    margin: 0 10px;
+    border-radius: 999px;
+    background: #ebe3b6;
+}
+
+.mq-step.is-done::after {
+    background: #fb8500;
+}
+
+.mq-step-dot {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #ebe3b6;
+}
+
+.mq-step.is-done .mq-step-dot {
+    background: #fb8500;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.3);
+}
+
+.mq-step-dot img {
+    width: 15px;
+    height: 11px;
+}
+
+.mq-step.is-active .mq-step-dot {
+    border: 3px solid #fb8500;
+    background: #ffffff;
+}
+
+.mq-step.is-active .mq-step-dot::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fb8500;
+}
+
+/* label under each circle */
+.mq-step-dot small {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    color: #b3a27a;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* the ring on the current step pushes its label up 3px; this lines it up */
+.mq-step.is-active .mq-step-dot small {
+    top: calc(100% + 11px);
+}
+
+.mq-step.is-done small,
+.mq-step.is-active small {
+    color: #fb8500;
+}
+
+@media (max-width: 700px) {
+    .matchmaking-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 26px 22px;
+    }
+
+    .matchmaking-steps {
+        padding: 16px 40px 32px;
+    }
+}
