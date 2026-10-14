@@ -1,6 +1,7 @@
 import {
     useMemo, useState
 } from "react";
+import { fireSideCannons } from "../../../utils/confetti";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -26,6 +27,26 @@ const factorDescriptions = {
 // Labels for the step tracker under the header
 const QUIZ_STEPS = ["Home", "Lifestyle", "Preferences"];
 
+
+// Side card text for each step ("Why we ask")
+const WHY_WE_ASK = {
+    1: [
+        "Home type and ownership check space and rules",
+        "Children and pets help match temperament",
+        "Type and size narrow down your featured pet",
+    ],
+    2: [
+        "Experience shows how much guidance you may need",
+        "Daily time and exercise match a pet's energy",
+        "Willingness to train opens up more pets for you",
+    ],
+    3: [
+        "Each answer is compared with every pet's behavior assessment",
+        "Tolerance means what you can handle, not what you prefer",
+        "Your answers rank the pets in your Recommendations",
+    ],
+};
+
 const factorLabels = {
     1: "Very Low",
     2: "Low",
@@ -33,6 +54,143 @@ const factorLabels = {
     4: "High",
     5: "Very High",
 };
+
+// One question per screen. "section" decides the tracker stage and the chip.
+// Values are the same ones the quiz already saves, so the backend is unchanged.
+function levelOptions() {
+    return [1, 2, 3, 4, 5].map((level) => ({
+        value: level,
+        label: factorLabels[level],
+        note: `${level} out of 5`,
+    }));
+}
+
+const QUESTIONS = [
+    {
+        section: "Home",
+        name: "homeType",
+        title: "What type of home do you live in?",
+        hint: "Pick the one that best describes your home.",
+        options: [
+            { value: "House", label: "House", note: "Your own space, often with a yard" },
+            { value: "Apartment", label: "Apartment", note: "A unit in a shared building" },
+            { value: "Condominium", label: "Condominium", note: "A condo unit with building rules" },
+            { value: "Boarding House", label: "Boarding House", note: "A rented room in a shared house" },
+            { value: "Other", label: "Other", note: "Something not listed here" },
+        ],
+    },
+    {
+        section: "Home",
+        name: "homeOwnership",
+        title: "Do you own or rent your home?",
+        hint: "Renters may need the owner's permission to keep pets.",
+        options: [
+            { value: "Owned", label: "I own my home", note: "I decide the house rules" },
+            { value: "Rented with permission", label: "Renting, pets allowed", note: "My landlord said yes to pets" },
+            { value: "Rented without confirmed permission", label: "Renting, not sure about pets", note: "I haven't confirmed with my landlord yet" },
+        ],
+    },
+    {
+        section: "Home",
+        name: "hasChildren",
+        title: "Are there children at home?",
+        hint: "Some pets are calmer around kids than others.",
+        options: [
+            { value: "Yes", label: "Yes", note: "Children live with me or visit often" },
+            { value: "No", label: "No", note: "No children at home" },
+        ],
+    },
+    {
+        section: "Home",
+        name: "hasOtherPets",
+        title: "Do you have other pets at home?",
+        hint: "We will look for pets that get along with them.",
+        options: [
+            { value: "Yes", label: "Yes", note: "I already have a pet" },
+            { value: "No", label: "No", note: "This would be my only pet" },
+        ],
+    },
+    {
+        section: "Home",
+        name: "preferredPetType",
+        title: "What kind of pet are you looking for?",
+        hint: "You can still browse every pet later.",
+        options: [
+            { value: "Dog", label: "Dog", note: "Loyal and playful companions" },
+            { value: "Cat", label: "Cat", note: "Independent and affectionate" },
+            { value: "Any", label: "No preference", note: "Show me every match" },
+        ],
+    },
+    {
+        section: "Home",
+        name: "preferredSize",
+        title: "What size of pet fits your home?",
+        hint: "Think about your space and how much you can carry.",
+        options: [
+            { value: "Small", label: "Small", note: "Good for small spaces" },
+            { value: "Medium", label: "Medium", note: "A balance of size and space" },
+            { value: "Large", label: "Large", note: "Needs more room and exercise" },
+            { value: "Any", label: "No preference", note: "Any size is fine" },
+        ],
+    },
+    {
+        section: "Lifestyle",
+        name: "petExperience",
+        title: "How much experience do you have with pets?",
+        hint: "Be honest, it helps us suggest the right pet.",
+        options: [
+            { value: "Beginner", label: "Beginner", note: "This would be my first pet" },
+            { value: "Some experience", label: "Some experience", note: "I have cared for a pet before" },
+            { value: "Experienced", label: "Experienced", note: "I have raised several pets" },
+            { value: "Professional", label: "Professional", note: "I work with animals (vet, trainer, shelter)" },
+        ],
+    },
+    {
+        section: "Lifestyle",
+        name: "dailyAvailableHours",
+        title: "How much time can you give a pet each day?",
+        hint: "Pick the one that fits most days.",
+        options: [
+            { value: "Less than 1", label: "Less than 1 hour", note: "Short visits and quick walks" },
+            { value: "1-2", label: "1–2 hours", note: "A walk and some playtime" },
+            { value: "2-4", label: "2–4 hours", note: "Regular play and training" },
+            { value: "More than 4", label: "More than 4 hours", note: "Home most of the day" },
+        ],
+    },
+    {
+        section: "Lifestyle",
+        name: "exerciseFrequency",
+        title: "How active is your daily routine?",
+        hint: "Active pets do best with active owners.",
+        options: [
+            { value: "Low", label: "Low", note: "Mostly relaxing at home" },
+            { value: "Moderate", label: "Moderate", note: "Short walks most days" },
+            { value: "High", label: "High", note: "Daily walks or outdoor time" },
+            { value: "Very High", label: "Very High", note: "Running, hiking, lots of activity" },
+        ],
+    },
+    {
+        section: "Lifestyle",
+        name: "willingToTrain",
+        title: "Are you willing to train your pet?",
+        hint: "Some pets still need help with basic manners.",
+        options: [
+            { value: "Yes", label: "Yes", note: "I will put in the time" },
+            { value: "Maybe", label: "Maybe", note: "If the pet needs it" },
+            { value: "No", label: "No", note: "I prefer a pet that is already trained" },
+        ],
+    },
+    ...Object.keys(factorDescriptions).map((name) => ({
+        section: "Preferences",
+        name,
+        title: factorDescriptions[name],
+        hint:
+            name === "anxietyTolerance" || name === "aggressionTolerance"
+                ? "This is how much you can handle, not what you prefer."
+                : "Choose the level that suits you best.",
+        options: levelOptions(),
+    })),
+];
 
 function getSavedQuiz() {
     try {
@@ -111,8 +269,8 @@ export default function MatchmakingQuiz({
             savedQuiz?.activityPreference || 3,
     });
 
-    const [currentStep, setCurrentStep] =
-        useState(1);
+    const [questionIndex, setQuestionIndex] =
+        useState(0);
 
     const [submitting, setSubmitting] =
         useState(false);
@@ -123,17 +281,18 @@ export default function MatchmakingQuiz({
     const [messageType, setMessageType] =
         useState("");
 
-    const totalSteps = 3;
+    const question = QUESTIONS[questionIndex];
+    const isLastQuestion = questionIndex === QUESTIONS.length - 1;
 
-    function handleChange(event) {
-        const { name, value } = event.target;
+    // 1 = Home, 2 = Lifestyle, 3 = Preferences (used by the tracker and side card)
+    const currentStep = QUIZ_STEPS.indexOf(question.section) + 1;
 
+    const progress = Math.round(((questionIndex + 1) / QUESTIONS.length) * 100);
+
+    function chooseAnswer(value) {
         setForm((currentForm) => ({
             ...currentForm,
-            [name]:
-                event.target.type === "range"
-                    ? Number(value)
-                    : value,
+            [question.name]: value,
         }));
     }
 
@@ -143,16 +302,17 @@ export default function MatchmakingQuiz({
         setMessage("");
         setMessageType("");
 
-        setCurrentStep((current) =>
-            Math.min(current + 1, totalSteps)
+        setQuestionIndex((current) =>
+            Math.min(current + 1, QUESTIONS.length - 1)
         );
     }
+
     function previousStep() {
         setMessage("");
         setMessageType("");
 
-        setCurrentStep((current) =>
-            Math.max(current - 1, 1)
+        setQuestionIndex((current) =>
+            Math.max(current - 1, 0)
         );
     }
 
@@ -212,9 +372,11 @@ export default function MatchmakingQuiz({
                 "Your matchmaking preferences were saved successfully"
             );
 
+            fireSideCannons(5000);
+
             window.setTimeout(() => {
                 onCompleted?.(result);
-            }, 900);
+            }, 400);
 
         } catch (error) {
             console.error(
@@ -229,56 +391,6 @@ export default function MatchmakingQuiz({
         } finally {
             setSubmitting(false);
         }
-    }
-
-    function renderFactorSlider(name) {
-        const value = Number(form[name] || 1);
-
-        return (
-            <article
-                className="matchmaking-factor-card"
-                key={name}
-            >
-                <div className="matchmaking-factor-heading">
-                    <div>
-                        <h3>
-                            {
-                                factorDescriptions[
-                                name
-                                ]
-                            }
-                        </h3>
-
-                        <p>
-                            Choose a score from 1 to 5.
-                        </p>
-                    </div>
-
-                    <span>
-                        {value} —{" "}
-                        {factorLabels[value]}
-                    </span>
-                </div>
-
-                <input
-                    type="range"
-                    name={name}
-                    min="1"
-                    max="5"
-                    step="1"
-                    value={value}
-                    onChange={handleChange}
-                />
-
-                <div className="matchmaking-range-labels">
-                    <span>1</span>
-                    <span>2</span>
-                    <span>3</span>
-                    <span>4</span>
-                    <span>5</span>
-                </div>
-            </article>
-        );
     }
 
     return (
@@ -302,18 +414,10 @@ export default function MatchmakingQuiz({
 
                 <div className="matchmaking-progress-summary">
                     <span>
-                        Step {currentStep} of{" "}
-                        {totalSteps}
+                        Question {questionIndex + 1} of {QUESTIONS.length}
                     </span>
 
-                    <strong>
-                        {Math.round(
-                            (currentStep /
-                                totalSteps) *
-                            100
-                        )}
-                        %
-                    </strong>
+                    <strong>{progress}%</strong>
                 </div>
             </header>
 
@@ -348,408 +452,92 @@ export default function MatchmakingQuiz({
                 className="matchmaking-form"
                 onSubmit={handleSubmit}
             >
-                {currentStep === 1 && (
-                    <section className="matchmaking-step">
-                        <div className="matchmaking-step-heading">
-                            <span>Step 1</span>
-
-                            <h3>
-                                Home and Household
-                            </h3>
-
-                            <p>
-                                These details help determine
-                                whether an animal can safely
-                                and comfortably live in your
-                                home.
-                            </p>
+                <section className="mq-card" key={question.name}>
+                    <div className="mq-card-count">
+                        <span>
+                            <b>{questionIndex + 1}</b> / {QUESTIONS.length}
+                        </span>
+                        <div className="mq-card-bar">
+                            <div style={{ width: `${progress}%` }} />
                         </div>
+                    </div>
 
-                        <div className="matchmaking-grid">
-                            <label>
-                                Preferred Pet Type
+                    <span className="mq-card-chip">{question.section}</span>
+                    <h3 className="mq-card-title">{question.title}</h3>
+                    <p className="mq-card-hint">{question.hint}</p>
 
-                                <select
-                                    name="preferredPetType"
-                                    value={
-                                        form.preferredPetType
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="Any">
-                                        Any
-                                    </option>
+                    {question.section === "Preferences" ? (
+                        <div className="mq-slider">
+                            <div
+                                className="mq-slider-value"
+                                key={form[question.name]}
+                            >
+                                <b>{factorLabels[form[question.name]]}</b>
+                                <small>{form[question.name]} out of 5</small>
+                            </div>
 
-                                    <option value="Dog">
-                                        Dog
-                                    </option>
+                            <input
+                                type="range"
+                                min="1"
+                                max="5"
+                                step="1"
+                                value={form[question.name]}
+                                onChange={(event) => chooseAnswer(Number(event.target.value))}
+                                aria-label={question.title}
+                                aria-valuetext={factorLabels[form[question.name]]}
+                                style={{
+                                    "--fill": `${(form[question.name] - 1) * 25}%`,
+                                    "--wiggle": `${[0, 4, 8, 13, 19, 26][form[question.name]]}deg`,
+                                    "--wiggle-speed": `${[0, 1.2, 0.9, 0.7, 0.5, 0.32][form[question.name]]}s`,
+                                    "--wiggle-bounce": form[question.name] === 5 ? 1.12 : 1,
+                                }}
+                            />
 
-                                    <option value="Cat">
-                                        Cat
-                                    </option>
-
-                                    <option value="Other">
-                                        Other
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Preferred Pet Size
-
-                                <select
-                                    name="preferredSize"
-                                    value={
-                                        form.preferredSize
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="Any">
-                                        Any
-                                    </option>
-
-                                    <option value="Small">
-                                        Small
-                                    </option>
-
-                                    <option value="Medium">
-                                        Medium
-                                    </option>
-
-                                    <option value="Large">
-                                        Large
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Home Type
-
-                                <select
-                                    name="homeType"
-                                    value={
-                                        form.homeType
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="House">
-                                        House
-                                    </option>
-
-                                    <option value="Apartment">
-                                        Apartment
-                                    </option>
-
-                                    <option value="Condominium">
-                                        Condominium
-                                    </option>
-
-                                    <option value="Boarding House">
-                                        Boarding House
-                                    </option>
-
-                                    <option value="Other">
-                                        Other
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Home Ownership
-
-                                <select
-                                    name="homeOwnership"
-                                    value={
-                                        form.homeOwnership
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="Owned">
-                                        Owned
-                                    </option>
-
-                                    <option value="Rented with permission">
-                                        Rented with permission
-                                    </option>
-
-                                    <option value="Rented without confirmed permission">
-                                        Rented without
-                                        confirmed permission
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Children at Home
-
-                                <select
-                                    name="hasChildren"
-                                    value={
-                                        form.hasChildren
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="No">
-                                        No
-                                    </option>
-
-                                    <option value="Yes">
-                                        Yes
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Other Pets at Home
-
-                                <select
-                                    name="hasOtherPets"
-                                    value={
-                                        form.hasOtherPets
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="No">
-                                        No
-                                    </option>
-
-                                    <option value="Yes">
-                                        Yes
-                                    </option>
-                                </select>
-                            </label>
+                            <div className="mq-slider-ticks">
+                                {[1, 2, 3, 4, 5].map((level) => (
+                                    <button
+                                        key={level}
+                                        type="button"
+                                        className={level <= form[question.name] ? "is-on" : ""}
+                                        onClick={() => chooseAnswer(level)}
+                                    >
+                                        <span aria-hidden="true" />
+                                        {factorLabels[level]}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </section>
-                )}
+                    ) : (
+                    <div
+                        className="mq-options"
+                        role="radiogroup"
+                        aria-label={question.title}
+                    >
+                        {question.options.map((option) => {
+                            const selected = form[question.name] === option.value;
 
-                {currentStep === 2 && (
-                    <section className="matchmaking-step">
-                        <div className="matchmaking-step-heading">
-                            <span>Step 2</span>
-
-                            <h3>
-                                Lifestyle and Experience
-                            </h3>
-
-                            <p>
-                                Your schedule and animal-care
-                                experience affect which pets
-                                are most suitable for you.
-                            </p>
-                        </div>
-
-                        <div className="matchmaking-grid">
-                            <label>
-                                Pet-Care Experience
-
-                                <select
-                                    name="petExperience"
-                                    value={
-                                        form.petExperience
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
+                            return (
+                                <button
+                                    key={option.value}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={selected}
+                                    className={`mq-option ${selected ? "is-selected" : ""}`}
+                                    onClick={() => chooseAnswer(option.value)}
                                 >
-                                    <option value="Beginner">
-                                        Beginner
-                                    </option>
-
-                                    <option value="Some experience">
-                                        Some experience
-                                    </option>
-
-                                    <option value="Experienced">
-                                        Experienced
-                                    </option>
-
-                                    <option value="Professional">
-                                        Professional
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Daily Time Available
-
-                                <select
-                                    name="dailyAvailableHours"
-                                    value={
-                                        form.dailyAvailableHours
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="Less than 1">
-                                        Less than 1 hour
-                                    </option>
-
-                                    <option value="1-2">
-                                        1–2 hours
-                                    </option>
-
-                                    <option value="2-4">
-                                        2–4 hours
-                                    </option>
-
-                                    <option value="More than 4">
-                                        More than 4 hours
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Exercise Frequency
-
-                                <select
-                                    name="exerciseFrequency"
-                                    value={
-                                        form.exerciseFrequency
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="Low">
-                                        Low
-                                    </option>
-
-                                    <option value="Moderate">
-                                        Moderate
-                                    </option>
-
-                                    <option value="High">
-                                        High
-                                    </option>
-
-                                    <option value="Very High">
-                                        Very High
-                                    </option>
-                                </select>
-                            </label>
-
-                            <label>
-                                Willing to Provide Training
-
-                                <select
-                                    name="willingToTrain"
-                                    value={
-                                        form.willingToTrain
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                >
-                                    <option value="Yes">
-                                        Yes
-                                    </option>
-
-                                    <option value="Maybe">
-                                        Maybe
-                                    </option>
-
-                                    <option value="No">
-                                        No
-                                    </option>
-                                </select>
-                            </label>
-                        </div>
-
-                        <div className="matchmaking-information-box">
-                            <strong>
-                                Why RescueBase asks this
-                            </strong>
-
-                            <p>
-                                Animals with higher energy,
-                                anxiety, training, or activity
-                                needs may require additional
-                                time and experience from their
-                                adopter.
-                            </p>
-                        </div>
-                    </section>
-                )}
-
-                {currentStep === 3 && (
-                    <section className="matchmaking-step">
-                        <div className="matchmaking-step-heading">
-                            <span>Step 3</span>
-
-                            <h3>
-                                Behavioral Preferences
-                            </h3>
-
-                            <p>
-                                Choose your preferred level
-                                or tolerance for each animal
-                                behavioral factor.
-                            </p>
-                        </div>
-
-                        <div className="matchmaking-factor-list">
-                            {renderFactorSlider(
-                                "energyPreference"
-                            )}
-
-                            {renderFactorSlider(
-                                "friendlinessPreference"
-                            )}
-
-                            {renderFactorSlider(
-                                "humanSociabilityPreference"
-                            )}
-
-                            {renderFactorSlider(
-                                "animalSociabilityPreference"
-                            )}
-
-                            {renderFactorSlider(
-                                "trainabilityPreference"
-                            )}
-
-                            {renderFactorSlider(
-                                "anxietyTolerance"
-                            )}
-
-                            {renderFactorSlider(
-                                "aggressionTolerance"
-                            )}
-
-                            {renderFactorSlider(
-                                "activityPreference"
-                            )}
-                        </div>
-
-                        <div className="matchmaking-warning-box">
-                            <strong>
-                                Important
-                            </strong>
-
-                            <p>
-                                A higher anxiety or aggression
-                                tolerance means you are more
-                                prepared to manage those
-                                behaviors. It does not mean
-                                you prefer an anxious or
-                                aggressive animal.
-                            </p>
-                        </div>
-                    </section>
-                )}
+                                    <span className="mq-option-dot" aria-hidden="true">
+                                        {selected && <img src="/icons/checkmark.svg" alt="" />}
+                                    </span>
+                                    <span className="mq-option-text">
+                                        <b>{option.label}</b>
+                                        <small>{option.note}</small>
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                    )}
+                </section>
 
                 {message && (
                     <div
@@ -764,20 +552,20 @@ export default function MatchmakingQuiz({
                         type="button"
                         className="matchmaking-back-button"
                         onClick={previousStep}
-                        disabled={currentStep === 1 || submitting}
+                        disabled={questionIndex === 0 || submitting}
                     >
-                        Previous
+                        ← Back
                     </button>
 
-                    {currentStep < totalSteps ? (
+                    {!isLastQuestion ? (
                         <button
-                            key={`continue-step-${currentStep}`}
+                            key={`next-${questionIndex}`}
                             type="button"
                             className="matchmaking-next-button"
                             onClick={nextStep}
                             disabled={submitting}
                         >
-                            Continue
+                            Next →
                         </button>
                     ) : (
                         <button
@@ -792,7 +580,26 @@ export default function MatchmakingQuiz({
                         </button>
                     )}
                 </div>
+
+                <aside className="mq-why" aria-label="Why we ask">
+                    <span className="mq-why-eyebrow">Why we ask</span>
+                    <h3>Your answers</h3>
+
+                    <ul>
+                        {WHY_WE_ASK[currentStep].map((reason) => (
+                            <li key={reason}>
+                                <span className="mq-why-check" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24">
+                                        <polyline points="5 12.5 10 17 19 7.5" />
+                                    </svg>
+                                </span>
+                                {reason}
+                            </li>
+                        ))}
+                    </ul>
+                </aside>
             </form>
         </section>
     );
 }
+
