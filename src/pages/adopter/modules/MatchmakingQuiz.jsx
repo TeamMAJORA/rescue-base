@@ -1,6 +1,7 @@
 import {
     useMemo, useState
 } from "react";
+import { fireSideCannons } from "../../../utils/confetti";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -371,9 +372,11 @@ export default function MatchmakingQuiz({
                 "Your matchmaking preferences were saved successfully"
             );
 
+            fireSideCannons(5000);
+
             window.setTimeout(() => {
                 onCompleted?.(result);
-            }, 900);
+            }, 400);
 
         } catch (error) {
             console.error(
