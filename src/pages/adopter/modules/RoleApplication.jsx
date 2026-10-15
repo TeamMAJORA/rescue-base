@@ -14,6 +14,8 @@ export default function RoleApplication() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const [confirmWithdraw, setConfirmWithdraw] = useState(false);
+    const [withdrawing, setWithdrawing] = useState(false);
     const [success, setSuccess] = useState("");
 
     async function fetchApplication() {
@@ -61,6 +63,35 @@ export default function RoleApplication() {
             if (data.application?.status === "pending") setTargetRole("foster");
         } catch (error) {
             setError(error.message);
+        }
+    }
+
+    async function withdrawFosterApplication() {
+        try {
+            setWithdrawing(true);
+            setError("");
+
+            const response = await fetch(`${API}/api/foster/applications/me/withdraw`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({}),
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Could not cancel your application.");
+            }
+
+            setConfirmWithdraw(false);
+            setSuccess(data.message);
+            fetchFosterApplication();
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setWithdrawing(false);
         }
     }
 
@@ -136,7 +167,7 @@ export default function RoleApplication() {
 
         // Labels + step states for the right-side status card
     const ROLE_LABELS = { volunteer: "Volunteer", foster: "Foster Caregiver" };
-    const STATUS_LABELS = { none: "None", pending: "Pending", approved: "Approved", rejected: "Declined" };
+    const STATUS_LABELS = { none: "None", pending: "Pending", approved: "Approved", rejected: "Declined", withdrawn: "Revoked" };
 
     function formatDate(value) {
         if (!value) return "";
@@ -158,8 +189,8 @@ export default function RoleApplication() {
         },
         {
             title: "Decision",
-            note: status === "approved" ? "Approved" : status === "rejected" ? "Declined" : "Approved or declined",
-            state: status === "approved" ? "done" : status === "rejected" ? "declined" : "upcoming",
+            note: status === "approved" ? "Approved" : status === "rejected" ? "Declined" : status === "withdrawn" ? "Revoked by you" : "Approved or declined",
+            state: status === "approved" ? "done" : status === "rejected" || status === "withdrawn" ? "declined" : "upcoming",
         },
     ];
 
@@ -273,6 +304,38 @@ export default function RoleApplication() {
                         <div>
                             <b>Your {ROLE_LABELS[pendingRole] || pendingRole} application is under review</b>
                             <p>You can only have one application at a time. Please wait for a staff decision.</p>
+
+                            {pendingRole === "foster" && !confirmWithdraw && (
+                                <button
+                                    type="button"
+                                    className="ra-withdraw"
+                                    onClick={() => setConfirmWithdraw(true)}
+                                >
+                                    Revoke application
+                                </button>
+                            )}
+
+                            {pendingRole === "foster" && confirmWithdraw && (
+                                <div className="ra-withdraw-confirm">
+                                    <span>Cancel this application? You can apply again later.</span>
+                                    <button
+                                        type="button"
+                                        className="ra-withdraw-keep"
+                                        onClick={() => setConfirmWithdraw(false)}
+                                        disabled={withdrawing}
+                                    >
+                                        Keep it
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="ra-withdraw"
+                                        onClick={withdrawFosterApplication}
+                                        disabled={withdrawing}
+                                    >
+                                        {withdrawing ? "Revoking..." : "Yes, revoke"}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

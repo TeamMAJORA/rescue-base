@@ -889,3 +889,83 @@
     font-size: 10px;
     font-weight: 800;
 }
+
+/* ===== Revoke application ===== */
+.fdb-revoke {
+    min-height: 40px;
+    padding: 9px 15px;
+    border: 1px solid rgba(214, 40, 40, 0.35);
+    border-radius: 12px;
+    background: #fff;
+    color: #b42318;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.fdb-revoke:hover:not(:disabled) {
+    border-color: #d62828;
+    background: #fdeaea;
+}
+
+.fdb-revoke.is-confirm {
+    border-color: #d62828;
+    background: #d62828;
+    color: #fff;
+}
+
+.fdb-revoke.is-confirm:hover:not(:disabled) {
+    background: #b42318;
+}
+
+.fdb-revoke:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.fdb-revoke-confirm {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 12px;
+    padding: 16px 18px;
+    border: 1px solid rgba(214, 40, 40, 0.25);
+    border-radius: 16px;
+    background: #fff5f3;
+}
+
+.fdb-revoke-confirm b {
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+.fdb-revoke-confirm p {
+    margin: 4px 0 0;
+    color: #75432f;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.fdb-revoke-error {
+    display: block;
+    margin-top: 6px;
+    color: #d62828;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.fdb-revoke-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+@media (max-width: 700px) {
+    .fdb-revoke-confirm {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
