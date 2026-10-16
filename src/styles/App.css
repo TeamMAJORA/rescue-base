@@ -1081,3 +1081,96 @@ body {
     overflow: clip;
 }
 
+
+
+/* ===== Maintenance ticker (landing, login, register) ===== */
+.rb-ticker {
+    position: relative;
+    z-index: 50;
+    display: flex;
+    align-items: stretch;
+    height: 36px;
+    overflow: hidden;
+    background: #5a1b00;
+    color: #ffffff;
+    font-size: 13px;
+}
+
+.rb-ticker-tag {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    background: #fb8500;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.rb-ticker-tag i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.rb-ticker-track {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.rb-ticker-move {
+    display: flex;
+    animation: rb-ticker-scroll 30s linear infinite;
+}
+
+.rb-ticker:hover .rb-ticker-move {
+    animation-play-state: paused;
+}
+
+.rb-ticker-move span {
+    flex: none;
+    padding-left: 40px;
+}
+
+.rb-ticker-move b {
+    margin: 0 18px;
+    color: #ffb703;
+}
+
+@keyframes rb-ticker-scroll {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.rb-ticker-close {
+    flex: none;
+    width: 36px;
+    border: none;
+    background: transparent;
+    color: #f5d9c4;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.rb-ticker-close:hover {
+    color: #ffffff;
+}
+
+/* No scrolling for people who turned on "reduce motion" */
+@media (prefers-reduced-motion: reduce) {
+    .rb-ticker-move {
+        animation: none;
+    }
+}
