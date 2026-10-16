@@ -1167,10 +1167,3 @@ body {
 .rb-ticker-close:hover {
     color: #ffffff;
 }
-
-/* No scrolling for people who turned on "reduce motion" */
-@media (prefers-reduced-motion: reduce) {
-    .rb-ticker-move {
-        animation: none;
-    }
-}
