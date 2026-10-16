@@ -369,19 +369,17 @@ export default function Reports() {
     return (
         <section className="rp-page">
             <div className="rp-strip">
-                <div>
-                    <small>Total reports</small>
+                <div className="um-strip-total">
                     <b>{generatedReports.length}</b>
+                    <small>Total reports</small>
                 </div>
                 <div>
                     <small>Finalized</small>
                     <b>{finalizedReports}</b>
-                    <em>locked, ready to share</em>
                 </div>
                 <div>
                     <small>Drafts</small>
                     <b>{draftReports}</b>
-                    <em>can still be finalized</em>
                 </div>
             </div>
 
