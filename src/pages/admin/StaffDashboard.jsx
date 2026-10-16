@@ -29,7 +29,6 @@ import AdminOverview from "./modules/AdminOverview";
 import FosterCare from "./modules/FosterCare";
 import GISMapping from "./modules/GISMapping";
 import Rescue from "./modules/Rescue";
-import UserManagement from "./modules/UserManagement";
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
@@ -84,23 +83,13 @@ const staffMenu = [
     { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
+    { key: "analytics", label: "Analytics" },
+    { key: "reports", label: "Reports" },
 ]
 
 //removed the mock data
 // mock data for staff statistics
 
-function StaffStatCard({ label, value, icon }) {
-    return (
-        <article className="staff-stat-card">
-            <div>
-                <p>{label}</p>
-                <h3>{value}</h3>
-            </div>
-
-            <span>{icon}</span>
-        </article>
-    );
-}
 
 function getStaffPageTitle(activeStaffPage) {
     for (const item of staffMenu) {
@@ -120,15 +109,6 @@ function getStaffPageTitle(activeStaffPage) {
 const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function StaffDashboard({ setPage }) {
-
-    const [fosterForm, setFosterForm] = useState({
-        petName: "",
-        petBreed: "",
-        petImage: "",
-        fosterName: "",
-        fosterEmail: "",
-        careInstructions: "",
-    });
 
     const [activeStaffPage, setActiveStaffPage] = useState("overview");
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
@@ -351,6 +331,14 @@ export default function StaffDashboard({ setPage }) {
             return <Feedback />;
         }
 
+        if (activeStaffPage === "analytics") {
+            return <Analytics />;
+        }
+
+        if (activeStaffPage === "reports") {
+            return <Reports />;
+        }
+
         if (activeStaffPage === "donations") {
             return <Donations />;
         }
@@ -380,6 +368,9 @@ export default function StaffDashboard({ setPage }) {
     useEffect(() => {
         if (isWrongRole || signedOut || maintenance) return;
 
+        // Loading data when the page opens is the normal use of an effect;
+        // this newer lint rule flags it anyway, so it is switched off for this one line.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchStaffNotifications();
 
         const interval = setInterval(() => {
