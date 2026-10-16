@@ -402,9 +402,9 @@ export default function GlobalSettings() {
                         <NumberField
                             label="Session timeout"
                             unit="min"
-                            hint="5 to 120 minutes (a login lasts 2 hours at most)."
+                            hint="5 to 10080 minutes (7 days). Applies to new logins."
                             min={5}
-                            max={120}
+                            max={10080}
                             value={security.sessionTimeoutMinutes}
                             onChange={(value) => updateSetting("security", "sessionTimeoutMinutes", value)}
                         />

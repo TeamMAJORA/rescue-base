@@ -30,6 +30,7 @@ import assets from "../../data/assets.json";
 import AdminOverview from "./modules/AdminOverview";
 import FosterCare from "./modules/FosterCare";
 import GISMapping from "./modules/GISMapping";
+import Rescue from "./modules/Rescue";
 import UserManagement from "./modules/UserManagement";
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
@@ -88,6 +89,7 @@ const adminMenu = [
     { key: "donations", label: "Donations" },
     { key: "needed-supplies", label: "Needed Supplies" },
     { key: "lost-found", label: "Lost & Found" },
+    { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
@@ -343,6 +345,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "lost-found") {
             return <LostFound />
+        }
+
+        if (activeAdminPage === "rescue") {
+            return <Rescue />;
         }
 
         if (activeAdminPage === "gis-mapping") {

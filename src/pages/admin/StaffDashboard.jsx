@@ -28,6 +28,7 @@ import assets from "../../data/assets.json";
 import AdminOverview from "./modules/AdminOverview";
 import FosterCare from "./modules/FosterCare";
 import GISMapping from "./modules/GISMapping";
+import Rescue from "./modules/Rescue";
 import UserManagement from "./modules/UserManagement";
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
@@ -80,6 +81,7 @@ const staffMenu = [
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "lost-found", label: "Lost & Found" },
+    { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
 ]
@@ -328,6 +330,10 @@ export default function StaffDashboard({ setPage }) {
 
         if (activeStaffPage === "lost-found") {
             return <LostFound />
+        }
+
+        if (activeStaffPage === "rescue") {
+            return <Rescue />;
         }
 
         if (activeStaffPage === "gis-mapping") {
