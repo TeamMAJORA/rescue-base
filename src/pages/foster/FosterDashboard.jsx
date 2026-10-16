@@ -560,15 +560,12 @@ export default function FosterDashboard({ setPage }) {
                         Medical Assistance
                     </button>
 
-                    {/* Adopt a Pet: enable once the backend lets fosters adopt */}
                     <button
-                        type="button"
-                        className="foster-menu-soon"
-                        disabled
-                        title="Coming soon"
+                        onClick={() =>
+                            guardLeave(() => setPage("dashboard"))
+                        }
                     >
                         Adopt a Pet
-                        <span className="foster-soon-tag">Soon</span>
                     </button>
 
                 </nav>

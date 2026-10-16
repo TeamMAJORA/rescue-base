@@ -55,6 +55,7 @@ export default function App() {
             <Dashboard
                 onLogout={() => setPage("home")}
                 onLoginAgain={() => setPage("auth")}
+                onOpenFoster={() => setPage("foster")}
             />
         );
     }
