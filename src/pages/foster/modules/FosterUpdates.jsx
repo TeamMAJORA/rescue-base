@@ -224,8 +224,10 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
         },
         revision: {
             tone: "red",
-            title: "Admin asked for a revision",
-            text: "Please re-check your ratings and submit again.",
+            title: "The shelter sent this back for changes",
+            text: assignment.behaviorEvaluation?.reviewNotes
+                ? `Reason: ${assignment.behaviorEvaluation.reviewNotes} Update your ratings and submit again.`
+                : "Please re-check your ratings and submit again.",
         },
     };
     const banner = banners[status];
@@ -336,7 +338,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                         <div className="ao-form-actions">
                             {!locked && (
                                 <button type="submit" className="ao-btn primary" disabled={loading}>
-                                    {loading ? "Sending..." : "Submit for Review"}
+                                    {loading ? "Sending..." : status === "revision" ? "Resubmit for Review" : "Submit for Review"}
                                 </button>
                             )}
                         </div>

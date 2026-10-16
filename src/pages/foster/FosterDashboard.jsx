@@ -1,4 +1,4 @@
-import { act, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import DashboardOverview from "./modules/DashboardOverview";
 import FosterApplication from "./modules/FosterApplication";
@@ -278,7 +278,7 @@ export default function FosterDashboard({ setPage }) {
         application: (
             <FosterApplication
                 application={application}
-                refresh={fetchApplication}
+                onSubmitted={loadDashboard}
             />
         ),
 
