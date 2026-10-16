@@ -2158,3 +2158,303 @@ a.ao-tag {
     padding: 1px 6px;
     background: #ffd89a;
 }
+
+
+/* ===== Reports (uses the gs-* card, field, button and alert styles) ===== */
+.rp-page {
+    display: grid;
+    gap: 16px;
+    color: #5a1b00;
+}
+
+.rp-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fffdf3;
+}
+
+.rp-strip > div {
+    padding: 16px 22px;
+    border-left: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.rp-strip > div:first-child {
+    border-left: none;
+}
+
+.rp-strip small {
+    display: block;
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rp-strip b {
+    font-size: 26px;
+}
+
+.rp-strip em {
+    margin-left: 6px;
+    color: #8a6a55;
+    font-size: 12px;
+    font-style: normal;
+}
+
+.rp-grid {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.rp-page h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+}
+
+.rp-sub {
+    margin: 0 0 16px;
+    color: #75432f;
+    font-size: 12px;
+}
+
+.rp-form .gs-field {
+    margin-bottom: 14px;
+}
+
+.rp-label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rp-seg {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 14px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+}
+
+.rp-seg button {
+    padding: 8px 0;
+    border: none;
+    border-left: 1px solid rgba(251, 133, 0, 0.35);
+    background: transparent;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rp-seg button:first-child {
+    border-left: none;
+}
+
+.rp-seg button.on {
+    background: #fb8500;
+    color: #ffffff;
+}
+
+.rp-checks {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.rp-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.rp-check i {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #fb8500;
+}
+
+.rp-check.on {
+    background: #fff4e0;
+}
+
+.rp-check.on i {
+    background: #fb8500;
+}
+
+.rp-check.on i::after {
+    content: "";
+    width: 8px;
+    height: 4px;
+    border-bottom: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    transform: rotate(-45deg) translate(1px, -1px);
+}
+
+.rp-hint {
+    margin: 0 0 14px;
+    color: #8a6a55;
+    font-size: 12px;
+}
+
+.rp-generate {
+    width: 100%;
+}
+
+.rp-list-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.rp-filters {
+    display: flex;
+    gap: 6px;
+}
+
+.rp-filters button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 999px;
+    background: #f5ecd0;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rp-filters button.on {
+    background: #5a1b00;
+    color: #ffffff;
+}
+
+.rp-empty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 4px;
+    color: #75432f;
+    font-size: 13px;
+}
+
+.rp-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.rp-row h4 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+}
+
+.rp-meta {
+    margin: 4px 0 8px;
+    color: #75432f;
+    font-size: 12px;
+}
+
+.rp-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.rp-counts span {
+    padding: 3px 8px;
+    border: 1px solid #ffe0b0;
+    background: #fff4e0;
+    font-size: 11px;
+}
+
+.rp-pill {
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.rp-pill.finalized {
+    background: #e8f5e4;
+    color: #2f7a32;
+}
+
+.rp-pill.draft {
+    background: #f1ead2;
+    color: #75432f;
+}
+
+.rp-actions {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.gs-btn.rp-download {
+    background: #5a1b00;
+    color: #ffffff;
+}
+
+.gs-btn.rp-delete {
+    border: 1px solid #f3c2bd;
+    background: transparent;
+    color: #b42318;
+}
+
+@media (max-width: 1000px) {
+    .rp-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-row {
+        flex-direction: column;
+    }
+}
+
+
+/* Reports: custom date range */
+.rp-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: -4px 0 14px;
+}
+
+.rp-dates .gs-field {
+    margin-bottom: 0;
+}
+
+.rp-dates .gs-field small {
+    font-weight: 500;
+}
+
+.rp-dates-hint {
+    grid-column: 1 / -1;
+    margin: 0;
+}
