@@ -12,6 +12,13 @@ function askConfirm(options) {
         : Promise.resolve(window.confirm(options.title));
 }
 
+// An edited application counts as unseen again until the admin opens it
+function seenKey(application) {
+    return application.lastEditedAt
+        ? `${application._id}@${application.lastEditedAt}`
+        : application._id;
+}
+
 const emptyAssignmentForm = {
     animalId: "",
     fosterApplicationId: "",
@@ -143,13 +150,14 @@ export default function FosterCare() {
         }
     }
 
-    function markAppSeen(id) {
-        if (seenAppIds?.includes(id)) return;
-        saveSeen([...(seenAppIds || []), id]);
+    function markAppSeen(application) {
+        const key = seenKey(application);
+        if (seenAppIds?.includes(key)) return;
+        saveSeen([...(seenAppIds || []), key]);
     }
 
     function markAllAppsSeen() {
-        saveSeen(applications.map((application) => application._id));
+        saveSeen(applications.map(seenKey));
     }
 
     async function fetchAssignments() {
@@ -204,7 +212,7 @@ export default function FosterCare() {
             // First visit ever: don't flag old applications as new
             setSeenAppIds((current) => {
                 if (current !== null) return current;
-                const ids = list.map((application) => application._id);
+                const ids = list.map(seenKey);
                 try {
                     localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
                 } catch {
@@ -751,12 +759,13 @@ export default function FosterCare() {
     ).length;
 
 
-    // Pending applications this admin hasn't opened yet
+    // Pending applications (or approved ones the foster edited) this admin hasn't opened yet
     const newApplicationIds = applications
         .filter((application) =>
-            application.status === "pending" &&
+            (application.status === "pending" ||
+                (application.status === "approved" && application.lastEditedAt)) &&
             seenAppIds !== null &&
-            !seenAppIds.includes(application._id)
+            !seenAppIds.includes(seenKey(application))
         )
         .map((application) => application._id);
 
@@ -1288,7 +1297,12 @@ export default function FosterCare() {
                                     ? "1 new foster application"
                                     : `${newApplicationCount} new foster applications`}
                             </b>
-                            {" "}just came in.
+                            <b>
+                                {newApplicationCount === 1
+                                    ? "1 new or updated foster application"
+                                    : `${newApplicationCount} new or updated foster applications`}
+                            </b>
+                            {" "}to review.
                         </p>
                         <button type="button" onClick={markAllAppsSeen}>
                             Mark all as seen
@@ -1325,7 +1339,11 @@ export default function FosterCare() {
 
                                     <div className="afa-person">
                                         <b>{application.applicantName}
-                                            {isNew && <span className="afa-new-tag">New</span>}
+                                            {isNew && (
+                                                <span className="afa-new-tag">
+                                                    {application.lastEditedAt ? "Updated" : "New"}
+                                                </span>
+                                            )}
                                         </b>
                                         <small>{application.applicantEmail}</small>
                                     </div>
@@ -1349,7 +1367,7 @@ export default function FosterCare() {
                                             type="button"
                                             className="afa-review"
                                             onClick={() => { 
-                                                markAppSeen(application._id);
+                                                markAppSeen(application);
                                                 setReviewingApplication(application)}
                                             }
                                         >
@@ -1427,6 +1445,21 @@ export default function FosterCare() {
 
                         {/* Body */}
                         <div className="afr-body">
+                            {reviewingApplication.lastEditedAt &&
+                                reviewingApplication.editedFields?.length > 0 && (
+                                <p className="afr-note is-updated">
+                                    <StatIcon name="info" size={16} />
+                                    <span>
+                                        Updated by the applicant on{" "}
+                                        {new Date(reviewingApplication.lastEditedAt).toLocaleDateString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                            year: "numeric",
+                                        })}
+                                        : <b>{reviewingApplication.editedFields.join(", ")}</b>
+                                    </span>
+                                </p>
+                            )}
                             <div className="afr-facts">
                                 <div className="afr-fact">
                                     <span className="afr-fact-icon">

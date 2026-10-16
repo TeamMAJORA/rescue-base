@@ -2160,3 +2160,14 @@
         animation: none;
     }
 }
+
+/* "Updated by the applicant" note in the review pop-up */
+.afr-note.is-updated {
+    background: #fff1d6;
+    color: #5a1b00;
+    box-shadow: inset 4px 0 0 #fb8500;
+}
+
+.afr-note.is-updated .ao-icon {
+    color: #fb8500;
+}

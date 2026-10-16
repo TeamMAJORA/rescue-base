@@ -716,34 +716,6 @@ export default function FosterDashboard({ setPage }) {
                                 </div>
                             </div>
                         )}
-
-                        <nav className="fdb-tracker" aria-label="Foster application progress">
-                            <ol>
-                                {FOSTER_STEPS.map((label, index) => (
-                                    <li
-                                        key={label}
-                                        className={
-                                            applicationSubmitted
-                                                ? "is-done"
-                                                : index === 0
-                                                    ? "is-current"
-                                                    : ""
-                                        }
-                                    >
-                                        <button type="button" onClick={() => goToPage("application")}>
-                                            <b>{applicationSubmitted ? "✓" : index + 1}</b>
-                                            {label}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ol>
-
-                            <span className={`fdb-tracker-pill ${applicationSubmitted ? "is-ready" : ""}`}>
-                                {applicationSubmitted
-                                    ? "Submitted"
-                                    : `Step 1 of ${FOSTER_STEPS.length}`}
-                            </span>
-                        </nav>
                     </>
                 )}
 
