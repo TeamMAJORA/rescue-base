@@ -112,6 +112,9 @@
 }
 
 .gis-map-container {
+    /* Sit above the decorative paw prints (they go up to z-index 3) */
+    position: relative;
+    z-index: 4;
     width: min(1010px, 100%);
     height: 325px;
     margin: 0 auto;
@@ -779,10 +782,10 @@
    LANDING PAGE PAW DECORATIONS
 ======================================== */
 
-/* Establish a stacking context for the GIS section */
+/* No stacking context on the section itself: it would trap the map
+   under the page paw prints (z-index 2-3). The map gets its own layer below. */
 .gis-section {
     position: relative;
-    isolation: isolate;
 }
 
 /* Keep the heading, filters, and map above decorations */
@@ -791,6 +794,11 @@
 .gis-section .gis-map-container {
     position: relative;
     z-index: 1;
+}
+
+/* The map sits above the decorative paw prints */
+.gis-section .gis-map-container {
+    z-index: 4;
 }
 
 /* Keep the map and Leaflet controls functional */

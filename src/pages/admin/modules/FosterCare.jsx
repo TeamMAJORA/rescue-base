@@ -24,6 +24,7 @@ const emptyAssignmentForm = {
     fosterApplicationId: "",
     fosterName: "",
     fosterEmail: "",
+    animalId: "",
     petName: "",
     petBreed: "",
     petImage: "",
@@ -160,6 +161,59 @@ export default function FosterCare() {
         saveSeen(applications.map(seenKey));
     }
 
+    // Animals for the "Animal" dropdown (assignments link to a real animal)
+    const [animals, setAnimals] = useState([]);
+
+    // "Send back" form on a pending behavior evaluation
+    const [returningId, setReturningId] = useState(null);
+    const [returnReason, setReturnReason] = useState("");
+    const [returnError, setReturnError] = useState("");
+
+    async function fetchAnimals() {
+        try {
+            const response = await fetch(`${API}/api/animals`);
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setAnimals(data.animals || []);
+            }
+        } catch (error) {
+            console.error("Fetch animals error:", error);
+        }
+    }
+
+    // Animals that can be fostered: not adopted and not already with a foster
+    // (the one in the assignment being edited stays in the list)
+    function fosterableAnimals(keepId = "") {
+        const busy = new Set(
+            assignments
+                .filter((item) => item.status === "active" && item.animalId)
+                .map((item) => String(item.animalId))
+        );
+
+        return animals.filter(
+            (animal) =>
+                String(animal._id) === String(keepId) ||
+                (animal.adoptionStatus !== "adopted" && !busy.has(String(animal._id)))
+        );
+    }
+
+    function pickAnimal(animalId) {
+        const animal = animals.find((item) => String(item._id) === String(animalId));
+
+        setAssignmentForm((current) => ({
+            ...current,
+            animalId,
+            petName: animal?.name || "",
+            petBreed: animal?.breed || "",
+            petImage: animal?.image || "",
+        }));
+    }
+
+    function animalLabel(animal) {
+        return `${animal.name} · ${animal.type || "Pet"}${animal.breed ? ` · ${animal.breed}` : ""}`;
+    }
+
     async function fetchAssignments() {
         try {
             setLoading(true);
@@ -278,7 +332,7 @@ export default function FosterCare() {
 
                 message:
                     status === "approved"
-                        ? "Congratulations! Your foster application has been approved. You can now receive foster assignments."
+                        ? "Congratulations! Your foster application has been approved. Please log out and log in again to open your Foster Dashboard."
                         : `Unfortunately, your foster application was not approved. Reason: ${note.trim()}`,
 
                 type: "application_update",
@@ -290,58 +344,6 @@ export default function FosterCare() {
             console.error("Review foster application error:", error);
             setMessage("Server error while reviewing foster application.");
             return false;
-        }
-    }
-
-    async function handleCompleteAssignment(id) {
-        try {
-            const savedUser = JSON.parse(
-                localStorage.getItem("rescuebase_user") || "{}"
-            );
-
-            const response = await fetch(`${API}/api/foster/assignments/${id}/complete`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    adminName: savedUser.name || savedUser.username || "Admin User",
-                    adminEmail: savedUser.email || "admin",
-                }),
-            });
-
-            const data = await response.json();
-
-            console.log("Complete foster assignment:", data);
-            console.log("Returned status:", data.assignment?.status);
-
-            if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to complete assignment.");
-                return;
-            }
-
-            setMessage("Foster assignment completed.");
-
-            await sendNotification({
-                email: data.assignment.fosterEmail,
-                title: "Foster Assignment Completed",
-                message: `Your foster assignment for ${data.assignment.petName} has been marked as completed. Thank you for helping RescueBase.`,
-                type: "foster_update",
-            });
-
-            setAssignments((current) =>
-                current.map((assignment) =>
-                    assignment._id === id
-                        ? { ...assignment, ...data.assignment }
-                        : assignment
-                )
-            );
-
-            fetchAssignments();
-        } catch (error) {
-            console.error("Complete foster assignment error:", error);
-            setMessage("Server error while completing assignment.");
         }
     }
 
@@ -383,6 +385,58 @@ export default function FosterCare() {
         }
     }
 
+    function startReturn(id) {
+        setReturningId(id);
+        setReturnReason("");
+        setReturnError("");
+    }
+
+    async function handleReturnBehaviorEvaluation(id) {
+        if (!returnReason.trim()) {
+            setReturnError("Please write what the foster should fix. They will see it.");
+            return;
+        }
+
+        try {
+            setMessage("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${id}/behavior-evaluation/return`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ reason: returnReason.trim() }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setReturnError(data.message || "Failed to send the evaluation back.");
+                return;
+            }
+
+            setMessage("Behavioral evaluation sent back to the foster for revision.");
+
+            await sendNotification({
+                email: data.assignment.fosterEmail,
+                title: "Behavior Evaluation Needs Changes",
+                message: `Your behavioral evaluation for ${data.assignment.petName} was sent back. Reason: ${returnReason.trim()}`,
+                type: "foster_update",
+            });
+
+            setReturningId(null);
+            setReturnReason("");
+            await fetchAssignments();
+        } catch (error) {
+            console.error("Return behavioral evaluation error:", error);
+            setReturnError("Server error while sending the evaluation back.");
+        }
+    }
+
     function handleApplicationSelect(e) {
         const applicationId = e.target.value;
 
@@ -421,6 +475,9 @@ export default function FosterCare() {
 
             fosterEmail:
                 assignment.fosterEmail,
+
+            animalId:
+                assignment.animalId || "",
 
             petName:
                 assignment.petName,
@@ -505,6 +562,11 @@ export default function FosterCare() {
     async function handleCreateAssignment(e) {
         e.preventDefault();
 
+        if (!assignmentForm.animalId) {
+            setMessage("Please choose an animal from the list.");
+            return;
+        }
+
         try {
             setSubmitting(true);
             setMessage("");
@@ -549,7 +611,7 @@ export default function FosterCare() {
             await sendNotification({
                 email: assignmentForm.fosterEmail,
                 title: "New Foster Assignment",
-                message: `You have been assigned to foster ${assignmentForm.petName}. Please log in to RescueBase to review your assignment.`,
+                message: `You have been assigned to foster ${data.assignment.petName}. Please log in to RescueBase to review your assignment.`,
                 type: "foster_update",
             });
 
@@ -728,6 +790,7 @@ export default function FosterCare() {
         fetchAssignments();
         fetchFosterApplications();
         fetchMedicalRequests();
+        fetchAnimals();
     }, []);
 
 
@@ -1147,18 +1210,6 @@ export default function FosterCare() {
                                     <div className="afl-actions">
                                         {assignment.status === "active" ? (
                                             <>
-                                                {assignment.behaviorEvaluation?.status === "accepted" && (
-                                                    <button
-                                                        type="button"
-                                                        className="afl-icon-btn"
-                                                        title="Mark completed"
-                                                        aria-label={`Complete ${assignment.petName}'s assignment`}
-                                                        onClick={() => handleCompleteAssignment(assignment._id)}
-                                                    >
-                                                        <StatIcon name="check" />
-                                                    </button>
-                                                )}
-
                                                 <button
                                                     type="button"
                                                     className="afl-icon-btn"
@@ -1248,12 +1299,58 @@ export default function FosterCare() {
                                             )}
                                         </div>
 
-                                        <button
-                                            type="button"
-                                            onClick={() => handleAcceptBehaviorEvaluation(assignment._id)}
-                                        >
-                                            Accept Evaluation
-                                        </button>
+                                        {returningId === assignment._id ? (
+                                            <div className="afl-eval-return">
+                                                <label className="afr-reason">
+                                                    <span>
+                                                        What should the foster fix? <em>(shown to the foster)</em>
+                                                    </span>
+                                                    <textarea
+                                                        rows="2"
+                                                        value={returnReason}
+                                                        onChange={(e) => {
+                                                            setReturnReason(e.target.value);
+                                                            setReturnError("");
+                                                        }}
+                                                        placeholder="e.g. Aggression looks too high compared to the shelter notes. Please re-check."
+                                                        maxLength={300}
+                                                    />
+                                                    {returnError && <small className="afr-reason-error">{returnError}</small>}
+                                                </label>
+
+                                                <div className="afl-eval-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="is-ghost"
+                                                        onClick={() => setReturningId(null)}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleReturnBehaviorEvaluation(assignment._id)}
+                                                    >
+                                                        Send back
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="afl-eval-actions">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAcceptBehaviorEvaluation(assignment._id)}
+                                                >
+                                                    Accept Evaluation
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="is-ghost"
+                                                    onClick={() => startReturn(assignment._id)}
+                                                >
+                                                    Send back for revision
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </article>
@@ -1800,6 +1897,22 @@ export default function FosterCare() {
                                         </div>
                                     );
                                 })()}
+                                <label className="is-wide">
+                                    <span>Animal <em>*</em></span>
+                                    <select
+                                        value={assignmentForm.animalId}
+                                        onChange={(e) => pickAnimal(e.target.value)}
+                                        required
+                                    >
+                                        <option value="">Choose an animal</option>
+                                        {fosterableAnimals().map((animal) => (
+                                            <option key={animal._id} value={animal._id}>
+                                                {animalLabel(animal)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <small>Only animals that aren't adopted or already in foster care are listed.</small>
+                                </label>
 
                                 <label className="is-wide">
                                     Care instructions
@@ -1867,49 +1980,21 @@ export default function FosterCare() {
 
                         <label>
 
-                            Pet Name
+                            Animal
 
-                            <input
-                                value={assignmentForm.petName}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petName: e.target.value
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <label>
-
-                            Breed
-
-                            <input
-                                value={assignmentForm.petBreed}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petBreed: e.target.value
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <label>
-
-                            Pet Image
-
-                            <input
-                                value={assignmentForm.petImage}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petImage: e.target.value
-                                    })
-                                }
-                            />
+                            <select
+                                value={assignmentForm.animalId}
+                                onChange={(e) => pickAnimal(e.target.value)}
+                            >
+                                {!assignmentForm.animalId && (
+                                    <option value="">{assignmentForm.petName || "Choose an animal"} (not linked)</option>
+                                )}
+                                {fosterableAnimals(assignmentForm.animalId).map((animal) => (
+                                    <option key={animal._id} value={animal._id}>
+                                        {animalLabel(animal)}
+                                    </option>
+                                ))}
+                            </select>
 
                         </label>
 

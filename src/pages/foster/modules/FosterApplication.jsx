@@ -38,6 +38,7 @@ function FieldError({ message }) {
     return message ? <small className="ffc-error" role="alert">{message}</small> : null;
 }
 export default function FosterApplication({ embedded = false, onSubmitted, application = null, refresh }) {
+
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
@@ -387,9 +388,60 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             </div>
         </aside>
     );
+    // Foster dashboard: a pending or approved application is shown, not a blank form
+    const currentStatus = application?.status;
+
+    if (!embedded && (currentStatus === "pending" || currentStatus === "approved")) {
+        const yesNo = (value) => (value ? "Yes" : "No");
+        const rows = [
+            ["Submitted", application.createdAt ? new Date(application.createdAt).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" }) : "—"],
+            ["Phone", application.phoneNumber ? `+63 ${application.phoneNumber}` : "—"],
+            ["Address", application.address || "—"],
+            ["Home type", application.housingType || "—"],
+            ["Children at home", yesNo(application.hasChildren)],
+            ["Existing pets", yesNo(application.hasPets)],
+            ["Preferred animal", application.preferredAnimalType || "—"],
+            ["Preferred size", application.preferredSize || "—"],
+            ["Maximum animals", application.capacity || 1],
+            ["Foster duration", application.fosterDuration || "—"],
+            ["Emergency contact", application.emergencyName ? `${application.emergencyName}${application.emergencyRelationship ? ` (${application.emergencyRelationship})` : ""}` : "—"],
+        ];
+
+        return (
+            <section className="foster-panel">
+                <div className="foster-form-card ffa-summary">
+                    <h3>Your foster application</h3>
+                    <p className="ffa-summary-note">
+                        {currentStatus === "pending"
+                            ? "Staff are reviewing it. You can't send another application while this one is pending."
+                            : "You're an approved foster. You don't need to apply again."}
+                    </p>
+
+                    <dl className="ffa-summary-grid">
+                        {rows.map(([label, value]) => (
+                            <div key={label}>
+                                <dt>{label}</dt>
+                                <dd>{value}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className={embedded ? "ffa-embedded" : "foster-panel"}>
+
+            {!embedded && currentStatus === "rejected" && (
+                <div className="foster-alert error">
+                    Your last application was not approved
+                    {application.rejectionReason || application.reviewNotes
+                        ? `: ${application.rejectionReason || application.reviewNotes}`
+                        : "."}{" "}
+                    You can update your answers and apply again below.
+                </div>
+            )}
 
             {!embedded && (
                 <div className="foster-section-heading">

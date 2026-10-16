@@ -994,3 +994,44 @@
     .ffa-layout { grid-template-columns: 1fr; }
     .ffa-side { position: static; order: -1; }
 }
+/* My Application: read-only summary (pending / approved) */
+.ffa-summary h3 {
+    margin: 0 0 4px;
+    color: #5a1b00;
+}
+
+.ffa-summary-note {
+    margin: 0 0 16px;
+    color: #75432f;
+    font-size: 13px;
+}
+
+.ffa-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 0;
+}
+
+.ffa-summary-grid div {
+    padding: 10px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.2);
+    border-radius: 10px;
+    background: #fffaf0;
+}
+
+.ffa-summary-grid dt {
+    color: #75432f;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.ffa-summary-grid dd {
+    margin: 4px 0 0;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}

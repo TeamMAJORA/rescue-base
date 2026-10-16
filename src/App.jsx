@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./styles/App.css";
 import "./animations/AppAnimation.css";
 import AuthPage from "./pages/AuthPage";
@@ -27,6 +27,73 @@ function getStartPage() {
     }
 }
 
+const API = import.meta.env.VITE_BACKEND_URL;
+
+//moving maintenance message out in the landing page and login page
+function MaintenanceTicker() {
+    const [message, setMessage] = useState("");
+    const [closed, setClosed] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+
+        async function check() {
+            try {
+                const response = await fetch(`${API}/api/settings/status`);
+                const data = await response.json();
+
+                if (active) {
+                    setMessage(data?.maintenance?.enabled ? data.maintenance.message || "RescueBase is under maintenance." : "");
+                }
+            } catch {
+                // server unreachable: show nothing
+            }
+        }
+
+        check();
+        const interval = setInterval(check, 60000);
+
+        return () => {
+            active = false;
+            clearInterval(interval);
+        };
+    }, []);
+
+    if (!message || closed) return null;
+
+    return (
+        <div className="rb-ticker" role="status" aria-live="polite">
+            <span className="rb-ticker-tag">
+                <i aria-hidden="true" />
+                Maintenance
+            </span>
+
+            <div className="rb-ticker-track">
+                {/* Two copies so the scroll loops without a gap */}
+                <div className="rb-ticker-move">
+                    {[0, 1].map((copy) => (
+                        <span key={copy} aria-hidden={copy === 1}>
+                            {message}
+                            <b aria-hidden="true">•</b>
+                            {message}
+                            <b aria-hidden="true">•</b>
+                        </span>
+                    ))}
+                </div>
+            </div>
+
+            <button
+                type="button"
+                className="rb-ticker-close"
+                aria-label="Hide maintenance notice"
+                onClick={() => setClosed(true)}
+            >
+                ×
+            </button>
+        </div>
+    );
+}
+
 export default function App() {
     const [page, setPage] = useState(getStartPage);
     const petMatch = window.location.pathname.match(/^\/pet\/([^/]+)/);
@@ -34,19 +101,25 @@ export default function App() {
     
     if (page === "auth" || page === "login") {
         return (
-            <AuthPage
-                mode="login"
-                setPage={setPage}
-            />
+            <>
+                <MaintenanceTicker />
+                <AuthPage
+                    mode="login"
+                    setPage={setPage}
+                />
+            </>
         );
     }
 
     if (page === "signup") {
         return (
-            <AuthPage
-                mode="signup"
-                setPage={setPage}
-            />
+            <>
+                <MaintenanceTicker />
+                <AuthPage
+                    mode="signup"
+                    setPage={setPage}
+                />
+            </>
         );
     }
 
@@ -93,9 +166,12 @@ export default function App() {
     }
 
     return (
-        <LandingPage
-            onLogin={() => setPage("auth")}
-            onSignup={() => setPage("signup")}
-        />
+        <>
+            <MaintenanceTicker />
+            <LandingPage
+                onLogin={() => setPage("auth")}
+                onSignup={() => setPage("signup")}
+            />
+        </>
     );
 }
