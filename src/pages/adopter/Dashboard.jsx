@@ -147,12 +147,13 @@ function getAdopterPageTitle(activeAdopterPage) {
     return currentItem?.label || "Dashboard";
 }
 
-export default function Dashboard({ onLogout, onLoginAgain }) {
+export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
     const savedUser = getSavedUser();
 
     // Signed out: login expired (server answered 401) or this account is not an adopter
     const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
-    const isWrongRole = savedRole !== "adopter";
+    const isWrongRole = !["adopter", "foster"].includes(savedRole);
+    const isFoster = savedRole === "foster";
     const [signedOut, setSignedOut] = useState(false);
     // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
     const [maintenance, setMaintenance] = useState("");
@@ -1563,7 +1564,9 @@ async function fetchPets({ silent = false } = {}) {
                 </button>
 
                 <nav className="adopter-menu">
-                    {adopterMenu.map((item) => {
+                    {adopterMenu
+                        .filter((item) => !(isFoster && item.key === "role-application"))
+                        .map((item) => {
                         const isActive =
                             activeAdopterPage ===
                             item.key;
@@ -1622,6 +1625,32 @@ async function fetchPets({ silent = false } = {}) {
                             </div>
                         );
                     })}
+
+                    {isFoster && (
+                        <div className="adopter-menu-group">
+                            <button
+                                type="button"
+                                title="Foster Dashboard"
+                                onClick={() => onOpenFoster?.()}
+                            >
+                                <div className="adopter-menu-text">
+                                    <img
+                                        className="adopter-menu-icon icon-default"
+                                        src={ICON_PATH + "brown paw.svg"}
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
+                                    <img
+                                        className="adopter-menu-icon icon-active"
+                                        src={ICON_PATH + "brown paw-light.svg"}
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
+                                    <strong>Back to Foster Dashboard</strong>
+                                </div>
+                            </button>
+                        </div>
+                    )}
                 </nav>
 
                 <button

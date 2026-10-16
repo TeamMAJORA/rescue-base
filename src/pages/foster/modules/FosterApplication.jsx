@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -37,7 +37,8 @@ function ChoiceGroup({ name, value, options, onPick, label }) {
 function FieldError({ message }) {
     return message ? <small className="ffc-error" role="alert">{message}</small> : null;
 }
-export default function FosterApplication({ embedded = false, onSubmitted, application = null }) {
+export default function FosterApplication({ embedded = false, onSubmitted, application = null, refresh }) {
+
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
@@ -63,21 +64,64 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
         agree: false,
     };
 
+    // Pending or approved: the form edits that application instead of making a new one
+    const isEditing = ["pending", "approved"].includes(application?.status);
+
+    // Saved application -> form values (phones keep only the 10 digits after +63)
+    function formFromApplication(app) {
+        const digits = (value) =>
+            String(value || "").replace(/\D/g, "").replace(/^63(?=9)/, "").replace(/^0/, "").slice(0, 10);
+        const yesNo = (value) => (value ? "Yes" : "No");
+
+        return {
+            ...initialForm,
+            fullName: app.applicantName || initialForm.fullName,
+            phone: digits(app.phoneNumber),
+            address: app.address || "",
+            homeType: app.housingType || initialForm.homeType,
+            hasChildren: yesNo(app.hasChildren),
+            hasPets: yesNo(app.hasPets),
+            petFriendly: yesNo(app.petFriendly),
+            preferredAnimal: app.preferredAnimalType || initialForm.preferredAnimal,
+            preferredSize: app.preferredSize || initialForm.preferredSize,
+            maxAnimals: app.capacity || 1,
+            fosterDuration: app.fosterDuration || initialForm.fosterDuration,
+            experience: app.fosterExperience || "",
+            emergencyName: app.emergencyName || "",
+            emergencyRelationship: app.emergencyRelationship || "",
+            emergencyPhone: digits(app.emergencyPhone),
+            notes: app.notes || "",
+            agree: Boolean(app.agreementAccepted),
+        };
+    }
+
     // Draft is saved per account on this browser only
     const DRAFT_KEY = `rescuebase_foster_draft_${savedUser.email || "guest"}`;
 
     const [form, setForm] = useState(() => {
+        if (isEditing) return formFromApplication(application);
+
         try {
             const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
-            return draft
-                ? { ...initialForm, ...draft, fullName: draft.fullName || initialForm.fullName, email: initialForm.email }
-                : initialForm;
+            if (draft) {
+                return { ...initialForm, ...draft, fullName: draft.fullName || initialForm.fullName, email: initialForm.email };
+            }
+            // Rejected / revoked: start from their previous answers
+            return application ? formFromApplication(application) : initialForm;
         } catch {
             return initialForm;
         }
     });
 
+    // When their application loads or a new one is created, show its saved answers
+    useEffect(() => {
+        if (isEditing) setForm(formFromApplication(application));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [application?._id]);
+
     const [loading, setLoading] = useState(false);
+    const [editing, setEditing] = useState(false);
+    const locked = isEditing && !editing;
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
     const [errors, setErrors] = useState({});
@@ -141,8 +185,9 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
     }
 
     function handleClear() {
-        setForm(initialForm);
-        localStorage.removeItem(DRAFT_KEY);
+        setForm(isEditing ? formFromApplication(application) : initialForm);
+        if (!isEditing) localStorage.removeItem(DRAFT_KEY);
+        setEditing(false);
         setErrors({});
         setMessage("");
         setMessageType("");
@@ -172,9 +217,9 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             setMessage("");
 
             const response = await fetch(
-                `${API}/api/foster/applications`,
+                `${API}/api/foster/applications${isEditing ? "/me" : ""}`,
                 {
-                    method: "POST",
+                    method: isEditing ? "PATCH" : "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
@@ -214,12 +259,18 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             }
 
             setMessage(
-                "Your foster application was submitted successfully."
+                isEditing
+                    ? data.message || "Changes saved. The shelter has been notified."
+                    : "Your foster application was submitted successfully."
             );
             setMessageType("success");
-            setForm(initialForm);
-            localStorage.removeItem(DRAFT_KEY);
+            setEditing(false);
+            if (!isEditing) {
+                setForm(initialForm);
+                localStorage.removeItem(DRAFT_KEY);
+            }
             onSubmitted?.();
+            refresh?.();
         } catch (error) {
             console.error(error);
 
@@ -230,6 +281,113 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
         }
     }
 
+    // ----- Right-side info card -----
+    const appStatus = application?.status || "none";
+    const STATUS_TEXT = { none: "Not applied", pending: "Pending", approved: "Approved", rejected: "Declined", withdrawn: "Revoked" };
+    const PREFERS_TEXT = { Dog: "Dogs", Cat: "Cats", Both: "Dogs & Cats", Other: "Other" };
+
+    function shortDate(value) {
+        return value
+            ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+            : "—";
+    }
+
+    const infoSteps = [
+        {
+            title: "Submitted",
+            note: application ? `Sent ${shortDate(application.createdAt)}` : "Waiting for you to apply",
+            state: application ? "done" : "upcoming",
+        },
+        {
+            title: "Under review",
+            note: "Staff check your answers",
+            state: appStatus === "pending" ? "active" : application ? "done" : "upcoming",
+        },
+        {
+            title: "Decision",
+            note: appStatus === "approved" ? "Approved"
+                : appStatus === "rejected" ? "Declined"
+                : appStatus === "withdrawn" ? "Revoked by you"
+                : "Approved or declined",
+            state: appStatus === "approved" ? "done"
+                : appStatus === "rejected" || appStatus === "withdrawn" ? "declined"
+                : "upcoming",
+        },
+    ];
+
+    const rejectionReason = application?.rejectionReason ||
+        (appStatus === "rejected" ? application?.reviewNotes : "");
+
+    const infoPanel = (
+        <aside className="ffa-side">
+            <div className="ffa-card">
+                <div className="ffa-card-head">
+                    <h3>Your application</h3>
+                    <span className={`ffa-badge is-${appStatus}`}>
+                        {STATUS_TEXT[appStatus] || appStatus}
+                    </span>
+                </div>
+
+                <div className="ffa-row">
+                    <span>Role</span>
+                    <strong>Foster Caregiver</strong>
+                </div>
+                <div className="ffa-row">
+                    <span>Applied</span>
+                    <strong>{shortDate(application?.createdAt)}</strong>
+                </div>
+                <div className="ffa-row">
+                    <span>Last updated</span>
+                    <strong>{shortDate(application?.lastEditedAt)}</strong>
+                </div>
+                <div className="ffa-row">
+                    <span>Capacity</span>
+                    <strong>
+                        {application
+                            ? `${application.capacity || 1} ${(application.capacity || 1) === 1 ? "animal" : "animals"}`
+                            : "—"}
+                    </strong>
+                </div>
+                <div className="ffa-row">
+                    <span>Prefers</span>
+                    <strong>{application ? PREFERS_TEXT[application.preferredAnimalType] || application.preferredAnimalType : "—"}</strong>
+                </div>
+
+                <ol className="ffa-steps">
+                    {infoSteps.map((step, index) => (
+                        <li key={step.title} className={`ffa-step is-${step.state}`}>
+                            <span className="ffa-step-dot">
+                                {step.state === "done"
+                                    ? <img src="/icons/checkmark.svg" alt="" />
+                                    : step.state === "declined" ? "✕" : index + 1}
+                            </span>
+                            <div>
+                                <b>{step.title}</b>
+                                <small>{step.note}</small>
+                            </div>
+                        </li>
+                    ))}
+                </ol>
+
+                {rejectionReason && (
+                    <p className="ffa-reason">
+                        <strong>Reason:</strong> {rejectionReason}
+                    </p>
+                )}
+            </div>
+
+            <div className="ffa-note">
+                <span className="ffa-note-dot" aria-hidden="true" />
+                <p>
+                    {appStatus === "approved"
+                        ? "Need to change something? Press Edit. The shelter is notified of every change you save."
+                        : appStatus === "pending"
+                            ? "You can still update your answers while staff review them."
+                            : "Fill in the form to apply. Staff review every application."}
+                </p>
+            </div>
+        </aside>
+    );
     // Foster dashboard: a pending or approved application is shown, not a blank form
     const currentStatus = application?.status;
 
@@ -294,11 +452,40 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                 </div>
             )}
 
+            <div className={embedded ? undefined : "ffa-layout"}>
             <form
-                className="ffa-form"                
+                className={`ffa-form ${locked ? "is-locked" : ""}`}
                 onSubmit={handleSubmit}
                 noValidate
             >
+                {isEditing && (
+                    <div className={`ffc-edit-note ${editing ? "is-editing" : ""}`}>
+                        <div>
+                            <b>{editing ? "Editing your application" : "Your submitted application"}</b>
+                            <span>
+                                {editing
+                                    ? "Change any answer, then press Save Changes. The shelter will see what you changed."
+                                    : "Your answers are locked. Press Edit to update them."}
+                            </span>
+                        </div>
+
+                        {!editing && (
+                            <button
+                                type="button"
+                                className="ffc-btn ffc-btn-edit"
+                                onClick={() => {
+                                    setMessage("");
+                                    setEditing(true);
+                                }}
+                            >
+                                <img src="/icons/edit.svg" alt="" />
+                                Edit
+                            </button>
+                        )}
+                    </div>
+                )}
+
+            <fieldset className="ffa-fields" disabled={locked}>
 
                 <section className="foster-form-card ffc-card">
                     <div className="ffc-head">
@@ -637,6 +824,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     </label>
                     <FieldError message={errors.agree} />
                 </section>
+            </fieldset>
 
                 {message && (
                     <div
@@ -646,6 +834,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     </div>
                 )}
 
+            {!locked && (
                 <div className="ffc-actions">
                     <p className="ffc-actions-note">
                         Staff review every application. Fields marked <em className="ffc-required">*</em> are required.                    </p>
@@ -656,28 +845,36 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                             className="ffc-btn ffc-btn-clear"
                             onClick={handleClear}
                         >
-                            Clear
+                            {isEditing ? "Cancel" : "Clear"}
                         </button>
 
-                        <button
-                            type="button"
-                            className="ffc-btn ffc-btn-draft"
-                            onClick={handleSaveDraft}
-                        >
-                            Save Draft
-                        </button>
+                        {!isEditing && (
+                            <button
+                                type="button"
+                                className="ffc-btn ffc-btn-draft"
+                                onClick={handleSaveDraft}
+                            >
+                                Save Draft
+                            </button>
+                        )}
 
                         <button
                             type="submit"
                             className="ffc-btn ffc-btn-submit"
-                            disabled={loading}                        >
+                            disabled={loading}
+                        >
                             {loading
-                                ? "Submitting..."
-                                : "Submit Application"}
+                                ? isEditing ? "Saving..." : "Submitting..."
+                                : isEditing
+                                    ? "Save Changes"
+                                    : application ? "Reapply" : "Submit Application"}
                         </button>
                     </div>
                 </div>
+            )}
             </form>
+            {!embedded && infoPanel}
+            </div>
         </section>
     );
 }

@@ -55,6 +55,9 @@ export default function FosterDashboard({ setPage }) {
     const [activePage, setActivePage] = useState("dashboard");
     const [loading, setLoading] = useState(true);
     const [application, setApplication] = useState(null);
+    const [confirmRevoke, setConfirmRevoke] = useState(false);
+    const [revoking, setRevoking] = useState(false);
+    const [revokeError, setRevokeError] = useState("");
     const [assignment, setAssignment] = useState(null);
     const [message, setMessage] = useState("");
     const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -190,6 +193,44 @@ export default function FosterDashboard({ setPage }) {
         }
     }
 
+    async function revokeApplication() {
+        try {
+            setRevoking(true);
+            setRevokeError("");
+
+            const response = await fetch(`${API}/api/foster/applications/me/withdraw`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({}),
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setRevokeError(data.message || "Could not revoke your application.");
+                return;
+            }
+
+            setConfirmRevoke(false);
+
+            // No longer a foster: the login token still says "foster", so log out
+            if (data.roleChanged) {
+                alert(data.message);
+                signOut("auth");
+                return;
+            }
+
+            fetchApplication();
+        } catch (error) {
+            console.error(error);
+            setRevokeError("Server error. Please try again.");
+        } finally {
+            setRevoking(false);
+        }
+    }
+
     async function fetchAssignment() {
         if (!fosterEmail) {
             setAssignment(null);
@@ -305,7 +346,9 @@ export default function FosterDashboard({ setPage }) {
         assignment: (
             <FosterAssignment
                 assignment={assignment}
+                application={application}
                 refresh={fetchAssignment}
+                onNavigate={goToPage}
             />
         ),
 
@@ -458,6 +501,10 @@ export default function FosterDashboard({ setPage }) {
             title: "Application not approved",
             text: "You can review your answers and apply again.",
         },
+        withdrawn: {
+            title: "Application revoked",
+            text: "You cancelled your foster application. You can apply again anytime.",
+        },
     };
 
     const banner = assignment
@@ -467,7 +514,7 @@ export default function FosterDashboard({ setPage }) {
         }
         : BANNER_TEXT[applicationStatus] || BANNER_TEXT.none;
 
-    const STATUS_LABEL = { none: "None", pending: "Pending", approved: "Approved", rejected: "Rejected" };
+    const STATUS_LABEL = { none: "None", pending: "Pending", approved: "Approved", rejected: "Rejected", withdrawn: "Revoked" };
 
     return (
 
@@ -581,15 +628,12 @@ export default function FosterDashboard({ setPage }) {
                         Medical Assistance
                     </button>
 
-                    {/* Adopt a Pet: enable once the backend lets fosters adopt */}
                     <button
-                        type="button"
-                        className="foster-menu-soon"
-                        disabled
-                        title="Coming soon"
+                        onClick={() =>
+                            guardLeave(() => setPage("dashboard"))
+                        }
                     >
                         Adopt a Pet
-                        <span className="foster-soon-tag">Soon</span>
                     </button>
 
                 </nav>
@@ -683,7 +727,20 @@ export default function FosterDashboard({ setPage }) {
                                     Application: {STATUS_LABEL[applicationStatus] || applicationStatus}
                                 </span>
 
-                                {(applicationStatus === "none" || applicationStatus === "rejected") && (
+                                {(applicationStatus === "pending" || applicationStatus === "approved") && !confirmRevoke && (
+                                    <button
+                                        type="button"
+                                        className="fdb-revoke"
+                                        onClick={() => {
+                                            setRevokeError("");
+                                            setConfirmRevoke(true);
+                                        }}
+                                    >
+                                        Revoke application
+                                    </button>
+                                )}
+
+                                {(applicationStatus === "none" || applicationStatus === "rejected" || applicationStatus === "withdrawn") && (
                                     <button
                                         type="button"
                                         className="fdb-action"
@@ -695,33 +752,38 @@ export default function FosterDashboard({ setPage }) {
                             </div>
                         </header>
 
-                        <nav className="fdb-tracker" aria-label="Foster application progress">
-                            <ol>
-                                {FOSTER_STEPS.map((label, index) => (
-                                    <li
-                                        key={label}
-                                        className={
-                                            applicationSubmitted
-                                                ? "is-done"
-                                                : index === 0
-                                                    ? "is-current"
-                                                    : ""
-                                        }
-                                    >
-                                        <button type="button" onClick={() => goToPage("application")}>
-                                            <b>{applicationSubmitted ? "✓" : index + 1}</b>
-                                            {label}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ol>
+                        {confirmRevoke && (
+                            <div className="fdb-revoke-confirm" role="alertdialog" aria-label="Revoke application">
+                                <div>
+                                    <b>Revoke your foster application?</b>
+                                    <p>
+                                        {applicationStatus === "approved"
+                                            ? "You will stop being a foster and your account goes back to adopter. You will be logged out. You can't revoke while an animal is still in your care."
+                                            : "Your application will be cancelled and staff will no longer review it. You can apply again later."}
+                                    </p>
+                                    {revokeError && <small className="fdb-revoke-error">{revokeError}</small>}
+                                </div>
 
-                            <span className={`fdb-tracker-pill ${applicationSubmitted ? "is-ready" : ""}`}>
-                                {applicationSubmitted
-                                    ? "Submitted"
-                                    : `Step 1 of ${FOSTER_STEPS.length}`}
-                            </span>
-                        </nav>
+                                <div className="fdb-revoke-actions">
+                                    <button
+                                        type="button"
+                                        className="fdb-action"
+                                        onClick={() => setConfirmRevoke(false)}
+                                        disabled={revoking}
+                                    >
+                                        Keep it
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="fdb-revoke is-confirm"
+                                        onClick={revokeApplication}
+                                        disabled={revoking}
+                                    >
+                                        {revoking ? "Revoking..." : "Yes, revoke"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </>
                 )}
 

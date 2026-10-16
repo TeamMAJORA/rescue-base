@@ -12,7 +12,15 @@ function askConfirm(options) {
         : Promise.resolve(window.confirm(options.title));
 }
 
+// An edited application counts as unseen again until the admin opens it
+function seenKey(application) {
+    return application.lastEditedAt
+        ? `${application._id}@${application.lastEditedAt}`
+        : application._id;
+}
+
 const emptyAssignmentForm = {
+    animalId: "",
     fosterApplicationId: "",
     fosterName: "",
     fosterEmail: "",
@@ -121,7 +129,37 @@ export default function FosterCare() {
 
     const [assignmentForm, setAssignmentForm] =
         useState(emptyAssignmentForm);
+    const [animals, setAnimals] = useState([]);
+    const [animalsLoading, setAnimalsLoading] = useState(false);
     const [applications, setApplications] = useState([]);
+    
+    const SEEN_KEY = "rb_seen_foster_apps";
+    const [seenAppIds, setSeenAppIds] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem(SEEN_KEY) || "null");
+        } catch {
+            return null;
+        }
+    });
+
+    function saveSeen(ids) {
+        setSeenAppIds(ids);
+        try {
+            localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+        } catch {
+            // ignore storage errors
+        }
+    }
+
+    function markAppSeen(application) {
+        const key = seenKey(application);
+        if (seenAppIds?.includes(key)) return;
+        saveSeen([...(seenAppIds || []), key]);
+    }
+
+    function markAllAppsSeen() {
+        saveSeen(applications.map(seenKey));
+    }
 
     // Animals for the "Animal" dropdown (assignments link to a real animal)
     const [animals, setAnimals] = useState([]);
@@ -217,14 +255,25 @@ export default function FosterCare() {
             });
             const data = await response.json();
 
-            console.log("Foster applications:", data);
-
             if (!response.ok || !data.success) {
                 setMessage(data.message || "Failed to fetch foster applications.");
                 return;
             }
 
-            setApplications(data.applications || []);
+            const list = data.applications || [];
+            setApplications(list);
+
+            // First visit ever: don't flag old applications as new
+            setSeenAppIds((current) => {
+                if (current !== null) return current;
+                const ids = list.map(seenKey);
+                try {
+                    localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+                } catch {
+                    // ignore storage errors
+                }
+                return ids;
+            });
         } catch (error) {
             console.error("Fetch foster applications error:", error);
             setMessage("Server error while fetching foster applications.");
@@ -744,6 +793,23 @@ export default function FosterCare() {
         fetchAnimals();
     }, []);
 
+
+    // Check for new applications every 10 seconds, and right away when the admin comes back to the tab
+    useEffect(() => {
+        const interval = setInterval(fetchFosterApplications, 10000);
+
+        function handleVisible() {
+            if (document.visibilityState === "visible") fetchFosterApplications();
+        }
+
+        document.addEventListener("visibilitychange", handleVisible);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", handleVisible);
+        };
+    }, []);
+
     // ----- Foster Applications -----
     const APP_FILTERS = [
         { value: "all", label: "All" },
@@ -754,6 +820,31 @@ export default function FosterCare() {
     const pendingApplicationCount = applications.filter(
         (application) => application.status === "pending"
     ).length;
+
+
+    // Pending applications (or approved ones the foster edited) this admin hasn't opened yet
+    const newApplicationIds = applications
+        .filter((application) =>
+            (application.status === "pending" ||
+                (application.status === "approved" && application.lastEditedAt)) &&
+            seenAppIds !== null &&
+            !seenAppIds.includes(seenKey(application))
+        )
+        .map((application) => application._id);
+
+    const newApplicationCount = newApplicationIds.length;
+
+    // Show the count in the browser tab, e.g. "(2) RescueBase"
+    useEffect(() => {
+        const baseTitle = document.title.replace(/^\(\d+\)\s*/, "");
+        document.title = newApplicationCount > 0
+            ? `(${newApplicationCount}) ${baseTitle}`
+            : baseTitle;
+
+        return () => {
+            document.title = document.title.replace(/^\(\d+\)\s*/, "");
+        };
+    }, [newApplicationCount]);
 
     const visibleApplications =
         appFilter === "all"
@@ -773,9 +864,46 @@ export default function FosterCare() {
         return used >= (Number(application.capacity) || 1);
     }
 
+    // Pets that can still be fostered (not adopted, not already in foster)
+    async function fetchAssignableAnimals() {
+        try {
+            setAnimalsLoading(true);
+            const response = await fetch(`${API}/api/animals`);
+            const data = await response.json();
+            const list = Array.isArray(data.animals) ? data.animals : [];
+
+            setAnimals(
+                list.filter(
+                    (animal) =>
+                        animal.adoptionStatus !== "adopted" &&
+                        animal.fosterStatus !== "in_foster"
+                )
+            );
+        } catch (error) {
+            console.error(error);
+            setAnimals([]);
+        } finally {
+            setAnimalsLoading(false);
+        }
+    }
+
+    // Dropdown pick: fill the form with the pet's saved details
+    function pickAnimal(animalId) {
+        const animal = animals.find((item) => item._id === animalId);
+
+        setAssignmentForm((form) => ({
+            ...form,
+            animalId,
+            petName: animal?.name || "",
+            petBreed: animal?.breed || "",
+            petImage: animal?.image || "",
+        }));
+    }
+
     // Assign: open the "New Foster Assignment" pop-up for this foster
     function startAssign(application) {
         setMessage("");
+        fetchAssignableAnimals();
         setAssignmentForm({
             ...emptyAssignmentForm,
             fosterApplicationId: application._id,
@@ -1236,8 +1364,8 @@ export default function FosterCare() {
                     <div>
                         <h2>
                             Foster Applications
-                            {pendingApplicationCount > 0 && (
-                                <span className="afc-new">{pendingApplicationCount} new</span>
+                            {newApplicationCount > 0 && (
+                                <span className="afc-new">{newApplicationCount} new</span>
                             )}
                         </h2>
                         <p>Review caregivers, then assign animals to approved fosters.</p>
@@ -1257,7 +1385,38 @@ export default function FosterCare() {
                     </div>
                 </div>
 
+                {newApplicationCount > 0 && (
+                    <div className="afa-new-banner" role="status">
+                        <span className="afa-new-dot" aria-hidden="true" />
+                        <p>
+                            <b>
+                                {newApplicationCount === 1
+                                    ? "1 new foster application"
+                                    : `${newApplicationCount} new foster applications`}
+                            </b>
+                            <b>
+                                {newApplicationCount === 1
+                                    ? "1 new or updated foster application"
+                                    : `${newApplicationCount} new or updated foster applications`}
+                            </b>
+                            {" "}to review.
+                        </p>
+                        <button type="button" onClick={markAllAppsSeen}>
+                            Mark all as seen
+                        </button>
+                    </div>
+                )}
+
                 <div className="afa-list">
+                        {visibleApplications.length > 0 && (
+                        <div className="afa-head" aria-hidden="true">
+                            <span />
+                            <span>Applicant</span>
+                            <span>Preferences</span>
+                            <span>Status</span>
+                            <span className="afl-right">Actions</span>
+                        </div>
+                    )}
                     {visibleApplications.length === 0 ? (
                         <p className="afc-empty">
                             {appFilter === "all"
@@ -1267,15 +1426,22 @@ export default function FosterCare() {
                     ) : (
                         visibleApplications.map((application) => {
                             const full = application.status === "approved" && isFosterFull(application);
+                            const isNew = newApplicationIds.includes(application._id);
 
                             return (
-                                <article className="afa-row" key={application._id}>
+                                <article className={`afa-row ${isNew ? "is-new" : ""}`} key={application._id}>
                                     <span className="afc-initials" aria-hidden="true">
                                         {getInitials(application.applicantName)}
                                     </span>
 
                                     <div className="afa-person">
-                                        <b>{application.applicantName}</b>
+                                        <b>{application.applicantName}
+                                            {isNew && (
+                                                <span className="afa-new-tag">
+                                                    {application.lastEditedAt ? "Updated" : "New"}
+                                                </span>
+                                            )}
+                                        </b>
                                         <small>{application.applicantEmail}</small>
                                     </div>
 
@@ -1297,7 +1463,10 @@ export default function FosterCare() {
                                         <button
                                             type="button"
                                             className="afa-review"
-                                            onClick={() => setReviewingApplication(application)}
+                                            onClick={() => { 
+                                                markAppSeen(application);
+                                                setReviewingApplication(application)}
+                                            }
                                         >
                                             Review
                                         </button>
@@ -1373,6 +1542,21 @@ export default function FosterCare() {
 
                         {/* Body */}
                         <div className="afr-body">
+                            {reviewingApplication.lastEditedAt &&
+                                reviewingApplication.editedFields?.length > 0 && (
+                                <p className="afr-note is-updated">
+                                    <StatIcon name="info" size={16} />
+                                    <span>
+                                        Updated by the applicant on{" "}
+                                        {new Date(reviewingApplication.lastEditedAt).toLocaleDateString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                            year: "numeric",
+                                        })}
+                                        : <b>{reviewingApplication.editedFields.join(", ")}</b>
+                                    </span>
+                                </p>
+                            )}
                             <div className="afr-facts">
                                 <div className="afr-fact">
                                     <span className="afr-fact-icon">
@@ -1444,24 +1628,28 @@ export default function FosterCare() {
                                 <summary>Full application details</summary>
 
                                 <div className="afa-detail-grid">
-                                    <p><span>Phone</span>{reviewingApplication.phoneNumber || "—"}</p>
+                                    <p className="afa-detail-full">
+                                        <span>Experience</span>
+                                        {reviewingApplication.fosterExperience || "—"}
+                                    </p>
+                                    <p><span>Phone</span>{reviewingApplication.phoneNumber ? `+63 ${reviewingApplication.phoneNumber}` : "—"}</p>
                                     <p><span>Address</span>{reviewingApplication.address || "—"}</p>
                                     <p><span>Housing</span>{reviewingApplication.housingType || "—"}</p>
-                                    <p><span>Available space</span>{reviewingApplication.availableSpace || "—"}</p>
+                                    <p><span>Pet-friendly home</span>{yesNo(reviewingApplication.petFriendly)}</p>
                                     <p><span>Has pets</span>{yesNo(reviewingApplication.hasPets)}</p>
                                     <p><span>Has children</span>{yesNo(reviewingApplication.hasChildren)}</p>
                                     <p><span>Duration</span>{reviewingApplication.fosterDuration || "—"}</p>
                                     <p><span>Preferred size</span>{reviewingApplication.preferredSize || "—"}</p>
-                                    <p><span>Available time</span>{reviewingApplication.availableTime || "—"}</p>
-                                    <p><span>Experience</span>{reviewingApplication.fosterExperience || "—"}</p>
-                                    <p><span>Emergency contact</span>{reviewingApplication.emergencyName || "—"}</p>
-                                    <p>
-                                        <span>Emergency phone</span>
-                                        {reviewingApplication.emergencyPhone || "—"}
+                                    <p><span>Emergency contact</span>{reviewingApplication.emergencyName || "—"}
                                         {reviewingApplication.emergencyRelationship
                                             ? ` (${reviewingApplication.emergencyRelationship})`
                                             : ""}
                                     </p>
+                                    <p>
+                                        <span>Emergency phone</span>
+                                        {reviewingApplication.emergencyPhone ? `+63 ${reviewingApplication.emergencyPhone}` : "—"}
+                                    </p>
+                                    
                                 </div>
                             </details>
 
@@ -1623,6 +1811,92 @@ export default function FosterCare() {
                             </div>
 
                             <div className="afr-form">
+                                {(() => {
+                                    const prefers = assigningApplication.preferredAnimalType;
+                                    const fits = (animal) =>
+                                        !prefers || prefers === "Both" ? true : animal.type === prefers;
+                                    const matching = animals.filter(fits);
+                                    const others = animals.filter((animal) => !fits(animal));
+                                    const petOption = (animal) => (
+                                        <option key={animal._id} value={animal._id}>
+                                            {animal.name} — {animal.type}
+                                            {animal.breed ? `, ${animal.breed}` : ""}
+                                        </option>
+                                    );
+
+                                    return (
+                                        <label className="is-wide">
+                                            <span>Pet <em>*</em></span>
+                                            <select
+                                                value={assignmentForm.animalId}
+                                                onChange={(e) => pickAnimal(e.target.value)}
+                                                disabled={animalsLoading}
+                                                required
+                                            >
+                                                <option value="">
+                                                    {animalsLoading
+                                                        ? "Loading pets..."
+                                                        : animals.length
+                                                            ? "Select a registered pet"
+                                                            : "No pets available for foster"}
+                                                </option>
+
+                                                {others.length > 0 && matching.length > 0 ? (
+                                                    <>
+                                                        <optgroup label={`Matches preference (${PREFERS_LABEL[prefers] || prefers})`}>
+                                                            {matching.map(petOption)}
+                                                        </optgroup>
+                                                        <optgroup label="Other pets">
+                                                            {others.map(petOption)}
+                                                        </optgroup>
+                                                    </>
+                                                ) : (
+                                                    animals.map(petOption)
+                                                )}
+                                            </select>
+                                        </label>
+                                    );
+                                })()}
+
+                                {(() => {
+                                    const pet = animals.find((animal) => animal._id === assignmentForm.animalId);
+                                    if (!pet) return null;
+
+                                    const tags = [
+                                        pet.type,
+                                        pet.age ? `${pet.age} ${pet.age === 1 ? "yr" : "yrs"}` : "",
+                                        pet.gender !== "Unknown" ? pet.gender : "",
+                                        pet.size !== "Unknown" ? pet.size : "",
+                                        pet.color,
+                                    ].filter(Boolean);
+
+                                    return (
+                                        <div className="afr-pet">
+                                            <span className="afr-pet-photo">
+                                                {pet.image ? <img src={pet.image} alt={pet.name} /> : <StatIcon name="paw" size={26} />}
+                                            </span>
+
+                                            <div className="afr-pet-info">
+                                                <b>{pet.name}</b>
+                                                <small>{pet.breed || "Unknown breed"}</small>
+                                                <div className="afr-pet-tags">
+                                                    {tags.map((tag) => <span key={tag}>{tag}</span>)}
+                                                </div>
+                                            </div>
+
+                                            <dl className="afr-pet-notes">
+                                                <div>
+                                                    <dt>Medical</dt>
+                                                    <dd>{pet.medicalStatus || "No notes"}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Behavior</dt>
+                                                    <dd>{pet.behaviorNotes || "No notes"}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    );
+                                })()}
                                 <label className="is-wide">
                                     <span>Animal <em>*</em></span>
                                     <select
