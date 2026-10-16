@@ -98,14 +98,6 @@ const adminMenu = [
     { key: "global-settings", label: "Global Settings"}
 ]
 
-function AdminStatCard({ label, value }) {
-    return (
-        <article className="admin-stat-card">
-            <span>{label}</span>
-            <strong>{value}</strong>
-        </article>
-    );
-}
 
 function getAdminPageTitle(activeAdminPage) {
     for (const item of adminMenu) {
@@ -125,15 +117,6 @@ function getAdminPageTitle(activeAdminPage) {
 const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminDashboard({ setPage }) {
-
-    const [fosterForm, setFosterForm] = useState({
-        petName: "",
-        petBreed: "",
-        petImage: "",
-        fosterName: "",
-        fosterEmail: "",
-        careInstructions: "",
-    });
 
     const [activeAdminPage, setActiveAdminPage] = useState("overview");
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
@@ -443,6 +426,9 @@ export default function AdminDashboard({ setPage }) {
     useEffect(() => {
         if (isWrongRole || signedOut || maintenance) return;
 
+        // Loading data when the page opens is the normal use of an effect;
+        // this newer lint rule flags it anyway, so it is switched off for this one line.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchAdminNotifications();
 
         const interval = setInterval(() => {
