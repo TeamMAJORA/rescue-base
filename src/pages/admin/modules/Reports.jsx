@@ -11,6 +11,7 @@ const INITIAL_CONFIG = {
     fromDate: "",
     toDate: "",
     includeMedical: true,
+    includeVaccinations: true,
     includeAdoptions: true,
     includeFoster: true,
     includeLostFound: true,
@@ -345,6 +346,7 @@ export default function Reports() {
 
     const DATASETS = [
         { key: "includeMedical", label: "Medical records" },
+        { key: "includeVaccinations", label: "Vaccination records" },
         { key: "includeAdoptions", label: "Adoption applications" },
         { key: "includeFoster", label: "Foster assignments" },
         { key: "includeLostFound", label: "Lost and found reports" },
@@ -353,6 +355,7 @@ export default function Reports() {
     const COUNT_LABELS = {
         animals: "animals",
         medical_records: "medical",
+        vaccinations: "vaccinations",
         adoption_applications: "adoptions",
         foster_assignments: "fosters",
         lost_found_reports: "lost & found",
