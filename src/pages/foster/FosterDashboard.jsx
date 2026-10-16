@@ -328,6 +328,7 @@ export default function FosterDashboard({ setPage }) {
                 assignment={assignment}
                 application={application}
                 refresh={fetchAssignment}
+                onNavigate={goToPage}
             />
         ),
 

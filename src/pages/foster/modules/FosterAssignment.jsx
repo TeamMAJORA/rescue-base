@@ -2,7 +2,48 @@ import { useEffect, useState } from "react";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-export default function FosterAssignment({ application = null }) {
+
+// Line icons (same set/style as the admin Foster Care page)
+const FA_ICONS = {
+    home: <path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
+    calendar: (
+        <>
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M3 10h18M8 3v4M16 3v4" />
+        </>
+    ),
+    pulse: <path d="M3 12h4l3-7 4 14 3-7h4" />,
+    flag: <path d="M5 21V4h11l-2 4 2 4H5" />,
+    report: (
+        <>
+            <path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" />
+            <path d="M14 3v5h5M9 13h6M9 17h6" />
+        </>
+    ),
+    plus: <path d="M12 5v14M5 12h14" />,
+    chat: <path d="M4 5h16v11H9l-5 4z" />,
+};
+
+function FaIcon({ name, size = 18 }) {
+    return (
+        <svg
+            className="fah-icon"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            {FA_ICONS[name]}
+        </svg>
+    );
+}
+
+export default function FosterAssignment({ application = null, onNavigate }) {
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
@@ -224,74 +265,83 @@ export default function FosterAssignment({ application = null }) {
             {petTabs}
 
             <div className="foster-assignment-top">
-                <div className="foster-pet-card">
-                    <img
-                        src={assignment.petImage}
-                        alt={assignment.petName}
-                    />
-                    <div>
-                        <h2>
-                            {assignment.petName}
-                        </h2>
-                        <p>
-                            {assignment.petBreed}
-                        </p>
-                        <span
-                            className={`assignment-status ${assignment.status}`}
-                        >
-                            {assignment.status}
-                        </span>
-                    </div>
+                <div className="fah-photo">
+                    {assignment.petImage ? (
+                        <img src={assignment.petImage} alt={assignment.petName} />
+                    ) : (
+                        <img src="/icons/brown paw.svg" alt="" className="fah-photo-icon" />
+                    )}
+                    <span className={`fah-badge is-${assignment.status}`}>
+                        {assignment.status}
+                    </span>
                 </div>
 
-                <div className="foster-assignment-details">
-                    <h3>
-                        Assignment Details
-                    </h3>
-                    <div className="assignment-grid">
-                        <div>
-                            <span>Shelter</span>
-                            <strong>
-                                {assignment.shelterName}
-                            </strong>
+                <div className="fah-body">
+                    <span className="fah-eyebrow">Current Foster Assignment</span>
+                    <h2 className="fah-name">{assignment.petName}</h2>
+                    <p className="fah-breed">{petSubtitle(assignment)}</p>
+
+                    <div className="fah-facts">
+                        <div className="fah-fact">
+                            <span className="fah-fact-icon"><FaIcon name="home" /></span>
+                            <div>
+                                <small>Shelter</small>
+                                <b>{assignment.shelterName || "RescueBase Shelter"}</b>
+                            </div>
                         </div>
 
-                        <div>
-
-                            <span>
-                                Assigned Date
-                            </span>
-
-                            <strong>
-                                {formatDate(
-                                    assignment.startDate
-                                )}
-                            </strong>
-
+                        <div className="fah-fact">
+                            <span className="fah-fact-icon"><FaIcon name="calendar" /></span>
+                            <div>
+                                <small>Assigned Date</small>
+                                <b>{formatDate(assignment.startDate)}</b>
+                            </div>
                         </div>
 
-                        <div>
-                            <span>
-                                Foster Care Status
-                            </span>
-
-                            <strong>
-                                {assignment.status}
-                            </strong>
-
+                        <div className="fah-fact">
+                            <span className="fah-fact-icon"><FaIcon name="pulse" /></span>
+                            <div>
+                                <small>Foster Care Status</small>
+                                <b className={`fah-status is-${assignment.status}`}>{assignment.status}</b>
+                            </div>
                         </div>
 
-                        <div>
-                            <span>
-                                Expected Completion
-                            </span>
-
-                            <strong>
-                                {formatDate(
-                                    assignment.endDate
-                                )}
-                            </strong>
+                        <div className="fah-fact">
+                            <span className="fah-fact-icon"><FaIcon name="flag" /></span>
+                            <div>
+                                <small>Expected Completion</small>
+                                <b>{assignment.endDate ? formatDate(assignment.endDate) : "Not set yet"}</b>
+                            </div>
                         </div>
+                    </div>
+
+                    <div className="fah-actions">
+                        <button
+                            type="button"
+                            className="fah-btn is-primary"
+                            onClick={() => onNavigate?.("updates")}
+                        >
+                            <FaIcon name="report" size={16} />
+                            Submit Weekly Report
+                        </button>
+
+                        <button
+                            type="button"
+                            className="fah-btn is-medical"
+                            onClick={() => onNavigate?.("medical")}
+                        >
+                            <FaIcon name="plus" size={16} />
+                            Request Medical Assistance
+                        </button>
+
+                        <button
+                            type="button"
+                            className="fah-btn is-ghost"
+                            onClick={() => onNavigate?.("feedback")}
+                        >
+                            <FaIcon name="chat" size={16} />
+                            Contact Shelter
+                        </button>
                     </div>
                 </div>
             </div>
@@ -359,35 +409,6 @@ export default function FosterAssignment({ application = null }) {
 
                     )}
 
-                </section>
-
-                <section className="assignment-card">
-
-                    <h3>Quick Actions</h3>
-
-                    <div className="assignment-actions">
-
-                        <button
-                            type="button"
-                            className="assignment-primary"
-                        >
-                            Submit Weekly Report
-                        </button>
-
-                        <button
-                            type="button"
-                            className="assignment-secondary"
-                        >
-                            Request Medical Assistance
-                        </button>
-
-                        <button
-                            type="button"
-                            className="assignment-secondary"
-                        >
-                            Contact Shelter
-                        </button>
-                    </div>
                 </section>
             </div>
             {message && (
