@@ -93,7 +93,6 @@ function StatsStrip({ highlight, items }) {
             {items.map((item) => (
                 <div className="ao-strip-item" key={item.label}>
                     <div className="ao-strip-label">
-                        <Icon name={item.icon} />
                         {item.label}
                     </div>
                     <div className="ao-strip-value">

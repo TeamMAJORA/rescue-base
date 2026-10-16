@@ -1872,3 +1872,39 @@
     color: #b42318;
     font-size: 13px;
 }
+
+/* Behavior evaluation: Accept / Send back */
+.afl-item .afl-eval-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.afl-item .afl-eval-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #fb8500;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.afl-item .afl-eval-actions button:hover {
+    background: #d96f00;
+}
+
+.afl-item .afl-eval-actions button.is-ghost {
+    border: 1px solid rgba(251, 133, 0, 0.45);
+    background: transparent;
+    color: #5a1b00;
+}
+
+.afl-item .afl-eval-actions button.is-ghost:hover {
+    background: #fff7cb;
+}
+
+.afl-item .afl-eval-return {
+    display: grid;
+    gap: 8px;
+}

@@ -129,6 +129,8 @@ export default function VolunteerDashboard({ setPage }) {
         }
     })();
     const [signedOut, setSignedOut] = useState(false);
+    // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
+    const [maintenance, setMaintenance] = useState("");
     const [confirmBox, setConfirmBox] = useState(null);
     const [toasts, setToasts] = useState([]);
 
@@ -141,7 +143,25 @@ export default function VolunteerDashboard({ setPage }) {
             const url = String(args[0]?.url || args[0] || "");
 
             if (response.status === 401 && API && url.startsWith(API)) {
-                setSignedOut(true);
+                //deactivated accounts are marked by the server so we can show the right screen
+                let disabled = false;
+                try {
+                    disabled = Boolean((await response.clone().json())?.accountDisabled);
+                } catch {
+                    // not a JSON answer
+                }
+                setSignedOut((current) => (current === "disabled" || disabled ? "disabled" : true));
+            }
+            // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
+            if (response.status === 503 && API && url.startsWith(API)) {
+                try {
+                    const body = await response.clone().json();
+                    if (body?.maintenance) {
+                        setMaintenance(body.message || "RescueBase is under maintenance.");
+                    }
+                } catch {
+                    // not a JSON answer
+                }
             }
 
             return response;
@@ -320,11 +340,57 @@ export default function VolunteerDashboard({ setPage }) {
     }
 
     useEffect(() => {
-        if (isWrongRole || signedOut) return;
+        if (isWrongRole || signedOut || maintenance) return;
 
         loadNotifications();
-    }, [signedOut]);
+    }, [signedOut, maintenance]);
 
+
+    // Account was deactivated by an admin
+    if (signedOut === "disabled") {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon is-blocked">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M5.6 5.6l12.8 12.8" />
+                        </svg>
+                    </div>
+                    <h2>Your account has been deactivated</h2>
+                    <p>An admin turned off this account, so you've been signed out.</p>
+                    <p className="ao-signed-out-note">
+                        Think this is a mistake? Please contact the shelter staff.
+                    </p>
+                    <button type="button" onClick={() => signOut("home")}>
+                        Back to home
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
+    if (maintenance && !signedOut && !isWrongRole) {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z" />
+                        </svg>
+                    </div>
+                    <h2>We'll be right back</h2>
+                    <p>{maintenance}</p>
+                    <button type="button" onClick={() => window.location.reload()}>
+                        Check again
+                    </button>
+                    <button type="button" className="ao-signed-out-link" onClick={() => signOut("home")}>
+                        Log out
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     if (signedOut || isWrongRole) {
         return (

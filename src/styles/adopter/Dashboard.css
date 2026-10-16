@@ -2226,3 +2226,30 @@
 
 /* Foster form shown inside the Role Application page */
 .ffa-embedded { display: grid; margin-top: 20px; }
+
+/* Maintenance screen: secondary "Log out" link under "Check again" */
+.adopter-signed-out-card button.adopter-signed-out-link {
+    display: block;
+    margin: 10px auto 0;
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    color: #7a6a5a;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+
+/* Deactivated account screen */
+.adopter-signed-out-icon.is-blocked {
+    background: #ffe1e1;
+    color: #b42318;
+}
+
+.adopter-signed-out-card p.adopter-signed-out-note {
+    margin: 0 0 18px;
+    padding: 10px 12px;
+    background: #fff8dc;
+    color: #5a1b00;
+    font-size: 13px;
+}

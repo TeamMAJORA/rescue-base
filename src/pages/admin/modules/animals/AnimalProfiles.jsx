@@ -1328,7 +1328,6 @@ export default function AnimalProfiles() {
 
                     <div className="ao-strip-item">
                         <div className="ao-strip-label">
-                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" /></svg>
                             Available
                         </div>
                         <div className="ao-strip-value">{availableAnimals}</div>
@@ -1336,7 +1335,6 @@ export default function AnimalProfiles() {
 
                     <div className="ao-strip-item">
                         <div className="ao-strip-label">
-                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
                             Pending Adoption
                         </div>
                         <div className="ao-strip-value">{pendingAnimals}</div>
@@ -1344,7 +1342,6 @@ export default function AnimalProfiles() {
 
                     <div className="ao-strip-item">
                         <div className="ao-strip-label">
-                            <svg className="ao-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>
                             Adopted
                         </div>
                         <div className="ao-strip-value">{adoptedAnimals}</div>
