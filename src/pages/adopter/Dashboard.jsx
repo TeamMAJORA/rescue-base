@@ -154,6 +154,8 @@ export default function Dashboard({ onLogout, onLoginAgain }) {
     const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
     const isWrongRole = savedRole !== "adopter";
     const [signedOut, setSignedOut] = useState(false);
+    // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
+    const [maintenance, setMaintenance] = useState("");
 
     const token = getAuthToken();
 
@@ -1406,6 +1408,17 @@ async function fetchPets({ silent = false } = {}) {
             if (response.status === 401 && API && url.startsWith(API)) {
                 setSignedOut(true);
             }
+            // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
+            if (response.status === 503 && API && url.startsWith(API)) {
+                try {
+                    const body = await response.clone().json();
+                    if (body?.maintenance) {
+                        setMaintenance(body.message || "RescueBase is under maintenance.");
+                    }
+                } catch {
+                    // not a JSON answer
+                }
+            }
 
             return response;
         };
@@ -1451,6 +1464,28 @@ async function fetchPets({ silent = false } = {}) {
         return () => clearInterval(interval);
     }, []);
     
+    if (maintenance && !signedOut && !isWrongRole) {
+        return (
+            <main className="adopter-signed-out">
+                <section className="adopter-signed-out-card">
+                    <div className="adopter-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z" />
+                        </svg>
+                    </div>
+                    <h2>We'll be right back</h2>
+                    <p>{maintenance}</p>
+                    <button type="button" onClick={() => window.location.reload()}>
+                        Check again
+                    </button>
+                    <button type="button" className="adopter-signed-out-link" onClick={handleLoginAgain}>
+                        Log out
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
     if (signedOut || isWrongRole) {
         return (
             <main className="adopter-signed-out">

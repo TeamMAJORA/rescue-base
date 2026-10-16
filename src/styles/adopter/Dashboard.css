@@ -2226,3 +2226,15 @@
 
 /* Foster form shown inside the Role Application page */
 .ffa-embedded { display: grid; margin-top: 20px; }
+
+/* Maintenance screen: secondary "Log out" link under "Check again" */
+.adopter-signed-out-card button.adopter-signed-out-link {
+    display: block;
+    margin: 10px auto 0;
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    color: #7a6a5a;
+    font-size: 13px;
+    text-decoration: underline;
+}

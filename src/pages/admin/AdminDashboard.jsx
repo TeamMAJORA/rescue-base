@@ -150,11 +150,13 @@ export default function AdminDashboard({ setPage }) {
     })();
     const isWrongRole = savedRole !== "admin";
     const [signedOut, setSignedOut] = useState(false);
+    // Server is under maintenance to message the roles that are not allowed to log in
+    const [maintenance, setMaintenance] = useState("");
     const [confirmBox, setConfirmBox] = useState(null);
     const [toasts, setToasts] = useState([]);
 
     useEffect(() => {
-        // Any API call that comes back 401 means the login ran out
+        // 401 for all API calls: sign out the user and show the signed out screen
         const originalFetch = window.fetch;
 
         window.fetch = async (...args) => {
@@ -163,6 +165,17 @@ export default function AdminDashboard({ setPage }) {
 
             if (response.status === 401 && API && url.startsWith(API)) {
                 setSignedOut(true);
+            }
+            // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
+            if (response.status === 503 && API && url.startsWith(API)) {
+                try {
+                    const body = await response.clone().json();
+                    if (body?.maintenance) {
+                        setMaintenance(body.message || "RescueBase is under maintenance.");
+                    }
+                } catch {
+                    // not a JSON answer
+                }
             }
 
             return response;
@@ -387,7 +400,7 @@ export default function AdminDashboard({ setPage }) {
     }
 
     useEffect(() => {
-        if (isWrongRole || signedOut) return;
+        if (isWrongRole || signedOut || maintenance) return;
 
         fetchAdminNotifications();
 
@@ -396,8 +409,30 @@ export default function AdminDashboard({ setPage }) {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [signedOut]);
+    }, [signedOut, maintenance]);
 
+
+    if (maintenance && !signedOut && !isWrongRole) {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z" />
+                        </svg>
+                    </div>
+                    <h2>We'll be right back</h2>
+                    <p>{maintenance}</p>
+                    <button type="button" onClick={() => window.location.reload()}>
+                        Check again
+                    </button>
+                    <button type="button" className="ao-signed-out-link" onClick={() => signOut("home")}>
+                        Log out
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     if (signedOut || isWrongRole) {
         return (

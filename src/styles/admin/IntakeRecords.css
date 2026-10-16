@@ -1762,3 +1762,16 @@ a.ao-tag {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+
+/* Maintenance screen: secondary "Log out" link under "Check again" */
+.ao-signed-out-card button.ao-signed-out-link {
+    display: block;
+    margin: 10px auto 0;
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    color: #7a6a5a;
+    font-size: 13px;
+    text-decoration: underline;
+}
