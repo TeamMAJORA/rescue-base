@@ -1297,6 +1297,15 @@ export default function FosterCare() {
                 )}
 
                 <div className="afa-list">
+                        {visibleApplications.length > 0 && (
+                        <div className="afa-head" aria-hidden="true">
+                            <span />
+                            <span>Applicant</span>
+                            <span>Preferences</span>
+                            <span>Status</span>
+                            <span className="afl-right">Actions</span>
+                        </div>
+                    )}
                     {visibleApplications.length === 0 ? (
                         <p className="afc-empty">
                             {appFilter === "all"

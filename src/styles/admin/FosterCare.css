@@ -2025,3 +2025,138 @@
     to { opacity: 1; transform: none; }
 }
 @media (max-width: 640px) { .afr-pet-notes { grid-template-columns: 1fr; } }
+
+/* ===== Table look for both lists (matches Animal Profiles table) ===== */
+.afl-table,
+.afa-list {
+    gap: 0;
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 12px;
+    background: #fffdf0;
+    overflow: hidden;
+}
+
+/* header bar */
+.afl-head,
+.afa-head {
+    padding: 14px 18px;
+    background: #fff7cb;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.afa-head {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1.4fr) minmax(0, 1.3fr) 110px 170px;
+    gap: 14px;
+    align-items: center;
+}
+
+/* rows: flat, divided by a line, no card look */
+.afl-item,
+.afa-row {
+    border: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.afl-item:hover,
+.afa-row:hover {
+    background: #fffaf0;
+    box-shadow: none;
+}
+
+.afl-row,
+.afa-row {
+    padding: 12px 18px;
+}
+
+.afa-row {
+    grid-template-columns: 36px minmax(0, 1.4fr) minmax(0, 1.3fr) 110px 170px;
+}
+
+/* only NEW applications are tinted orange */
+.afa-row.is-new {
+    background: #fff1d6;
+    box-shadow: inset 4px 0 0 #fb8500;
+    animation: afa-new-shade 1.6s ease-in-out 3;
+}
+
+.afa-row.is-new:hover {
+    background: #ffe8c2;
+}
+
+@keyframes afa-new-shade {
+    0%, 100% { background: #fff1d6; }
+    50% { background: #ffe2b0; }
+}
+
+/* uniform text sizes */
+.afl-pet b,
+.afl-foster b,
+.afa-person b {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #5a1b00;
+}
+
+.afl-pet small,
+.afl-foster small,
+.afa-person small,
+.afl-cell {
+    font-size: 12px;
+}
+
+.afl-cell {
+    color: #5a1b00;
+}
+
+.afl-status,
+.afa-status,
+.afa-chips span {
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.afa-review,
+.afa-assign {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* same avatar size as the animal table */
+.afl-avatar,
+.afa-row .afc-initials {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.afa-row .afc-initials {
+    border-radius: 50%;
+}
+
+@media (max-width: 900px) {
+    .afa-head {
+        display: none;
+    }
+
+    .afa-row {
+        grid-template-columns: 36px minmax(0, 1fr) auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .afa-row.is-new {
+        animation: none;
+    }
+}
