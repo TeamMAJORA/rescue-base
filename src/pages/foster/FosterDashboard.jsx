@@ -326,6 +326,7 @@ export default function FosterDashboard({ setPage }) {
         assignment: (
             <FosterAssignment
                 assignment={assignment}
+                application={application}
                 refresh={fetchAssignment}
             />
         ),

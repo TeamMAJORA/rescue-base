@@ -248,3 +248,184 @@
     }
 
 }
+
+/* ===== My Foster Pet: animal tabs + capacity ===== */
+.fat-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 12px;
+    align-items: stretch;
+    margin-top: 18px;
+}
+
+.fat-tabs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.fat-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 2px solid rgba(90, 27, 0, 0.08);
+    border-radius: 16px;
+    background: #fffaf0;
+    color: #5a1b00;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.fat-tab:hover {
+    border-color: rgba(251, 133, 0, 0.45);
+    transform: translateY(-1px);
+}
+
+.fat-tab.is-selected {
+    border-color: #fb8500;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(251, 133, 0, 0.18);
+}
+
+.fat-tab:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.fat-photo {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fde3bf;
+}
+
+.fat-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fat-photo img.fat-photo-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.fat-info {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.fat-info b {
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.fat-info small {
+    overflow: hidden;
+    color: #7b452d;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fat-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.fat-pill {
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.fat-pill.is-active  { background: #dff3e6; color: #17803d; }
+.fat-pill.is-due     { background: #fde3bf; color: #d96f00; }
+.fat-pill.is-sent    { background: #ece3c7; color: #7a6a3a; }
+.fat-pill.is-overdue { background: #fdeaea; color: #b42318; }
+
+.fat-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+}
+
+.fat-check img {
+    width: 11px;
+    height: auto;
+}
+
+/* capacity card */
+.fat-capacity {
+    display: grid;
+    align-content: center;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+    border-radius: 16px;
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.fat-eyebrow {
+    color: #d62828;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.fat-capacity b {
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.fat-bar {
+    display: flex;
+    gap: 5px;
+}
+
+.fat-bar i {
+    flex: 1;
+    height: 7px;
+    border-radius: 999px;
+    background: #ece3c7;
+}
+
+.fat-bar i.is-used {
+    background: #fb8500;
+}
+
+.fat-capacity small {
+    color: #7b452d;
+    font-size: 11px;
+}
+
+@media (max-width: 900px) {
+    .fat-strip {
+        grid-template-columns: 1fr;
+    }
+}

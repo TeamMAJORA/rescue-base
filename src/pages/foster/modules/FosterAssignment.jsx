@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-export default function FosterAssignment() {
+export default function FosterAssignment({ application = null }) {
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
@@ -14,9 +14,16 @@ export default function FosterAssignment() {
         .toLowerCase();
 
     const [loading, setLoading] = useState(true);
-    const [assignment, setAssignment] = useState(null);
+    const [assignments, setAssignments] = useState([]);
+    const [selectedId, setSelectedId] = useState(null);
     const [message, setMessage] = useState("");
     const token = localStorage.getItem("token");
+
+    // The pet whose details are shown below the tabs
+    const assignment =
+        assignments.find((item) => item._id === selectedId) ||
+        assignments[0] ||
+        null;
 
     async function loadAssignment() {
         try {
@@ -34,20 +41,22 @@ export default function FosterAssignment() {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                setAssignment(null);
+                setAssignments([]);
                 setMessage(
                     data.message ||
                     "Unable to load foster assignment."
                 );
                 return;
             }
-            setAssignment(data.assignment);
+            setAssignments(
+                data.assignments || (data.assignment ? [data.assignment] : [])
+            );
             setMessage("");
 
         } catch (error) {
             console.error(error);
 
-            setAssignment(null);
+            setAssignments([]);
 
             setMessage("Server error while loading assignent.");
         } finally {
@@ -73,6 +82,101 @@ export default function FosterAssignment() {
             }
         );
     }
+
+    // Weekly report: "sent" if one went in during the last 7 days, otherwise when it's due
+    function reportStatus(item) {
+        const updates = item.updates || [];
+        const last = updates.length ? updates[updates.length - 1].createdAt : null;
+        const DAY = 24 * 60 * 60 * 1000;
+
+        if (last && Date.now() - new Date(last).getTime() < 7 * DAY) {
+            return { label: "Report sent", tone: "is-sent" };
+        }
+
+        const due = new Date(last || item.startDate || item.createdAt || Date.now());
+        due.setDate(due.getDate() + 7);
+
+        if (due.getTime() < Date.now()) {
+            return { label: "Report overdue", tone: "is-overdue" };
+        }
+
+        return {
+            label: `Report due ${due.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+            tone: "is-due",
+        };
+    }
+
+    function petSubtitle(item) {
+        const age = Number(item.animalId?.age);
+        const ageText = age > 0 ? `${age} ${age === 1 ? "year" : "years"}` : "";
+        return [item.petBreed || "Unknown breed", ageText].filter(Boolean).join(" · ");
+    }
+
+    // Capacity comes from the approved foster application
+    const capacity = Math.max(Number(application?.capacity) || 1, assignments.length);
+    const openSlots = capacity - assignments.length;
+
+    const petTabs = (
+        <div className="fat-strip">
+            <div className="fat-tabs" role="tablist" aria-label="Your foster animals">
+                {assignments.map((item) => {
+                    const selected = item._id === assignment?._id;
+                    const report = reportStatus(item);
+
+                    return (
+                        <button
+                            key={item._id}
+                            type="button"
+                            role="tab"
+                            aria-selected={selected}
+                            className={`fat-tab ${selected ? "is-selected" : ""}`}
+                            onClick={() => setSelectedId(item._id)}
+                        >
+                            <span className="fat-photo">
+                                {item.petImage ? (
+                                    <img src={item.petImage} alt="" />
+                                ) : (
+                                    <img src="/icons/brown paw.svg" alt="" className="fat-photo-icon" />
+                                )}
+                            </span>
+
+                            <span className="fat-info">
+                                <b>{item.petName}</b>
+                                <small>{petSubtitle(item)}</small>
+                                <span className="fat-pills">
+                                    <span className="fat-pill is-active">Active</span>
+                                    <span className={`fat-pill ${report.tone}`}>{report.label}</span>
+                                </span>
+                            </span>
+
+                            {selected && (
+                                <span className="fat-check" aria-hidden="true">
+                                    <img src="/icons/checkmark.svg" alt="" />
+                                </span>
+                            )}
+                        </button>
+                    );
+                })}
+            </div>
+
+            <div className="fat-capacity">
+                <span className="fat-eyebrow">Foster Capacity</span>
+                <b>
+                    {assignments.length} of {capacity} {capacity === 1 ? "slot" : "slots"}
+                </b>
+                <span className="fat-bar" aria-hidden="true">
+                    {Array.from({ length: capacity }, (_, index) => (
+                        <i key={index} className={index < assignments.length ? "is-used" : ""} />
+                    ))}
+                </span>
+                <small>
+                    {openSlots > 0
+                        ? `You can take ${openSlots} more ${openSlots === 1 ? "animal" : "animals"}.`
+                        : "You're at full capacity."}
+                </small>
+            </div>
+        </div>
+    );
 
     if (loading) {
         return (
@@ -115,7 +219,9 @@ export default function FosterAssignment() {
                         Foster Assignment
                     </h2>
                 </div>
-            </div>
+             </div>
+
+            {petTabs}
 
             <div className="foster-assignment-top">
                 <div className="foster-pet-card">
