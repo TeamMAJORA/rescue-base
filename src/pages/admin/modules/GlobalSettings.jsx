@@ -76,27 +76,115 @@ function mergeSettings(settings) {
     };
 }
 
-function SettingToggle({ label, description, checked, onChange }) {
-    return (
-        <label className="global-setting-toggle">
-            <span>
-                <strong>{label}</strong>
-                {description && <small>{description}</small>}
-            </span>
+// Small icons for the card headers
+const GS_ICONS = {
+    warn: (
+        <>
+            <path d="M12 9v4M12 17h.01" />
+            <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+        </>
+    ),
+};
 
-            <input
-                type="checkbox"
-                checked={checked}
-                onChange={(event) => onChange(event.target.checked)}
+function GsIcon({ name, size = 18 }) {
+    return (
+        <svg
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            {GS_ICONS[name]}
+        </svg>
+    );
+}
+
+function CardHead({ title, text, tag }) {
+    return (
+        <div className="gs-head">
+            <div>
+                <h3>
+                    <span className="gs-mark">{title}</span>
+                    {tag}
+                </h3>
+                <p>{text}</p>
+            </div>
+        </div>
+    );
+}
+
+// On/off switch row
+function SettingToggle({ label, description, checked, onChange, disabled = false }) {
+    return (
+        <div className={`gs-row ${disabled ? "is-disabled" : ""}`}>
+            <div>
+                <b>{label}</b>
+                {description && <small>{description}</small>}
+            </div>
+
+            <button
+                type="button"
+                role="switch"
+                aria-checked={checked}
+                aria-label={label}
+                className={`gs-switch ${checked ? "on" : ""}`}
+                disabled={disabled}
+                onClick={() => onChange(!checked)}
             />
+        </div>
+    );
+}
+
+// Number field with its unit shown inside (tries, min)
+function NumberField({ label, unit, hint, value, min, max, onChange }) {
+    return (
+        <label className="gs-field">
+            {label}
+            <span className="gs-unit">
+                <input
+                    type="number"
+                    min={min}
+                    max={max}
+                    step={1}
+                    required
+                    value={value}
+                    onChange={(event) =>
+                        onChange(event.target.value === "" ? "" : Number(event.target.value))
+                    }
+                />
+                <i>{unit}</i>
+            </span>
+            {hint && <small>{hint}</small>}
         </label>
     );
+}
+
+function formatSavedAt(value) {
+    if (!value) return "";
+
+    return new Date(value).toLocaleString("en-PH", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    });
 }
 
 export default function GlobalSettings() {
     const [settings, setSettings] = useState(() =>
         mergeSettings(DEFAULT_SETTINGS)
     );
+    // Last saved copy: used for "unsaved changes" and Discard
+    const [savedSettings, setSavedSettings] = useState(() =>
+        mergeSettings(DEFAULT_SETTINGS)
+    );
+    const [savedAt, setSavedAt] = useState("");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
@@ -106,9 +194,14 @@ export default function GlobalSettings() {
         try {
             setLoading(true);
             setError("");
+            setSuccess("");
 
             const data = await requestSettings();
-            setSettings(mergeSettings(data.settings));
+            const merged = mergeSettings(data.settings);
+
+            setSettings(merged);
+            setSavedSettings(merged);
+            setSavedAt(data.settings?.updatedAt || "");
         } catch (err) {
             console.error("Load global settings error:", err);
             setError(err.message || "Failed to load settings.");
@@ -120,6 +213,8 @@ export default function GlobalSettings() {
     useEffect(() => {
         loadSettings();
     }, [loadSettings]);
+
+    const isDirty = JSON.stringify(settings) !== JSON.stringify(savedSettings);
 
     function updateSetting(category, field, value) {
         setSettings((current) => ({
@@ -133,8 +228,29 @@ export default function GlobalSettings() {
         setSuccess("");
     }
 
+    function handleDiscard() {
+        setSettings(savedSettings);
+        setError("");
+    }
+
     async function handleSave(event) {
         event.preventDefault();
+
+        // Turning maintenance on closes RescueBase for users: ask first
+        if (settings.maintenance.enabled && !savedSettings.maintenance.enabled) {
+            const ok = window.rbConfirm
+                ? await window.rbConfirm({
+                    title: "Turn on maintenance mode?",
+                    message: settings.maintenance.allowAdminAccess
+                        ? "Everyone except admins will see the maintenance message instead of their dashboard."
+                        : "Everyone, including admins, will be blocked. Only this Global Settings page keeps working.",
+                    confirmLabel: "Turn on",
+                    danger: true,
+                })
+                : window.confirm("Turn on maintenance mode?");
+
+            if (!ok) return;
+        }
 
         try {
             setSaving(true);
@@ -142,9 +258,15 @@ export default function GlobalSettings() {
             setSuccess("");
 
             const data = await requestSettings("PATCH", settings);
+            const merged = mergeSettings(data.settings);
 
-            setSettings(mergeSettings(data.settings));
-            setSuccess(data.message || "Global settings saved successfully.");
+            setSettings(merged);
+            setSavedSettings(merged);
+            setSavedAt(data.settings?.updatedAt || new Date().toISOString());
+
+            const text = data.message || "Global settings saved.";
+            if (window.rbToast) window.rbToast(text);
+            else setSuccess(text);
         } catch (err) {
             console.error("Save global settings error:", err);
             setError(err.message || "Failed to save settings.");
@@ -155,390 +277,241 @@ export default function GlobalSettings() {
 
     if (loading) {
         return (
-            <section className="admin-panel">
-                <p className="admin-empty">Loading global settings...</p>
+            <section className="gs-page">
+                <div className="gs-card gs-loading">
+                    <span className="ao-spinner" />
+                    Loading global settings...
+                </div>
             </section>
         );
     }
 
-    return (
-        <section className="admin-global-settings-page">
-            <section className="admin-panel">
-                <div className="admin-panel-heading">
-                    <div>
-                        <h2>Global Settings</h2>
-                        <p>
-                            Configure application-wide preferences,
-                            security policies, notifications, and maintenance.
-                        </p>
-                    </div>
+    const { general, security, notifications, maintenance } = settings;
 
-                    <button
-                        type="button"
-                        onClick={loadSettings}
-                        disabled={saving}
-                    >
-                        Reload
-                    </button>
+    return (
+        <form className="gs-page" onSubmit={handleSave}>
+            <header className="gs-card gs-top">
+                <div>
+                    <h2>System settings</h2>
+                    <p>
+                        Applies to every account.
+                        {savedAt ? ` Last saved ${formatSavedAt(savedAt)}.` : ""}
+                    </p>
                 </div>
 
-                {error && (
-                    <p className="admin-reports-error" role="alert">
-                        {error}
-                    </p>
-                )}
-
-                {success && (
-                    <p role="status" aria-live="polite">
-                        {success}
-                    </p>
-                )}
-
-                <form
-                    className="admin-global-settings-form"
-                    onSubmit={handleSave}
+                <button
+                    type="button"
+                    className="gs-btn ghost"
+                    onClick={loadSettings}
+                    disabled={saving}
                 >
-                    {/* General */}
-                    <section className="global-settings-section">
-                        <div className="admin-panel-heading">
-                            <div>
-                                <h3>General Settings</h3>
-                                <p>Application identity and contact details.</p>
-                            </div>
-                        </div>
+                    Reload
+                </button>
+            </header>
 
-                        <label>
+            {error && (
+                <p className="gs-alert error" role="alert">
+                    {error}
+                </p>
+            )}
+
+            {success && (
+                <p className="gs-alert success" role="status" aria-live="polite">
+                    {success}
+                </p>
+            )}
+
+            <div className="gs-grid">
+                {/* General */}
+                <section className="gs-card">
+                    <CardHead title="General" text="Name and contact details shown to users." />
+
+                    <div className="gs-fields">
+                        <label className="gs-field">
                             Application name
                             <input
                                 type="text"
-                                value={settings.general.appName}
+                                value={general.appName}
                                 maxLength={100}
                                 required
-                                onChange={(event) =>
-                                    updateSetting(
-                                        "general",
-                                        "appName",
-                                        event.target.value
-                                    )
-                                }
+                                onChange={(event) => updateSetting("general", "appName", event.target.value)}
                             />
                         </label>
 
-                        <label>
+                        <label className="gs-field">
+                            Timezone
+                            <select
+                                value={general.timezone}
+                                onChange={(event) => updateSetting("general", "timezone", event.target.value)}
+                            >
+                                <option value="Asia/Manila">Asia/Manila (Philippines)</option>
+                                <option value="UTC">UTC</option>
+                                <option value="Asia/Tokyo">Asia/Tokyo</option>
+                                <option value="America/New_York">America/New_York</option>
+                                <option value="Europe/London">Europe/London</option>
+                            </select>
+                        </label>
+
+                        <label className="gs-field">
                             Contact email
                             <input
                                 type="email"
-                                value={settings.general.contactEmail}
+                                value={general.contactEmail}
                                 maxLength={254}
-                                onChange={(event) =>
-                                    updateSetting(
-                                        "general",
-                                        "contactEmail",
-                                        event.target.value
-                                    )
-                                }
+                                placeholder="shelter@example.com"
+                                onChange={(event) => updateSetting("general", "contactEmail", event.target.value)}
                             />
                         </label>
 
-                        <label>
+                        <label className="gs-field">
                             Contact phone
                             <input
                                 type="tel"
-                                value={settings.general.contactPhone}
+                                value={general.contactPhone}
                                 maxLength={30}
-                                onChange={(event) =>
-                                    updateSetting(
-                                        "general",
-                                        "contactPhone",
-                                        event.target.value
-                                    )
-                                }
+                                placeholder="+63 9XX XXX XXXX"
+                                onChange={(event) => updateSetting("general", "contactPhone", event.target.value)}
                             />
                         </label>
+                    </div>
+                </section>
 
-                        <label>
-                            Timezone
-                            <select
-                                value={settings.general.timezone}
-                                onChange={(event) =>
-                                    updateSetting(
-                                        "general",
-                                        "timezone",
-                                        event.target.value
-                                    )
-                                }
-                            >
-                                <option value="Asia/Manila">
-                                    Asia/Manila (Philippines)
-                                </option>
-                                <option value="UTC">UTC</option>
-                                <option value="Asia/Tokyo">
-                                    Asia/Tokyo
-                                </option>
-                                <option value="America/New_York">
-                                    America/New_York
-                                </option>
-                                <option value="Europe/London">
-                                    Europe/London
-                                </option>
-                            </select>
-                        </label>
-                    </section>
+                {/* Security */}
+                <section className="gs-card">
+                    <CardHead title="Security" text="Login limits and how long a session lasts." />
 
-                    {/* Security */}
-                    <section className="global-settings-section">
-                        <div className="admin-panel-heading">
-                            <div>
-                                <h3>Security Settings</h3>
-                                <p>
-                                    Configure the intended authentication
-                                    policy for the application.
-                                </p>
-                            </div>
-                        </div>
+                    <div className="gs-fields">
+                        <NumberField
+                            label="Max login attempts"
+                            unit="tries"
+                            min={1}
+                            max={20}
+                            value={security.maxLoginAttempts}
+                            onChange={(value) => updateSetting("security", "maxLoginAttempts", value)}
+                        />
 
-                        <label>
-                            Maximum login attempts
-                            <input
-                                type="number"
-                                min={1}
-                                max={20}
-                                step={1}
-                                required
-                                value={settings.security.maxLoginAttempts}
-                                onChange={(event) =>
-                                    updateSetting(
-                                        "security",
-                                        "maxLoginAttempts",
-                                        event.target.value === ""
-                                            ? ""
-                                            : Number(event.target.value)
-                                    )
-                                }
-                            />
-                        </label>
+                        <NumberField
+                            label="Lockout duration"
+                            unit="min"
+                            min={1}
+                            max={1440}
+                            value={security.lockoutMinutes}
+                            onChange={(value) => updateSetting("security", "lockoutMinutes", value)}
+                        />
 
-                        <label>
-                            Lockout duration (minutes)
-                            <input
-                                type="number"
-                                min={1}
-                                max={1440}
-                                step={1}
-                                required
-                                value={settings.security.lockoutMinutes}
-                                onChange={(event) =>
-                                    updateSetting(
-                                        "security",
-                                        "lockoutMinutes",
-                                        event.target.value === ""
-                                            ? ""
-                                            : Number(event.target.value)
-                                    )
-                                }
-                            />
-                        </label>
+                        <NumberField
+                            label="Session timeout"
+                            unit="min"
+                            hint="5 to 120 minutes (a login lasts 2 hours at most)."
+                            min={5}
+                            max={120}
+                            value={security.sessionTimeoutMinutes}
+                            onChange={(value) => updateSetting("security", "sessionTimeoutMinutes", value)}
+                        />
+                    </div>
 
-                        <label>
-                            Session timeout (minutes)
-                            <input
-                                type="number"
-                                min={5}
-                                max={10080}
-                                step={1}
-                                required
-                                value={
-                                    settings.security.sessionTimeoutMinutes
-                                }
-                                onChange={(event) =>
-                                    updateSetting(
-                                        "security",
-                                        "sessionTimeoutMinutes",
-                                        event.target.value === ""
-                                            ? ""
-                                            : Number(event.target.value)
-                                    )
-                                }
-                            />
-                        </label>
-
+                    <div className="gs-rows">
                         <SettingToggle
                             label="Require strong passwords"
-                            description="Intended to require stronger passwords in registration and password-change flows."
-                            checked={
-                                settings.security.requireStrongPasswords
-                            }
-                            onChange={(value) =>
-                                updateSetting(
-                                    "security",
-                                    "requireStrongPasswords",
-                                    value
-                                )
-                            }
+                            description="8+ characters with uppercase, lowercase, a number and a symbol. Off: at least 6 characters."
+                            checked={security.requireStrongPasswords}
+                            onChange={(value) => updateSetting("security", "requireStrongPasswords", value)}
                         />
+                    </div>
+                </section>
 
-                        <p className="global-settings-note">
-                            These values are stored as configuration.
-                            Your login, session, and password-validation
-                            code must enforce them separately.
-                        </p>
-                    </section>
+                {/* Notifications */}
+                <section className="gs-card">
+                    <CardHead title="Notifications" text="Which emails RescueBase sends." />
 
-                    {/* Notifications */}
-                    <section className="global-settings-section">
-                        <div className="admin-panel-heading">
-                            <div>
-                                <h3>Notification Settings</h3>
-                                <p>
-                                    Configure global notification preferences.
-                                </p>
-                            </div>
-                        </div>
-
+                    <div className="gs-rows">
                         <SettingToggle
                             label="Email notifications"
-                            description="Enable or disable the global email notification preference."
-                            checked={settings.notifications.emailEnabled}
-                            onChange={(value) =>
-                                updateSetting(
-                                    "notifications",
-                                    "emailEnabled",
-                                    value
-                                )
-                            }
+                            description="Turns all emails on or off."
+                            checked={notifications.emailEnabled}
+                            onChange={(value) => updateSetting("notifications", "emailEnabled", value)}
                         />
 
-                        <SettingToggle
-                            label="Adoption updates"
-                            checked={settings.notifications.adoptionUpdates}
-                            onChange={(value) =>
-                                updateSetting(
-                                    "notifications",
-                                    "adoptionUpdates",
-                                    value
-                                )
-                            }
-                        />
-
-                        <SettingToggle
-                            label="Medical alerts"
-                            checked={settings.notifications.medicalAlerts}
-                            onChange={(value) =>
-                                updateSetting(
-                                    "notifications",
-                                    "medicalAlerts",
-                                    value
-                                )
-                            }
-                        />
-
-                        <SettingToggle
-                            label="Foster updates"
-                            checked={settings.notifications.fosterUpdates}
-                            onChange={(value) =>
-                                updateSetting(
-                                    "notifications",
-                                    "fosterUpdates",
-                                    value
-                                )
-                            }
-                        />
-
-                        <SettingToggle
-                            label="Lost and found alerts"
-                            checked={settings.notifications.lostFoundAlerts}
-                            onChange={(value) =>
-                                updateSetting(
-                                    "notifications",
-                                    "lostFoundAlerts",
-                                    value
-                                )
-                            }
-                        />
-
-                        <SettingToggle
-                            label="System alerts"
-                            checked={settings.notifications.systemAlerts}
-                            onChange={(value) =>
-                                updateSetting(
-                                    "notifications",
-                                    "systemAlerts",
-                                    value
-                                )
-                            }
-                        />
-                    </section>
-
-                    {/* Maintenance */}
-                    <section className="global-settings-section">
-                        <div className="admin-panel-heading">
-                            <div>
-                                <h3>Maintenance Settings</h3>
-                                <p>
-                                    Configure maintenance mode and its notice.
-                                </p>
-                            </div>
+                        <div className="gs-sub">
+                            {[
+                                ["adoptionUpdates", "Adoption updates"],
+                                ["medicalAlerts", "Medical alerts"],
+                                ["fosterUpdates", "Foster updates"],
+                                ["lostFoundAlerts", "Lost and found alerts"],
+                                ["systemAlerts", "System alerts"],
+                            ].map(([field, label]) => (
+                                <SettingToggle
+                                    key={field}
+                                    label={label}
+                                    checked={notifications[field]}
+                                    disabled={!notifications.emailEnabled}
+                                    onChange={(value) => updateSetting("notifications", field, value)}
+                                />
+                            ))}
                         </div>
+                    </div>
+                </section>
 
+                {/* Maintenance */}
+                <section className="gs-card">
+                    <CardHead
+                        title="Maintenance"
+                        text="Temporarily close RescueBase to users."
+                        tag={
+                            <span className={`gs-pill ${savedSettings.maintenance.enabled ? "on" : ""}`}>
+                                {savedSettings.maintenance.enabled ? "On" : "Off"}
+                            </span>
+                        }
+                    />
+
+                    <div className="gs-rows">
                         <SettingToggle
                             label="Maintenance mode"
-                            description="Store whether maintenance mode should be enabled."
-                            checked={settings.maintenance.enabled}
-                            onChange={(value) =>
-                                updateSetting(
-                                    "maintenance",
-                                    "enabled",
-                                    value
-                                )
-                            }
+                            description="Users see the message below instead of their dashboard."
+                            checked={maintenance.enabled}
+                            onChange={(value) => updateSetting("maintenance", "enabled", value)}
                         />
-
-                        <label>
-                            Maintenance message
-                            <textarea
-                                rows={4}
-                                maxLength={500}
-                                value={settings.maintenance.message}
-                                onChange={(event) =>
-                                    updateSetting(
-                                        "maintenance",
-                                        "message",
-                                        event.target.value
-                                    )
-                                }
-                            />
-                        </label>
 
                         <SettingToggle
-                            label="Allow administrator access"
-                            description="Configuration for allowing administrators through maintenance restrictions."
-                            checked={
-                                settings.maintenance.allowAdminAccess
-                            }
-                            onChange={(value) =>
-                                updateSetting(
-                                    "maintenance",
-                                    "allowAdminAccess",
-                                    value
-                                )
-                            }
+                            label="Let admins in"
+                            description="Admins can keep working while it's on. If off, only this page keeps working."
+                            checked={maintenance.allowAdminAccess}
+                            onChange={(value) => updateSetting("maintenance", "allowAdminAccess", value)}
                         />
+                    </div>
 
-                        <p className="global-settings-note">
-                            Saving maintenance settings does not, by itself,
-                            block API requests or display a maintenance page.
-                            That behavior must be connected to backend
-                            middleware and frontend routing.
-                        </p>
-                    </section>
+                    <label className="gs-field gs-message">
+                        Message shown to users
+                        <textarea
+                            rows={3}
+                            maxLength={500}
+                            value={maintenance.message}
+                            onChange={(event) => updateSetting("maintenance", "message", event.target.value)}
+                        />
+                        <small>{String(maintenance.message || "").length} / 500</small>
+                    </label>
 
-                    <div className="global-settings-actions">
-                        <button type="submit" disabled={saving}>
+                    <p className="gs-warn">
+                        <GsIcon name="warn" size={16} />
+                        Turning this on signs everyone except admins out of their dashboard right away.
+                    </p>
+                </section>
+            </div>
+
+            {isDirty && (
+                <div className="gs-savebar">
+                    <span>You have unsaved changes</span>
+
+                    <span className="gs-savebar-actions">
+                        <button type="button" className="gs-btn ghost" onClick={handleDiscard} disabled={saving}>
+                            Discard
+                        </button>
+                        <button type="submit" className="gs-btn primary" disabled={saving}>
                             {saving ? "Saving..." : "Save Settings"}
                         </button>
-                    </div>
-                </form>
-            </section>
-        </section>
+                    </span>
+                </div>
+            )}
+        </form>
     );
 }
