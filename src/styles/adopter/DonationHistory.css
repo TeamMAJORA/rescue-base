@@ -1,29 +1,44 @@
 .donation-history-page {
-    padding: 32px;
-    min-height: 100vh;
-    background: #fdf8f2;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 .donation-history-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 24px;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
+    padding: 32px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #ff8a5c, #ffb36b);
+    color: #fff;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
 }
 
-.donation-history-header h1 {
-    margin: 0;
-    color: #5a1b00;
-    font-size: 2rem;
-    font-weight: 700;
+.donation-history-header span {
+    display: inline-flex;
+    margin-bottom: 10px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--adopter-red);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+
+.donation-history-header h2 {
+   font-family: "Itim", cursive;
+    margin: 0 0 10px;
+    font-size: 3rem;
+    font-weight: 500;
 }
 
 .donation-history-header p {
-    margin-top: 8px;
-    color: #7b452d;
-    font-size: .95rem;
+    font-family: "Itim", cursive;
+    margin: 0;
+    max-width: 700px;
+    line-height: 1.7;
+    opacity: .95;
 }
 
 .donation-history-header input {

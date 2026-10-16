@@ -83,13 +83,25 @@ export default function DonationHistory() {
     return (
         <div className="donation-history-page">
             <div className="donation-history-header">
-                <div>
-                    <h1>Donation History</h1>
+                <span> Donation</span>
 
-                    <p>
-                        View and track every donation you've submitted.
-                    </p>
+                <h2>
+                    Look at all the love you've unleashed!
+                </h2>
+
+                <p>
+                   Behind every transaction below is a 
+                   wagging tail, a soothing purr, and a rescued life.
+                </p>
+
+                <section className="donation-history histroy-panel">
+                <div className="adopter-panel-content">
+                    <div className="donation-history-buttons">
+
+            </div>
+
                 </div>
+            </section>
 
                 <input
                     placeholder="Search donation..."
