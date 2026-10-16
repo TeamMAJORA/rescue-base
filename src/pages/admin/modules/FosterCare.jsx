@@ -13,6 +13,7 @@ function askConfirm(options) {
 }
 
 const emptyAssignmentForm = {
+    animalId: "",
     fosterApplicationId: "",
     fosterName: "",
     fosterEmail: "",
@@ -120,6 +121,8 @@ export default function FosterCare() {
 
     const [assignmentForm, setAssignmentForm] =
         useState(emptyAssignmentForm);
+    const [animals, setAnimals] = useState([]);
+    const [animalsLoading, setAnimalsLoading] = useState(false);
     const [applications, setApplications] = useState([]);
     
     const SEEN_KEY = "rb_seen_foster_apps";
@@ -789,9 +792,46 @@ export default function FosterCare() {
         return used >= (Number(application.capacity) || 1);
     }
 
+    // Pets that can still be fostered (not adopted, not already in foster)
+    async function fetchAssignableAnimals() {
+        try {
+            setAnimalsLoading(true);
+            const response = await fetch(`${API}/api/animals`);
+            const data = await response.json();
+            const list = Array.isArray(data.animals) ? data.animals : [];
+
+            setAnimals(
+                list.filter(
+                    (animal) =>
+                        animal.adoptionStatus !== "adopted" &&
+                        animal.fosterStatus !== "in_foster"
+                )
+            );
+        } catch (error) {
+            console.error(error);
+            setAnimals([]);
+        } finally {
+            setAnimalsLoading(false);
+        }
+    }
+
+    // Dropdown pick: fill the form with the pet's saved details
+    function pickAnimal(animalId) {
+        const animal = animals.find((item) => item._id === animalId);
+
+        setAssignmentForm((form) => ({
+            ...form,
+            animalId,
+            petName: animal?.name || "",
+            petBreed: animal?.breed || "",
+            petImage: animal?.image || "",
+        }));
+    }
+
     // Assign: open the "New Foster Assignment" pop-up for this foster
     function startAssign(application) {
         setMessage("");
+        fetchAssignableAnimals();
         setAssignmentForm({
             ...emptyAssignmentForm,
             fosterApplicationId: application._id,
@@ -1632,39 +1672,92 @@ export default function FosterCare() {
                             </div>
 
                             <div className="afr-form">
-                                <label>
-                                    <span>Pet name <em>*</em></span>
-                                    <input
-                                        value={assignmentForm.petName}
-                                        onChange={(e) =>
-                                            setAssignmentForm({ ...assignmentForm, petName: e.target.value })
-                                        }
-                                        placeholder="e.g. Bantay"
-                                        required
-                                    />
-                                </label>
+                                {(() => {
+                                    const prefers = assigningApplication.preferredAnimalType;
+                                    const fits = (animal) =>
+                                        !prefers || prefers === "Both" ? true : animal.type === prefers;
+                                    const matching = animals.filter(fits);
+                                    const others = animals.filter((animal) => !fits(animal));
+                                    const petOption = (animal) => (
+                                        <option key={animal._id} value={animal._id}>
+                                            {animal.name} — {animal.type}
+                                            {animal.breed ? `, ${animal.breed}` : ""}
+                                        </option>
+                                    );
 
-                                <label>
-                                    Breed
-                                    <input
-                                        value={assignmentForm.petBreed}
-                                        onChange={(e) =>
-                                            setAssignmentForm({ ...assignmentForm, petBreed: e.target.value })
-                                        }
-                                        placeholder="e.g. Aspin"
-                                    />
-                                </label>
+                                    return (
+                                        <label className="is-wide">
+                                            <span>Pet <em>*</em></span>
+                                            <select
+                                                value={assignmentForm.animalId}
+                                                onChange={(e) => pickAnimal(e.target.value)}
+                                                disabled={animalsLoading}
+                                                required
+                                            >
+                                                <option value="">
+                                                    {animalsLoading
+                                                        ? "Loading pets..."
+                                                        : animals.length
+                                                            ? "Select a registered pet"
+                                                            : "No pets available for foster"}
+                                                </option>
 
-                                <label className="is-wide">
-                                    Pet image URL
-                                    <input
-                                        value={assignmentForm.petImage}
-                                        onChange={(e) =>
-                                            setAssignmentForm({ ...assignmentForm, petImage: e.target.value })
-                                        }
-                                        placeholder="https://..."
-                                    />
-                                </label>
+                                                {others.length > 0 && matching.length > 0 ? (
+                                                    <>
+                                                        <optgroup label={`Matches preference (${PREFERS_LABEL[prefers] || prefers})`}>
+                                                            {matching.map(petOption)}
+                                                        </optgroup>
+                                                        <optgroup label="Other pets">
+                                                            {others.map(petOption)}
+                                                        </optgroup>
+                                                    </>
+                                                ) : (
+                                                    animals.map(petOption)
+                                                )}
+                                            </select>
+                                        </label>
+                                    );
+                                })()}
+
+                                {(() => {
+                                    const pet = animals.find((animal) => animal._id === assignmentForm.animalId);
+                                    if (!pet) return null;
+
+                                    const tags = [
+                                        pet.type,
+                                        pet.age ? `${pet.age} ${pet.age === 1 ? "yr" : "yrs"}` : "",
+                                        pet.gender !== "Unknown" ? pet.gender : "",
+                                        pet.size !== "Unknown" ? pet.size : "",
+                                        pet.color,
+                                    ].filter(Boolean);
+
+                                    return (
+                                        <div className="afr-pet">
+                                            <span className="afr-pet-photo">
+                                                {pet.image ? <img src={pet.image} alt={pet.name} /> : <StatIcon name="paw" size={26} />}
+                                            </span>
+
+                                            <div className="afr-pet-info">
+                                                <b>{pet.name}</b>
+                                                <small>{pet.breed || "Unknown breed"}</small>
+                                                <div className="afr-pet-tags">
+                                                    {tags.map((tag) => <span key={tag}>{tag}</span>)}
+                                                </div>
+                                            </div>
+
+                                            <dl className="afr-pet-notes">
+                                                <div>
+                                                    <dt>Medical</dt>
+                                                    <dd>{pet.medicalStatus || "No notes"}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Behavior</dt>
+                                                    <dd>{pet.behaviorNotes || "No notes"}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    );
+                                })()}
 
                                 <label className="is-wide">
                                     Care instructions

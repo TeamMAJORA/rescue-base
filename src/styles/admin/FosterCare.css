@@ -1969,3 +1969,59 @@
         animation: none;
     }
 }
+
+/* ---------- Assign pop-up: pet dropdown + preview ---------- */
+.afr-form select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 36px 10px 12px;
+    border: 1.5px solid rgba(90, 27, 0, 0.15);
+    border-radius: 12px;
+    background: #fff7cb url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.afr-form select:focus { border-color: #fb8500; box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15); }
+.afr-form select:disabled { opacity: 0.6; cursor: wait; }
+
+.afr-pet {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 12px 14px;
+    padding: 12px;
+    border: 1.5px solid rgba(251, 133, 0, 0.35);
+    border-radius: 16px;
+    background: #fffaf0;
+    animation: afr-pet-in 0.2s ease;
+}
+.afr-pet-photo {
+    width: 72px; height: 72px;
+    display: grid; place-items: center;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #fcbf49;
+    color: #5a1b00;
+}
+.afr-pet-photo img { width: 100%; height: 100%; object-fit: cover; }
+.afr-pet-info { display: grid; align-content: center; gap: 2px; min-width: 0; }
+.afr-pet-info b { color: #5a1b00; font-family: "Itim", cursive; font-size: 18px; font-weight: 400; }
+.afr-pet-info small { color: rgba(90, 27, 0, 0.65); font-size: 12px; }
+.afr-pet-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.afr-pet-tags span { padding: 2px 9px; border-radius: 999px; background: #fff7cb; color: #5a1b00; font-size: 11px; font-weight: 700; }
+.afr-pet-notes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.afr-pet-notes div { padding: 8px 10px; border-radius: 12px; background: #fff; }
+.afr-pet-notes dt { color: #fb8500; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.afr-pet-notes dd { margin: 2px 0 0; color: #5a1b00; font-size: 12px; line-height: 1.4; }
+
+@keyframes afr-pet-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+@media (max-width: 640px) { .afr-pet-notes { grid-template-columns: 1fr; } }
