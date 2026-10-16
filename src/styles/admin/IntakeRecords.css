@@ -217,7 +217,8 @@
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: var(--ao-muted);
+    font-weight: 700;
+    color: #75432f;
 }
 
 .ao-strip-label .ao-icon {
@@ -226,7 +227,7 @@
 
 .ao-strip-value {
     margin-top: 4px;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 700;
     color: var(--brown, #5a1b00);
     line-height: 1.2;
