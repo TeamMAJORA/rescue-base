@@ -81,28 +81,27 @@ export default function DonationHistory() {
     }, []);
 
     return (
-        <div className="donation-history-page">
-            <div className="donation-history-header">
-                <span> Donation</span>
+        <div className="donation-history-form">
+            <div className="donation-history-hero">
+                    <span>Donation</span>
 
-                <h2>
-                    Look at all the love you've unleashed!
-                </h2>
+                    <h1>Look at all the love you've unleashed!</h1>
 
-                <p>
-                   Behind every transaction below is a 
-                   wagging tail, a soothing purr, and a rescued life.
-                </p>
-
-                <section className="donation-history histroy-panel">
-                <div className="adopter-panel-content">
-                    <div className="donation-history-buttons">
-
+                    <p>
+                       Behind every transaction below
+                       is a wagging tail, a soothing purr,
+                       and a rescued life.
+                    </p>
             </div>
-
-                </div>
+            <section className="donation-card-form">
+                <section className="donation-card">
+                    <h3>Total Donations</h3>
+                    <p>{donations.length}</p>
+                </section>
+        
             </section>
-
+            
+            <div>
                 <input
                     placeholder="Search donation..."
                     value={search}

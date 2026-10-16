@@ -12,6 +12,15 @@
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
 }
 
+.adopter-panel-form {
+    display: grid;
+    gap: 20px;
+    padding: 26px 20px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+}
+
 .adopter-donation-hero span {
     display: inline-flex;
     margin-bottom: 10px;
@@ -40,7 +49,23 @@
     opacity: .95;
 }
 
-.donation-form-panel,
+
+.donation-form-panel {
+    display: flex;
+    gap: 8px;
+}
+
+.donation-form-panel button {
+      border: none;
+    border-radius: 12px;
+    padding: 9px 14px;
+    background: #e9dcc4;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
 .donation-info-panel {
     background: #fff;
     border-radius: 20px;
@@ -50,13 +75,11 @@
 
 .donation-form {
     display: grid;
-    grid-template-columns: repeat(2, minmax(250px, 1fr));
-    gap: 18px;
-    margin-top: 24px;
-    border: 1px solid #ccc;
-    border-radius: 12px;      
-    padding: 20px;            
-    background-color: #fff; 
+    gap: 14px;
+    padding: 18px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
 .donation-form label {
@@ -137,28 +160,23 @@
 }
 
 .donation-form button {
-    font-family: "Itim", cursive;
-    margin: 1px;
-    grid-column: 1 / -1;
-    padding: 15px;
-    border-radius: 15px;
-    background: #ff8a5c;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 100;
+    border: none;
+    border-radius: 12px;
+    padding: 9px 14px;
+    background: #e9dcc4;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 800;
     cursor: pointer;
-    transition: .25s;
 }
 
-.donation-form-buttons-panel .active {
-    background: #ff8a5c;     /* orange when active */
-    color: #fff;
+.donation-form button.active {
+    background: #fb8500;
+    color: white;
 }
 
 .donation-form button:hover:not(:disabled) {
-    background: #f97316;
-    transform: translateY(-2px);
-    background: #ccc;        /* gray by default */
+   opacity: 0.9;
 }
 
 .donation-form button:disabled {

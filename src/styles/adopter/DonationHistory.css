@@ -4,7 +4,7 @@
     gap: 24px;
 }
 
-.donation-history-header {
+.donation-history-form {
     padding: 32px;
     border-radius: 20px;
     background: linear-gradient(135deg, #ff8a5c, #ffb36b);
@@ -12,7 +12,7 @@
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
 }
 
-.donation-history-header span {
+.donation-history-hero span {
     display: inline-flex;
     margin-bottom: 10px;
     padding: 7px 12px;
@@ -26,14 +26,14 @@
 }
 
 
-.donation-history-header h2 {
+.donation-history-hero h1 {
    font-family: "Itim", cursive;
     margin: 0 0 10px;
     font-size: 3rem;
     font-weight: 500;
 }
 
-.donation-history-header p {
+.donation-history-hero p {
     font-family: "Itim", cursive;
     margin: 0;
     max-width: 700px;
@@ -56,6 +56,15 @@
 .donation-history-header input:focus {
     border-color: #fb8500;
     box-shadow: 0 0 0 3px rgba(251,133,0,.15);
+}
+
+.donation-card-form {
+    display: grid;
+    gap: 20px;
+    padding: 26px 20px;
+    border-radius: 20px;
+    background: #fffaf0;
+    border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
 .donation-history-grid {

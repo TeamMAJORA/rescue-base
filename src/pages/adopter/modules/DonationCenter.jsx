@@ -609,8 +609,9 @@ export default function DonationCenter() {
                 )}
             </section>
 
-            <section className="adopter-panel donation-form-panel">
-                <div className="adopter-panel-heading">
+            <section className="adopter-panel-form">
+                <div className="adopter-panel-card">
+                    <div className="adopter-panel-heading">
                     <div>
                         <h2>Donate to Shelter Care</h2>
 
@@ -619,29 +620,42 @@ export default function DonationCenter() {
                         </p>
                     </div>
                 </div>
-
+            </div>
                 <form
                     className="donation-form"
                     onSubmit={handleSubmit}
                 >
-            <div className="donation-form-buttons-panel">
+            <div className="donation-form-panel">
                 <button
-                className={selected === "monetary" ? "active" : ""}
-                    onClick={() => setSelected("monetary")}
-                > Monetary
-         
+                    type="button"
+                        className={
+                            selected === "monetary" 
+                            ? "active" : ""
+                        }
+                        onClick={() => 
+                            setSelected("monetary")
+                        }
+                >       
+                        Monetary
                 </button>
       
                 <button
-                className={selected === "inKind" ? "active" : ""}
-                    onClick={() => setSelected("inKind")}
-                > In-Kind
+                    type="button"
+                    className={
+                        selected === "inKind" 
+                        ? "active" : ""
+                    }
+                    onClick={() => 
+                        setSelected("inKind")
+                    }
+                >       
+                        In-Kind
                 </button>
             </div>
 
-
-                    <label>
-                        Donation Category
+                
+                    <label className="adopter-panel-label">
+                        <span>Donation Category</span>
 
                         <select
                             value={donation.category}
