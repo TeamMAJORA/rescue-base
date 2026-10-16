@@ -1876,3 +1876,96 @@
 .afa-detail-grid .afa-detail-full {
     grid-column: 1 / -1;
 }
+
+/* ===== New application indicator ===== */
+.afa-new-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.45);
+    border-radius: 14px;
+    background: #fff1d6;
+    color: #5a1b00;
+    font-size: 13px;
+    animation: afa-banner-in 0.35s ease;
+}
+
+.afa-new-banner p {
+    flex: 1;
+    margin: 0;
+}
+
+.afa-new-banner button {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 10px;
+    background: #fff;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.afa-new-banner button:hover {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+/* pulsing orange dot */
+.afa-new-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #fb8500;
+    animation: afa-dot-pulse 1.4s ease-in-out infinite;
+}
+
+/* highlighted row + "New" tag */
+.afa-row.is-new {
+    border-color: #fb8500;
+    background: #fff7e6;
+    box-shadow: inset 4px 0 0 #fb8500;
+    animation: afa-row-glow 1.6s ease-in-out 3;
+}
+
+.afa-new-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #fb8500;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+@keyframes afa-banner-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes afa-dot-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 133, 0, 0.5); }
+    50% { box-shadow: 0 0 0 7px rgba(251, 133, 0, 0); }
+}
+
+@keyframes afa-row-glow {
+    0%, 100% { box-shadow: inset 4px 0 0 #fb8500, 0 0 0 0 rgba(251, 133, 0, 0); }
+    50% { box-shadow: inset 4px 0 0 #fb8500, 0 0 0 4px rgba(251, 133, 0, 0.25); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .afa-new-banner,
+    .afa-new-dot,
+    .afa-row.is-new {
+        animation: none;
+    }
+}

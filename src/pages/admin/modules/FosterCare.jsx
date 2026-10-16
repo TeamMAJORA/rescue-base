@@ -121,6 +121,33 @@ export default function FosterCare() {
     const [assignmentForm, setAssignmentForm] =
         useState(emptyAssignmentForm);
     const [applications, setApplications] = useState([]);
+    
+    const SEEN_KEY = "rb_seen_foster_apps";
+    const [seenAppIds, setSeenAppIds] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem(SEEN_KEY) || "null");
+        } catch {
+            return null;
+        }
+    });
+
+    function saveSeen(ids) {
+        setSeenAppIds(ids);
+        try {
+            localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+        } catch {
+            // ignore storage errors
+        }
+    }
+
+    function markAppSeen(id) {
+        if (seenAppIds?.includes(id)) return;
+        saveSeen([...(seenAppIds || []), id]);
+    }
+
+    function markAllAppsSeen() {
+        saveSeen(applications.map((application) => application._id));
+    }
 
     async function fetchAssignments() {
         try {
@@ -163,14 +190,25 @@ export default function FosterCare() {
             });
             const data = await response.json();
 
-            console.log("Foster applications:", data);
-
             if (!response.ok || !data.success) {
                 setMessage(data.message || "Failed to fetch foster applications.");
                 return;
             }
 
-            setApplications(data.applications || []);
+            const list = data.applications || [];
+            setApplications(list);
+
+            // First visit ever: don't flag old applications as new
+            setSeenAppIds((current) => {
+                if (current !== null) return current;
+                const ids = list.map((application) => application._id);
+                try {
+                    localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+                } catch {
+                    // ignore storage errors
+                }
+                return ids;
+            });
         } catch (error) {
             console.error("Fetch foster applications error:", error);
             setMessage("Server error while fetching foster applications.");
@@ -681,6 +719,23 @@ export default function FosterCare() {
         fetchMedicalRequests();
     }, []);
 
+
+    // Check for new applications every 10 seconds, and right away when the admin comes back to the tab
+    useEffect(() => {
+        const interval = setInterval(fetchFosterApplications, 10000);
+
+        function handleVisible() {
+            if (document.visibilityState === "visible") fetchFosterApplications();
+        }
+
+        document.addEventListener("visibilitychange", handleVisible);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", handleVisible);
+        };
+    }, []);
+
     // ----- Foster Applications -----
     const APP_FILTERS = [
         { value: "all", label: "All" },
@@ -691,6 +746,30 @@ export default function FosterCare() {
     const pendingApplicationCount = applications.filter(
         (application) => application.status === "pending"
     ).length;
+
+
+    // Pending applications this admin hasn't opened yet
+    const newApplicationIds = applications
+        .filter((application) =>
+            application.status === "pending" &&
+            seenAppIds !== null &&
+            !seenAppIds.includes(application._id)
+        )
+        .map((application) => application._id);
+
+    const newApplicationCount = newApplicationIds.length;
+
+    // Show the count in the browser tab, e.g. "(2) RescueBase"
+    useEffect(() => {
+        const baseTitle = document.title.replace(/^\(\d+\)\s*/, "");
+        document.title = newApplicationCount > 0
+            ? `(${newApplicationCount}) ${baseTitle}`
+            : baseTitle;
+
+        return () => {
+            document.title = document.title.replace(/^\(\d+\)\s*/, "");
+        };
+    }, [newApplicationCount]);
 
     const visibleApplications =
         appFilter === "all"
@@ -1139,8 +1218,8 @@ export default function FosterCare() {
                     <div>
                         <h2>
                             Foster Applications
-                            {pendingApplicationCount > 0 && (
-                                <span className="afc-new">{pendingApplicationCount} new</span>
+                            {newApplicationCount > 0 && (
+                                <span className="afc-new">{newApplicationCount} new</span>
                             )}
                         </h2>
                         <p>Review caregivers, then assign animals to approved fosters.</p>
@@ -1160,6 +1239,23 @@ export default function FosterCare() {
                     </div>
                 </div>
 
+                {newApplicationCount > 0 && (
+                    <div className="afa-new-banner" role="status">
+                        <span className="afa-new-dot" aria-hidden="true" />
+                        <p>
+                            <b>
+                                {newApplicationCount === 1
+                                    ? "1 new foster application"
+                                    : `${newApplicationCount} new foster applications`}
+                            </b>
+                            {" "}just came in.
+                        </p>
+                        <button type="button" onClick={markAllAppsSeen}>
+                            Mark all as seen
+                        </button>
+                    </div>
+                )}
+
                 <div className="afa-list">
                     {visibleApplications.length === 0 ? (
                         <p className="afc-empty">
@@ -1170,15 +1266,18 @@ export default function FosterCare() {
                     ) : (
                         visibleApplications.map((application) => {
                             const full = application.status === "approved" && isFosterFull(application);
+                            const isNew = newApplicationIds.includes(application._id);
 
                             return (
-                                <article className="afa-row" key={application._id}>
+                                <article className={`afa-row ${isNew ? "is-new" : ""}`} key={application._id}>
                                     <span className="afc-initials" aria-hidden="true">
                                         {getInitials(application.applicantName)}
                                     </span>
 
                                     <div className="afa-person">
-                                        <b>{application.applicantName}</b>
+                                        <b>{application.applicantName}
+                                            {isNew && <span className="afa-new-tag">New</span>}
+                                        </b>
                                         <small>{application.applicantEmail}</small>
                                     </div>
 
@@ -1200,7 +1299,10 @@ export default function FosterCare() {
                                         <button
                                             type="button"
                                             className="afa-review"
-                                            onClick={() => setReviewingApplication(application)}
+                                            onClick={() => { 
+                                                markAppSeen(application._id);
+                                                setReviewingApplication(application)}
+                                            }
                                         >
                                             Review
                                         </button>
