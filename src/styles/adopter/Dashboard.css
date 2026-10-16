@@ -2238,3 +2238,18 @@
     font-size: 13px;
     text-decoration: underline;
 }
+
+
+/* Deactivated account screen */
+.adopter-signed-out-icon.is-blocked {
+    background: #ffe1e1;
+    color: #b42318;
+}
+
+.adopter-signed-out-card p.adopter-signed-out-note {
+    margin: 0 0 18px;
+    padding: 10px 12px;
+    background: #fff8dc;
+    color: #5a1b00;
+    font-size: 13px;
+}

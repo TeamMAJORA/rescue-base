@@ -2110,13 +2110,11 @@ a.ao-tag {
     color: #ffffff;
 }
 
-/* Admin dashboard: maintenance is on and admin access is off */
+/* Admin dashboard: maintenance banners */
 .gs-maint-banner {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    gap: 14px;
     margin-bottom: 16px;
     padding: 12px 16px;
     border: 1px solid #ffd3a1;
@@ -2126,23 +2124,53 @@ a.ao-tag {
     font-size: 13px;
 }
 
-.gs-maint-banner button {
-    margin-left: 6px;
-    padding: 7px 14px;
-    border: none;
-    border-radius: 10px;
+.gs-maint-dot {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
     background: #fb8500;
-    color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.gs-maint-text {
+    flex: 1;
+}
+
+.gs-maint-text b {
+    display: block;
+    margin-bottom: 1px;
+    font-size: 13.5px;
+}
+
+.gs-maint-banner button {
+    flex: none;
+    padding: 8px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.5);
+    border-radius: 10px;
+    background: transparent;
+    color: #5a1b00;
     font: inherit;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
 }
 
-.gs-maint-banner button.ghost {
-    border: 1px solid rgba(251, 133, 0, 0.45);
-    background: transparent;
-    color: #5a1b00;
+.gs-maint-banner.is-blocked {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #ffffff;
+}
+
+.gs-maint-banner.is-blocked .gs-maint-dot {
+    background: #ffb703;
+    box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.25);
+}
+
+.gs-maint-banner.is-blocked button {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #ffffff;
 }
 
 @media (max-width: 900px) {
@@ -2457,4 +2485,19 @@ a.ao-tag {
 .rp-dates-hint {
     grid-column: 1 / -1;
     margin: 0;
+}
+
+
+/* Deactivated account screen */
+.ao-signed-out-icon.is-blocked {
+    background: #ffe1e1;
+    color: #b42318;
+}
+
+.ao-signed-out-card p.ao-signed-out-note {
+    margin: 0 0 18px;
+    padding: 10px 12px;
+    background: #fff8dc;
+    color: #5a1b00;
+    font-size: 13px;
 }

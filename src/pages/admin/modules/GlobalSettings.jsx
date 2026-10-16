@@ -264,6 +264,9 @@ export default function GlobalSettings() {
             setSavedSettings(merged);
             setSavedAt(data.settings?.updatedAt || new Date().toISOString());
 
+            // Let the dashboard update its maintenance banner right away
+            window.dispatchEvent(new CustomEvent("rb-settings-saved", { detail: merged }));
+
             const text = data.message || "Global settings saved.";
             if (window.rbToast) window.rbToast(text);
             else setSuccess(text);

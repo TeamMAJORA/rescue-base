@@ -1406,7 +1406,14 @@ async function fetchPets({ silent = false } = {}) {
             const url = String(args[0]?.url || args[0] || "");
 
             if (response.status === 401 && API && url.startsWith(API)) {
-                setSignedOut(true);
+                //deactivated accounts are marked by the server so we can show the right screen
+                let disabled = false;
+                try {
+                    disabled = Boolean((await response.clone().json())?.accountDisabled);
+                } catch {
+                    // not a JSON answer
+                }
+                setSignedOut((current) => (current === "disabled" || disabled ? "disabled" : true));
             }
             // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
             if (response.status === 503 && API && url.startsWith(API)) {
@@ -1464,6 +1471,30 @@ async function fetchPets({ silent = false } = {}) {
         return () => clearInterval(interval);
     }, []);
     
+    // Account was deactivated by an admin
+    if (signedOut === "disabled") {
+        return (
+            <main className="adopter-signed-out">
+                <section className="adopter-signed-out-card">
+                    <div className="adopter-signed-out-icon is-blocked">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M5.6 5.6l12.8 12.8" />
+                        </svg>
+                    </div>
+                    <h2>Your account has been deactivated</h2>
+                    <p>An admin turned off this account, so you've been signed out.</p>
+                    <p className="adopter-signed-out-note">
+                        Think this is a mistake? Please contact the shelter staff.
+                    </p>
+                    <button type="button" onClick={handleLoginAgain}>
+                        Back to home
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
     if (maintenance && !signedOut && !isWrongRole) {
         return (
             <main className="adopter-signed-out">

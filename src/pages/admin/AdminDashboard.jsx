@@ -154,6 +154,34 @@ export default function AdminDashboard({ setPage }) {
     const [signedOut, setSignedOut] = useState(false);
     // Server is under maintenance to message the roles that are not allowed to log in
     const [maintenance, setMaintenance] = useState("");
+    // Saved maintenance settings, for the banner (admins are never blocked by the full screen)
+    const [maintenanceInfo, setMaintenanceInfo] = useState({ enabled: false, allowAdminAccess: true });
+
+    useEffect(() => {
+        if (isWrongRole) return;
+
+        const token = localStorage.getItem("token");
+
+        // /api/settings always works for admins, even during maintenance
+        fetch(`${API}/api/settings`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => (response.ok ? response.json() : null))
+            .then((data) => {
+                if (data?.settings?.maintenance) setMaintenanceInfo(data.settings.maintenance);
+            })
+            .catch(() => {});
+
+        //output the maintenance message if the server is under maintenance and the user is not an admin
+        function handleSaved(event) {
+            const next = event.detail?.maintenance;
+            if (!next) return;
+
+            setMaintenanceInfo(next);
+            if (!next.enabled || next.allowAdminAccess) setMaintenance("");
+        }
+
+        window.addEventListener("rb-settings-saved", handleSaved);
+        return () => window.removeEventListener("rb-settings-saved", handleSaved);
+    }, []);
     const [confirmBox, setConfirmBox] = useState(null);
     const [toasts, setToasts] = useState([]);
 
@@ -166,7 +194,14 @@ export default function AdminDashboard({ setPage }) {
             const url = String(args[0]?.url || args[0] || "");
 
             if (response.status === 401 && API && url.startsWith(API)) {
-                setSignedOut(true);
+                // The server marks deactivated accounts so we can show the right screen
+                let disabled = false;
+                try {
+                    disabled = Boolean((await response.clone().json())?.accountDisabled);
+                } catch {
+                    // not a JSON answer
+                }
+                setSignedOut((current) => (current === "disabled" || disabled ? "disabled" : true));
             }
             // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
             if (response.status === 503 && API && url.startsWith(API)) {
@@ -421,6 +456,30 @@ export default function AdminDashboard({ setPage }) {
     // Admins never get the full maintenance screen (they must reach Global Settings);
     // a banner shows instead when "Let admins in" is off.
 
+    // Account was deactivated by an admin
+    if (signedOut === "disabled") {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon is-blocked">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M5.6 5.6l12.8 12.8" />
+                        </svg>
+                    </div>
+                    <h2>Your account has been deactivated</h2>
+                    <p>An admin turned off this account, so you've been signed out.</p>
+                    <p className="ao-signed-out-note">
+                        Think this is a mistake? Please contact the shelter staff.
+                    </p>
+                    <button type="button" onClick={() => signOut("home")}>
+                        Back to home
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
     if (signedOut || isWrongRole) {
         return (
             <main className="ao-signed-out">
@@ -573,22 +632,32 @@ export default function AdminDashboard({ setPage }) {
                     </div>
                 </header>
 
-                {maintenance && activeAdminPage !== "global-settings" && (
-                    <div className="gs-maint-banner" role="alert">
-                        <span>
-                            <b>Maintenance mode is on and admin access is off.</b>{" "}
-                            Other pages won't load until you turn it off.
-                        </span>
-                        <span>
-                            <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
-                                Open Global Settings
-                            </button>
-                            <button type="button" className="ghost" onClick={() => window.location.reload()}>
-                                Check again
-                            </button>
-                        </span>
-                    </div>
-                )}
+                {activeAdminPage !== "global-settings" &&
+                    (maintenance || maintenanceInfo.enabled) && (
+                        maintenance || !maintenanceInfo.allowAdminAccess ? (
+                            <div className="gs-maint-banner is-blocked" role="alert">
+                                <span className="gs-maint-dot" aria-hidden="true" />
+                                <span className="gs-maint-text">
+                                    <b>Maintenance mode is on for everyone</b>
+                                    Pages won't load until you turn it off. Global Settings still works.
+                                </span>
+                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                    Open Global Settings
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="gs-maint-banner" role="status">
+                                <span className="gs-maint-dot" aria-hidden="true" />
+                                <span className="gs-maint-text">
+                                    <b>Maintenance mode is on</b>
+                                    Users can't use RescueBase right now. Only admins are signed in.
+                                </span>
+                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                    Turn off in Global Settings
+                                </button>
+                            </div>
+                        )
+                    )}
                 {renderAdminContent()}
             </section>
             {confirmBox && (
