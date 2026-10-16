@@ -1872,3 +1872,7 @@
     color: #b42318;
     font-size: 13px;
 }
+
+.afa-detail-grid .afa-detail-full {
+    grid-column: 1 / -1;
+}

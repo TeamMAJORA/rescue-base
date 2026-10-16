@@ -1347,24 +1347,28 @@ export default function FosterCare() {
                                 <summary>Full application details</summary>
 
                                 <div className="afa-detail-grid">
-                                    <p><span>Phone</span>{reviewingApplication.phoneNumber || "—"}</p>
+                                    <p className="afa-detail-full">
+                                        <span>Experience</span>
+                                        {reviewingApplication.fosterExperience || "—"}
+                                    </p>
+                                    <p><span>Phone</span>{reviewingApplication.phoneNumber ? `+63 ${reviewingApplication.phoneNumber}` : "—"}</p>
                                     <p><span>Address</span>{reviewingApplication.address || "—"}</p>
                                     <p><span>Housing</span>{reviewingApplication.housingType || "—"}</p>
-                                    <p><span>Available space</span>{reviewingApplication.availableSpace || "—"}</p>
+                                    <p><span>Pet-friendly home</span>{yesNo(reviewingApplication.petFriendly)}</p>
                                     <p><span>Has pets</span>{yesNo(reviewingApplication.hasPets)}</p>
                                     <p><span>Has children</span>{yesNo(reviewingApplication.hasChildren)}</p>
                                     <p><span>Duration</span>{reviewingApplication.fosterDuration || "—"}</p>
                                     <p><span>Preferred size</span>{reviewingApplication.preferredSize || "—"}</p>
-                                    <p><span>Available time</span>{reviewingApplication.availableTime || "—"}</p>
-                                    <p><span>Experience</span>{reviewingApplication.fosterExperience || "—"}</p>
-                                    <p><span>Emergency contact</span>{reviewingApplication.emergencyName || "—"}</p>
-                                    <p>
-                                        <span>Emergency phone</span>
-                                        {reviewingApplication.emergencyPhone || "—"}
+                                    <p><span>Emergency contact</span>{reviewingApplication.emergencyName || "—"}
                                         {reviewingApplication.emergencyRelationship
                                             ? ` (${reviewingApplication.emergencyRelationship})`
                                             : ""}
                                     </p>
+                                    <p>
+                                        <span>Emergency phone</span>
+                                        {reviewingApplication.emergencyPhone ? `+63 ${reviewingApplication.emergencyPhone}` : "—"}
+                                    </p>
+                                    
                                 </div>
                             </details>
 
