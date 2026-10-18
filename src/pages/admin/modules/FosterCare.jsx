@@ -129,7 +129,6 @@ export default function FosterCare() {
 
     const [assignmentForm, setAssignmentForm] =
         useState(emptyAssignmentForm);
-    const [animals, setAnimals] = useState([]);
     const [animalsLoading, setAnimalsLoading] = useState(false);
     const [applications, setApplications] = useState([]);
     

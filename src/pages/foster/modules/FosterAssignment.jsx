@@ -21,7 +21,16 @@ const FA_ICONS = {
         </>
     ),
     plus: <path d="M12 5v14M5 12h14" />,
-    chat: <path d="M4 5h16v11H9l-5 4z" />,
+        chat: <path d="M4 5h16v11H9l-5 4z" />,
+    check: <path d="M20 6 9 17l-5-5" />,
+    paw: (
+        <>
+            <circle cx="11" cy="4" r="2" />
+            <circle cx="18" cy="8" r="2" />
+            <circle cx="4" cy="8" r="2" />
+            <path d="M8 14c0-2 2-4 4-4s4 2 4 4-1 6-4 6-4-4-4-6z" />
+        </>
+    ),
 };
 
 function FaIcon({ name, size = 18 }) {
@@ -219,6 +228,24 @@ export default function FosterAssignment({ application = null, onNavigate }) {
         </div>
     );
 
+        // Care instructions as a checklist (one item per line / sentence)
+    const DEFAULT_CARE = "Provide food, water, shelter, and weekly updates.";
+    const careItems =
+        !assignment?.careInstructions || assignment.careInstructions.trim() === DEFAULT_CARE
+            ? ["Provide food and fresh water daily", "Provide a safe, comfortable shelter", "Submit a weekly update"]
+            : assignment.careInstructions
+                .split(/\n|;|\.\s+/)
+                .map((item) => item.trim().replace(/\.$/, ""))
+                .filter(Boolean);
+
+    // Newest weekly updates first, and when the next one is due
+    const recentUpdates = (assignment?.updates || []).slice().reverse();
+    const nextDue = new Date(
+        recentUpdates[0]?.createdAt || assignment?.startDate || assignment?.createdAt || Date.now()
+    );
+    nextDue.setDate(nextDue.getDate() + 7);
+    const isOverdue = nextDue.getTime() < Date.now();
+
     if (loading) {
         return (
             <section className="foster-panel">
@@ -348,67 +375,84 @@ export default function FosterAssignment({ application = null, onNavigate }) {
             <div className="foster-assignment-sections">
 
                 <section className="assignment-card">
-                    <h3>Care Instructions</h3>
-                    <p>
-                        {assignment.careInstructions ||
-                            "No care instructions were provided by the shelter."}
-                    </p>
+                    <div className="acard-head">
+                        <h3>Care Instructions</h3>
+                    </div>
+
+                    <ul className="acard-checklist">
+                        {careItems.map((item) => (
+                            <li key={item}>
+                                <span className="acard-check"><FaIcon name="check" size={13} /></span>
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
                 </section>
 
                 <section className="assignment-card">
-                    <h3>Recent Weekly Updates</h3>
-                    {assignment.updates &&
-                        assignment.updates.length > 0 ? (
+                    <div className="acard-head">
+                        <h3>Recent Weekly Updates</h3>
+                        <span className="acard-count">{recentUpdates.length} submitted</span>
+                    </div>
 
-                        <div className="assignment-updates">
-
-                            {assignment.updates
-                                .slice()
-                                .reverse()
-                                .map((update) => (
-
-                                    <div
-                                        key={update._id}
-                                        className="assignment-update-card"
-                                    >
-
-                                        <div className="assignment-update-header">
-
-                                            <strong>
-                                                {formatDate(
-                                                    update.createdAt
-                                                )}
-                                            </strong>
-
-                                            <span>
-                                                {update.submittedBy}
-                                            </span>
-
+                    {recentUpdates.length > 0 ? (
+                        <div className="acard-updates">
+                            {recentUpdates.slice(0, 3).map((update) => (
+                                <article key={update._id} className="acard-update">
+                                    {update.photoUrl && (
+                                        <img src={update.photoUrl} alt="Weekly update" />
+                                    )}
+                                    <div>
+                                        <div className="acard-update-head">
+                                            <b>{formatDate(update.createdAt)}</b>
+                                            <small>{update.submittedBy}</small>
                                         </div>
-
-                                        <p>
-                                            {update.note}
-                                        </p>
-
-                                        {update.photoUrl && (
-                                            <img
-                                                src={update.photoUrl}
-                                                alt="Weekly update"
-                                            />
+                                        <p>{update.note || "No notes added."}</p>
+                                        {(update.healthStatus || update.appetite || update.behavior) && (
+                                            <div className="acard-tags">
+                                                {update.healthStatus && <span>Health: {update.healthStatus}</span>}
+                                                {update.appetite && <span>Appetite: {update.appetite}</span>}
+                                                {update.behavior && <span>Behavior: {update.behavior}</span>}
+                                            </div>
                                         )}
                                     </div>
-                                ))}
+                                </article>
+                            ))}
+
+                            {recentUpdates.length > 3 && (
+                                <button
+                                    type="button"
+                                    className="acard-link"
+                                    onClick={() => onNavigate?.("updates")}
+                                >
+                                    View all {recentUpdates.length} updates →
+                                </button>
+                            )}
                         </div>
                     ) : (
-
-                        <div className="assignment-empty">
-
-                            No weekly updates submitted yet.
-
+                        <div className="acard-empty">
+                            <span className="acard-empty-icon"><FaIcon name="paw" size={24} /></span>
+                            <b>No weekly updates yet</b>
+                            <p>
+                                Share how {assignment.petName} is eating, sleeping and behaving.
+                                Staff will see it right away.
+                            </p>
+                            <button
+                                type="button"
+                                className="fah-btn is-primary"
+                                onClick={() => onNavigate?.("updates")}
+                            >
+                                <FaIcon name="report" size={16} />
+                                Submit first report
+                            </button>
                         </div>
-
                     )}
 
+                    <p className={`acard-due ${isOverdue ? "is-overdue" : ""}`}>
+                        <FaIcon name="calendar" size={18} />
+                        {isOverdue ? "Report overdue since" : "Next report due"}{" "}
+                        <b>{formatDate(nextDue)}</b>
+                    </p>
                 </section>
             </div>
             {message && (

@@ -648,3 +648,236 @@
         justify-content: center;
     }
 }
+
+/* ===== My Foster Pet: Care Instructions + Recent Weekly Updates ===== */
+.foster-assignment-sections {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.assignment-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 24px;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.06);
+    color: #5a1b00;
+}
+
+.acard-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.assignment-card .acard-head h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.acard-count {
+    padding: 3px 10px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* checklist */
+.acard-checklist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.acard-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(90, 27, 0, 0.14);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.acard-checklist li:last-child {
+    border-bottom: 0;
+}
+
+.acard-check {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid #fb8500;
+    border-radius: 50%;
+    background: #fde3bf;
+    color: #fb8500;
+}
+
+/* empty state */
+.acard-empty {
+    flex: 1;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 6px;
+    padding: 22px 18px;
+    border: 2px dashed rgba(251, 133, 0, 0.35);
+    border-radius: 16px;
+    background: #fff7cb;
+    text-align: center;
+}
+
+.acard-empty-icon {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 4px;
+    border-radius: 50%;
+    background: #fde3bf;
+    color: #fb8500;
+}
+
+.acard-empty-icon .fah-icon {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+.acard-empty b {
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.acard-empty p {
+    margin: 0 0 8px;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+/* update list */
+.acard-updates {
+    display: grid;
+    gap: 10px;
+}
+
+.acard-update {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+}
+
+.acard-update img {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.acard-update > div {
+    min-width: 0;
+}
+
+.acard-update-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.acard-update-head b {
+    font-size: 13px;
+}
+
+.acard-update-head small {
+    color: #7b452d;
+    font-size: 11px;
+}
+
+.assignment-card .acard-update p {
+    margin: 4px 0 0;
+    color: #5a1b00;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.acard-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.acard-tags span {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: #fde3bf;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.acard-link {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #d96f00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.acard-link:hover {
+    text-decoration: underline;
+}
+
+/* next report due */
+.assignment-card .acard-due {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.acard-due .fah-icon {
+    color: #fb8500;
+}
+
+.acard-due b {
+    color: #5a1b00;
+}
+
+.acard-due.is-overdue,
+.acard-due.is-overdue b,
+.acard-due.is-overdue .fah-icon {
+    color: #b42318;
+}
+
+@media (max-width: 900px) {
+    .foster-assignment-sections {
+        grid-template-columns: 1fr;
+    }
+}
