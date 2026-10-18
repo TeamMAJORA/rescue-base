@@ -79,6 +79,60 @@ export default function FosterAssignment({ application = null, onNavigate }) {
     const [contactOpen, setContactOpen] = useState(false);
     const [contact, setContact] = useState(null);
 
+    // "Return Pet": foster asks the shelter to take the animal back early
+    const emptyReturn = { reason: "", preferredDate: "", notes: "", urgent: false };
+    const [returnOpen, setReturnOpen] = useState(false);
+    const [returnForm, setReturnForm] = useState(emptyReturn);
+    const [returnError, setReturnError] = useState("");
+    const [returnSending, setReturnSending] = useState(false);
+
+    function openReturn() {
+        setReturnForm(emptyReturn);
+        setReturnError("");
+        setReturnOpen(true);
+    }
+
+    async function submitReturn(event) {
+        event.preventDefault();
+
+        if (!returnForm.reason) {
+            setReturnError("Please choose a reason.");
+            return;
+        }
+
+        try {
+            setReturnSending(true);
+            setReturnError("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${assignment._id}/return-request`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(returnForm),
+                }
+            );
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setReturnError(data.message || "Could not send your request.");
+                return;
+            }
+
+            setReturnOpen(false);
+            setMessage(data.message);
+            loadAssignment();
+        } catch (error) {
+            console.error(error);
+            setReturnError("Server error. Please try again.");
+        } finally {
+            setReturnSending(false);
+        }
+    }
+
     async function toggleContact() {
         const opening = !contactOpen;
         setContactOpen(opening);
@@ -163,6 +217,11 @@ export default function FosterAssignment({ application = null, onNavigate }) {
 
     // Weekly report: "sent" if one went in during the last 7 days, otherwise when it's due
     function reportStatus(item) {
+        
+        if (item.returnRequest?.status === "pending") {
+            return { label: "Return requested", tone: "is-return" };
+        }
+
         const updates = item.updates || [];
         const last = updates.length ? updates[updates.length - 1].createdAt : null;
         const DAY = 24 * 60 * 60 * 1000;
@@ -208,7 +267,10 @@ export default function FosterAssignment({ application = null, onNavigate }) {
                             role="tab"
                             aria-selected={selected}
                             className={`fat-tab ${selected ? "is-selected" : ""}`}
-                            onClick={() => setSelectedId(item._id)}
+                            onClick={() => {
+                                setSelectedId(item._id);
+                                setReturnOpen(false);
+                            }}
                         >
                             <span className="fat-photo">
                                 {item.petImage ? (
@@ -398,7 +460,121 @@ export default function FosterAssignment({ application = null, onNavigate }) {
                             <FaIcon name="chat" size={16} />
                             Contact Shelter
                         </button>
+
+                        {assignment.returnRequest?.status !== "pending" && !returnOpen && (
+                            <button type="button" className="fah-btn is-return" onClick={openReturn}>
+                                <FaIcon name="home" size={16} />
+                                Return Pet
+                            </button>
+                        )}
                     </div>
+
+                    {assignment.returnRequest?.status === "pending" && (
+                        <p className="fah-return-note">
+                            <FaIcon name="home" size={16} />
+                            <span>
+                                You asked to return {assignment.petName} on{" "}
+                                <b>{formatDate(assignment.returnRequest.requestedAt)}</b>
+                                {" "}({assignment.returnRequest.reason}). Keep caring for them until the
+                                shelter confirms they're back.
+                            </span>
+                        </p>
+                    )}
+
+                    {assignment.returnRequest?.status === "declined" && !returnOpen && (
+                        <p className="fah-return-note is-declined">
+                            <FaIcon name="home" size={16} />
+                            <span>
+                                Your return request was declined: <b>{assignment.returnRequest.adminNote}</b>
+                            </span>
+                        </p>
+                    )}
+
+                    {returnOpen && (
+                        <form className="fah-return" onSubmit={submitReturn}>
+                            <div className="fah-return-head">
+                                <b>Return {assignment.petName} to the shelter</b>
+                                <small>The shelter will contact you to arrange the handover.</small>
+                            </div>
+
+                            <div className="fah-return-reasons" role="radiogroup" aria-label="Reason">
+                                {["Medical", "Behavior", "Personal", "Emergency"].map((reason) => (
+                                    <button
+                                        key={reason}
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={returnForm.reason === reason}
+                                        className={returnForm.reason === reason ? "is-selected" : ""}
+                                        onClick={() => {
+                                            setReturnForm({ ...returnForm, reason });
+                                            setReturnError("");
+                                        }}
+                                    >
+                                        {reason}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="fah-return-grid">
+                                <label>
+                                    Preferred return date
+                                    <input
+                                        type="date"
+                                        value={returnForm.preferredDate}
+                                        min={new Date().toISOString().slice(0, 10)}
+                                        onChange={(e) => setReturnForm({ ...returnForm, preferredDate: e.target.value })}
+                                    />
+                                </label>
+
+                                <label className="fah-return-urgent">
+                                    <input
+                                        type="checkbox"
+                                        checked={returnForm.urgent || returnForm.reason === "Emergency"}
+                                        disabled={returnForm.reason === "Emergency"}
+                                        onChange={(e) => setReturnForm({ ...returnForm, urgent: e.target.checked })}
+                                    />
+                                    This is urgent
+                                </label>
+
+                                <label className="is-wide">
+                                    Notes for the shelter
+                                    <textarea
+                                        rows="3"
+                                        maxLength={1000}
+                                        value={returnForm.notes}
+                                        onChange={(e) => setReturnForm({ ...returnForm, notes: e.target.value })}
+                                        placeholder="What happened, and anything staff should know"
+                                    />
+                                </label>
+                            </div>
+
+                            {(returnForm.urgent || returnForm.reason === "Emergency") && (
+                                <p className="fah-return-warn">
+                                    For emergencies, also call the shelter right away.{" "}
+                                    {!contactOpen && (
+                                        <button type="button" onClick={toggleContact}>
+                                            Show contacts
+                                        </button>
+                                    )}
+                                </p>
+                            )}
+
+                            {returnError && <p className="fah-return-error">{returnError}</p>}
+
+                            <div className="fah-return-actions">
+                                <button
+                                    type="button"
+                                    className="fah-btn is-ghost"
+                                    onClick={() => setReturnOpen(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button type="submit" className="fah-btn is-primary" disabled={returnSending}>
+                                    {returnSending ? "Sending..." : "Send Return Request"}
+                                </button>
+                            </div>
+                        </form>
+                    )}
 
                     {contactOpen && (
                         <div className="fah-contact" role="region" aria-label="Shelter contacts">
@@ -517,11 +693,13 @@ export default function FosterAssignment({ application = null, onNavigate }) {
                         </div>
                     )}
 
-                    <p className={`acard-due ${isOverdue ? "is-overdue" : ""}`}>
-                        <FaIcon name="calendar" size={18} />
-                        {isOverdue ? "Report overdue since" : "Next report due"}{" "}
-                        <b>{formatDate(nextDue)}</b>
-                    </p>
+                    {assignment.returnRequest?.status !== "pending" && (
+                        <p className={`acard-due ${isOverdue ? "is-overdue" : ""}`}>
+                            <FaIcon name="calendar" size={18} />
+                            {isOverdue ? "Report overdue since" : "Next report due"}{" "}
+                            <b>{formatDate(nextDue)}</b>
+                        </p>
+                    )}
                 </section>
             </div>
             {message && (

@@ -123,6 +123,60 @@ export default function FosterCare() {
     }, [reviewingApplication]);
 
     const [reviewingRequest, setReviewingRequest] = useState(null);
+
+    // Early return requested by a foster (Confirm / Decline pop-up)
+    const [earlyReturn, setEarlyReturn] = useState(null);
+    const [earlyReturnNote, setEarlyReturnNote] = useState("");
+    const [earlyReturnError, setEarlyReturnError] = useState("");
+    const [earlyReturnBusy, setEarlyReturnBusy] = useState(false);
+
+    function openEarlyReturn(assignment) {
+        setEarlyReturn(assignment);
+        setEarlyReturnNote("");
+        setEarlyReturnError("");
+    }
+
+    async function handleEarlyReturn(action) {
+        if (!earlyReturn) return;
+
+        if (action === "decline" && !earlyReturnNote.trim()) {
+            setEarlyReturnError("Add a note so the foster knows why.");
+            return;
+        }
+
+        try {
+            setEarlyReturnBusy(true);
+            setEarlyReturnError("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${earlyReturn._id}/return-request`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ action, adminNote: earlyReturnNote }),
+                }
+            );
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setEarlyReturnError(data.message || "Could not update the request.");
+                return;
+            }
+
+            setEarlyReturn(null);
+            setMessage(data.message);
+            fetchAssignments();
+            fetchAnimals();
+        } catch (error) {
+            console.error(error);
+            setEarlyReturnError("Server error. Please try again.");
+        } finally {
+            setEarlyReturnBusy(false);
+        }
+    }
     const [assigningApplication, setAssigningApplication] = useState(null);
     const token = localStorage.getItem("token")
 
@@ -936,6 +990,7 @@ export default function FosterCare() {
         { value: "all", label: "All" },
         { value: "active", label: "Active" },
         { value: "completed", label: "Completed" },
+        { value: "returned", label: "Returned" },
     ];
 
     const PET_TINTS = ["is-orange", "is-plum", "is-sage", "is-sky"];
@@ -1154,7 +1209,7 @@ export default function FosterCare() {
 
                         {visibleAssignments.map((assignment, index) => (
                                 <article
-                                    className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" ? "is-new" : ""}`}
+                                    className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" ? "is-new" : ""}`}
                                     key={assignment._id}
                                 >
                                 <div className="afl-row">
@@ -1192,11 +1247,25 @@ export default function FosterCare() {
                                         {assignment.behaviorEvaluation?.status === "pending" && (
                                             <span className="afl-flag">Evaluation to review</span>
                                         )}
+                                        {assignment.returnRequest?.status === "pending" && (
+                                            <span className="afl-flag is-return">
+                                                Return requested{assignment.returnRequest.urgent ? " · Urgent" : ""}
+                                            </span>
+                                        )}                                        
                                     </div>
 
                                     <div className="afl-actions">
                                         {assignment.status === "active" ? (
                                             <>
+                                            {assignment.returnRequest?.status === "pending" && (
+                                                    <button
+                                                        type="button"
+                                                        className="afl-return-btn"
+                                                        onClick={() => openEarlyReturn(assignment)}
+                                                    >
+                                                        Review return
+                                                    </button>
+                                            )}
                                                 <button
                                                     type="button"
                                                     className="afl-icon-btn"
@@ -2165,6 +2234,161 @@ export default function FosterCare() {
             </section>
             </aside>
             </div>
+
+            {earlyReturn && (() => {
+                const request = earlyReturn.returnRequest || {};
+                const openMedical = (earlyReturn.medicalRequests || []).filter(
+                    (item) => item.status !== "resolved"
+                ).length;
+                const pet = animals.find((animal) => String(animal._id) === String(earlyReturn.animalId));
+                const longDate = (value) =>
+                    value
+                        ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                        : "—";
+
+                return (
+                    <div className="admin-modal-overlay" onClick={() => setEarlyReturn(null)}>
+                        <div
+                            className="afr-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`Return request for ${earlyReturn.petName}`}
+                            onClick={(event) => event.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <header className="afr-head">
+                                <span className="afr-avatar" aria-hidden="true">
+                                    {getInitials(earlyReturn.fosterName || "")}
+                                </span>
+
+                                <div className="afr-who">
+                                    <span className="afr-eyebrow">Return Request</span>
+                                    <h2>{earlyReturn.fosterName}</h2>
+                                    <small>
+                                        <StatIcon name="mail" size={14} />
+                                        {earlyReturn.fosterEmail}
+                                    </small>
+                                </div>
+
+                                <span className={`afr-pill ${request.urgent ? "is-rejected" : "is-pending"}`}>
+                                    <i aria-hidden="true" />
+                                    {request.urgent ? "Urgent" : "Pending"}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    className="afr-close"
+                                    onClick={() => setEarlyReturn(null)}
+                                    aria-label="Close"
+                                >
+                                    <StatIcon name="x" size={16} />
+                                </button>
+                            </header>
+
+                            {/* Body */}
+                            <div className="afr-body">
+                                <div className="afr-facts">
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="paw" size={16} /></span>
+                                        <div>
+                                            <small>Pet</small>
+                                            <b>{earlyReturn.petName}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="info" size={16} /></span>
+                                        <div>
+                                            <small>Reason</small>
+                                            <b>{request.reason || "—"}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="calendar" size={16} /></span>
+                                        <div>
+                                            <small>Requested</small>
+                                            <b>{longDate(request.requestedAt)}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="calendar" size={16} /></span>
+                                        <div>
+                                            <small>Preferred date</small>
+                                            <b>{longDate(request.preferredDate)}</b>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="afr-why">
+                                    <h3>Foster's notes</h3>
+                                    <p>{request.notes || "No notes given."}</p>
+                                </div>
+
+                                {(openMedical > 0 ||
+                                    pet?.adoptionStatus === "pending" ||
+                                    earlyReturn.behaviorEvaluation?.status !== "accepted") && (
+                                    <ul className="afr-return-warnings">
+                                        {openMedical > 0 && (
+                                            <li>
+                                                {openMedical} open medical {openMedical === 1 ? "request" : "requests"}. Follow up at handover.
+                                            </li>
+                                        )}
+                                        {pet?.adoptionStatus === "pending" && (
+                                            <li>{earlyReturn.petName} has a pending adoption application.</li>
+                                        )}
+                                        {earlyReturn.behaviorEvaluation?.status !== "accepted" && (
+                                            <li>No accepted behavior evaluation. The pet's behavior scores won't be updated.</li>
+                                        )}
+                                    </ul>
+                                )}
+
+                                <label className="afr-reason">
+                                    <span>
+                                        Note to the foster <em>(needed only to decline)</em>
+                                    </span>
+                                    <textarea
+                                        rows={3}
+                                        maxLength={500}
+                                        value={earlyReturnNote}
+                                        onChange={(event) => {
+                                            setEarlyReturnNote(event.target.value);
+                                            setEarlyReturnError("");
+                                        }}
+                                        placeholder="e.g. Please keep her until Saturday, we'll pick her up."
+                                    />
+                                    {earlyReturnError && <small className="afr-reason-error">{earlyReturnError}</small>}
+                                </label>
+
+                                <p className="afr-note is-approved">
+                                    <StatIcon name="info" size={16} />
+                                    Only confirm once {earlyReturn.petName} is physically back at the shelter.
+                                </p>
+                            </div>
+
+                            {/* Footer */}
+                            <footer className="afr-foot">
+                                <button
+                                    type="button"
+                                    className="afr-btn is-reject"
+                                    onClick={() => handleEarlyReturn("decline")}
+                                    disabled={earlyReturnBusy}
+                                >
+                                    Decline
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="afr-btn is-assign"
+                                    onClick={() => handleEarlyReturn("confirm")}
+                                    disabled={earlyReturnBusy}
+                                >
+                                    <StatIcon name="check" size={16} />
+                                    {earlyReturnBusy ? "Saving..." : "Confirm Return"}
+                                </button>
+                            </footer>
+                        </div>
+                    </div>
+                );
+            })()}
 
             {reviewingRequest && (
                 <div

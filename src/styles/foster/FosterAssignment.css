@@ -955,3 +955,194 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Return Pet (foster asks to return an animal early) ===== */
+/* keep the photo from stretching when a panel opens under the buttons */
+.fah-photo { max-height: 300px; }
+
+.fat-pill.is-return { background: #fde3bf; color: #b42318; }
+
+.fah-btn.is-return {
+    border: 1.5px dashed rgba(90, 27, 0, 0.35);
+    background: transparent;
+    color: #7b452d;
+}
+
+.fah-btn.is-return:hover {
+    border-color: #b42318;
+    color: #b42318;
+    background: #fff;
+}
+
+.fah-return-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 12px 0 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 14px;
+    background: #fff1d6;
+    color: #5a1b00;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.fah-return-note .fah-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #fb8500;
+}
+
+.fah-return-note.is-declined {
+    border-color: rgba(214, 40, 40, 0.3);
+    background: #fdeaea;
+}
+
+.fah-return-note.is-declined .fah-icon {
+    color: #b42318;
+}
+
+.fah-return {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 16px;
+    border: 1.5px dashed rgba(251, 133, 0, 0.35);
+    border-radius: 16px;
+    background: #fffdf0;
+    animation: fah-contact-in 0.2s ease;
+}
+
+.fah-return-head b {
+    display: block;
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.fah-return-head small {
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.fah-return-reasons {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.fah-return-reasons button {
+    min-height: 36px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 10px;
+    background: #fff7d6;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.fah-return-reasons button:hover {
+    border-color: #fb8500;
+}
+
+.fah-return-reasons button.is-selected {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #fff;
+}
+
+.fah-return-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+.fah-return-grid label {
+    display: grid;
+    gap: 6px;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.fah-return-grid label.is-wide {
+    grid-column: 1 / -1;
+}
+
+.fah-return-grid input[type="date"],
+.fah-return-grid textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 10px;
+    background: #fff7d6;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+}
+
+.fah-return-grid input:focus,
+.fah-return-grid textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.fah-return-grid label.fah-return-urgent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.fah-return-urgent input {
+    width: 18px;
+    height: 18px;
+    accent-color: #d62828;
+}
+
+.fah-return-warn,
+.fah-return-error {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fdeaea;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.fah-return-warn button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #b42318;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.fah-return-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+@media (max-width: 640px) {
+    .fah-return-reasons,
+    .fah-return-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fah-return-actions {
+        flex-direction: column-reverse;
+    }
+}
