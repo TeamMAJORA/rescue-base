@@ -116,7 +116,7 @@ export default function FeedbackForm({ onSubmitted }) {
     
     return (
         <form
-            className="feedback-form"
+              className="feedback-form"
             onSubmit={handleSubmit}
         >
             <div className="feedback-form-header">
