@@ -2100,3 +2100,97 @@
         grid-template-columns: 40px minmax(0, 1fr) auto;
     }
 }
+
+/* ===== Both lists: same look as the Animal Profiles table ===== */
+.afl-table,
+.afa-list {
+    gap: 0;
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 12px;
+    background: #fffdf0;
+    overflow: hidden;
+}
+
+/* header bar */
+.afl-head,
+.afa-head {
+    padding: 14px 18px;
+    background: #fff7cb;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+/* rows: flat, split by a thin line, no card look */
+.afl-item,
+.afa-row {
+    border: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.afl-item:hover,
+.afa-row:hover {
+    border-color: rgba(90, 27, 0, 0.1);
+    background: #fffaf0;
+    box-shadow: none;
+}
+
+.afl-row,
+.afa-row {
+    padding: 12px 18px;
+}
+
+/* only NEW things turn orange */
+.afl-item.is-new,
+.afa-row.is-new {
+    background: #fff1d6;
+    box-shadow: inset 4px 0 0 #fb8500;
+    animation: afc-new-shade 1.6s ease-in-out 3;
+}
+
+.afl-item.is-new:hover,
+.afa-row.is-new:hover {
+    background: #ffe8c2;
+}
+
+@keyframes afc-new-shade {
+    0%, 100% { background: #fff1d6; }
+    50% { background: #ffe2b0; }
+}
+
+/* uniform text sizes (same as the animal table) */
+.afl-pet b,
+.afl-foster b,
+.afa-person b {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #5a1b00;
+}
+
+.afl-pet small,
+.afl-foster small,
+.afa-person small,
+.afl-cell {
+    font-size: 12px;
+}
+
+.afl-status,
+.afa-status,
+.afa-chips span {
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .afl-item.is-new,
+    .afa-row.is-new {
+        animation: none;
+    }
+}

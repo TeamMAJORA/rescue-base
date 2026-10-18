@@ -1153,7 +1153,10 @@ export default function FosterCare() {
                         </div>
 
                         {visibleAssignments.map((assignment, index) => (
-                            <article className="afl-item" key={assignment._id}>
+                                <article
+                                    className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" ? "is-new" : ""}`}
+                                    key={assignment._id}
+                                >
                                 <div className="afl-row">
                                     <div className="afl-pet">
                                         <span className={`afl-avatar ${PET_TINTS[index % PET_TINTS.length]}`}>
