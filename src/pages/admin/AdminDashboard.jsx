@@ -30,6 +30,7 @@ import assets from "../../data/assets.json";
 import AdminOverview from "./modules/AdminOverview";
 import FosterCare from "./modules/FosterCare";
 import GISMapping from "./modules/GISMapping";
+import Rescue from "./modules/Rescue";
 import UserManagement from "./modules/UserManagement";
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
@@ -37,6 +38,7 @@ import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
 import NeededSupplies from "./modules/NeededSupplies";
+import GlobalSettings from "./modules/GlobalSettings";
 
 // ANIMALS
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
@@ -87,21 +89,15 @@ const adminMenu = [
     { key: "donations", label: "Donations" },
     { key: "needed-supplies", label: "Needed Supplies" },
     { key: "lost-found", label: "Lost & Found" },
+    { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
     { key: "reports", label: "Reports" },
-    { key: "activity-log", label: "Activity Log"}
+    { key: "activity-log", label: "Activity Log"},
+    { key: "global-settings", label: "Global Settings"}
 ]
 
-function AdminStatCard({ label, value }) {
-    return (
-        <article className="admin-stat-card">
-            <span>{label}</span>
-            <strong>{value}</strong>
-        </article>
-    );
-}
 
 function getAdminPageTitle(activeAdminPage) {
     for (const item of adminMenu) {
@@ -122,15 +118,6 @@ const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminDashboard({ setPage }) {
 
-    const [fosterForm, setFosterForm] = useState({
-        petName: "",
-        petBreed: "",
-        petImage: "",
-        fosterName: "",
-        fosterEmail: "",
-        careInstructions: "",
-    });
-
     const [activeAdminPage, setActiveAdminPage] = useState("overview");
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotification] = useState([]);
@@ -148,11 +135,41 @@ export default function AdminDashboard({ setPage }) {
     })();
     const isWrongRole = savedRole !== "admin";
     const [signedOut, setSignedOut] = useState(false);
+    // Server is under maintenance to message the roles that are not allowed to log in
+    const [maintenance, setMaintenance] = useState("");
+    // Saved maintenance settings, for the banner (admins are never blocked by the full screen)
+    const [maintenanceInfo, setMaintenanceInfo] = useState({ enabled: false, allowAdminAccess: true });
+
+    useEffect(() => {
+        if (isWrongRole) return;
+
+        const token = localStorage.getItem("token");
+
+        // /api/settings always works for admins, even during maintenance
+        fetch(`${API}/api/settings`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => (response.ok ? response.json() : null))
+            .then((data) => {
+                if (data?.settings?.maintenance) setMaintenanceInfo(data.settings.maintenance);
+            })
+            .catch(() => {});
+
+        //output the maintenance message if the server is under maintenance and the user is not an admin
+        function handleSaved(event) {
+            const next = event.detail?.maintenance;
+            if (!next) return;
+
+            setMaintenanceInfo(next);
+            if (!next.enabled || next.allowAdminAccess) setMaintenance("");
+        }
+
+        window.addEventListener("rb-settings-saved", handleSaved);
+        return () => window.removeEventListener("rb-settings-saved", handleSaved);
+    }, []);
     const [confirmBox, setConfirmBox] = useState(null);
     const [toasts, setToasts] = useState([]);
 
     useEffect(() => {
-        // Any API call that comes back 401 means the login ran out
+        // 401 for all API calls: sign out the user and show the signed out screen
         const originalFetch = window.fetch;
 
         window.fetch = async (...args) => {
@@ -160,7 +177,25 @@ export default function AdminDashboard({ setPage }) {
             const url = String(args[0]?.url || args[0] || "");
 
             if (response.status === 401 && API && url.startsWith(API)) {
-                setSignedOut(true);
+                // The server marks deactivated accounts so we can show the right screen
+                let disabled = false;
+                try {
+                    disabled = Boolean((await response.clone().json())?.accountDisabled);
+                } catch {
+                    // not a JSON answer
+                }
+                setSignedOut((current) => (current === "disabled" || disabled ? "disabled" : true));
+            }
+            // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
+            if (response.status === 503 && API && url.startsWith(API)) {
+                try {
+                    const body = await response.clone().json();
+                    if (body?.maintenance) {
+                        setMaintenance(body.message || "RescueBase is under maintenance.");
+                    }
+                } catch {
+                    // not a JSON answer
+                }
             }
 
             return response;
@@ -278,7 +313,8 @@ export default function AdminDashboard({ setPage }) {
                 newNotifications.push({
                     id: "completed-fosters",
                     title: "Completed Foster Assignment",
-                    message: `${activeFosters.length} foster assignment(s) completed.`,
+                    message: `${completedFosters.length} foster assignment(s) completed.`,
+                    page: "foster-care",
                 });
             }
 
@@ -329,6 +365,10 @@ export default function AdminDashboard({ setPage }) {
             return <LostFound />
         }
 
+        if (activeAdminPage === "rescue") {
+            return <Rescue />;
+        }
+
         if (activeAdminPage === "gis-mapping") {
             return <GISMapping />;
         }
@@ -377,11 +417,18 @@ export default function AdminDashboard({ setPage }) {
             return <ActivityLog />;
         }
 
+        if (activeAdminPage === "global-settings") {
+            return <GlobalSettings />;
+        }
+
     }
 
     useEffect(() => {
-        if (isWrongRole || signedOut) return;
+        if (isWrongRole || signedOut || maintenance) return;
 
+        // Loading data when the page opens is the normal use of an effect;
+        // this newer lint rule flags it anyway, so it is switched off for this one line.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchAdminNotifications();
 
         const interval = setInterval(() => {
@@ -389,8 +436,35 @@ export default function AdminDashboard({ setPage }) {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [signedOut]);
+    }, [signedOut, maintenance]);
 
+
+    // Admins never get the full maintenance screen (they must reach Global Settings);
+    // a banner shows instead when "Let admins in" is off.
+
+    // Account was deactivated by an admin
+    if (signedOut === "disabled") {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon is-blocked">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M5.6 5.6l12.8 12.8" />
+                        </svg>
+                    </div>
+                    <h2>Your account has been deactivated</h2>
+                    <p>An admin turned off this account, so you've been signed out.</p>
+                    <p className="ao-signed-out-note">
+                        Think this is a mistake? Please contact the shelter staff.
+                    </p>
+                    <button type="button" onClick={() => signOut("home")}>
+                        Back to home
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     if (signedOut || isWrongRole) {
         return (
@@ -543,6 +617,33 @@ export default function AdminDashboard({ setPage }) {
                         )}
                     </div>
                 </header>
+
+                {activeAdminPage !== "global-settings" &&
+                    (maintenance || maintenanceInfo.enabled) && (
+                        maintenance || !maintenanceInfo.allowAdminAccess ? (
+                            <div className="gs-maint-banner is-blocked" role="alert">
+                                <span className="gs-maint-dot" aria-hidden="true" />
+                                <span className="gs-maint-text">
+                                    <b>Maintenance mode is on for everyone</b>
+                                    Pages won't load until you turn it off. Global Settings still works.
+                                </span>
+                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                    Open Global Settings
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="gs-maint-banner" role="status">
+                                <span className="gs-maint-dot" aria-hidden="true" />
+                                <span className="gs-maint-text">
+                                    <b>Maintenance mode is on</b>
+                                    Users can't use RescueBase right now. Only admins are signed in.
+                                </span>
+                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                    Turn off in Global Settings
+                                </button>
+                            </div>
+                        )
+                    )}
                 {renderAdminContent()}
             </section>
             {confirmBox && (

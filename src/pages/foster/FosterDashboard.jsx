@@ -1,4 +1,4 @@
-import { act, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import DashboardOverview from "./modules/DashboardOverview";
 import FosterApplication from "./modules/FosterApplication";
@@ -55,6 +55,9 @@ export default function FosterDashboard({ setPage }) {
     const [activePage, setActivePage] = useState("dashboard");
     const [loading, setLoading] = useState(true);
     const [application, setApplication] = useState(null);
+    const [confirmRevoke, setConfirmRevoke] = useState(false);
+    const [revoking, setRevoking] = useState(false);
+    const [revokeError, setRevokeError] = useState("");
     const [assignment, setAssignment] = useState(null);
     const [message, setMessage] = useState("");
     const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -66,6 +69,8 @@ export default function FosterDashboard({ setPage }) {
     const isWrongRole =
         String(savedUser.role || "").trim().toLowerCase() !== "foster";
     const [signedOut, setSignedOut] = useState(false);
+    // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
+    const [maintenance, setMaintenance] = useState("");
     // Server could not be reached: show "Try again" instead of "no assignment"
     const [loadError, setLoadError] = useState(false);
 
@@ -77,7 +82,25 @@ export default function FosterDashboard({ setPage }) {
             const url = String(args[0]?.url || args[0] || "");
 
             if (response.status === 401 && API && url.startsWith(API)) {
-                setSignedOut(true);
+                // The server marks deactivated accounts so we can show the right screen
+                let disabled = false;
+                try {
+                    disabled = Boolean((await response.clone().json())?.accountDisabled);
+                } catch {
+                    // not a JSON answer
+                }
+                setSignedOut((current) => (current === "disabled" || disabled ? "disabled" : true));
+            }
+            // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
+            if (response.status === 503 && API && url.startsWith(API)) {
+                try {
+                    const body = await response.clone().json();
+                    if (body?.maintenance) {
+                        setMaintenance(body.message || "RescueBase is under maintenance.");
+                    }
+                } catch {
+                    // not a JSON answer
+                }
             }
 
             return response;
@@ -170,6 +193,44 @@ export default function FosterDashboard({ setPage }) {
         }
     }
 
+    async function revokeApplication() {
+        try {
+            setRevoking(true);
+            setRevokeError("");
+
+            const response = await fetch(`${API}/api/foster/applications/me/withdraw`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({}),
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setRevokeError(data.message || "Could not revoke your application.");
+                return;
+            }
+
+            setConfirmRevoke(false);
+
+            // No longer a foster: the login token still says "foster", so log out
+            if (data.roleChanged) {
+                alert(data.message);
+                signOut("auth");
+                return;
+            }
+
+            fetchApplication();
+        } catch (error) {
+            console.error(error);
+            setRevokeError("Server error. Please try again.");
+        } finally {
+            setRevoking(false);
+        }
+    }
+
     async function fetchAssignment() {
         if (!fosterEmail) {
             setAssignment(null);
@@ -259,11 +320,11 @@ export default function FosterDashboard({ setPage }) {
     }
 
     useEffect(() => {
-        if (isWrongRole || signedOut) return;
+        if (isWrongRole || signedOut || maintenance) return;
 
         loadDashboard();
         loadNotifications();
-    }, [signedOut]);
+    }, [signedOut, maintenance]);
 
     const pages = useMemo(() => ({
 
@@ -278,14 +339,16 @@ export default function FosterDashboard({ setPage }) {
         application: (
             <FosterApplication
                 application={application}
-                refresh={fetchApplication}
+                onSubmitted={loadDashboard}
             />
         ),
 
         assignment: (
             <FosterAssignment
                 assignment={assignment}
+                application={application}
                 refresh={fetchAssignment}
+                onNavigate={goToPage}
             />
         ),
 
@@ -350,6 +413,52 @@ export default function FosterDashboard({ setPage }) {
     ]);
 
 
+    // Account was deactivated by an admin
+    if (signedOut === "disabled") {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon is-blocked">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M5.6 5.6l12.8 12.8" />
+                        </svg>
+                    </div>
+                    <h2>Your account has been deactivated</h2>
+                    <p>An admin turned off this account, so you've been signed out.</p>
+                    <p className="ao-signed-out-note">
+                        Think this is a mistake? Please contact the shelter staff.
+                    </p>
+                    <button type="button" onClick={() => signOut("home")}>
+                        Back to home
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
+    if (maintenance && !signedOut && !isWrongRole) {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z" />
+                        </svg>
+                    </div>
+                    <h2>We'll be right back</h2>
+                    <p>{maintenance}</p>
+                    <button type="button" onClick={() => window.location.reload()}>
+                        Check again
+                    </button>
+                    <button type="button" className="ao-signed-out-link" onClick={() => signOut("home")}>
+                        Log out
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
     if (signedOut || isWrongRole) {
         return (
             <main className="ao-signed-out">
@@ -369,6 +478,43 @@ export default function FosterDashboard({ setPage }) {
             </main>
         );
     }
+
+    // ----- Foster status banner -----
+    const FOSTER_STEPS = ["Personal", "Household", "Preferences", "Experience & Contact"];
+    const applicationStatus = application?.status || "none";
+    const applicationSubmitted = Boolean(application);
+
+    const BANNER_TEXT = {
+        none: {
+            title: "No application yet",
+            text: "Fill in the foster application so RescueBase staff can review you.",
+        },
+        pending: {
+            title: "Application under review",
+            text: "Staff are checking your answers. You'll get a notification once it's decided.",
+        },
+        approved: {
+            title: "Approved — waiting for a match",
+            text: "You're an approved foster. The shelter will assign an animal to you soon.",
+        },
+        rejected: {
+            title: "Application not approved",
+            text: "You can review your answers and apply again.",
+        },
+        withdrawn: {
+            title: "Application revoked",
+            text: "You cancelled your foster application. You can apply again anytime.",
+        },
+    };
+
+    const banner = assignment
+        ? {
+            title: `Caring for ${assignment.petName}`,
+            text: "You currently have an active foster assignment. Thank you for giving them a home.",
+        }
+        : BANNER_TEXT[applicationStatus] || BANNER_TEXT.none;
+
+    const STATUS_LABEL = { none: "None", pending: "Pending", approved: "Approved", rejected: "Rejected", withdrawn: "Revoked" };
 
     return (
 
@@ -482,6 +628,14 @@ export default function FosterDashboard({ setPage }) {
                         Medical Assistance
                     </button>
 
+                    <button
+                        onClick={() =>
+                            guardLeave(() => setPage("dashboard"))
+                        }
+                    >
+                        Adopt a Pet
+                    </button>
+
                 </nav>
 
                 <button
@@ -559,48 +713,78 @@ export default function FosterDashboard({ setPage }) {
                     refresh={loadNotifications}
                 />
 
-                {!loading && !loadError && (
-                    <section className="foster-panel foster-dashboard-banner">
-                        <div>
-                            <span className="foster-label">
-                                Foster Status
-                            </span>
+                {!loading && !loadError && activePage === "application" && (
+                    <>
+                        <header className="fdb-header">
+                            <div>
+                                <span className="fdb-eyebrow">Foster Status</span>
+                                <h2>{banner.title}</h2>
+                                <p>{banner.text}</p>
+                            </div>
 
-                            <h2>
-                                {assignment
-                                    ? assignment.petName
-                                    : "No Active Foster"}
-                            </h2>
+                            <div className="fdb-side">
+                                <span className={`fdb-status is-${applicationStatus}`}>
+                                    Application: {STATUS_LABEL[applicationStatus] || applicationStatus}
+                                </span>
 
-                            <p>
-                                {assignment
-                                    ? "You currently have an active foster assignment."
-                                    : "You don't have an active foster assignment yet."}
+                                {(applicationStatus === "pending" || applicationStatus === "approved") && !confirmRevoke && (
+                                    <button
+                                        type="button"
+                                        className="fdb-revoke"
+                                        onClick={() => {
+                                            setRevokeError("");
+                                            setConfirmRevoke(true);
+                                        }}
+                                    >
+                                        Revoke application
+                                    </button>
+                                )}
 
-                            </p>
+                                {(applicationStatus === "none" || applicationStatus === "rejected" || applicationStatus === "withdrawn") && (
+                                    <button
+                                        type="button"
+                                        className="fdb-action"
+                                        onClick={() => goToPage("application")}
+                                    >
+                                        {applicationStatus === "none" ? "Start application →" : "Apply again →"}
+                                    </button>
+                                )}
+                            </div>
+                        </header>
 
-                        </div>
+                        {confirmRevoke && (
+                            <div className="fdb-revoke-confirm" role="alertdialog" aria-label="Revoke application">
+                                <div>
+                                    <b>Revoke your foster application?</b>
+                                    <p>
+                                        {applicationStatus === "approved"
+                                            ? "You will stop being a foster and your account goes back to adopter. You will be logged out. You can't revoke while an animal is still in your care."
+                                            : "Your application will be cancelled and staff will no longer review it. You can apply again later."}
+                                    </p>
+                                    {revokeError && <small className="fdb-revoke-error">{revokeError}</small>}
+                                </div>
 
-                        <div className="foster-dashboard-status">
-
-                            <span>
-                                Application
-                            </span>
-
-                            <strong
-                                className={`status ${application?.status ||
-                                    "pending"
-                                    }`}
-                            >
-                                {
-                                    application?.status ||
-                                    "Not Submitted"
-                                }
-                            </strong>
-
-                        </div>
-
-                    </section>
+                                <div className="fdb-revoke-actions">
+                                    <button
+                                        type="button"
+                                        className="fdb-action"
+                                        onClick={() => setConfirmRevoke(false)}
+                                        disabled={revoking}
+                                    >
+                                        Keep it
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="fdb-revoke is-confirm"
+                                        onClick={revokeApplication}
+                                        disabled={revoking}
+                                    >
+                                        {revoking ? "Revoking..." : "Yes, revoke"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {message && (
