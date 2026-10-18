@@ -24,7 +24,6 @@ const emptyAssignmentForm = {
     fosterApplicationId: "",
     fosterName: "",
     fosterEmail: "",
-    animalId: "",
     petName: "",
     petBreed: "",
     petImage: "",
@@ -491,9 +490,8 @@ export default function FosterCare() {
                 assignment.careInstructions,
         });
 
-        setMessage(
-            "Editing assignment."
-        );
+        setMessage("");
+        fetchAnimals();
     }
 
     function handleCancelEdit() {
@@ -884,19 +882,6 @@ export default function FosterCare() {
         } finally {
             setAnimalsLoading(false);
         }
-    }
-
-    // Dropdown pick: fill the form with the pet's saved details
-    function pickAnimal(animalId) {
-        const animal = animals.find((item) => item._id === animalId);
-
-        setAssignmentForm((form) => ({
-            ...form,
-            animalId,
-            petName: animal?.name || "",
-            petBreed: animal?.breed || "",
-            petImage: animal?.image || "",
-        }));
     }
 
     // Assign: open the "New Foster Assignment" pop-up for this foster
@@ -1962,78 +1947,149 @@ export default function FosterCare() {
                 </div>
             )}
 
-            {editingId && (
+            {editingId && (() => {
+                const editing = assignments.find((item) => item._id === editingId) || {};
+                const pet = animals.find((animal) => String(animal._id) === String(assignmentForm.animalId));
 
-                <section className="admin-panel">
+                return (
+                    <div className="admin-modal-overlay" onClick={handleCancelEdit}>
+                        <form
+                            className="afr-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`Edit ${editing.petName || "foster"} assignment`}
+                            onClick={(event) => event.stopPropagation()}
+                            onSubmit={handleUpdateAssignment}
+                        >
+                            {/* Header */}
+                            <header className="afr-head">
+                                <span className="afr-avatar" aria-hidden="true">
+                                    {getInitials(editing.fosterName || "")}
+                                </span>
 
-                    <div className="admin-panel-heading">
+                                <div className="afr-who">
+                                    <span className="afr-eyebrow">Edit Foster Assignment</span>
+                                    <h2>{editing.fosterName}</h2>
+                                    <small>
+                                        <StatIcon name="mail" size={14} />
+                                        {editing.fosterEmail}
+                                    </small>
+                                </div>
 
-                        <h2>Edit Foster Assignment</h2>
+                                <span className="afr-pill is-approved">
+                                    <i aria-hidden="true" />
+                                    Active
+                                </span>
 
-                    </div>
+                                <button
+                                    type="button"
+                                    className="afr-close"
+                                    onClick={handleCancelEdit}
+                                    aria-label="Close"
+                                >
+                                    <StatIcon name="x" size={16} />
+                                </button>
+                            </header>
 
-                    <form
-                        className="admin-foster-assignment-form"
-                        onSubmit={handleUpdateAssignment}
-                    >
+                            {/* Body */}
+                            <div className="afr-body">
+                                <div className="afr-form">
+                                    <label className="is-wide">
+                                        <span>Animal <em>*</em></span>
+                                        <select
+                                            value={assignmentForm.animalId}
+                                            onChange={(e) => pickAnimal(e.target.value)}
+                                        >
+                                            {!assignmentForm.animalId && (
+                                                <option value="">
+                                                    {assignmentForm.petName || "Choose an animal"} (not linked)
+                                                </option>
+                                            )}
+                                            {fosterableAnimals(assignmentForm.animalId).map((animal) => (
+                                                <option key={animal._id} value={animal._id}>
+                                                    {animalLabel(animal)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
 
-                        <label>
+                                    {pet && (
+                                        <div className="afr-pet">
+                                            <span className="afr-pet-photo">
+                                                {pet.image ? (
+                                                    <img src={pet.image} alt={pet.name} />
+                                                ) : (
+                                                    <StatIcon name="paw" size={26} />
+                                                )}
+                                            </span>
 
-                            Animal
+                                            <div className="afr-pet-info">
+                                                <b>{pet.name}</b>
+                                                <small>{pet.breed || "Unknown breed"}</small>
+                                                <div className="afr-pet-tags">
+                                                    {[pet.type, pet.gender !== "Unknown" ? pet.gender : "", pet.size !== "Unknown" ? pet.size : ""]
+                                                        .filter(Boolean)
+                                                        .map((tag) => <span key={tag}>{tag}</span>)}
+                                                </div>
+                                            </div>
 
-                            <select
-                                value={assignmentForm.animalId}
-                                onChange={(e) => pickAnimal(e.target.value)}
-                            >
-                                {!assignmentForm.animalId && (
-                                    <option value="">{assignmentForm.petName || "Choose an animal"} (not linked)</option>
+                                            <dl className="afr-pet-notes">
+                                                <div>
+                                                    <dt>Medical</dt>
+                                                    <dd>{pet.medicalStatus || "No notes"}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Behavior</dt>
+                                                    <dd>{pet.behaviorNotes || "No notes"}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    )}
+
+                                    <label className="is-wide">
+                                        Care instructions
+                                        <textarea
+                                            rows="4"
+                                            value={assignmentForm.careInstructions}
+                                            onChange={(e) =>
+                                                setAssignmentForm({
+                                                    ...assignmentForm,
+                                                    careInstructions: e.target.value,
+                                                })
+                                            }
+                                            placeholder="One instruction per line"
+                                        />
+                                    </label>
+                                </div>
+
+                                {message ? (
+                                    <p className="afr-note is-rejected">
+                                        <StatIcon name="info" size={16} />
+                                        {message}
+                                    </p>
+                                ) : (
+                                    <p className="afr-note is-approved">
+                                        <StatIcon name="info" size={16} />
+                                        Write each care instruction on a separate line so the foster can easily check them off one by one.
+                                    </p>
                                 )}
-                                {fosterableAnimals(assignmentForm.animalId).map((animal) => (
-                                    <option key={animal._id} value={animal._id}>
-                                        {animalLabel(animal)}
-                                    </option>
-                                ))}
-                            </select>
+                            </div>
 
-                        </label>
+                            {/* Footer */}
+                            <footer className="afr-foot">
+                                <button type="button" className="afr-btn is-ghost" onClick={handleCancelEdit}>
+                                    Cancel
+                                </button>
 
-                        <label className="admin-foster-care-field">
-
-                            Care Instructions
-
-                            <textarea
-                                rows="4"
-                                value={assignmentForm.careInstructions}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        careInstructions: e.target.value
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <div className="admin-foster-actions">
-
-                            <button type="submit">
-                                Save Changes
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={handleCancelEdit}
-                            >
-                                Cancel
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </section>
-
-            )}
+                                <button type="submit" className="afr-btn is-assign" disabled={submitting}>
+                                    <StatIcon name="check" size={16} />
+                                    {submitting ? "Saving..." : "Save Changes"}
+                                </button>
+                            </footer>
+                        </form>
+                    </div>
+                );
+            })()}
         </div>
         <aside className="afc-side">
             <section className="admin-panel admin-medical-requests-panel amr-panel">
