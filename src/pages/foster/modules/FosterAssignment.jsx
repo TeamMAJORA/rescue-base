@@ -21,7 +21,14 @@ const FA_ICONS = {
         </>
     ),
     plus: <path d="M12 5v14M5 12h14" />,
-        chat: <path d="M4 5h16v11H9l-5 4z" />,
+    chat: <path d="M4 5h16v11H9l-5 4z" />,
+    mail: (
+        <>
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3 7 9 6 9-6" />
+        </>
+    ),
+    phone: <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />,
     check: <path d="M20 6 9 17l-5-5" />,
     paw: (
         <>
@@ -68,6 +75,27 @@ export default function FosterAssignment({ application = null, onNavigate }) {
     const [selectedId, setSelectedId] = useState(null);
     const [message, setMessage] = useState("");
     const token = localStorage.getItem("token");
+
+    const [contactOpen, setContactOpen] = useState(false);
+    const [contact, setContact] = useState(null);
+
+    async function toggleContact() {
+        const opening = !contactOpen;
+        setContactOpen(opening);
+
+        if (!opening || contact) return;
+
+        try {
+            const response = await fetch(`${API}/api/settings/contact`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+            setContact(response.ok && data.success ? data.contact : {});
+        } catch (error) {
+            console.error(error);
+            setContact({});
+        }
+    }
 
     // The pet whose details are shown below the tabs
     const assignment =
@@ -363,13 +391,54 @@ export default function FosterAssignment({ application = null, onNavigate }) {
 
                         <button
                             type="button"
-                            className="fah-btn is-ghost"
-                            onClick={() => onNavigate?.("feedback")}
+                            className={`fah-btn is-ghost ${contactOpen ? "is-open" : ""}`}
+                            onClick={toggleContact}
+                            aria-expanded={contactOpen}
                         >
                             <FaIcon name="chat" size={16} />
                             Contact Shelter
                         </button>
                     </div>
+
+                    {contactOpen && (
+                        <div className="fah-contact" role="region" aria-label="Shelter contacts">
+                            {!contact ? (
+                                <p className="fah-contact-empty">Loading contacts...</p>
+                            ) : !contact.email && !contact.phone ? (
+                                <p className="fah-contact-empty">
+                                    The shelter hasn't added contact details yet.
+                                </p>
+                            ) : (
+                                <>
+                                    {contact.phone && (
+                                        <a
+                                            className="fah-contact-item"
+                                            href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}
+                                        >
+                                            <span className="fah-fact-icon"><FaIcon name="phone" /></span>
+                                            <div>
+                                                <small>Call or text</small>
+                                                <b>{contact.phone}</b>
+                                            </div>
+                                        </a>
+                                    )}
+
+                                    {contact.email && (
+                                        <a
+                                            className="fah-contact-item"
+                                            href={`mailto:${contact.email}?subject=${encodeURIComponent(`Foster question about ${assignment.petName}`)}`}
+                                        >
+                                            <span className="fah-fact-icon"><FaIcon name="mail" /></span>
+                                            <div>
+                                                <small>Email</small>
+                                                <b>{contact.email}</b>
+                                            </div>
+                                        </a>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="foster-assignment-sections">
