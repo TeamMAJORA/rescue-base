@@ -1819,3 +1819,92 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* rejection reason in the review pop-up */
+.afr-reason {
+    display: grid;
+    gap: 6px;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.afr-reason em {
+    color: #75432f;
+    font-style: normal;
+    font-weight: 500;
+}
+
+.afr-reason textarea {
+    width: 100%;
+    resize: vertical;
+    padding: 10px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 10px;
+    background: #fff7d6;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.afr-reason textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.afr-reason:has(.afr-reason-error) textarea {
+    border-color: #d62828;
+    background: #fff1f1;
+}
+
+.afr-reason-error {
+    color: #d62828;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.afr-reason-shown {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fdeaea;
+    color: #b42318;
+    font-size: 13px;
+}
+
+/* Behavior evaluation: Accept / Send back */
+.afl-item .afl-eval-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.afl-item .afl-eval-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #fb8500;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.afl-item .afl-eval-actions button:hover {
+    background: #d96f00;
+}
+
+.afl-item .afl-eval-actions button.is-ghost {
+    border: 1px solid rgba(251, 133, 0, 0.45);
+    background: transparent;
+    color: #5a1b00;
+}
+
+.afl-item .afl-eval-actions button.is-ghost:hover {
+    background: #fff7cb;
+}
+
+.afl-item .afl-eval-return {
+    display: grid;
+    gap: 8px;
+}

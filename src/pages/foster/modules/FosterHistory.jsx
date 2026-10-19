@@ -38,7 +38,7 @@ export default function FosterHistory() {
 
                 setMessage(
                     data.message ||
-                    "Unable tto load foster history."
+                    "Unable to load foster history."
                 );
                 return;
             }

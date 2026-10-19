@@ -104,7 +104,7 @@ export default function RescueAssignments() {
             setLoadingVolunteers(true);
 
             const response = await fetch(
-                `${API}/api/users?role=volunteer`,
+                `${API}/api/users/volunteers`,
                 {
                     headers: getAuthHeaders(),
                 }

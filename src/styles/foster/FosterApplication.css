@@ -1,4 +1,4 @@
-.foster-application-form{
+.ffa-form{
     display:flex;
     flex-direction:column;
     gap:24px;
@@ -685,4 +685,353 @@
     .ffc-btn {
         width: 100%;
     }
+}
+
+/* ===== Field errors ===== */
+.ffc-error {
+    color: #d62828;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ffc-card label:has(> .ffc-error) input,
+.ffc-card label:has(> .ffc-error) textarea,
+.ffc-card label:has(> .ffc-error) .ffc-phone {
+    border-color: #d62828;
+    background: #fff1f1;
+}
+
+.ffc-card label:has(> .ffc-error) .ffc-phone input {
+    background: transparent;
+}
+
+.ffc-agree-card .ffc-error {
+    display: block;
+    margin: 8px 0 0 38px;
+}
+
+.foster-form-card.ffc-agree-card:has(.ffc-error) {
+    border-color: #d62828;
+}
+
+.foster-form-card.ffc-agree-card:has(.ffc-error) .ffc-agree-box {
+    border-color: #d62828;
+}
+
+/* Editing a pending/approved application */
+.ffc-edit-note {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 16px;
+    border: 1.5px solid rgba(251, 133, 0, 0.35);
+    border-left: 5px solid #fb8500;
+    border-radius: 14px;
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.ffc-edit-note.is-editing {
+    background: #fff7cb;
+}
+
+.ffc-edit-note > div {
+    display: grid;
+    gap: 2px;
+}
+
+.ffc-edit-note b {
+    font-family: "Itim", cursive;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.ffc-edit-note span {
+    font-size: 12px;
+}
+
+.ffc-btn-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border: 1.5px solid #5a1b00;
+    background: #fff;
+    color: #5a1b00;
+}
+
+.ffc-btn-edit img {
+    width: 14px;
+    height: 14px;
+}
+
+.ffc-btn-edit:hover {
+    background: #fff7cb;
+}
+
+/* ===== My Application: form + info card layout ===== */
+.ffa-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 18px;
+    align-items: start;
+}
+
+/* the wrapper that locks every field at once */
+.ffa-fields {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* ----- smaller form (My Application page only) ----- */
+.ffa-layout .ffa-form { gap: 14px; }
+.ffa-layout .foster-form-card.ffc-card { padding: 18px 20px; border-radius: 16px; }
+.ffa-layout .ffc-head { margin-bottom: 12px; }
+.ffa-layout .ffc-step { width: 24px; height: 24px; font-size: 12px; }
+.ffa-layout .foster-form-card.ffc-card .ffc-head h3 { font-size: 19px; }
+.ffa-layout .ffc-head p { font-size: 11px; }
+.ffa-layout .foster-form-grid { gap: 12px; }
+
+.ffa-layout .ffc-card .foster-form-grid label,
+.ffa-layout .ffc-label { gap: 6px; font-size: 11px; }
+
+.ffa-layout .ffc-card .foster-form-grid input { padding: 9px 12px; border-radius: 10px; font-size: 13px; }
+.ffa-layout .ffc-phone { border-radius: 10px; }
+.ffa-layout .ffc-phone-prefix { padding: 0 10px; font-size: 12px; }
+.ffa-layout .ffc-choices button { min-height: 34px; padding: 6px 10px; font-size: 12px; }
+.ffa-layout .ffc-stepper button { width: 36px; min-height: 34px; font-size: 17px; }
+.ffa-layout .ffc-stepper output { min-width: 44px; font-size: 13px; }
+.ffa-layout .foster-form-card.ffc-card textarea { padding: 10px 12px 24px; font-size: 13px; }
+.ffa-layout .foster-form-card.ffc-agree-card { padding: 12px 16px; }
+.ffa-layout .ffc-agree-text strong { font-size: 13px; }
+.ffa-layout .ffc-agree-text small { font-size: 11px; }
+.ffa-layout .ffc-actions { padding: 12px 16px; }
+.ffa-layout .ffc-btn { min-height: 36px; padding: 7px 16px; font-size: 12px; }
+
+/* ----- locked (read-only) look ----- */
+.ffa-form.is-locked .ffa-fields input:disabled,
+.ffa-form.is-locked .ffa-fields textarea:disabled {
+    border-color: rgba(90, 27, 0, 0.1);
+    background: #fffdf0;
+    color: #5a1b00;
+    -webkit-text-fill-color: #5a1b00;
+    opacity: 1;
+    cursor: default;
+}
+
+.ffa-form.is-locked .ffa-fields input::placeholder,
+.ffa-form.is-locked .ffa-fields textarea::placeholder {
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+.ffa-form.is-locked .ffc-phone {
+    border-color: rgba(90, 27, 0, 0.1);
+    background: #fffdf0;
+}
+
+.ffa-form.is-locked .ffc-choices button:disabled {
+    border-color: rgba(90, 27, 0, 0.1);
+    background: transparent;
+    color: rgba(90, 27, 0, 0.4);
+    box-shadow: none;
+    cursor: default;
+}
+
+.ffa-form.is-locked .ffc-choices button.is-selected:disabled {
+    border-color: #fb8500;
+    background: #fff1d6;
+    color: #5a1b00;
+}
+
+.ffa-form.is-locked .ffc-stepper button:disabled { visibility: hidden; }
+.ffa-form.is-locked .ffc-agree { cursor: default; }
+.ffa-form.is-locked .ffc-count { display: none; }
+
+/* ----- right-side info card (same look as the Role Application card) ----- */
+.ffa-side {
+    display: grid;
+    gap: 14px;
+    position: sticky;
+    top: 20px;
+}
+
+.ffa-card {
+    padding: 18px;
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 14px 34px rgba(90, 27, 0, 0.12);
+    color: #5a1b00;
+}
+
+.ffa-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ffa-card-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.ffa-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.08);
+    color: #7b452d;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.ffa-badge.is-pending   { background: #fff7cb; color: #d96f00; }
+.ffa-badge.is-approved  { background: rgba(47, 143, 91, 0.14); color: #2f8f5b; }
+.ffa-badge.is-rejected,
+.ffa-badge.is-withdrawn { background: rgba(214, 40, 40, 0.1); color: #d62828; }
+
+.ffa-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(90, 27, 0, 0.14);
+    font-size: 12px;
+}
+
+.ffa-row span { color: #7b452d; }
+.ffa-row strong { text-align: right; }
+
+.ffa-steps { margin: 14px 0 0; padding: 0; list-style: none; }
+
+.ffa-step {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    padding-bottom: 14px;
+}
+
+.ffa-step:last-child { padding-bottom: 0; }
+
+.ffa-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 26px;
+    bottom: 2px;
+    width: 2px;
+    background: rgba(90, 27, 0, 0.14);
+}
+
+.ffa-step.is-done:not(:last-child)::before { background: #fcbf49; }
+
+.ffa-step-dot {
+    flex: 0 0 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(90, 27, 0, 0.08);
+    color: #7b452d;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ffa-step-dot img { width: 12px; height: auto; }
+.ffa-step b { display: block; font-size: 13px; }
+.ffa-step small { display: block; margin-top: 2px; color: #7b452d; font-size: 12px; }
+.ffa-step.is-upcoming b { color: #7b452d; }
+.ffa-step.is-done .ffa-step-dot { background: #fb8500; color: #fff; }
+.ffa-step.is-active .ffa-step-dot { background: #fb8500; color: #fff; box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18); }
+.ffa-step.is-declined .ffa-step-dot { background: #d62828; color: #fff; }
+.ffa-step.is-declined small { color: #d62828; }
+
+.ffa-reason {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(214, 40, 40, 0.07);
+    color: #d62828;
+    font-size: 12px;
+}
+
+.ffa-note {
+    display: flex;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 16px;
+    background: #fff7cb;
+}
+
+.ffa-note-dot {
+    flex: 0 0 8px;
+    height: 8px;
+    margin-top: 5px;
+    border-radius: 50%;
+    background: #fb8500;
+}
+
+.ffa-note p {
+    margin: 0;
+    color: #7b452d;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* stack on smaller screens: info card goes on top */
+@media (max-width: 1000px) {
+    .ffa-layout { grid-template-columns: 1fr; }
+    .ffa-side { position: static; order: -1; }
+}
+/* My Application: read-only summary (pending / approved) */
+.ffa-summary h3 {
+    margin: 0 0 4px;
+    color: #5a1b00;
+}
+
+.ffa-summary-note {
+    margin: 0 0 16px;
+    color: #75432f;
+    font-size: 13px;
+}
+
+.ffa-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 0;
+}
+
+.ffa-summary-grid div {
+    padding: 10px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.2);
+    border-radius: 10px;
+    background: #fffaf0;
+}
+
+.ffa-summary-grid dt {
+    color: #75432f;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.ffa-summary-grid dd {
+    margin: 4px 0 0;
+    color: #5a1b00;
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
 }

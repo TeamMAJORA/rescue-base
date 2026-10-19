@@ -248,3 +248,403 @@
     }
 
 }
+
+/* ===== My Foster Pet: animal tabs + capacity ===== */
+.fat-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 12px;
+    align-items: stretch;
+    margin-top: 18px;
+}
+
+.fat-tabs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.fat-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 2px solid rgba(90, 27, 0, 0.08);
+    border-radius: 16px;
+    background: #fffaf0;
+    color: #5a1b00;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.fat-tab:hover {
+    border-color: rgba(251, 133, 0, 0.45);
+    transform: translateY(-1px);
+}
+
+.fat-tab.is-selected {
+    border-color: #fb8500;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(251, 133, 0, 0.18);
+}
+
+.fat-tab:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.fat-photo {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fde3bf;
+}
+
+.fat-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fat-photo img.fat-photo-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.fat-info {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.fat-info b {
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.fat-info small {
+    overflow: hidden;
+    color: #7b452d;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fat-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.fat-pill {
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.fat-pill.is-active  { background: #dff3e6; color: #17803d; }
+.fat-pill.is-due     { background: #fde3bf; color: #d96f00; }
+.fat-pill.is-sent    { background: #ece3c7; color: #7a6a3a; }
+.fat-pill.is-overdue { background: #fdeaea; color: #b42318; }
+
+.fat-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+}
+
+.fat-check img {
+    width: 11px;
+    height: auto;
+}
+
+/* capacity card */
+.fat-capacity {
+    display: grid;
+    align-content: center;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+    border-radius: 16px;
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.fat-eyebrow {
+    color: #d62828;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.fat-capacity b {
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.fat-bar {
+    display: flex;
+    gap: 5px;
+}
+
+.fat-bar i {
+    flex: 1;
+    height: 7px;
+    border-radius: 999px;
+    background: #ece3c7;
+}
+
+.fat-bar i.is-used {
+    background: #fb8500;
+}
+
+.fat-capacity small {
+    color: #7b452d;
+    font-size: 11px;
+}
+
+@media (max-width: 900px) {
+    .fat-strip {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== My Foster Pet: top card (photo + details + actions) ===== */
+.foster-assignment-top {
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 26px;
+    margin-top: 16px;
+    padding: 20px;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.06);
+    color: #5a1b00;
+}
+
+.fah-photo {
+    position: relative;
+    min-height: 230px;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fde3bf;
+    display: grid;
+    place-items: center;
+}
+
+.fah-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fah-photo img.fah-photo-icon {
+    position: static;
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+}
+
+.fah-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #17803d;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.fah-badge.is-completed { background: #7a6a3a; }
+.fah-badge.is-cancelled { background: #b42318; }
+
+.fah-body {
+    display: grid;
+    align-content: start;
+    min-width: 0;
+}
+
+.fah-eyebrow {
+    color: #d62828;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.fah-name {
+    margin: 2px 0 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.05;
+}
+
+.fah-breed {
+    margin: 4px 0 0;
+    color: #7b452d;
+    font-size: 13px;
+}
+
+.fah-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.fah-fact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+}
+
+.fah-fact-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #fde3bf;
+    color: #fb8500;
+}
+
+.fah-fact small {
+    display: block;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.fah-fact b {
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    color: #5a1b00;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fah-status { text-transform: capitalize; }
+.fah-fact b.fah-status.is-active    { color: #17803d; }
+.fah-fact b.fah-status.is-completed { color: #7a6a3a; }
+.fah-fact b.fah-status.is-cancelled { color: #b42318; }
+
+.fah-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.fah-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.fah-btn.is-primary {
+    border: 1.5px solid #fb8500;
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+}
+
+.fah-btn.is-primary:hover {
+    background: #e67600;
+    transform: translateY(-1px);
+}
+
+.fah-btn.is-medical {
+    border: 1.5px solid #b42318;
+    background: #fff;
+    color: #b42318;
+}
+
+.fah-btn.is-medical:hover {
+    background: #fdeaea;
+}
+
+.fah-btn.is-ghost {
+    border: 1.5px solid rgba(90, 27, 0, 0.2);
+    background: #fff;
+    color: #5a1b00;
+}
+
+.fah-btn.is-ghost:hover {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+.fah-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+@media (max-width: 992px) {
+    .foster-assignment-top {
+        grid-template-columns: 1fr;
+    }
+
+    .fah-photo {
+        min-height: 240px;
+    }
+}
+
+@media (max-width: 640px) {
+    .fah-facts {
+        grid-template-columns: 1fr;
+    }
+
+    .fah-name {
+        font-size: 32px;
+    }
+
+    .fah-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

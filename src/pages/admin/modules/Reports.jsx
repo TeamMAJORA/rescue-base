@@ -7,7 +7,11 @@ const INITIAL_CONFIG = {
     title: "Complete Shelter Report",
     reportType: "all",
     dateRange: "all",
+    // Used when dateRange is "custom" (YYYY-MM-DD)
+    fromDate: "",
+    toDate: "",
     includeMedical: true,
+    includeVaccinations: true,
     includeAdoptions: true,
     includeFoster: true,
     includeLostFound: true,
@@ -77,21 +81,29 @@ export default function Reports() {
         [reports]
     );
 
+    // all generated reports are ZIP files, but some may be drafts and some finalized.
+    const generatedReports = useMemo(
+        () => validReports.filter((report) => report.exportFormat === "zip"),
+        [validReports]
+    );
+
     const finalizedReports = useMemo(
         () =>
-            validReports.filter(
+            generatedReports.filter(
                 (report) => report.status === "finalized"
             ).length,
-        [validReports]
+        [generatedReports]
     );
 
     const draftReports = useMemo(
         () =>
-            validReports.filter(
+            generatedReports.filter(
                 (report) => report.status === "draft"
             ).length,
-        [validReports]
+        [generatedReports]
     );
+
+    const [listFilter, setListFilter] = useState("all");
 
     const requestJson = useCallback(async (url, options = {}) => {
         const token = getToken();
@@ -150,6 +162,25 @@ export default function Reports() {
     async function handleGenerateReport(event) {
         event.preventDefault();
 
+        // Custom range: a start date is needed; no end date = that one day
+        let body = config;
+
+        if (config.dateRange === "custom") {
+            if (!config.fromDate) {
+                setError("Pick a date for the custom range.");
+                return;
+            }
+
+            const toDate = config.toDate || config.fromDate;
+
+            if (toDate < config.fromDate) {
+                setError("The end date can't be before the start date.");
+                return;
+            }
+
+            body = { ...config, toDate };
+        }
+
         try {
             setGenerating(true);
             setError("");
@@ -165,7 +196,7 @@ export default function Reports() {
                         ? { Authorization: `Bearer ${token}` }
                         : {}),
                 },
-                body: JSON.stringify(config),
+                body: JSON.stringify(body),
             });
 
             if (!response.ok) {
@@ -182,7 +213,7 @@ export default function Reports() {
             downloadBlob(blob, filename);
 
             setSuccess(
-                "Report generated. Your CSV ZIP download should begin shortly."
+                "Report generated and saved. Your ZIP download should begin shortly."
             );
 
             // Do not prepend data.report here. The generate endpoint
@@ -259,11 +290,7 @@ export default function Reports() {
             }
 
             const blob = await response.blob();
-            const filename = getSafeFilename(report.title);
-            const extension =
-                report.exportFormat === "zip" ? "zip" : "txt";
-
-            downloadBlob(blob, `${filename}.${extension}`);
+            downloadBlob(blob, `${getSafeFilename(report.title)}.zip`);
         } catch (err) {
             console.error("Download report error:", err);
             setError(err.message || "Failed to download report.");
@@ -276,9 +303,16 @@ export default function Reports() {
             return;
         }
 
-        if (!window.confirm("Delete this report permanently?")) {
-            return;
-        }
+        const ok = window.rbConfirm
+            ? await window.rbConfirm({
+                title: "Delete this report?",
+                message: "It will be removed from the list. This can't be undone.",
+                confirmLabel: "Delete",
+                danger: true,
+            })
+            : window.confirm("Delete this report permanently?");
+
+        if (!ok) return;
 
         try {
             setError("");
@@ -301,294 +335,261 @@ export default function Reports() {
         }
     }
 
+    const DATE_RANGES = [
+        { value: "all", label: "All records" },
+        { value: "current-year", label: "This year" },
+        { value: "current-month", label: "This month" },
+        { value: "custom", label: "Custom" },
+    ];
+
+    const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local
+
+    const DATASETS = [
+        { key: "includeMedical", label: "Medical records" },
+        { key: "includeVaccinations", label: "Vaccination records" },
+        { key: "includeAdoptions", label: "Adoption applications" },
+        { key: "includeFoster", label: "Foster assignments" },
+        { key: "includeLostFound", label: "Lost and found reports" },
+    ];
+
+    const COUNT_LABELS = {
+        animals: "animals",
+        medical_records: "medical",
+        vaccinations: "vaccinations",
+        adoption_applications: "adoptions",
+        foster_assignments: "fosters",
+        lost_found_reports: "lost & found",
+    };
+
+    const shownReports =
+        listFilter === "all"
+            ? generatedReports
+            : generatedReports.filter((report) => report.status === listFilter);
+
     return (
-        <section className="admin-reports-page">
-            {/* Summary cards */}
-            <section className="admin-reports-stats">
-                <article className="admin-panel admin-reports-stat-card">
-                    <span>Total Reports</span>
-                    <strong>{validReports.length}</strong>
-                </article>
+        <section className="rp-page">
+            <div className="rp-strip">
+                <div className="um-strip-total">
+                    <b>{generatedReports.length}</b>
+                    <small>Total reports</small>
+                </div>
+                <div>
+                    <small>Finalized</small>
+                    <b>{finalizedReports}</b>
+                </div>
+                <div>
+                    <small>Drafts</small>
+                    <b>{draftReports}</b>
+                </div>
+            </div>
 
-                <article className="admin-panel admin-reports-stat-card">
-                    <span>Finalized Reports</span>
-                    <strong>{finalizedReports}</strong>
-                </article>
+            {error && (
+                <p className="gs-alert error" role="alert">
+                    {error}
+                </p>
+            )}
 
-                <article className="admin-panel admin-reports-stat-card">
-                    <span>Draft Reports</span>
-                    <strong>{draftReports}</strong>
-                </article>
-            </section>
+            {success && (
+                <p className="gs-alert success" role="status" aria-live="polite">
+                    {success}
+                </p>
+            )}
 
-            <section className="admin-reports-grid">
-                {/* Generate report */}
-                <section className="admin-panel admin-reports-form-panel">
-                    <div className="admin-panel-heading">
-                        <h2>Generate Report</h2>
+            <div className="rp-grid">
+                {/* New report */}
+                <form className="gs-card rp-form" onSubmit={handleGenerateReport}>
+                    <h3>
+                        <span className="gs-mark">New report</span>
+                    </h3>
+                    <p className="rp-sub">Creates a ZIP with one CSV file per dataset.</p>
+
+                    <label className="gs-field">
+                        Report title
+                        <input
+                            type="text"
+                            value={config.title}
+                            maxLength={160}
+                            required
+                            onChange={(event) => updateConfig("title", event.target.value)}
+                        />
+                    </label>
+
+                    <div className="rp-label">Date range</div>
+                    <div className="rp-seg" role="radiogroup" aria-label="Date range">
+                        {DATE_RANGES.map((range) => (
+                            <button
+                                type="button"
+                                key={range.value}
+                                role="radio"
+                                aria-checked={config.dateRange === range.value}
+                                className={config.dateRange === range.value ? "on" : ""}
+                                onClick={() => updateConfig("dateRange", range.value)}
+                            >
+                                {range.label}
+                            </button>
+                        ))}
                     </div>
 
-                    <form
-                        className="admin-reports-form"
-                        onSubmit={handleGenerateReport}
-                    >
-                        <label>
-                            Report title
-                            <input
-                                type="text"
-                                value={config.title}
-                                maxLength={160}
-                                onChange={(event) =>
-                                    updateConfig("title", event.target.value)
-                                }
-                                required
-                            />
-                        </label>
+                    {config.dateRange === "custom" && (
+                        <div className="rp-dates">
+                            <label className="gs-field">
+                                From
+                                <input
+                                    type="date"
+                                    value={config.fromDate}
+                                    max={today}
+                                    required
+                                    onChange={(event) => updateConfig("fromDate", event.target.value)}
+                                />
+                            </label>
 
-                        <label>
-                            Report type
-                            <select
-                                value={config.reportType}
-                                onChange={(event) =>
-                                    updateConfig(
-                                        "reportType",
-                                        event.target.value
-                                    )
-                                }
+                            <label className="gs-field">
+                                <span>
+                                    To <small>(optional)</small>
+                                </span>
+                                <input
+                                    type="date"
+                                    value={config.toDate}
+                                    min={config.fromDate || undefined}
+                                    max={today}
+                                    onChange={(event) => updateConfig("toDate", event.target.value)}
+                                />
+                            </label>
+
+                            <p className="rp-hint rp-dates-hint">
+                                Leave "To" empty to get one specific day only.
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="rp-label">Include</div>
+                    <div className="rp-checks">
+                        {DATASETS.map((item) => (
+                            <button
+                                type="button"
+                                key={item.key}
+                                role="checkbox"
+                                aria-checked={config[item.key]}
+                                className={`rp-check ${config[item.key] ? "on" : ""}`}
+                                onClick={() => updateConfig(item.key, !config[item.key])}
                             >
-                                <option value="all">
-                                    Complete Shelter Report
-                                </option>
-                            </select>
-                        </label>
-
-                        <label>
-                            Date range
-                            <select
-                                value={config.dateRange}
-                                onChange={(event) =>
-                                    updateConfig(
-                                        "dateRange",
-                                        event.target.value
-                                    )
-                                }
-                            >
-                                <option value="all">
-                                    All available records
-                                </option>
-                                <option value="current-year">
-                                    Current year
-                                </option>
-                                <option value="current-month">
-                                    Current month
-                                </option>
-                            </select>
-                        </label>
-
-                        <fieldset className="admin-reports-datasets">
-                            <legend>Include datasets</legend>
-
-                            <label className="admin-reports-checkbox">
-                                <input
-                                    type="checkbox"
-                                    checked={config.includeMedical}
-                                    onChange={(event) =>
-                                        updateConfig(
-                                            "includeMedical",
-                                            event.target.checked
-                                        )
-                                    }
-                                />
-                                Medical and vaccination records
-                            </label>
-
-                            <label className="admin-reports-checkbox">
-                                <input
-                                    type="checkbox"
-                                    checked={config.includeAdoptions}
-                                    onChange={(event) =>
-                                        updateConfig(
-                                            "includeAdoptions",
-                                            event.target.checked
-                                        )
-                                    }
-                                />
-                                Adoption applications
-                            </label>
-
-                            <label className="admin-reports-checkbox">
-                                <input
-                                    type="checkbox"
-                                    checked={config.includeFoster}
-                                    onChange={(event) =>
-                                        updateConfig(
-                                            "includeFoster",
-                                            event.target.checked
-                                        )
-                                    }
-                                />
-                                Foster assignments
-                            </label>
-
-                            <label className="admin-reports-checkbox">
-                                <input
-                                    type="checkbox"
-                                    checked={config.includeLostFound}
-                                    onChange={(event) =>
-                                        updateConfig(
-                                            "includeLostFound",
-                                            event.target.checked
-                                        )
-                                    }
-                                />
-                                Lost and found reports
-                            </label>
-                        </fieldset>
-
-                        <p className="admin-reports-help">
-                            Generates a ZIP containing separate CSV files.
-                            Saved reports are managed in the list beside this
-                            form.
-                        </p>
-
-                        <button type="submit" disabled={generating}>
-                            {generating
-                                ? "Generating..."
-                                : "Generate CSV ZIP"}
-                        </button>
-                    </form>
-                </section>
-
-                {/* Saved reports */}
-                <section className="admin-panel admin-reports-list-panel">
-                    <div className="admin-panel-heading">
-                        <h2>Generated Reports</h2>
+                                <i aria-hidden="true" />
+                                {item.label}
+                            </button>
+                        ))}
                     </div>
 
-                    {error && (
-                        <p className="admin-reports-error" role="alert">
-                            {error}
-                        </p>
-                    )}
+                    <p className="rp-hint">Animal profiles are always included.</p>
 
-                    {success && (
-                        <p role="status">
-                            {success}
-                        </p>
-                    )}
+                    <button type="submit" className="gs-btn primary rp-generate" disabled={generating}>
+                        {generating ? "Generating..." : "Generate report"}
+                    </button>
+                </form>
+
+                {/* Generated reports */}
+                <section className="gs-card">
+                    <div className="rp-list-head">
+                        <h3>
+                            <span className="gs-mark">Generated reports</span>
+                        </h3>
+
+                        <div className="rp-filters">
+                            {[
+                                ["all", "All"],
+                                ["finalized", "Finalized"],
+                                ["draft", "Drafts"],
+                            ].map(([value, label]) => (
+                                <button
+                                    type="button"
+                                    key={value}
+                                    className={listFilter === value ? "on" : ""}
+                                    onClick={() => setListFilter(value)}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
                     {loading ? (
-                        <p>Loading reports...</p>
+                        <p className="rp-empty">
+                            <span className="ao-spinner" /> Loading reports...
+                        </p>
+                    ) : shownReports.length === 0 ? (
+                        <p className="rp-empty">
+                            {generatedReports.length === 0
+                                ? "No reports yet. Generate one and it will be saved here."
+                                : "No reports match this filter."}
+                        </p>
                     ) : (
-                        <div className="admin-reports-list">
-                            {validReports.length === 0 && (
-                                <p>No saved reports found.</p>
-                            )}
-
-                            {validReports.map((report, index) => {
-                                const id = report._id || `report-${index}`;
-                                const status = report.status || "unknown";
-                                const recordCounts =
-                                    report.recordCounts &&
-                                    typeof report.recordCounts === "object" &&
-                                    !Array.isArray(report.recordCounts)
-                                        ? report.recordCounts
-                                        : {};
-
-                                const createdAt = report.createdAt
-                                    ? new Date(report.createdAt)
-                                    : null;
+                        <div className="rp-list">
+                            {shownReports.map((report) => {
+                                const status = report.status || "draft";
+                                const counts =
+                                    report.recordCounts && typeof report.recordCounts === "object"
+                                        ? Object.entries(report.recordCounts)
+                                        : [];
+                                const createdAt = report.createdAt ? new Date(report.createdAt) : null;
 
                                 return (
-                                    <article
-                                        className="admin-reports-row"
-                                        key={id}
-                                    >
+                                    <article className="rp-row" key={report._id}>
                                         <div>
-                                            <h3>
-                                                {report.title ||
-                                                    "Untitled report"}
-                                            </h3>
+                                            <h4>
+                                                {report.title || "Untitled report"}
+                                                <span className={`rp-pill ${status}`}>
+                                                    {status === "finalized" ? "Finalized" : "Draft"}
+                                                </span>
+                                            </h4>
 
-                                            <p>
-                                                {report.type || "Report"}
-                                                {" • "}
+                                            <p className="rp-meta">
                                                 {report.period || "All records"}
-                                                {" • "}
-                                                Created by{" "}
-                                                {report.createdByName ||
-                                                    "Unknown"}
+                                                {" · by "}
+                                                {report.createdByName || "Unknown"}
+                                                {createdAt && !Number.isNaN(createdAt.getTime())
+                                                    ? ` · ${createdAt.toLocaleString("en-PH", {
+                                                        month: "short",
+                                                        day: "numeric",
+                                                        year: "numeric",
+                                                        hour: "numeric",
+                                                        minute: "2-digit",
+                                                    })}`
+                                                    : ""}
                                             </p>
 
-                                            <small>
-                                                Created at{" "}
-                                                {createdAt &&
-                                                !Number.isNaN(
-                                                    createdAt.getTime()
-                                                )
-                                                    ? createdAt.toLocaleString()
-                                                    : "Unknown"}
-                                            </small>
-
-                                            <p>{report.summary || ""}</p>
-
-                                            {Object.keys(recordCounts).length >
-                                                0 && (
-                                                <small>
-                                                    {Object.entries(recordCounts)
-                                                        .map(
-                                                            ([key, value]) =>
-                                                                `${key.replaceAll(
-                                                                    "_",
-                                                                    " "
-                                                                )}: ${value}`
-                                                        )
-                                                        .join(" · ")}
-                                                </small>
+                                            {counts.length > 0 && (
+                                                <div className="rp-counts">
+                                                    {counts.map(([key, value]) => (
+                                                        <span key={key}>
+                                                            {COUNT_LABELS[key] || key.replaceAll("_", " ")} {value}
+                                                        </span>
+                                                    ))}
+                                                </div>
                                             )}
                                         </div>
 
-                                        <div className="admin-reports-actions">
-                                            <span
-                                                className={`admin-status-pill ${status}`}
-                                            >
-                                                {status}
-                                            </span>
-
-                                            {status === "draft" &&
-                                                report._id && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            handleFinalizeReport(
-                                                                report._id
-                                                            )
-                                                        }
-                                                    >
-                                                        Finalize
-                                                    </button>
-                                                )}
+                                        <div className="rp-actions">
+                                            {status === "draft" && (
+                                                <button
+                                                    type="button"
+                                                    className="gs-btn ghost"
+                                                    onClick={() => handleFinalizeReport(report._id)}
+                                                >
+                                                    Finalize
+                                                </button>
+                                            )}
 
                                             <button
                                                 type="button"
-                                                disabled={!report._id}
-                                                onClick={() =>
-                                                    handleDownloadReport(report)
-                                                }
+                                                className="gs-btn rp-download"
+                                                onClick={() => handleDownloadReport(report)}
                                             >
-                                                {report.exportFormat === "zip"
-                                                    ? "Download ZIP"
-                                                    : "Download"}
+                                                Download ZIP
                                             </button>
 
                                             <button
                                                 type="button"
-                                                disabled={!report._id}
-                                                onClick={() =>
-                                                    handleDeleteReport(
-                                                        report._id
-                                                    )
-                                                }
+                                                className="gs-btn rp-delete"
+                                                onClick={() => handleDeleteReport(report._id)}
                                             >
                                                 Delete
                                             </button>
@@ -599,7 +600,7 @@ export default function Reports() {
                         </div>
                     )}
                 </section>
-            </section>
+            </div>
         </section>
     );
 }

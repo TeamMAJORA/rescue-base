@@ -1358,22 +1358,25 @@ export default function AdoptionApplications() {
 
     return (
         <section className="admin-adoption-page">
-            <section className="admin-panel admin-adoption-summary">
-                <article>
-                    <span>Total Applications</span>
-                    <strong>{applications.length}</strong>
-                </article>
-
-                <article>
-                    <span>Pending Review</span>
-                    <strong>{pendingCount}</strong>
-                </article>
-
-                <article>
-                    <span>Interview Stage</span>
-                    <strong>{interviewCount}</strong>
-                </article>
-            </section>
+            {/* Stats strip (same style as User Management) */}
+            <div className="um-strip">
+                <div className="um-strip-total">
+                    <b>{applications.length}</b>
+                    <small>Total applications</small>
+                </div>
+                <div>
+                    <small>Pending review</small>
+                    <b>{pendingCount}</b>
+                </div>
+                <div>
+                    <small>Interview stage</small>
+                    <b>{interviewCount}</b>
+                </div>
+                <div>
+                    <small>Approved</small>
+                    <b>{applications.filter((item) => item.status === "approved").length}</b>
+                </div>
+            </div>
 
             <section className="admin-panel admin-adoption-list-panel">
                 <div className="admin-adoption-tabs" role="tablist">
@@ -1447,7 +1450,7 @@ export default function AdoptionApplications() {
                 {loading ? (
                     <p className="admin-empty">Loading applications...</p>
                 ) : visibleApplications.length === 0 ? (
-                    <p className="admin-empty">
+                    <p className="admin-empty ad-empty">
                         {searchTerm || statusFilter !== "all"
                             ? "No applications match your search or filter."
                             : activeTab === "active"

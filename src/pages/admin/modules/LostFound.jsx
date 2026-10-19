@@ -742,8 +742,10 @@ export default function LostFoundPage({ setPage }) {
                                                 "reunited" &&
                                                 report.status !==
                                                 "rejected" &&
-                                                report.claimStatus ===
-                                                "none" && (
+                                                report.claimStatus !==
+                                                "pending" &&
+                                                report.claimStatus !==
+                                                "approved" && (
                                                     <button
                                                         type="button"
                                                         onClick={() =>
@@ -800,6 +802,31 @@ export default function LostFoundPage({ setPage }) {
                                                         }
                                                     >
                                                         Mark Reunited
+                                                    </button>
+                                                )}
+
+                                            {/* Approved claimant never came: open the report again */}
+                                            {canManageReports &&
+                                                report.claimStatus ===
+                                                "approved" &&
+                                                report.status !==
+                                                "reunited" && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={async () => {
+                                                            const ok = window.rbConfirm
+                                                                ? await window.rbConfirm({
+                                                                    title: "Revoke this claim?",
+                                                                    message: "The report opens again so someone else can claim it.",
+                                                                    confirmLabel: "Revoke claim",
+                                                                    danger: true,
+                                                                })
+                                                                : window.confirm("Revoke this claim?");
+
+                                                            if (ok) handleReviewClaim(report._id, "revoked");
+                                                        }}
+                                                    >
+                                                        Revoke Claim
                                                     </button>
                                                 )}
 
