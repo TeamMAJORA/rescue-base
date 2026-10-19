@@ -70,6 +70,10 @@ export default function LostFoundPage({ setPage }) {
     const [lat, setLat] = useState("");
     const [lng, setLng] = useState("");
     const [mapSearch, setMapSearch] = useState(""); 
+    const [viewingReport, setViewingReport] = useState(null);
+    const [claimOpen, setClaimOpen] = useState(false);
+    const [claimText, setClaimText] = useState("");
+    const [claimError, setClaimError] = useState("");
     useEffect(() => {
         try {
             const savedUser = localStorage.getItem("rescuebase_user");
@@ -118,11 +122,11 @@ export default function LostFoundPage({ setPage }) {
             setError("");
 
             const endpoint = canManageReports ? `${API}/api/lost-found/reports` : `${API}/api/lost-found/reports/me`
-            const response = await fetch(endpoint, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const response = await fetch(`${API}/api/lost-found/reports`, {
+            headers: {
+            Authorization: `Bearer ${token}`,
+                      },
+              });
 
             const data = await response.json();
 
@@ -177,24 +181,26 @@ export default function LostFoundPage({ setPage }) {
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
-                        reportType,
-                        petName: petName.trim(),
-                        species: species.trim(),
-                        breed: breed.trim(),
-                        description: [
-                        description.trim(),
-                        color.trim() && `Color: ${color.trim()}`,
-                        age && `Age: ${age} ${ageUnit}`,
-                        gender && `Gender: ${gender}`,
-                        size && `Size: ${size}`,
-                        contactNumber.trim() && `Contact: ${contactNumber.trim()}`,
-                        notes.trim() && `Notes: ${notes.trim()}`,
-                        ].filter(Boolean).join(" · "),                        location: location.trim(),
-                        dateReported:
-                            dateReported ||
-                            new Date().toISOString(),
-                        photoUrl: photoUrl.trim(),
-                    }),
+                          reportType,
+                          petName: petName.trim(),
+                          species: species.trim(),
+                          breed: breed.trim(),
+                          description: [
+                          description.trim(),
+                          color.trim() && `Color: ${color.trim()}`,
+                          reportType === "lost" && age && `Age: ${age} ${ageUnit}`,
+                          reportType === "lost" && gender && `Gender: ${gender}`,
+                          size && `Size: ${size}`,
+                          reportType === "found" && lat && lng && `Pin: ${lat}, ${lng}`,
+                          contactNumber.trim() && `Contact: ${contactNumber.trim()}`,
+                          notes.trim() && `Notes: ${notes.trim()}`,
+                          ].filter(Boolean).join(" · "),
+                          location: location.trim(),
+                          dateReported:
+                          dateReported ||
+                          new Date().toISOString(),
+                          photoUrl: photoUrl.trim(),
+                 }),
                 }
             );
 
@@ -227,6 +233,9 @@ export default function LostFoundPage({ setPage }) {
             setSize("");
             setContactNumber("");
             setNotes("");
+            setLat("");
+            setLng("");
+            setMapSearch("");
             await loadReports();
             setShowReportForm(false);
 
@@ -245,64 +254,51 @@ export default function LostFoundPage({ setPage }) {
         }
     }
 
-    async function handleClaim(reportId) {
-        setError("");
-        setSuccess("");
+    async function handleClaim(reportId, notesFromForm) {
+    setError("");
+    setSuccess("");
 
-        const claimNotes = window.prompt(
-            "Please provide information that can help verify your ownership of this pet:"
+    const claimNotes =
+        notesFromForm !== undefined
+            ? notesFromForm
+            : window.prompt(
+                "Please provide information that can help verify your ownership of this pet:"
+            );
+
+    if (claimNotes === null || !claimNotes.trim()) {
+        return false;
+    }
+
+    try {
+        const response = await fetch(
+            `${API}/api/lost-found/reports/${reportId}/claim`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    claimNotes: claimNotes.trim(),
+                }),
+            }
         );
 
-        if (
-            claimNotes === null ||
-            !claimNotes.trim()
-        ) {
-            return;
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to submit claim.");
         }
 
-        try {
-            const response = await fetch(
-                `${API}/api/lost-found/reports/${reportId}/claim`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        claimNotes: claimNotes.trim(),
-                    }),
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(
-                    data.message ||
-                    "Failed to submit claim."
-                );
-            }
-
-            setSuccess(
-                data.message ||
-                "Claim submitted for verification."
-            );
-
-            await loadReports();
-
-        } catch (error) {
-            console.error(
-                "Submit lost and found claim error:",
-                error
-            );
-
-            setError(
-                error.message ||
-                "Failed to submit claim."
-            );
-        }
+        setSuccess(data.message || "Claim submitted for verification.");
+        await loadReports();
+        return true;
+    } catch (error) {
+        console.error("Submit lost and found claim error:", error);
+        setError(error.message || "Failed to submit claim.");
+        return false;
     }
+}
 
     async function handleReviewClaim(
         reportId,
@@ -355,7 +351,7 @@ export default function LostFoundPage({ setPage }) {
         }
     }
 
-    async function handleMarkReunited(reportId) {
+        async function handleMarkReunited(reportId) {
         setError("");
         setSuccess("");
 
@@ -385,6 +381,7 @@ export default function LostFoundPage({ setPage }) {
             );
 
             await loadReports();
+            return true;
 
         } catch (error) {
             console.error(
@@ -396,6 +393,7 @@ export default function LostFoundPage({ setPage }) {
                 error.message ||
                 "Failed to mark case as reunited."
             );
+            return false;
         }
     }
 
@@ -541,6 +539,12 @@ if (showReportForm && canSubmitReport) {
         </>
     );
 
+   function openReport(report, withClaim = false) {
+       setViewingReport(report);
+       setClaimOpen(withClaim);
+       setClaimText("");
+       setClaimError("");
+   }
     return (
         <main className="lfr-page">
             <header className="lfr-header">
@@ -842,213 +846,322 @@ if (showReportForm && canSubmitReport) {
                             <p>Loading reports...</p>
                         </div>
                       ) : reports.length === 0 ? null : (
-                        <div className="lost-found-list">
-                            {reports.map((report) => (
-                                <article
-                                    className="lost-found-report"
-                                    key={report._id}
-                                >
-                                    <div className="lost-found-report-image">
-                                        {report.photoUrl ? (
-                                            <img
-                                                src={report.photoUrl}
-                                                alt={
-                                                    report.petName ||
-                                                    "Lost or found pet"
-                                                }
-                                            />
-                                        ) : (
-                                            <div className="lost-found-no-image">
-                                                No Photo
-                                            </div>
-                                        )}
-                                    </div>
+                        <div className="lf-grid">
+    {visibleReports.map((report, index) => {
+        const isMine = report.reporterEmail === user?.email;
+        const isOpen = report.status !== "reunited" && report.status !== "rejected";
+        const canClaimThis =
+            canClaimReport && !isMine && isOpen &&
+            report.claimStatus !== "pending" && report.claimStatus !== "approved";
+        const badge = report.status === "reunited" ? "reunited" : report.reportType;
+        const s = String(report.species || "").toLowerCase();
+        const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
 
-                                    <div className="lost-found-report-content">
-                                        <div className="lost-found-report-top">
-                                            <span
-                                                className={`lost-found-type-badge ${report.reportType}`}
-                                            >
-                                                {report.reportType === "lost"
-                                                    ? "Lost"
-                                                    : "Found"}
-                                            </span>
-
-                                            <span
-                                                className={`lost-found-status ${report.status}`}
-                                            >
-                                                {report.status}
-                                            </span>
-                                        </div>
-
-                                        <h3>
-                                            {report.petName ||
-                                                "Unnamed Pet"}
-                                        </h3>
-
-                                        <p className="lost-found-report-species">
-                                            {report.species}
-
-                                            {report.breed
-                                                ? ` • ${report.breed}`
-                                                : ""}
-                                        </p>
-
-                                        <p className="lost-found-report-location">
-                                            {report.location}
-                                        </p>
-
-                                        <p className="lost-found-report-description">
-                                            {report.description}
-                                        </p>
-
-                                        <div className="lost-found-report-meta">
-                                            <span>
-                                                Reported by:{" "}
-                                                {report.reporterName}
-                                            </span>
-
-                                            <span>
-                                                {report.reporterEmail}
-                                            </span>
-
-                                            <span>
-                                                {report.dateReported
-                                                    ? new Date(
-                                                        report.dateReported
-                                                    ).toLocaleDateString()
-                                                    : "No date"}
-                                            </span>
-                                        </div>
-
-                                        {report.claimStatus !== "none" && (
-                                            <div className="lost-found-claim-status">
-                                                <strong>
-                                                    Claim Status:
-                                                </strong>
-
-                                                <span>
-                                                    {report.claimStatus}
-                                                </span>
-                                            </div>
-                                        )}
-
-                                        <div className="lost-found-actions">
-                                            {canClaimReport &&
-                                                report.reporterEmail !==
-                                                user?.email &&
-                                                report.status !==
-                                                "reunited" &&
-                                                report.status !==
-                                                "rejected" &&
-                                                report.claimStatus !==
-                                                "pending" &&
-                                                report.claimStatus !==
-                                                "approved" && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            handleClaim(
-                                                                report._id
-                                                            )
-                                                        }
-                                                    >
-                                                        Claim Pet
-                                                    </button>
-                                                )}
-
-                                            {canManageReports &&
-                                                report.claimStatus ===
-                                                "pending" && (
-                                                    <>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                handleReviewClaim(
-                                                                    report._id,
-                                                                    "approved"
-                                                                )
-                                                            }
-                                                        >
-                                                            Approve Claim
-                                                        </button>
-
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                handleReviewClaim(
-                                                                    report._id,
-                                                                    "rejected"
-                                                                )
-                                                            }
-                                                        >
-                                                            Reject Claim
-                                                        </button>
-                                                    </>
-                                                )}
-
-                                            {canManageReports &&
-                                                report.claimStatus ===
-                                                "approved" &&
-                                                report.status !==
-                                                "reunited" && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            handleMarkReunited(
-                                                                report._id
-                                                            )
-                                                        }
-                                                    >
-                                                        Mark Reunited
-                                                    </button>
-                                                )}
-
-                                            {/* Approved claimant never came: open the report again */}
-                                            {canManageReports &&
-                                                report.claimStatus ===
-                                                "approved" &&
-                                                report.status !==
-                                                "reunited" && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={async () => {
-                                                            const ok = window.rbConfirm
-                                                                ? await window.rbConfirm({
-                                                                    title: "Revoke this claim?",
-                                                                    message: "The report opens again so someone else can claim it.",
-                                                                    confirmLabel: "Revoke claim",
-                                                                    danger: true,
-                                                                })
-                                                                : window.confirm("Revoke this claim?");
-
-                                                            if (ok) handleReviewClaim(report._id, "revoked");
-                                                        }}
-                                                    >
-                                                        Revoke Claim
-                                                    </button>
-                                                )}
-
-                                            {canDeleteReport && (
-                                                <button
-                                                    type="button"
-                                                    className="danger"
-                                                    onClick={() =>
-                                                        handleDeleteReport(
-                                                            report._id
-                                                        )
-                                                    }
-                                                >
-                                                    Delete
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
+        return (
+        <article
+        className={`lf-card ${isMine ? "is-mine" : ""}`}
+        key={report._id}
+          onClick={() => {
+          setViewingReport(report);
+          setClaimOpen(false);
+          setClaimText("");
+          setClaimError("");
+          }}
+        >                
+        <div className={`lf-card-media tint-${index % 4}`}>
+                    {report.photoUrl ? (
+                        <img src={report.photoUrl} alt={report.petName || "Pet"} />
+                    ) : (
+                        <span className="lf-card-emoji">{emoji}</span>
                     )}
+
+                    <span className={`lf-card-badge is-${badge}`}>{badge}</span>
+
+                    <span className="lf-card-date">
+                        {report.dateReported
+                            ? new Date(report.dateReported).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                            })
+                            : "No date"}
+                    </span>
+
+                    {isMine && <span className="lf-card-mine">Your report</span>}
+                </div>
+
+                <div className="lf-card-body">
+                    <h3>{report.petName || "Unknown"}</h3>
+                    <small>{[report.species, report.breed].filter(Boolean).join(" · ")}</small>
+                    <small className="lf-card-loc">📍 {report.location}</small>
+                    <p>{String(report.description || "").split(" · ")[0]}</p>
+
+                    {report.claimStatus && report.claimStatus !== "none" && (
+                        <small className="lf-card-claim">Claim: {report.claimStatus}</small>
+                    )}
+
+                      <div className="lf-card-actions" onClick={(e) => e.stopPropagation()}>
+                        {canClaimThis && report.reportType === "found" && (
+                            <button type="button" onClonClick={() => {
+                             setViewingReport(report);
+                             setClaimOpen(true);
+                             setClaimText("");
+                             setClaimError("");}}>
+                                This Is My Pet
+                            </button>
+                        )}
+
+                        {!isMine && isOpen && report.reportType === "lost" && (
+                            <a
+                                className="lf-card-btn"
+                                href={`mailto:${report.reporterEmail}?subject=${encodeURIComponent(
+                                    `I've seen ${report.petName || "your pet"} (RescueBase)`
+                                )}`}
+                            >
+                                I've Seen This Pet
+                            </a>
+                        )}
+
+                        {canManageReports && report.claimStatus === "pending" && (
+                            <>
+                                <button type="button" onClick={() => handleReviewClaim(report._id, "approved")}>
+                                    Approve Claim
+                                </button>
+                                <button type="button" className="is-ghost" onClick={() => handleReviewClaim(report._id, "rejected")}>
+                                    Reject
+                                </button>
+                            </>
+                        )}
+
+                        {canManageReports && report.claimStatus === "approved" && report.status !== "reunited" && (
+                            <>
+                                <button type="button" onClick={() => handleMarkReunited(report._id)}>
+                                    Mark Reunited
+                                </button>
+                                <button
+                                    type="button"
+                                    className="is-ghost"
+                                    onClick={async () => {
+                                        const ok = await askConfirm({
+                                            title: "Revoke this claim?",
+                                            message: "The report opens again so someone else can claim it.",
+                                            confirmLabel: "Revoke claim",
+                                            danger: true,
+                                        });
+                                        if (ok) handleReviewClaim(report._id, "revoked");
+                                    }}
+                                >
+                                    Revoke
+                                </button>
+                            </>
+                        )}
+
+                        {canDeleteReport && (
+                            <button
+                                type="button"
+                                className="lf-card-icon is-danger"
+                                title="Delete"
+                                aria-label="Delete report"
+                                onClick={() => handleDeleteReport(report._id)}
+                            >
+                                🗑
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </article>
+        );
+    })}
+</div>
+                    )}  
             </section>
+            {viewingReport && (() => {
+    const r = viewingReport;
+    const isMine = r.reporterEmail === user?.email;
+    const canSeeContact = isMine || canManageReports;
+    const [mainText, ...extras] = String(r.description || "").split(" · ");
+    const details = extras
+        .map((part) => {
+            const i = part.indexOf(": ");
+            return i === -1 ? null : [part.slice(0, i), part.slice(i + 2)];
+        })
+        .filter((d) => d && (d[0] !== "Contact" || canSeeContact));
+    const s = String(r.species || "").toLowerCase();
+    const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
+    const badge = r.status === "reunited" ? "reunited" : r.reportType;
+    const canMarkReunited =
+    canManageReports &&
+    r.claimStatus === "approved" &&
+    r.status !== "reunited";
+    const canClaimThis =
+    canClaimReport &&
+    !isMine &&
+    r.reportType === "found" &&
+    r.status !== "reunited" &&
+    r.status !== "rejected" &&
+    r.claimStatus !== "pending" &&
+    r.claimStatus !== "approved";
+    return (
+        <div className="lf-modal-overlay" onClick={() => setViewingReport(null)}>
+            <div
+                className="lf-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-label={`Details for ${r.petName || "this pet"}`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="lf-modal-media tint-0">
+                    {r.photoUrl ? (
+                        <img src={r.photoUrl} alt={r.petName || "Pet"} />
+                    ) : (
+                        <span className="lf-card-emoji">{emoji}</span>
+                    )}
+                    <span className={`lf-card-badge is-${badge}`}>{badge}</span>
+                    <button
+                        type="button"
+                        className="lf-modal-close"
+                        onClick={() => setViewingReport(null)}
+                        aria-label="Close"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <div className="lf-modal-body">
+                    <h2>{r.petName || "Unknown"}</h2>
+                    <small>{[r.species, r.breed].filter(Boolean).join(" · ")}</small>
+
+                    <dl className="lf-modal-facts">
+                        <div>
+                            <dt>{r.reportType === "lost" ? "Last seen" : "Found at"}</dt>
+                            <dd>📍 {r.location}</dd>
+                        </div>
+                        <div>
+                            <dt>{r.reportType === "lost" ? "Date lost" : "Date found"}</dt>
+                            <dd>
+                                {r.dateReported
+                                    ? new Date(r.dateReported).toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                    })
+                                    : "—"}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Status</dt>
+                            <dd className="lf-cap">{r.status}</dd>
+                        </div>
+                        <div>
+                            <dt>Reported by</dt>
+                            <dd>{isMine ? "You" : r.reporterName || "—"}</dd>
+                        </div>
+                        {r.claimStatus && r.claimStatus !== "none" && (
+                            <div>
+                                <dt>Claim</dt>
+                                <dd className="lf-cap">{r.claimStatus}</dd>
+                            </div>
+                        )}
+                        {details.map(([key, value]) => {
+                            const [pLat, pLng] = value.split(", ");
+                            return (
+                                <div key={key}>
+                                    <dt>{key === "Pin" ? "Map pin" : key}</dt>
+                                    <dd>
+                                        {key === "Pin" ? (
+                                            <a
+                                                href={`https://www.openstreetmap.org/?mlat=${pLat}&mlon=${pLng}#map=18/${pLat}/${pLng}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                View on map ↗
+                                            </a>
+                                        ) : (
+                                            value
+                                        )}
+                                    </dd>
+                                </div>
+                            );
+                        })}
+                    </dl>
+
+                    <h3>Description</h3>
+                    <p>{mainText || "No description."}</p>
+                    {canClaimThis && claimOpen && (
+    <div className="lf-claim">
+        <h3>Submit an ownership claim</h3>
+        <p>
+            Tell the shelter how they can confirm this is your pet. Staff will
+            review your claim before the pet is released.
+        </p>
+        <textarea
+            rows={4}
+            maxLength={500}
+            value={claimText}
+            onChange={(e) => {
+                setClaimText(e.target.value);
+                setClaimError("");
+            }}
+            placeholder="e.g. Microchip number, vet records, photos of you with the pet, markings only the owner would know..."
+        />
+        {claimError && <small className="lf-claim-error">{claimError}</small>}
+    </div>
+)}
+                    {error && <div className="lost-found-message error">{error}</div>}
+
+                    <footer className="lf-modal-foot">
+    <button type="button" className="lfr-cancel" onClick={() => setViewingReport(null)}>
+        Close
+    </button>
+
+    {canClaimThis && !claimOpen && (
+        <button type="button" className="lfr-submit" onClick={() => setClaimOpen(true)}>
+            This Is My Pet
+        </button>
+    )}
+
+    {canClaimThis && claimOpen && (
+        <button
+            type="button"
+            className="lfr-submit"
+            onClick={async () => {
+                if (!claimText.trim()) {
+                    setClaimError("Please describe how we can verify you're the owner.");
+                    return;
+                }
+                const done = await handleClaim(r._id, claimText);
+                if (done) setViewingReport(null);
+            }}
+        >
+            Submit Claim
+        </button>
+    )}
+
+    {canMarkReunited && (
+        <button
+            type="button"
+            className="lfr-submit"
+            onClick={async () => {
+                const ok = await askConfirm({
+                    title: "Mark this pet as reunited?",
+                    message: "The report will show as Reunited for everyone.",
+                    confirmLabel: "Mark Reunited",
+                });
+                if (!ok) return;
+
+                const done = await handleMarkReunited(r._id);
+                if (done) setViewingReport(null);
+            }}
+        >
+            Mark Reunited
+        </button>
+    )}
+</footer>
+                </div>
+            </div>
+        </div>
+    );
+})()}
         </main>
     );
 }
