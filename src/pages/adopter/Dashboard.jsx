@@ -1652,18 +1652,19 @@ async function fetchPets({ silent = false } = {}) {
                             <button
                                 type="button"
                                 title="Foster Dashboard"
+                                className="adopter-menu-switch"
                                 onClick={() => onOpenFoster?.()}
                             >
                                 <div className="adopter-menu-text">
                                     <img
                                         className="adopter-menu-icon icon-default"
-                                        src={ICON_PATH + "brown paw.svg"}
+                                        src={ICON_PATH + "return-brown.svg"}
                                         alt=""
                                         aria-hidden="true"
                                     />
                                     <img
                                         className="adopter-menu-icon icon-active"
-                                        src={ICON_PATH + "brown paw-light.svg"}
+                                        src={ICON_PATH + "return-light.svg"}
                                         alt=""
                                         aria-hidden="true"
                                     />

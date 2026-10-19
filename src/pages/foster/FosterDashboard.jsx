@@ -37,6 +37,18 @@ const PAGE_TITLES = {
     feedback: "Feedback",
 };
 
+// Sidebar items (same icon set as the Adopter sidebar)
+const FOSTER_MENU = [
+    { key: "dashboard", label: "Dashboard", icon: "/icons/sidebar/dashboard-brown.svg", activeIcon: "/icons/sidebar/dashboard-light.svg" },
+    { key: "assignment", label: "My Foster Pet", icon: "/icons/sidebar/brown paw.svg", activeIcon: "/icons/sidebar/brown paw-light.svg" },
+    { key: "updates", label: "Care Updates", icon: "/icons/sidebar/clipboard-brown.svg", activeIcon: "/icons/sidebar/clipboard-light.svg" },
+    { key: "behavior", label: "Behavior Evaluation", icon: "/icons/heart-brown.svg", activeIcon: "/icons/heart-light.svg", also: ["fosterUpdates"] },
+    { key: "medical", label: "Medical Assistance", icon: "/icons/sidebar/medical-brown.svg", activeIcon: "/icons/sidebar/medical-light.svg" },
+    { key: "history", label: "Foster History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
+    { key: "application", label: "My Application", icon: "/icons/sidebar/role-brown.svg", activeIcon: "/icons/sidebar/role-light.svg" },
+    { key: "feedback", label: "Feedback", icon: "/icons/sidebar/Feedback-brown.svg", activeIcon: "/icons/sidebar/Feedback-light.svg" },
+];
+
 export default function FosterDashboard({ setPage }) {
 
     const savedUser = JSON.parse(
@@ -549,132 +561,66 @@ function goToPage(page, petId = null) {
         <main className="foster-page">
 
             <aside className="foster-sidebar">
-
-                <div className="foster-logo">
-
-                    <img
-                        src={assets.logo}
-                        alt="RescueBase"
-                    />
-
-                    <span>
-                        RescueBase
-                    </span>
-
-                </div>
+                <button
+                    type="button"
+                    className="foster-logo"
+                    onClick={() => goToPage("dashboard")}
+                >
+                    <img src={assets.logo} alt="RescueBase logo" />
+                    <span>RescueBase</span>
+                </button>
 
                 <nav className="foster-menu">
+                    {FOSTER_MENU.map((item) => {
+                        const isActive =
+                            activePage === item.key || item.also?.includes(activePage);
+
+                        return (
+                            <button
+                                key={item.key}
+                                type="button"
+                                title={item.label}
+                                className={isActive ? "active" : ""}
+                                onClick={() => goToPage(item.key)}
+                            >
+                                <img className="foster-menu-icon icon-default" src={item.icon} alt="" aria-hidden="true" />
+                                <img className="foster-menu-icon icon-active" src={item.activeIcon} alt="" aria-hidden="true" />
+                                <strong>{item.label}</strong>
+                            </button>
+                        );
+                    })}
 
                     <button
-                        className={
-                            activePage === "dashboard"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("dashboard")
-                        }
+                        type="button"
+                        title="Adopt a Pet"
+                        className="foster-menu-switch"
+                        onClick={() => guardLeave(() => setPage("dashboard"))}
                     >
-                        Dashboard
+                        <img className="foster-menu-icon icon-default" src="/icons/sidebar/return-brown.svg" alt="" aria-hidden="true" />
+                        <img className="foster-menu-icon icon-active" src="/icons/sidebar/return-light.svg" alt="" aria-hidden="true" />
+                        <strong>Adopt a Pet</strong>
                     </button>
-
-                    <button
-                        className={
-                            activePage === "assignment"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("assignment")
-                        }
-                    >
-                        My Foster Pet
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "updates"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("updates")
-                        }
-                    >
-                        Care Updates
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "behavior" || activePage === "fosterUpdates"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("behavior")
-                        }
-                    >
-                        Behavior Evaluation
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "history"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("history")
-                        }
-                    >
-                        Foster History
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "application"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("application")
-                        }
-                    >
-                        My Application
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "medical"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("medical")
-                        }
-                    >
-                        Medical Assistance
-                    </button>
-
-                    <button
-                        onClick={() =>
-                            guardLeave(() => setPage("dashboard"))
-                        }
-                    >
-                        Adopt a Pet
-                    </button>
-
                 </nav>
 
                 <button
-                    className="foster-logout"
-                    onClick={() =>
-                        guardLeave(() => signOut("home"))
-                    }
+                    type="button"
+                    className="foster-user-card"
+                    title="Log out"
+                    onClick={() => guardLeave(() => signOut("home"))}
                 >
-                    Logout
+                    <span className="foster-user-avatar">
+                        {savedUser.profileImage ? (
+                            <img src={savedUser.profileImage} alt={fosterName} />
+                        ) : (
+                            <img className="is-placeholder" src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                        )}
+                    </span>
+                    <span className="foster-user-info">
+                        <strong>{fosterName}</strong>
+                        <small>Foster · Log out</small>
+                    </span>
+                    <span className="foster-user-arrow" aria-hidden="true">→</span>
                 </button>
-
             </aside>
 
             <section className="foster-main">
