@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { isAdmin } from "../../../utils/auth";
 
-
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
     return window.rbConfirm
@@ -11,16 +10,238 @@ function askConfirm(options) {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+const PAGE_SIZE = 10;
+
+const DONATION_TYPES = [
+    "Money",
+    "Pet Food",
+    "Dog Food",
+    "Cat Food",
+    "Medicine",
+    "Medical Supplies",
+    "Blankets & Bedding",
+    "Cleaning Supplies",
+    "Pet Toys",
+    "Pet Accessories",
+    "Feeding Bowls",
+    "Leashes & Collars",
+    "Other Supplies",
+    "Other",
+];
+
+const STATUS_LABEL = { pending: "Pending", received: "Received", cancelled: "Cancelled" };
+
+// Segmented type buttons on the Record Donation page (values must match the server enum)
+const TYPE_BUTTONS = [
+    { value: "Money", label: "Money" },
+    { value: "Pet Food", label: "Pet Food" },
+    { value: "Medicine", label: "Medicine" },
+    { value: "Other Supplies", label: "Supplies" },
+];
+
+const UNITS = ["Pieces", "Boxes", "Bags", "Bottles", "Packs", "Kilograms", "Liters", "Other"];
+
+const DELIVERY_METHODS = ["Drop-off", "Shelter Pickup", "Courier Delivery", "Online Transfer", "Cash"];
+
+// Names the server accepts for payment methods, and the type shown for each
+const METHOD_NAMES = {
+    GCash: "E-wallet",
+    Maya: "E-wallet",
+    "Bank Transfer": "Bank",
+    "Wire Transfer": "Bank",
+};
+
+// Lines we keep inside `notes` because the donation model has no fields for them
+const META_LABELS = ["Unit", "Delivery Method", "Preferred Date"];
+
 const emptyDonationForm = {
     donorName: "",
     donorEmail: "",
-    donationType: "Money",
+    donationType: "Pet Food",
     amount: "",
     itemName: "",
     quantity: 1,
     notes: "",
     status: "pending",
+    unit: "",
+    deliveryMethod: "Drop-off",
+    preferredDate: "",
+    receivedDate: null,
 };
+
+const emptyMethodForm = {
+    method_type: "GCash",
+    account_name: "",
+    account_number: "",
+    qr_image_url: "",
+    instructions: "",
+    is_active: true,
+};
+
+// Split notes into the metadata lines and the free-text part
+function splitNotes(notes) {
+    const meta = {};
+    const rest = [];
+
+    String(notes || "")
+        .split("\n")
+        .forEach((line) => {
+            const label = META_LABELS.find((item) =>
+                line.toLowerCase().startsWith(`${item.toLowerCase()}:`)
+            );
+
+            if (label) {
+                meta[label] = line.slice(label.length + 1).trim();
+            } else {
+                rest.push(line);
+            }
+        });
+
+    return { meta, text: rest.join("\n").trim() };
+}
+
+function buildNotes(form) {
+    return [
+        form.unit && `Unit: ${form.unit}`,
+        form.deliveryMethod && `Delivery Method: ${form.deliveryMethod}`,
+        form.preferredDate && `Preferred Date: ${form.preferredDate}`,
+        form.notes.trim(),
+    ]
+        .filter(Boolean)
+        .join("\n");
+}
+
+function Help({ text }) {
+    return (
+        <span className="dl-help" title={text} aria-label={text}>
+            ?
+        </span>
+    );
+}
+
+// ---------- small helpers ----------
+
+function isMoneyDonation(donation) {
+    return donation.donationType === "Money";
+}
+
+// Older adopter records stored the money amount in `quantity`
+function moneyValue(donation) {
+    return Number(donation.amount) || Number(donation.quantity) || 0;
+}
+
+function peso(value) {
+    return `₱${Number(value || 0).toLocaleString("en-PH")}`;
+}
+
+function formatDate(value) {
+    if (!value) return "--";
+
+    return new Date(value).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+}
+
+// Pull "Label: value" lines out of the notes the adopter form writes
+function noteValue(notes, label) {
+    const match = String(notes || "").match(new RegExp(`${label}:\\s*(.+)`, "i"));
+    return match ? match[1].trim() : "";
+}
+
+function typeTone(type) {
+    const value = String(type || "").toLowerCase();
+
+    if (value === "money") return "is-money";
+    if (value.includes("food")) return "is-food";
+    if (value.includes("medic")) return "is-medical";
+    return "is-supplies";
+}
+
+function detailsFor(donation) {
+    if (isMoneyDonation(donation)) {
+        const reference = noteValue(donation.notes, "Payment Reference");
+
+        return {
+            main: peso(moneyValue(donation)),
+            sub: [donation.paymentMethod, reference && `ref ${reference}`]
+                .filter(Boolean)
+                .join(" · "),
+        };
+    }
+
+    const delivery = noteValue(donation.notes, "Delivery Method");
+    const preferred = noteValue(donation.notes, "Preferred Date");
+
+    return {
+        main: `${donation.quantity || 1} item(s)${donation.itemName ? ` · ${donation.itemName}` : ""}`,
+        sub: [delivery, preferred && `preferred ${formatDate(preferred)}`]
+            .filter(Boolean)
+            .join(" · "),
+    };
+}
+
+function Icon({ name, size = 18 }) {
+    const paths = {
+        heart: <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z" />,
+        pending: (
+            <>
+                <path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2" />
+                <path d="M18 2v4h-4M6 22v-4h4" />
+            </>
+        ),
+        check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+        peso: (
+            <>
+                <path d="M8 21V4h5a4.5 4.5 0 0 1 0 9H8" />
+                <path d="M5 8h13M5 11h13" />
+            </>
+        ),
+        refresh: (
+            <>
+                <path d="M21 12a9 9 0 1 1-3-6.7" />
+                <path d="M21 3v6h-6" />
+            </>
+        ),
+        card: (
+            <>
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M3 10h18" />
+            </>
+        ),
+        plus: <path d="M12 5v14M5 12h14" />,
+        edit: (
+            <>
+                <path d="M4 20h4L19 9l-4-4L4 16v4z" />
+                <path d="M13.5 6.5l4 4" />
+            </>
+        ),
+        more: (
+            <>
+                <circle cx="5" cy="12" r="1.2" />
+                <circle cx="12" cy="12" r="1.2" />
+                <circle cx="19" cy="12" r="1.2" />
+            </>
+        ),
+    };
+
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            width={size}
+            height={size}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            {paths[name]}
+        </svg>
+    );
+}
 
 export default function Donations() {
     const [donations, setDonations] = useState([]);
@@ -30,23 +251,27 @@ export default function Donations() {
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState("");
     const [showForm, setShowForm] = useState(false);
+
+    const [search, setSearch] = useState("");
+    const [typeFilter, setTypeFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [sortBy, setSortBy] = useState("newest");
+    const [page, setPage] = useState(1);
+    const [openMenuId, setOpenMenuId] = useState(null);
+
+    const [showMethods, setShowMethods] = useState(false);
+    const [methods, setMethods] = useState([]);
+    const [methodForm, setMethodForm] = useState(emptyMethodForm);
+    const [editingMethodId, setEditingMethodId] = useState(null);
+    const [methodMessage, setMethodMessage] = useState("");
+    const [savingMethod, setSavingMethod] = useState(false);
+    const [methodView, setMethodView] = useState("list");
+    const [qrFileName, setQrFileName] = useState("");
+    const [uploadingQr, setUploadingQr] = useState(false);
+
     const token = localStorage.getItem("token");
 
-    const totalDonations = donations.length;
-
-    const pendingDonations = useMemo(() => {
-        return donations.filter((donation) => donation.status === "pending").length;
-    }, [donations]);
-
-    const receivedDonations = useMemo(() => {
-        return donations.filter((donation) => donation.status === "received").length;
-    }, [donations]);
-
-    const totalMoney = useMemo(() => {
-        return donations
-            .filter((donation) => donation.status === "received")
-            .reduce((total, donation) => total + Number(donation.amount || 0), 0);
-    }, [donations]);
+    // ---------- data ----------
 
     async function fetchDonations() {
         try {
@@ -54,9 +279,7 @@ export default function Donations() {
             setMessage("");
 
             const response = await fetch(`${API}/api/donations`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` },
             });
             const data = await response.json();
 
@@ -74,6 +297,72 @@ export default function Donations() {
         }
     }
 
+    useEffect(() => {
+        fetchDonations();
+    }, []);
+
+    // Close the ⋯ menu when clicking anywhere else
+    useEffect(() => {
+        if (!openMenuId) return;
+
+        const close = () => setOpenMenuId(null);
+        document.addEventListener("click", close);
+        return () => document.removeEventListener("click", close);
+    }, [openMenuId]);
+
+    // ---------- stats + filtering ----------
+
+    const counts = useMemo(() => {
+        const result = { all: donations.length, pending: 0, received: 0, cancelled: 0 };
+
+        donations.forEach((donation) => {
+            const status = donation.status || "pending";
+            if (result[status] !== undefined) result[status] += 1;
+        });
+
+        return result;
+    }, [donations]);
+
+    const totalMoney = useMemo(() => {
+        return donations
+            .filter((d) => d.status === "received" && isMoneyDonation(d))
+            .reduce((total, d) => total + moneyValue(d), 0);
+    }, [donations]);
+
+    const typeOptions = useMemo(() => {
+        return [...new Set(donations.map((d) => d.donationType).filter(Boolean))].sort();
+    }, [donations]);
+
+    const visibleDonations = useMemo(() => {
+        const term = search.trim().toLowerCase();
+
+        const list = donations.filter((donation) => {
+            const status = donation.status || "pending";
+            const text = `${donation.donorName || ""} ${donation.donorEmail || ""} ${donation.itemName || ""}`.toLowerCase();
+
+            if (term && !text.includes(term)) return false;
+            if (typeFilter !== "all" && donation.donationType !== typeFilter) return false;
+            if (statusFilter !== "all" && status !== statusFilter) return false;
+            return true;
+        });
+
+        return list.sort((a, b) => {
+            if (sortBy === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
+            if (sortBy === "donor") return String(a.donorName || "").localeCompare(String(b.donorName || ""));
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+    }, [donations, search, typeFilter, statusFilter, sortBy]);
+
+    const pageCount = Math.max(1, Math.ceil(visibleDonations.length / PAGE_SIZE));
+    const currentPage = Math.min(page, pageCount);
+    const pageRows = visibleDonations.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    useEffect(() => {
+        setPage(1);
+    }, [search, typeFilter, statusFilter, sortBy]);
+
+    // ---------- donation actions ----------
+
     async function handleSubmitDonation(e) {
         e.preventDefault();
 
@@ -83,25 +372,28 @@ export default function Donations() {
 
             const savedUser = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
 
+            const money = donationForm.donationType === "Money";
+
             const payload = {
-                ...donationForm,
-                amount: Number(donationForm.amount || 0),
-                quantity: Number(donationForm.quantity || 1),
+                donorName: donationForm.donorName.trim(),
+                donorEmail: donationForm.donorEmail.trim(),
+                donationType: donationForm.donationType,
+                status: donationForm.status,
+                itemName: donationForm.itemName.trim() || (money ? "Monetary Donation" : ""),
+                amount: money ? Number(donationForm.amount || 0) : 0,
+                quantity: money ? 1 : Number(donationForm.quantity || 1),
+                notes: buildNotes(donationForm),
                 adminName: savedUser.name || savedUser.username || "Admin User",
                 adminEmail: savedUser.email || "admin",
             };
 
-            const url = editingId
-                ? `${API}/api/donations/${editingId}`
-                : `${API}/api/donations`;
-
-            const method = editingId ? "PATCH" : "POST";
+            const url = editingId ? `${API}/api/donations/${editingId}` : `${API}/api/donations`;
 
             const response = await fetch(url, {
-                method,
+                method: editingId ? "PATCH" : "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(payload),
             });
@@ -126,20 +418,31 @@ export default function Donations() {
         }
     }
 
-    function handleEditDonation(donation) {
-        setEditingId(donation._id);
+    function openNewForm() {
+        setEditingId(null);
+        setDonationForm(emptyDonationForm);
+        setMessage("");
+        setShowForm(true);
+    }
 
+    function handleEditDonation(donation) {
+        const { meta, text } = splitNotes(donation.notes);
+
+        setEditingId(donation._id);
         setDonationForm({
             donorName: donation.donorName || "",
             donorEmail: donation.donorEmail || "",
             donationType: donation.donationType || "Money",
-            amount: donation.amount || "",
+            amount: isMoneyDonation(donation) ? moneyValue(donation) : donation.amount || "",
             itemName: donation.itemName || "",
             quantity: donation.quantity || 1,
-            notes: donation.notes || "",
+            notes: text,
             status: donation.status || "pending",
+            unit: meta.Unit || "",
+            deliveryMethod: meta["Delivery Method"] || "Drop-off",
+            preferredDate: meta["Preferred Date"] || "",
+            receivedDate: donation.receivedDate || null,
         });
-
         setMessage("");
         setShowForm(true);
     }
@@ -159,7 +462,7 @@ export default function Donations() {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ status }),
             });
@@ -179,8 +482,24 @@ export default function Donations() {
         }
     }
 
+    async function handleCancelDonation(donationId) {
+        const confirmed = await askConfirm({
+            title: "Cancel this donation?",
+            message: "It will stay in the ledger marked as cancelled.",
+            confirmLabel: "Cancel donation",
+            danger: true,
+        });
+
+        if (confirmed) handleUpdateStatus(donationId, "cancelled");
+    }
+
     async function handleDeleteDonation(donationId) {
-        const confirmed = await askConfirm({ title: "Delete this donation record?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
+        const confirmed = await askConfirm({
+            title: "Delete this donation record?",
+            message: "This can't be undone.",
+            confirmLabel: "Delete",
+            danger: true,
+        });
 
         if (!confirmed) return;
 
@@ -189,9 +508,7 @@ export default function Donations() {
 
             const response = await fetch(`${API}/api/donations/${donationId}`, {
                 method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             const data = await response.json();
@@ -209,210 +526,593 @@ export default function Donations() {
         }
     }
 
-    function formatDate(dateValue) {
-        if (!dateValue) return "Not received yet";
+    // ---------- payment methods ----------
 
-        return new Date(dateValue).toLocaleDateString("en-PH", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
+    async function fetchMethods() {
+        try {
+            const response = await fetch(`${API}/api/payment-methods/all`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMethodMessage(data.message || "Failed to load payment methods.");
+                return;
+            }
+
+            setMethods(data.methods || []);
+        } catch (error) {
+            console.error("Fetch payment methods error:", error);
+            setMethodMessage("Server error while loading payment methods.");
+        }
     }
 
-    useEffect(() => {
-        fetchDonations();
-    }, []);
+    function openMethods() {
+        setMethodForm(emptyMethodForm);
+        setEditingMethodId(null);
+        setMethodMessage("");
+        setMethodView("list");
+        setShowMethods(true);
+        fetchMethods();
+    }
 
-    // ----- Search and filters -----
-    const [search, setSearch] = useState("");
-    const [typeFilter, setTypeFilter] = useState("all");
-    const [statusFilter, setStatusFilter] = useState("all");
+    function newMethod() {
+        setEditingMethodId(null);
+        setMethodForm(emptyMethodForm);
+        setQrFileName("");
+        setMethodMessage("");
+        setMethodView("edit");
+    }
 
-    const DONATION_TYPES = ["Money", "Dog Food", "Cat Food", "Medicine", "Medical Supplies", "Other Supplies", "Other"];
-    const STATUS_LABEL = { pending: "Pending", received: "Received", cancelled: "Cancelled" };
+    function editMethod(method) {
+        setEditingMethodId(method._id);
+        setMethodForm({
+            method_type: method.method_type || "GCash",
+            account_name: method.account_name || "",
+            account_number: method.account_number || "",
+            qr_image_url: method.qr_image_url || "",
+            instructions: method.instructions || "",
+            is_active: method.is_active !== false,
+        });
+        setQrFileName(method.qr_image_url ? "Current QR code" : "");
+        setMethodMessage("");
+        setMethodView("edit");
+    }
 
-    const visibleDonations = donations.filter((donation) => {
-        const term = search.trim().toLowerCase();
-        const text = `${donation.donorName || ""} ${donation.donorEmail || ""} ${donation.itemName || ""}`.toLowerCase();
+    function backToMethodList() {
+        setEditingMethodId(null);
+        setMethodForm(emptyMethodForm);
+        setMethodMessage("");
+        setMethodView("list");
+    }
 
-        if (term && !text.includes(term)) return false;
-        if (typeFilter !== "all" && donation.donationType !== typeFilter) return false;
-        if (statusFilter !== "all" && donation.status !== statusFilter) return false;
-        return true;
-    });
+    // How many donations were paid with this method (deleting it would orphan them)
+    function methodUsage(methodType) {
+        return donations.filter((d) => d.paymentMethod === methodType).length;
+    }
 
-    const isMoney = donationForm.donationType === "Money";
+    async function uploadQr(event) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setUploadingQr(true);
+            setQrFileName(file.name);
+
+            const formData = new FormData();
+            formData.append("image", file);
+            formData.append("folder", "rescuebase/payment-methods");
+
+            const response = await fetch(`${API}/api/uploads/image`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMethodMessage(data.message || "Failed to upload QR image.");
+                return;
+            }
+
+            setMethodForm((current) => ({ ...current, qr_image_url: data.imageUrl }));
+        } catch (error) {
+            console.error("Upload QR error:", error);
+            setMethodMessage("Server error while uploading QR image.");
+        } finally {
+            setUploadingQr(false);
+            event.target.value = "";
+        }
+    }
+
+    async function saveMethod(e) {
+        e.preventDefault();
+
+        try {
+            setSavingMethod(true);
+            setMethodMessage("");
+
+            const url = editingMethodId
+                ? `${API}/api/payment-methods/${editingMethodId}`
+                : `${API}/api/payment-methods`;
+
+            const response = await fetch(url, {
+                method: editingMethodId ? "PATCH" : "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(methodForm),
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMethodMessage(data.message || "Failed to save payment method.");
+                return;
+            }
+
+            setMethodForm(emptyMethodForm);
+            setEditingMethodId(null);
+            setMethodView("list");
+            setMethodMessage(editingMethodId ? "Payment method updated." : "Payment method added.");
+            fetchMethods();
+        } catch (error) {
+            console.error("Save payment method error:", error);
+            setMethodMessage("Server error while saving payment method.");
+        } finally {
+            setSavingMethod(false);
+        }
+    }
+
+    async function deleteMethod(method) {
+        const confirmed = await askConfirm({
+            title: `Delete ${method.method_type}?`,
+            message: "Adopters will no longer see this payment option.",
+            confirmLabel: "Delete",
+            danger: true,
+        });
+
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`${API}/api/payment-methods/${method._id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMethodMessage(data.message || "Failed to delete payment method.");
+                return;
+            }
+
+            backToMethodList();
+            setMethodMessage("Payment method deleted.");
+            fetchMethods();
+        } catch (error) {
+            console.error("Delete payment method error:", error);
+            setMethodMessage("Server error while deleting payment method.");
+        }
+    }
+
+    // ---------- render ----------
+
     const messageTone = /fail|error|required|invalid/i.test(message) ? "error" : "success";
+    const methodTone = /fail|error|required|invalid/i.test(methodMessage) ? "error" : "success";
 
-    function initials(name) {
+    if (showForm) {
+        const money = donationForm.donationType === "Money";
+        const typeButtons = TYPE_BUTTONS.some((item) => item.value === donationForm.donationType)
+            ? TYPE_BUTTONS
+            : [...TYPE_BUTTONS, { value: donationForm.donationType, label: donationForm.donationType }];
+
+        const setField = (field, value) => setDonationForm((current) => ({ ...current, [field]: value }));
+
         return (
-            String(name || "?")
-                .trim()
-                .split(/\s+/)
-                .slice(0, 2)
-                .map((part) => part[0])
-                .join("")
-                .toUpperCase() || "?"
+            <section className="dl-page">
+                <header className="dl-head">
+                    <div>
+                        <h2>Donation Ledger</h2>
+                        <p>Record and manage money, food, medicine, and supply donations.</p>
+                    </div>
+
+                    <button type="button" className="dl-btn" onClick={handleCancelEdit}>
+                        ← Back to Donations
+                    </button>
+                </header>
+
+                <form className="dl-form-card" onSubmit={handleSubmitDonation}>
+                    <div className="dl-form-section">
+                        <h3>{editingId ? "Edit Donation" : "Donor & Donation"}</h3>
+                        <p>Log a donation received or pledged. Fields marked * are required.</p>
+                    </div>
+
+                    <div className="dl-grid">
+                        <label className="dl-field">
+                            <span>Donor Name <b>*</b></span>
+                            <input
+                                value={donationForm.donorName}
+                                placeholder="e.g. Juan Dela Cruz"
+                                onChange={(e) => setField("donorName", e.target.value)}
+                                required
+                            />
+                        </label>
+
+                        <label className="dl-field">
+                            <span>Donor Email</span>
+                            <input
+                                type="email"
+                                value={donationForm.donorEmail}
+                                placeholder="name@email.com"
+                                onChange={(e) => setField("donorEmail", e.target.value)}
+                            />
+                        </label>
+
+                        <div className="dl-field dl-span-2">
+                            <span>Donation Type <b>*</b></span>
+                            <div className="dl-seg">
+                                {typeButtons.map((item) => (
+                                    <button
+                                        type="button"
+                                        key={item.value}
+                                        className={donationForm.donationType === item.value ? "on" : ""}
+                                        onClick={() => setField("donationType", item.value)}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <label className="dl-field">
+                            <span>
+                                Item Name {!money && <b>*</b>}{" "}
+                                <Help text="What was donated, e.g. the brand or item. Optional for money." />
+                            </span>
+                            <input
+                                value={donationForm.itemName}
+                                placeholder={money ? "e.g. General fund" : "e.g. Dog food sack"}
+                                onChange={(e) => setField("itemName", e.target.value)}
+                                required={!money}
+                            />
+                        </label>
+
+                        <label className="dl-field">
+                            <span>Quantity {!money && <b>*</b>}</span>
+                            <input
+                                type="number"
+                                min="1"
+                                value={money ? 1 : donationForm.quantity}
+                                disabled={money}
+                                onChange={(e) => setField("quantity", e.target.value)}
+                                required={!money}
+                            />
+                        </label>
+
+                        <label className="dl-field">
+                            <span>
+                                Amount (₱) {money && <b>*</b>}{" "}
+                                <Help text="Only used for Money donations." />
+                            </span>
+                            <input
+                                type="number"
+                                min="1"
+                                step="any"
+                                value={money ? donationForm.amount : ""}
+                                placeholder={money ? "e.g. 500" : "Money donations only"}
+                                disabled={!money}
+                                onChange={(e) => setField("amount", e.target.value)}
+                                required={money}
+                            />
+                        </label>
+
+                        <label className="dl-field">
+                            <span>
+                                Status <Help text="Received counts the donation in the totals and stock." />
+                            </span>
+                            <select value={donationForm.status} onChange={(e) => setField("status", e.target.value)}>
+                                {["pending", "received", "cancelled"].map((value) => (
+                                    <option key={value} value={value}>{STATUS_LABEL[value]}</option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="dl-field dl-span-4">
+                            <span>Notes</span>
+                            <textarea
+                                rows="3"
+                                value={donationForm.notes}
+                                placeholder="Additional donation details..."
+                                onChange={(e) => setField("notes", e.target.value)}
+                            />
+                        </label>
+                    </div>
+
+                    <div className="dl-form-section is-divided">
+                        <h3>Handover Details</h3>
+                        <p>How and when the items reach the shelter.</p>
+                    </div>
+
+                    <div className="dl-grid">
+                        <label className="dl-field">
+                            <span>Unit</span>
+                            <select
+                                value={donationForm.unit}
+                                disabled={money}
+                                onChange={(e) => setField("unit", e.target.value)}
+                            >
+                                <option value="">Select</option>
+                                {UNITS.map((unit) => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="dl-field">
+                            <span>Delivery Method</span>
+                            <select
+                                value={donationForm.deliveryMethod}
+                                onChange={(e) => setField("deliveryMethod", e.target.value)}
+                            >
+                                {DELIVERY_METHODS.map((method) => (
+                                    <option key={method} value={method}>{method}</option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="dl-field">
+                            <span>Preferred Date</span>
+                            <input
+                                type="date"
+                                value={donationForm.preferredDate}
+                                onChange={(e) => setField("preferredDate", e.target.value)}
+                            />
+                        </label>
+
+                        <label className="dl-field">
+                            <span>
+                                Received On <Help text="Filled in automatically when the donation is marked Received." />
+                            </span>
+                            <input
+                                value={donationForm.receivedDate ? formatDate(donationForm.receivedDate) : ""}
+                                placeholder="Set when marked Received"
+                                disabled
+                            />
+                        </label>
+                    </div>
+
+                    {message && <p className={`gs-alert ${messageTone}`}>{message}</p>}
+
+                    <div className="dl-form-foot">
+                        <small>Next: you can mark this donation as Received later from the ledger.</small>
+
+                        <div className="dl-form-actions">
+                            <button type="button" className="dl-btn" onClick={handleCancelEdit}>
+                                Cancel
+                            </button>
+                            <button type="submit" className="dl-btn primary" disabled={submitting}>
+                                {submitting ? "Saving..." : editingId ? "Save Changes" : "Save Donation"}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </section>
         );
     }
 
-    function openNewForm() {
-        setEditingId(null);
-        setDonationForm(emptyDonationForm);
-        setMessage("");
-        setShowForm(true);
-    }
-
     return (
-        <section className="um-page">
-            {/* Stats */}
-            <div className="um-strip">
-                <div className="um-strip-total">
-                    <b>{totalDonations}</b>
-                    <small>Total donations</small>
-                </div>
+        <section className="dl-page">
+            <header className="dl-head">
                 <div>
-                    <small>Pending</small>
-                    <b>{pendingDonations}</b>
+                    <h2>Donation Ledger</h2>
+                    <p>Record and manage money, food, medicine, and supply donations.</p>
                 </div>
-                <div>
-                    <small>Received</small>
-                    <b>{receivedDonations}</b>
+
+                <div className="dl-head-actions">
+                    <button type="button" className="dl-btn" onClick={fetchDonations}>
+                        <Icon name="refresh" size={15} /> Refresh
+                    </button>
+                    <button type="button" className="dl-btn" onClick={openMethods}>
+                        <Icon name="card" size={15} /> Payment Methods
+                    </button>
+                    <button type="button" className="dl-btn primary" onClick={openNewForm}>
+                        <Icon name="plus" size={15} /> Record Donation
+                    </button>
                 </div>
-                <div>
-                    <small>Money received</small>
-                    <b>₱{totalMoney.toLocaleString()}</b>
+            </header>
+
+            <div className="dl-kpis">
+                <div className="dl-kpi">
+                    <span className="dl-kpi-icon"><Icon name="heart" size={24} /></span>
+                    <span><b>{counts.all}</b><small>Total Donations</small></span>
+                </div>
+                <div className="dl-kpi">
+                    <span className="dl-kpi-icon"><Icon name="pending" size={24} /></span>
+                    <span><b>{counts.pending}</b><small>Pending Receipt</small></span>
+                </div>
+                <div className="dl-kpi">
+                    <span className="dl-kpi-icon is-green"><Icon name="check" size={24} /></span>
+                    <span><b>{counts.received}</b><small>Received</small></span>
+                </div>
+                <div className="dl-kpi">
+                    <span className="dl-kpi-icon is-gold"><Icon name="peso" size={24} /></span>
+                    <span><b>{peso(totalMoney)}</b><small>Money Received</small></span>
                 </div>
             </div>
 
-            {message && !showForm && <p className={`gs-alert ${messageTone} um-message`}>{message}</p>}
+            {message && !showForm && <p className={`gs-alert ${messageTone} dl-message`}>{message}</p>}
 
-            <section className="gs-card">
-                <div className="um-list-head">
-                    <h3>
-                        <span className="gs-mark">Donation records</span>
-                    </h3>
+            <div className="dl-toolbar">
+                <input
+                    type="search"
+                    className="dl-search"
+                    placeholder="Search donor, email or item..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
 
-                    <button type="button" className="gs-btn primary" onClick={openNewForm}>
-                        + Record donation
-                    </button>
-                </div>
-
-                <div className="um-tools">
-                    <input
-                        type="search"
-                        className="um-search"
-                        placeholder="Search donor or item"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-
-                    <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} aria-label="Donation type">
-                        <option value="all">All types</option>
-                        {DONATION_TYPES.map((type) => (
-                            <option key={type} value={type}>
-                                {type}
-                            </option>
+                <label className="dl-select">
+                    Type:
+                    <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                        <option value="all">All</option>
+                        {typeOptions.map((type) => (
+                            <option key={type} value={type}>{type}</option>
                         ))}
                     </select>
-                </div>
+                </label>
 
-                <div className="rp-filters dn-tabs">
-                    {[
-                        ["all", "All"],
-                        ["pending", "Pending"],
-                        ["received", "Received"],
-                        ["cancelled", "Cancelled"],
-                    ].map(([value, label]) => (
-                        <button
-                            type="button"
-                            key={value}
-                            className={statusFilter === value ? "on" : ""}
-                            onClick={() => setStatusFilter(value)}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
+                <label className="dl-select">
+                    Sort:
+                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                        <option value="donor">Donor A–Z</option>
+                    </select>
+                </label>
+            </div>
 
+            <div className="dl-chips">
+                {["all", "pending", "received", "cancelled"].map((value) => (
+                    <button
+                        type="button"
+                        key={value}
+                        className={statusFilter === value ? "on" : ""}
+                        onClick={() => setStatusFilter(value)}
+                    >
+                        {value === "all" ? "All" : STATUS_LABEL[value]} <span>{counts[value]}</span>
+                    </button>
+                ))}
+            </div>
+
+            <div className="dl-table-card">
                 {loading ? (
-                    <p className="rp-empty">
-                        <span className="ao-spinner" /> Loading donations...
-                    </p>
+                    <p className="dl-empty">Loading donations...</p>
                 ) : visibleDonations.length === 0 ? (
-                    <p className="rp-empty">
-                        {donations.length === 0 ? "No donations recorded yet." : "No donations match your search."}
+                    <p className="dl-empty">
+                        {donations.length === 0 ? "No donations recorded yet." : "No donations match your filters."}
                     </p>
                 ) : (
-                    <div className="um-table-wrap">
-                        <table className="um-table">
+                    <div className="dl-table-wrap">
+                        <table className="dl-table">
                             <thead>
                                 <tr>
                                     <th>Donor</th>
                                     <th>Type</th>
-                                    <th>Amount / items</th>
+                                    <th>Details</th>
                                     <th>Status</th>
                                     <th>Date</th>
-                                    <th className="um-right">Actions</th>
+                                    <th className="dl-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {visibleDonations.map((donation) => {
-                                    const money = donation.donationType === "Money";
+                                {pageRows.map((donation) => {
+                                    const status = donation.status || "pending";
+                                    const details = detailsFor(donation);
 
                                     return (
-                                        <tr key={donation._id} className={donation.status === "cancelled" ? "is-off" : ""}>
+                                        <tr key={donation._id} className={status === "cancelled" ? "is-off" : ""}>
                                             <td>
-                                                <div className="um-who">
-                                                    <span className="um-avatar">{initials(donation.donorName)}</span>
-                                                    <div>
-                                                        <b>{donation.donorName || "Anonymous"}</b>
-                                                        <span>{donation.donorEmail || "No email"}</span>
-                                                    </div>
+                                                <div className="dl-donor">
+                                                    <b>{donation.donorName || "Anonymous"}</b>
+                                                    <span>{donation.donorEmail || "No email"}</span>
+                                                    <small>ID: {String(donation._id).slice(-10)}</small>
                                                 </div>
                                             </td>
                                             <td>
-                                                <span className={`dn-type ${money ? "is-money" : ""}`}>{donation.donationType}</span>
-                                            </td>
-                                            <td className="dn-amount">
-                                                <b>
-                                                    {money
-                                                        ? `₱${Number(donation.amount || 0).toLocaleString()}`
-                                                        : `${donation.quantity || 1} item${Number(donation.quantity || 1) === 1 ? "" : "s"}`}
-                                                </b>
-                                                <span>{money ? donation.paymentMethod || "" : donation.itemName || ""}</span>
-                                            </td>
-                                            <td>
-                                                <span className={`dn-status is-${donation.status || "pending"}`}>
-                                                    {STATUS_LABEL[donation.status] || donation.status}
+                                                <span className={`dl-type ${typeTone(donation.donationType)}`}>
+                                                    {donation.donationType}
                                                 </span>
                                             </td>
-                                            <td>{formatDate(donation.receivedDate || donation.createdAt)}</td>
                                             <td>
-                                                <div className="um-actions um-right">
-                                                    {donation.status === "pending" && (
+                                                <div className="dl-details">
+                                                    <b>{details.main}</b>
+                                                    {details.sub && <span>{details.sub}</span>}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`dl-status is-${status}`}>
+                                                    {STATUS_LABEL[status] || status}
+                                                </span>
+                                            </td>
+                                            <td className="dl-date">{formatDate(donation.createdAt)}</td>
+                                            <td>
+                                                <div className="dl-actions">
+                                                    {status === "pending" ? (
                                                         <button
                                                             type="button"
-                                                            className="gs-btn um-ok"
+                                                            className="dl-btn primary small"
                                                             onClick={() => handleUpdateStatus(donation._id, "received")}
                                                         >
-                                                            Mark received
+                                                            ✓ Mark Received
                                                         </button>
+                                                    ) : (
+                                                        <span className="dl-done">
+                                                            {status === "received" ? "Done" : "—"}
+                                                        </span>
                                                     )}
 
-                                                    <button type="button" className="gs-btn ghost" onClick={() => handleEditDonation(donation)}>
-                                                        Edit
+                                                    <button
+                                                        type="button"
+                                                        className="dl-icon-btn"
+                                                        title="Edit"
+                                                        onClick={() => handleEditDonation(donation)}
+                                                    >
+                                                        <Icon name="edit" size={15} />
                                                     </button>
 
-                                                    {isAdmin() && (
+                                                    <div className="dl-menu-wrap">
                                                         <button
                                                             type="button"
-                                                            className="gs-btn um-danger"
-                                                            onClick={() => handleDeleteDonation(donation._id)}
+                                                            className="dl-icon-btn"
+                                                            title="More"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setOpenMenuId(openMenuId === donation._id ? null : donation._id);
+                                                            }}
                                                         >
-                                                            Delete
+                                                            <Icon name="more" size={15} />
                                                         </button>
-                                                    )}
+
+                                                        {openMenuId === donation._id && (
+                                                            <div className="dl-menu" onClick={(e) => e.stopPropagation()}>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setOpenMenuId(null);
+                                                                        handleEditDonation(donation);
+                                                                    }}
+                                                                >
+                                                                    Edit details
+                                                                </button>
+
+                                                                {status !== "cancelled" && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className="is-danger"
+                                                                        onClick={() => {
+                                                                            setOpenMenuId(null);
+                                                                            handleCancelDonation(donation._id);
+                                                                        }}
+                                                                    >
+                                                                        Cancel donation
+                                                                    </button>
+                                                                )}
+
+                                                                {isAdmin() && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className="is-danger"
+                                                                        onClick={() => {
+                                                                            setOpenMenuId(null);
+                                                                            handleDeleteDonation(donation._id);
+                                                                        }}
+                                                                    >
+                                                                        Delete record
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -422,127 +1122,211 @@ export default function Donations() {
                         </table>
                     </div>
                 )}
-            </section>
+            </div>
 
-            {/* Record / edit pop-up */}
-            {showForm && (
-                <div className="ao-confirm-backdrop" onClick={handleCancelEdit}>
-                    <form className="um-modal dn-modal" onSubmit={handleSubmitDonation} onClick={(e) => e.stopPropagation()}>
-                        <h3>
-                            <span className="gs-mark">{editingId ? "Edit donation" : "Record donation"}</span>
-                        </h3>
+            {!loading && visibleDonations.length > 0 && (
+                <div className="dl-footer">
+                    <span>
+                        Showing {pageRows.length} of {visibleDonations.length} donation
+                        {visibleDonations.length === 1 ? "" : "s"}
+                    </span>
 
-                        <div className="dn-two">
-                            <label className="gs-field">
-                                Donor name *
-                                <input
-                                    value={donationForm.donorName}
-                                    onChange={(e) => setDonationForm({ ...donationForm, donorName: e.target.value })}
-                                    required
-                                />
-                            </label>
+                    <div className="dl-pager">
+                        <button type="button" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>
+                            ‹
+                        </button>
+                        <b>{currentPage}</b>
+                        <button type="button" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}>
+                            ›
+                        </button>
+                    </div>
+                </div>
+            )}
 
-                            <label className="gs-field">
-                                Donor email
-                                <input
-                                    type="email"
-                                    value={donationForm.donorEmail}
-                                    placeholder="optional"
-                                    onChange={(e) => setDonationForm({ ...donationForm, donorEmail: e.target.value })}
-                                />
-                            </label>
-                        </div>
+            {/* Payment methods pop-up */}
+            {showMethods && (
+                <div className="ao-confirm-backdrop" onClick={() => setShowMethods(false)}>
+                    <div className="dl-pm" onClick={(e) => e.stopPropagation()}>
+                        <button type="button" className="dl-pm-close" onClick={() => setShowMethods(false)} aria-label="Close">
+                            ✕
+                        </button>
 
-                        <label className="gs-field">
-                            Donation type *
-                            <select
-                                value={donationForm.donationType}
-                                onChange={(e) => setDonationForm({ ...donationForm, donationType: e.target.value })}
-                            >
-                                {DONATION_TYPES.map((type) => (
-                                    <option key={type} value={type}>
-                                        {type}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
+                        {methodView === "list" ? (
+                            <>
+                                <h3>Payment Methods</h3>
+                                <p className="dl-pm-sub">Shown to donors on the Donation page under Monetary.</p>
 
-                        {isMoney ? (
-                            <label className="gs-field">
-                                Amount (₱) *
-                                <input
-                                    type="number"
-                                    min="1"
-                                    step="any"
-                                    value={donationForm.amount}
-                                    onChange={(e) => setDonationForm({ ...donationForm, amount: e.target.value })}
-                                    required
-                                />
-                            </label>
-                        ) : (
-                            <div className="dn-two">
-                                <label className="gs-field">
-                                    Item name *
-                                    <input
-                                        value={donationForm.itemName}
-                                        placeholder="e.g. Dog food sack"
-                                        onChange={(e) => setDonationForm({ ...donationForm, itemName: e.target.value })}
-                                        required
-                                    />
-                                </label>
+                                {methodMessage && <p className={`gs-alert ${methodTone}`}>{methodMessage}</p>}
 
-                                <label className="gs-field">
-                                    Quantity *
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={donationForm.quantity}
-                                        onChange={(e) => setDonationForm({ ...donationForm, quantity: e.target.value })}
-                                        required
-                                    />
-                                </label>
-                            </div>
-                        )}
+                                <div className="dl-method-list">
+                                    {methods.length === 0 ? (
+                                        <p className="dl-empty">No payment methods yet.</p>
+                                    ) : (
+                                        methods.map((method) => (
+                                            <button
+                                                type="button"
+                                                className={`dl-method ${method.is_active ? "" : "is-off"}`}
+                                                key={method._id}
+                                                onClick={() => editMethod(method)}
+                                            >
+                                                <span className="dl-method-qr">
+                                                    {method.qr_image_url && <img src={method.qr_image_url} alt="" />}
+                                                </span>
+                                                <span className="dl-method-info">
+                                                    <b>{method.method_type}</b>
+                                                    <span>{method.account_name} · {method.account_number}</span>
+                                                </span>
+                                                <span className={`dl-status ${method.is_active ? "is-received" : "is-cancelled"}`}>
+                                                    {method.is_active ? "Active" : "Inactive"}
+                                                </span>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
 
-                        <div>
-                            <div className="rp-label">Status</div>
-                            <div className="rp-seg dn-seg" role="radiogroup" aria-label="Status">
-                                {["pending", "received", "cancelled"].map((value) => (
-                                    <button
-                                        type="button"
-                                        key={value}
-                                        role="radio"
-                                        aria-checked={donationForm.status === value}
-                                        className={donationForm.status === value ? "on" : ""}
-                                        onClick={() => setDonationForm({ ...donationForm, status: value })}
-                                    >
-                                        {STATUS_LABEL[value]}
+                                <div className="dl-pm-foot">
+                                    <span />
+                                    <button type="button" className="dl-btn primary" onClick={newMethod}>
+                                        + Add Method
                                     </button>
-                                ))}
-                            </div>
-                        </div>
+                                </div>
+                            </>
+                        ) : (
+                            <form onSubmit={saveMethod}>
+                                <h3>{editingMethodId ? "Edit Payment Method" : "Add Payment Method"}</h3>
+                                <p className="dl-pm-sub">
+                                    <button type="button" className="dl-link" onClick={backToMethodList}>
+                                        ← Back to list
+                                    </button>{" "}
+                                    · Changes show on the donor's Donation page right away.
+                                </p>
 
-                        <label className="gs-field">
-                            Notes
-                            <textarea
-                                rows="2"
-                                value={donationForm.notes}
-                                placeholder="Additional details"
-                                onChange={(e) => setDonationForm({ ...donationForm, notes: e.target.value })}
-                            />
-                        </label>
+                                <div className="dl-grid two">
+                                    <label className="dl-field">
+                                        <span>Method Name <b>*</b></span>
+                                        <select
+                                            value={methodForm.method_type}
+                                            onChange={(e) => setMethodForm({ ...methodForm, method_type: e.target.value })}
+                                        >
+                                            {Object.keys(METHOD_NAMES).map((name) => (
+                                                <option key={name} value={name}>{name}</option>
+                                            ))}
+                                        </select>
+                                    </label>
 
-                        {message && <p className={`gs-alert ${messageTone}`}>{message}</p>}
+                                    <label className="dl-field">
+                                        <span>Method Type</span>
+                                        <input value={METHOD_NAMES[methodForm.method_type] || "Other"} disabled />
+                                    </label>
 
-                        <div className="um-actions um-right">
-                            <button type="button" className="gs-btn ghost" onClick={handleCancelEdit}>
-                                Cancel
-                            </button>
-                            <button type="submit" className="gs-btn primary" disabled={submitting}>
-                                {submitting ? "Saving..." : editingId ? "Save changes" : "Save donation"}
-                            </button>
-                        </div>
-                    </form>
+                                    <label className="dl-field">
+                                        <span>Account Name <b>*</b></span>
+                                        <input
+                                            value={methodForm.account_name}
+                                            placeholder="e.g. RescueBase Shelter"
+                                            onChange={(e) => setMethodForm({ ...methodForm, account_name: e.target.value })}
+                                            required
+                                        />
+                                    </label>
+
+                                    <label className="dl-field">
+                                        <span>
+                                            Account Number <b>*</b> <Help text="The mobile or bank account number donors send to." />
+                                        </span>
+                                        <input
+                                            value={methodForm.account_number}
+                                            placeholder="e.g. 0917 123 1234"
+                                            onChange={(e) => setMethodForm({ ...methodForm, account_number: e.target.value })}
+                                            required
+                                        />
+                                    </label>
+                                </div>
+
+                                <div className="dl-field">
+                                    <span>
+                                        QR Code <Help text="Shown to donors next to the account details." />
+                                    </span>
+                                    <div className="dl-qr-box">
+                                        <span className="dl-method-qr">
+                                            {methodForm.qr_image_url && <img src={methodForm.qr_image_url} alt="QR code" />}
+                                        </span>
+                                        <span className="dl-method-info">
+                                            <b>{uploadingQr ? "Uploading..." : qrFileName || "No QR code yet"}</b>
+                                            <span>Upload JPG or PNG · shown to donors at checkout</span>
+                                        </span>
+                                        <label className="dl-btn small">
+                                            {methodForm.qr_image_url ? "Replace" : "Upload"}
+                                            <input type="file" accept="image/*" hidden disabled={uploadingQr} onChange={uploadQr} />
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <label className="dl-field">
+                                    <span>Instructions for Donors</span>
+                                    <textarea
+                                        rows="2"
+                                        value={methodForm.instructions}
+                                        placeholder="Send to the number above, then upload your screenshot receipt."
+                                        onChange={(e) => setMethodForm({ ...methodForm, instructions: e.target.value })}
+                                    />
+                                </label>
+
+                                {editingMethodId && (
+                                <div className="dl-field">
+                                    <span>
+                                        Status <Help text="Inactive methods are hidden from donors." />
+                                    </span>
+                                    <div className="dl-seg is-half">
+                                        {[true, false].map((value) => (
+                                            <button
+                                                type="button"
+                                                key={String(value)}
+                                                className={methodForm.is_active === value ? "on" : ""}
+                                                onClick={() => setMethodForm({ ...methodForm, is_active: value })}
+                                            >
+                                                {value ? "Active" : "Inactive"}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                )}
+
+                                {methodMessage && <p className={`gs-alert ${methodTone}`}>{methodMessage}</p>}
+
+                                <div className="dl-pm-foot">
+                                    {editingMethodId && isAdmin() ? (
+                                        (() => {
+                                            const used = methodUsage(methodForm.method_type);
+                                            const current = methods.find((m) => m._id === editingMethodId);
+
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    className="dl-link is-danger"
+                                                    disabled={used > 0}
+                                                    onClick={() => current && deleteMethod(current)}
+                                                >
+                                                    🗑 Delete method
+                                                    {used > 0 && ` (unavailable: used by ${used} donation${used === 1 ? "" : "s"})`}
+                                                </button>
+                                            );
+                                        })()
+                                    ) : (
+                                        <span />
+                                    )}
+
+                                    <div className="dl-form-actions">
+                                        <button type="button" className="dl-btn" onClick={backToMethodList}>
+                                            Cancel
+                                        </button>
+                                        <button type="submit" className="dl-btn primary" disabled={savingMethod || uploadingQr}>
+                                            {savingMethod ? "Saving..." : editingMethodId ? "Save Changes" : "Add Method"}
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        )}
+                    </div>
                 </div>
             )}
         </section>
