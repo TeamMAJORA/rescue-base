@@ -913,13 +913,14 @@ if (showReportForm && canSubmitReport) {
 
                         {!isMine && isOpen && report.reportType === "lost" && (
                             <a
-                                className="lf-card-btn"
-                                href={`mailto:${report.reporterEmail}?subject=${encodeURIComponent(
-                                    `I've seen ${report.petName || "your pet"} (RescueBase)`
-                                )}`}
-                            >
-                                I've Seen This Pet
-                            </a>
+                              className="lf-card-btn"
+                              href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(report.reporterEmail)}&su=${encodeURIComponent(
+                               `I've seen ${report.petName || "your pet"} (RescueBase)`
+                               )}`}
+                          target="_blank"
+                             rel="noreferrer">
+                                    I've Seen This Pet
+                                   </a>
                         )}
 
                         {canManageReports && report.claimStatus === "pending" && (
@@ -1087,6 +1088,66 @@ if (showReportForm && canSubmitReport) {
 
                     <h3>Description</h3>
                     <p>{mainText || "No description."}</p>
+                    {canManageReports && r.claimStatus && r.claimStatus !== "none" && (
+    <div className="lf-claim-review">
+        <h3>
+            Ownership claim{" "}
+            <span className={`lf-claim-pill is-${r.claimStatus}`}>{r.claimStatus}</span>
+        </h3>
+
+        <dl className="lf-modal-facts">
+            <div>
+                <dt>Claimed by</dt>
+                <dd>{r.claimantName || r.claimedByName || r.claimedBy?.name || "—"}</dd>
+            </div>
+            <div>
+                <dt>Email</dt>
+                <dd>{r.claimantEmail || r.claimedByEmail || r.claimedBy?.email || "—"}</dd>
+            </div>
+            <div>
+                <dt>Submitted</dt>
+                <dd>
+                    {r.claimedAt || r.claimDate
+                        ? new Date(r.claimedAt || r.claimDate).toLocaleString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                        })
+                        : "—"}
+                </dd>
+            </div>
+        </dl>
+
+        <h3>Proof given</h3>
+        <p className="lf-claim-proof">{r.claimNotes || "No proof text was saved."}</p>
+    </div>
+)}
+{canManageReports && r.claimStatus === "pending" && (
+    <>
+        <button
+            type="button"
+            className="lfr-cancel"
+            onClick={async () => {
+                await handleReviewClaim(r._id, "rejected");
+                setViewingReport(null);
+            }}
+        >
+            Reject Claim
+        </button>
+        <button
+            type="button"
+            className="lfr-submit"
+            onClick={async () => {
+                await handleReviewClaim(r._id, "approved");
+                setViewingReport(null);
+            }}
+        >
+            Approve Claim
+        </button>
+    </>
+)}
                     {canClaimThis && claimOpen && (
     <div className="lf-claim">
         <h3>Submit an ownership claim</h3>

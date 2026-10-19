@@ -55,30 +55,28 @@ export default function Feedback() {
         setLoading(true);
         setError("");
 
-        try {
-            const response =
-                await fetch(
-                    `${BACKEND_URL}/api/feedback?status=${status}`,
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-                        },
+                try {
+            const statuses = status === "all" ? ["active", "archived"] : [status];
+
+            const results = await Promise.all(
+                statuses.map(async (s) => {
+                    const response = await fetch(
+                        `${BACKEND_URL}/api/feedback?status=${s}`,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || "Failed to load feedback.");
                     }
-                );
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.message ||
-                    "Failed to load feedback."
-                );
-            }
+                    return data.feedback || [];
+                })
+            );
 
             setFeedback(
-                data.feedback || []
+                results
+                    .flat()
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             );
         } catch (error) {
             console.error(
@@ -255,23 +253,9 @@ export default function Feedback() {
                     <option value="archived">
                         Archived Feedback
                     </option>
-
-                    <option value= "all">
+                    <option value="all">
                         View All Feedback
-                    </option>
-
-                    <option value= "one">
-                        View One Feedback
-                    </option>
-                     
-                    <option value= "restore">
-                        Restore Feedback    
-                    </option> 
-                    
-                    <option value= "Delete">
-                        Delete Feedback    
-                    </option> 
-                     
+                    </option>                
                 </select>
             </div>
 
