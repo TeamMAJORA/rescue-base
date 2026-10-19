@@ -26,6 +26,17 @@ const donationUnits = [
     "Other",
 ];
 
+const inKindCategories = donationCategories.filter(
+    (category) => category !== "Money"
+);
+
+// TODO: replace with the shelter's real drop-off details
+const SHELTER_DROPOFF = {
+    name: "Shelter name",
+    address: "Shelter address, Cebu City",
+    contact: "09XX XXX XXXX",
+};
+
 const emptyDonation = {
     category: "Pet Food",
     itemName: "",
@@ -77,6 +88,10 @@ export default function DonationCenter() {
 
     const isMoneyDonation =
         donation.category === "Money";
+
+    const selectedMethod = paymentMethods.find(
+        (method) => method.method_type === donation.paymentMethod
+    );
 
     function updateDonationField(field, value) {
         setDonation((current) => ({
@@ -177,14 +192,11 @@ export default function DonationCenter() {
     async function handleSubmit(event) {
         event.preventDefault();
 
-        if (!donation.itemName.trim()) {
-            setMessage(
-                isMoneyDonation
-                    ? "Please enter your donation purpose."
-                    : "Please enter an item name."
-            );
-            return;
-        }
+        const itemName =
+            donation.itemName.trim() ||
+            (isMoneyDonation
+                ? "Monetary Donation"
+                : donation.category);
 
         if (
             !donation.quantity ||
@@ -209,11 +221,11 @@ export default function DonationCenter() {
             return;
         }
 
-        if (!donation.preferredDate) {
+        if (!donation.image) {
             setMessage(
                 isMoneyDonation
-                    ? "Please select a preferred payment date."
-                    : "Please select a preferred delivery date."
+                    ? "Please upload your proof of payment."
+                    : "Please upload a photo of the item."
             );
             return;
         }
@@ -232,7 +244,9 @@ export default function DonationCenter() {
                     : "Payment Method: " +
                       (donation.paymentMethod || "Not specified"),
 
-                `Preferred Date: ${donation.preferredDate}`,
+                donation.preferredDate
+                    ? `Preferred Date: ${donation.preferredDate}`
+                    : "",
 
                 isMoneyDonation &&
                 donation.paymentReference.trim()
@@ -256,8 +270,7 @@ export default function DonationCenter() {
                 donationType:
                     donation.category,
 
-                itemName:
-                    donation.itemName.trim(),
+                itemName,
 
                 quantity:
                     Number(donation.quantity),
@@ -610,389 +623,269 @@ export default function DonationCenter() {
             </section>
 
             <section className="adopter-panel-form">
-                <div className="adopter-panel-card">
-                    <div className="adopter-panel-heading">
+                <div className="adopter-panel-heading">
                     <div>
                         <h2>Donate to Shelter Care</h2>
-
                         <p>
                             Your kindness provides food, medical care, and a safe shelter.
                         </p>
                     </div>
                 </div>
-            </div>
+
                 <form
                     className="donation-form"
                     onSubmit={handleSubmit}
                 >
-            <div className="donation-form-panel">
-                <button
-                    type="button"
-                        className={
-                            selected === "monetary" 
-                            ? "active" : ""
-                        }
-                        onClick={() => 
-                            setSelected("monetary")
-                        }
-                >       
-                        Monetary
-                </button>
-      
-                <button
-                    type="button"
-                    className={
-                        selected === "inKind" 
-                        ? "active" : ""
-                    }
-                    onClick={() => 
-                        setSelected("inKind")
-                    }
-                >       
-                        In-Kind
-                </button>
-            </div>
-
-                
-                    <label className="adopter-panel-label">
-                        <span>Donation Category</span>
-
-                        <select
-                            value={donation.category}
-                            onChange={(event) =>
-                                handleCategoryChange(
-                                    event.target.value
-                                )
-                            }
+                    <div className="donation-toggle">
+                        <button
+                            type="button"
+                            className={isMoneyDonation ? "active" : ""}
+                            onClick={() => handleCategoryChange("Money")}
                         >
-                            {donationCategories.map(
-                                (category) => (
-                                    <option
-                                        key={category}
-                                        value={category}
-                                    >
-                                        {category}
-                                    </option>
-                                )
-                            )}
-                        </select>
-                    </label>
+                            Monetary
+                        </button>
 
-                    {isMoneyDonation && (
-                        <>
-                            <label>
-                                Payment Method
-
-                                <select
-                                    value={
-                                        donation.paymentMethod
-                                    }
-                                    onChange={(event) =>
-                                        updateDonationField(
-                                            "paymentMethod",
-                                            event.target.value
-                                        )
-                                    }
-                                    required
-                                >
-                                    <option value="">
-                                        Select Payment Method
-                                    </option>
-
-                                    {paymentMethods.map(
-                                        (method) => (
-                                            <option
-                                                key={method._id}
-                                                value={
-                                                    method.method_type
-                                                }
-                                            >
-                                                {
-                                                    method.method_type
-                                                }
-                                            </option>
-                                        )
-                                    )}
-                                </select>
-                            </label>
-
-                            {donation.paymentMethod && (
-                                <div className="selected-payment-details">
-                                    {paymentMethods
-                                        .filter(
-                                            (method) =>
-                                                method.method_type ===
-                                                donation.paymentMethod
-                                        )
-                                        .map((method) => (
-                                            <article
-                                                key={method._id}
-                                            >
-                                                <h3>
-                                                    Payment Details
-                                                </h3>
-
-                                                <p>
-                                                    <strong>
-                                                        Account Name:
-                                                    </strong>{" "}
-                                                    {
-                                                        method.account_name
-                                                    }
-                                                </p>
-
-                                                <p>
-                                                    <strong>
-                                                        Account Number:
-                                                    </strong>{" "}
-                                                    {
-                                                        method.account_number
-                                                    }
-                                                </p>
-
-                                                {method.qr_image_url && (
-                                                    <img
-                                                        src={
-                                                            method.qr_image_url
-                                                        }
-                                                        alt={`${method.method_type} payment QR code`}
-                                                    />
-                                                )}
-
-                                                {method.instructions && (
-                                                    <p>
-                                                        {
-                                                            method.instructions
-                                                        }
-                                                    </p>
-                                                )}
-                                            </article>
-                                        ))}
-                                </div>
-                            )}
-
-                            <label>
-                                Payment Reference
-                                (Optional)
-
-                                <input
-                                    value={
-                                        donation.paymentReference
-                                    }
-                                    onChange={(event) =>
-                                        updateDonationField(
-                                            "paymentReference",
-                                            event.target.value
-                                        )
-                                    }
-                                    placeholder="Example: GCash reference number"
-                                />
-                            </label>
-                        </>
-                    )}
-
-                    <label>
-                        {isMoneyDonation
-                            ? "Donation Purpose"
-                            : "Item Name"}
-
-                        <input
-                            value={donation.itemName}
-                            onChange={(event) =>
-                                updateDonationField(
-                                    "itemName",
-                                    event.target.value
-                                )
-                            }
-                            placeholder={
-                                isMoneyDonation
-                                    ? "Example: Medical Fund"
-                                    : "Example: Royal Canin Puppy Food"
-                            }
-                            required
-                        />
-                    </label>
-
-                    <div className="donation-row">
-                        <label>
-                            {isMoneyDonation
-                                ? "Amount (₱)"
-                                : "Quantity"}
-
-                            <input
-                                type="number"
-                                min="1"
-                                step={
-                                    isMoneyDonation
-                                        ? "0.01"
-                                        : "1"
-                                }
-                                value={donation.quantity}
-                                onChange={(event) =>
-                                    updateDonationField(
-                                        "quantity",
-                                        event.target.value
-                                    )
-                                }
-                                placeholder={
-                                    isMoneyDonation
-                                        ? "Example: 500"
-                                        : "Example: 5"
-                                }
-                                required
-                            />
-                        </label>
-
-                        {!isMoneyDonation && (
-                            <label>
-                                Unit
-
-                                <select
-                                    value={donation.unit}
-                                    onChange={(event) =>
-                                        updateDonationField(
-                                            "unit",
-                                            event.target.value
-                                        )
-                                    }
-                                >
-                                    {donationUnits.map(
-                                        (unit) => (
-                                            <option
-                                                key={unit}
-                                                value={unit}
-                                            >
-                                                {unit}
-                                            </option>
-                                        )
-                                    )}
-                                </select>
-                            </label>
-                        )}
+                        <button
+                            type="button"
+                            className={!isMoneyDonation ? "active" : ""}
+                            onClick={() => handleCategoryChange("Pet Food")}
+                        >
+                            In-Kind
+                        </button>
                     </div>
 
-                    {!isMoneyDonation && (
-                        <label>
-                            Delivery Method
+                    <div className="donation-layout">
+                        <div className="donation-fields">
+                            {isMoneyDonation ? (
+                                <>
+                                    <label>
+                                        <span>Mode of Payment <b>*</b></span>
+                                        <select
+                                            value={donation.paymentMethod}
+                                            onChange={(event) =>
+                                                updateDonationField(
+                                                    "paymentMethod",
+                                                    event.target.value
+                                                )
+                                            }
+                                            required
+                                        >
+                                            <option value="">
+                                                {loadingPaymentMethods
+                                                    ? "Loading..."
+                                                    : "Select payment method"}
+                                            </option>
+                                            {paymentMethods.map((method) => (
+                                                <option
+                                                    key={method._id}
+                                                    value={method.method_type}
+                                                >
+                                                    {method.method_type}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
 
-                            <select
-                                value={
-                                    donation.deliveryMethod
-                                }
-                                onChange={(event) =>
-                                    updateDonationField(
-                                        "deliveryMethod",
-                                        event.target.value
-                                    )
-                                }
-                            >
-                                <option value="Drop-off">
-                                    Drop-off
-                                </option>
+                                    <label>
+                                        <span>Amount (₱) <b>*</b></span>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            step="0.01"
+                                            placeholder="Enter amount"
+                                            value={donation.quantity}
+                                            onChange={(event) =>
+                                                updateDonationField(
+                                                    "quantity",
+                                                    event.target.value
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </label>
+                                </>
+                            ) : (
+                                <>
+                                    <label>
+                                        <span>What are you donating? <b>*</b></span>
+                                        <select
+                                            value={donation.category}
+                                            onChange={(event) =>
+                                                handleCategoryChange(
+                                                    event.target.value
+                                                )
+                                            }
+                                        >
+                                            {inKindCategories.map((category) => (
+                                                <option
+                                                    key={category}
+                                                    value={category}
+                                                >
+                                                    {category}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
 
-                                <option value="Shelter Pickup">
-                                    Shelter Pickup
-                                </option>
-                            </select>
-                        </label>
-                    )}
+                                    <div className="donation-row">
+                                        <label>
+                                            <span>Quantity <b>*</b></span>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                placeholder="0"
+                                                value={donation.quantity}
+                                                onChange={(event) =>
+                                                    updateDonationField(
+                                                        "quantity",
+                                                        event.target.value
+                                                    )
+                                                }
+                                                required
+                                            />
+                                        </label>
 
-                    <label>
-                        {isMoneyDonation
-                            ? "Preferred Payment Date"
-                            : "Preferred Delivery Date"}
+                                        <label>
+                                            <span>Unit</span>
+                                            <select
+                                                value={donation.unit}
+                                                onChange={(event) =>
+                                                    updateDonationField(
+                                                        "unit",
+                                                        event.target.value
+                                                    )
+                                                }
+                                            >
+                                                {donationUnits.map((unit) => (
+                                                    <option key={unit} value={unit}>
+                                                        {unit}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </label>
+                                    </div>
+                                </>
+                            )}
 
-                        <input
-                            type="date"
-                            min={
-                                new Date()
-                                    .toISOString()
-                                    .split("T")[0]
-                            }
-                            value={donation.preferredDate}
-                            onChange={(event) =>
-                                updateDonationField(
-                                    "preferredDate",
-                                    event.target.value
-                                )
-                            }
-                            required
-                        />
-                    </label>
+                            <label className="donation-upload">
+                                <span>
+                                    {isMoneyDonation
+                                        ? "Proof of Payment"
+                                        : "Proof of Item"}{" "}
+                                    <b>*</b>
+                                </span>
 
-                    <label className="donation-full">
-                        {isMoneyDonation
-                            ? "Payment Notes"
-                            : "Description"}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    disabled={uploadingImage}
+                                    onChange={handleUploadImage}
+                                    hidden
+                                />
 
-                        <textarea
-                            rows="5"
-                            placeholder={
-                                isMoneyDonation
-                                    ? "Tell us more about your donation..."
-                                    : "Tell us more about your donation..."
-                            }
-                            value={donation.description}
-                            onChange={(event) =>
-                                updateDonationField(
-                                    "description",
-                                    event.target.value
-                                )
-                            }
-                        />
-                    </label>
-
-                    <label>
-                        {isMoneyDonation
-                            ? "Upload Proof of Payment (Optional)"
-                            : "Upload Donation Photo (Optional)"}
-
-                        <input
-                            type="file"
-                            accept="image/*"
-                            disabled={uploadingImage}
-                            onChange={handleUploadImage}
-                        />
-                    </label>
-
-                    {donation.image && (
-                        <div className="donation-image-preview">
-                            <img
-                                src={donation.image}
-                                alt={
-                                    isMoneyDonation
-                                        ? "Proof of payment"
-                                        : "Donation"
-                                }
-                            />
-
-                            <span>
-                                {uploadingImage
-                                    ? "Uploading..."
-                                    : isMoneyDonation
-                                        ? "Proof of Payment Ready"
-                                        : "Image Ready"}
-                            </span>
+                                <div className="donation-upload-box">
+                                    {donation.image ? (
+                                        <img
+                                            src={donation.image}
+                                            alt={
+                                                isMoneyDonation
+                                                    ? "Proof of payment"
+                                                    : "Proof of item"
+                                            }
+                                        />
+                                    ) : (
+                                        <>
+                                            <strong>
+                                                {uploadingImage
+                                                    ? "Uploading..."
+                                                    : "Click to Upload"}
+                                            </strong>
+                                            <small>PNG or JPG</small>
+                                        </>
+                                    )}
+                                </div>
+                            </label>
                         </div>
-                    )}
+
+                        <aside className="donation-info-card">
+                            {isMoneyDonation ? (
+                                <>
+                                    <h4>
+                                        Send to this{" "}
+                                        {selectedMethod
+                                            ? selectedMethod.method_type
+                                            : "account"}
+                                    </h4>
+
+                                    {selectedMethod ? (
+                                        <div className="donation-info-body">
+                                            <div className="donation-info-qr">
+                                                {selectedMethod.qr_image_url && (
+                                                    <img
+                                                        src={selectedMethod.qr_image_url}
+                                                        alt={`${selectedMethod.method_type} QR code`}
+                                                    />
+                                                )}
+                                            </div>
+
+                                            <dl>
+                                                <dt>Account Name</dt>
+                                                <dd>{selectedMethod.account_name}</dd>
+                                                <dt>Account Number</dt>
+                                                <dd>{selectedMethod.account_number}</dd>
+                                            </dl>
+                                        </div>
+                                    ) : (
+                                        <p className="donation-info-empty">
+                                            Select a mode of payment to see where to send your donation.
+                                        </p>
+                                    )}
+
+                                    <small>
+                                        Scan the QR code or send directly to this number.
+                                    </small>
+                                </>
+                            ) : (
+                                <>
+                                    <h4>Bring it to the shelter</h4>
+
+                                    <div className="donation-info-body">
+                                        <div className="donation-info-qr" />
+
+                                        <dl>
+                                            <dt>Shelter</dt>
+                                            <dd>{SHELTER_DROPOFF.name}</dd>
+                                            <dt>Address</dt>
+                                            <dd>{SHELTER_DROPOFF.address}</dd>
+                                            <dt>Contact</dt>
+                                            <dd>{SHELTER_DROPOFF.contact}</dd>
+                                        </dl>
+                                    </div>
+
+                                    <small>
+                                        You or a friend can drop this off anytime.
+                                    </small>
+                                </>
+                            )}
+                        </aside>
+                    </div>
 
                     {message && (
-                        <p className="donation-message">
-                            {message}
-                        </p>
+                        <p className="donation-message">{message}</p>
                     )}
 
                     <button
                         type="submit"
-                        disabled={
-                            submitting ||
-                            uploadingImage
-                        }
+                        className="donation-submit"
+                        disabled={submitting || uploadingImage}
                     >
-                        {submitting
-                            ? "Submitting..."
-                            : "Submit Donation"}
+                        {submitting ? "Submitting..." : "Submit Donation"}
                     </button>
+
+                    <p className="donation-note">
+                        Your donation shows as <strong>Pending</strong> until the shelter confirms it.
+                    </p>
                 </form>
             </section>
 
