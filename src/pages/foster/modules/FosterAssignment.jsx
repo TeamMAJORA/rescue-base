@@ -23,7 +23,7 @@ const FA_ICONS = {
     ),
     plus: <path d="M12 5v14M5 12h14" />,
     chat: <path d="M4 5h16v11H9l-5 4z" />,
-           heart: <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" />,
+    heart: <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" />,
     mail: (
         <>
             <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -395,9 +395,15 @@ function FaIcon({ name, size = 18 }) {
     }
 
     if (!assignment) {
+        const capacityNow = Number(application?.capacity) || 1;
+        const steps = [
+            { title: "Application approved", note: "You're a registered foster", state: "done" },
+            { title: "Shelter finds a match", note: "Based on your preferences", state: "active" },
+            { title: "Your pet arrives", note: "You'll get an email and a notification", state: "upcoming" },
+        ];
+
         return (
             <section className="foster-panel">
-
                 <div className="foster-section-heading">
                     <div>
                         <span>Current Foster</span>
@@ -405,13 +411,113 @@ function FaIcon({ name, size = 18 }) {
                     </div>
                 </div>
 
-                <div className="foster-empty-state">
-                    <h3>No Active Foster Assignment</h3>
-                    <p>
-                        You currently don't have an
-                        assigned rescue animal.
-                    </p>
+                <div className="foster-assignment-top fae-card">
+                    <div className="fae-art" aria-hidden="true">
+                        <img src="/icons/heroPaw.svg" alt="" className="fae-paw is-one" />
+                        <img src="/icons/heroPaw.svg" alt="" className="fae-paw is-two" />
+                        <img src="/icons/home.svg" alt="" className="fae-home" />
+                    </div>
+
+                    <div className="fah-body">
+                        <span className="fah-eyebrow">No pet assigned yet</span>
+                        <h2 className="fah-name">Your foster home is ready</h2>
+                        <p className="fah-breed">
+                            The shelter will match you with a pet that fits your preferences.
+                        </p>
+
+                        <div className="fah-facts is-three">
+                            <div className="fah-fact">
+                                <span className="fah-fact-icon"><FaIcon name="home" /></span>
+                                <div>
+                                    <small>Capacity</small>
+                                    <b>0 of {capacityNow} {capacityNow === 1 ? "slot" : "slots"} used</b>
+                                </div>
+                            </div>
+
+                            <div className="fah-fact">
+                                <span className="fah-fact-icon"><FaIcon name="heart" /></span>
+                                <div>
+                                    <small>Prefers</small>
+                                    <b>{application?.preferredAnimalType || "Any"}</b>
+                                </div>
+                            </div>
+
+                            <div className="fah-fact">
+                                <span className="fah-fact-icon"><FaIcon name="calendar" /></span>
+                                <div>
+                                    <small>Duration</small>
+                                    <b>{application?.fosterDuration || "—"}</b>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="fah-actions">
+                            <button
+                                type="button"
+                                className="fah-btn is-primary"
+                                onClick={() => onNavigate?.("application")}
+                            >
+                                <FaIcon name="report" size={16} />
+                                View My Application
+                            </button>
+
+                            <button
+                                type="button"
+                                className={`fah-btn is-ghost ${contactOpen ? "is-open" : ""}`}
+                                onClick={toggleContact}
+                                aria-expanded={contactOpen}
+                            >
+                                <FaIcon name="chat" size={16} />
+                                Contact Shelter
+                            </button>
+                        </div>
+
+                        {contactOpen && (
+                            <div className="fah-contact" role="region" aria-label="Shelter contacts">
+                                {!contact ? (
+                                    <p className="fah-contact-empty">Loading contacts...</p>
+                                ) : !contact.email && !contact.phone ? (
+                                    <p className="fah-contact-empty">The shelter hasn't added contact details yet.</p>
+                                ) : (
+                                    <>
+                                        {contact.phone && (
+                                            <a className="fah-contact-item" href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}>
+                                                <span className="fah-fact-icon"><FaIcon name="phone" /></span>
+                                                <div>
+                                                    <small>Call or text</small>
+                                                    <b>{contact.phone}</b>
+                                                </div>
+                                            </a>
+                                        )}
+                                        {contact.email && (
+                                            <a className="fah-contact-item" href={`mailto:${contact.email}`}>
+                                                <span className="fah-fact-icon"><FaIcon name="mail" /></span>
+                                                <div>
+                                                    <small>Email</small>
+                                                    <b>{contact.email}</b>
+                                                </div>
+                                            </a>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
+
+                <ol className="fae-steps">
+                    {steps.map((step, index) => (
+                        <li key={step.title} className={`fae-step is-${step.state}`}>
+                            <span className="fae-step-dot">
+                                {step.state === "done" ? <FaIcon name="check" size={14} /> : index + 1}
+                            </span>
+                            <div>
+                                <b>{step.title}</b>
+                                <small>{step.note}</small>
+                            </div>
+                        </li>
+                    ))}
+                </ol>
             </section>
         );
     }

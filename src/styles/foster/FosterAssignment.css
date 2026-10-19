@@ -1171,3 +1171,131 @@
     color: #17803d;
     fill: currentColor;
 }
+
+/* ===== My Foster Pet: no pet assigned yet ===== */
+.fae-art {
+    position: relative;
+    min-height: 230px;
+    max-height: 300px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fde3bf;
+}
+
+.fae-home {
+    position: relative;
+    width: 55%;
+    max-width: 140px;
+    height: auto;
+    animation: fae-bob 3s ease-in-out infinite;
+}
+
+.fae-paw {
+    position: absolute;
+    width: 56px;
+    height: auto;
+    opacity: 0.45;
+}
+
+.fae-paw.is-one {
+    top: 14px;
+    left: 14px;
+    transform: rotate(-20deg);
+}
+
+.fae-paw.is-two {
+    right: 12px;
+    bottom: 14px;
+    width: 44px;
+    transform: rotate(18deg);
+}
+
+.fah-facts.is-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* 1-2-3 "what happens next" */
+.fae-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fae-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+    border-radius: 16px;
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.fae-step-dot {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(90, 27, 0, 0.08);
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.fae-step.is-done .fae-step-dot {
+    background: #17803d;
+    color: #fff;
+}
+
+.fae-step.is-active {
+    border-color: rgba(251, 133, 0, 0.45);
+    background: #fff7cb;
+}
+
+.fae-step.is-active .fae-step-dot {
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.fae-step b {
+    display: block;
+    font-size: 13px;
+}
+
+.fae-step small {
+    display: block;
+    margin-top: 2px;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.fae-step.is-upcoming b {
+    color: #7b452d;
+}
+
+@keyframes fae-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fae-home {
+        animation: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .fah-facts.is-three,
+    .fae-steps {
+        grid-template-columns: 1fr;
+    }
+}
