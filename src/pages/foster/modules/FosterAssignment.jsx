@@ -61,7 +61,7 @@ function FaIcon({ name, size = 18 }) {
     );
 }
 
-   export default function FosterAssignment({ application = null, onNavigate, onAdopt }) {
+export default function FosterAssignment({ application = null, onNavigate, onAdopt, initialPetId = null }) {
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
@@ -74,7 +74,7 @@ function FaIcon({ name, size = 18 }) {
 
     const [loading, setLoading] = useState(true);
     const [assignments, setAssignments] = useState([]);
-    const [selectedId, setSelectedId] = useState(null);
+    const [selectedId, setSelectedId] = useState(initialPetId);
     const [message, setMessage] = useState("");
     const token = localStorage.getItem("token");
 
@@ -590,7 +590,7 @@ function FaIcon({ name, size = 18 }) {
                         <button
                             type="button"
                             className="fah-btn is-primary"
-                            onClick={() => onNavigate?.("updates")}
+                            onClick={() => onNavigate?.("updates", assignment._id)}
                         >
                             <FaIcon name="report" size={16} />
                             Submit Weekly Report
@@ -599,7 +599,7 @@ function FaIcon({ name, size = 18 }) {
                         <button
                             type="button"
                             className="fah-btn is-medical"
-                            onClick={() => onNavigate?.("medical")}
+                            onClick={() => onNavigate?.("medical", assignment._id)}
                         >
                             <FaIcon name="plus" size={16} />
                             Request Medical Assistance
@@ -844,7 +844,7 @@ function FaIcon({ name, size = 18 }) {
                                 <button
                                     type="button"
                                     className="acard-link"
-                                    onClick={() => onNavigate?.("updates")}
+                                    onClick={() => onNavigate?.("updates", assignment._id)}
                                 >
                                     View all {recentUpdates.length} updates →
                                 </button>
@@ -861,7 +861,7 @@ function FaIcon({ name, size = 18 }) {
                             <button
                                 type="button"
                                 className="fah-btn is-primary"
-                                onClick={() => onNavigate?.("updates")}
+                                onClick={() => onNavigate?.("updates", assignment._id)}
                             >
                                 <FaIcon name="report" size={16} />
                                 Submit first report

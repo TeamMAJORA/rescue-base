@@ -59,6 +59,8 @@ export default function FosterDashboard({ setPage }) {
     const [revoking, setRevoking] = useState(false);
     const [revokeError, setRevokeError] = useState("");
     const [assignment, setAssignment] = useState(null);
+    const [assignments, setAssignments] = useState([]);
+    const [focusPetId, setFocusPetId] = useState(null);
     const [message, setMessage] = useState("");
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -127,9 +129,12 @@ export default function FosterDashboard({ setPage }) {
         action();
     }
 
-    function goToPage(page) {
-        guardLeave(() => setActivePage(page));
-    }
+function goToPage(page, petId = null) {
+    guardLeave(() => {
+        setFocusPetId(petId);
+        setActivePage(page);
+    });
+}
 
     function confirmLeave() {
         const action = pendingLeave?.action;
@@ -234,6 +239,7 @@ export default function FosterDashboard({ setPage }) {
     async function fetchAssignment() {
         if (!fosterEmail) {
             setAssignment(null);
+            setAssignments([]);
             return;
         }
 
@@ -255,12 +261,15 @@ export default function FosterDashboard({ setPage }) {
 
             if (response.ok && data.success) {
                 setAssignment(data.assignment);
+                setAssignments(data.assignments || (data.assignment ? [data.assignment] : []));
             } else {
                 setAssignment(null);
+                setAssignments([]);
             }
         } catch (error) {
             console.error(error);
             setAssignment(null);
+            setAssignments([]);
             setLoadError(true);
         }
     }
@@ -326,6 +335,10 @@ export default function FosterDashboard({ setPage }) {
         loadNotifications();
     }, [signedOut, maintenance]);
 
+// Pet chosen from the dashboard / My Foster Pet; falls back to the newest
+    const focusedAssignment =
+    assignments.find((item) => item._id === focusPetId) || assignment;
+
     const pages = useMemo(() => ({
 
         dashboard: (
@@ -333,6 +346,11 @@ export default function FosterDashboard({ setPage }) {
                 fosterName={fosterName}
                 application={application}
                 assignment={assignment}
+                assignments={assignments}
+                onNavigate={goToPage}
+                notifications={notifications}
+                onOpenNotifications={() => setNotificationsOpen(true)}
+                onRefreshNotifications={loadNotifications}
             />
         ),
 
@@ -350,12 +368,14 @@ export default function FosterDashboard({ setPage }) {
                 refresh={fetchAssignment}
                 onNavigate={goToPage}
                 onAdopt={() => guardLeave(() => setPage("dashboard"))}
+                initialPetId={focusPetId}
             />
         ),
 
         updates: (
             <WeeklyUpdates
-                assignment={assignment}
+                key={focusedAssignment?._id}
+                assignment={focusedAssignment}
                 onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
@@ -363,7 +383,8 @@ export default function FosterDashboard({ setPage }) {
 
         behavior: (
             <FosterUpdates
-                assignment={assignment}
+                key={focusedAssignment?._id}
+                assignment={focusedAssignment}
                 onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
@@ -372,7 +393,8 @@ export default function FosterDashboard({ setPage }) {
         // old link name still opens Behavior Evaluation
         fosterUpdates: (
             <FosterUpdates
-                assignment={assignment}
+                key={focusedAssignment?._id}
+                assignment={focusedAssignment}
                 refreshAssignment={fetchAssignment}
             />
         ),
@@ -397,7 +419,8 @@ export default function FosterDashboard({ setPage }) {
 
         medical: (
             <MedicalAssistance
-                assignment={assignment}
+                key={focusedAssignment?._id}
+                assignment={focusedAssignment}
                 onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
@@ -410,7 +433,11 @@ export default function FosterDashboard({ setPage }) {
     }), [
         application,
         assignment,
+        assignments,
+        focusedAssignment,
+        focusPetId,
         fosterName,
+        notifications,
     ]);
 
 
@@ -656,12 +683,6 @@ export default function FosterDashboard({ setPage }) {
 
                     <div>
                         <h1>{PAGE_TITLES[activePage] || "Foster Dashboard"}</h1>
-
-                        {activePage === "dashboard" && (
-                            <p>
-                                Welcome back, <strong>{fosterName}</strong>
-                            </p>
-                        )}
                     </div>
 
                     <div className="foster-topbar-actions">
