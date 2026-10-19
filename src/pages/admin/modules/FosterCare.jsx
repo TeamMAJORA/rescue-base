@@ -1953,22 +1953,6 @@ export default function FosterCare() {
                                         </div>
                                     );
                                 })()}
-                                <label className="is-wide">
-                                    <span>Animal <em>*</em></span>
-                                    <select
-                                        value={assignmentForm.animalId}
-                                        onChange={(e) => pickAnimal(e.target.value)}
-                                        required
-                                    >
-                                        <option value="">Choose an animal</option>
-                                        {fosterableAnimals().map((animal) => (
-                                            <option key={animal._id} value={animal._id}>
-                                                {animalLabel(animal)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <small>Only animals that aren't adopted or already in foster care are listed.</small>
-                                </label>
 
                                 <label className="is-wide">
                                     Care instructions
