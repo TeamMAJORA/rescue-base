@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+
 const API = import.meta.env.VITE_BACKEND_URL;
 
 
@@ -22,6 +23,7 @@ const FA_ICONS = {
     ),
     plus: <path d="M12 5v14M5 12h14" />,
     chat: <path d="M4 5h16v11H9l-5 4z" />,
+           heart: <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" />,
     mail: (
         <>
             <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -59,7 +61,7 @@ function FaIcon({ name, size = 18 }) {
     );
 }
 
-export default function FosterAssignment({ application = null, onNavigate }) {
+   export default function FosterAssignment({ application = null, onNavigate, onAdopt }) {
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
     );
@@ -76,8 +78,45 @@ export default function FosterAssignment({ application = null, onNavigate }) {
     const [message, setMessage] = useState("");
     const token = localStorage.getItem("token");
 
-    const [contactOpen, setContactOpen] = useState(false);
-    const [contact, setContact] = useState(null);
+       const [contactOpen, setContactOpen] = useState(false);
+       const [contact, setContact] = useState(null);
+
+       // "Adopt": the foster's own latest adoption application (to know if one is in progress)
+       const ACTIVE_ADOPTION = ["pending", "interview_scheduled", "interview_completed"];
+       const ADOPTION_STATUS_TEXT = {
+           pending: "pending review",
+           interview_scheduled: "waiting for the interview",
+           interview_completed: "waiting for the final decision",
+       };
+       const [adoptApp, setAdoptApp] = useState(null);
+
+       async function loadAdoptionApp() {
+           try {
+               const response = await fetch(`${API}/api/adoptions/user/latest`, {
+                   headers: { Authorization: `Bearer ${token}` },
+               });
+               const data = await response.json();
+               setAdoptApp(response.ok && data.success ? data.application : null);
+           } catch (error) {
+               console.error(error);
+           }
+       }
+
+       // Opens the adoption form (adopter dashboard) with this pet already picked
+       function startAdoption(animalId) {
+           if (adoptApp && ACTIVE_ADOPTION.includes(adoptApp.status)) {
+               setMessage("You already have an adoption application in progress. Check it on the adopter dashboard.");
+               return;
+           }
+
+           try {
+               sessionStorage.setItem("rb_adopt_pet", animalId);
+           } catch {
+               // ignore storage errors
+           }
+
+           onAdopt?.();
+       }
 
     // "Return Pet": foster asks the shelter to take the animal back early
     const emptyReturn = { reason: "", preferredDate: "", notes: "", urgent: false };
@@ -157,6 +196,14 @@ export default function FosterAssignment({ application = null, onNavigate }) {
         assignments[0] ||
         null;
 
+        
+       // The shelter animal record behind this assignment (needed to adopt it)
+       const petAnimalId = String(assignment?.animalId?._id || assignment?.animalId || "");
+       const adoptingThis =
+           Boolean(petAnimalId) &&
+           ACTIVE_ADOPTION.includes(adoptApp?.status) &&
+           String(adoptApp?.animalId?._id || adoptApp?.animalId) === petAnimalId;
+        
     async function loadAssignment() {
         try {
             setLoading(true);
@@ -199,6 +246,7 @@ export default function FosterAssignment({ application = null, onNavigate }) {
     useEffect(() => {
         if (fosterEmail) {
             loadAssignment();
+            loadAdoptionApp();
         }
     }, []);
 
@@ -461,13 +509,35 @@ export default function FosterAssignment({ application = null, onNavigate }) {
                             Contact Shelter
                         </button>
 
-                        {assignment.returnRequest?.status !== "pending" && !returnOpen && (
-                            <button type="button" className="fah-btn is-return" onClick={openReturn}>
-                                <FaIcon name="home" size={16} />
-                                Return Pet
-                            </button>
-                        )}
-                    </div>
+                           {assignment.returnRequest?.status !== "pending" && !returnOpen && (
+                               <button type="button" className="fah-btn is-return" onClick={openReturn}>
+                                   <FaIcon name="home" size={16} />
+                                   Return Pet
+                               </button>
+                           )}
+
+                           {petAnimalId && !adoptingThis && assignment.returnRequest?.status !== "pending" && (
+                               <button
+                                   type="button"
+                                   className="fah-btn is-adopt"
+                                   onClick={() => startAdoption(petAnimalId)}
+                               >
+                                   <FaIcon name="heart" size={16} />
+                                   Adopt {assignment.petName}
+                               </button>
+                           )}
+                       </div>
+
+                       {adoptingThis && (
+                           <p className="fah-return-note is-adopt">
+                               <FaIcon name="heart" size={16} />
+                               <span>
+                                   Your adoption application for {assignment.petName} is{" "}
+                                   <b>{ADOPTION_STATUS_TEXT[adoptApp.status] || adoptApp.status}</b>. Keep caring for
+                                   them while staff review it.
+                               </span>
+                           </p>
+                       )}
 
                     {assignment.returnRequest?.status === "pending" && (
                         <p className="fah-return-note">

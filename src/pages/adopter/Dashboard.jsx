@@ -590,6 +590,27 @@ async function fetchPets({ silent = false } = {}) {
                     emptyPet
                 );
             });
+
+            // Coming from the foster page's "Adopt" button: open the form for that pet
+            let adoptPetId = null;
+
+            try {
+                adoptPetId = sessionStorage.getItem("rb_adopt_pet");
+                sessionStorage.removeItem("rb_adopt_pet");
+            } catch {
+                adoptPetId = null;
+            }
+
+            if (adoptPetId) {
+                const fosterPet = normalizedPets.find((pet) => pet._id === adoptPetId);
+
+                if (fosterPet) {
+                    handleApply(fosterPet);
+                } else {
+                    setPetsError("That pet is no longer available for adoption.");
+                }
+            }
+            
         } catch (error) {
             console.error(
                 "Fetch available pets error:",

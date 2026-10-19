@@ -1146,3 +1146,28 @@
         flex-direction: column-reverse;
     }
 }
+
+/* ===== Adopt your foster pet ===== */
+.fah-btn.is-adopt {
+    border: 1.5px solid #17803d;
+    background: #fff;
+    color: #17803d;
+}
+
+.fah-btn.is-adopt:hover {
+    background: #e4f3e9;
+}
+
+.fah-btn.is-adopt .fah-icon {
+    fill: currentColor;
+}
+
+.fah-return-note.is-adopt {
+    border-color: rgba(23, 128, 61, 0.3);
+    background: #e4f3e9;
+}
+
+.fah-return-note.is-adopt .fah-icon {
+    color: #17803d;
+    fill: currentColor;
+}

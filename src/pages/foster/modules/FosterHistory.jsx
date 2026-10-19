@@ -257,7 +257,7 @@ export default function FosterHistory() {
                                             <h3>{item.petName}</h3>
                                             <small>{item.petBreed || "Unknown breed"}</small>
                                         </div>
-                                        <span className={`fh-pill is-${outcome}`}>{OUTCOME_LABEL[outcome]}</span>
+                                        <span className={`fh-pill is-${outcome}`}>{item.endReason === "adopted_by_foster" ? "Adopted by you" : OUTCOME_LABEL[outcome]}</span>
                                     </div>
 
                                     <div className="fh-facts">

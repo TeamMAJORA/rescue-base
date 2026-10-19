@@ -349,6 +349,7 @@ export default function FosterDashboard({ setPage }) {
                 application={application}
                 refresh={fetchAssignment}
                 onNavigate={goToPage}
+                onAdopt={() => guardLeave(() => setPage("dashboard"))}
             />
         ),
 
