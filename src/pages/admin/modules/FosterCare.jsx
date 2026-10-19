@@ -1,6 +1,7 @@
 import {
-    useEffect, useState
+    useEffect, useRef, useState
 } from "react"
+import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -101,6 +102,122 @@ function StatIcon({ name, size = 15 }) {
         >
             {STAT_ICONS[name]}
         </svg>
+    );
+}
+
+// ----- Care instructions as a checklist -----
+// Each row is saved as one line; the foster sees every line as a checklist item.
+const CARE_PRESETS = [
+    "Feed twice a day",
+    "Fresh water at all times",
+    "Daily walk or playtime",
+    "Give medicine as prescribed",
+    "Keep indoors at night",
+    "Submit a weekly update",
+];
+
+function CareChecklistInput({ value, onChange }) {
+    const rows = String(value || "").split("\n");
+    const inputsRef = useRef([]);
+    const [focusIndex, setFocusIndex] = useState(null);
+
+    // Move the cursor to a row after adding/removing one
+    useEffect(() => {
+        if (focusIndex === null) return;
+        inputsRef.current[focusIndex]?.focus();
+        setFocusIndex(null);
+    }, [focusIndex, value]);
+
+    function save(next) {
+        onChange(next.join("\n"));
+    }
+
+    function editRow(index, text) {
+        const next = [...rows];
+        next[index] = text.replace(/\n/g, " ");
+        save(next);
+    }
+
+    function addRow(afterIndex = rows.length - 1, text = "") {
+        const next = [...rows];
+        next.splice(afterIndex + 1, 0, text);
+        save(next);
+        setFocusIndex(afterIndex + 1);
+    }
+
+    function removeRow(index) {
+        const next = rows.filter((_, i) => i !== index);
+        save(next.length ? next : [""]);
+        setFocusIndex(Math.max(0, index - 1));
+    }
+
+    function addPreset(text) {
+        const filled = rows.filter((row) => row.trim());
+        save([...filled, text]);
+    }
+
+    function handleKeyDown(event, index) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            addRow(index);
+        }
+
+        if (event.key === "Backspace" && !rows[index] && rows.length > 1) {
+            event.preventDefault();
+            removeRow(index);
+        }
+    }
+
+    const used = rows.map((row) => row.trim().toLowerCase());
+
+    return (
+        <div className="acl">
+            <ul className="acl-list">
+                {rows.map((row, index) => (
+                    <li key={index} className="acl-row">
+                        <span className="acl-check" aria-hidden="true">
+                            <StatIcon name="check" size={12} />
+                        </span>
+                        <input
+                            ref={(element) => { inputsRef.current[index] = element; }}
+                            value={row}
+                            onChange={(event) => editRow(index, event.target.value)}
+                            onKeyDown={(event) => handleKeyDown(event, index)}
+                            placeholder={index === 0 ? "e.g. Feed twice a day" : "Another instruction"}
+                            maxLength={120}
+                            aria-label={`Care instruction ${index + 1}`}
+                        />
+                        <button
+                            type="button"
+                            className="acl-remove"
+                            onClick={() => removeRow(index)}
+                            aria-label={`Remove instruction ${index + 1}`}
+                            disabled={rows.length === 1 && !row}
+                        >
+                            <StatIcon name="x" size={12} />
+                        </button>
+                    </li>
+                ))}
+            </ul>
+
+            <button type="button" className="acl-add" onClick={() => addRow()}>
+                + Add instruction
+            </button>
+
+            <div className="acl-presets">
+                <small>Quick add:</small>
+                {CARE_PRESETS.map((preset) => (
+                    <button
+                        key={preset}
+                        type="button"
+                        onClick={() => addPreset(preset)}
+                        disabled={used.includes(preset.toLowerCase())}
+                    >
+                        + {preset}
+                    </button>
+                ))}
+            </div>
+        </div>
     );
 }
 export default function FosterCare() {
@@ -1954,20 +2071,18 @@ export default function FosterCare() {
                                     );
                                 })()}
 
-                                <label className="is-wide">
+                            <div className="is-wide acl-field">
+                                <span className="acl-label">
                                     Care instructions
-                                    <textarea
-                                        rows="3"
-                                        value={assignmentForm.careInstructions}
-                                        onChange={(e) =>
-                                            setAssignmentForm({
-                                                ...assignmentForm,
-                                                careInstructions: e.target.value,
-                                            })
-                                        }
-                                        placeholder="Provide food, water, shelter, and weekly updates."
-                                    />
-                                </label>
+                                    <InfoTip text="Press Enter for a new line. The foster sees each line as a checklist item." />
+                                </span>
+                                <CareChecklistInput
+                                    value={assignmentForm.careInstructions}
+                                    onChange={(text) =>
+                                        setAssignmentForm((form) => ({ ...form, careInstructions: text }))
+                                    }
+                                />
+                            </div>
                             </div>
 
                             {message ? (
@@ -2102,20 +2217,18 @@ export default function FosterCare() {
                                         </div>
                                     )}
 
-                                    <label className="is-wide">
+                                <div className="is-wide acl-field">
+                                    <span className="acl-label">
                                         Care instructions
-                                        <textarea
-                                            rows="4"
-                                            value={assignmentForm.careInstructions}
-                                            onChange={(e) =>
-                                                setAssignmentForm({
-                                                    ...assignmentForm,
-                                                    careInstructions: e.target.value,
-                                                })
-                                            }
-                                            placeholder="One instruction per line"
-                                        />
-                                    </label>
+                                        <InfoTip text="Press Enter for a new line. The foster sees each line as a checklist item." />
+                                    </span>
+                                    <CareChecklistInput
+                                        value={assignmentForm.careInstructions}
+                                        onChange={(text) =>
+                                            setAssignmentForm((form) => ({ ...form, careInstructions: text }))
+                                        }
+                                    />
+                                </div>
                                 </div>
 
                                 {message ? (
