@@ -12,6 +12,31 @@ function askConfirm(options) {
 }
 
 const API = import.meta.env.VITE_BACKEND_URL;
+const CEBU_CENTER = [10.3157, 123.8854];
+
+const PIN_ICON = L.divIcon({
+    className: "lfr-pin",
+    html: "<span></span>",
+    iconSize: [26, 34],
+    iconAnchor: [13, 34],
+});
+
+// Click on the map = drop a pin
+function MapClick({ onPick }) {
+    useMapEvents({
+        click: (e) => onPick(e.latlng.lat, e.latlng.lng),
+    });
+    return null;
+}
+
+// Move the map to the pin when it changes
+function MapFollow({ lat, lng }) {
+    const map = useMap();
+    useEffect(() => {
+        if (lat && lng) map.setView([lat, lng], Math.max(map.getZoom(), 16));
+    }, [lat, lng]);
+    return null;
+}
 
 
 export default function LostFoundPage({ setPage }) {
@@ -42,7 +67,9 @@ export default function LostFoundPage({ setPage }) {
     const [contactNumber, setContactNumber] = useState("");
     const [notes, setNotes] = useState("");
     const [showReportForm, setShowReportForm] = useState(false);
-
+    const [lat, setLat] = useState("");
+    const [lng, setLng] = useState("");
+    const [mapSearch, setMapSearch] = useState(""); 
     useEffect(() => {
         try {
             const savedUser = localStorage.getItem("rescuebase_user");
@@ -464,9 +491,55 @@ const visibleReports = reports
         const diff = new Date(b.dateReported || b.createdAt) - new Date(a.dateReported || a.createdAt);
         return sortBy === "newest" ? diff : -diff;
     });
+function pickPoint(la, ln) {
+    setLat(la.toFixed(6));
+    setLng(ln.toFixed(6));
+}
 
-    if (showReportForm && canSubmitReport) {
+async function searchMap() {
+    if (!mapSearch.trim()) return;
+
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ph&q=${encodeURIComponent(mapSearch)}`
+        );
+        const data = await res.json();
+
+        if (data[0]) {
+            pickPoint(Number(data[0].lat), Number(data[0].lon));
+            if (!location.trim()) setLocation(mapSearch.trim());
+        } else {
+            setError("Place not found on the map. Try a nearby landmark.");
+        }
+    } catch {
+        setError("Map search failed. Click the map to drop a pin instead.");
+    }
+}
+
+if (showReportForm && canSubmitReport) {
     const isLost = reportType === "lost";
+
+    const contactFields = (
+        <>
+            <label className="lfr-field lfr-span-2">
+                <span>
+                    Contact Number <em>*</em>{" "}
+                    <i className="lfr-help" title="Shown to staff so they can reach you">?</i>
+                </span>
+                <input type="tel" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} placeholder="e.g. 0917 123 4567" required />
+            </label>
+
+            <label className="lfr-field lfr-span-2">
+                <span>Reported By</span>
+                <input value={user?.name || user?.username || ""} placeholder="Auto-filled from your account" readOnly />
+            </label>
+
+            <label className="lfr-field lfr-span-4">
+                <span>Notes</span>
+                <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" />
+            </label>
+        </>
+    );
 
     return (
         <main className="lfr-page">
@@ -489,12 +562,23 @@ const visibleReports = reports
 
                 <section className="lfr-section">
                     <h2>Pet Details</h2>
-                    <p>Describe the pet so people can recognize it. Fields marked * are required.</p>
+                    <p>
+                        {isLost
+                            ? "Describe the pet so people can recognize it. Fields marked * are required."
+                            : "Used to match your report with lost pet reports. Fields marked * are required."}
+                    </p>
 
                     <div className="lfr-grid">
                         <label className="lfr-field">
-                            <span>Pet Name <i className="lfr-help" title="Leave blank if you don't know the name">?</i></span>
-                            <input value={petName} onChange={(e) => setPetName(e.target.value)} placeholder="e.g. Brownie" />
+                            <span>
+                                Pet Name {!isLost && <small className="lfr-optional">(optional)</small>}{" "}
+                                <i className="lfr-help" title="Leave blank if you don't know the name">?</i>
+                            </span>
+                            <input
+                                value={petName}
+                                onChange={(e) => setPetName(e.target.value)}
+                                placeholder={isLost ? "e.g. Brownie" : "Leave blank if unknown"}
+                            />
                         </label>
 
                         <label className="lfr-field">
@@ -517,29 +601,35 @@ const visibleReports = reports
                             <input value={color} onChange={(e) => setColor(e.target.value)} placeholder="e.g. Brown and white" />
                         </label>
 
-                        <label className="lfr-field">
-                            <span>Age</span>
-                            <div className="lfr-age">
-                                <input type="number" min="0" value={age} onChange={(e) => setAge(e.target.value)} placeholder="e.g. 2" />
-                                <select value={ageUnit} onChange={(e) => setAgeUnit(e.target.value)}>
-                                    <option value="Years">Years</option>
-                                    <option value="Months">Months</option>
-                                </select>
-                            </div>
-                        </label>
+                        {isLost && (
+                            <>
+                                <label className="lfr-field">
+                                    <span>Age</span>
+                                    <div className="lfr-age">
+                                        <input type="number" min="0" value={age} onChange={(e) => setAge(e.target.value)} placeholder="e.g. 2" />
+                                        <select value={ageUnit} onChange={(e) => setAgeUnit(e.target.value)}>
+                                            <option value="Years">Years</option>
+                                            <option value="Months">Months</option>
+                                        </select>
+                                    </div>
+                                </label>
+
+                                <label className="lfr-field">
+                                    <span>Gender</span>
+                                    <select value={gender} onChange={(e) => setGender(e.target.value)}>
+                                        <option value="">Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Unknown">Unknown</option>
+                                    </select>
+                                </label>
+                            </>
+                        )}
 
                         <label className="lfr-field">
-                            <span>Gender</span>
-                            <select value={gender} onChange={(e) => setGender(e.target.value)}>
-                                <option value="">Select</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Unknown">Unknown</option>
-                            </select>
-                        </label>
-
-                        <label className="lfr-field">
-                            <span>Size</span>
+                            <span>
+                                Size {!isLost && <i className="lfr-help" title="Your best guess is fine">?</i>}
+                            </span>
                             <select value={size} onChange={(e) => setSize(e.target.value)}>
                                 <option value="">Select</option>
                                 <option value="Small">Small</option>
@@ -556,55 +646,102 @@ const visibleReports = reports
                             <input type="date" value={dateReported} onChange={(e) => setDateReported(e.target.value)} required />
                         </label>
 
-                        <label className="lfr-field">
+                        <label className={`lfr-field ${isLost ? "" : "lfr-span-2"}`}>
                             <span>Photo</span>
                             <input type="url" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} placeholder="Paste image URL" />
                         </label>
 
-                        <label className="lfr-field lfr-span-3">
+                        <label className={`lfr-field ${isLost ? "lfr-span-3" : "lfr-span-4"}`}>
                             <span>Description <em>*</em></span>
                             <input
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Markings, collar, behavior or other identifying details..."
+                                placeholder={
+                                    isLost
+                                        ? "Markings, collar, behavior or other identifying details..."
+                                        : "Markings, collar, condition, and where the pet is now..."
+                                }
                                 required
                             />
                         </label>
                     </div>
                 </section>
 
-                <section className="lfr-section">
-                    <h2>Location &amp; Contact</h2>
-                    <p>Where the pet was {isLost ? "last seen" : "found"} and how to reach the reporter.</p>
+                {isLost ? (
+                    <section className="lfr-section">
+                        <h2>Location &amp; Contact</h2>
+                        <p>Where the pet was last seen and how to reach the reporter.</p>
 
-                    <div className="lfr-grid">
-                        <label className="lfr-field lfr-span-2">
-                            <span>
-                                {isLost ? "Last Seen Location" : "Found Location"} <em>*</em>{" "}
-                                <i className="lfr-help" title="Barangay and city is enough">?</i>
-                            </span>
-                            <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Brgy. Lahug, Cebu City" required />
-                        </label>
+                        <div className="lfr-grid">
+                            <label className="lfr-field lfr-span-4">
+                                <span>
+                                    Last Seen Location <em>*</em>{" "}
+                                    <i className="lfr-help" title="Barangay and city is enough">?</i>
+                                </span>
+                                <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Brgy. Lahug, Cebu City" required />
+                            </label>
 
-                        <label className="lfr-field">
-                            <span>
-                                Contact Number <em>*</em>{" "}
-                                <i className="lfr-help" title="Shown to staff so they can reach you">?</i>
-                            </span>
-                            <input type="tel" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} placeholder="e.g. 0917 123 4567" required />
-                        </label>
+                            {contactFields}
+                        </div>
+                    </section>
+                ) : (
+                    <section className="lfr-section">
+                        <h2>Found Location</h2>
+                        <p>Type where you found the pet, then drop a pin so the owner can see it on the GIS map.</p>
 
-                        <label className="lfr-field">
-                            <span>Reported By</span>
-                            <input value={user?.name || user?.username || ""} placeholder="Auto-filled from your account" readOnly />
-                        </label>
+                        <div className="lfr-grid">
+                            <label className="lfr-field lfr-span-2">
+                                <span>
+                                    Location Name <em>*</em>{" "}
+                                    <i className="lfr-help" title="A landmark or street name helps">?</i>
+                                </span>
+                                <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Near Ayala Center, Cebu City" required />
+                            </label>
 
-                        <label className="lfr-field lfr-span-4">
-                            <span>Notes</span>
-                            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" />
-                        </label>
-                    </div>
-                </section>
+                            <label className="lfr-field">
+                                <span>Latitude</span>
+                                <input value={lat} placeholder="10.3157" readOnly />
+                            </label>
+
+                            <label className="lfr-field">
+                                <span>Longitude</span>
+                                <input value={lng} placeholder="123.8854" readOnly />
+                            </label>
+
+                            <div className="lfr-map lfr-span-4">
+                                <MapContainer
+                                    center={lat && lng ? [Number(lat), Number(lng)] : CEBU_CENTER}
+                                    zoom={14}
+                                    scrollWheelZoom={false}
+                                    style={{ height: "100%", width: "100%" }}
+                                >
+                                    <TileLayer
+                                        attribution="&copy; OpenStreetMap contributors"
+                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    />
+                                    <MapClick onPick={pickPoint} />
+                                    <MapFollow lat={Number(lat)} lng={Number(lng)} />
+                                    {lat && lng && <Marker position={[Number(lat), Number(lng)]} icon={PIN_ICON} />}
+                                </MapContainer>
+
+                                <input
+                                    className="lfr-map-search"
+                                    value={mapSearch}
+                                    onChange={(e) => setMapSearch(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault(); // stops the form from submitting
+                                            searchMap();
+                                        }
+                                    }}
+                                    placeholder="🔍 Search a place or click the map..."
+                                />
+                            </div>
+
+                            {contactFields}
+                        </div>
+                    </section>
+                )}
 
                 <footer className="lfr-foot">
                     <small>Next: your report appears in the Lost &amp; Found list right away.</small>
@@ -621,6 +758,8 @@ const visibleReports = reports
         </main>
     );
 }
+    
+
     return (
         <main className="lost-found-page">
             <header className="lost-found-header">
