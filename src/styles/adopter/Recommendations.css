@@ -1325,3 +1325,198 @@
     .rec-podium-ghost-photo { width: 48px; height: 48px; font-size: 22px; }
     .rec-podium-spot.is-place-1 .rec-podium-ghost-photo { width: 58px; height: 58px; font-size: 26px; }
 }
+
+/* ===== Recommendation cards (photo left, details right) ===== */
+.recommendations-list { display: grid; gap: 18px; }
+
+.rcard {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 22px;
+    padding: 18px;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+    border-top: 4px solid #fb8500;
+    border-radius: 20px;
+    background: #fffdf5;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.07);
+}
+.rcard.perfect { border-top-color: #2f8f5b; }
+.rcard.no-match { border-top-color: #d62828; }
+
+/* Photo + rank */
+.rcard-photo {
+    position: relative;
+    align-self: start;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #fde3bf;
+}
+.rcard-photo img { width: 100%; height: 100%; object-fit: cover; }
+.rcard-photo img.is-placeholder { width: 36%; height: auto; object-fit: contain; opacity: 0.6; }
+.rcard-rank {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #5a1b00;
+    color: #fff7cb;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* Title + score ring */
+.rcard-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.rcard-title { min-width: 0; }
+.rcard-tier {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #fde3bf;
+    color: #d96f00;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.rcard-tier.perfect { background: #dff5e8; color: #2f8f5b; }
+.rcard-tier.no-match { background: #f9dddd; color: #d62828; }
+.rcard-title h3 {
+    margin: 6px 0 0;
+    overflow: hidden;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 1.1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.rcard-title p { margin: 2px 0 0; color: #d62828; font-size: 12px; }
+
+.rcard-ring {
+    --ring: #fb8500;
+    position: relative;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: conic-gradient(var(--ring) calc(var(--score) * 1%), #efe3c4 0);
+}
+.rcard-ring.perfect { --ring: #2f8f5b; }
+.rcard-ring.no-match { --ring: #d62828; }
+.rcard-ring::before {
+    content: "";
+    position: absolute;
+    inset: 9px;
+    border-radius: 50%;
+    background: #fffdf5;
+}
+.rcard-ring span { position: relative; color: #5a1b00; font-family: "Itim", cursive; font-size: 20px; }
+
+/* Chips + description */
+.rcard-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.rcard-chips span {
+    padding: 3px 10px;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 999px;
+    background: #ffffff;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+.rcard-note {
+    margin: 10px 0 0;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: #fff4c4;
+    color: #7b452d;
+    font-size: 12px;
+}
+.rcard-note.perfect { background: #e9f7ee; color: #1f6e43; }
+.rcard-note.no-match { background: #fdeeee; color: #9b1c1c; }
+.rcard-pref { margin: 6px 0 0; color: #b45f06; font-size: 11px; font-weight: 700; }
+
+/* Factor bars */
+.rcard-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin: 16px 0 8px;
+}
+.rcard-section-head h4 {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+.rcard-section-head span { color: #7b452d; font-size: 11px; }
+
+.rcard-factors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px; }
+.rcard-factor {
+    padding: 8px 10px;
+    border: 1px solid #f2d27a;
+    border-radius: 10px;
+    background: #fff9e0;
+}
+.rcard-factor > div { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.rcard-factor > div span { color: #5a1b00; font-size: 11px; font-weight: 800; }
+.rcard-factor strong { font-size: 11px; font-weight: 800; }
+.rcard-track {
+    display: block;
+    height: 5px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #ece0bd;
+}
+.rcard-track span { display: block; height: 100%; border-radius: inherit; }
+
+.rcard-factor.is-high strong { color: #2f8f5b; }
+.rcard-factor.is-high .rcard-track span { background: #2f8f5b; }
+.rcard-factor.is-mid strong { color: #fb8500; }
+.rcard-factor.is-mid .rcard-track span { background: #fb8500; }
+.rcard-factor.is-low strong { color: #b42318; }
+.rcard-factor.is-low .rcard-track span { background: #b42318; }
+.rcard-factor.is-none strong { color: #a08a74; }
+
+/* Buttons */
+.rcard-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.rcard-actions button {
+    padding: 10px 18px;
+    border: 1px solid #f2d27a;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.rcard-actions button:hover:not(:disabled) { border-color: #fb8500; background: #fff7cb; }
+.rcard-actions button.is-primary {
+    border-color: #fb8500;
+    background: linear-gradient(135deg, #fb8500, #fca62c);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+}
+.rcard-actions button.is-primary:hover { background: #e07600; }
+.rcard-actions button:disabled { cursor: not-allowed; opacity: 0.55; }
+
+@media (max-width: 760px) {
+    .rcard { grid-template-columns: 1fr; gap: 14px; padding: 14px; }
+    .rcard-photo { aspect-ratio: 16 / 10; }
+    .rcard-title h3 { font-size: 26px; }
+    .rcard-ring { width: 64px; height: 64px; }
+    .rcard-ring span { font-size: 17px; }
+    .rcard-factors { grid-template-columns: 1fr; }
+    .rcard-actions button { flex: 1; }
+}

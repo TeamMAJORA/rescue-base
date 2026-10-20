@@ -129,6 +129,14 @@ function calculateToleranceScore(toleranceValue, animalValue) {
     return clamp(100 - excess * 30, 0, 100);
 }
 
+// Colour of a factor bar: green 80+, orange 50-79, red below 50, grey when not assessed
+function factorTone(value) {
+    if (value === null) return "is-none";
+    if (value >= 80) return "is-high";
+    if (value >= 50) return "is-mid";
+    return "is-low";
+}
+
 function getTier(score) {
     if (score >= 80) {
         return {
@@ -282,6 +290,7 @@ export default function Recommendations({
     applicationStatus,
     onTakeQuiz,
     onBrowsePets,
+    onViewPet,
 }) {
     const quiz = useMemo(() => readSavedQuiz(), []);
 
@@ -597,8 +606,6 @@ export default function Recommendations({
                                     tier,
                                     breakdown,
                                     measuredCount,
-                                    strongestFactors,
-                                    attentionFactors,
                                     matchesPreferredType,
                                     matchesPreferredSize,
                                 } = recommendation;
@@ -606,226 +613,106 @@ export default function Recommendations({
                                 const available =
                                     isPetAvailable(pet);
 
-                                return (
+                                                                return (
                                     <article
-                                        className={`recommendation-card ${tier.key}`}
+                                        className={`rcard ${tier.key}`}
                                         key={pet._id || pet.id || index}
                                         id={`rec-card-${pet._id || pet.id}`}
                                     >
-                                        <div className="recommendation-image">
+                                        <div className="rcard-photo">
                                             {pet.image ? (
-                                                <img
-                                                    src={pet.image}
-                                                    alt={pet.name}
-                                                />
+                                                <img src={pet.image} alt={pet.name} />
                                             ) : (
-                                                <span>
-                                                    {pet.icon || "🐾"}
-                                                </span>
+                                                <img className="is-placeholder" src="/icons/brown paw.svg" alt="" />
                                             )}
 
-                                                                                        {tier.key !== "no-match" && (
-                                            <div className="recommendation-rank">
-                                                    #{index + 1}
-                                                </div>
+                                            {tier.key !== "no-match" && (
+                                                <span className="rcard-rank">#{index + 1}</span>
                                             )}
                                         </div>
 
-                                        <div className="recommendation-content">
-                                            <div className="recommendation-title-row">
-                                                <div>
-                                                    <span
-                                                        className={`recommendation-tier ${tier.key}`}
-                                                    >
-                                                        {tier.label}
-                                                    </span>
-
-                                                    <h3>
-                                                        {pet.name ||
-                                                            "Unnamed Animal"}
-                                                    </h3>
-
+                                        <div className="rcard-body">
+                                            <div className="rcard-top">
+                                                <div className="rcard-title">
+                                                    <span className={`rcard-tier ${tier.key}`}>{tier.label}</span>
+                                                    <h3>{pet.name || "Unnamed Animal"}</h3>
                                                     <p>
-                                                        {pet.type ||
-                                                            pet.species ||
-                                                            "Pet"}{" "}
-                                                        •{" "}
-                                                        {pet.breed ||
-                                                            "Unknown breed"}
+                                                        {pet.type || pet.species || "Pet"} · {pet.breed || "Unknown breed"}
                                                     </p>
                                                 </div>
 
                                                 <div
-                                                    className={`recommendation-score ${tier.key}`}
+                                                    className={`rcard-ring ${tier.key}`}
+                                                    style={{ "--score": score }}
+                                                    aria-label={`${score}% compatibility`}
                                                 >
-                                                    <strong>
-                                                        {score}%
-                                                    </strong>
-
-                                                    <span>
-                                                        Compatibility
-                                                    </span>
+                                                    <span>{score}%</span>
                                                 </div>
                                             </div>
 
-                                            <p className="recommendation-tier-description">
-                                                {tier.description}
-                                            </p>
-
-                                            <div className="recommendation-basic-details">
-                                                <span>
-                                                    {pet.age ||
-                                                        "Unknown age"}
-                                                </span>
-
-                                                <span>
-                                                    {pet.gender ||
-                                                        "Unknown gender"}
-                                                </span>
-
-                                                <span>
-                                                    {pet.size ||
-                                                        "Unknown size"}
-                                                </span>
-
-                                                <span>
-                                                    {formatStatus(
-                                                        pet.status ||
-                                                            pet.adoptionStatus
-                                                    )}
-                                                </span>
+                                            <div className="rcard-chips">
+                                                <span>{pet.age || "Unknown age"}</span>
+                                                <span>{pet.gender || "Unknown gender"}</span>
+                                                <span>{pet.size || "Unknown size"}</span>
+                                                <span>{formatStatus(pet.status || pet.adoptionStatus)}</span>
                                             </div>
 
-                                            <section className="recommendation-breakdown">
-                                                <div className="recommendation-section-heading">
-                                                    <h4>
-                                                        Behavioral Compatibility
-                                                    </h4>
+                                            <p className={`rcard-note ${tier.key}`}>{tier.description}</p>
 
-                                                    <span>
-                                                        {measuredCount}/
-                                                        {FACTORS.length} factors
-                                                        assessed
-                                                    </span>
-                                                </div>
-
-                                                <div className="recommendation-factor-grid">
-                                                    {breakdown.map(
-                                                        (factor) => (
-                                                            <div
-                                                                className="recommendation-factor"
-                                                                key={
-                                                                    factor.key
-                                                                }
-                                                            >
-                                                                <div>
-                                                                    <span>
-                                                                        {
-                                                                            factor.label
-                                                                        }
-                                                                    </span>
-
-                                                                    <strong>
-                                                                        {factor.compatibility ===
-                                                                        null
-                                                                            ? "N/A"
-                                                                            : `${Math.round(
-                                                                                  factor.compatibility
-                                                                              )}%`}
-                                                                    </strong>
-                                                                </div>
-
-                                                                <div className="recommendation-factor-track">
-                                                                    <div
-                                                                        style={{
-                                                                            width:
-                                                                                factor.compatibility ===
-                                                                                null
-                                                                                    ? "0%"
-                                                                                    : `${factor.compatibility}%`,
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    )}
-                                                </div>
-                                            </section>
-
-                                            <div className="recommendation-insights">
-                                                <article>
-                                                    <span>
-                                                        Strongest Alignment
-                                                    </span>
-
-                                                    <p>
-                                                        {strongestFactors.length
-                                                            ? strongestFactors.join(
-                                                                  " and "
-                                                              )
-                                                            : "Behavioral assessment data is incomplete."}
-                                                    </p>
-                                                </article>
-
-                                                <article>
-                                                    <span>
-                                                        Needs Consideration
-                                                    </span>
-
-                                                    <p>
-                                                        {attentionFactors.length
-                                                            ? attentionFactors.join(
-                                                                  " and "
-                                                              )
-                                                            : "No major behavioral concerns were detected."}
-                                                    </p>
-                                                </article>
-                                            </div>
-
-                                            {(!matchesPreferredType ||
-                                                !matchesPreferredSize) && (
-                                                <div className="recommendation-preference-note">
-                                                    {!matchesPreferredType && (
-                                                        <span>
-                                                            Pet type differs
-                                                            from your preferred
-                                                            type.
-                                                        </span>
-                                                    )}
-
-                                                    {!matchesPreferredSize && (
-                                                        <span>
-                                                            Pet size differs
-                                                            from your preferred
-                                                            size.
-                                                        </span>
-                                                    )}
-                                                </div>
+                                            {(!matchesPreferredType || !matchesPreferredSize) && (
+                                                <p className="rcard-pref">
+                                                    {!matchesPreferredType && "Pet type differs from your preference. "}
+                                                    {!matchesPreferredSize && "Pet size differs from your preference."}
+                                                </p>
                                             )}
 
-                                            <button
-                                                type="button"
-                                                className="recommendation-apply-button"
-                                                disabled={
-                                                    hasPendingApplication ||
-                                                    !available
-                                                }
-                                                onClick={() =>
-                                                    onApply?.(pet)
-                                                }
-                                            >
-                                                {hasPendingApplication
-                                                    ? `Pending application for ${
-                                                          applicationStatus?.petName ||
-                                                          "another animal"
-                                                      }`
-                                                    : available
-                                                      ? `Apply to Adopt ${
-                                                            pet.name ||
-                                                            "This Pet"
-                                                        }`
-                                                      : "Currently Not Available"}
-                                            </button>
+                                            <div className="rcard-section-head">
+                                                <h4>Behavioral Compatibility</h4>
+                                                <span>{measuredCount}/{FACTORS.length} factors assessed</span>
+                                            </div>
+
+                                            <div className="rcard-factors">
+                                                {breakdown.map((factor) => {
+                                                    const value =
+                                                        factor.compatibility === null
+                                                            ? null
+                                                            : Math.round(factor.compatibility);
+
+                                                    return (
+                                                        <div className={`rcard-factor ${factorTone(value)}`} key={factor.key}>
+                                                            <div>
+                                                                <span>{factor.label}</span>
+                                                                <strong>{value === null ? "N/A" : `${value}%`}</strong>
+                                                            </div>
+                                                            <span className="rcard-track">
+                                                                <span style={{ width: `${value ?? 0}%` }} />
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            <div className="rcard-actions">
+                                                <button
+                                                    type="button"
+                                                    className="is-primary"
+                                                    onClick={() => onViewPet?.(pet)}
+                                                >
+                                                    View pet profile
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    disabled={hasPendingApplication || !available}
+                                                    onClick={() => onApply?.(pet)}
+                                                >
+                                                    {hasPendingApplication
+                                                        ? `Pending application for ${applicationStatus?.petName || "another animal"}`
+                                                        : available
+                                                            ? `Apply to adopt ${pet.name || "this pet"}`
+                                                            : "Currently not available"}
+                                                </button>
+                                            </div>
                                         </div>
                                     </article>
                                 );
@@ -833,18 +720,6 @@ export default function Recommendations({
                         )}
                     </div>
                 )}
-
-            <section className="recommendations-method-note">
-                <strong>How this score is calculated</strong>
-
-                <p>
-                    The current score compares the eight behavioral factors
-                    from your quiz with each animal assessment. Pet type and
-                    size preferences are also considered. This temporary
-                    rule-based calculation can later be replaced by the trained
-                    RescueBase matching model.
-                </p>
-            </section>
         </section>
     );
 }
