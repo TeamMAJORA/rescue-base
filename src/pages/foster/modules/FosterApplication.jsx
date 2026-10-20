@@ -380,7 +380,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                 <span className="ffa-note-dot" aria-hidden="true" />
                 <p>
                     {appStatus === "approved"
-                        ? "Need to change something? Press Edit. The shelter is notified of every change you save."
+                        ? "Need to change something? Press Update Application. The shelter is notified of every change you save."
                         : appStatus === "pending"
                             ? "You can still update your answers while staff review them."
                             : "Fill in the form to apply. Staff review every application."}
@@ -388,43 +388,113 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             </div>
         </aside>
     );
-    // Foster dashboard: a pending or approved application is shown, not a blank form
+    // Foster dashboard: a pending or approved application is shown read-only.
+    // "Update Application" switches to the form (editing = true).
     const currentStatus = application?.status;
 
-    if (!embedded && (currentStatus === "pending" || currentStatus === "approved")) {
-        const yesNo = (value) => (value ? "Yes" : "No");
-        const rows = [
-            ["Submitted", application.createdAt ? new Date(application.createdAt).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" }) : "—"],
-            ["Phone", application.phoneNumber ? `+63 ${application.phoneNumber}` : "—"],
-            ["Address", application.address || "—"],
-            ["Home type", application.housingType || "—"],
-            ["Children at home", yesNo(application.hasChildren)],
-            ["Existing pets", yesNo(application.hasPets)],
-            ["Preferred animal", application.preferredAnimalType || "—"],
-            ["Preferred size", application.preferredSize || "—"],
-            ["Maximum animals", application.capacity || 1],
-            ["Foster duration", application.fosterDuration || "—"],
-            ["Emergency contact", application.emergencyName ? `${application.emergencyName}${application.emergencyRelationship ? ` (${application.emergencyRelationship})` : ""}` : "—"],
+    if (!embedded && !editing && (currentStatus === "pending" || currentStatus === "approved")) {
+        const phoneText = (value) => {
+            const digits = String(value || "").replace(/\D/g, "").replace(/^63(?=9)/, "").replace(/^0/, "");
+            return digits.length === 10
+                ? `+63 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`
+                : value || "—";
+        };
+        const yesNo = (value) => (
+            <span className={`ffs-yn ${value ? "is-yes" : "is-no"}`}>{value ? "Yes" : "No"}</span>
+        );
+
+        const sections = [
+            {
+                title: "Personal",
+                items: [
+                    ["Full name", application.applicantName || "—"],
+                    ["Phone", phoneText(application.phoneNumber)],
+                    ["Address", application.address || "—", "is-wide"],
+                ],
+            },
+            {
+                title: "Household",
+                items: [
+                    ["Home type", application.housingType || "—"],
+                    ["Children at home", yesNo(application.hasChildren)],
+                    ["Existing pets", yesNo(application.hasPets)],
+                    ["Pet friendly home", yesNo(application.petFriendly)],
+                ],
+            },
+            {
+                title: "Foster preferences",
+                items: [
+                    ["Preferred animal", application.preferredAnimalType || "—"],
+                    ["Preferred size", application.preferredSize || "—"],
+                    ["Maximum animals", application.capacity || 1],
+                    ["Foster duration", application.fosterDuration || "—"],
+                    ...(application.fosterExperience
+                        ? [["Experience", application.fosterExperience, "is-full"]]
+                        : []),
+                ],
+            },
+            {
+                title: "Emergency contact",
+                items: [
+                    ["Name", application.emergencyName || "—"],
+                    ["Relationship", application.emergencyRelationship || "—"],
+                    ["Phone", phoneText(application.emergencyPhone)],
+                ],
+            },
         ];
 
         return (
             <section className="foster-panel">
-                <div className="foster-form-card ffa-summary">
-                    <h3>Your foster application</h3>
-                    <p className="ffa-summary-note">
-                        {currentStatus === "pending"
-                            ? "Staff are reviewing it. You can't send another application while this one is pending."
-                            : "You're an approved foster. You don't need to apply again."}
-                    </p>
+                <div className="ffa-layout">
+                    <div className="ffs-card">
+                        <div className="ffs-head">
+                            <div>
+                                <h3>Your foster application</h3>
+                                <p>
+                                    {currentStatus === "pending"
+                                        ? "Staff are reviewing it. You can still update your answers."
+                                        : "You are an approved foster. You do not need to apply again."}
+                                </p>
+                            </div>
 
-                    <dl className="ffa-summary-grid">
-                        {rows.map(([label, value]) => (
-                            <div key={label}>
-                                <dt>{label}</dt>
-                                <dd>{value}</dd>
+                            <div className="ffs-head-actions">
+                                <span className="ffs-pill">
+                                    <LockIcon />
+                                    Read only
+                                </span>
+                                <button
+                                    type="button"
+                                    className="ffc-btn ffc-btn-submit"
+                                    onClick={() => {
+                                        setMessage("");
+                                        setEditing(true);
+                                    }}
+                                >
+                                    Update Application
+                                </button>
+                            </div>
+                        </div>
+
+                        {message && (
+                            <div className={`foster-alert ${messageType}`}>{message}</div>
+                        )}
+
+                        {sections.map((section) => (
+                            <div key={section.title} className="ffs-section">
+                                <h4>{section.title}</h4>
+                                <dl className="ffs-grid">
+                                    {section.items.map(([label, value, size]) => (
+                                        <div key={label} className={`ffs-tile ${size || ""}`}>
+                                            <dt>{label}</dt>
+                                            <dd>{value}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
                             </div>
                         ))}
-                    </dl>
+                    </div>
+
+                    {infoPanel}
                 </div>
             </section>
         );

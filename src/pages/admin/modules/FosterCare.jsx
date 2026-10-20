@@ -1,6 +1,7 @@
 import {
-    useEffect, useState
+    useEffect, useRef, useState
 } from "react"
+import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -24,7 +25,6 @@ const emptyAssignmentForm = {
     fosterApplicationId: "",
     fosterName: "",
     fosterEmail: "",
-    animalId: "",
     petName: "",
     petBreed: "",
     petImage: "",
@@ -104,6 +104,122 @@ function StatIcon({ name, size = 15 }) {
         </svg>
     );
 }
+
+// ----- Care instructions as a checklist -----
+// Each row is saved as one line; the foster sees every line as a checklist item.
+const CARE_PRESETS = [
+    "Feed twice a day",
+    "Fresh water at all times",
+    "Daily walk or playtime",
+    "Give medicine as prescribed",
+    "Keep indoors at night",
+    "Submit a weekly update",
+];
+
+function CareChecklistInput({ value, onChange }) {
+    const rows = String(value || "").split("\n");
+    const inputsRef = useRef([]);
+    const [focusIndex, setFocusIndex] = useState(null);
+
+    // Move the cursor to a row after adding/removing one
+    useEffect(() => {
+        if (focusIndex === null) return;
+        inputsRef.current[focusIndex]?.focus();
+        setFocusIndex(null);
+    }, [focusIndex, value]);
+
+    function save(next) {
+        onChange(next.join("\n"));
+    }
+
+    function editRow(index, text) {
+        const next = [...rows];
+        next[index] = text.replace(/\n/g, " ");
+        save(next);
+    }
+
+    function addRow(afterIndex = rows.length - 1, text = "") {
+        const next = [...rows];
+        next.splice(afterIndex + 1, 0, text);
+        save(next);
+        setFocusIndex(afterIndex + 1);
+    }
+
+    function removeRow(index) {
+        const next = rows.filter((_, i) => i !== index);
+        save(next.length ? next : [""]);
+        setFocusIndex(Math.max(0, index - 1));
+    }
+
+    function addPreset(text) {
+        const filled = rows.filter((row) => row.trim());
+        save([...filled, text]);
+    }
+
+    function handleKeyDown(event, index) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            addRow(index);
+        }
+
+        if (event.key === "Backspace" && !rows[index] && rows.length > 1) {
+            event.preventDefault();
+            removeRow(index);
+        }
+    }
+
+    const used = rows.map((row) => row.trim().toLowerCase());
+
+    return (
+        <div className="acl">
+            <ul className="acl-list">
+                {rows.map((row, index) => (
+                    <li key={index} className="acl-row">
+                        <span className="acl-check" aria-hidden="true">
+                            <StatIcon name="check" size={12} />
+                        </span>
+                        <input
+                            ref={(element) => { inputsRef.current[index] = element; }}
+                            value={row}
+                            onChange={(event) => editRow(index, event.target.value)}
+                            onKeyDown={(event) => handleKeyDown(event, index)}
+                            placeholder={index === 0 ? "e.g. Feed twice a day" : "Another instruction"}
+                            maxLength={120}
+                            aria-label={`Care instruction ${index + 1}`}
+                        />
+                        <button
+                            type="button"
+                            className="acl-remove"
+                            onClick={() => removeRow(index)}
+                            aria-label={`Remove instruction ${index + 1}`}
+                            disabled={rows.length === 1 && !row}
+                        >
+                            <StatIcon name="x" size={12} />
+                        </button>
+                    </li>
+                ))}
+            </ul>
+
+            <button type="button" className="acl-add" onClick={() => addRow()}>
+                + Add instruction
+            </button>
+
+            <div className="acl-presets">
+                <small>Quick add:</small>
+                {CARE_PRESETS.map((preset) => (
+                    <button
+                        key={preset}
+                        type="button"
+                        onClick={() => addPreset(preset)}
+                        disabled={used.includes(preset.toLowerCase())}
+                    >
+                        + {preset}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+}
 export default function FosterCare() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -124,6 +240,60 @@ export default function FosterCare() {
     }, [reviewingApplication]);
 
     const [reviewingRequest, setReviewingRequest] = useState(null);
+
+    // Early return requested by a foster (Confirm / Decline pop-up)
+    const [earlyReturn, setEarlyReturn] = useState(null);
+    const [earlyReturnNote, setEarlyReturnNote] = useState("");
+    const [earlyReturnError, setEarlyReturnError] = useState("");
+    const [earlyReturnBusy, setEarlyReturnBusy] = useState(false);
+
+    function openEarlyReturn(assignment) {
+        setEarlyReturn(assignment);
+        setEarlyReturnNote("");
+        setEarlyReturnError("");
+    }
+
+    async function handleEarlyReturn(action) {
+        if (!earlyReturn) return;
+
+        if (action === "decline" && !earlyReturnNote.trim()) {
+            setEarlyReturnError("Add a note so the foster knows why.");
+            return;
+        }
+
+        try {
+            setEarlyReturnBusy(true);
+            setEarlyReturnError("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${earlyReturn._id}/return-request`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ action, adminNote: earlyReturnNote }),
+                }
+            );
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setEarlyReturnError(data.message || "Could not update the request.");
+                return;
+            }
+
+            setEarlyReturn(null);
+            setMessage(data.message);
+            fetchAssignments();
+            fetchAnimals();
+        } catch (error) {
+            console.error(error);
+            setEarlyReturnError("Server error. Please try again.");
+        } finally {
+            setEarlyReturnBusy(false);
+        }
+    }
     const [assigningApplication, setAssigningApplication] = useState(null);
     const token = localStorage.getItem("token")
 
@@ -160,6 +330,8 @@ export default function FosterCare() {
         saveSeen(applications.map(seenKey));
     }
 
+    // Animals for the "Animal" dropdown (assignments link to a real animal)
+   
     // "Send back" form on a pending behavior evaluation
     const [returningId, setReturningId] = useState(null);
     const [returnReason, setReturnReason] = useState("");
@@ -488,9 +660,8 @@ export default function FosterCare() {
                 assignment.careInstructions,
         });
 
-        setMessage(
-            "Editing assignment."
-        );
+        setMessage("");
+        fetchAnimals();
     }
 
     function handleCancelEdit() {
@@ -883,19 +1054,6 @@ export default function FosterCare() {
         }
     }
 
-    // Dropdown pick: fill the form with the pet's saved details
-    function pickAnimal(animalId) {
-        const animal = animals.find((item) => item._id === animalId);
-
-        setAssignmentForm((form) => ({
-            ...form,
-            animalId,
-            petName: animal?.name || "",
-            petBreed: animal?.breed || "",
-            petImage: animal?.image || "",
-        }));
-    }
-
     // Assign: open the "New Foster Assignment" pop-up for this foster
     function startAssign(application) {
         setMessage("");
@@ -948,6 +1106,7 @@ export default function FosterCare() {
         { value: "all", label: "All" },
         { value: "active", label: "Active" },
         { value: "completed", label: "Completed" },
+        { value: "returned", label: "Returned" },
     ];
 
     const PET_TINTS = ["is-orange", "is-plum", "is-sage", "is-sky"];
@@ -1165,7 +1324,10 @@ export default function FosterCare() {
                         </div>
 
                         {visibleAssignments.map((assignment, index) => (
-                            <article className="afl-item" key={assignment._id}>
+                                <article
+                                    className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" ? "is-new" : ""}`}
+                                    key={assignment._id}
+                                >
                                 <div className="afl-row">
                                     <div className="afl-pet">
                                         <span className={`afl-avatar ${PET_TINTS[index % PET_TINTS.length]}`}>
@@ -1201,11 +1363,25 @@ export default function FosterCare() {
                                         {assignment.behaviorEvaluation?.status === "pending" && (
                                             <span className="afl-flag">Evaluation to review</span>
                                         )}
+                                        {assignment.returnRequest?.status === "pending" && (
+                                            <span className="afl-flag is-return">
+                                                Return requested{assignment.returnRequest.urgent ? " · Urgent" : ""}
+                                            </span>
+                                        )}                                        
                                     </div>
 
                                     <div className="afl-actions">
                                         {assignment.status === "active" ? (
                                             <>
+                                            {assignment.returnRequest?.status === "pending" && (
+                                                    <button
+                                                        type="button"
+                                                        className="afl-return-btn"
+                                                        onClick={() => openEarlyReturn(assignment)}
+                                                    >
+                                                        Review return
+                                                    </button>
+                                            )}
                                                 <button
                                                     type="button"
                                                     className="afl-icon-btn"
@@ -1893,37 +2069,19 @@ export default function FosterCare() {
                                         </div>
                                     );
                                 })()}
-                                <label className="is-wide">
-                                    <span>Animal <em>*</em></span>
-                                    <select
-                                        value={assignmentForm.animalId}
-                                        onChange={(e) => pickAnimal(e.target.value)}
-                                        required
-                                    >
-                                        <option value="">Choose an animal</option>
-                                        {fosterableAnimals().map((animal) => (
-                                            <option key={animal._id} value={animal._id}>
-                                                {animalLabel(animal)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <small>Only animals that aren't adopted or already in foster care are listed.</small>
-                                </label>
 
-                                <label className="is-wide">
+                            <div className="is-wide acl-field">
+                                <span className="acl-label">
                                     Care instructions
-                                    <textarea
-                                        rows="3"
-                                        value={assignmentForm.careInstructions}
-                                        onChange={(e) =>
-                                            setAssignmentForm({
-                                                ...assignmentForm,
-                                                careInstructions: e.target.value,
-                                            })
-                                        }
-                                        placeholder="Provide food, water, shelter, and weekly updates."
-                                    />
-                                </label>
+                                    <InfoTip text="Press Enter for a new line. The foster sees each line as a checklist item." />
+                                </span>
+                                <CareChecklistInput
+                                    value={assignmentForm.careInstructions}
+                                    onChange={(text) =>
+                                        setAssignmentForm((form) => ({ ...form, careInstructions: text }))
+                                    }
+                                />
+                            </div>
                             </div>
 
                             {message ? (
@@ -1959,78 +2117,147 @@ export default function FosterCare() {
                 </div>
             )}
 
-            {editingId && (
+            {editingId && (() => {
+                const editing = assignments.find((item) => item._id === editingId) || {};
+                const pet = animals.find((animal) => String(animal._id) === String(assignmentForm.animalId));
 
-                <section className="admin-panel">
+                return (
+                    <div className="admin-modal-overlay" onClick={handleCancelEdit}>
+                        <form
+                            className="afr-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`Edit ${editing.petName || "foster"} assignment`}
+                            onClick={(event) => event.stopPropagation()}
+                            onSubmit={handleUpdateAssignment}
+                        >
+                            {/* Header */}
+                            <header className="afr-head">
+                                <span className="afr-avatar" aria-hidden="true">
+                                    {getInitials(editing.fosterName || "")}
+                                </span>
 
-                    <div className="admin-panel-heading">
+                                <div className="afr-who">
+                                    <span className="afr-eyebrow">Edit Foster Assignment</span>
+                                    <h2>{editing.fosterName}</h2>
+                                    <small>
+                                        <StatIcon name="mail" size={14} />
+                                        {editing.fosterEmail}
+                                    </small>
+                                </div>
 
-                        <h2>Edit Foster Assignment</h2>
+                                <span className="afr-pill is-approved">
+                                    <i aria-hidden="true" />
+                                    Active
+                                </span>
 
-                    </div>
+                                <button
+                                    type="button"
+                                    className="afr-close"
+                                    onClick={handleCancelEdit}
+                                    aria-label="Close"
+                                >
+                                    <StatIcon name="x" size={16} />
+                                </button>
+                            </header>
 
-                    <form
-                        className="admin-foster-assignment-form"
-                        onSubmit={handleUpdateAssignment}
-                    >
+                            {/* Body */}
+                            <div className="afr-body">
+                                <div className="afr-form">
+                                    <label className="is-wide">
+                                        <span>Animal <em>*</em></span>
+                                        <select
+                                            value={assignmentForm.animalId}
+                                            onChange={(e) => pickAnimal(e.target.value)}
+                                        >
+                                            {!assignmentForm.animalId && (
+                                                <option value="">
+                                                    {assignmentForm.petName || "Choose an animal"} (not linked)
+                                                </option>
+                                            )}
+                                            {fosterableAnimals(assignmentForm.animalId).map((animal) => (
+                                                <option key={animal._id} value={animal._id}>
+                                                    {animalLabel(animal)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
 
-                        <label>
+                                    {pet && (
+                                        <div className="afr-pet">
+                                            <span className="afr-pet-photo">
+                                                {pet.image ? (
+                                                    <img src={pet.image} alt={pet.name} />
+                                                ) : (
+                                                    <StatIcon name="paw" size={26} />
+                                                )}
+                                            </span>
 
-                            Animal
+                                            <div className="afr-pet-info">
+                                                <b>{pet.name}</b>
+                                                <small>{pet.breed || "Unknown breed"}</small>
+                                                <div className="afr-pet-tags">
+                                                    {[pet.type, pet.gender !== "Unknown" ? pet.gender : "", pet.size !== "Unknown" ? pet.size : ""]
+                                                        .filter(Boolean)
+                                                        .map((tag) => <span key={tag}>{tag}</span>)}
+                                                </div>
+                                            </div>
 
-                            <select
-                                value={assignmentForm.animalId}
-                                onChange={(e) => pickAnimal(e.target.value)}
-                            >
-                                {!assignmentForm.animalId && (
-                                    <option value="">{assignmentForm.petName || "Choose an animal"} (not linked)</option>
+                                            <dl className="afr-pet-notes">
+                                                <div>
+                                                    <dt>Medical</dt>
+                                                    <dd>{pet.medicalStatus || "No notes"}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Behavior</dt>
+                                                    <dd>{pet.behaviorNotes || "No notes"}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    )}
+
+                                <div className="is-wide acl-field">
+                                    <span className="acl-label">
+                                        Care instructions
+                                        <InfoTip text="Press Enter for a new line. The foster sees each line as a checklist item." />
+                                    </span>
+                                    <CareChecklistInput
+                                        value={assignmentForm.careInstructions}
+                                        onChange={(text) =>
+                                            setAssignmentForm((form) => ({ ...form, careInstructions: text }))
+                                        }
+                                    />
+                                </div>
+                                </div>
+
+                                {message ? (
+                                    <p className="afr-note is-rejected">
+                                        <StatIcon name="info" size={16} />
+                                        {message}
+                                    </p>
+                                ) : (
+                                    <p className="afr-note is-approved">
+                                        <StatIcon name="info" size={16} />
+                                        Write each care instruction on a separate line so the foster can easily check them off one by one.
+                                    </p>
                                 )}
-                                {fosterableAnimals(assignmentForm.animalId).map((animal) => (
-                                    <option key={animal._id} value={animal._id}>
-                                        {animalLabel(animal)}
-                                    </option>
-                                ))}
-                            </select>
+                            </div>
 
-                        </label>
+                            {/* Footer */}
+                            <footer className="afr-foot">
+                                <button type="button" className="afr-btn is-ghost" onClick={handleCancelEdit}>
+                                    Cancel
+                                </button>
 
-                        <label className="admin-foster-care-field">
-
-                            Care Instructions
-
-                            <textarea
-                                rows="4"
-                                value={assignmentForm.careInstructions}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        careInstructions: e.target.value
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <div className="admin-foster-actions">
-
-                            <button type="submit">
-                                Save Changes
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={handleCancelEdit}
-                            >
-                                Cancel
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </section>
-
-            )}
+                                <button type="submit" className="afr-btn is-assign" disabled={submitting}>
+                                    <StatIcon name="check" size={16} />
+                                    {submitting ? "Saving..." : "Save Changes"}
+                                </button>
+                            </footer>
+                        </form>
+                    </div>
+                );
+            })()}
         </div>
         <aside className="afc-side">
             <section className="admin-panel admin-medical-requests-panel amr-panel">
@@ -2103,6 +2330,161 @@ export default function FosterCare() {
             </section>
             </aside>
             </div>
+
+            {earlyReturn && (() => {
+                const request = earlyReturn.returnRequest || {};
+                const openMedical = (earlyReturn.medicalRequests || []).filter(
+                    (item) => item.status !== "resolved"
+                ).length;
+                const pet = animals.find((animal) => String(animal._id) === String(earlyReturn.animalId));
+                const longDate = (value) =>
+                    value
+                        ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                        : "—";
+
+                return (
+                    <div className="admin-modal-overlay" onClick={() => setEarlyReturn(null)}>
+                        <div
+                            className="afr-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`Return request for ${earlyReturn.petName}`}
+                            onClick={(event) => event.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <header className="afr-head">
+                                <span className="afr-avatar" aria-hidden="true">
+                                    {getInitials(earlyReturn.fosterName || "")}
+                                </span>
+
+                                <div className="afr-who">
+                                    <span className="afr-eyebrow">Return Request</span>
+                                    <h2>{earlyReturn.fosterName}</h2>
+                                    <small>
+                                        <StatIcon name="mail" size={14} />
+                                        {earlyReturn.fosterEmail}
+                                    </small>
+                                </div>
+
+                                <span className={`afr-pill ${request.urgent ? "is-rejected" : "is-pending"}`}>
+                                    <i aria-hidden="true" />
+                                    {request.urgent ? "Urgent" : "Pending"}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    className="afr-close"
+                                    onClick={() => setEarlyReturn(null)}
+                                    aria-label="Close"
+                                >
+                                    <StatIcon name="x" size={16} />
+                                </button>
+                            </header>
+
+                            {/* Body */}
+                            <div className="afr-body">
+                                <div className="afr-facts">
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="paw" size={16} /></span>
+                                        <div>
+                                            <small>Pet</small>
+                                            <b>{earlyReturn.petName}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="info" size={16} /></span>
+                                        <div>
+                                            <small>Reason</small>
+                                            <b>{request.reason || "—"}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="calendar" size={16} /></span>
+                                        <div>
+                                            <small>Requested</small>
+                                            <b>{longDate(request.requestedAt)}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="calendar" size={16} /></span>
+                                        <div>
+                                            <small>Preferred date</small>
+                                            <b>{longDate(request.preferredDate)}</b>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="afr-why">
+                                    <h3>Foster's notes</h3>
+                                    <p>{request.notes || "No notes given."}</p>
+                                </div>
+
+                                {(openMedical > 0 ||
+                                    pet?.adoptionStatus === "pending" ||
+                                    earlyReturn.behaviorEvaluation?.status !== "accepted") && (
+                                    <ul className="afr-return-warnings">
+                                        {openMedical > 0 && (
+                                            <li>
+                                                {openMedical} open medical {openMedical === 1 ? "request" : "requests"}. Follow up at handover.
+                                            </li>
+                                        )}
+                                        {pet?.adoptionStatus === "pending" && (
+                                            <li>{earlyReturn.petName} has a pending adoption application.</li>
+                                        )}
+                                        {earlyReturn.behaviorEvaluation?.status !== "accepted" && (
+                                            <li>No accepted behavior evaluation. The pet's behavior scores won't be updated.</li>
+                                        )}
+                                    </ul>
+                                )}
+
+                                <label className="afr-reason">
+                                    <span>
+                                        Note to the foster <em>(needed only to decline)</em>
+                                    </span>
+                                    <textarea
+                                        rows={3}
+                                        maxLength={500}
+                                        value={earlyReturnNote}
+                                        onChange={(event) => {
+                                            setEarlyReturnNote(event.target.value);
+                                            setEarlyReturnError("");
+                                        }}
+                                        placeholder="e.g. Please keep her until Saturday, we'll pick her up."
+                                    />
+                                    {earlyReturnError && <small className="afr-reason-error">{earlyReturnError}</small>}
+                                </label>
+
+                                <p className="afr-note is-approved">
+                                    <StatIcon name="info" size={16} />
+                                    Only confirm once {earlyReturn.petName} is physically back at the shelter.
+                                </p>
+                            </div>
+
+                            {/* Footer */}
+                            <footer className="afr-foot">
+                                <button
+                                    type="button"
+                                    className="afr-btn is-reject"
+                                    onClick={() => handleEarlyReturn("decline")}
+                                    disabled={earlyReturnBusy}
+                                >
+                                    Decline
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="afr-btn is-assign"
+                                    onClick={() => handleEarlyReturn("confirm")}
+                                    disabled={earlyReturnBusy}
+                                >
+                                    <StatIcon name="check" size={16} />
+                                    {earlyReturnBusy ? "Saving..." : "Confirm Return"}
+                                </button>
+                            </footer>
+                        </div>
+                    </div>
+                );
+            })()}
 
             {reviewingRequest && (
                 <div

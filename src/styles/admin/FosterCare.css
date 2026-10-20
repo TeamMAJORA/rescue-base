@@ -1908,3 +1908,537 @@
     display: grid;
     gap: 8px;
 }
+
+.afa-detail-grid .afa-detail-full {
+    grid-column: 1 / -1;
+}
+
+/* ===== New application indicator ===== */
+.afa-new-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.45);
+    border-radius: 14px;
+    background: #fff1d6;
+    color: #5a1b00;
+    font-size: 13px;
+    animation: afa-banner-in 0.35s ease;
+}
+
+.afa-new-banner p {
+    flex: 1;
+    margin: 0;
+}
+
+.afa-new-banner button {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 10px;
+    background: #fff;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.afa-new-banner button:hover {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+/* pulsing orange dot */
+.afa-new-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #fb8500;
+    animation: afa-dot-pulse 1.4s ease-in-out infinite;
+}
+
+/* highlighted row + "New" tag */
+.afa-row.is-new {
+    border-color: #fb8500;
+    background: #fff7e6;
+    box-shadow: inset 4px 0 0 #fb8500;
+    animation: afa-row-glow 1.6s ease-in-out 3;
+}
+
+.afa-new-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #fb8500;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+@keyframes afa-banner-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes afa-dot-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 133, 0, 0.5); }
+    50% { box-shadow: 0 0 0 7px rgba(251, 133, 0, 0); }
+}
+
+@keyframes afa-row-glow {
+    0%, 100% { box-shadow: inset 4px 0 0 #fb8500, 0 0 0 0 rgba(251, 133, 0, 0); }
+    50% { box-shadow: inset 4px 0 0 #fb8500, 0 0 0 4px rgba(251, 133, 0, 0.25); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .afa-new-banner,
+    .afa-new-dot,
+    .afa-row.is-new {
+        animation: none;
+    }
+}
+
+/* ---------- Assign pop-up: pet dropdown + preview ---------- */
+.afr-form select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 36px 10px 12px;
+    border: 1.5px solid rgba(90, 27, 0, 0.15);
+    border-radius: 12px;
+    background: #fff7cb url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.afr-form select:focus { border-color: #fb8500; box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15); }
+.afr-form select:disabled { opacity: 0.6; cursor: wait; }
+
+.afr-pet {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 12px 14px;
+    padding: 12px;
+    border: 1.5px solid rgba(251, 133, 0, 0.35);
+    border-radius: 16px;
+    background: #fffaf0;
+    animation: afr-pet-in 0.2s ease;
+}
+.afr-pet-photo {
+    width: 72px; height: 72px;
+    display: grid; place-items: center;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #fcbf49;
+    color: #5a1b00;
+}
+.afr-pet-photo img { width: 100%; height: 100%; object-fit: cover; }
+.afr-pet-info { display: grid; align-content: center; gap: 2px; min-width: 0; }
+.afr-pet-info b { color: #5a1b00; font-family: "Itim", cursive; font-size: 18px; font-weight: 400; }
+.afr-pet-info small { color: rgba(90, 27, 0, 0.65); font-size: 12px; }
+.afr-pet-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.afr-pet-tags span { padding: 2px 9px; border-radius: 999px; background: #fff7cb; color: #5a1b00; font-size: 11px; font-weight: 700; }
+.afr-pet-notes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.afr-pet-notes div { padding: 8px 10px; border-radius: 12px; background: #fff; }
+.afr-pet-notes dt { color: #fb8500; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.afr-pet-notes dd { margin: 2px 0 0; color: #5a1b00; font-size: 12px; line-height: 1.4; }
+
+@keyframes afr-pet-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+@media (max-width: 640px) { .afr-pet-notes { grid-template-columns: 1fr; } }
+
+/* "Updated by the applicant" note in the review pop-up */
+.afr-note.is-updated {
+    background: #fff1d6;
+    color: #5a1b00;
+    box-shadow: inset 4px 0 0 #fb8500;
+}
+
+.afr-note.is-updated .ao-icon {
+    color: #fb8500;
+}
+
+/* ===== Foster Applications: column header (same look as .afl-head) ===== */
+.afa-head,
+.afa-row {
+    grid-template-columns: 40px minmax(0, 1.4fr) minmax(0, 1.3fr) 110px 170px;
+}
+
+.afa-head {
+    display: grid;
+    gap: 14px;
+    align-items: center;
+    padding: 0 18px;
+    color: rgba(90, 27, 0, 0.6);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+    .afa-head {
+        display: none;
+    }
+
+    .afa-row {
+        grid-template-columns: 40px minmax(0, 1fr) auto;
+    }
+}
+
+/* ===== Both lists: same look as the Animal Profiles table ===== */
+.afl-table,
+.afa-list {
+    gap: 0;
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 12px;
+    background: #fffdf0;
+    overflow: hidden;
+}
+
+/* header bar */
+.afl-head,
+.afa-head {
+    padding: 14px 18px;
+    background: #fff7cb;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+/* rows: flat, split by a thin line, no card look */
+.afl-item,
+.afa-row {
+    border: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.afl-item:hover,
+.afa-row:hover {
+    border-color: rgba(90, 27, 0, 0.1);
+    background: #fffaf0;
+    box-shadow: none;
+}
+
+.afl-row,
+.afa-row {
+    padding: 12px 18px;
+}
+
+/* only NEW things turn orange */
+.afl-item.is-new,
+.afa-row.is-new {
+    background: #fff1d6;
+    box-shadow: inset 4px 0 0 #fb8500;
+    animation: afc-new-shade 1.6s ease-in-out 3;
+}
+
+.afl-item.is-new:hover,
+.afa-row.is-new:hover {
+    background: #ffe8c2;
+}
+
+@keyframes afc-new-shade {
+    0%, 100% { background: #fff1d6; }
+    50% { background: #ffe2b0; }
+}
+
+/* uniform text sizes (same as the animal table) */
+.afl-pet b,
+.afl-foster b,
+.afa-person b {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #5a1b00;
+}
+
+.afl-pet small,
+.afl-foster small,
+.afa-person small,
+.afl-cell {
+    font-size: 12px;
+}
+
+.afl-status,
+.afa-status,
+.afa-chips span {
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .afl-item.is-new,
+    .afa-row.is-new {
+        animation: none;
+    }
+}
+
+/* ===== Early return requests ===== */
+.afl-status.is-returned { background: #fde3bf; color: #b45309; }
+
+.afl-flag.is-return {
+    color: #b42318;
+}
+
+.afl-return-btn {
+    padding: 6px 10px;
+    border: 1.5px solid #b42318;
+    border-radius: 8px;
+    background: #fff;
+    color: #b42318;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.afl-return-btn:hover {
+    background: #fdeaea;
+}
+
+.afr-return-warnings {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 12px 14px 12px 32px;
+    border: 1px solid rgba(214, 40, 40, 0.25);
+    border-radius: 12px;
+    background: #fdeaea;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* room for "Review return" next to Edit / Delete */
+.afl-head,
+.afl-row {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.6fr) 0.7fr 0.6fr 0.9fr 190px;
+}
+
+/* ===== Care instructions checklist (Assign + Edit pop-ups) ===== */
+.afr-form .acl-field {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 6px;
+}
+
+.acl-label {
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.acl {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    border: 1.5px solid rgba(90, 27, 0, 0.15);
+    border-radius: 12px;
+    background: #fffdf0;
+}
+
+.acl-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.acl-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(90, 27, 0, 0.14);
+}
+
+.acl-check {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid #fb8500;
+    border-radius: 50%;
+    background: #fde3bf;
+    color: #fb8500;
+}
+
+.afr-form .acl-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 13px;
+    resize: none;
+}
+
+.afr-form .acl-row input:hover {
+    border-color: rgba(251, 133, 0, 0.25);
+}
+
+.afr-form .acl-row input:focus {
+    border-color: #fb8500;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.acl-remove {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: rgba(90, 27, 0, 0.45);
+    cursor: pointer;
+}
+
+.acl-remove:hover:not(:disabled) {
+    background: #fdeaea;
+    color: #b42318;
+}
+
+.acl-remove:disabled {
+    visibility: hidden;
+}
+
+.acl-add {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #d96f00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.acl-add:hover {
+    text-decoration: underline;
+}
+
+.acl-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.acl-presets small {
+    color: #7b452d;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.acl-presets button {
+    padding: 3px 10px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.acl-presets button:hover:not(:disabled) {
+    border-color: #fb8500;
+    background: #fde3bf;
+}
+
+.acl-presets button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* "?" next to Care instructions */
+.acl-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.acl-label .admin-info-tip {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fb8500;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: help;
+    outline: none;
+}
+
+.acl-label .admin-info-tip-bubble {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: -12px;
+    right: auto;
+    z-index: 20;
+    width: 240px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #4a1a00;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    box-shadow: 0 10px 24px rgba(58, 18, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
+}
+
+.acl-label .admin-info-tip-bubble::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 15px;
+    border-width: 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #4a1a00;
+}
+
+.acl-label .admin-info-tip:hover .admin-info-tip-bubble,
+.acl-label .admin-info-tip:focus .admin-info-tip-bubble {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}

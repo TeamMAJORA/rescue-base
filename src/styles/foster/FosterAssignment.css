@@ -648,3 +648,654 @@
         justify-content: center;
     }
 }
+
+/* ===== My Foster Pet: Care Instructions + Recent Weekly Updates ===== */
+.foster-assignment-sections {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.assignment-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 24px;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.06);
+    color: #5a1b00;
+}
+
+.acard-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.assignment-card .acard-head h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.acard-count {
+    padding: 3px 10px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* checklist */
+.acard-checklist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.acard-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(90, 27, 0, 0.14);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.acard-checklist li:last-child {
+    border-bottom: 0;
+}
+
+.acard-check {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid #fb8500;
+    border-radius: 50%;
+    background: #fde3bf;
+    color: #fb8500;
+}
+
+/* empty state */
+.acard-empty {
+    flex: 1;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 6px;
+    padding: 22px 18px;
+    border: 2px dashed rgba(251, 133, 0, 0.35);
+    border-radius: 16px;
+    background: #fff7cb;
+    text-align: center;
+}
+
+.acard-empty-icon {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 4px;
+    border-radius: 50%;
+    background: #fde3bf;
+    color: #fb8500;
+}
+
+.acard-empty-icon .fah-icon {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+.acard-empty b {
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.acard-empty p {
+    margin: 0 0 8px;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+/* update list */
+.acard-updates {
+    display: grid;
+    gap: 10px;
+}
+
+.acard-update {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+}
+
+.acard-update img {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.acard-update > div {
+    min-width: 0;
+}
+
+.acard-update-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.acard-update-head b {
+    font-size: 13px;
+}
+
+.acard-update-head small {
+    color: #7b452d;
+    font-size: 11px;
+}
+
+.assignment-card .acard-update p {
+    margin: 4px 0 0;
+    color: #5a1b00;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.acard-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.acard-tags span {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: #fde3bf;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.acard-link {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #d96f00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.acard-link:hover {
+    text-decoration: underline;
+}
+
+/* next report due */
+.assignment-card .acard-due {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.acard-due .fah-icon {
+    color: #fb8500;
+}
+
+.acard-due b {
+    color: #5a1b00;
+}
+
+.acard-due.is-overdue,
+.acard-due.is-overdue b,
+.acard-due.is-overdue .fah-icon {
+    color: #b42318;
+}
+
+@media (max-width: 900px) {
+    .foster-assignment-sections {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Contact Shelter: details under the buttons ===== */
+.fah-btn.is-ghost.is-open {
+    border-color: #fb8500;
+    background: #fff7cb;
+}
+
+.fah-contact {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+    padding: 12px;
+    border: 1.5px dashed rgba(251, 133, 0, 0.35);
+    border-radius: 16px;
+    background: #fffdf0;
+    animation: fah-contact-in 0.2s ease;
+}
+
+.fah-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 14px;
+    background: #fff7cb;
+    color: #5a1b00;
+    text-decoration: none;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.fah-contact-item:hover {
+    border-color: #fb8500;
+    transform: translateY(-1px);
+}
+
+.fah-contact-item small {
+    display: block;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.fah-contact-item b {
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fah-contact-empty {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #7b452d;
+    font-size: 13px;
+    text-align: center;
+}
+
+@keyframes fah-contact-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 640px) {
+    .fah-contact {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Return Pet (foster asks to return an animal early) ===== */
+/* keep the photo from stretching when a panel opens under the buttons */
+.fah-photo { max-height: 300px; }
+
+.fat-pill.is-return { background: #fde3bf; color: #b42318; }
+
+.fah-btn.is-return {
+    border: 1.5px dashed rgba(90, 27, 0, 0.35);
+    background: transparent;
+    color: #7b452d;
+}
+
+.fah-btn.is-return:hover {
+    border-color: #b42318;
+    color: #b42318;
+    background: #fff;
+}
+
+.fah-return-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 12px 0 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 14px;
+    background: #fff1d6;
+    color: #5a1b00;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.fah-return-note .fah-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #fb8500;
+}
+
+.fah-return-note.is-declined {
+    border-color: rgba(214, 40, 40, 0.3);
+    background: #fdeaea;
+}
+
+.fah-return-note.is-declined .fah-icon {
+    color: #b42318;
+}
+
+.fah-return {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 16px;
+    border: 1.5px dashed rgba(251, 133, 0, 0.35);
+    border-radius: 16px;
+    background: #fffdf0;
+    animation: fah-contact-in 0.2s ease;
+}
+
+.fah-return-head b {
+    display: block;
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.fah-return-head small {
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.fah-return-reasons {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.fah-return-reasons button {
+    min-height: 36px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 10px;
+    background: #fff7d6;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.fah-return-reasons button:hover {
+    border-color: #fb8500;
+}
+
+.fah-return-reasons button.is-selected {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #fff;
+}
+
+.fah-return-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+.fah-return-grid label {
+    display: grid;
+    gap: 6px;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.fah-return-grid label.is-wide {
+    grid-column: 1 / -1;
+}
+
+.fah-return-grid input[type="date"],
+.fah-return-grid textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 10px;
+    background: #fff7d6;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+}
+
+.fah-return-grid input:focus,
+.fah-return-grid textarea:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.fah-return-grid label.fah-return-urgent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.fah-return-urgent input {
+    width: 18px;
+    height: 18px;
+    accent-color: #d62828;
+}
+
+.fah-return-warn,
+.fah-return-error {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fdeaea;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.fah-return-warn button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #b42318;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.fah-return-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+@media (max-width: 640px) {
+    .fah-return-reasons,
+    .fah-return-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fah-return-actions {
+        flex-direction: column-reverse;
+    }
+}
+
+/* ===== Adopt your foster pet ===== */
+.fah-btn.is-adopt {
+    border: 1.5px solid #17803d;
+    background: #fff;
+    color: #17803d;
+}
+
+.fah-btn.is-adopt:hover {
+    background: #e4f3e9;
+}
+
+.fah-btn.is-adopt .fah-icon {
+    fill: currentColor;
+}
+
+.fah-return-note.is-adopt {
+    border-color: rgba(23, 128, 61, 0.3);
+    background: #e4f3e9;
+}
+
+.fah-return-note.is-adopt .fah-icon {
+    color: #17803d;
+    fill: currentColor;
+}
+
+/* ===== My Foster Pet: no pet assigned yet ===== */
+.fae-art {
+    position: relative;
+    min-height: 230px;
+    max-height: 300px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fde3bf;
+}
+
+.fae-home {
+    position: relative;
+    width: 55%;
+    max-width: 140px;
+    height: auto;
+    animation: fae-bob 3s ease-in-out infinite;
+}
+
+.fae-paw {
+    position: absolute;
+    width: 56px;
+    height: auto;
+    opacity: 0.45;
+}
+
+.fae-paw.is-one {
+    top: 14px;
+    left: 14px;
+    transform: rotate(-20deg);
+}
+
+.fae-paw.is-two {
+    right: 12px;
+    bottom: 14px;
+    width: 44px;
+    transform: rotate(18deg);
+}
+
+.fah-facts.is-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* 1-2-3 "what happens next" */
+.fae-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fae-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+    border-radius: 16px;
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.fae-step-dot {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(90, 27, 0, 0.08);
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.fae-step.is-done .fae-step-dot {
+    background: #17803d;
+    color: #fff;
+}
+
+.fae-step.is-active {
+    border-color: rgba(251, 133, 0, 0.45);
+    background: #fff7cb;
+}
+
+.fae-step.is-active .fae-step-dot {
+    background: #fb8500;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.fae-step b {
+    display: block;
+    font-size: 13px;
+}
+
+.fae-step small {
+    display: block;
+    margin-top: 2px;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.fae-step.is-upcoming b {
+    color: #7b452d;
+}
+
+@keyframes fae-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fae-home {
+        animation: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .fah-facts.is-three,
+    .fae-steps {
+        grid-template-columns: 1fr;
+    }
+}
