@@ -252,14 +252,27 @@ export default function AdminDashboard({ setPage }) {
         setPage(goTo);
     }
 
-
     function handleSidebarClick(item) {
         if (item.children) {
-            setOpenSidebarMenu((current) =>
-                current === item.key ? null : item.key
+            const isOpen = openSidebarMenu === item.key;
+
+            // Clicking an open group just collapses it
+            if (isOpen) {
+                setOpenSidebarMenu(null);
+                return;
+            }
+
+            setOpenSidebarMenu(item.key);
+
+            // Stay on a sub-page of this group if already there; otherwise open its first page
+            const alreadyInside = item.children.some(
+                (child) => child.key === activeAdminPage
             );
 
-            setActiveAdminPage(item.key);
+            if (!alreadyInside) {
+                setActiveAdminPage(item.children[0].key);
+            }
+
             return;
         }
 
