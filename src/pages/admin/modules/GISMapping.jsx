@@ -281,6 +281,7 @@ export default function GISMapping() {
     const [gmReport, setGmReport] = useState({ ...emptyGmReport });
     const [gmShelterWhere, setGmShelterWhere] = useState("pin");
     const [gmLocating, setGmLocating] = useState(false);
+    const [gmNearestCategory, setGmNearestCategory] = useState("shelter");
 
     const gmPinActive =
         (gmPanel === "report" && gmReport.where === "pin") ||
@@ -889,11 +890,12 @@ export default function GISMapping() {
         );
     }
 
-    function findNearestShelters(latitude, longitude) {
+    function findNearestShelters(latitude, longitude, category) {
         const sorted = shelters
             .filter(
                 (shelter) =>
                     shelter.status === "active" &&
+                    (!category || shelter.category === category) &&
                     validCoordinates(shelter.latitude, shelter.longitude)
             )
             .map((shelter) => ({
@@ -1108,7 +1110,7 @@ export default function GISMapping() {
         }
     }
 
-    function gmClosePanel() {
+    function gmClosePanel() {// update this for shelter panel and clinic differences
         setError("");
         setGmPanel("list");
         setEditingLocationId(null);
@@ -1194,10 +1196,11 @@ export default function GISMapping() {
         }
     }
 
-    function gmOpenNearest() {
+    function gmOpenNearest(category = "shelter") {
+        setGmNearestCategory(category);
         setGmPanel("nearest");
         setShelterError("");
-        gmLocate((spot) => findNearestShelters(spot.latitude, spot.longitude));
+        gmLocate((spot) => findNearestShelters(spot.latitude, spot.longitude, category));
     }
 
     const gmShelterDraft = validCoordinates(shelterForm.latitude, shelterForm.longitude)
@@ -1223,9 +1226,13 @@ export default function GISMapping() {
                 <div className="gm-toolbar">
                     <p>Strays, lost and found reports, hotspots and shelters.</p>
                     <div className="gm-toolbar-actions">
-                        <button type="button" className="gm-btn gm-btn-ghost" onClick={gmOpenNearest}>
+                        <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenNearest("clinic")}>
                             <img src="/gis/icon-find-nearest.svg" alt="" className="gm-btn-icon" />
-                            Find nearest shelter
+                            Find near clinic
+                        </button>
+                        <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenNearest()}>
+                            <img src="/gis/icon-find-nearest.svg" alt="" className="gm-btn-icon" />
+                            Find near shelter
                         </button>
                         <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenShelter(null)}>
                             <img src="/gis/icon-add-shelter.svg" alt="" className="gm-btn-icon" />
@@ -1832,11 +1839,15 @@ export default function GISMapping() {
                         {gmPanel === "nearest" && (
                             <div className="gm-card">
                                 <div className="gm-card-head">
-                                    <h3>Nearest shelters</h3>
+                                    <h3>{gmNearestCategory === "clinic" ? "Nearest vet clinics" : "Nearest shelters"}</h3>
                                     <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
                                 </div>
                                 <p className="gm-sub">
-                                    {gmLocating ? "Getting your location..." : userLocation ? "From your current location" : "Allow location access to see the closest shelters."}
+                                    {gmLocating
+                                        ? "Getting your location..."
+                                        : userLocation
+                                            ? "From your current location"
+                                            : `Allow location access to see the closest ${gmNearestCategory === "clinic" ? "vet clinics" : "shelters"}.`}
                                 </p>
                                 {shelterError && <div className="admin-gis-error">{shelterError}</div>}
                                 {nearestShelters.slice(0, 5).map((shelter, index) => (
@@ -1857,7 +1868,9 @@ export default function GISMapping() {
                                     </article>
                                 ))}
                                 {userLocation && nearestShelters.length === 0 && (
-                                    <p className="gm-empty">No active shelters yet.</p>
+                                    <p className="gm-empty">
+                                        No active {gmNearestCategory === "clinic" ? "vet clinics" : "shelters"} are available.
+                                    </p>
                                 )}
                             </div>
                         )}
