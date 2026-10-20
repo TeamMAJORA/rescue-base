@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const FACTORS = [
     {
@@ -304,6 +304,65 @@ export default function Recommendations({
             .sort((first, second) => second.score - first.score);
     }, [pets, quiz]);
 
+    
+    // Carousel: which recommendation is shown in full below
+    const [activeIndex, setActiveIndex] = useState(0);
+    const carouselRef = useRef(null);
+    const safeIndex = Math.min(activeIndex, Math.max(recommendations.length - 1, 0));
+
+    // Keep the selected card centred in the carousel
+    useEffect(() => {
+        const track = carouselRef.current;
+        const card = track?.children[safeIndex];
+
+        if (!track || !card) return;
+
+        track.scrollTo({
+            left: card.offsetLeft - track.clientWidth / 2 + card.clientWidth / 2,
+            behavior: "smooth",
+        });
+    }, [safeIndex, recommendations.length]);
+
+    
+    // Mouse wheel over the carousel steps through the animals (one per wheel notch)
+    const wheelLockRef = useRef(0);
+
+    useEffect(() => {
+        const track = carouselRef.current;
+        const total = recommendations.length;
+
+        if (!track || total < 2) return;
+
+        function handleWheel(event) {
+            const delta =
+                Math.abs(event.deltaY) >= Math.abs(event.deltaX)
+                    ? event.deltaY
+                    : event.deltaX;
+
+            if (Math.abs(delta) < 4) return;
+
+            const direction = delta > 0 ? 1 : -1;
+            const atEdge =
+                (direction < 0 && safeIndex === 0) ||
+                (direction > 0 && safeIndex === total - 1);
+
+            // On the first/last animal, let the page scroll normally
+            if (atEdge) return;
+
+            event.preventDefault();
+
+            // Ignore the burst of events a single notch or swipe sends
+            const now = Date.now();
+            if (now - wheelLockRef.current < 250) return;
+            wheelLockRef.current = now;
+
+            setActiveIndex(Math.min(Math.max(safeIndex + direction, 0), total - 1));
+        }
+
+        track.addEventListener("wheel", handleWheel, { passive: false });
+        return () => track.removeEventListener("wheel", handleWheel);
+    }, [loading, error, recommendations.length, safeIndex]);
+
     const perfectMatches = recommendations.filter(
         (recommendation) => recommendation.score >= 80
     ).length;
@@ -322,9 +381,13 @@ export default function Recommendations({
     ].filter((slot) => slot.item);
 
     function scrollToRecommendation(pet) {
+        const index = recommendations.findIndex((item) => item.pet === pet);
+
+        if (index >= 0) setActiveIndex(index);
+
         document
-            .getElementById(`rec-card-${pet._id || pet.id}`)
-            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+            .getElementById("rec-browser")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     if (!quiz) {
@@ -594,12 +657,86 @@ export default function Recommendations({
                 </div>
             )}
 
+            {!loading && !error && recommendations.length > 0 && (
+                <section className="rec-carousel" id="rec-browser">
+                    <button
+                        type="button"
+                        className="rec-carousel-arrow is-prev"
+                        onClick={() => setActiveIndex(Math.max(safeIndex - 1, 0))}
+                        disabled={safeIndex === 0}
+                        aria-label="Previous animal"
+                    >
+                        ‹
+                    </button>
+
+                    <div className="rec-carousel-track" ref={carouselRef}>
+                        {recommendations.map((item, index) => (
+                            <button
+                                key={item.pet._id || item.pet.id || index}
+                                type="button"
+                                className={`rec-carousel-card ${item.tier.key} ${index === safeIndex ? "is-active" : ""}`}
+                                onClick={() => setActiveIndex(index)}
+                                aria-pressed={index === safeIndex}
+                            >
+                                <span className="rec-carousel-photo">
+                                    {item.pet.image ? (
+                                        <img src={item.pet.image} alt={item.pet.name} />
+                                    ) : (
+                                        <img className="is-placeholder" src="/icons/brown paw.svg" alt="" />
+                                    )}
+
+                                    <span className="rec-carousel-rank">
+                                        {item.tier.key === "no-match" ? "–" : `#${index + 1}`}
+                                    </span>
+                                    <span className={`rec-carousel-score ${item.tier.key}`}>{item.score}%</span>
+                                </span>
+
+                                <b>{item.pet.name || "Unnamed"}</b>
+                                <small>
+                                    {item.pet.type || item.pet.species || "Pet"} · {item.pet.breed || "Unknown breed"}
+                                </small>
+                                {index === safeIndex && (
+                                    <em className={item.tier.key}>{item.tier.label}</em>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        type="button"
+                        className="rec-carousel-arrow is-next"
+                        onClick={() => setActiveIndex(Math.min(safeIndex + 1, recommendations.length - 1))}
+                        disabled={safeIndex === recommendations.length - 1}
+                        aria-label="Next animal"
+                    >
+                        ›
+                    </button>
+
+                    <div className="rec-carousel-dots">
+                        {recommendations.length <= 12 ? (
+                            recommendations.map((item, index) => (
+                                <button
+                                    key={item.pet._id || item.pet.id || index}
+                                    type="button"
+                                    className={index === safeIndex ? "is-active" : ""}
+                                    onClick={() => setActiveIndex(index)}
+                                    aria-label={`Show ${item.pet.name || `animal ${index + 1}`}`}
+                                />
+                            ))
+                        ) : (
+                            <span>{safeIndex + 1} / {recommendations.length}</span>
+                        )}
+                    </div>
+                </section>
+            )}
+
             {!loading &&
                 !error &&
                 recommendations.length > 0 && (
                     <div className="recommendations-list">
-                        {recommendations.map(
-                            (recommendation, index) => {
+                        {recommendations.slice(safeIndex, safeIndex + 1).map(
+                            (recommendation) => {
+                                const index = safeIndex;
                                 const {
                                     pet,
                                     score,
