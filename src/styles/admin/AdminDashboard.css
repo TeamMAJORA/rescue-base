@@ -656,3 +656,13 @@
 .admin-notification-btn.open:hover .rb-notif-icon.icon-active {
     display: none;
 }
+
+/* Tighter gap between the page title and the page content */
+.admin-topbar {
+    margin-bottom: 18px;
+}
+
+.admin-topbar h1 {
+    margin: 0;
+    line-height: 1.1;
+}

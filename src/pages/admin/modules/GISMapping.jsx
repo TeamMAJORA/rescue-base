@@ -1584,8 +1584,7 @@ export default function GISMapping() {
                                     </button>
                                     <label className="gm-switch">
                                         <span>
-                                            Show where animals were rescued
-                                            <small>Staff &amp; admin only, from intake records</small>
+                                            Show where animals were rescued.
                                         </span>
                                         <input
                                             type="checkbox"

@@ -643,7 +643,7 @@
 }
 
 .gm-row-text span,
-.gm-near-row span {
+.gm-near-row div > span {
     display: block;
     color: #7a3e19;
     font-size: 12px;
@@ -748,8 +748,12 @@
     font-size: 14px;
 }
 
+.gm-near-row .gm-rank,
 .gm-rank {
     flex-shrink: 0;
+    margin-top: 2px;
+    color: #5a1b00;
+    line-height: 1;
     width: 26px;
     height: 26px;
     display: grid;
@@ -760,6 +764,7 @@
     font-weight: 700;
 }
 
+.gm-near-row .gm-rank.is-first,
 .gm-rank.is-first {
     background: #5a1b00;
     color: #eae2b7;
@@ -982,4 +987,9 @@
     .gm-map-wrap {
         height: 520px;
     }
+}
+
+/* Subtitle sits right under the page title */
+.gm-page .gm-toolbar {
+    margin-top: -6px;
 }

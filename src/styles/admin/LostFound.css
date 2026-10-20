@@ -1317,3 +1317,337 @@
     background: #fff4e0;
     white-space: pre-wrap;
 }
+/* ===== Lost & Found list: aligned with Donations / User Management (lf2-*) ===== */
+.lost-found-page {
+    gap: 14px;
+    color: #5a1b00;
+}
+
+.lf2-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.lf2-btn {
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid #5a1b00;
+    border-radius: 999px;
+    background: transparent;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.lf2-btn span {
+    margin-left: 4px;
+    opacity: 0.7;
+}
+
+.lf2-btn.is-on {
+    background: #5a1b00;
+    color: #eae2b7;
+}
+
+.lf2-btn.is-primary {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #ffffff;
+}
+
+/* Strip (same look as IntakeRecords.css, repeated so it works on every dashboard) */
+.lost-found-page .um-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fffdf3;
+}
+
+.lost-found-page .um-strip > div {
+    padding: 16px 22px;
+    border-left: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.lost-found-page .um-strip small {
+    display: block;
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lost-found-page .um-strip b {
+    font-size: 26px;
+}
+
+.lost-found-page .um-strip > .um-strip-total {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-left: none;
+    background: #5a1b00;
+}
+
+.lost-found-page .um-strip > .um-strip-total b {
+    color: #fcbf49;
+    font-size: 30px;
+    line-height: 1;
+}
+
+.lost-found-page .um-strip > .um-strip-total small {
+    margin-top: 4px;
+    color: #f3dcc0;
+    font-weight: 500;
+}
+
+.lf2-card {
+    display: grid;
+    gap: 12px;
+    padding: 16px 18px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 14px;
+    background: #fffdf4;
+}
+
+.lf2-toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.lf2-search {
+    flex: 1 1 320px;
+    padding: 10px 14px;
+    border: 1px solid rgba(90, 27, 0, 0.25);
+    border-radius: 0;
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.lf2-select {
+    position: relative;
+}
+
+.lf2-select > span {
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    z-index: 1;
+    padding: 0 4px;
+    background: #ffffff;
+    color: #7a3e19;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.lf2-select select {
+    min-width: 140px;
+    height: 100%;
+    padding: 9px 10px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.lf2-search:focus,
+.lf2-select select:focus {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.lf2-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.lf2-chips button {
+    padding: 5px 12px;
+    border: 1px solid #5a1b00;
+    border-radius: 999px;
+    background: transparent;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.lf2-chips button span {
+    margin-left: 4px;
+    opacity: 0.7;
+}
+
+.lf2-chips button.is-active {
+    background: #5a1b00;
+    color: #eae2b7;
+}
+
+.lf2-empty {
+    margin: 24px 0;
+    color: #7a3e19;
+    text-align: center;
+}
+
+.lf2-table-wrap {
+    overflow-x: auto;
+}
+
+.lf2-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.lf2-table th {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.15);
+    color: #7a3e19;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.lf2-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.08);
+    vertical-align: middle;
+}
+
+.lf2-table tbody tr {
+    cursor: pointer;
+}
+
+.lf2-table tbody tr:hover {
+    background: rgba(252, 191, 73, 0.12);
+}
+
+.lf2-right {
+    text-align: right !important;
+}
+
+.lf2-pet {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lf2-pet img,
+.lf2-thumb {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #eadcc4;
+}
+
+.lf2-pet b {
+    display: block;
+}
+
+.lf2-pet small {
+    color: #7a3e19;
+    font-size: 12px;
+}
+
+.lf2-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.lf2-pill.is-lost {
+    background: #ede4ff;
+    color: #6d28d9;
+}
+
+.lf2-pill.is-found {
+    background: #d9f0e3;
+    color: #2f8f5b;
+}
+
+.lf2-pill.is-open {
+    background: #fff3cd;
+    color: #8a5a00;
+}
+
+.lf2-pill.is-claim-pending {
+    background: #e8efff;
+    color: #1d4ed8;
+}
+
+.lf2-pill.is-claim-approved {
+    background: #d9f0e3;
+    color: #2f8f5b;
+}
+
+.lf2-pill.is-reunited,
+.lf2-pill.is-rejected {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.lf2-date {
+    white-space: nowrap;
+}
+
+.lf2-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.lf2-mini {
+    padding: 6px 12px;
+    border: 1px solid #5a1b00;
+    border-radius: 999px;
+    background: #5a1b00;
+    color: #eae2b7;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lf2-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: underline;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lf2-link.is-danger {
+    color: #d62828;
+}
+
+@media (max-width: 900px) {
+    .lost-found-page .um-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

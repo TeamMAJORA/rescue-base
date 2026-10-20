@@ -457,10 +457,16 @@ const countFound = reports.filter((r) => r.reportType === "found").length;
 const countReunited = reports.filter((r) => r.status === "reunited").length;
 const countMine = reports.filter((r) => r.reporterEmail === user?.email).length;
 
+const countClaims = reports.filter((r) => r.claimStatus === "pending").length;
+const isOpenReport = (r) => r.status !== "reunited" && r.status !== "rejected";
+const countLostOpen = reports.filter((r) => r.reportType === "lost" && isOpenReport(r)).length;
+const countFoundOpen = reports.filter((r) => r.reportType === "found" && isOpenReport(r)).length;
+
 const LF_CHIPS = [
     { value: "all", label: "All", count: reports.length },
     { value: "lost", label: "Lost", count: countLost },
     { value: "found", label: "Found", count: countFound },
+    ...(canManageReports ? [{ value: "claims", label: "Claims to review", count: countClaims }] : []),
     { value: "reunited", label: "Reunited", count: countReunited },
 ];
 
@@ -469,6 +475,7 @@ const query = search.trim().toLowerCase();
 const visibleReports = reports
     .filter((r) => {
         if (typeFilter === "reunited") return r.status === "reunited";
+        if (typeFilter === "claims") return r.claimStatus === "pending";
         if (typeFilter !== "all") return r.reportType === typeFilter;
         return true;
     })
@@ -766,215 +773,238 @@ if (showReportForm && canSubmitReport) {
 
     return (
         <main className="lost-found-page">
-            <header className="lost-found-header">
-                <div className="lost-found-stats">
-                    <section className="lf-hero">
-                     <div className="lf-hero-text">
-                      <span className="lf-hero-badge">Lost &amp; Found</span>
-                    <h1>Help a pet find its way home</h1>
-                    <p>Spot a pet you recognize, or lost your own? Reports from the community appear here.</p>
-                </div>
-
-                     <button type="button" className="lf-hero-btn" onClick={() => setShowReportForm(true)}>
-                                         + Report a Pet
-                      </button>
-                    </section>
-                </div>
-            </header>
-            <div className="lf-filters">
-    <div className="lf-toolbar">
-        <input
-            type="search"
-            className="lf-search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, breed or location..."
-        />
-
-        <select className="lf-select" value={speciesFilter} onChange={(e) => setSpeciesFilter(e.target.value)}>
-            <option value="all">Species: All</option>
-            <option value="Dog">Species: Dog</option>
-            <option value="Cat">Species: Cat</option>
-            <option value="Other">Species: Other</option>
-        </select>
-
-        <select className="lf-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="newest">Sort: Newest</option>
-            <option value="oldest">Sort: Oldest</option>
-        </select>
-    </div>
-
-    <div className="lf-chips-row">
-        <div className="lf-chips">
-            {LF_CHIPS.map((chip) => (
+            <div className="lf2-actions">
                 <button
-                    key={chip.value}
                     type="button"
-                    className={`lf-chip ${typeFilter === chip.value ? "is-active" : ""}`}
-                    onClick={() => setTypeFilter(chip.value)}
+                    className={`lf2-btn ${onlyMine ? "is-on" : ""}`}
+                    onClick={() => setOnlyMine(!onlyMine)}
                 >
-                    {chip.label} <span>{chip.count}</span>
+                    My reports <span>{countMine}</span>
                 </button>
-            ))}
-        </div>
+                {canSubmitReport && (
+                    <button type="button" className="lf2-btn is-primary" onClick={() => setShowReportForm(true)}>
+                        + Report a pet
+                    </button>
+                )}
+            </div>
 
-        <button
-            type="button"
-            className={`lf-chip ${onlyMine ? "is-active" : ""}`}
-            onClick={() => setOnlyMine(!onlyMine)}
-        >
-            My Reports <span>{countMine}</span>
-        </button>
-    </div>
-</div>
-
-            {error && (
-                <div className="lost-found-message error">
-                    {error}
+            <div className="um-strip">
+                <div className="um-strip-total">
+                    <b>{reports.length}</b>
+                    <small>Total reports</small>
                 </div>
-            )}
-
-            {success && (
-                <div className="lost-found-message success">
-                    {success}
+                <div>
+                    <small>Lost (open)</small>
+                    <b>{countLostOpen}</b>
                 </div>
-            )}
+                <div>
+                    <small>Found (open)</small>
+                    <b>{countFoundOpen}</b>
+                </div>
+                <div>
+                    <small>Reunited</small>
+                    <b>{countReunited}</b>
+                </div>
+            </div>
 
-            <section className="lost-found-content">
-                    {loading ? (
-                        <div className="lost-found-empty">
-                            <p>Loading reports...</p>
-                        </div>
-                      ) : reports.length === 0 ? null : (
-                        <div className="lf-grid">
-    {visibleReports.map((report, index) => {
-        const isMine = report.reporterEmail === user?.email;
-        const isOpen = report.status !== "reunited" && report.status !== "rejected";
-        const canClaimThis =
-            canClaimReport && !isMine && isOpen &&
-            report.claimStatus !== "pending" && report.claimStatus !== "approved";
-        const badge = report.status === "reunited" ? "reunited" : report.reportType;
-        const s = String(report.species || "").toLowerCase();
-        const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
+            {error && <div className="lost-found-message error">{error}</div>}
+            {success && <div className="lost-found-message success">{success}</div>}
 
-        return (
-        <article
-        className={`lf-card ${isMine ? "is-mine" : ""}`}
-        key={report._id}
-          onClick={() => {
-          setViewingReport(report);
-          setClaimOpen(false);
-          setClaimText("");
-          setClaimError("");
-          }}
-        >                
-        <div className={`lf-card-media tint-${index % 4}`}>
-                    {report.photoUrl ? (
-                        <img src={report.photoUrl} alt={report.petName || "Pet"} />
-                    ) : (
-                        <span className="lf-card-emoji">{emoji}</span>
-                    )}
-
-                    <span className={`lf-card-badge is-${badge}`}>{badge}</span>
-
-                    <span className="lf-card-date">
-                        {report.dateReported
-                            ? new Date(report.dateReported).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                            })
-                            : "No date"}
-                    </span>
-
-                    {isMine && <span className="lf-card-mine">Your report</span>}
+            <section className="lf2-card">
+                <div className="lf2-toolbar">
+                    <input
+                        type="search"
+                        className="lf2-search"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search by name, breed or location..."
+                    />
+                    <label className="lf2-select">
+                        <span>Species</span>
+                        <select value={speciesFilter} onChange={(e) => setSpeciesFilter(e.target.value)}>
+                            <option value="all">All species</option>
+                            <option value="Dog">Dog</option>
+                            <option value="Cat">Cat</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                    <label className="lf2-select">
+                        <span>Sort</span>
+                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                            <option value="newest">Newest</option>
+                            <option value="oldest">Oldest</option>
+                        </select>
+                    </label>
                 </div>
 
-                <div className="lf-card-body">
-                    <h3>{report.petName || "Unknown"}</h3>
-                    <small>{[report.species, report.breed].filter(Boolean).join(" · ")}</small>
-                    <small className="lf-card-loc">📍 {report.location}</small>
-                    <p>{String(report.description || "").split(" · ")[0]}</p>
+                <div className="lf2-chips">
+                    {LF_CHIPS.map((chip) => (
+                        <button
+                            key={chip.value}
+                            type="button"
+                            className={typeFilter === chip.value ? "is-active" : ""}
+                            onClick={() => setTypeFilter(chip.value)}
+                        >
+                            {chip.label} <span>{chip.count}</span>
+                        </button>
+                    ))}
+                </div>
 
-                    {report.claimStatus && report.claimStatus !== "none" && (
-                        <small className="lf-card-claim">Claim: {report.claimStatus}</small>
-                    )}
+                {loading ? (
+                    <p className="lf2-empty">Loading reports...</p>
+                ) : visibleReports.length === 0 ? (
+                    <p className="lf2-empty">
+                        {reports.length === 0 ? "No lost or found reports yet." : "No reports match your filters."}
+                    </p>
+                ) : (
+                    <div className="lf2-table-wrap">
+                        <table className="lf2-table">
+                            <thead>
+                                <tr>
+                                    <th>Pet</th>
+                                    <th>Type</th>
+                                    <th>Last seen / found at</th>
+                                    <th>Reported by</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th className="lf2-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {visibleReports.map((report) => {
+                                    const isMine = report.reporterEmail === user?.email;
+                                    const isOpen = report.status !== "reunited" && report.status !== "rejected";
+                                    const canClaimThis =
+                                        canClaimReport && !isMine && isOpen &&
+                                        report.claimStatus !== "pending" && report.claimStatus !== "approved";
+                                    const statusKey =
+                                        report.status === "reunited"
+                                            ? "reunited"
+                                            : report.claimStatus === "pending"
+                                                ? "claim-pending"
+                                                : report.claimStatus === "approved"
+                                                    ? "claim-approved"
+                                                    : report.status === "rejected"
+                                                        ? "rejected"
+                                                        : "open";
+                                    const statusLabel = {
+                                        reunited: "Reunited",
+                                        "claim-pending": "Claim pending",
+                                        "claim-approved": "Claim approved",
+                                        rejected: "Closed",
+                                        open: "Open",
+                                    }[statusKey];
+                                    const openDetails = (withClaim = false) => {
+                                        setViewingReport(report);
+                                        setClaimOpen(withClaim);
+                                        setClaimText("");
+                                        setClaimError("");
+                                    };
 
-                      <div className="lf-card-actions" onClick={(e) => e.stopPropagation()}>
-                        {canClaimThis && report.reportType === "found" && (
-                            <button type="button" onClonClick={() => {
-                             setViewingReport(report);
-                             setClaimOpen(true);
-                             setClaimText("");
-                             setClaimError("");}}>
-                                This Is My Pet
-                            </button>
-                        )}
+                                    return (
+                                        <tr key={report._id} onClick={() => openDetails(false)}>
+                                            <td>
+                                                <div className="lf2-pet">
+                                                    {report.photoUrl ? (
+                                                        <img src={report.photoUrl} alt={report.petName || "Pet"} />
+                                                    ) : (
+                                                        <span className="lf2-thumb" aria-hidden="true" />
+                                                    )}
+                                                    <div>
+                                                        <b>{report.petName || "Unknown"}</b>
+                                                        <small>{[report.species, report.breed].filter(Boolean).join(" · ")}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`lf2-pill is-${report.reportType}`}>
+                                                    {report.reportType === "lost" ? "Lost" : "Found"}
+                                                </span>
+                                            </td>
+                                            <td>{report.location || "—"}</td>
+                                            <td>
+                                                <b>{isMine ? "You" : report.reporterName || "—"}</b>
+                                            </td>
+                                            <td>
+                                                <span className={`lf2-pill is-${statusKey}`}>{statusLabel}</span>
+                                            </td>
+                                            <td className="lf2-date">
+                                                {report.dateReported
+                                                    ? new Date(report.dateReported).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                                                    : "—"}
+                                            </td>
+                                            <td>
+                                                <div className="lf2-row-actions" onClick={(e) => e.stopPropagation()}>
+                                                    {canClaimThis && report.reportType === "found" && (
+                                                        <button type="button" className="lf2-mini" onClick={() => openDetails(true)}>
+                                                            This is my pet
+                                                        </button>
+                                                    )}
 
-                        {!isMine && isOpen && report.reportType === "lost" && (
-                            <a
-                              className="lf-card-btn"
-                              href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(report.reporterEmail)}&su=${encodeURIComponent(
-                               `I've seen ${report.petName || "your pet"} (RescueBase)`
-                               )}`}
-                          target="_blank"
-                             rel="noreferrer">
-                                    I've Seen This Pet
-                                   </a>
-                        )}
+                                                    {!isMine && isOpen && report.reportType === "lost" && !canManageReports && (
+                                                        <a
+                                                            className="lf2-link"
+                                                            href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(report.reporterEmail)}&su=${encodeURIComponent(
+                                                                `I've seen ${report.petName || "your pet"} (RescueBase)`
+                                                            )}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                        >
+                                                            I've seen this pet
+                                                        </a>
+                                                    )}
 
-                        {canManageReports && report.claimStatus === "pending" && (
-                            <>
-                                <button type="button" onClick={() => handleReviewClaim(report._id, "approved")}>
-                                    Approve Claim
-                                </button>
-                                <button type="button" className="is-ghost" onClick={() => handleReviewClaim(report._id, "rejected")}>
-                                    Reject
-                                </button>
-                            </>
-                        )}
+                                                    {canManageReports && report.claimStatus === "pending" && (
+                                                        <button type="button" className="lf2-mini" onClick={() => openDetails(false)}>
+                                                            Review claim
+                                                        </button>
+                                                    )}
 
-                        {canManageReports && report.claimStatus === "approved" && report.status !== "reunited" && (
-                            <>
-                                <button type="button" onClick={() => handleMarkReunited(report._id)}>
-                                    Mark Reunited
-                                </button>
-                                <button
-                                    type="button"
-                                    className="is-ghost"
-                                    onClick={async () => {
-                                        const ok = await askConfirm({
-                                            title: "Revoke this claim?",
-                                            message: "The report opens again so someone else can claim it.",
-                                            confirmLabel: "Revoke claim",
-                                            danger: true,
-                                        });
-                                        if (ok) handleReviewClaim(report._id, "revoked");
-                                    }}
-                                >
-                                    Revoke
-                                </button>
-                            </>
-                        )}
+                                                    {canManageReports && report.claimStatus === "approved" && report.status !== "reunited" && (
+                                                        <>
+                                                            <button type="button" className="lf2-mini" onClick={() => handleMarkReunited(report._id)}>
+                                                                Mark reunited
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="lf2-link"
+                                                                onClick={async () => {
+                                                                    const ok = await askConfirm({
+                                                                        title: "Revoke this claim?",
+                                                                        message: "The report opens again so someone else can claim it.",
+                                                                        confirmLabel: "Revoke claim",
+                                                                        danger: true,
+                                                                    });
+                                                                    if (ok) handleReviewClaim(report._id, "revoked");
+                                                                }}
+                                                            >
+                                                                Revoke
+                                                            </button>
+                                                        </>
+                                                    )}
 
-                        {canDeleteReport && (
-                            <button
-                                type="button"
-                                className="lf-card-icon is-danger"
-                                title="Delete"
-                                aria-label="Delete report"
-                                onClick={() => handleDeleteReport(report._id)}
-                            >
-                                🗑
-                            </button>
-                        )}
+                                                    <button type="button" className="lf2-link" onClick={() => openDetails(false)}>
+                                                        View
+                                                    </button>
+
+                                                    {canDeleteReport && (
+                                                        <button
+                                                            type="button"
+                                                            className="lf2-link is-danger"
+                                                            onClick={() => handleDeleteReport(report._id)}
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </article>
-        );
-    })}
-</div>
-                    )}  
+                )}
             </section>
             {viewingReport && (() => {
     const r = viewingReport;
