@@ -37,6 +37,18 @@ const PAGE_TITLES = {
     feedback: "Feedback",
 };
 
+// Sidebar items (same icon set as the Adopter sidebar)
+const FOSTER_MENU = [
+    { key: "dashboard", label: "Dashboard", icon: "/icons/sidebar/dashboard-brown.svg", activeIcon: "/icons/sidebar/dashboard-light.svg" },
+    { key: "assignment", label: "My Foster Pet", icon: "/icons/sidebar/brown paw.svg", activeIcon: "/icons/sidebar/brown paw-light.svg" },
+    { key: "updates", label: "Care Updates", icon: "/icons/sidebar/clipboard-brown.svg", activeIcon: "/icons/sidebar/clipboard-light.svg" },
+    { key: "behavior", label: "Behavior Evaluation", icon: "/icons/heart-brown.svg", activeIcon: "/icons/heart-light.svg", also: ["fosterUpdates"] },
+    { key: "medical", label: "Medical Assistance", icon: "/icons/sidebar/medical-brown.svg", activeIcon: "/icons/sidebar/medical-light.svg" },
+    { key: "history", label: "Foster History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
+    { key: "application", label: "My Application", icon: "/icons/sidebar/role-brown.svg", activeIcon: "/icons/sidebar/role-light.svg" },
+    { key: "feedback", label: "Feedback", icon: "/icons/sidebar/Feedback-brown.svg", activeIcon: "/icons/sidebar/Feedback-light.svg" },
+];
+
 export default function FosterDashboard({ setPage }) {
 
     const savedUser = JSON.parse(
@@ -59,6 +71,8 @@ export default function FosterDashboard({ setPage }) {
     const [revoking, setRevoking] = useState(false);
     const [revokeError, setRevokeError] = useState("");
     const [assignment, setAssignment] = useState(null);
+    const [assignments, setAssignments] = useState([]);
+    const [focusPetId, setFocusPetId] = useState(null);
     const [message, setMessage] = useState("");
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -127,9 +141,12 @@ export default function FosterDashboard({ setPage }) {
         action();
     }
 
-    function goToPage(page) {
-        guardLeave(() => setActivePage(page));
-    }
+function goToPage(page, petId = null) {
+    guardLeave(() => {
+        setFocusPetId(petId);
+        setActivePage(page);
+    });
+}
 
     function confirmLeave() {
         const action = pendingLeave?.action;
@@ -234,6 +251,7 @@ export default function FosterDashboard({ setPage }) {
     async function fetchAssignment() {
         if (!fosterEmail) {
             setAssignment(null);
+            setAssignments([]);
             return;
         }
 
@@ -255,12 +273,15 @@ export default function FosterDashboard({ setPage }) {
 
             if (response.ok && data.success) {
                 setAssignment(data.assignment);
+                setAssignments(data.assignments || (data.assignment ? [data.assignment] : []));
             } else {
                 setAssignment(null);
+                setAssignments([]);
             }
         } catch (error) {
             console.error(error);
             setAssignment(null);
+            setAssignments([]);
             setLoadError(true);
         }
     }
@@ -326,6 +347,10 @@ export default function FosterDashboard({ setPage }) {
         loadNotifications();
     }, [signedOut, maintenance]);
 
+// Pet chosen from the dashboard / My Foster Pet; falls back to the newest
+    const focusedAssignment =
+    assignments.find((item) => item._id === focusPetId) || assignment;
+
     const pages = useMemo(() => ({
 
         dashboard: (
@@ -333,6 +358,11 @@ export default function FosterDashboard({ setPage }) {
                 fosterName={fosterName}
                 application={application}
                 assignment={assignment}
+                assignments={assignments}
+                onNavigate={goToPage}
+                notifications={notifications}
+                onOpenNotifications={() => setNotificationsOpen(true)}
+                onRefreshNotifications={loadNotifications}
             />
         ),
 
@@ -349,12 +379,15 @@ export default function FosterDashboard({ setPage }) {
                 application={application}
                 refresh={fetchAssignment}
                 onNavigate={goToPage}
+                onAdopt={() => guardLeave(() => setPage("dashboard"))}
+                initialPetId={focusPetId}
             />
         ),
 
         updates: (
             <WeeklyUpdates
-                assignment={assignment}
+                key={focusedAssignment?._id}
+                assignment={focusedAssignment}
                 onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
@@ -362,7 +395,8 @@ export default function FosterDashboard({ setPage }) {
 
         behavior: (
             <FosterUpdates
-                assignment={assignment}
+                key={focusedAssignment?._id}
+                assignment={focusedAssignment}
                 onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
@@ -371,7 +405,8 @@ export default function FosterDashboard({ setPage }) {
         // old link name still opens Behavior Evaluation
         fosterUpdates: (
             <FosterUpdates
-                assignment={assignment}
+                key={focusedAssignment?._id}
+                assignment={focusedAssignment}
                 refreshAssignment={fetchAssignment}
             />
         ),
@@ -396,7 +431,8 @@ export default function FosterDashboard({ setPage }) {
 
         medical: (
             <MedicalAssistance
-                assignment={assignment}
+                key={focusedAssignment?._id}
+                assignment={focusedAssignment}
                 onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
@@ -409,7 +445,11 @@ export default function FosterDashboard({ setPage }) {
     }), [
         application,
         assignment,
+        assignments,
+        focusedAssignment,
+        focusPetId,
         fosterName,
+        notifications,
     ]);
 
 
@@ -521,132 +561,66 @@ export default function FosterDashboard({ setPage }) {
         <main className="foster-page">
 
             <aside className="foster-sidebar">
-
-                <div className="foster-logo">
-
-                    <img
-                        src={assets.logo}
-                        alt="RescueBase"
-                    />
-
-                    <span>
-                        RescueBase
-                    </span>
-
-                </div>
+                <button
+                    type="button"
+                    className="foster-logo"
+                    onClick={() => goToPage("dashboard")}
+                >
+                    <img src={assets.logo} alt="RescueBase logo" />
+                    <span>RescueBase</span>
+                </button>
 
                 <nav className="foster-menu">
+                    {FOSTER_MENU.map((item) => {
+                        const isActive =
+                            activePage === item.key || item.also?.includes(activePage);
+
+                        return (
+                            <button
+                                key={item.key}
+                                type="button"
+                                title={item.label}
+                                className={isActive ? "active" : ""}
+                                onClick={() => goToPage(item.key)}
+                            >
+                                <img className="foster-menu-icon icon-default" src={item.icon} alt="" aria-hidden="true" />
+                                <img className="foster-menu-icon icon-active" src={item.activeIcon} alt="" aria-hidden="true" />
+                                <strong>{item.label}</strong>
+                            </button>
+                        );
+                    })}
 
                     <button
-                        className={
-                            activePage === "dashboard"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("dashboard")
-                        }
+                        type="button"
+                        title="Adopt a Pet"
+                        className="foster-menu-switch"
+                        onClick={() => guardLeave(() => setPage("dashboard"))}
                     >
-                        Dashboard
+                        <img className="foster-menu-icon icon-default" src="/icons/sidebar/return-brown.svg" alt="" aria-hidden="true" />
+                        <img className="foster-menu-icon icon-active" src="/icons/sidebar/return-light.svg" alt="" aria-hidden="true" />
+                        <strong>Adopt a Pet</strong>
                     </button>
-
-                    <button
-                        className={
-                            activePage === "assignment"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("assignment")
-                        }
-                    >
-                        My Foster Pet
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "updates"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("updates")
-                        }
-                    >
-                        Care Updates
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "behavior" || activePage === "fosterUpdates"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("behavior")
-                        }
-                    >
-                        Behavior Evaluation
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "history"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("history")
-                        }
-                    >
-                        Foster History
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "application"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("application")
-                        }
-                    >
-                        My Application
-                    </button>
-
-                    <button
-                        className={
-                            activePage === "medical"
-                                ? "active"
-                                : ""
-                        }
-                        onClick={() =>
-                            goToPage("medical")
-                        }
-                    >
-                        Medical Assistance
-                    </button>
-
-                    <button
-                        onClick={() =>
-                            guardLeave(() => setPage("dashboard"))
-                        }
-                    >
-                        Adopt a Pet
-                    </button>
-
                 </nav>
 
                 <button
-                    className="foster-logout"
-                    onClick={() =>
-                        guardLeave(() => signOut("home"))
-                    }
+                    type="button"
+                    className="foster-user-card"
+                    title="Log out"
+                    onClick={() => guardLeave(() => signOut("home"))}
                 >
-                    Logout
+                    <span className="foster-user-avatar">
+                        {savedUser.profileImage ? (
+                            <img src={savedUser.profileImage} alt={fosterName} />
+                        ) : (
+                            <img className="is-placeholder" src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                        )}
+                    </span>
+                    <span className="foster-user-info">
+                        <strong>{fosterName}</strong>
+                        <small>Foster · Log out</small>
+                    </span>
+                    <span className="foster-user-arrow" aria-hidden="true">→</span>
                 </button>
-
             </aside>
 
             <section className="foster-main">
@@ -655,12 +629,6 @@ export default function FosterDashboard({ setPage }) {
 
                     <div>
                         <h1>{PAGE_TITLES[activePage] || "Foster Dashboard"}</h1>
-
-                        {activePage === "dashboard" && (
-                            <p>
-                                Welcome back, <strong>{fosterName}</strong>
-                            </p>
-                        )}
                     </div>
 
                     <div className="foster-topbar-actions">

@@ -2303,3 +2303,22 @@
     color: #5a1b00;
     font-size: 13px;
 }
+
+/* "Back to Foster Dashboard" leaves the adopter portal, so it sits apart
+   (same treatment as "Adopt a Pet" in the foster sidebar) */
+.adopter-menu-group > button.adopter-menu-switch {
+    margin-top: 8px;
+    border-top: 1px dashed var(--adopter-border);
+    border-radius: 0 0 14px 14px;
+    padding-top: 16px;
+}
+
+/* Tablet/phone: the menu becomes a grid, so drop the divider there */
+@media (max-width: 900px) {
+    .adopter-menu-group > button.adopter-menu-switch {
+        margin-top: 0;
+        border-top: 1px solid transparent;
+        border-radius: 14px;
+        padding-top: 12px;
+    }
+}

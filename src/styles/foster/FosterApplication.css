@@ -1035,3 +1035,153 @@
     font-weight: 700;
     overflow-wrap: anywhere;
 }
+
+/* ===== My Application: read-only summary ===== */
+.ffs-card {
+    display: grid;
+    gap: 16px;
+    padding: 20px 24px;
+    border: 1px solid rgba(90, 27, 0, 0.08);
+    border-radius: 20px;
+    background: #fffaf0;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.06);
+    color: #5a1b00;
+}
+
+.ffs-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.ffs-head h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+.ffs-head p {
+    margin: 2px 0 0;
+    color: #7b452d;
+    font-size: 12px;
+}
+
+.ffs-head-actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 10px;
+}
+
+.ffs-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.ffs-pill .ffc-lock-icon {
+    position: static;
+    width: 13px;
+    height: 13px;
+    transform: none;
+    stroke: currentColor;
+}
+
+.ffs-section {
+    display: grid;
+    gap: 8px;
+}
+
+.ffs-section h4 {
+    margin: 0;
+    color: #d62828;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.ffs-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+}
+
+.ffs-tile {
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.25);
+    border-radius: 12px;
+    background: #fff7cb;
+}
+
+.ffs-tile.is-wide {
+    grid-column: span 2;
+}
+
+.ffs-tile.is-full {
+    grid-column: 1 / -1;
+}
+
+.ffs-tile dt {
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.ffs-tile dd {
+    margin: 4px 0 0;
+    color: #5a1b00;
+    font-size: 13px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.ffs-tile.is-full dd {
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.ffs-yn {
+    display: inline-block;
+    padding: 1px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.ffs-yn.is-yes { background: #dff3e6; color: #17803d; }
+.ffs-yn.is-no  { background: #ece3c7; color: #7a6a3a; }
+
+@media (max-width: 1100px) {
+    .ffs-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .ffs-head {
+        flex-direction: column;
+    }
+
+    .ffs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ffs-tile.is-wide {
+        grid-column: auto;
+    }
+}
