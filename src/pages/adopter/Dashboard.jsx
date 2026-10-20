@@ -1636,7 +1636,10 @@ async function fetchPets({ silent = false } = {}) {
                         alt="RescueBase logo"
                     />
 
-                    <span>RescueBase</span>
+                    <span>
+                        RescueBase
+                        {isFoster && <small>Adopter view</small>}
+                    </span>
                 </button>
 
                 <nav className="adopter-menu">

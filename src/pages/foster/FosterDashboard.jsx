@@ -567,7 +567,10 @@ function goToPage(page, petId = null) {
                     onClick={() => goToPage("dashboard")}
                 >
                     <img src={assets.logo} alt="RescueBase logo" />
-                    <span>RescueBase</span>
+                    <span>
+                        RescueBase
+                        <small>Foster</small>
+                    </span>
                 </button>
 
                 <nav className="foster-menu">
