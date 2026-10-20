@@ -28,6 +28,75 @@ function formatDate(dateValue, includeTime = false) {
     );
 }
 
+// Pet card helpers (status pill on the photo + short dates)
+const PET_CARD_STATUS = {
+    pending: { label: "Pending review", icon: "clock" },
+    interview_scheduled: { label: "Interview scheduled", icon: "calendar" },
+    interview_completed: { label: "Interview done", icon: "check" },
+    approved: { label: "Approved", icon: "check" },
+    rejected: { label: "Not approved", icon: "x" },
+    withdrawn: { label: "Withdrawn", icon: "x" },
+};
+
+const PET_CARD_ICONS = {
+    check: <path d="M20 6 9 17l-5-5" />,
+    x: <path d="M7 7l10 10M17 7 7 17" />,
+    clock: (
+        <>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" />
+        </>
+    ),
+    calendar: (
+        <>
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M3 10h18M8 3v4M16 3v4" />
+        </>
+    ),
+    refresh: (
+        <>
+            <path d="M20 11a8 8 0 1 0-2.3 5.7" />
+            <path d="M20 4v7h-7" />
+        </>
+    ),
+    copy: (
+        <>
+            <rect x="9" y="9" width="11" height="11" rx="2" />
+            <path d="M5 15V5a1 1 0 0 1 1-1h10" />
+        </>
+    ),
+    doc: (
+        <>
+            <path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" />
+            <path d="M14 3v5h5M9 14l2 2 4-4" />
+        </>
+    ),
+};
+
+function PetCardIcon({ name, size = 18 }) {
+    return (
+        <svg
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            {PET_CARD_ICONS[name]}
+        </svg>
+    );
+}
+
+function shortDate(dateValue) {
+    const date = new Date(dateValue);
+    if (!dateValue || Number.isNaN(date.getTime())) return "Not available";
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
 function getStatusContent(status) {
     if (status === "approved") {
         return {
@@ -90,12 +159,43 @@ export default function ApplicationStatus({
     onBrowsePets,
     onWithdraw,
     history = [],
+    onResubmitDocuments,
 }) {
 
     const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
     const [withdrawReason, setWithdrawReason] = useState("");
     const [withdrawing, setWithdrawing] = useState(false);
     const [withdrawError, setWithdrawError] = useState("");
+    const [idCopied, setIdCopied] = useState(false);
+    const [docUploading, setDocUploading] = useState(false);
+    const [docError, setDocError] = useState("");
+
+    async function handleNewDocument(event) {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            setDocError("Please choose an image file.");
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setDocError("The image must be 5 MB or smaller.");
+            return;
+        }
+
+        try {
+            setDocUploading(true);
+            setDocError("");
+            await onResubmitDocuments?.(file);
+        } catch (uploadError) {
+            setDocError(uploadError.message || "Upload failed. Please try again.");
+        } finally {
+            setDocUploading(false);
+        }
+    }
 
     async function handleWithdraw() {
         try {
@@ -208,6 +308,21 @@ export default function ApplicationStatus({
     const hasInterview = Boolean(application.interviewSchedule);
     const isWithdrawn = status === "withdrawn";
     const isActive = isPending || isInterviewScheduled || isInterviewCompleted;
+    // Document box: verified / staff asked for a new ID / new ID sent / waiting
+    const docRequestStatus = application.documentRequest?.status || "none";
+    const docState = application.documentsVerified
+        ? "verified"
+        : docRequestStatus === "requested" && isActive
+            ? "requested"
+            : docRequestStatus === "resubmitted"
+                ? "resubmitted"
+                : "pending";
+    const DOC_COPY = {
+        verified: ["Verified", "Staff have verified your ID. No action needed."],
+        requested: ["Please upload a new ID", application.documentRequest?.reason || "The shelter needs a clearer copy of your ID."],
+        resubmitted: ["New ID received", "Staff are checking your new upload. We will notify you when it is done."],
+        pending: ["Pending verification", "Staff are checking your ID. We will notify you when it is done."],
+    };
     const pastApplications = history.filter(
         (item) => String(item.applicationId) !== String(application.applicationId)
     );
@@ -300,78 +415,102 @@ export default function ApplicationStatus({
             </header>
 
             <div className="application-status-layout">
-                <aside className="application-status-pet-card">
-                    <div className="application-status-pet-image">
+                <aside className="application-status-pet-card asp-card">
+                    <div className="asp-photo">
                         {application.petImage ? (
                             <img
                                 src={application.petImage}
-                                alt={
-                                    application.petName ||
-                                    "Adoption pet"
-                                }
+                                alt={application.petName || "Adoption pet"}
                             />
                         ) : (
-                            <span>🐾</span>
+                            <img
+                                className="is-placeholder"
+                                src="/icons/brown paw.svg"
+                                alt=""
+                                aria-hidden="true"
+                            />
+                        )}
+
+                        <span className={`asp-status is-${status}`}>
+                            <PetCardIcon name={PET_CARD_STATUS[status]?.icon || "clock"} size={16} />
+                            {PET_CARD_STATUS[status]?.label || status.replaceAll("_", " ")}
+                        </span>
+                    </div>
+
+                    <div className="asp-title">
+                        <div>
+                            <h2>{application.petName || "Selected Pet"}</h2>
+                            <p>{application.petBreed || "Breed not available"}</p>
+                        </div>
+
+                        {application.applicationId && (
+                            <button
+                                type="button"
+                                className="asp-id"
+                                title="Copy application ID"
+                                onClick={() => {
+                                    navigator.clipboard
+                                        ?.writeText(String(application.applicationId).slice(-8).toUpperCase())
+                                        .then(() => {
+                                            setIdCopied(true);
+                                            setTimeout(() => setIdCopied(false), 1500);
+                                        })
+                                        .catch(() => {});
+                                }}
+                            >
+                                <small>{idCopied ? "Copied!" : "Application ID"}</small>
+                                <b>
+                                    {String(application.applicationId).slice(-8).toUpperCase()}
+                                    <PetCardIcon name={idCopied ? "check" : "copy"} size={15} />
+                                </b>
+                            </button>
                         )}
                     </div>
 
-                    <span
-                        className={`application-status-pill ${status}`}
-                    >
-                        {status.replaceAll("_", " ")}
-                    </span>
+                    <div className="asp-dates">
+                        <div className="asp-date">
+                            <span className="asp-date-icon"><PetCardIcon name="calendar" /></span>
+                            <div>
+                                <small>Submitted</small>
+                                <b>{shortDate(application.submittedAt)}</b>
+                            </div>
+                        </div>
+                        <div className="asp-date">
+                            <span className="asp-date-icon"><PetCardIcon name="refresh" /></span>
+                            <div>
+                                <small>Last updated</small>
+                                <b>{shortDate(application.updatedAt)}</b>
+                            </div>
+                        </div>
+                    </div>
 
-                    <h2>
-                        {application.petName || "Selected Pet"}
-                    </h2>
+                    <div className={`asp-doc is-${docState}`}>
+                        <span className="asp-doc-icon"><PetCardIcon name="doc" size={22} /></span>
+                        <div>
+                            <small>Document status</small>
+                            <b>{DOC_COPY[docState][0]}</b>
+                            <p>
+                                {docState === "requested" && <strong>Staff note: </strong>}
+                                {DOC_COPY[docState][1]}
+                            </p>
 
-                    <p>
-                        {application.petBreed ||
-                            "Breed not available"}
-                    </p>
+                            {docState === "requested" && (
+                                <>
+                                    <label className={`asp-doc-upload ${docUploading ? "is-busy" : ""}`}>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleNewDocument}
+                                            disabled={docUploading}
+                                            hidden
+                                        />
+                                        {docUploading ? "Uploading..." : "Upload new ID"}
+                                    </label>
 
-                    <div className="application-status-pet-meta">
-                        <article>
-                            <span>Application ID</span>
-
-                            <strong>
-                                {application.applicationId
-                                    ? String(
-                                        application.applicationId
-                                    ).slice(-8)
-                                    : "Not available"}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Submitted</span>
-
-                            <strong>
-                                {formatDate(
-                                    application.submittedAt
-                                )}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Last Updated</span>
-
-                            <strong>
-                                {formatDate(
-                                    application.updatedAt
-                                )}
-                            </strong>
-                        </article>
-
-                        <article>
-                            <span>Document Status</span>
-
-                            <strong>
-                                {application.documentsVerified
-                                    ? "Verified"
-                                    : "Pending Verification"}
-                            </strong>
-                        </article>
+                                    {docError && <span className="asp-doc-error">{docError}</span>}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </aside>
 

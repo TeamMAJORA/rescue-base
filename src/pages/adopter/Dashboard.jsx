@@ -724,6 +724,7 @@ async function fetchPets({ silent = false } = {}) {
                 ),
                 withdrawnAt: application.withdrawnAt || null,
                 withdrawnFromStatus: application.withdrawnFromStatus || "",
+                documentRequest: application.documentRequest || null,
             };
 
             setApplicationStatus(updatedStatus);
@@ -751,6 +752,53 @@ async function fetchPets({ silent = false } = {}) {
             setApplicationLoading(false);
         }
     }
+
+    // Staff asked for a new ID: upload the image, then attach it to the application
+    async function handleResubmitDocuments(file) {
+        if (!applicationStatus?.applicationId) return;
+
+        const uploadData = new FormData();
+        uploadData.append("image", file);
+
+        const uploadResponse = await fetch(`${API}/api/uploads/image`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: uploadData,
+        });
+        const uploadResult = await uploadResponse.json();
+
+        if (!uploadResponse.ok || !uploadResult.success) {
+            throw new Error(uploadResult.message || "Failed to upload your ID.");
+        }
+
+        const response = await fetch(
+            `${API}/api/adoptions/${applicationStatus.applicationId}/documents`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    documents: [
+                        {
+                            documentName: file.name,
+                            documentUrl: uploadResult.imageUrl,
+                            publicId: uploadResult.publicId || "",
+                        },
+                    ],
+                }),
+            }
+        );
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to send your new ID.");
+        }
+
+        await fetchApplicationStatus();
+    }
+
     async function handleWithdrawApplication(reason) {
         if (!applicationStatus?.applicationId) return;
 
@@ -1276,6 +1324,7 @@ async function fetchPets({ silent = false } = {}) {
                     error={applicationError}
                     onRefresh={fetchApplicationStatus}
                     onWithdraw={handleWithdrawApplication}
+                    onResubmitDocuments={handleResubmitDocuments}
                     history={applicationHistory}
                     onBrowsePets={() =>
                         setActiveAdopterPage("browse-pets")

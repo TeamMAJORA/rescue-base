@@ -130,24 +130,6 @@
     box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
 }
 
-.application-status-pet-image {
-    width: 100%;
-    height: 245px;
-    display: grid;
-    place-items: center;
-    margin-bottom: 17px;
-    border-radius: 17px;
-    background: #fff7cb;
-    overflow: hidden;
-    font-size: 68px;
-}
-
-.application-status-pet-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
 .application-status-pill {
     display: inline-flex;
     align-items: center;
@@ -174,52 +156,6 @@
 .application-status-pill.rejected {
     background: #f9dddd;
     color: #d62828;
-}
-
-.application-status-pet-card > h2 {
-    margin: 10px 0 4px;
-    font-family: "Itim", cursive;
-    font-size: 31px;
-    color: #5a1b00;
-}
-
-.application-status-pet-card > p {
-    margin: 0;
-    color: #75432f;
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-.application-status-pet-meta {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin-top: 19px;
-}
-
-.application-status-pet-meta article {
-    min-width: 0;
-    padding: 12px 13px;
-    border-radius: 12px;
-    background: #fff7cb;
-}
-
-.application-status-pet-meta span {
-    display: block;
-    margin-bottom: 5px;
-    color: #75432f;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.application-status-pet-meta strong {
-    display: block;
-    overflow-wrap: anywhere;
-    color: #5a1b00;
-    font-size: 12px;
-    line-height: 1.45;
 }
 
 .application-status-content {
@@ -1249,4 +1185,190 @@
         grid-column: 1 / -1;
         margin: 0;
     }
+}
+
+/* ===== Application Status: pet card (photo, ID, dates, documents) ===== */
+.asp-card { padding: 22px; border-radius: 24px; }
+
+.asp-photo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #fff7cb;
+}
+.asp-photo img { width: 100%; height: 100%; object-fit: cover; }
+.asp-photo img.is-placeholder { width: 34%; height: auto; object-fit: contain; opacity: .55; }
+
+.asp-status {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 6px 16px rgba(90, 27, 0, .15);
+    color: #9a6400;
+    font-size: 13px;
+    font-weight: 800;
+}
+.asp-status.is-approved,
+.asp-status.is-interview_completed { color: #17803d; }
+.asp-status.is-interview_scheduled { color: #d96f00; }
+.asp-status.is-rejected { color: #b42318; }
+.asp-status.is-withdrawn { color: #7b6658; }
+
+.asp-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0 14px;
+    padding: 0 6px;
+}
+.asp-title > div { min-width: 0; }
+.asp-title h2 {
+    margin: 0;
+    overflow: hidden;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.asp-title p { margin: 2px 0 0; color: #7b452d; font-size: 14px; }
+
+.asp-id {
+    flex-shrink: 0;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    padding: 8px 14px;
+    border: 1px solid #f2d27a;
+    border-radius: 14px;
+    background: #fff4c4;
+    color: #5a1b00;
+    font: inherit;
+    cursor: pointer;
+    transition: border-color .2s ease, transform .2s ease;
+}
+.asp-id:hover { border-color: #fb8500; transform: translateY(-1px); }
+.asp-id small {
+    color: #a07a4a;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.asp-id b { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; }
+
+.asp-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.asp-date {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #f2d27a;
+    border-radius: 14px;
+    background: #fff4c4;
+}
+.asp-date-icon { flex-shrink: 0; color: #fb8500; }
+.asp-date small,
+.asp-doc small {
+    display: block;
+    color: #a07a4a;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.asp-date b { display: block; margin-top: 2px; color: #5a1b00; font-size: 14px; font-weight: 800; }
+
+.asp-doc {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+    padding: 14px 16px;
+    border: 1.5px solid #fb8500;
+    border-radius: 14px;
+    background: #fff1cf;
+}
+.asp-doc-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #fde3bf;
+    color: #d96f00;
+}
+.asp-doc small { color: #b45f06; }
+.asp-doc b { display: block; margin-top: 2px; color: #5a1b00; font-size: 16px; font-weight: 800; }
+.asp-doc p { margin: 2px 0 0; color: #7b452d; font-size: 12px; line-height: 1.5; }
+.asp-doc.is-verified { border-color: #2f8f5b; background: #e9f7ee; }
+.asp-doc.is-verified .asp-doc-icon { background: #dff3e6; color: #17803d; }
+.asp-doc.is-verified small { color: #17803d; }
+
+/* Tablet: photo on the left, details on the right */
+@media (max-width: 1100px) {
+    .application-status-pet-card.asp-card {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        column-gap: 20px;
+        align-items: start;
+    }
+    .asp-card .asp-photo { grid-column: 1; grid-row: 1 / span 3; }
+    .asp-card .asp-title,
+    .asp-card .asp-dates,
+    .asp-card .asp-doc { grid-column: 2; }
+    .asp-card .asp-title { margin-top: 0; }
+}
+
+@media (max-width: 760px) {
+    .application-status-pet-card.asp-card { display: block; }
+    .asp-card .asp-title { margin-top: 16px; }
+}
+
+@media (max-width: 420px) {
+    .asp-title { flex-wrap: wrap; }
+    .asp-dates { grid-template-columns: 1fr; }
+}
+
+/* ===== Document box: resubmission states ===== */
+.asp-doc.is-requested { border-color: #d62828; background: #fde8e8; }
+.asp-doc.is-requested .asp-doc-icon { background: #f9d0d0; color: #b42318; }
+.asp-doc.is-requested small { color: #b42318; }
+.asp-doc.is-requested p strong { color: #5a1b00; }
+
+.asp-doc-upload {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: #d62828;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.asp-doc-upload:hover { background: #b42318; }
+.asp-doc-upload.is-busy { cursor: wait; opacity: 0.65; }
+
+.asp-doc-error {
+    display: block;
+    margin-top: 6px;
+    color: #b42318;
+    font-size: 11px;
+    font-weight: 700;
 }
