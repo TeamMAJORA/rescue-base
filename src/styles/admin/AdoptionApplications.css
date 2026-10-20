@@ -1870,3 +1870,164 @@ button.admin-schedule-day.is-selected:hover {
 
 .admin-doc-request-send:disabled,
 .admin-doc-request-btn:disabled { cursor: wait; opacity: 0.6; }
+
+/* ===== Adoption list: same look as the Animal Profiles panel ===== */
+.admin-panel.admin-adoption-list-panel {
+    display: grid;
+    gap: 14px;
+    min-height: 0;
+    padding: 16px;
+    border: 1px solid #8a5a44;
+    border-radius: 12px;
+    background: #fffdf0;
+}
+
+.admin-adoption-list-panel .admin-adoption-tabs,
+.admin-adoption-list-panel .admin-adoption-toolbar {
+    margin-bottom: 0;
+}
+
+/* Search box */
+.admin-adoption-list-panel .admin-adoption-search {
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+}
+.admin-adoption-list-panel .admin-adoption-search:focus-within {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+.admin-adoption-list-panel .admin-adoption-search input::placeholder { color: #b08f7a; }
+
+/* Status filter pills */
+.admin-adoption-list-panel .admin-adoption-filters { gap: 10px; }
+.admin-adoption-list-panel .admin-adoption-filters button {
+    height: auto;
+    padding: 7px 18px;
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-adoption-filters button:hover:not(.is-active) { background: #fff7cb; }
+.admin-adoption-list-panel .admin-adoption-filters button.is-active {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #ffffff;
+}
+
+/* Sort dropdown + Refresh */
+.admin-adoption-list-panel .admin-adoption-sort {
+    height: 38px;
+    border: 1px solid #8a5a44;
+    background-color: #fffdf0;
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-adoption-refresh {
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: #5a1b00;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-adoption-refresh:hover:not(:disabled) { background: #fff7cb; }
+
+/* Table box */
+.admin-adoption-table {
+    overflow: hidden;
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 12px;
+    background: #fffdf0;
+}
+.admin-adoption-list-panel .admin-application-columns {
+    padding: 14px 16px;
+    background: #fff7cb;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+.admin-adoption-list-panel .admin-application-list {
+    gap: 0;
+    padding-right: 0;
+    scrollbar-width: none;
+}
+.admin-adoption-list-panel .admin-application-list::-webkit-scrollbar { display: none; }
+
+/* Rows */
+.admin-adoption-list-panel .admin-application-row {
+    padding: 12px 16px;
+    border: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.admin-adoption-list-panel .admin-application-row:first-child { border-top: 0; }
+.admin-adoption-list-panel .admin-application-row:hover { background: #fffaf0; box-shadow: none; }
+.admin-adoption-list-panel .admin-application-row h3 {
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-application-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+    box-shadow: none;
+}
+.admin-adoption-list-panel .admin-application-pet-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: #fff1c2;
+}
+.admin-adoption-list-panel .admin-application-pet strong { font-size: 13px; }
+.admin-adoption-list-panel .admin-application-household span { background: #fffdf0; }
+
+/* Row buttons: same small buttons as the animal table */
+.admin-adoption-list-panel .admin-application-status button {
+    height: auto;
+    padding: 5px 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 6px;
+    background: #fffdf0;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-application-status button:hover:not(:disabled) {
+    background: #fff7cb;
+    transform: none;
+}
+
+/* Review = main action (orange, like "View") */
+.admin-adoption-list-panel .admin-application-status button:first-child {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #ffffff;
+}
+.admin-adoption-list-panel .admin-application-status button:first-child:hover:not(:disabled) { background: #e07600; }
+
+.admin-adoption-list-panel .admin-application-status button.approve {
+    border-color: #2f8f5b;
+    background: #2f8f5b;
+    color: #ffffff;
+}
+.admin-adoption-list-panel .admin-application-status button.approve:hover:not(:disabled) { background: #267a4d; }
+
+.admin-adoption-list-panel .admin-application-status button.reject {
+    border-color: #d62828;
+    background: #fffdf0;
+    color: #d62828;
+}
+.admin-adoption-list-panel .admin-application-status button.reject:hover:not(:disabled) {
+    background: #fde8e8;
+    color: #d62828;
+}
