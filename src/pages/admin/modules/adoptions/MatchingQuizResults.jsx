@@ -154,7 +154,6 @@ export default function MatchingQuizResults() {
             });
     }, [responses, animals, sort]);
 
-    const appliedCount = rows.filter((row) => row.response.latestApplication).length;
     const averageTop = rows.filter((row) => row.top).length
         ? Math.round(
             rows.filter((row) => row.top).reduce((sum, row) => sum + row.top.score, 0) /
@@ -162,24 +161,57 @@ export default function MatchingQuizResults() {
         )
         : 0;
 
+    const perfectCount = rows.filter((row) => row.top?.tier.key === "perfect").length;
+
+    // Pet that appears most often as someone's top match
+    const mostRecommended = useMemo(() => {
+        const counts = {};
+
+        rows.forEach(({ top }) => {
+            if (!top) return;
+            const id = top.pet._id;
+            counts[id] = counts[id] || { name: top.pet.name, count: 0 };
+            counts[id].count += 1;
+        });
+
+        return Object.values(counts).sort((a, b) => b.count - a.count)[0] || null;
+    }, [rows]);
+
     return (
         <section className="admin-quiz-page">
-            <section className="admin-quiz-stats">
-                <article className="admin-panel admin-quiz-stat-card">
-                    <span>Adopters who took the quiz</span>
-                    <strong>{rows.length}</strong>
-                </article>
+            <div className="um-strip aqr-strip">
+                <div className="um-strip-total">
+                    <div>
+                        <b>{rows.length}</b>
+                        <small>Total quiz results</small>
+                    </div>
+                </div>
 
-                <article className="admin-panel admin-quiz-stat-card">
-                    <span>Have applied</span>
-                    <strong>{appliedCount}</strong>
-                </article>
+                <div>
+                    <div>
+                        <b>{averageTop}%</b>
+                        <small>Average match score</small>
+                    </div>
+                </div>
 
-                <article className="admin-panel admin-quiz-stat-card">
-                    <span>Average best match</span>
-                    <strong>{averageTop}%</strong>
-                </article>
-            </section>
+                <div>
+                    <div>
+                        <b>{perfectCount}</b>
+                        <small>Perfect matches (80%+)</small>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <b>{mostRecommended?.name || "—"}</b>
+                        <small>
+                            Most recommended
+                            {mostRecommended &&
+                                ` · ${mostRecommended.count} ${mostRecommended.count === 1 ? "time" : "times"}`}
+                        </small>
+                    </div>
+                </div>
+            </div>
 
             <section className="admin-panel admin-quiz-list-panel">
                 <div className="aqr-head">
