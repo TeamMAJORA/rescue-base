@@ -300,6 +300,21 @@ export default function Recommendations({
 
     const topRecommendation = recommendations[0] || null;
 
+
+    // Podium: 2nd · 1st · 3rd (only the places that exist)
+    const showPodium = !loading && !error && recommendations.length > 0;
+    const podium = [
+        { place: 2, item: recommendations[1] },
+        { place: 1, item: recommendations[0] },
+        { place: 3, item: recommendations[2] },
+    ].filter((slot) => slot.item);
+
+    function scrollToRecommendation(pet) {
+        document
+            .getElementById(`rec-card-${pet._id || pet.id}`)
+            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
     if (!quiz) {
         return (
             <section className="recommendations-module">
@@ -326,37 +341,107 @@ export default function Recommendations({
 
     return (
         <section className="recommendations-module">
-            <header className="recommendations-header">
-                <div>
-                    <span>Behavioral Matching Results</span>
+                {showPodium ? (
+                    <header className="rec-podium">
+                        <img className="rec-podium-paw is-left" src="/icons/heroPaw.svg" alt="" aria-hidden="true" />
+                        <img className="rec-podium-paw is-right" src="/icons/heroPaw.svg" alt="" aria-hidden="true" />
+                        <span className="rec-podium-bubble is-one" aria-hidden="true" />
+                        <span className="rec-podium-bubble is-two" aria-hidden="true" />
+                        <span className="rec-podium-bubble is-three" aria-hidden="true" />
 
-                    <h2>Your Recommended Pets</h2>
+                        <div className="rec-podium-actions">
+                            <button type="button" onClick={() => onTakeQuiz?.()}>
+                                Retake Quiz
+                            </button>
+                            <button type="button" onClick={() => onRefresh?.()} disabled={loading}>
+                                {loading ? "Refreshing..." : "Refresh"}
+                            </button>
+                        </div>
 
-                    <p>
-                        These compatibility scores compare your matchmaking
-                        preferences with each animal’s behavioral assessment.
-                    </p>
-                </div>
+                        <div className="rec-podium-title">
+                            <span>Your top matches</span>
+                            <h2>Best paw-sibilities for you</h2>
+                        </div>
 
-                <div className="recommendations-header-actions">
-                    <button
-                        type="button"
-                        className="recommendations-retake-button"
-                        onClick={() => onTakeQuiz?.()}
-                    >
-                        Retake Quiz
-                    </button>
+                        <div className="rec-podium-stage">
+                            {podium.map(({ place, item }) => (
+                                <button
+                                    key={place}
+                                    type="button"
+                                    className={`rec-podium-spot is-place-${place}`}
+                                    onClick={() => scrollToRecommendation(item.pet)}
+                                    title={`See ${item.pet.name || "this pet"}'s details`}
+                                >
+                                    <span className="rec-podium-card">
+                                        {place === 1 && (
+                                            <span className="rec-podium-crown" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24">
+                                                    <path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z" />
+                                                </svg>
+                                            </span>
+                                        )}
 
-                    <button
-                        type="button"
-                        className="recommendations-refresh-button"
-                        onClick={() => onRefresh?.()}
-                        disabled={loading}
-                    >
-                        {loading ? "Refreshing..." : "Refresh Results"}
-                    </button>
-                </div>
-            </header>
+                                        <span className="rec-podium-photo">
+                                            {item.pet.image ? (
+                                                <img src={item.pet.image} alt={item.pet.name} />
+                                            ) : (
+                                                <img className="is-placeholder" src="/icons/brown paw.svg" alt="" />
+                                            )}
+                                        </span>
+
+                                        <b>{item.pet.name || "Unnamed"}</b>
+                                        <small>
+                                            {item.pet.type || item.pet.species || "Pet"} · {item.pet.breed || "Unknown breed"}
+                                        </small>
+                                        <strong className={`rec-podium-score ${item.tier.key}`}>
+                                            {item.score}%
+                                        </strong>
+                                    </span>
+
+                                    {place === 1 && (
+                                        <span className={`rec-podium-label ${item.tier.key}`}>
+                                            {item.tier.label}
+                                        </span>
+                                    )}
+
+                                    <span className="rec-podium-base">{place}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </header>
+                ) : (
+                    <header className="recommendations-header">
+                        <div>
+                            <span>Behavioral Matching Results</span>
+
+                            <h2>Your Recommended Pets</h2>
+
+                            <p>
+                                These compatibility scores compare your matchmaking
+                                preferences with each animal’s behavioral assessment.
+                            </p>
+                        </div>
+
+                        <div className="recommendations-header-actions">
+                            <button
+                                type="button"
+                                className="recommendations-retake-button"
+                                onClick={() => onTakeQuiz?.()}
+                            >
+                                Retake Quiz
+                            </button>
+
+                            <button
+                                type="button"
+                                className="recommendations-refresh-button"
+                                onClick={() => onRefresh?.()}
+                                disabled={loading}
+                            >
+                                {loading ? "Refreshing..." : "Refresh Results"}
+                            </button>
+                        </div>
+                    </header>
+                 )}
 
             {hasPendingApplication && (
                 <section className="recommendations-pending-banner">
@@ -478,6 +563,7 @@ export default function Recommendations({
                                     <article
                                         className={`recommendation-card ${tier.key}`}
                                         key={pet._id || pet.id || index}
+                                        id={`rec-card-${pet._id || pet.id}`}
                                     >
                                         <div className="recommendation-image">
                                             {pet.image ? (
