@@ -1342,3 +1342,33 @@
     .asp-title { flex-wrap: wrap; }
     .asp-dates { grid-template-columns: 1fr; }
 }
+
+/* ===== Document box: resubmission states ===== */
+.asp-doc.is-requested { border-color: #d62828; background: #fde8e8; }
+.asp-doc.is-requested .asp-doc-icon { background: #f9d0d0; color: #b42318; }
+.asp-doc.is-requested small { color: #b42318; }
+.asp-doc.is-requested p strong { color: #5a1b00; }
+
+.asp-doc-upload {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: #d62828;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.asp-doc-upload:hover { background: #b42318; }
+.asp-doc-upload.is-busy { cursor: wait; opacity: 0.65; }
+
+.asp-doc-error {
+    display: block;
+    margin-top: 6px;
+    color: #b42318;
+    font-size: 11px;
+    font-weight: 700;
+}

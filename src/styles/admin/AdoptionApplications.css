@@ -1762,3 +1762,111 @@ button.admin-schedule-day:hover:not(:disabled) {
 button.admin-schedule-day.is-selected:hover {
     background: linear-gradient(135deg, #fb8500, #ffa53a);
 }
+
+/* ===== Document resubmission ===== */
+.admin-review-document small.is-rejected { color: #b42318; }
+
+.admin-doc-request-note {
+    display: grid;
+    gap: 2px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border-left: 4px solid #d62828;
+    background: #fde8e8;
+}
+.admin-doc-request-note strong { color: #b42318; font-size: 12px; }
+.admin-doc-request-note small { color: #7b452d; font-size: 12px; line-height: 1.5; }
+.admin-doc-request-note.is-new { border-left-color: #2f8f5b; background: #dff5e8; }
+.admin-doc-request-note.is-new strong { color: #1f6e43; }
+
+.admin-doc-request-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 9px 14px;
+    border: 1.5px dashed #d62828;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.admin-doc-request-btn:hover:not(:disabled) { background: #fde8e8; }
+
+.admin-doc-request-form {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid rgba(214, 40, 40, 0.3);
+    border-radius: 12px;
+    background: #fffaf0;
+}
+.admin-doc-request-form label { color: #5a1b00; font-size: 12px; font-weight: 800; }
+
+.admin-doc-request-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-doc-request-chips button {
+    padding: 5px 10px;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 999px;
+    background: #ffffff;
+    color: #7b452d;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.admin-doc-request-chips button:hover,
+.admin-doc-request-chips button.is-picked {
+    border-color: #fb8500;
+    background: #fff0bf;
+    color: #5a1b00;
+}
+
+.admin-doc-request-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 10px;
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    resize: vertical;
+}
+.admin-doc-request-form textarea:focus {
+    outline: none;
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-doc-request-error { color: #b42318; font-size: 11px; font-weight: 700; }
+.admin-doc-request-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+.admin-doc-request-cancel {
+    padding: 8px 16px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-doc-request-send {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 999px;
+    background: #d62828;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.admin-doc-request-send:hover:not(:disabled) { background: #b42318; }
+
+.admin-doc-request-send:disabled,
+.admin-doc-request-btn:disabled { cursor: wait; opacity: 0.6; }

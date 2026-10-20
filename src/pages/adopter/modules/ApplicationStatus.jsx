@@ -159,6 +159,7 @@ export default function ApplicationStatus({
     onBrowsePets,
     onWithdraw,
     history = [],
+    onResubmitDocuments,
 }) {
 
     const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
@@ -166,6 +167,35 @@ export default function ApplicationStatus({
     const [withdrawing, setWithdrawing] = useState(false);
     const [withdrawError, setWithdrawError] = useState("");
     const [idCopied, setIdCopied] = useState(false);
+    const [docUploading, setDocUploading] = useState(false);
+    const [docError, setDocError] = useState("");
+
+    async function handleNewDocument(event) {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            setDocError("Please choose an image file.");
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setDocError("The image must be 5 MB or smaller.");
+            return;
+        }
+
+        try {
+            setDocUploading(true);
+            setDocError("");
+            await onResubmitDocuments?.(file);
+        } catch (uploadError) {
+            setDocError(uploadError.message || "Upload failed. Please try again.");
+        } finally {
+            setDocUploading(false);
+        }
+    }
 
     async function handleWithdraw() {
         try {
@@ -278,6 +308,21 @@ export default function ApplicationStatus({
     const hasInterview = Boolean(application.interviewSchedule);
     const isWithdrawn = status === "withdrawn";
     const isActive = isPending || isInterviewScheduled || isInterviewCompleted;
+    // Document box: verified / staff asked for a new ID / new ID sent / waiting
+    const docRequestStatus = application.documentRequest?.status || "none";
+    const docState = application.documentsVerified
+        ? "verified"
+        : docRequestStatus === "requested" && isActive
+            ? "requested"
+            : docRequestStatus === "resubmitted"
+                ? "resubmitted"
+                : "pending";
+    const DOC_COPY = {
+        verified: ["Verified", "Staff have verified your ID. No action needed."],
+        requested: ["Please upload a new ID", application.documentRequest?.reason || "The shelter needs a clearer copy of your ID."],
+        resubmitted: ["New ID received", "Staff are checking your new upload. We will notify you when it is done."],
+        pending: ["Pending verification", "Staff are checking your ID. We will notify you when it is done."],
+    };
     const pastApplications = history.filter(
         (item) => String(item.applicationId) !== String(application.applicationId)
     );
@@ -439,16 +484,32 @@ export default function ApplicationStatus({
                         </div>
                     </div>
 
-                    <div className={`asp-doc ${application.documentsVerified ? "is-verified" : ""}`}>
+                    <div className={`asp-doc is-${docState}`}>
                         <span className="asp-doc-icon"><PetCardIcon name="doc" size={22} /></span>
                         <div>
                             <small>Document status</small>
-                            <b>{application.documentsVerified ? "Verified" : "Pending verification"}</b>
+                            <b>{DOC_COPY[docState][0]}</b>
                             <p>
-                                {application.documentsVerified
-                                    ? "Staff have verified your ID. No action needed."
-                                    : "Staff are checking your ID. We will notify you when it is done."}
+                                {docState === "requested" && <strong>Staff note: </strong>}
+                                {DOC_COPY[docState][1]}
                             </p>
+
+                            {docState === "requested" && (
+                                <>
+                                    <label className={`asp-doc-upload ${docUploading ? "is-busy" : ""}`}>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleNewDocument}
+                                            disabled={docUploading}
+                                            hidden
+                                        />
+                                        {docUploading ? "Uploading..." : "Upload new ID"}
+                                    </label>
+
+                                    {docError && <span className="asp-doc-error">{docError}</span>}
+                                </>
+                            )}
                         </div>
                     </div>
                 </aside>
