@@ -56,23 +56,23 @@ import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 
-// Sidebar icons: brown when idle, light when the item is selected
+// Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
-    overview: ["/icons/sidebar/dashboard-brown.svg", "/icons/sidebar/dashboard-light.svg"],
-    users: ["/icons/User-brown.svg", "/icons/User-light.svg"],
-    animals: ["/icons/sidebar/brown paw.svg", "/icons/sidebar/brown paw-light.svg"],
-    adoptions: ["/icons/heart-brown.svg", "/icons/heart-light.svg"],
-    "foster-care": ["/icons/home.svg", "/icons/Foster.svg"],
-    donations: ["/icons/sidebar/donation-brown.svg", "/icons/sidebar/donation-light.svg"],
-    "needed-supplies": ["/icons/sidebar/supplies-brown.svg", "/icons/sidebar/supplies-light.svg"], // add these two files
-    "lost-found": ["/icons/sidebar/LostnFound-brown.svg", "/icons/sidebar/LostnFound-light.svg"],
-    rescue: ["/icons/Volunteer.svg", "/icons/Volunteer-white.svg"],
-    "gis-mapping": ["/icons/strayMap-brown.svg", "/icons/strayMap-light.svg"],
-    feedback: ["/icons/sidebar/Feedback-brown.svg", "/icons/sidebar/Feedback-light.svg"],
-    analytics: ["/icons/sidebar/Status.svg", "/icons/sidebar/Status-light.svg"],
-    reports: ["/icons/sidebar/clipboard-brown.svg", "/icons/sidebar/clipboard-light.svg"],
-    "activity-log": ["/icons/sidebar/history.svg", "/icons/sidebar/history-light.svg"],
-    "global-settings": ["/icons/sidebar/settings-brown.svg", "/icons/sidebar/settings-light.svg"], // add these two files
+    overview: "/icons/sidebar/dashboard-brown.svg",
+    users: "/icons/User-brown.svg",
+    animals: "/icons/sidebar/brown paw.svg",
+    adoptions: "/icons/heart-brown.svg",
+    "foster-care": "/icons/home.svg",
+    donations: "/icons/sidebar/donation-brown.svg",
+    "needed-supplies": "/icons/sidebar/supplies-brown.svg", 
+    "lost-found": "/icons/sidebar/LostnFound-brown.svg",
+    rescue: "/icons/Volunteer.svg",
+    "gis-mapping": "/icons/strayMap-brown.svg",
+    feedback: "/icons/sidebar/Feedback-brown.svg",
+    analytics: "/icons/sidebar/Status.svg",
+    reports: "/icons/sidebar/clipboard-brown.svg",
+    "activity-log": "/icons/sidebar/history.svg",
+    "global-settings": "/icons/sidebar/settings-brown.svg",
 };
 
 const adminMenu = [
@@ -526,7 +526,7 @@ export default function AdminDashboard({ setPage }) {
                         const isActive =
                             activeAdminPage === item.key ||
                             item.children?.some((child) => child.key === activeAdminPage);
-                        const [icon, activeIcon] = ICONS[item.key] || [];
+                        const icon = ICONS[item.key];
 
                         return (
                             <div className="admin-menu-group" key={item.key}>
@@ -537,12 +537,11 @@ export default function AdminDashboard({ setPage }) {
                                     onClick={() => handleSidebarClick(item)}
                                 >
                                     <div className="admin-menu-text">
-                                        {icon && (
-                                            <>
-                                                <img className="admin-menu-icon icon-default" src={icon} alt="" aria-hidden="true" />
-                                                <img className="admin-menu-icon icon-active" src={activeIcon} alt="" aria-hidden="true" />
-                                            </>
-                                        )}
+                                        <span
+                                            className="admin-menu-icon"
+                                            style={icon ? { "--icon": `url("${icon}")` } : undefined}
+                                            aria-hidden="true"
+                                        />
                                         <strong>{item.label}</strong>
                                     </div>
 
