@@ -28,6 +28,16 @@ import GISMapping from "../admin/modules/GISMapping";
 // // ADOPTIONS
 import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
 
+// Sidebar icons (only the shape is used; the colour comes from CSS)
+const ICONS = {
+    overview: "/icons/sidebar/dashboard-brown.svg",
+    animals: "/icons/sidebar/brown paw.svg",
+    gis: "/icons/strayMap-brown.svg",
+    "lost-found": "/icons/sidebar/LostnFound-brown.svg",
+    "activity-log": "/icons/sidebar/history.svg",
+    feedback: "/icons/sidebar/Feedback-brown.svg",
+};
+
 const staffMenu = [
     { key: "overview", label: "Dashboard" },
 
@@ -202,11 +212,25 @@ export default function VolunteerDashboard({ setPage }) {
 
     function handleSidebarClick(item) {
         if (item.children) {
-            setOpenSidebarMenu((current) =>
-                current === item.key ? null : item.key
+            const isOpen = openSidebarMenu === item.key;
+
+            // Clicking an open group just collapses it
+            if (isOpen) {
+                setOpenSidebarMenu(null);
+                return;
+            }
+
+            setOpenSidebarMenu(item.key);
+
+            // Stay on a sub-page of this group if already there; otherwise open its first page
+            const alreadyInside = item.children.some(
+                (child) => child.key === activeStaffPage
             );
 
-            setActiveStaffPage(item.key);
+            if (!alreadyInside) {
+                setActiveStaffPage(item.children[0].key);
+            }
+
             return;
         }
 
@@ -414,11 +438,18 @@ export default function VolunteerDashboard({ setPage }) {
 
     return (
         <main className="staff-page">
-            <aside className="staff-sidebar">
-                <div className="staff-logo">
+            <aside className="staff-sidebar is-volunteer">
+                <button
+                    type="button"
+                    className="staff-logo"
+                    onClick={() => handleSidebarClick({ key: "overview" })}
+                >
                     <img src={assets.logo} alt="RescueBase logo" />
-                    <span>RescueBase</span>
-                </div>
+                    <span>
+                        RescueBase
+                        <small>Volunteer</small>
+                    </span>
+                </button>
 
                 <nav className="staff-menu">
                     {staffMenu.map((item) => {
@@ -426,6 +457,7 @@ export default function VolunteerDashboard({ setPage }) {
                         const isActive =
                             activeStaffPage === item.key ||
                             item.children?.some((child) => child.key === activeStaffPage);
+                        const icon = ICONS[item.key];
 
                         return (
                             <div className="staff-menu-group" key={item.key}>
@@ -436,6 +468,11 @@ export default function VolunteerDashboard({ setPage }) {
                                     onClick={() => handleSidebarClick(item)}
                                 >
                                     <div className="staff-menu-text">
+                                        <span
+                                            className="staff-menu-icon"
+                                            style={icon ? { "--icon": `url("${icon}")` } : undefined}
+                                            aria-hidden="true"
+                                        />
                                         <strong>{item.label}</strong>
                                     </div>
 
@@ -471,14 +508,17 @@ export default function VolunteerDashboard({ setPage }) {
                 <button
                     className="staff-user-card"
                     type="button"
+                    title="Log out"
                     onClick={() => signOut("home")}
                 >
-                    <span>👤</span>
-                    <div>
+                    <span className="staff-user-avatar">
+                        <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                    </span>
+                    <span className="staff-user-info">
                         <strong>{volunteerName}</strong>
-                        <small>Volunteer</small>
-                    </div>
-                    <span>→</span>
+                        <small>Volunteer · Log out</small>
+                    </span>
+                    <span className="staff-user-arrow" aria-hidden="true">→</span>
                 </button>
             </aside>
 

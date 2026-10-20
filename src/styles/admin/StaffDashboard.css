@@ -523,3 +523,42 @@
     outline: 2px solid #5a1b00;
     outline-offset: 2px;
 }
+
+/* ===== Volunteer sidebar: same layout as Staff, cream + green ===== */
+.staff-sidebar.is-volunteer {
+    background:
+        radial-gradient(circle at top left, rgba(47, 143, 91, 0.12), transparent 45%),
+        #fffaf0;
+}
+
+.staff-sidebar.is-volunteer .staff-logo small { color: #256f47; }
+
+.staff-sidebar.is-volunteer .staff-menu-group > button:hover,
+.staff-sidebar.is-volunteer .staff-submenu button:hover {
+    background: #eef8f1;
+    border-color: rgba(37, 111, 71, 0.2);
+}
+
+.staff-sidebar.is-volunteer .staff-menu-group > button.active {
+    background: #256f47;
+    border-color: #256f47;
+    color: #fff7cb;
+    box-shadow: 0 8px 18px rgba(37, 111, 71, 0.25);
+}
+
+.staff-sidebar.is-volunteer .staff-menu-group > button.active:hover { background: #1f5f3c; }
+
+.staff-sidebar.is-volunteer .staff-submenu { border-left-color: rgba(37, 111, 71, 0.25); }
+
+.staff-sidebar.is-volunteer .staff-submenu button.active,
+.staff-sidebar.is-volunteer .staff-submenu button.active:hover {
+    background: #eef8f1;
+    box-shadow: inset 3px 0 0 #256f47;
+}
+
+.staff-sidebar.is-volunteer .staff-user-card {
+    background: #eef8f1;
+    border-color: rgba(37, 111, 71, 0.2);
+}
+
+.staff-sidebar.is-volunteer .staff-user-arrow { color: #256f47; }
