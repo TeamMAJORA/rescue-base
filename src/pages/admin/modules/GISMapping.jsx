@@ -58,6 +58,7 @@ const gisIcon = (file, size, anchor) =>
 
 const GM_ICONS = {
     shelter: gisIcon("shelter-pin.svg", [34, 44], [17, 44]),
+    clinic: gisIcon("clinic-pin.svg", [34, 44], [17, 44]),
     stray: gisIcon("stray-marker.svg", [26, 26]),
     lost: gisIcon("lost-pet-marker.svg", [26, 26]),
     found: gisIcon("found-pet-marker.svg", [26, 26]),
@@ -71,6 +72,12 @@ const GM_ICONS = {
         iconAnchor: [7, 7],
     }),
 };
+
+const PLACE_LABEL = { shelter: "Shelter", clinic: "Vet clinic", pound: "City pound" };
+
+const isClinic = (place) => place?.category === "clinic";
+const placeIcon = (place) => (isClinic(place) ? GM_ICONS.clinic : GM_ICONS.shelter);
+const placePinSrc = (place) => (isClinic(place) ? "/gis/clinic-pin.svg" : "/gis/shelter-pin.svg");
 
 function reportIcon(location) {
     if (location.status === "resolved") return GM_ICONS.resolved;
@@ -182,6 +189,7 @@ const emptyShelterForm = {
     contact: "",
     email: "",
     description: "",
+    category: "shelter",
     status: "active",
 };
 
@@ -700,6 +708,7 @@ export default function GISMapping() {
             contact: shelter.contact || "",
             email: shelter.email || "",
             description: shelter.description || "",
+            category: shelter.category || "shelter",
             status: shelter.status || "active",
         });
 
@@ -762,6 +771,7 @@ export default function GISMapping() {
             contact: shelterForm.contact.trim(),
             email: shelterForm.email.trim(),
             description: shelterForm.description.trim(),
+            category: shelterForm.category || "shelter",
             status: shelterForm.status,
         };
 
@@ -1304,22 +1314,28 @@ export default function GISMapping() {
                             {activeShelters
                                 .filter((item) => validCoordinates(item.latitude, item.longitude))
                                 .map((shelter) => {
-                                    const counts = shelterCounts(shelter);
+                                    const counts = isClinic(shelter) ? null : shelterCounts(shelter);
                                     return (
                                         <Marker
                                             key={`gm-shelter-${shelter._id}`}
                                             position={[Number(shelter.latitude), Number(shelter.longitude)]}
-                                            icon={GM_ICONS.shelter}
+                                            icon={placeIcon(shelter)}
                                         >
                                             <Popup>
                                                 <strong>{shelter.name}</strong>
                                                 <br />
+                                                {isClinic(shelter) && (
+                                                    <>
+                                                        Vet clinic{shelter.contact ? ` · ${shelter.contact}` : ""}
+                                                        <br />
+                                                    </>
+                                                )}
                                                 {counts
                                                     ? `${counts.dogs} dogs · ${counts.cats} cats available · ${counts.inFoster} in foster`
                                                     : shelter.address}
                                                 <br />
                                                 <button type="button" className="gm-link" onClick={() => gmOpenShelter(shelter)}>
-                                                    Edit shelter
+                                                    Edit
                                                 </button>
                                             </Popup>
                                         </Marker>
@@ -1357,7 +1373,7 @@ export default function GISMapping() {
                             )}
 
                             {gmPanel === "shelter" && gmShelterDraft && (
-                                <Marker position={gmShelterDraft} icon={GM_ICONS.shelter} />
+                                <Marker position={gmShelterDraft} icon={placeIcon(shelterForm)} />
                             )}
                         </MapContainer>
 
@@ -1379,6 +1395,7 @@ export default function GISMapping() {
 
                         <div className="gm-legend">
                             <div><img src="/gis/shelter-pin.svg" alt="" /> Shelter</div>
+                            <div><img src="/gis/clinic-pin.svg" alt="" /> Vet clinic</div>
                             <div><img src="/gis/stray-marker.svg" alt="" /> Stray</div>
                             <div><img src="/gis/lost-pet-marker.svg" alt="" /> Lost pet</div>
                             <div><img src="/gis/found-pet-marker.svg" alt="" /> Found pet</div>
@@ -1538,14 +1555,14 @@ export default function GISMapping() {
                                             ) : (
                                                 shelters.map((shelter) => (
                                                     <article className="gm-row" key={shelter._id}>
-                                                        <img src="/gis/shelter-pin.svg" alt="" className="gm-row-icon" />
+                                                        <img src={placePinSrc(shelter)} alt="" className="gm-row-icon" />
                                                         <button
                                                             type="button"
                                                             className="gm-row-text"
                                                             onClick={() => setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 })}
                                                         >
                                                             <b>{shelter.name}</b>
-                                                            <span>{shelter.address}{shelter.status !== "active" ? " · Inactive" : ""}</span>
+                                                            <span>{PLACE_LABEL[shelter.category] || "Shelter"} · {shelter.address}{shelter.status !== "active" ? " · Inactive" : ""}</span>
                                                         </button>
                                                         <div className="gm-row-actions">
                                                             <button type="button" className="gm-link" onClick={() => gmOpenShelter(shelter)}>Edit</button>
@@ -1716,14 +1733,28 @@ export default function GISMapping() {
                         {gmPanel === "shelter" && (
                             <form className="gm-card gm-form" onSubmit={gmSaveShelter}>
                                 <div className="gm-card-head">
-                                    <h3>{editingShelterId ? "Edit shelter" : "Add shelter"}</h3>
+                                    <h3>{editingShelterId ? "Edit place" : "Add shelter or clinic"}</h3>
                                     <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
                                 </div>
                                 <p className="gm-sub">It shows on the public map once saved and active.</p>
 
                                 {shelterError && <div className="admin-gis-error">{shelterError}</div>}
 
-                                <span className="gm-label">Shelter name</span>
+                                <span className="gm-label">Type</span>
+                                <div className="gm-seg">
+                                    {[["shelter", "Shelter"], ["clinic", "Vet clinic"], ["pound", "City pound"]].map(([value, label]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            className={shelterForm.category === value ? "is-active" : ""}
+                                            onClick={() => handleShelterFormChange("category", value)}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <span className="gm-label">Name</span>
                                 <input
                                     className="gm-input"
                                     value={shelterForm.name}
@@ -1792,7 +1823,7 @@ export default function GISMapping() {
                                 <div className="gm-two">
                                     <button type="button" className="gm-btn gm-btn-ghost" onClick={gmClosePanel}>Cancel</button>
                                     <button type="submit" className="gm-btn gm-btn-primary" disabled={savingShelter}>
-                                        {savingShelter ? "Saving..." : "Save shelter"}
+                                        {savingShelter ? "Saving..." : "Save"}
                                     </button>
                                 </div>
                             </form>
@@ -1813,7 +1844,7 @@ export default function GISMapping() {
                                         <span className={`gm-rank${index === 0 ? " is-first" : ""}`}>{index + 1}</span>
                                         <div>
                                             <b>{shelter.name}</b>
-                                            <span>{shelter.address}</span>
+                                            <span>{PLACE_LABEL[shelter.category] || "Shelter"} · {shelter.address}</span>
                                             <button
                                                 type="button"
                                                 className="gm-link"
