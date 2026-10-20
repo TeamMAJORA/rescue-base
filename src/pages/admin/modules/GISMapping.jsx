@@ -434,7 +434,6 @@ export default function GISMapping() {
 
         if (["admin", "staff"].includes(userRole)) {
             loadHotspots();
-            loadGmAnimals();
         } else {
             setHotspots([]);
             setHotspotLoading(false);
@@ -800,6 +799,7 @@ export default function GISMapping() {
             );
 
             await loadShelters();
+            return true;
         } catch (err) {
             console.error("Save shelter error:", err);
             setShelterError(err.message || "Failed to save shelter.");
@@ -976,6 +976,12 @@ export default function GISMapping() {
         }
     }
 
+    useEffect(() => {
+        if (["admin", "staff"].includes(userRole)) {
+            loadGmAnimals(); // eslint-disable-line react-hooks/set-state-in-effect -- load data on open
+        }
+    }, [userRole]);
+
     // Animals linked to a shelter by its name in the animal's location field
     function shelterCounts(shelter) {
         const name = String(shelter.name || "").trim().toLowerCase();
@@ -997,7 +1003,7 @@ export default function GISMapping() {
         };
     }
 
-    function gmLocate(onFound) {
+    function gmLocate(onFound, onFail) {
         setError("");
         if (!navigator.geolocation) {
             setError("Your browser can't share your location. Pin the spot on the map instead.");
@@ -1019,6 +1025,7 @@ export default function GISMapping() {
             () => {
                 setGmLocating(false);
                 setError("Couldn't get your location. Allow location access, or pin the spot on the map.");
+                if (onFail) onFail();
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
         );
@@ -1053,7 +1060,10 @@ export default function GISMapping() {
         setEditingLocationId(null);
         setGmReport({ ...emptyGmReport });
         setGmPanel("report");
-        gmLocate((spot) => gmSetReportSpot(spot.latitude, spot.longitude, "me"));
+        gmLocate(
+            (spot) => gmSetReportSpot(spot.latitude, spot.longitude, "me"),
+            () => setGmReport((current) => ({ ...current, where: "pin" }))
+        );
     }
 
     function gmEditReport(location) {
@@ -1078,13 +1088,18 @@ export default function GISMapping() {
 
     function gmChooseWhere(where) {
         if (where === "me") {
-            gmLocate((spot) => gmSetReportSpot(spot.latitude, spot.longitude, "me"));
+            gmLocate(
+                (spot) => gmSetReportSpot(spot.latitude, spot.longitude, "me"),
+                () => setGmReport((current) => ({ ...current, where: "pin" }))
+            );
         } else {
+            setError("");
             setGmReport((current) => ({ ...current, where: "pin" }));
         }
     }
 
     function gmClosePanel() {
+        setError("");
         setGmPanel("list");
         setEditingLocationId(null);
         setEditingShelterId(null);
@@ -1162,16 +1177,12 @@ export default function GISMapping() {
     }
 
     async function gmSaveShelter(event) {
-        await saveShelter(event);
-    }
-
-    // Close the shelter panel once a save succeeds
-    useEffect(() => {
-        if (shelterSuccess && gmPanel === "shelter") {
+        const saved = await saveShelter(event);
+        if (saved) {
             setGmPanel("list");
             setGmTab("shelters");
         }
-    }, [shelterSuccess]); // eslint-disable-line react-hooks/exhaustive-deps
+    }
 
     function gmOpenNearest() {
         setGmPanel("nearest");
@@ -1466,15 +1477,17 @@ export default function GISMapping() {
                                                                 ) : (
                                                                     <span className="gm-mini is-done">Resolved</span>
                                                                 )}
-                                                                <button type="button" className="gm-link" onClick={() => gmEditReport(location)}>Edit</button>
-                                                                <button
-                                                                    type="button"
-                                                                    className="gm-link gm-link-danger"
-                                                                    onClick={() => handleDeleteLocation(location)}
-                                                                    disabled={deletingId === location._id}
-                                                                >
-                                                                    {deletingId === location._id ? "Deleting..." : "Delete"}
-                                                                </button>
+                                                                <span className="gm-row-links">
+                                                                    <button type="button" className="gm-link" onClick={() => gmEditReport(location)}>Edit</button>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="gm-link gm-link-danger"
+                                                                        onClick={() => handleDeleteLocation(location)}
+                                                                        disabled={deletingId === location._id}
+                                                                    >
+                                                                        {deletingId === location._id ? "Deleting..." : "Delete"}
+                                                                    </button>
+                                                                </span>
                                                             </div>
                                                         </article>
                                                     ))

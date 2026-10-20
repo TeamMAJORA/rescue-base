@@ -655,6 +655,11 @@
     gap: 4px;
 }
 
+.gm-row-links {
+    display: flex;
+    gap: 10px;
+}
+
 .gm-mini {
     padding: 4px 10px;
     border: 1px solid #5a1b00;
