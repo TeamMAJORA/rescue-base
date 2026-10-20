@@ -857,6 +857,7 @@ async function fetchPets({ silent = false } = {}) {
                         application.animalId?.image ||
                         "",
                     submittedAt: application.createdAt,
+                    updatedAt: application.updatedAt,
                     closedAt:
                         application.withdrawnAt ||
                         application.reviewedAt ||

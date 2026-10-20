@@ -97,6 +97,23 @@ function shortDate(dateValue) {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+// Application History table
+const HISTORY_LABELS = {
+    pending: "Under review",
+    interview_scheduled: "Interview set",
+    interview_completed: "Interview done",
+    approved: "Approved",
+    rejected: "Not approved",
+    withdrawn: "Withdrawn",
+};
+
+const HISTORY_FILTERS = [
+    { key: "all", label: "All", statuses: null },
+    { key: "progress", label: "In progress", statuses: ["pending", "interview_scheduled", "interview_completed"] },
+    { key: "completed", label: "Completed", statuses: ["approved"] },
+    { key: "closed", label: "Closed", statuses: ["rejected", "withdrawn"] },
+];
+
 function getStatusContent(status) {
     if (status === "approved") {
         return {
@@ -169,6 +186,8 @@ export default function ApplicationStatus({
     const [idCopied, setIdCopied] = useState(false);
     const [docUploading, setDocUploading] = useState(false);
     const [docError, setDocError] = useState("");
+    const [historyFilter, setHistoryFilter] = useState("all");
+    const [openHistoryId, setOpenHistoryId] = useState(null);
 
     async function handleNewDocument(event) {
         const file = event.target.files?.[0];
@@ -326,6 +345,21 @@ export default function ApplicationStatus({
     const pastApplications = history.filter(
         (item) => String(item.applicationId) !== String(application.applicationId)
     );
+
+    // Current application first, then the rest (newest first)
+    const historyRows = [
+        { ...application, isCurrent: true },
+        ...pastApplications,
+    ];
+    const historyCount = (statuses) =>
+        statuses
+            ? historyRows.filter((row) => statuses.includes(row.status)).length
+            : historyRows.length;
+    const activeHistoryFilter =
+        HISTORY_FILTERS.find((filter) => filter.key === historyFilter) || HISTORY_FILTERS[0];
+    const visibleHistory = activeHistoryFilter.statuses
+        ? historyRows.filter((row) => activeHistoryFilter.statuses.includes(row.status))
+        : historyRows;
 
     const stageMap = {
     pending: 1,
@@ -769,54 +803,122 @@ export default function ApplicationStatus({
                 </div>
             </div>
                 {pastApplications.length > 0 && (
-                    <section className="application-history">
-                        <div className="application-status-section-heading">
-                            <span>Application History</span>
-                            <h3>Your past applications</h3>
-                        </div>
+                    <section className="ahx">
+                        <header className="ahx-head">
+                            <h3>Application History</h3>
 
-                        <ul className="application-history-list">
-                            {pastApplications.map((item) => (
-                                <li key={item.applicationId} className="application-history-item">
-                                    <div className="application-history-thumb">
-                                        {item.petImage ? (
-                                            <img src={item.petImage} alt={item.petName} />
-                                        ) : (
-                                            <img
-                                                src="/icons/sidebar/brown paw.svg"
-                                                alt=""
-                                                className="is-placeholder"
-                                            />
+                            <div className="ahx-filters" role="tablist">
+                                {HISTORY_FILTERS.map((filter) => (
+                                    <button
+                                        key={filter.key}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={historyFilter === filter.key}
+                                        className={historyFilter === filter.key ? "is-active" : ""}
+                                        onClick={() => setHistoryFilter(filter.key)}
+                                    >
+                                        {filter.label} {historyCount(filter.statuses)}
+                                    </button>
+                                ))}
+                            </div>
+                        </header>
+
+                        <div className="ahx-table" role="table">
+                            <div className="ahx-row ahx-labels" role="row">
+                                <span>Pet</span>
+                                <span>Application ID</span>
+                                <span>Submitted</span>
+                                <span>Last updated</span>
+                                <span>Status</span>
+                                <span aria-hidden="true" />
+                            </div>
+
+                            {visibleHistory.length === 0 && (
+                                <p className="ahx-empty">No applications in this list.</p>
+                            )}
+
+                            {visibleHistory.map((row) => {
+                                const rowId = String(row.applicationId);
+                                const isOpen = openHistoryId === rowId;
+
+                                return (
+                                    <div
+                                        key={rowId}
+                                        className={`ahx-item ${row.isCurrent ? "is-current" : ""}`}
+                                    >
+                                        <div className="ahx-row" role="row">
+                                            <div className="ahx-pet">
+                                                <span className="ahx-thumb">
+                                                    {row.petImage ? (
+                                                        <img src={row.petImage} alt={row.petName} />
+                                                    ) : (
+                                                        <img className="is-placeholder" src="/icons/sidebar/brown paw.svg" alt="" />
+                                                    )}
+                                                </span>
+                                                <div>
+                                                    <b>
+                                                        {row.petName}
+                                                        {row.isCurrent && <em>Current</em>}
+                                                    </b>
+                                                    <small>{row.petBreed || "Breed not available"}</small>
+                                                </div>
+                                            </div>
+
+                                            <span className="ahx-cell" data-label="Application ID">
+                                                {rowId.slice(-8).toUpperCase()}
+                                            </span>
+                                            <span className="ahx-cell" data-label="Submitted">
+                                                {shortDate(row.submittedAt)}
+                                            </span>
+                                            <span className="ahx-cell" data-label="Last updated">
+                                                {shortDate(row.updatedAt || row.closedAt || row.submittedAt)}
+                                            </span>
+                                            <span className="ahx-cell" data-label="Status">
+                                                <span className={`ahx-pill is-${row.status}`}>
+                                                    {HISTORY_LABELS[row.status] || row.status}
+                                                </span>
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                className={`ahx-view ${isOpen ? "is-open" : ""}`}
+                                                aria-expanded={isOpen}
+                                                onClick={() => setOpenHistoryId(isOpen ? null : rowId)}
+                                            >
+                                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                                                    <circle cx="12" cy="12" r="3" />
+                                                </svg>
+                                                {isOpen ? "Hide" : "View"}
+                                            </button>
+                                        </div>
+
+                                        {isOpen && (
+                                            <div className="ahx-details">
+                                                {row.isCurrent ? (
+                                                    <p>This is the application shown above. Its full progress and details are in the card at the top of this page.</p>
+                                                ) : (
+                                                    <>
+                                                        <p>
+                                                            <b>Submitted:</b> {formatDate(row.submittedAt)}
+                                                            {" · "}
+                                                            <b>Closed:</b> {formatDate(row.closedAt)}
+                                                        </p>
+                                                        {row.note && (
+                                                            <p>
+                                                                <b>{row.status === "withdrawn" ? "Your reason:" : "Shelter's reason:"}</b> {row.note}
+                                                            </p>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
-
-                                    <div className="application-history-info">
-                                        <strong>{item.petName}</strong>
-                                        <small>{item.petBreed || "Breed not available"}</small>
-                                    </div>
-
-                                    <div className="application-history-date">
-                                        <span>Submitted</span>
-                                        <strong>{formatDate(item.submittedAt)}</strong>
-                                    </div>
-
-                                    <div className="application-history-date">
-                                        <span>Closed</span>
-                                        <strong>{formatDate(item.closedAt)}</strong>
-                                    </div>
-
-                                    <span className={`application-status-pill ${item.status}`}>
-                                        {item.status.replaceAll("_", " ")}
-                                    </span>
-
-                                    {item.note && (
-                                        <p className="application-history-note">{item.note}</p>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
+                                );
+                            })}
+                        </div>
                     </section>
-            )}
+                )}
         </section>
     );
 }
