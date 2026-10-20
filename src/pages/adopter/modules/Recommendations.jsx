@@ -281,6 +281,7 @@ export default function Recommendations({
     hasPendingApplication,
     applicationStatus,
     onTakeQuiz,
+    onBrowsePets,
 }) {
     const quiz = useMemo(() => readSavedQuiz(), []);
 
@@ -298,15 +299,17 @@ export default function Recommendations({
         (recommendation) => recommendation.score >= 80
     ).length;
 
-    const topRecommendation = recommendations[0] || null;
-
-
     // Podium: 2nd · 1st · 3rd (only the places that exist)
-    const showPodium = !loading && !error && recommendations.length > 0;
+    // Only "Perfect Paw Match" and "Paws for Thought" (60%+) count as real matches
+    const realMatches = recommendations.filter((item) => item.tier.key !== "no-match");
+    const hasResults = !loading && !error && recommendations.length > 0;
+    const showPodium = hasResults && realMatches.length > 0;
+    const showNoMatch = hasResults && realMatches.length === 0;
+
     const podium = [
-        { place: 2, item: recommendations[1] },
-        { place: 1, item: recommendations[0] },
-        { place: 3, item: recommendations[2] },
+        { place: 2, item: realMatches[1] },
+        { place: 1, item: realMatches[0] },
+        { place: 3, item: realMatches[2] },
     ].filter((slot) => slot.item);
 
     function scrollToRecommendation(pet) {
@@ -408,9 +411,72 @@ export default function Recommendations({
                                 </button>
                             ))}
                         </div>
+                </header>
+            ) : showNoMatch ? (
+                <>
+                    <header className="rec-podium is-empty">
+                        <span className="rec-podium-bubble is-one" aria-hidden="true" />
+                        <span className="rec-podium-bubble is-two" aria-hidden="true" />
+                        <span className="rec-podium-bubble is-three" aria-hidden="true" />
+
+                        <div className="rec-podium-title">
+                            <span>Your top matches</span>
+                            <h2>No paw-sibilities yet</h2>
+                        </div>
+
+                        <div className="rec-podium-stage" aria-hidden="true">
+                            {[2, 1, 3].map((place) => (
+                                <div key={place} className={`rec-podium-spot is-place-${place}`}>
+                                    <span className="rec-podium-ghost">
+                                        <span className="rec-podium-ghost-photo">?</span>
+                                        <span className="rec-podium-ghost-line" />
+                                        <span className="rec-podium-ghost-line is-short" />
+                                    </span>
+                                    <span className="rec-podium-base">{place}</span>
+                                </div>
+                            ))}
+                        </div>
                     </header>
-                ) : (
-                    <header className="recommendations-header">
+
+                    <section className="rec-nomatch-card">
+                        <h2>We could not find a match for you yet</h2>
+                        <p>
+                            None of the available animals fit your quiz answers right now.
+                            New animals arrive often, so check back soon or try a different
+                            set of answers.
+                        </p>
+
+                        <div className="rec-nomatch-actions">
+                            <button type="button" className="is-primary" onClick={() => onBrowsePets?.()}>
+                                Browse all available pets
+                            </button>
+                            <button type="button" onClick={() => onTakeQuiz?.()}>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 11a8 8 0 1 1 2.3 5.7" />
+                                    <path d="M4 4v7h7" />
+                                </svg>
+                                Retake Quiz
+                            </button>
+                        </div>
+
+                        <div className="rec-nomatch-tips">
+                            <article>
+                                <b>Animals change daily</b>
+                                <p>New rescues are added by staff, so check this page again later for new matches.</p>
+                            </article>
+                            <article>
+                                <b>Broaden your answers</b>
+                                <p>Choosing &quot;Any&quot; for animal type or size lets more animals match.</p>
+                            </article>
+                            <article>
+                                <b>Browse without the quiz</b>
+                                <p>You can still see every available pet and apply for one directly.</p>
+                            </article>
+                        </div>
+                    </section>
+                </>
+            ) : (
+                <header className="recommendations-header">
                         <div>
                             <span>Behavioral Matching Results</span>
 
@@ -473,35 +539,6 @@ export default function Recommendations({
                 </section>
             )}
 
-            <section className="recommendations-summary-grid">
-                <article>
-                    <span>Top Compatibility</span>
-
-                    <strong>
-                        {topRecommendation
-                            ? `${topRecommendation.score}%`
-                            : "0%"}
-                    </strong>
-
-                    <p>
-                        {topRecommendation?.pet?.name ||
-                            "No result available"}
-                    </p>
-                </article>
-
-                <article>
-                    <span>Perfect Paw Matches</span>
-                    <strong>{perfectMatches}</strong>
-                    <p>Animals scoring 80% or higher</p>
-                </article>
-
-                <article>
-                    <span>Animals Evaluated</span>
-                    <strong>{recommendations.length}</strong>
-                    <p>Currently available RescueBase animals</p>
-                </article>
-            </section>
-
             {loading && (
                 <div className="recommendations-message-state">
                     <span>🐾</span>
@@ -537,6 +574,16 @@ export default function Recommendations({
                         </p>
                     </div>
                 )}
+
+            {showNoMatch && (
+                <div className="rec-low-heading">
+                    <h3>Animals below 60%</h3>
+                    <p>
+                        These animals did not fit your answers well, but you can still
+                        read why and apply if one feels right for you.
+                    </p>
+                </div>
+            )}
 
             {!loading &&
                 !error &&
@@ -577,9 +624,11 @@ export default function Recommendations({
                                                 </span>
                                             )}
 
+                                                                                        {tier.key !== "no-match" && (
                                             <div className="recommendation-rank">
-                                                #{index + 1}
-                                            </div>
+                                                    #{index + 1}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="recommendation-content">

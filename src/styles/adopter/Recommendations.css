@@ -1167,3 +1167,161 @@
     .rec-podium-title h2 { font-size: 22px; }
     .rec-podium-label { font-size: 8px; letter-spacing: 0.04em; }
 }
+
+/* ===== Recommendations: empty podium (no 60%+ matches) ===== */
+.rec-podium.is-empty {
+    padding-bottom: 0;
+    background: linear-gradient(135deg, #e85d2a 0%, #f2793a 50%, #f9a25a 100%);
+    box-shadow: 0 14px 30px rgba(214, 72, 40, 0.25);
+}
+.rec-podium.is-empty .rec-podium-title span { color: #ffe6d6; }
+.rec-podium.is-empty .rec-podium-stage { margin-top: 26px; }
+.rec-podium.is-empty .rec-podium-spot { cursor: default; }
+.rec-podium.is-empty .rec-podium-spot:hover { transform: none; }
+
+/* Dashed "?" placeholder cards */
+.rec-podium-ghost {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 16px 12px 18px;
+    border: 2px dashed rgba(255, 240, 230, 0.75);
+    border-radius: 14px;
+    background: rgba(255, 245, 235, 0.18);
+}
+.rec-podium-spot.is-place-1 .rec-podium-ghost { padding-top: 22px; }
+
+.rec-podium-ghost-photo {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 4px;
+    border: 2px dashed rgba(255, 240, 230, 0.85);
+    border-radius: 50%;
+    color: #ffffff;
+    font-family: "Itim", cursive;
+    font-size: 28px;
+}
+.rec-podium-spot.is-place-1 .rec-podium-ghost-photo { width: 80px; height: 80px; font-size: 34px; }
+
+.rec-podium-ghost-line {
+    width: 70%;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(255, 240, 230, 0.6);
+}
+.rec-podium-ghost-line.is-short { width: 45%; }
+
+.rec-podium.is-empty .rec-podium-base {
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(180deg, #f9a25a, #fbbf7c);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* Message card under the empty podium */
+.rec-nomatch-card {
+    margin-bottom: 24px;
+    padding: 28px 28px 24px;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+    border-radius: 24px;
+    background: #fffdf5;
+    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.06);
+    text-align: center;
+}
+.rec-nomatch-card h2 {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 28px;
+    font-weight: 400;
+}
+.rec-nomatch-card > p {
+    max-width: 480px;
+    margin: 8px auto 0;
+    color: #7b452d;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.rec-nomatch-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+}
+.rec-nomatch-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border: 1px solid #f2d27a;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.rec-nomatch-actions button:hover { border-color: #e85d2a; background: #fff4ec; }
+.rec-nomatch-actions button.is-primary {
+    border-color: #e85d2a;
+    background: linear-gradient(135deg, #e85d2a, #f2793a);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(232, 93, 42, 0.25);
+}
+.rec-nomatch-actions button.is-primary:hover { background: #d4501f; }
+.rec-nomatch-actions svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.rec-nomatch-tips {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 24px;
+    text-align: left;
+}
+.rec-nomatch-tips article {
+    padding: 12px 14px;
+    border: 1px solid #f2d27a;
+    border-radius: 12px;
+    background: #fff7cb;
+}
+.rec-nomatch-tips b { display: block; color: #5a1b00; font-size: 13px; }
+.rec-nomatch-tips p { margin: 4px 0 0; color: #7b452d; font-size: 12px; line-height: 1.5; }
+
+/* Heading above the below-60% cards */
+.rec-low-heading {
+    margin: 0 0 14px;
+    padding-left: 12px;
+    border-left: 4px solid #e85d2a;
+}
+.rec-low-heading h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+.rec-low-heading p { margin: 2px 0 0; color: #7b452d; font-size: 12px; }
+
+@media (max-width: 760px) {
+    .rec-podium.is-empty { padding-top: 22px; }
+    .rec-nomatch-tips { grid-template-columns: 1fr; }
+    .rec-nomatch-card { padding: 22px 16px 18px; }
+    .rec-nomatch-card h2 { font-size: 24px; }
+    .rec-podium-ghost-photo { width: 48px; height: 48px; font-size: 22px; }
+    .rec-podium-spot.is-place-1 .rec-podium-ghost-photo { width: 58px; height: 58px; font-size: 26px; }
+}

@@ -1392,6 +1392,7 @@ async function fetchPets({ silent = false } = {}) {
                     onTakeQuiz={() =>
                         setActiveAdopterPage("matchmaking-quiz")
                     }
+                    onBrowsePets={() => setActiveAdopterPage("browse-pets")}
                 />
             );
         }
