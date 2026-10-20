@@ -331,8 +331,7 @@ export default function FosterCare() {
     }
 
     // Animals for the "Animal" dropdown (assignments link to a real animal)
-    
-
+   
     // "Send back" form on a pending behavior evaluation
     const [returningId, setReturningId] = useState(null);
     const [returnReason, setReturnReason] = useState("");
