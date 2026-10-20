@@ -392,28 +392,6 @@ export default function ApplicationStatus({
 
     return (
         <section className="application-status-module">
-            <header
-                className={`application-status-header ${status}`}
-            >
-                <div>
-                    <span>{statusContent.eyebrow}</span>
-
-                    <h2>{statusContent.title}</h2>
-
-                    <p>{statusContent.description}</p>
-                </div>
-
-                <button
-                    type="button"
-                    className={`application-status-refresh ${loading ? "is-loading" : ""}`}
-                    onClick={() => onRefresh?.()}
-                    disabled={loading}
-                >
-                    <img src="/icons/Refresh cw.svg" alt="" />
-                    {loading ? "Refreshing..." : "Refresh Status"}
-                </button>
-            </header>
-
             <div className="application-status-layout">
                 <aside className="application-status-pet-card asp-card">
                     <div className="asp-photo">
@@ -516,9 +494,22 @@ export default function ApplicationStatus({
 
                 <div className="application-status-content">
                     <section className="application-status-progress">
-                        <div className="application-status-section-heading">
-                            <span>Application Progress</span>
-                            <h3>Current review stage</h3>
+                        <div className="application-progress-head">
+                            <div>
+                                <span>{statusContent.eyebrow}</span>
+                                <h2>{statusContent.title}</h2>
+                                <p>{statusContent.description}</p>
+                            </div>
+
+                            <button
+                                type="button"
+                                className={`application-status-refresh ${loading ? "is-loading" : ""}`}
+                                onClick={() => onRefresh?.()}
+                                disabled={loading}
+                            >
+                                <img src="/icons/Refresh cw.svg" alt="" />
+                                {loading ? "Refreshing..." : "Refresh Status"}
+                            </button>
                         </div>
 
                         <ol className={`application-stepper ${isRejected ? "is-rejected" : ""}`}>
@@ -546,56 +537,161 @@ export default function ApplicationStatus({
                                 </li>
                             ))}
                         </ol>
-                    </section>
 
-                    {isPending && (
-                        <section className="application-status-information pending">
-                            <div className="application-status-section-heading">
-                                <span>What Happens Next</span>
-                                <h3>
-                                    Please wait for shelter review
-                                </h3>
-                            </div>
-
-                            <p>
-                                Shelter staff will review your contact
-                                information, household details, reason
-                                for adoption, pet-care experience, and
-                                uploaded identification document.
-                            </p>
-
-                            <p>
-                                You will see the updated decision here
-                                once the review is complete.
-                            </p>
-                        </section>
-                    )}
-
-                    {(isInterviewScheduled || isInterviewCompleted) && (
-                        <section className="application-status-information pending">
-                            <div className="application-status-section-heading">
-                                <span>Interview</span>
-                                <h3>
-                                    {isInterviewScheduled
-                                        ? "Prepare for your interview"
-                                        : "Interview done"}
-                                </h3>
-                            </div>
-
-                            {isInterviewScheduled && application.interviewSchedule && (
-                                <div className="application-interview-card">
-                                    <span>Interview Schedule</span>
-                                    <strong>{formatDate(application.interviewSchedule, true)}</strong>
+                        {isPending && (
+                            <section className="application-status-information pending">
+                                <div className="application-status-section-heading">
+                                    <span>What Happens Next</span>
+                                    <h3>
+                                        Please wait for shelter review
+                                    </h3>
                                 </div>
-                            )}
 
-                            <p>
-                                {isInterviewScheduled
-                                    ? "Bring a valid ID. You will meet the pet and talk with shelter staff about your home and care plans."
-                                    : "Shelter staff are now making the final decision on your application."}
-                            </p>
-                        </section>
-                    )}
+                                <p>
+                                    Shelter staff will review your contact
+                                    information, household details, reason
+                                    for adoption, pet-care experience, and
+                                    uploaded identification document.
+                                </p>
+
+                                <p>
+                                    You will see the updated decision here
+                                    once the review is complete.
+                                </p>
+                            </section>
+                        )}
+
+                        {(isInterviewScheduled || isInterviewCompleted) && (
+                            <section className="application-status-information pending">
+                                <div className="application-status-section-heading">
+                                    <span>Interview</span>
+                                    <h3>
+                                        {isInterviewScheduled
+                                            ? "Prepare for your interview"
+                                            : "Interview done"}
+                                    </h3>
+                                </div>
+
+                                {isInterviewScheduled && application.interviewSchedule && (
+                                    <div className="application-interview-card">
+                                        <span>Interview Schedule</span>
+                                        <strong>{formatDate(application.interviewSchedule, true)}</strong>
+                                    </div>
+                                )}
+
+                                <p>
+                                    {isInterviewScheduled
+                                        ? "Bring a valid ID. You will meet the pet and talk with shelter staff about your home and care plans."
+                                        : "Shelter staff are now making the final decision on your application."}
+                                </p>
+                            </section>
+                        )}
+
+                        {isWithdrawn && (
+                            <section className="application-status-information withdrawn">
+                                <div className="application-status-section-heading">
+                                    <span>Application Closed</span>
+                                    <h3>You can apply again</h3>
+                                </div>
+
+                                <p>
+                                    You withdrew this application on{" "}
+                                    {formatDate(application.withdrawnAt)}. You are free to
+                                    apply for another available pet.
+                                </p>
+
+                                <button
+                                    type="button"
+                                    className="application-browse-button"
+                                    onClick={() => onBrowsePets?.()}
+                                >
+                                    Browse Available Pets
+                                </button>
+                            </section>
+                        )}
+
+                        {isApproved && (
+                            <section className="application-status-information approved">
+                                <div className="application-status-section-heading">
+                                    <span>Approval Details</span>
+                                    <h3>
+                                        Continue the adoption process
+                                    </h3>
+                                </div>
+
+                                {application.interviewSchedule ? (
+                                    <div className="application-interview-card">
+                                        <span>
+                                            Interview Schedule
+                                        </span>
+
+                                        <strong>
+                                            {formatDate(
+                                                application.interviewSchedule,
+                                                true
+                                            )}
+                                        </strong>
+                                    </div>
+                                ) : (
+                                    <p>
+                                        No interview schedule has been
+                                        added yet. Please wait for further
+                                        instructions from RescueBase
+                                        staff.
+                                    </p>
+                                )}
+
+                                {application.reviewNotes && (
+                                    <div className="application-review-box">
+                                        <span>Shelter Notes</span>
+
+                                        <p>
+                                            {application.reviewNotes}
+                                        </p>
+                                    </div>
+                                )}
+                            </section>
+                        )}
+
+                        {isRejected && (
+                            <section className="application-status-information rejected">
+                                <div className="application-status-section-heading">
+                                    <span>Review Result</span>
+
+                                    <h3>
+                                        Application review details
+                                    </h3>
+                                </div>
+
+                                <div className="application-review-box">
+                                    <span>Reason</span>
+
+                                    <p>
+                                        {application.rejectionReason ||
+                                            "The shelter did not provide a specific rejection reason."}
+                                    </p>
+                                </div>
+
+                                {application.reviewNotes && (
+                                    <div className="application-review-box">
+                                        <span>Shelter Notes</span>
+
+                                        <p>
+                                            {application.reviewNotes}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    className="application-browse-button"
+                                    onClick={() => onBrowsePets?.()}
+                                >
+                                    Browse Other Available Pets
+                                </button>
+                            </section>
+                        )}
+                    </section>    
 
                     {isActive && (
                         <section className="application-withdraw">
@@ -668,111 +764,6 @@ export default function ApplicationStatus({
                                     </div>
                                 </div>
                             )}
-                        </section>
-                    )}
-
-                    {isWithdrawn && (
-                        <section className="application-status-information withdrawn">
-                            <div className="application-status-section-heading">
-                                <span>Application Closed</span>
-                                <h3>You can apply again</h3>
-                            </div>
-
-                            <p>
-                                You withdrew this application on{" "}
-                                {formatDate(application.withdrawnAt)}. You are free to
-                                apply for another available pet.
-                            </p>
-
-                            <button
-                                type="button"
-                                className="application-browse-button"
-                                onClick={() => onBrowsePets?.()}
-                            >
-                                Browse Available Pets
-                            </button>
-                        </section>
-                    )}
-
-                    {isApproved && (
-                        <section className="application-status-information approved">
-                            <div className="application-status-section-heading">
-                                <span>Approval Details</span>
-                                <h3>
-                                    Continue the adoption process
-                                </h3>
-                            </div>
-
-                            {application.interviewSchedule ? (
-                                <div className="application-interview-card">
-                                    <span>
-                                        Interview Schedule
-                                    </span>
-
-                                    <strong>
-                                        {formatDate(
-                                            application.interviewSchedule,
-                                            true
-                                        )}
-                                    </strong>
-                                </div>
-                            ) : (
-                                <p>
-                                    No interview schedule has been
-                                    added yet. Please wait for further
-                                    instructions from RescueBase
-                                    staff.
-                                </p>
-                            )}
-
-                            {application.reviewNotes && (
-                                <div className="application-review-box">
-                                    <span>Shelter Notes</span>
-
-                                    <p>
-                                        {application.reviewNotes}
-                                    </p>
-                                </div>
-                            )}
-                        </section>
-                    )}
-
-                    {isRejected && (
-                        <section className="application-status-information rejected">
-                            <div className="application-status-section-heading">
-                                <span>Review Result</span>
-
-                                <h3>
-                                    Application review details
-                                </h3>
-                            </div>
-
-                            <div className="application-review-box">
-                                <span>Reason</span>
-
-                                <p>
-                                    {application.rejectionReason ||
-                                        "The shelter did not provide a specific rejection reason."}
-                                </p>
-                            </div>
-
-                            {application.reviewNotes && (
-                                <div className="application-review-box">
-                                    <span>Shelter Notes</span>
-
-                                    <p>
-                                        {application.reviewNotes}
-                                    </p>
-                                </div>
-                            )}
-
-                            <button
-                                type="button"
-                                className="application-browse-button"
-                                onClick={() => onBrowsePets?.()}
-                            >
-                                Browse Other Available Pets
-                            </button>
                         </section>
                     )}
                 </div>
