@@ -656,7 +656,7 @@ if (showReportForm && canSubmitReport) {
                         <label className="lfr-field">
                             <span>
                                 Pet Name {!isLost && <small className="lfr-optional">(optional)</small>}{" "}
-                                <i className="lfr-help" tabIndex={0} data-tip="">?</i>
+                                <i className="lfr-help" tabIndex={0} data-tip="Your best guess is fine">?</i>
                             </span>
                             <input
                                 value={petName}
@@ -712,7 +712,7 @@ if (showReportForm && canSubmitReport) {
 
                         <label className="lfr-field">
                             <span>
-                                Size {!isLost && <i className="lfr-help" title="Your best guess is fine">?</i>}
+                                Size {!isLost && <i className="lfr-help" tabIndex={0} data-tip="Your best guess is fine">?</i>}
                             </span>
                             <select value={size} onChange={(e) => setSize(e.target.value)}>
                                 <option value="">Select</option>
@@ -724,9 +724,9 @@ if (showReportForm && canSubmitReport) {
 
                         <label className="lfr-field">
                             <span>
-                                {isLost ? "Date Lost" : "Date Found"} <em>*</em>{" "}
-                                <i className="lfr-help" title="Your best guess is fine">?</i>
-                            </span>
+                                 {isLost ? "Date Lost" : "Date Found"} <em>*</em>{" "}
+                                 <i className="lfr-help" tabIndex={0} data-tip="Your best guess is fine">?</i>
+                             </span>
                             <input type="date" value={dateReported} onChange={(e) => setDateReported(e.target.value)} required />
                         </label>
 
@@ -830,8 +830,8 @@ if (showReportForm && canSubmitReport) {
                         <div className="lfr-grid">
                             <label className="lfr-field lfr-span-4">
                                 <span>
-                                    Last Seen Location <em>*</em>{" "}
-                                    <i className="lfr-help" title="Barangay and city is enough">?</i>
+                                      Last Seen Location <em>*</em>{" "}
+                                      <i className="lfr-help" tabIndex={0} data-tip="Barangay and city is enough">?</i>
                                 </span>
                                 <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Brgy. Lahug, Cebu City" required />
                             </label>
@@ -847,9 +847,9 @@ if (showReportForm && canSubmitReport) {
                         <div className="lfr-grid">
                             <label className="lfr-field lfr-span-2">
                                 <span>
-                                    Location Name <em>*</em>{" "}
-                                    <i className="lfr-help" title="A landmark or street name helps">?</i>
-                                </span>
+                                      Location Name <em>*</em>{" "}
+                                      <i className="lfr-help" tabIndex={0} data-tip="A landmark or street name helps">?</i>
+                                 </span>
                                 <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Near Ayala Center, Cebu City" required />
                             </label>
 
