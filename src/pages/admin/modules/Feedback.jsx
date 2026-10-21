@@ -222,7 +222,6 @@ export default function Feedback() {
             </span>
         );
     }
-
     return (
         <section className="feedback-management">
             <div className="feedback-management-header">

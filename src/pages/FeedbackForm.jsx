@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -103,6 +103,7 @@ export default function FeedbackForm({ onSubmitted }) {
             setMessage("");
 
             setSuccess("Thank you! Your feedback has been submitted.");
+            loadHistory();
 
             onSubmitted?.(data.feedback);
         } catch (error) {
@@ -112,7 +113,33 @@ export default function FeedbackForm({ onSubmitted }) {
             setLoading(false);
         }
     }
+        const [history, setHistory] = useState([]);
+const [historyLoading, setHistoryLoading] = useState(true);
 
+async function loadHistory() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        setHistoryLoading(false);
+        return;
+    }
+
+    try {
+        setHistoryLoading(true);
+        const response = await fetch(`${BACKEND_URL}/api/feedback/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        if (response.ok && data.success) setHistory(data.feedback || []);
+    } catch (err) {
+        console.error("Load feedback history error:", err);
+    } finally {
+        setHistoryLoading(false);
+    }
+}
+
+useEffect(() => {
+    loadHistory();
+}, []);
     
         return (
         <>
@@ -213,14 +240,26 @@ export default function FeedbackForm({ onSubmitted }) {
                     </section>
 
                     <section className="fb-card is-outline">
-                        <h3>Tips for useful feedback</h3>
+    <h3>Tips for useful feedback</h3>
+    <ul className="fb-tips">
+        <li>Say what you were trying to do.</li>
+        <li>Describe what worked or didn't.</li>
+        <li>Don't include passwords or payment details.</li>
+    </ul>
+</section>
+
+<section className="fb-card">
+    <h3>Your feedback history</h3>
+    ...
+</section>
+</aside>
                         <ul className="fb-tips">
                             <li>Say what you were trying to do.</li>
                             <li>Describe what worked or didn't.</li>
                             <li>Don't include passwords or payment details.</li>
                         </ul>
-                    </section>
-                </aside>
+                   
+                
             </div>
         </>
     );

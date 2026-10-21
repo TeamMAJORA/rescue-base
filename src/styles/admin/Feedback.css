@@ -1,3 +1,5 @@
+  @import url("https://fonts.googleapis.com/css2?family=Itim&display=swap");
+
 .admin-feedback-page {
     display: grid;
     gap: 18px;
@@ -664,4 +666,87 @@ textarea.fbf-input {
 .feedback-detail small {
     color: rgba(90, 27, 0, 0.55);
     font-size: 11px;
+}
+.fb-history {
+    display: grid;
+    gap: 10px;
+    max-height: 360px;
+    margin: 0;
+    padding: 0 4px 0 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.fb-history li {
+    display: grid;
+    gap: 6px;
+    padding: 10px 12px;
+    border: 1px solid #f3d98a;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.fb-history-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.fb-history-top small {
+    color: rgba(90, 27, 0, 0.5);
+    font-size: 11px;
+}
+
+.fb-history-stars span {
+    color: rgba(90, 27, 0, 0.18);
+    font-size: 14px;
+}
+
+.fb-history-stars span.is-on {
+    color: #ffc400;
+}
+
+.fb-history-meta {
+    display: flex;
+    gap: 6px;
+}
+
+.fb-history-cat,
+.fb-history-status {
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.fb-history-cat {
+    background: #fdefb8;
+    color: #5a1b00;
+}
+
+.fb-history-status.is-active {
+    background: #fff1c2;
+    color: #a15c00;
+}
+
+.fb-history-status.is-archived {
+    background: rgba(46, 158, 91, 0.14);
+    color: #16834a;
+}
+
+.fb-history li p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin: 0;
+    overflow: hidden;
+    color: #5a1b00;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.fb-history-empty {
+    margin: 0;
+    color: rgba(90, 27, 0, 0.55);
+    font-size: 13px;
 }
