@@ -331,6 +331,7 @@ export default function AnimalProfiles() {
 
     const [search, setSearch] = useState("");
     const [speciesFilter, setSpeciesFilter] = useState("All");
+    const [searchBy, setSearchBy] = useState("all");
     const [viewMode, setViewMode] = useState("table");
     const [statusFilter, setStatusFilter] = useState("all");
     const [qrCodes, setQrCodes] = useState({});
@@ -456,11 +457,18 @@ export default function AnimalProfiles() {
 
             if (!query) return true;
 
-            return [animal.name, animal.type]
+            const fields = {
+                name: animal.name,
+                breed: animal.breed,
+                species: animal.type,
+            };
+            const values = searchBy === "all" ? Object.values(fields) : [fields[searchBy]];
+
+            return values
                 .filter(Boolean)
-                .some((value) => value.toLowerCase().includes(query));
+                .some((value) => String(value).toLowerCase().includes(query));
         });
-    }, [animals, search, speciesFilter, statusFilter]);
+    }, [animals, search, searchBy, speciesFilter, statusFilter]);
 
 
     const sortedAnimals = useMemo(() => {
@@ -491,7 +499,7 @@ export default function AnimalProfiles() {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, speciesFilter, statusFilter, rowsPerPage]);
+    }, [search, searchBy, speciesFilter, statusFilter, rowsPerPage]);
 
     function handleSort(key) {
         setSortConfig((current) =>
@@ -1300,10 +1308,7 @@ export default function AnimalProfiles() {
         <section className="admin-animal-page">
             {toastElement}
             <div className="admin-page-header">
-                <div>
-                    <h2>Animal Profiles</h2>
-                    <p>Manage every animal under shelter care.</p>
-                </div>
+                <div />
 
                  {canManage && (//new up for add button
                     <button
@@ -1351,21 +1356,39 @@ export default function AnimalProfiles() {
 
 
             <section className="admin-panel admin-animal-list-panel">
-                    <div className="admin-animal-toolbar">
-                    <input
-                        type="text"
-                        className="admin-animal-search"
-                        placeholder="Search by name or species..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
+                    <div className="admin-animal-toolbar ao-toolbar">
+                    <div className="ao-searchbox">
+                        <select
+                            value={searchBy}
+                            onChange={(e) => setSearchBy(e.target.value)}
+                            aria-label="Search by"
+                        >
+                            <option value="all">All fields</option>
+                            <option value="name">Animal name</option>
+                            <option value="breed">Breed</option>
+                            <option value="species">Species</option>
+                        </select>
+                        <label className="ao-searchbox-input">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7" />
+                                <path d="m21 21-4.3-4.3" />
+                            </svg>
+                            <input
+                                type="search"
+                                placeholder="Search animal, breed, or species..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </label>
+                    </div>
 
                     <select
-                        className="admin-animal-species"
+                        className="ao-dropdown"
                         value={speciesFilter}
+                        aria-label="Species"
                         onChange={(e) => setSpeciesFilter(e.target.value)}
                     >
-                        <option value="All">All</option>
+                        <option value="All">All species</option>
                         <option value="Dog">Dog</option>
                         <option value="Cat">Cat</option>
                     </select>

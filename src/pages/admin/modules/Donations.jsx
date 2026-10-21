@@ -903,45 +903,43 @@ export default function Donations() {
     return (
         <section className="dl-page">
             <header className="dl-head">
-                <div>
-                    <h2>Donation Ledger</h2>
-                    <p>Record and manage money, food, medicine, and supply donations.</p>
-                </div>
+                <div />
 
                 <div className="dl-head-actions">
                     <button type="button" className="dl-btn" onClick={fetchDonations}>
-                        <Icon name="refresh" size={15} /> Refresh
+                        Refresh
                     </button>
                     <button type="button" className="dl-btn" onClick={openMethods}>
-                        <Icon name="card" size={15} /> Payment Methods
+                        Payment methods
                     </button>
                     <button type="button" className="dl-btn primary" onClick={openNewForm}>
-                        <Icon name="plus" size={15} /> Record Donation
+                        + Record donation
                     </button>
                 </div>
             </header>
 
-            <div className="dl-kpis">
-                <div className="dl-kpi">
-                    <span className="dl-kpi-icon"><Icon name="heart" size={24} /></span>
-                    <span><b>{counts.all}</b><small>Total Donations</small></span>
+            <div className="um-strip">
+                <div className="um-strip-total">
+                    <b>{counts.all}</b>
+                    <small>Total donations</small>
                 </div>
-                <div className="dl-kpi">
-                    <span className="dl-kpi-icon"><Icon name="pending" size={24} /></span>
-                    <span><b>{counts.pending}</b><small>Pending Receipt</small></span>
+                <div>
+                    <small>Pending receipt</small>
+                    <b>{counts.pending}</b>
                 </div>
-                <div className="dl-kpi">
-                    <span className="dl-kpi-icon is-green"><Icon name="check" size={24} /></span>
-                    <span><b>{counts.received}</b><small>Received</small></span>
+                <div>
+                    <small>Received</small>
+                    <b>{counts.received}</b>
                 </div>
-                <div className="dl-kpi">
-                    <span className="dl-kpi-icon is-gold"><Icon name="peso" size={24} /></span>
-                    <span><b>{peso(totalMoney)}</b><small>Money Received</small></span>
+                <div>
+                    <small>Money received</small>
+                    <b>{peso(totalMoney)}</b>
                 </div>
             </div>
 
             {message && !showForm && <p className={`gs-alert ${messageTone} dl-message`}>{message}</p>}
 
+            <div className="dl-card">
             <div className="dl-toolbar">
                 <input
                     type="search"
@@ -952,9 +950,9 @@ export default function Donations() {
                 />
 
                 <label className="dl-select">
-                    Type:
+                    <span>Type</span>
                     <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-                        <option value="all">All</option>
+                        <option value="all">All types</option>
                         {typeOptions.map((type) => (
                             <option key={type} value={type}>{type}</option>
                         ))}
@@ -962,7 +960,7 @@ export default function Donations() {
                 </label>
 
                 <label className="dl-select">
-                    Sort:
+                    <span>Sort</span>
                     <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
                         <option value="newest">Newest</option>
                         <option value="oldest">Oldest</option>
@@ -1015,7 +1013,6 @@ export default function Donations() {
                                                 <div className="dl-donor">
                                                     <b>{donation.donorName || "Anonymous"}</b>
                                                     <span>{donation.donorEmail || "No email"}</span>
-                                                    <small>ID: {String(donation._id).slice(-10)}</small>
                                                 </div>
                                             </td>
                                             <td>
@@ -1043,7 +1040,7 @@ export default function Donations() {
                                                             className="dl-btn primary small"
                                                             onClick={() => handleUpdateStatus(donation._id, "received")}
                                                         >
-                                                            ✓ Mark Received
+                                                            Mark received
                                                         </button>
                                                     ) : (
                                                         <span className="dl-done">
@@ -1142,6 +1139,7 @@ export default function Donations() {
                     </div>
                 </div>
             )}
+            </div>
 
             {/* Payment methods pop-up */}
             {showMethods && (
