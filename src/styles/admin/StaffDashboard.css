@@ -562,3 +562,12 @@
 }
 
 .staff-sidebar.is-volunteer .staff-user-arrow { color: #256f47; }
+/* Tighter gap between the page title and the page content (matches admin) */
+.staff-topbar {
+    margin-bottom: 18px;
+}
+
+.staff-topbar h1 {
+    margin: 0;
+    line-height: 1.1;
+}

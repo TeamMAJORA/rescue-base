@@ -702,4 +702,12 @@
         border-bottom: 1px solid rgba(90, 27, 0, 0.14);
     }
     .admin-menu { overflow: visible; }
+/* Tighter gap between the page title and the page content */
+.admin-topbar {
+    margin-bottom: 18px;
+}
+
+.admin-topbar h1 {
+    margin: 0;
+    line-height: 1.1;
 }

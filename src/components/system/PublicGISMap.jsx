@@ -36,6 +36,11 @@ const shelterIcon = createMarkerIcon(
     "public-gis-shelter-marker"
 );
 
+const clinicIcon = createMarkerIcon(
+    "/gis/clinic-pin.svg",
+    "public-gis-shelter-marker"
+);
+
 function hasValidCoordinates(item) {
     if (
         item.latitude === "" ||
@@ -320,7 +325,7 @@ export default function PublicGISMap({
                                         Number(shelter.latitude),
                                         Number(shelter.longitude),
                                     ]}
-                                    icon={shelterIcon}
+                                    icon={shelter.category === "clinic" ? clinicIcon : shelterIcon}
                                 >
                                     <Popup>
                                         <strong>

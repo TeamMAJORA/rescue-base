@@ -2031,3 +2031,68 @@ button.admin-schedule-day.is-selected:hover {
     background: #fde8e8;
     color: #d62828;
 }
+/* ===== Toolbar aligned with Medical Records / Animal Profiles (square) ===== */
+.admin-adoption-toolbar {
+    align-items: stretch;
+    gap: 8px;
+}
+
+.admin-adoption-search {
+    height: auto;
+    min-height: 38px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff;
+}
+
+.admin-adoption-search svg {
+    stroke: #b8a890;
+}
+
+.admin-adoption-search input {
+    padding: 9px 0;
+    color: #3d2410;
+}
+
+.admin-adoption-filters {
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-adoption-filters button {
+    height: auto;
+    padding: 7px 16px;
+    border: 1px solid #8a5a44;
+    font-size: 13px;
+    font-weight: 700;
+    color: #7b452d;
+    background: #fffdf0;
+}
+
+.admin-adoption-filters button:hover {
+    background: #fff7cb;
+}
+
+.admin-adoption-filters button.is-active {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #fff;
+}
+
+.admin-adoption-sort {
+    height: auto;
+    padding: 9px 32px 9px 14px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 12px center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #3d2410;
+}
+
+.admin-adoption-sort:focus {
+    outline: none;
+    border-color: #fb8500;
+}
