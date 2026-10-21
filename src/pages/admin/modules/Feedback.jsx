@@ -222,7 +222,6 @@ export default function Feedback() {
             </span>
         );
     }
-
     return (
         <section className="feedback-management">
             <div className="feedback-management-header">
@@ -238,25 +237,24 @@ export default function Feedback() {
                     </p>
                 </div>
 
-                <select
-                    value={status}
-                    onChange={(e) =>
-                        setStatus(
-                            e.target.value
-                        )
-                    }
-                >
-                    <option value="active">
-                        Active Feedback
-                    </option>
-
-                    <option value="archived">
-                        Archived Feedback
-                    </option>
-                    <option value="all">
-                        View All Feedback
-                    </option>                
-                </select>
+                <div className="feedback-filter-chips" role="tablist" aria-label="Filter feedback">
+    {[
+        { value: "all", label: "All Feedback" },
+        { value: "active", label: "Active" },
+        { value: "archived", label: "Archived" },
+    ].map((chip) => (
+        <button
+            key={chip.value}
+            type="button"
+            role="tab"
+            aria-selected={status === chip.value}
+            className={status === chip.value ? "is-active" : ""}
+            onClick={() => setStatus(chip.value)}
+        >
+            {chip.label}
+        </button>
+    ))}
+</div>
             </div>
 
             {error && (
