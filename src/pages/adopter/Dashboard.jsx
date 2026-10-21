@@ -857,6 +857,7 @@ async function fetchPets({ silent = false } = {}) {
                         application.animalId?.image ||
                         "",
                     submittedAt: application.createdAt,
+                    updatedAt: application.updatedAt,
                     closedAt:
                         application.withdrawnAt ||
                         application.reviewedAt ||
@@ -1391,6 +1392,11 @@ async function fetchPets({ silent = false } = {}) {
                     onTakeQuiz={() =>
                         setActiveAdopterPage("matchmaking-quiz")
                     }
+                    onBrowsePets={() => setActiveAdopterPage("browse-pets")}
+                    onViewPet={(pet) => {
+                        setSelectedPet(pet);
+                        setActiveAdopterPage("browse-pets");
+                    }}
                 />
             );
         }
@@ -1630,7 +1636,10 @@ async function fetchPets({ silent = false } = {}) {
                         alt="RescueBase logo"
                     />
 
-                    <span>RescueBase</span>
+                    <span>
+                        RescueBase
+                        {isFoster && <small>Adopter view</small>}
+                    </span>
                 </button>
 
                 <nav className="adopter-menu">

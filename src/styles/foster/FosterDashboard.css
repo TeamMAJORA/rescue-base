@@ -947,8 +947,6 @@
 .foster-menu-icon.icon-active { display: none; }
 .foster-menu > button.active .icon-default { display: none; }
 .foster-menu > button.active .icon-active { display: block; }
-.foster-menu > button.active:hover .icon-default { display: block; }
-.foster-menu > button.active:hover .icon-active { display: none; }
 
 .foster-user-card {
     width: 100%;
@@ -1034,4 +1032,15 @@
 @media (max-width: 650px) {
     .foster-menu { grid-template-columns: 1fr; }
     .foster-menu > button { justify-content: flex-start; }
+}
+
+.foster-logo span { display: grid; }
+.foster-logo small {
+    margin-top: 4px;
+    color: #7b452d;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }

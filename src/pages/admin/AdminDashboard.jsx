@@ -56,6 +56,25 @@ import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 
+// Sidebar icons (only the shape is used; the colour comes from CSS)
+const ICONS = {
+    overview: "/icons/sidebar/dashboard-brown.svg",
+    users: "/icons/User-brown.svg",
+    animals: "/icons/sidebar/brown paw.svg",
+    adoptions: "/icons/heart-brown.svg",
+    "foster-care": "/icons/home.svg",
+    donations: "/icons/sidebar/donation-brown.svg",
+    "needed-supplies": "/icons/sidebar/supplies-brown.svg", 
+    "lost-found": "/icons/sidebar/LostnFound-brown.svg",
+    rescue: "/icons/Volunteer.svg",
+    "gis-mapping": "/icons/strayMap-brown.svg",
+    feedback: "/icons/sidebar/Feedback-brown.svg",
+    analytics: "/icons/sidebar/Status.svg",
+    reports: "/icons/sidebar/clipboard-brown.svg",
+    "activity-log": "/icons/sidebar/history.svg",
+    "global-settings": "/icons/sidebar/settings-brown.svg",
+};
+
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
 
@@ -233,14 +252,27 @@ export default function AdminDashboard({ setPage }) {
         setPage(goTo);
     }
 
-
     function handleSidebarClick(item) {
         if (item.children) {
-            setOpenSidebarMenu((current) =>
-                current === item.key ? null : item.key
+            const isOpen = openSidebarMenu === item.key;
+
+            // Clicking an open group just collapses it
+            if (isOpen) {
+                setOpenSidebarMenu(null);
+                return;
+            }
+
+            setOpenSidebarMenu(item.key);
+
+            // Stay on a sub-page of this group if already there; otherwise open its first page
+            const alreadyInside = item.children.some(
+                (child) => child.key === activeAdminPage
             );
 
-            setActiveAdminPage(item.key);
+            if (!alreadyInside) {
+                setActiveAdminPage(item.children[0].key);
+            }
+
             return;
         }
 
@@ -489,10 +521,17 @@ export default function AdminDashboard({ setPage }) {
     return (
         <main className="admin-page">
             <aside className="admin-sidebar">
-                <div className="admin-logo">
+                <button
+                    type="button"
+                    className="admin-logo"
+                    onClick={() => handleSidebarClick({ key: "overview" })}
+                >
                     <img src={assets.logo} alt="RescueBase logo" />
-                    <span>RescueBase</span>
-                </div>
+                    <span>
+                        RescueBase
+                        <small>Admin</small>
+                    </span>
+                </button>
 
                 <nav className="admin-menu">
                     {adminMenu.map((item) => {
@@ -500,6 +539,7 @@ export default function AdminDashboard({ setPage }) {
                         const isActive =
                             activeAdminPage === item.key ||
                             item.children?.some((child) => child.key === activeAdminPage);
+                        const icon = ICONS[item.key];
 
                         return (
                             <div className="admin-menu-group" key={item.key}>
@@ -510,6 +550,11 @@ export default function AdminDashboard({ setPage }) {
                                     onClick={() => handleSidebarClick(item)}
                                 >
                                     <div className="admin-menu-text">
+                                        <span
+                                            className="admin-menu-icon"
+                                            style={icon ? { "--icon": `url("${icon}")` } : undefined}
+                                            aria-hidden="true"
+                                        />
                                         <strong>{item.label}</strong>
                                     </div>
 
@@ -545,14 +590,17 @@ export default function AdminDashboard({ setPage }) {
                 <button
                     className="admin-user-card"
                     type="button"
+                    title="Log out"
                     onClick={() => signOut("home")}
                 >
-                    <span>👤</span>
-                    <div>
+                    <span className="admin-user-avatar">
+                        <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                    </span>
+                    <span className="admin-user-info">
                         <strong>Admin User</strong>
-                        <small>Admin</small>
-                    </div>
-                    <span>→</span>
+                        <small>Admin · Log out</small>
+                    </span>
+                    <span className="admin-user-arrow" aria-hidden="true">→</span>
                 </button>
             </aside>
 

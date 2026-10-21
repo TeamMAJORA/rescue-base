@@ -1624,7 +1624,7 @@ export default function AdoptionApplications() {
                                 : "No closed applications yet."}
                     </p>
                 ) : (
-                    <>
+                    <div className="admin-adoption-table">
                         <div className="admin-application-columns" aria-hidden="true">
                             <span>Applicant</span>
                             <span>Pet</span>
@@ -1650,7 +1650,7 @@ export default function AdoptionApplications() {
                                 />
                             ))}
                         </div>
-                    </>
+                    </div>
                 )}
             </section>
 

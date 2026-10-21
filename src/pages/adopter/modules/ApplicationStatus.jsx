@@ -97,6 +97,23 @@ function shortDate(dateValue) {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+// Application History table
+const HISTORY_LABELS = {
+    pending: "Under review",
+    interview_scheduled: "Interview set",
+    interview_completed: "Interview done",
+    approved: "Approved",
+    rejected: "Not approved",
+    withdrawn: "Withdrawn",
+};
+
+const HISTORY_FILTERS = [
+    { key: "all", label: "All", statuses: null },
+    { key: "progress", label: "In progress", statuses: ["pending", "interview_scheduled", "interview_completed"] },
+    { key: "completed", label: "Completed", statuses: ["approved"] },
+    { key: "closed", label: "Closed", statuses: ["rejected", "withdrawn"] },
+];
+
 function getStatusContent(status) {
     if (status === "approved") {
         return {
@@ -169,6 +186,8 @@ export default function ApplicationStatus({
     const [idCopied, setIdCopied] = useState(false);
     const [docUploading, setDocUploading] = useState(false);
     const [docError, setDocError] = useState("");
+    const [historyFilter, setHistoryFilter] = useState("all");
+    const [openHistoryId, setOpenHistoryId] = useState(null);
 
     async function handleNewDocument(event) {
         const file = event.target.files?.[0];
@@ -327,6 +346,21 @@ export default function ApplicationStatus({
         (item) => String(item.applicationId) !== String(application.applicationId)
     );
 
+    // Current application first, then the rest (newest first)
+    const historyRows = [
+        { ...application, isCurrent: true },
+        ...pastApplications,
+    ];
+    const historyCount = (statuses) =>
+        statuses
+            ? historyRows.filter((row) => statuses.includes(row.status)).length
+            : historyRows.length;
+    const activeHistoryFilter =
+        HISTORY_FILTERS.find((filter) => filter.key === historyFilter) || HISTORY_FILTERS[0];
+    const visibleHistory = activeHistoryFilter.statuses
+        ? historyRows.filter((row) => activeHistoryFilter.statuses.includes(row.status))
+        : historyRows;
+
     const stageMap = {
     pending: 1,
     interview_scheduled: 2,
@@ -392,28 +426,6 @@ export default function ApplicationStatus({
 
     return (
         <section className="application-status-module">
-            <header
-                className={`application-status-header ${status}`}
-            >
-                <div>
-                    <span>{statusContent.eyebrow}</span>
-
-                    <h2>{statusContent.title}</h2>
-
-                    <p>{statusContent.description}</p>
-                </div>
-
-                <button
-                    type="button"
-                    className={`application-status-refresh ${loading ? "is-loading" : ""}`}
-                    onClick={() => onRefresh?.()}
-                    disabled={loading}
-                >
-                    <img src="/icons/Refresh cw.svg" alt="" />
-                    {loading ? "Refreshing..." : "Refresh Status"}
-                </button>
-            </header>
-
             <div className="application-status-layout">
                 <aside className="application-status-pet-card asp-card">
                     <div className="asp-photo">
@@ -516,9 +528,22 @@ export default function ApplicationStatus({
 
                 <div className="application-status-content">
                     <section className="application-status-progress">
-                        <div className="application-status-section-heading">
-                            <span>Application Progress</span>
-                            <h3>Current review stage</h3>
+                        <div className="application-progress-head">
+                            <div>
+                                <span>{statusContent.eyebrow}</span>
+                                <h2>{statusContent.title}</h2>
+                                <p>{statusContent.description}</p>
+                            </div>
+
+                            <button
+                                type="button"
+                                className={`application-status-refresh ${loading ? "is-loading" : ""}`}
+                                onClick={() => onRefresh?.()}
+                                disabled={loading}
+                            >
+                                <img src="/icons/Refresh cw.svg" alt="" />
+                                {loading ? "Refreshing..." : "Refresh Status"}
+                            </button>
                         </div>
 
                         <ol className={`application-stepper ${isRejected ? "is-rejected" : ""}`}>
@@ -546,56 +571,161 @@ export default function ApplicationStatus({
                                 </li>
                             ))}
                         </ol>
-                    </section>
 
-                    {isPending && (
-                        <section className="application-status-information pending">
-                            <div className="application-status-section-heading">
-                                <span>What Happens Next</span>
-                                <h3>
-                                    Please wait for shelter review
-                                </h3>
-                            </div>
-
-                            <p>
-                                Shelter staff will review your contact
-                                information, household details, reason
-                                for adoption, pet-care experience, and
-                                uploaded identification document.
-                            </p>
-
-                            <p>
-                                You will see the updated decision here
-                                once the review is complete.
-                            </p>
-                        </section>
-                    )}
-
-                    {(isInterviewScheduled || isInterviewCompleted) && (
-                        <section className="application-status-information pending">
-                            <div className="application-status-section-heading">
-                                <span>Interview</span>
-                                <h3>
-                                    {isInterviewScheduled
-                                        ? "Prepare for your interview"
-                                        : "Interview done"}
-                                </h3>
-                            </div>
-
-                            {isInterviewScheduled && application.interviewSchedule && (
-                                <div className="application-interview-card">
-                                    <span>Interview Schedule</span>
-                                    <strong>{formatDate(application.interviewSchedule, true)}</strong>
+                        {isPending && (
+                            <section className="application-status-information pending">
+                                <div className="application-status-section-heading">
+                                    <span>What Happens Next</span>
+                                    <h3>
+                                        Please wait for shelter review
+                                    </h3>
                                 </div>
-                            )}
 
-                            <p>
-                                {isInterviewScheduled
-                                    ? "Bring a valid ID. You will meet the pet and talk with shelter staff about your home and care plans."
-                                    : "Shelter staff are now making the final decision on your application."}
-                            </p>
-                        </section>
-                    )}
+                                <p>
+                                    Shelter staff will review your contact
+                                    information, household details, reason
+                                    for adoption, pet-care experience, and
+                                    uploaded identification document.
+                                </p>
+
+                                <p>
+                                    You will see the updated decision here
+                                    once the review is complete.
+                                </p>
+                            </section>
+                        )}
+
+                        {(isInterviewScheduled || isInterviewCompleted) && (
+                            <section className="application-status-information pending">
+                                <div className="application-status-section-heading">
+                                    <span>Interview</span>
+                                    <h3>
+                                        {isInterviewScheduled
+                                            ? "Prepare for your interview"
+                                            : "Interview done"}
+                                    </h3>
+                                </div>
+
+                                {isInterviewScheduled && application.interviewSchedule && (
+                                    <div className="application-interview-card">
+                                        <span>Interview Schedule</span>
+                                        <strong>{formatDate(application.interviewSchedule, true)}</strong>
+                                    </div>
+                                )}
+
+                                <p>
+                                    {isInterviewScheduled
+                                        ? "Bring a valid ID. You will meet the pet and talk with shelter staff about your home and care plans."
+                                        : "Shelter staff are now making the final decision on your application."}
+                                </p>
+                            </section>
+                        )}
+
+                        {isWithdrawn && (
+                            <section className="application-status-information withdrawn">
+                                <div className="application-status-section-heading">
+                                    <span>Application Closed</span>
+                                    <h3>You can apply again</h3>
+                                </div>
+
+                                <p>
+                                    You withdrew this application on{" "}
+                                    {formatDate(application.withdrawnAt)}. You are free to
+                                    apply for another available pet.
+                                </p>
+
+                                <button
+                                    type="button"
+                                    className="application-browse-button"
+                                    onClick={() => onBrowsePets?.()}
+                                >
+                                    Browse Available Pets
+                                </button>
+                            </section>
+                        )}
+
+                        {isApproved && (
+                            <section className="application-status-information approved">
+                                <div className="application-status-section-heading">
+                                    <span>Approval Details</span>
+                                    <h3>
+                                        Continue the adoption process
+                                    </h3>
+                                </div>
+
+                                {application.interviewSchedule ? (
+                                    <div className="application-interview-card">
+                                        <span>
+                                            Interview Schedule
+                                        </span>
+
+                                        <strong>
+                                            {formatDate(
+                                                application.interviewSchedule,
+                                                true
+                                            )}
+                                        </strong>
+                                    </div>
+                                ) : (
+                                    <p>
+                                        No interview schedule has been
+                                        added yet. Please wait for further
+                                        instructions from RescueBase
+                                        staff.
+                                    </p>
+                                )}
+
+                                {application.reviewNotes && (
+                                    <div className="application-review-box">
+                                        <span>Shelter Notes</span>
+
+                                        <p>
+                                            {application.reviewNotes}
+                                        </p>
+                                    </div>
+                                )}
+                            </section>
+                        )}
+
+                        {isRejected && (
+                            <section className="application-status-information rejected">
+                                <div className="application-status-section-heading">
+                                    <span>Review Result</span>
+
+                                    <h3>
+                                        Application review details
+                                    </h3>
+                                </div>
+
+                                <div className="application-review-box">
+                                    <span>Reason</span>
+
+                                    <p>
+                                        {application.rejectionReason ||
+                                            "The shelter did not provide a specific rejection reason."}
+                                    </p>
+                                </div>
+
+                                {application.reviewNotes && (
+                                    <div className="application-review-box">
+                                        <span>Shelter Notes</span>
+
+                                        <p>
+                                            {application.reviewNotes}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    className="application-browse-button"
+                                    onClick={() => onBrowsePets?.()}
+                                >
+                                    Browse Other Available Pets
+                                </button>
+                            </section>
+                        )}
+                    </section>    
 
                     {isActive && (
                         <section className="application-withdraw">
@@ -670,162 +800,125 @@ export default function ApplicationStatus({
                             )}
                         </section>
                     )}
-
-                    {isWithdrawn && (
-                        <section className="application-status-information withdrawn">
-                            <div className="application-status-section-heading">
-                                <span>Application Closed</span>
-                                <h3>You can apply again</h3>
-                            </div>
-
-                            <p>
-                                You withdrew this application on{" "}
-                                {formatDate(application.withdrawnAt)}. You are free to
-                                apply for another available pet.
-                            </p>
-
-                            <button
-                                type="button"
-                                className="application-browse-button"
-                                onClick={() => onBrowsePets?.()}
-                            >
-                                Browse Available Pets
-                            </button>
-                        </section>
-                    )}
-
-                    {isApproved && (
-                        <section className="application-status-information approved">
-                            <div className="application-status-section-heading">
-                                <span>Approval Details</span>
-                                <h3>
-                                    Continue the adoption process
-                                </h3>
-                            </div>
-
-                            {application.interviewSchedule ? (
-                                <div className="application-interview-card">
-                                    <span>
-                                        Interview Schedule
-                                    </span>
-
-                                    <strong>
-                                        {formatDate(
-                                            application.interviewSchedule,
-                                            true
-                                        )}
-                                    </strong>
-                                </div>
-                            ) : (
-                                <p>
-                                    No interview schedule has been
-                                    added yet. Please wait for further
-                                    instructions from RescueBase
-                                    staff.
-                                </p>
-                            )}
-
-                            {application.reviewNotes && (
-                                <div className="application-review-box">
-                                    <span>Shelter Notes</span>
-
-                                    <p>
-                                        {application.reviewNotes}
-                                    </p>
-                                </div>
-                            )}
-                        </section>
-                    )}
-
-                    {isRejected && (
-                        <section className="application-status-information rejected">
-                            <div className="application-status-section-heading">
-                                <span>Review Result</span>
-
-                                <h3>
-                                    Application review details
-                                </h3>
-                            </div>
-
-                            <div className="application-review-box">
-                                <span>Reason</span>
-
-                                <p>
-                                    {application.rejectionReason ||
-                                        "The shelter did not provide a specific rejection reason."}
-                                </p>
-                            </div>
-
-                            {application.reviewNotes && (
-                                <div className="application-review-box">
-                                    <span>Shelter Notes</span>
-
-                                    <p>
-                                        {application.reviewNotes}
-                                    </p>
-                                </div>
-                            )}
-
-                            <button
-                                type="button"
-                                className="application-browse-button"
-                                onClick={() => onBrowsePets?.()}
-                            >
-                                Browse Other Available Pets
-                            </button>
-                        </section>
-                    )}
                 </div>
             </div>
                 {pastApplications.length > 0 && (
-                    <section className="application-history">
-                        <div className="application-status-section-heading">
-                            <span>Application History</span>
-                            <h3>Your past applications</h3>
-                        </div>
+                    <section className="ahx">
+                        <header className="ahx-head">
+                            <h3>Application History</h3>
 
-                        <ul className="application-history-list">
-                            {pastApplications.map((item) => (
-                                <li key={item.applicationId} className="application-history-item">
-                                    <div className="application-history-thumb">
-                                        {item.petImage ? (
-                                            <img src={item.petImage} alt={item.petName} />
-                                        ) : (
-                                            <img
-                                                src="/icons/sidebar/brown paw.svg"
-                                                alt=""
-                                                className="is-placeholder"
-                                            />
+                            <div className="ahx-filters" role="tablist">
+                                {HISTORY_FILTERS.map((filter) => (
+                                    <button
+                                        key={filter.key}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={historyFilter === filter.key}
+                                        className={historyFilter === filter.key ? "is-active" : ""}
+                                        onClick={() => setHistoryFilter(filter.key)}
+                                    >
+                                        {filter.label} {historyCount(filter.statuses)}
+                                    </button>
+                                ))}
+                            </div>
+                        </header>
+
+                        <div className="ahx-table" role="table">
+                            <div className="ahx-row ahx-labels" role="row">
+                                <span>Pet</span>
+                                <span>Application ID</span>
+                                <span>Submitted</span>
+                                <span>Last updated</span>
+                                <span>Status</span>
+                                <span aria-hidden="true" />
+                            </div>
+
+                            {visibleHistory.length === 0 && (
+                                <p className="ahx-empty">No applications in this list.</p>
+                            )}
+
+                            {visibleHistory.map((row) => {
+                                const rowId = String(row.applicationId);
+                                const isOpen = openHistoryId === rowId;
+
+                                return (
+                                    <div
+                                        key={rowId}
+                                        className={`ahx-item ${row.isCurrent ? "is-current" : ""}`}
+                                    >
+                                        <div className="ahx-row" role="row">
+                                            <div className="ahx-pet">
+                                                <span className="ahx-thumb">
+                                                    {row.petImage ? (
+                                                        <img src={row.petImage} alt={row.petName} />
+                                                    ) : (
+                                                        <img className="is-placeholder" src="/icons/sidebar/brown paw.svg" alt="" />
+                                                    )}
+                                                </span>
+                                                <div>
+                                                    <b>
+                                                        {row.petName}
+                                                        {row.isCurrent && <em>Current</em>}
+                                                    </b>
+                                                    <small>{row.petBreed || "Breed not available"}</small>
+                                                </div>
+                                            </div>
+
+                                            <span className="ahx-cell" data-label="Application ID">
+                                                {rowId.slice(-8).toUpperCase()}
+                                            </span>
+                                            <span className="ahx-cell" data-label="Submitted">
+                                                {shortDate(row.submittedAt)}
+                                            </span>
+                                            <span className="ahx-cell" data-label="Last updated">
+                                                {shortDate(row.updatedAt || row.closedAt || row.submittedAt)}
+                                            </span>
+                                            <span className="ahx-cell" data-label="Status">
+                                                <span className={`ahx-pill is-${row.status}`}>
+                                                    {HISTORY_LABELS[row.status] || row.status}
+                                                </span>
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                className={`ahx-view ${isOpen ? "is-open" : ""}`}
+                                                aria-expanded={isOpen}
+                                                onClick={() => setOpenHistoryId(isOpen ? null : rowId)}
+                                            >
+                                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                                                    <circle cx="12" cy="12" r="3" />
+                                                </svg>
+                                                {isOpen ? "Hide" : "View"}
+                                            </button>
+                                        </div>
+
+                                        {isOpen && (
+                                            <div className="ahx-details">
+                                                {row.isCurrent ? (
+                                                    <p>This is the application shown above. Its full progress and details are in the card at the top of this page.</p>
+                                                ) : (
+                                                    <>
+                                                        <p>
+                                                            <b>Submitted:</b> {formatDate(row.submittedAt)}
+                                                            {" · "}
+                                                            <b>Closed:</b> {formatDate(row.closedAt)}
+                                                        </p>
+                                                        {row.note && (
+                                                            <p>
+                                                                <b>{row.status === "withdrawn" ? "Your reason:" : "Shelter's reason:"}</b> {row.note}
+                                                            </p>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
-
-                                    <div className="application-history-info">
-                                        <strong>{item.petName}</strong>
-                                        <small>{item.petBreed || "Breed not available"}</small>
-                                    </div>
-
-                                    <div className="application-history-date">
-                                        <span>Submitted</span>
-                                        <strong>{formatDate(item.submittedAt)}</strong>
-                                    </div>
-
-                                    <div className="application-history-date">
-                                        <span>Closed</span>
-                                        <strong>{formatDate(item.closedAt)}</strong>
-                                    </div>
-
-                                    <span className={`application-status-pill ${item.status}`}>
-                                        {item.status.replaceAll("_", " ")}
-                                    </span>
-
-                                    {item.note && (
-                                        <p className="application-history-note">{item.note}</p>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
+                                );
+                            })}
+                        </div>
                     </section>
-            )}
+                )}
         </section>
     );
 }
