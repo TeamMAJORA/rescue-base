@@ -38,6 +38,7 @@ import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
 import NeededSupplies from "./modules/NeededSupplies";
 import GlobalSettings from "./modules/GlobalSettings";
+import IntakeForecast from "./modules/IntakeForecast";
 
 // ANIMALS
 import AnimalProfiles from "./modules/animals/AnimalProfiles";
@@ -91,9 +92,10 @@ const adminMenu = [
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
+    { key: "intake-forecast", label: "AI Intake Forecast" },
     { key: "reports", label: "Reports" },
-    { key: "activity-log", label: "Activity Log"},
-    { key: "global-settings", label: "Global Settings"}
+    { key: "activity-log", label: "Activity Log" },
+    { key: "global-settings", label: "Global Settings" }
 ]
 
 function AdminStatCard({ label, value }) {
@@ -382,6 +384,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "global-settings") {
             return <GlobalSettings />;
+        }
+        
+        if (activeAdminPage === "intake-forecast") {
+            return <IntakeForecast />;
         }
 
     }
