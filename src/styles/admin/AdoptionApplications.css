@@ -1762,3 +1762,337 @@ button.admin-schedule-day:hover:not(:disabled) {
 button.admin-schedule-day.is-selected:hover {
     background: linear-gradient(135deg, #fb8500, #ffa53a);
 }
+
+/* ===== Document resubmission ===== */
+.admin-review-document small.is-rejected { color: #b42318; }
+
+.admin-doc-request-note {
+    display: grid;
+    gap: 2px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border-left: 4px solid #d62828;
+    background: #fde8e8;
+}
+.admin-doc-request-note strong { color: #b42318; font-size: 12px; }
+.admin-doc-request-note small { color: #7b452d; font-size: 12px; line-height: 1.5; }
+.admin-doc-request-note.is-new { border-left-color: #2f8f5b; background: #dff5e8; }
+.admin-doc-request-note.is-new strong { color: #1f6e43; }
+
+.admin-doc-request-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 9px 14px;
+    border: 1.5px dashed #d62828;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.admin-doc-request-btn:hover:not(:disabled) { background: #fde8e8; }
+
+.admin-doc-request-form {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid rgba(214, 40, 40, 0.3);
+    border-radius: 12px;
+    background: #fffaf0;
+}
+.admin-doc-request-form label { color: #5a1b00; font-size: 12px; font-weight: 800; }
+
+.admin-doc-request-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-doc-request-chips button {
+    padding: 5px 10px;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 999px;
+    background: #ffffff;
+    color: #7b452d;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.admin-doc-request-chips button:hover,
+.admin-doc-request-chips button.is-picked {
+    border-color: #fb8500;
+    background: #fff0bf;
+    color: #5a1b00;
+}
+
+.admin-doc-request-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 10px;
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    resize: vertical;
+}
+.admin-doc-request-form textarea:focus {
+    outline: none;
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+
+.admin-doc-request-error { color: #b42318; font-size: 11px; font-weight: 700; }
+.admin-doc-request-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+.admin-doc-request-cancel {
+    padding: 8px 16px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-doc-request-send {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 999px;
+    background: #d62828;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.admin-doc-request-send:hover:not(:disabled) { background: #b42318; }
+
+.admin-doc-request-send:disabled,
+.admin-doc-request-btn:disabled { cursor: wait; opacity: 0.6; }
+
+/* ===== Adoption list: same look as the Animal Profiles panel ===== */
+.admin-panel.admin-adoption-list-panel {
+    display: grid;
+    gap: 14px;
+    min-height: 0;
+    padding: 16px;
+    border: 1px solid #8a5a44;
+    border-radius: 12px;
+    background: #fffdf0;
+}
+
+.admin-adoption-list-panel .admin-adoption-tabs,
+.admin-adoption-list-panel .admin-adoption-toolbar {
+    margin-bottom: 0;
+}
+
+/* Search box */
+.admin-adoption-list-panel .admin-adoption-search {
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+}
+.admin-adoption-list-panel .admin-adoption-search:focus-within {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+}
+.admin-adoption-list-panel .admin-adoption-search input::placeholder { color: #b08f7a; }
+
+/* Status filter pills */
+.admin-adoption-list-panel .admin-adoption-filters { gap: 10px; }
+.admin-adoption-list-panel .admin-adoption-filters button {
+    height: auto;
+    padding: 7px 18px;
+    border: 1px solid #8a5a44;
+    background: #fffdf0;
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-adoption-filters button:hover:not(.is-active) { background: #fff7cb; }
+.admin-adoption-list-panel .admin-adoption-filters button.is-active {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #ffffff;
+}
+
+/* Sort dropdown + Refresh */
+.admin-adoption-list-panel .admin-adoption-sort {
+    height: 38px;
+    border: 1px solid #8a5a44;
+    background-color: #fffdf0;
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-adoption-refresh {
+    border: 1px solid #8a5a44;
+    border-radius: 10px;
+    background: #fffdf0;
+    color: #5a1b00;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-adoption-refresh:hover:not(:disabled) { background: #fff7cb; }
+
+/* Table box */
+.admin-adoption-table {
+    overflow: hidden;
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 12px;
+    background: #fffdf0;
+}
+.admin-adoption-list-panel .admin-application-columns {
+    padding: 14px 16px;
+    background: #fff7cb;
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+.admin-adoption-list-panel .admin-application-list {
+    gap: 0;
+    padding-right: 0;
+    scrollbar-width: none;
+}
+.admin-adoption-list-panel .admin-application-list::-webkit-scrollbar { display: none; }
+
+/* Rows */
+.admin-adoption-list-panel .admin-application-row {
+    padding: 12px 16px;
+    border: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.admin-adoption-list-panel .admin-application-row:first-child { border-top: 0; }
+.admin-adoption-list-panel .admin-application-row:hover { background: #fffaf0; box-shadow: none; }
+.admin-adoption-list-panel .admin-application-row h3 {
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-application-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+    box-shadow: none;
+}
+.admin-adoption-list-panel .admin-application-pet-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: #fff1c2;
+}
+.admin-adoption-list-panel .admin-application-pet strong { font-size: 13px; }
+.admin-adoption-list-panel .admin-application-household span { background: #fffdf0; }
+
+/* Row buttons: same small buttons as the animal table */
+.admin-adoption-list-panel .admin-application-status button {
+    height: auto;
+    padding: 5px 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 6px;
+    background: #fffdf0;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 700;
+}
+.admin-adoption-list-panel .admin-application-status button:hover:not(:disabled) {
+    background: #fff7cb;
+    transform: none;
+}
+
+/* Review = main action (orange, like "View") */
+.admin-adoption-list-panel .admin-application-status button:first-child {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #ffffff;
+}
+.admin-adoption-list-panel .admin-application-status button:first-child:hover:not(:disabled) { background: #e07600; }
+
+.admin-adoption-list-panel .admin-application-status button.approve {
+    border-color: #2f8f5b;
+    background: #2f8f5b;
+    color: #ffffff;
+}
+.admin-adoption-list-panel .admin-application-status button.approve:hover:not(:disabled) { background: #267a4d; }
+
+.admin-adoption-list-panel .admin-application-status button.reject {
+    border-color: #d62828;
+    background: #fffdf0;
+    color: #d62828;
+}
+.admin-adoption-list-panel .admin-application-status button.reject:hover:not(:disabled) {
+    background: #fde8e8;
+    color: #d62828;
+}
+/* ===== Toolbar aligned with Medical Records / Animal Profiles (square) ===== */
+.admin-adoption-toolbar {
+    align-items: stretch;
+    gap: 8px;
+}
+
+.admin-adoption-search {
+    height: auto;
+    min-height: 38px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff;
+}
+
+.admin-adoption-search svg {
+    stroke: #b8a890;
+}
+
+.admin-adoption-search input {
+    padding: 9px 0;
+    color: #3d2410;
+}
+
+.admin-adoption-filters {
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-adoption-filters button {
+    height: auto;
+    padding: 7px 16px;
+    border: 1px solid #8a5a44;
+    font-size: 13px;
+    font-weight: 700;
+    color: #7b452d;
+    background: #fffdf0;
+}
+
+.admin-adoption-filters button:hover {
+    background: #fff7cb;
+}
+
+.admin-adoption-filters button.is-active {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #fff;
+}
+
+.admin-adoption-sort {
+    height: auto;
+    padding: 9px 32px 9px 14px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 12px center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #3d2410;
+}
+
+.admin-adoption-sort:focus {
+    outline: none;
+    border-color: #fb8500;
+}

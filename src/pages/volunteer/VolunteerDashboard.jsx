@@ -28,6 +28,16 @@ import GISMapping from "../admin/modules/GISMapping";
 // // ADOPTIONS
 import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
 
+// Sidebar icons (only the shape is used; the colour comes from CSS)
+const ICONS = {
+    overview: "/icons/sidebar/dashboard-brown.svg",
+    animals: "/icons/sidebar/brown paw.svg",
+    gis: "/icons/strayMap-brown.svg",
+    "lost-found": "/icons/sidebar/LostnFound-brown.svg",
+    "activity-log": "/icons/sidebar/history.svg",
+    feedback: "/icons/sidebar/Feedback-brown.svg",
+};
+
 const staffMenu = [
     { key: "overview", label: "Dashboard" },
 
@@ -129,6 +139,8 @@ export default function VolunteerDashboard({ setPage }) {
         }
     })();
     const [signedOut, setSignedOut] = useState(false);
+    // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
+    const [maintenance, setMaintenance] = useState("");
     const [confirmBox, setConfirmBox] = useState(null);
     const [toasts, setToasts] = useState([]);
 
@@ -141,7 +153,25 @@ export default function VolunteerDashboard({ setPage }) {
             const url = String(args[0]?.url || args[0] || "");
 
             if (response.status === 401 && API && url.startsWith(API)) {
-                setSignedOut(true);
+                //deactivated accounts are marked by the server so we can show the right screen
+                let disabled = false;
+                try {
+                    disabled = Boolean((await response.clone().json())?.accountDisabled);
+                } catch {
+                    // not a JSON answer
+                }
+                setSignedOut((current) => (current === "disabled" || disabled ? "disabled" : true));
+            }
+            // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
+            if (response.status === 503 && API && url.startsWith(API)) {
+                try {
+                    const body = await response.clone().json();
+                    if (body?.maintenance) {
+                        setMaintenance(body.message || "RescueBase is under maintenance.");
+                    }
+                } catch {
+                    // not a JSON answer
+                }
             }
 
             return response;
@@ -182,11 +212,25 @@ export default function VolunteerDashboard({ setPage }) {
 
     function handleSidebarClick(item) {
         if (item.children) {
-            setOpenSidebarMenu((current) =>
-                current === item.key ? null : item.key
+            const isOpen = openSidebarMenu === item.key;
+
+            // Clicking an open group just collapses it
+            if (isOpen) {
+                setOpenSidebarMenu(null);
+                return;
+            }
+
+            setOpenSidebarMenu(item.key);
+
+            // Stay on a sub-page of this group if already there; otherwise open its first page
+            const alreadyInside = item.children.some(
+                (child) => child.key === activeStaffPage
             );
 
-            setActiveStaffPage(item.key);
+            if (!alreadyInside) {
+                setActiveStaffPage(item.children[0].key);
+            }
+
             return;
         }
 
@@ -320,11 +364,57 @@ export default function VolunteerDashboard({ setPage }) {
     }
 
     useEffect(() => {
-        if (isWrongRole || signedOut) return;
+        if (isWrongRole || signedOut || maintenance) return;
 
         loadNotifications();
-    }, [signedOut]);
+    }, [signedOut, maintenance]);
 
+
+    // Account was deactivated by an admin
+    if (signedOut === "disabled") {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon is-blocked">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M5.6 5.6l12.8 12.8" />
+                        </svg>
+                    </div>
+                    <h2>Your account has been deactivated</h2>
+                    <p>An admin turned off this account, so you've been signed out.</p>
+                    <p className="ao-signed-out-note">
+                        Think this is a mistake? Please contact the shelter staff.
+                    </p>
+                    <button type="button" onClick={() => signOut("home")}>
+                        Back to home
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
+    if (maintenance && !signedOut && !isWrongRole) {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z" />
+                        </svg>
+                    </div>
+                    <h2>We'll be right back</h2>
+                    <p>{maintenance}</p>
+                    <button type="button" onClick={() => window.location.reload()}>
+                        Check again
+                    </button>
+                    <button type="button" className="ao-signed-out-link" onClick={() => signOut("home")}>
+                        Log out
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     if (signedOut || isWrongRole) {
         return (
@@ -348,11 +438,18 @@ export default function VolunteerDashboard({ setPage }) {
 
     return (
         <main className="staff-page">
-            <aside className="staff-sidebar">
-                <div className="staff-logo">
+            <aside className="staff-sidebar is-volunteer">
+                <button
+                    type="button"
+                    className="staff-logo"
+                    onClick={() => handleSidebarClick({ key: "overview" })}
+                >
                     <img src={assets.logo} alt="RescueBase logo" />
-                    <span>RescueBase</span>
-                </div>
+                    <span>
+                        RescueBase
+                        <small>Volunteer</small>
+                    </span>
+                </button>
 
                 <nav className="staff-menu">
                     {staffMenu.map((item) => {
@@ -360,6 +457,7 @@ export default function VolunteerDashboard({ setPage }) {
                         const isActive =
                             activeStaffPage === item.key ||
                             item.children?.some((child) => child.key === activeStaffPage);
+                        const icon = ICONS[item.key];
 
                         return (
                             <div className="staff-menu-group" key={item.key}>
@@ -370,6 +468,11 @@ export default function VolunteerDashboard({ setPage }) {
                                     onClick={() => handleSidebarClick(item)}
                                 >
                                     <div className="staff-menu-text">
+                                        <span
+                                            className="staff-menu-icon"
+                                            style={icon ? { "--icon": `url("${icon}")` } : undefined}
+                                            aria-hidden="true"
+                                        />
                                         <strong>{item.label}</strong>
                                     </div>
 
@@ -405,14 +508,17 @@ export default function VolunteerDashboard({ setPage }) {
                 <button
                     className="staff-user-card"
                     type="button"
+                    title="Log out"
                     onClick={() => signOut("home")}
                 >
-                    <span>👤</span>
-                    <div>
+                    <span className="staff-user-avatar">
+                        <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                    </span>
+                    <span className="staff-user-info">
                         <strong>{volunteerName}</strong>
-                        <small>Volunteer</small>
-                    </div>
-                    <span>→</span>
+                        <small>Volunteer · Log out</small>
+                    </span>
+                    <span className="staff-user-arrow" aria-hidden="true">→</span>
                 </button>
             </aside>
 

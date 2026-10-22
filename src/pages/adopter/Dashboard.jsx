@@ -147,13 +147,16 @@ function getAdopterPageTitle(activeAdopterPage) {
     return currentItem?.label || "Dashboard";
 }
 
-export default function Dashboard({ onLogout, onLoginAgain }) {
+export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
     const savedUser = getSavedUser();
 
     // Signed out: login expired (server answered 401) or this account is not an adopter
     const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
-    const isWrongRole = savedRole !== "adopter";
+    const isWrongRole = !["adopter", "foster"].includes(savedRole);
+    const isFoster = savedRole === "foster";
     const [signedOut, setSignedOut] = useState(false);
+    // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
+    const [maintenance, setMaintenance] = useState("");
 
     const token = getAuthToken();
 
@@ -587,6 +590,27 @@ async function fetchPets({ silent = false } = {}) {
                     emptyPet
                 );
             });
+
+            // Coming from the foster page's "Adopt" button: open the form for that pet
+            let adoptPetId = null;
+
+            try {
+                adoptPetId = sessionStorage.getItem("rb_adopt_pet");
+                sessionStorage.removeItem("rb_adopt_pet");
+            } catch {
+                adoptPetId = null;
+            }
+
+            if (adoptPetId) {
+                const fosterPet = normalizedPets.find((pet) => pet._id === adoptPetId);
+
+                if (fosterPet) {
+                    handleApply(fosterPet);
+                } else {
+                    setPetsError("That pet is no longer available for adoption.");
+                }
+            }
+            
         } catch (error) {
             console.error(
                 "Fetch available pets error:",
@@ -700,6 +724,7 @@ async function fetchPets({ silent = false } = {}) {
                 ),
                 withdrawnAt: application.withdrawnAt || null,
                 withdrawnFromStatus: application.withdrawnFromStatus || "",
+                documentRequest: application.documentRequest || null,
             };
 
             setApplicationStatus(updatedStatus);
@@ -727,6 +752,53 @@ async function fetchPets({ silent = false } = {}) {
             setApplicationLoading(false);
         }
     }
+
+    // Staff asked for a new ID: upload the image, then attach it to the application
+    async function handleResubmitDocuments(file) {
+        if (!applicationStatus?.applicationId) return;
+
+        const uploadData = new FormData();
+        uploadData.append("image", file);
+
+        const uploadResponse = await fetch(`${API}/api/uploads/image`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: uploadData,
+        });
+        const uploadResult = await uploadResponse.json();
+
+        if (!uploadResponse.ok || !uploadResult.success) {
+            throw new Error(uploadResult.message || "Failed to upload your ID.");
+        }
+
+        const response = await fetch(
+            `${API}/api/adoptions/${applicationStatus.applicationId}/documents`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    documents: [
+                        {
+                            documentName: file.name,
+                            documentUrl: uploadResult.imageUrl,
+                            publicId: uploadResult.publicId || "",
+                        },
+                    ],
+                }),
+            }
+        );
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to send your new ID.");
+        }
+
+        await fetchApplicationStatus();
+    }
+
     async function handleWithdrawApplication(reason) {
         if (!applicationStatus?.applicationId) return;
 
@@ -785,6 +857,7 @@ async function fetchPets({ silent = false } = {}) {
                         application.animalId?.image ||
                         "",
                     submittedAt: application.createdAt,
+                    updatedAt: application.updatedAt,
                     closedAt:
                         application.withdrawnAt ||
                         application.reviewedAt ||
@@ -1252,6 +1325,7 @@ async function fetchPets({ silent = false } = {}) {
                     error={applicationError}
                     onRefresh={fetchApplicationStatus}
                     onWithdraw={handleWithdrawApplication}
+                    onResubmitDocuments={handleResubmitDocuments}
                     history={applicationHistory}
                     onBrowsePets={() =>
                         setActiveAdopterPage("browse-pets")
@@ -1318,6 +1392,11 @@ async function fetchPets({ silent = false } = {}) {
                     onTakeQuiz={() =>
                         setActiveAdopterPage("matchmaking-quiz")
                     }
+                    onBrowsePets={() => setActiveAdopterPage("browse-pets")}
+                    onViewPet={(pet) => {
+                        setSelectedPet(pet);
+                        setActiveAdopterPage("browse-pets");
+                    }}
                 />
             );
         }
@@ -1404,7 +1483,25 @@ async function fetchPets({ silent = false } = {}) {
             const url = String(args[0]?.url || args[0] || "");
 
             if (response.status === 401 && API && url.startsWith(API)) {
-                setSignedOut(true);
+                //deactivated accounts are marked by the server so we can show the right screen
+                let disabled = false;
+                try {
+                    disabled = Boolean((await response.clone().json())?.accountDisabled);
+                } catch {
+                    // not a JSON answer
+                }
+                setSignedOut((current) => (current === "disabled" || disabled ? "disabled" : true));
+            }
+            // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
+            if (response.status === 503 && API && url.startsWith(API)) {
+                try {
+                    const body = await response.clone().json();
+                    if (body?.maintenance) {
+                        setMaintenance(body.message || "RescueBase is under maintenance.");
+                    }
+                } catch {
+                    // not a JSON answer
+                }
             }
 
             return response;
@@ -1451,6 +1548,52 @@ async function fetchPets({ silent = false } = {}) {
         return () => clearInterval(interval);
     }, []);
     
+    // Account was deactivated by an admin
+    if (signedOut === "disabled") {
+        return (
+            <main className="adopter-signed-out">
+                <section className="adopter-signed-out-card">
+                    <div className="adopter-signed-out-icon is-blocked">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M5.6 5.6l12.8 12.8" />
+                        </svg>
+                    </div>
+                    <h2>Your account has been deactivated</h2>
+                    <p>An admin turned off this account, so you've been signed out.</p>
+                    <p className="adopter-signed-out-note">
+                        Think this is a mistake? Please contact the shelter staff.
+                    </p>
+                    <button type="button" onClick={handleLoginAgain}>
+                        Back to home
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
+    if (maintenance && !signedOut && !isWrongRole) {
+        return (
+            <main className="adopter-signed-out">
+                <section className="adopter-signed-out-card">
+                    <div className="adopter-signed-out-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z" />
+                        </svg>
+                    </div>
+                    <h2>We'll be right back</h2>
+                    <p>{maintenance}</p>
+                    <button type="button" onClick={() => window.location.reload()}>
+                        Check again
+                    </button>
+                    <button type="button" className="adopter-signed-out-link" onClick={handleLoginAgain}>
+                        Log out
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
     if (signedOut || isWrongRole) {
         return (
             <main className="adopter-signed-out">
@@ -1493,11 +1636,16 @@ async function fetchPets({ silent = false } = {}) {
                         alt="RescueBase logo"
                     />
 
-                    <span>RescueBase</span>
+                    <span>
+                        RescueBase
+                        {isFoster && <small>Adopter view</small>}
+                    </span>
                 </button>
 
                 <nav className="adopter-menu">
-                    {adopterMenu.map((item) => {
+                    {adopterMenu
+                        .filter((item) => !(isFoster && item.key === "role-application"))
+                        .map((item) => {
                         const isActive =
                             activeAdopterPage ===
                             item.key;
@@ -1556,6 +1704,33 @@ async function fetchPets({ silent = false } = {}) {
                             </div>
                         );
                     })}
+
+                    {isFoster && (
+                        <div className="adopter-menu-group">
+                            <button
+                                type="button"
+                                title="Foster Dashboard"
+                                className="adopter-menu-switch"
+                                onClick={() => onOpenFoster?.()}
+                            >
+                                <div className="adopter-menu-text">
+                                    <img
+                                        className="adopter-menu-icon icon-default"
+                                        src={ICON_PATH + "return-brown.svg"}
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
+                                    <img
+                                        className="adopter-menu-icon icon-active"
+                                        src={ICON_PATH + "return-light.svg"}
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
+                                    <strong>Back to Foster Dashboard</strong>
+                                </div>
+                            </button>
+                        </div>
+                    )}
                 </nav>
 
                 <button

@@ -1,6 +1,7 @@
 import {
-    useEffect, useState
+    useEffect, useRef, useState
 } from "react"
+import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -12,7 +13,15 @@ function askConfirm(options) {
         : Promise.resolve(window.confirm(options.title));
 }
 
+// An edited application counts as unseen again until the admin opens it
+function seenKey(application) {
+    return application.lastEditedAt
+        ? `${application._id}@${application.lastEditedAt}`
+        : application._id;
+}
+
 const emptyAssignmentForm = {
+    animalId: "",
     fosterApplicationId: "",
     fosterName: "",
     fosterEmail: "",
@@ -95,6 +104,122 @@ function StatIcon({ name, size = 15 }) {
         </svg>
     );
 }
+
+// ----- Care instructions as a checklist -----
+// Each row is saved as one line; the foster sees every line as a checklist item.
+const CARE_PRESETS = [
+    "Feed twice a day",
+    "Fresh water at all times",
+    "Daily walk or playtime",
+    "Give medicine as prescribed",
+    "Keep indoors at night",
+    "Submit a weekly update",
+];
+
+function CareChecklistInput({ value, onChange }) {
+    const rows = String(value || "").split("\n");
+    const inputsRef = useRef([]);
+    const [focusIndex, setFocusIndex] = useState(null);
+
+    // Move the cursor to a row after adding/removing one
+    useEffect(() => {
+        if (focusIndex === null) return;
+        inputsRef.current[focusIndex]?.focus();
+        setFocusIndex(null);
+    }, [focusIndex, value]);
+
+    function save(next) {
+        onChange(next.join("\n"));
+    }
+
+    function editRow(index, text) {
+        const next = [...rows];
+        next[index] = text.replace(/\n/g, " ");
+        save(next);
+    }
+
+    function addRow(afterIndex = rows.length - 1, text = "") {
+        const next = [...rows];
+        next.splice(afterIndex + 1, 0, text);
+        save(next);
+        setFocusIndex(afterIndex + 1);
+    }
+
+    function removeRow(index) {
+        const next = rows.filter((_, i) => i !== index);
+        save(next.length ? next : [""]);
+        setFocusIndex(Math.max(0, index - 1));
+    }
+
+    function addPreset(text) {
+        const filled = rows.filter((row) => row.trim());
+        save([...filled, text]);
+    }
+
+    function handleKeyDown(event, index) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            addRow(index);
+        }
+
+        if (event.key === "Backspace" && !rows[index] && rows.length > 1) {
+            event.preventDefault();
+            removeRow(index);
+        }
+    }
+
+    const used = rows.map((row) => row.trim().toLowerCase());
+
+    return (
+        <div className="acl">
+            <ul className="acl-list">
+                {rows.map((row, index) => (
+                    <li key={index} className="acl-row">
+                        <span className="acl-check" aria-hidden="true">
+                            <StatIcon name="check" size={12} />
+                        </span>
+                        <input
+                            ref={(element) => { inputsRef.current[index] = element; }}
+                            value={row}
+                            onChange={(event) => editRow(index, event.target.value)}
+                            onKeyDown={(event) => handleKeyDown(event, index)}
+                            placeholder={index === 0 ? "e.g. Feed twice a day" : "Another instruction"}
+                            maxLength={120}
+                            aria-label={`Care instruction ${index + 1}`}
+                        />
+                        <button
+                            type="button"
+                            className="acl-remove"
+                            onClick={() => removeRow(index)}
+                            aria-label={`Remove instruction ${index + 1}`}
+                            disabled={rows.length === 1 && !row}
+                        >
+                            <StatIcon name="x" size={12} />
+                        </button>
+                    </li>
+                ))}
+            </ul>
+
+            <button type="button" className="acl-add" onClick={() => addRow()}>
+                + Add instruction
+            </button>
+
+            <div className="acl-presets">
+                <small>Quick add:</small>
+                {CARE_PRESETS.map((preset) => (
+                    <button
+                        key={preset}
+                        type="button"
+                        onClick={() => addPreset(preset)}
+                        disabled={used.includes(preset.toLowerCase())}
+                    >
+                        + {preset}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+}
 export default function FosterCare() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -115,12 +240,147 @@ export default function FosterCare() {
     }, [reviewingApplication]);
 
     const [reviewingRequest, setReviewingRequest] = useState(null);
+
+    // Early return requested by a foster (Confirm / Decline pop-up)
+    const [earlyReturn, setEarlyReturn] = useState(null);
+    const [earlyReturnNote, setEarlyReturnNote] = useState("");
+    const [earlyReturnError, setEarlyReturnError] = useState("");
+    const [earlyReturnBusy, setEarlyReturnBusy] = useState(false);
+
+    function openEarlyReturn(assignment) {
+        setEarlyReturn(assignment);
+        setEarlyReturnNote("");
+        setEarlyReturnError("");
+    }
+
+    async function handleEarlyReturn(action) {
+        if (!earlyReturn) return;
+
+        if (action === "decline" && !earlyReturnNote.trim()) {
+            setEarlyReturnError("Add a note so the foster knows why.");
+            return;
+        }
+
+        try {
+            setEarlyReturnBusy(true);
+            setEarlyReturnError("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${earlyReturn._id}/return-request`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ action, adminNote: earlyReturnNote }),
+                }
+            );
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setEarlyReturnError(data.message || "Could not update the request.");
+                return;
+            }
+
+            setEarlyReturn(null);
+            setMessage(data.message);
+            fetchAssignments();
+            fetchAnimals();
+        } catch (error) {
+            console.error(error);
+            setEarlyReturnError("Server error. Please try again.");
+        } finally {
+            setEarlyReturnBusy(false);
+        }
+    }
     const [assigningApplication, setAssigningApplication] = useState(null);
     const token = localStorage.getItem("token")
 
     const [assignmentForm, setAssignmentForm] =
         useState(emptyAssignmentForm);
+    const [animalsLoading, setAnimalsLoading] = useState(false);
     const [applications, setApplications] = useState([]);
+    
+    const SEEN_KEY = "rb_seen_foster_apps";
+    const [seenAppIds, setSeenAppIds] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem(SEEN_KEY) || "null");
+        } catch {
+            return null;
+        }
+    });
+
+    function saveSeen(ids) {
+        setSeenAppIds(ids);
+        try {
+            localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+        } catch {
+            // ignore storage errors
+        }
+    }
+
+    function markAppSeen(application) {
+        const key = seenKey(application);
+        if (seenAppIds?.includes(key)) return;
+        saveSeen([...(seenAppIds || []), key]);
+    }
+
+    function markAllAppsSeen() {
+        saveSeen(applications.map(seenKey));
+    }
+
+    // Animals for the "Animal" dropdown (assignments link to a real animal)
+   
+    // "Send back" form on a pending behavior evaluation
+    const [returningId, setReturningId] = useState(null);
+    const [returnReason, setReturnReason] = useState("");
+    const [returnError, setReturnError] = useState("");
+
+    async function fetchAnimals() {
+        try {
+            const response = await fetch(`${API}/api/animals`);
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setAnimals(data.animals || []);
+            }
+        } catch (error) {
+            console.error("Fetch animals error:", error);
+        }
+    }
+
+    // Animals that can be fostered: not adopted and not already with a foster
+    // (the one in the assignment being edited stays in the list)
+    function fosterableAnimals(keepId = "") {
+        const busy = new Set(
+            assignments
+                .filter((item) => item.status === "active" && item.animalId)
+                .map((item) => String(item.animalId))
+        );
+
+        return animals.filter(
+            (animal) =>
+                String(animal._id) === String(keepId) ||
+                (animal.adoptionStatus !== "adopted" && !busy.has(String(animal._id)))
+        );
+    }
+
+    function pickAnimal(animalId) {
+        const animal = animals.find((item) => String(item._id) === String(animalId));
+
+        setAssignmentForm((current) => ({
+            ...current,
+            animalId,
+            petName: animal?.name || "",
+            petBreed: animal?.breed || "",
+            petImage: animal?.image || "",
+        }));
+    }
+
+    function animalLabel(animal) {
+        return `${animal.name} · ${animal.type || "Pet"}${animal.breed ? ` · ${animal.breed}` : ""}`;
+    }
 
     async function fetchAssignments() {
         try {
@@ -163,14 +423,25 @@ export default function FosterCare() {
             });
             const data = await response.json();
 
-            console.log("Foster applications:", data);
-
             if (!response.ok || !data.success) {
                 setMessage(data.message || "Failed to fetch foster applications.");
                 return;
             }
 
-            setApplications(data.applications || []);
+            const list = data.applications || [];
+            setApplications(list);
+
+            // First visit ever: don't flag old applications as new
+            setSeenAppIds((current) => {
+                if (current !== null) return current;
+                const ids = list.map(seenKey);
+                try {
+                    localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+                } catch {
+                    // ignore storage errors
+                }
+                return ids;
+            });
         } catch (error) {
             console.error("Fetch foster applications error:", error);
             setMessage("Server error while fetching foster applications.");
@@ -229,7 +500,7 @@ export default function FosterCare() {
 
                 message:
                     status === "approved"
-                        ? "Congratulations! Your foster application has been approved. You can now receive foster assignments."
+                        ? "Congratulations! Your foster application has been approved. Please log out and log in again to open your Foster Dashboard."
                         : `Unfortunately, your foster application was not approved. Reason: ${note.trim()}`,
 
                 type: "application_update",
@@ -241,58 +512,6 @@ export default function FosterCare() {
             console.error("Review foster application error:", error);
             setMessage("Server error while reviewing foster application.");
             return false;
-        }
-    }
-
-    async function handleCompleteAssignment(id) {
-        try {
-            const savedUser = JSON.parse(
-                localStorage.getItem("rescuebase_user") || "{}"
-            );
-
-            const response = await fetch(`${API}/api/foster/assignments/${id}/complete`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    adminName: savedUser.name || savedUser.username || "Admin User",
-                    adminEmail: savedUser.email || "admin",
-                }),
-            });
-
-            const data = await response.json();
-
-            console.log("Complete foster assignment:", data);
-            console.log("Returned status:", data.assignment?.status);
-
-            if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to complete assignment.");
-                return;
-            }
-
-            setMessage("Foster assignment completed.");
-
-            await sendNotification({
-                email: data.assignment.fosterEmail,
-                title: "Foster Assignment Completed",
-                message: `Your foster assignment for ${data.assignment.petName} has been marked as completed. Thank you for helping RescueBase.`,
-                type: "foster_update",
-            });
-
-            setAssignments((current) =>
-                current.map((assignment) =>
-                    assignment._id === id
-                        ? { ...assignment, ...data.assignment }
-                        : assignment
-                )
-            );
-
-            fetchAssignments();
-        } catch (error) {
-            console.error("Complete foster assignment error:", error);
-            setMessage("Server error while completing assignment.");
         }
     }
 
@@ -331,6 +550,58 @@ export default function FosterCare() {
         } catch (error) {
             console.error("Accept behavioral evaluation error:", error);
             setMessage("Server error while accepting behavioral evaluation");
+        }
+    }
+
+    function startReturn(id) {
+        setReturningId(id);
+        setReturnReason("");
+        setReturnError("");
+    }
+
+    async function handleReturnBehaviorEvaluation(id) {
+        if (!returnReason.trim()) {
+            setReturnError("Please write what the foster should fix. They will see it.");
+            return;
+        }
+
+        try {
+            setMessage("");
+
+            const response = await fetch(
+                `${API}/api/foster/assignments/${id}/behavior-evaluation/return`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ reason: returnReason.trim() }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setReturnError(data.message || "Failed to send the evaluation back.");
+                return;
+            }
+
+            setMessage("Behavioral evaluation sent back to the foster for revision.");
+
+            await sendNotification({
+                email: data.assignment.fosterEmail,
+                title: "Behavior Evaluation Needs Changes",
+                message: `Your behavioral evaluation for ${data.assignment.petName} was sent back. Reason: ${returnReason.trim()}`,
+                type: "foster_update",
+            });
+
+            setReturningId(null);
+            setReturnReason("");
+            await fetchAssignments();
+        } catch (error) {
+            console.error("Return behavioral evaluation error:", error);
+            setReturnError("Server error while sending the evaluation back.");
         }
     }
 
@@ -373,6 +644,9 @@ export default function FosterCare() {
             fosterEmail:
                 assignment.fosterEmail,
 
+            animalId:
+                assignment.animalId || "",
+
             petName:
                 assignment.petName,
 
@@ -386,9 +660,8 @@ export default function FosterCare() {
                 assignment.careInstructions,
         });
 
-        setMessage(
-            "Editing assignment."
-        );
+        setMessage("");
+        fetchAnimals();
     }
 
     function handleCancelEdit() {
@@ -456,6 +729,11 @@ export default function FosterCare() {
     async function handleCreateAssignment(e) {
         e.preventDefault();
 
+        if (!assignmentForm.animalId) {
+            setMessage("Please choose an animal from the list.");
+            return;
+        }
+
         try {
             setSubmitting(true);
             setMessage("");
@@ -500,7 +778,7 @@ export default function FosterCare() {
             await sendNotification({
                 email: assignmentForm.fosterEmail,
                 title: "New Foster Assignment",
-                message: `You have been assigned to foster ${assignmentForm.petName}. Please log in to RescueBase to review your assignment.`,
+                message: `You have been assigned to foster ${data.assignment.petName}. Please log in to RescueBase to review your assignment.`,
                 type: "foster_update",
             });
 
@@ -679,6 +957,24 @@ export default function FosterCare() {
         fetchAssignments();
         fetchFosterApplications();
         fetchMedicalRequests();
+        fetchAnimals();
+    }, []);
+
+
+    // Check for new applications every 10 seconds, and right away when the admin comes back to the tab
+    useEffect(() => {
+        const interval = setInterval(fetchFosterApplications, 10000);
+
+        function handleVisible() {
+            if (document.visibilityState === "visible") fetchFosterApplications();
+        }
+
+        document.addEventListener("visibilitychange", handleVisible);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", handleVisible);
+        };
     }, []);
 
     // ----- Foster Applications -----
@@ -691,6 +987,31 @@ export default function FosterCare() {
     const pendingApplicationCount = applications.filter(
         (application) => application.status === "pending"
     ).length;
+
+
+    // Pending applications (or approved ones the foster edited) this admin hasn't opened yet
+    const newApplicationIds = applications
+        .filter((application) =>
+            (application.status === "pending" ||
+                (application.status === "approved" && application.lastEditedAt)) &&
+            seenAppIds !== null &&
+            !seenAppIds.includes(seenKey(application))
+        )
+        .map((application) => application._id);
+
+    const newApplicationCount = newApplicationIds.length;
+
+    // Show the count in the browser tab, e.g. "(2) RescueBase"
+    useEffect(() => {
+        const baseTitle = document.title.replace(/^\(\d+\)\s*/, "");
+        document.title = newApplicationCount > 0
+            ? `(${newApplicationCount}) ${baseTitle}`
+            : baseTitle;
+
+        return () => {
+            document.title = document.title.replace(/^\(\d+\)\s*/, "");
+        };
+    }, [newApplicationCount]);
 
     const visibleApplications =
         appFilter === "all"
@@ -710,9 +1031,33 @@ export default function FosterCare() {
         return used >= (Number(application.capacity) || 1);
     }
 
+    // Pets that can still be fostered (not adopted, not already in foster)
+    async function fetchAssignableAnimals() {
+        try {
+            setAnimalsLoading(true);
+            const response = await fetch(`${API}/api/animals`);
+            const data = await response.json();
+            const list = Array.isArray(data.animals) ? data.animals : [];
+
+            setAnimals(
+                list.filter(
+                    (animal) =>
+                        animal.adoptionStatus !== "adopted" &&
+                        animal.fosterStatus !== "in_foster"
+                )
+            );
+        } catch (error) {
+            console.error(error);
+            setAnimals([]);
+        } finally {
+            setAnimalsLoading(false);
+        }
+    }
+
     // Assign: open the "New Foster Assignment" pop-up for this foster
     function startAssign(application) {
         setMessage("");
+        fetchAssignableAnimals();
         setAssignmentForm({
             ...emptyAssignmentForm,
             fosterApplicationId: application._id,
@@ -761,6 +1106,7 @@ export default function FosterCare() {
         { value: "all", label: "All" },
         { value: "active", label: "Active" },
         { value: "completed", label: "Completed" },
+        { value: "returned", label: "Returned" },
     ];
 
     const PET_TINTS = ["is-orange", "is-plum", "is-sage", "is-sky"];
@@ -978,7 +1324,10 @@ export default function FosterCare() {
                         </div>
 
                         {visibleAssignments.map((assignment, index) => (
-                            <article className="afl-item" key={assignment._id}>
+                                <article
+                                    className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" ? "is-new" : ""}`}
+                                    key={assignment._id}
+                                >
                                 <div className="afl-row">
                                     <div className="afl-pet">
                                         <span className={`afl-avatar ${PET_TINTS[index % PET_TINTS.length]}`}>
@@ -1014,23 +1363,25 @@ export default function FosterCare() {
                                         {assignment.behaviorEvaluation?.status === "pending" && (
                                             <span className="afl-flag">Evaluation to review</span>
                                         )}
+                                        {assignment.returnRequest?.status === "pending" && (
+                                            <span className="afl-flag is-return">
+                                                Return requested{assignment.returnRequest.urgent ? " · Urgent" : ""}
+                                            </span>
+                                        )}                                        
                                     </div>
 
                                     <div className="afl-actions">
                                         {assignment.status === "active" ? (
                                             <>
-                                                {assignment.behaviorEvaluation?.status === "accepted" && (
+                                            {assignment.returnRequest?.status === "pending" && (
                                                     <button
                                                         type="button"
-                                                        className="afl-icon-btn"
-                                                        title="Mark completed"
-                                                        aria-label={`Complete ${assignment.petName}'s assignment`}
-                                                        onClick={() => handleCompleteAssignment(assignment._id)}
+                                                        className="afl-return-btn"
+                                                        onClick={() => openEarlyReturn(assignment)}
                                                     >
-                                                        <StatIcon name="check" />
+                                                        Review return
                                                     </button>
-                                                )}
-
+                                            )}
                                                 <button
                                                     type="button"
                                                     className="afl-icon-btn"
@@ -1120,12 +1471,58 @@ export default function FosterCare() {
                                             )}
                                         </div>
 
-                                        <button
-                                            type="button"
-                                            onClick={() => handleAcceptBehaviorEvaluation(assignment._id)}
-                                        >
-                                            Accept Evaluation
-                                        </button>
+                                        {returningId === assignment._id ? (
+                                            <div className="afl-eval-return">
+                                                <label className="afr-reason">
+                                                    <span>
+                                                        What should the foster fix? <em>(shown to the foster)</em>
+                                                    </span>
+                                                    <textarea
+                                                        rows="2"
+                                                        value={returnReason}
+                                                        onChange={(e) => {
+                                                            setReturnReason(e.target.value);
+                                                            setReturnError("");
+                                                        }}
+                                                        placeholder="e.g. Aggression looks too high compared to the shelter notes. Please re-check."
+                                                        maxLength={300}
+                                                    />
+                                                    {returnError && <small className="afr-reason-error">{returnError}</small>}
+                                                </label>
+
+                                                <div className="afl-eval-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="is-ghost"
+                                                        onClick={() => setReturningId(null)}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleReturnBehaviorEvaluation(assignment._id)}
+                                                    >
+                                                        Send back
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="afl-eval-actions">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAcceptBehaviorEvaluation(assignment._id)}
+                                                >
+                                                    Accept Evaluation
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="is-ghost"
+                                                    onClick={() => startReturn(assignment._id)}
+                                                >
+                                                    Send back for revision
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </article>
@@ -1139,8 +1536,8 @@ export default function FosterCare() {
                     <div>
                         <h2>
                             Foster Applications
-                            {pendingApplicationCount > 0 && (
-                                <span className="afc-new">{pendingApplicationCount} new</span>
+                            {newApplicationCount > 0 && (
+                                <span className="afc-new">{newApplicationCount} new</span>
                             )}
                         </h2>
                         <p>Review caregivers, then assign animals to approved fosters.</p>
@@ -1160,7 +1557,38 @@ export default function FosterCare() {
                     </div>
                 </div>
 
+                {newApplicationCount > 0 && (
+                    <div className="afa-new-banner" role="status">
+                        <span className="afa-new-dot" aria-hidden="true" />
+                        <p>
+                            <b>
+                                {newApplicationCount === 1
+                                    ? "1 new foster application"
+                                    : `${newApplicationCount} new foster applications`}
+                            </b>
+                            <b>
+                                {newApplicationCount === 1
+                                    ? "1 new or updated foster application"
+                                    : `${newApplicationCount} new or updated foster applications`}
+                            </b>
+                            {" "}to review.
+                        </p>
+                        <button type="button" onClick={markAllAppsSeen}>
+                            Mark all as seen
+                        </button>
+                    </div>
+                )}
+
                 <div className="afa-list">
+                        {visibleApplications.length > 0 && (
+                        <div className="afa-head" aria-hidden="true">
+                            <span />
+                            <span>Applicant</span>
+                            <span>Preferences</span>
+                            <span>Status</span>
+                            <span className="afl-right">Actions</span>
+                        </div>
+                    )}
                     {visibleApplications.length === 0 ? (
                         <p className="afc-empty">
                             {appFilter === "all"
@@ -1170,15 +1598,22 @@ export default function FosterCare() {
                     ) : (
                         visibleApplications.map((application) => {
                             const full = application.status === "approved" && isFosterFull(application);
+                            const isNew = newApplicationIds.includes(application._id);
 
                             return (
-                                <article className="afa-row" key={application._id}>
+                                <article className={`afa-row ${isNew ? "is-new" : ""}`} key={application._id}>
                                     <span className="afc-initials" aria-hidden="true">
                                         {getInitials(application.applicantName)}
                                     </span>
 
                                     <div className="afa-person">
-                                        <b>{application.applicantName}</b>
+                                        <b>{application.applicantName}
+                                            {isNew && (
+                                                <span className="afa-new-tag">
+                                                    {application.lastEditedAt ? "Updated" : "New"}
+                                                </span>
+                                            )}
+                                        </b>
                                         <small>{application.applicantEmail}</small>
                                     </div>
 
@@ -1200,7 +1635,10 @@ export default function FosterCare() {
                                         <button
                                             type="button"
                                             className="afa-review"
-                                            onClick={() => setReviewingApplication(application)}
+                                            onClick={() => { 
+                                                markAppSeen(application);
+                                                setReviewingApplication(application)}
+                                            }
                                         >
                                             Review
                                         </button>
@@ -1276,6 +1714,21 @@ export default function FosterCare() {
 
                         {/* Body */}
                         <div className="afr-body">
+                            {reviewingApplication.lastEditedAt &&
+                                reviewingApplication.editedFields?.length > 0 && (
+                                <p className="afr-note is-updated">
+                                    <StatIcon name="info" size={16} />
+                                    <span>
+                                        Updated by the applicant on{" "}
+                                        {new Date(reviewingApplication.lastEditedAt).toLocaleDateString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                            year: "numeric",
+                                        })}
+                                        : <b>{reviewingApplication.editedFields.join(", ")}</b>
+                                    </span>
+                                </p>
+                            )}
                             <div className="afr-facts">
                                 <div className="afr-fact">
                                     <span className="afr-fact-icon">
@@ -1347,24 +1800,28 @@ export default function FosterCare() {
                                 <summary>Full application details</summary>
 
                                 <div className="afa-detail-grid">
-                                    <p><span>Phone</span>{reviewingApplication.phoneNumber || "—"}</p>
+                                    <p className="afa-detail-full">
+                                        <span>Experience</span>
+                                        {reviewingApplication.fosterExperience || "—"}
+                                    </p>
+                                    <p><span>Phone</span>{reviewingApplication.phoneNumber ? `+63 ${reviewingApplication.phoneNumber}` : "—"}</p>
                                     <p><span>Address</span>{reviewingApplication.address || "—"}</p>
                                     <p><span>Housing</span>{reviewingApplication.housingType || "—"}</p>
-                                    <p><span>Available space</span>{reviewingApplication.availableSpace || "—"}</p>
+                                    <p><span>Pet-friendly home</span>{yesNo(reviewingApplication.petFriendly)}</p>
                                     <p><span>Has pets</span>{yesNo(reviewingApplication.hasPets)}</p>
                                     <p><span>Has children</span>{yesNo(reviewingApplication.hasChildren)}</p>
                                     <p><span>Duration</span>{reviewingApplication.fosterDuration || "—"}</p>
                                     <p><span>Preferred size</span>{reviewingApplication.preferredSize || "—"}</p>
-                                    <p><span>Available time</span>{reviewingApplication.availableTime || "—"}</p>
-                                    <p><span>Experience</span>{reviewingApplication.fosterExperience || "—"}</p>
-                                    <p><span>Emergency contact</span>{reviewingApplication.emergencyName || "—"}</p>
-                                    <p>
-                                        <span>Emergency phone</span>
-                                        {reviewingApplication.emergencyPhone || "—"}
+                                    <p><span>Emergency contact</span>{reviewingApplication.emergencyName || "—"}
                                         {reviewingApplication.emergencyRelationship
                                             ? ` (${reviewingApplication.emergencyRelationship})`
                                             : ""}
                                     </p>
+                                    <p>
+                                        <span>Emergency phone</span>
+                                        {reviewingApplication.emergencyPhone ? `+63 ${reviewingApplication.emergencyPhone}` : "—"}
+                                    </p>
+                                    
                                 </div>
                             </details>
 
@@ -1526,54 +1983,105 @@ export default function FosterCare() {
                             </div>
 
                             <div className="afr-form">
-                                <label>
-                                    <span>Pet name <em>*</em></span>
-                                    <input
-                                        value={assignmentForm.petName}
-                                        onChange={(e) =>
-                                            setAssignmentForm({ ...assignmentForm, petName: e.target.value })
-                                        }
-                                        placeholder="e.g. Bantay"
-                                        required
-                                    />
-                                </label>
+                                {(() => {
+                                    const prefers = assigningApplication.preferredAnimalType;
+                                    const fits = (animal) =>
+                                        !prefers || prefers === "Both" ? true : animal.type === prefers;
+                                    const matching = animals.filter(fits);
+                                    const others = animals.filter((animal) => !fits(animal));
+                                    const petOption = (animal) => (
+                                        <option key={animal._id} value={animal._id}>
+                                            {animal.name} — {animal.type}
+                                            {animal.breed ? `, ${animal.breed}` : ""}
+                                        </option>
+                                    );
 
-                                <label>
-                                    Breed
-                                    <input
-                                        value={assignmentForm.petBreed}
-                                        onChange={(e) =>
-                                            setAssignmentForm({ ...assignmentForm, petBreed: e.target.value })
-                                        }
-                                        placeholder="e.g. Aspin"
-                                    />
-                                </label>
+                                    return (
+                                        <label className="is-wide">
+                                            <span>Pet <em>*</em></span>
+                                            <select
+                                                value={assignmentForm.animalId}
+                                                onChange={(e) => pickAnimal(e.target.value)}
+                                                disabled={animalsLoading}
+                                                required
+                                            >
+                                                <option value="">
+                                                    {animalsLoading
+                                                        ? "Loading pets..."
+                                                        : animals.length
+                                                            ? "Select a registered pet"
+                                                            : "No pets available for foster"}
+                                                </option>
 
-                                <label className="is-wide">
-                                    Pet image URL
-                                    <input
-                                        value={assignmentForm.petImage}
-                                        onChange={(e) =>
-                                            setAssignmentForm({ ...assignmentForm, petImage: e.target.value })
-                                        }
-                                        placeholder="https://..."
-                                    />
-                                </label>
+                                                {others.length > 0 && matching.length > 0 ? (
+                                                    <>
+                                                        <optgroup label={`Matches preference (${PREFERS_LABEL[prefers] || prefers})`}>
+                                                            {matching.map(petOption)}
+                                                        </optgroup>
+                                                        <optgroup label="Other pets">
+                                                            {others.map(petOption)}
+                                                        </optgroup>
+                                                    </>
+                                                ) : (
+                                                    animals.map(petOption)
+                                                )}
+                                            </select>
+                                        </label>
+                                    );
+                                })()}
 
-                                <label className="is-wide">
+                                {(() => {
+                                    const pet = animals.find((animal) => animal._id === assignmentForm.animalId);
+                                    if (!pet) return null;
+
+                                    const tags = [
+                                        pet.type,
+                                        pet.age ? `${pet.age} ${pet.age === 1 ? "yr" : "yrs"}` : "",
+                                        pet.gender !== "Unknown" ? pet.gender : "",
+                                        pet.size !== "Unknown" ? pet.size : "",
+                                        pet.color,
+                                    ].filter(Boolean);
+
+                                    return (
+                                        <div className="afr-pet">
+                                            <span className="afr-pet-photo">
+                                                {pet.image ? <img src={pet.image} alt={pet.name} /> : <StatIcon name="paw" size={26} />}
+                                            </span>
+
+                                            <div className="afr-pet-info">
+                                                <b>{pet.name}</b>
+                                                <small>{pet.breed || "Unknown breed"}</small>
+                                                <div className="afr-pet-tags">
+                                                    {tags.map((tag) => <span key={tag}>{tag}</span>)}
+                                                </div>
+                                            </div>
+
+                                            <dl className="afr-pet-notes">
+                                                <div>
+                                                    <dt>Medical</dt>
+                                                    <dd>{pet.medicalStatus || "No notes"}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Behavior</dt>
+                                                    <dd>{pet.behaviorNotes || "No notes"}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    );
+                                })()}
+
+                            <div className="is-wide acl-field">
+                                <span className="acl-label">
                                     Care instructions
-                                    <textarea
-                                        rows="3"
-                                        value={assignmentForm.careInstructions}
-                                        onChange={(e) =>
-                                            setAssignmentForm({
-                                                ...assignmentForm,
-                                                careInstructions: e.target.value,
-                                            })
-                                        }
-                                        placeholder="Provide food, water, shelter, and weekly updates."
-                                    />
-                                </label>
+                                    <InfoTip text="Press Enter for a new line. The foster sees each line as a checklist item." />
+                                </span>
+                                <CareChecklistInput
+                                    value={assignmentForm.careInstructions}
+                                    onChange={(text) =>
+                                        setAssignmentForm((form) => ({ ...form, careInstructions: text }))
+                                    }
+                                />
+                            </div>
                             </div>
 
                             {message ? (
@@ -1609,106 +2117,147 @@ export default function FosterCare() {
                 </div>
             )}
 
-            {editingId && (
+            {editingId && (() => {
+                const editing = assignments.find((item) => item._id === editingId) || {};
+                const pet = animals.find((animal) => String(animal._id) === String(assignmentForm.animalId));
 
-                <section className="admin-panel">
+                return (
+                    <div className="admin-modal-overlay" onClick={handleCancelEdit}>
+                        <form
+                            className="afr-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`Edit ${editing.petName || "foster"} assignment`}
+                            onClick={(event) => event.stopPropagation()}
+                            onSubmit={handleUpdateAssignment}
+                        >
+                            {/* Header */}
+                            <header className="afr-head">
+                                <span className="afr-avatar" aria-hidden="true">
+                                    {getInitials(editing.fosterName || "")}
+                                </span>
 
-                    <div className="admin-panel-heading">
+                                <div className="afr-who">
+                                    <span className="afr-eyebrow">Edit Foster Assignment</span>
+                                    <h2>{editing.fosterName}</h2>
+                                    <small>
+                                        <StatIcon name="mail" size={14} />
+                                        {editing.fosterEmail}
+                                    </small>
+                                </div>
 
-                        <h2>Edit Foster Assignment</h2>
+                                <span className="afr-pill is-approved">
+                                    <i aria-hidden="true" />
+                                    Active
+                                </span>
 
+                                <button
+                                    type="button"
+                                    className="afr-close"
+                                    onClick={handleCancelEdit}
+                                    aria-label="Close"
+                                >
+                                    <StatIcon name="x" size={16} />
+                                </button>
+                            </header>
+
+                            {/* Body */}
+                            <div className="afr-body">
+                                <div className="afr-form">
+                                    <label className="is-wide">
+                                        <span>Animal <em>*</em></span>
+                                        <select
+                                            value={assignmentForm.animalId}
+                                            onChange={(e) => pickAnimal(e.target.value)}
+                                        >
+                                            {!assignmentForm.animalId && (
+                                                <option value="">
+                                                    {assignmentForm.petName || "Choose an animal"} (not linked)
+                                                </option>
+                                            )}
+                                            {fosterableAnimals(assignmentForm.animalId).map((animal) => (
+                                                <option key={animal._id} value={animal._id}>
+                                                    {animalLabel(animal)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
+
+                                    {pet && (
+                                        <div className="afr-pet">
+                                            <span className="afr-pet-photo">
+                                                {pet.image ? (
+                                                    <img src={pet.image} alt={pet.name} />
+                                                ) : (
+                                                    <StatIcon name="paw" size={26} />
+                                                )}
+                                            </span>
+
+                                            <div className="afr-pet-info">
+                                                <b>{pet.name}</b>
+                                                <small>{pet.breed || "Unknown breed"}</small>
+                                                <div className="afr-pet-tags">
+                                                    {[pet.type, pet.gender !== "Unknown" ? pet.gender : "", pet.size !== "Unknown" ? pet.size : ""]
+                                                        .filter(Boolean)
+                                                        .map((tag) => <span key={tag}>{tag}</span>)}
+                                                </div>
+                                            </div>
+
+                                            <dl className="afr-pet-notes">
+                                                <div>
+                                                    <dt>Medical</dt>
+                                                    <dd>{pet.medicalStatus || "No notes"}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Behavior</dt>
+                                                    <dd>{pet.behaviorNotes || "No notes"}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    )}
+
+                                <div className="is-wide acl-field">
+                                    <span className="acl-label">
+                                        Care instructions
+                                        <InfoTip text="Press Enter for a new line. The foster sees each line as a checklist item." />
+                                    </span>
+                                    <CareChecklistInput
+                                        value={assignmentForm.careInstructions}
+                                        onChange={(text) =>
+                                            setAssignmentForm((form) => ({ ...form, careInstructions: text }))
+                                        }
+                                    />
+                                </div>
+                                </div>
+
+                                {message ? (
+                                    <p className="afr-note is-rejected">
+                                        <StatIcon name="info" size={16} />
+                                        {message}
+                                    </p>
+                                ) : (
+                                    <p className="afr-note is-approved">
+                                        <StatIcon name="info" size={16} />
+                                        Write each care instruction on a separate line so the foster can easily check them off one by one.
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <footer className="afr-foot">
+                                <button type="button" className="afr-btn is-ghost" onClick={handleCancelEdit}>
+                                    Cancel
+                                </button>
+
+                                <button type="submit" className="afr-btn is-assign" disabled={submitting}>
+                                    <StatIcon name="check" size={16} />
+                                    {submitting ? "Saving..." : "Save Changes"}
+                                </button>
+                            </footer>
+                        </form>
                     </div>
-
-                    <form
-                        className="admin-foster-assignment-form"
-                        onSubmit={handleUpdateAssignment}
-                    >
-
-                        <label>
-
-                            Pet Name
-
-                            <input
-                                value={assignmentForm.petName}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petName: e.target.value
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <label>
-
-                            Breed
-
-                            <input
-                                value={assignmentForm.petBreed}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petBreed: e.target.value
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <label>
-
-                            Pet Image
-
-                            <input
-                                value={assignmentForm.petImage}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        petImage: e.target.value
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <label className="admin-foster-care-field">
-
-                            Care Instructions
-
-                            <textarea
-                                rows="4"
-                                value={assignmentForm.careInstructions}
-                                onChange={(e) =>
-                                    setAssignmentForm({
-                                        ...assignmentForm,
-                                        careInstructions: e.target.value
-                                    })
-                                }
-                            />
-
-                        </label>
-
-                        <div className="admin-foster-actions">
-
-                            <button type="submit">
-                                Save Changes
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={handleCancelEdit}
-                            >
-                                Cancel
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </section>
-
-            )}
+                );
+            })()}
         </div>
         <aside className="afc-side">
             <section className="admin-panel admin-medical-requests-panel amr-panel">
@@ -1781,6 +2330,161 @@ export default function FosterCare() {
             </section>
             </aside>
             </div>
+
+            {earlyReturn && (() => {
+                const request = earlyReturn.returnRequest || {};
+                const openMedical = (earlyReturn.medicalRequests || []).filter(
+                    (item) => item.status !== "resolved"
+                ).length;
+                const pet = animals.find((animal) => String(animal._id) === String(earlyReturn.animalId));
+                const longDate = (value) =>
+                    value
+                        ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                        : "—";
+
+                return (
+                    <div className="admin-modal-overlay" onClick={() => setEarlyReturn(null)}>
+                        <div
+                            className="afr-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`Return request for ${earlyReturn.petName}`}
+                            onClick={(event) => event.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <header className="afr-head">
+                                <span className="afr-avatar" aria-hidden="true">
+                                    {getInitials(earlyReturn.fosterName || "")}
+                                </span>
+
+                                <div className="afr-who">
+                                    <span className="afr-eyebrow">Return Request</span>
+                                    <h2>{earlyReturn.fosterName}</h2>
+                                    <small>
+                                        <StatIcon name="mail" size={14} />
+                                        {earlyReturn.fosterEmail}
+                                    </small>
+                                </div>
+
+                                <span className={`afr-pill ${request.urgent ? "is-rejected" : "is-pending"}`}>
+                                    <i aria-hidden="true" />
+                                    {request.urgent ? "Urgent" : "Pending"}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    className="afr-close"
+                                    onClick={() => setEarlyReturn(null)}
+                                    aria-label="Close"
+                                >
+                                    <StatIcon name="x" size={16} />
+                                </button>
+                            </header>
+
+                            {/* Body */}
+                            <div className="afr-body">
+                                <div className="afr-facts">
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="paw" size={16} /></span>
+                                        <div>
+                                            <small>Pet</small>
+                                            <b>{earlyReturn.petName}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="info" size={16} /></span>
+                                        <div>
+                                            <small>Reason</small>
+                                            <b>{request.reason || "—"}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="calendar" size={16} /></span>
+                                        <div>
+                                            <small>Requested</small>
+                                            <b>{longDate(request.requestedAt)}</b>
+                                        </div>
+                                    </div>
+                                    <div className="afr-fact">
+                                        <span className="afr-fact-icon"><StatIcon name="calendar" size={16} /></span>
+                                        <div>
+                                            <small>Preferred date</small>
+                                            <b>{longDate(request.preferredDate)}</b>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="afr-why">
+                                    <h3>Foster's notes</h3>
+                                    <p>{request.notes || "No notes given."}</p>
+                                </div>
+
+                                {(openMedical > 0 ||
+                                    pet?.adoptionStatus === "pending" ||
+                                    earlyReturn.behaviorEvaluation?.status !== "accepted") && (
+                                    <ul className="afr-return-warnings">
+                                        {openMedical > 0 && (
+                                            <li>
+                                                {openMedical} open medical {openMedical === 1 ? "request" : "requests"}. Follow up at handover.
+                                            </li>
+                                        )}
+                                        {pet?.adoptionStatus === "pending" && (
+                                            <li>{earlyReturn.petName} has a pending adoption application.</li>
+                                        )}
+                                        {earlyReturn.behaviorEvaluation?.status !== "accepted" && (
+                                            <li>No accepted behavior evaluation. The pet's behavior scores won't be updated.</li>
+                                        )}
+                                    </ul>
+                                )}
+
+                                <label className="afr-reason">
+                                    <span>
+                                        Note to the foster <em>(needed only to decline)</em>
+                                    </span>
+                                    <textarea
+                                        rows={3}
+                                        maxLength={500}
+                                        value={earlyReturnNote}
+                                        onChange={(event) => {
+                                            setEarlyReturnNote(event.target.value);
+                                            setEarlyReturnError("");
+                                        }}
+                                        placeholder="e.g. Please keep her until Saturday, we'll pick her up."
+                                    />
+                                    {earlyReturnError && <small className="afr-reason-error">{earlyReturnError}</small>}
+                                </label>
+
+                                <p className="afr-note is-approved">
+                                    <StatIcon name="info" size={16} />
+                                    Only confirm once {earlyReturn.petName} is physically back at the shelter.
+                                </p>
+                            </div>
+
+                            {/* Footer */}
+                            <footer className="afr-foot">
+                                <button
+                                    type="button"
+                                    className="afr-btn is-reject"
+                                    onClick={() => handleEarlyReturn("decline")}
+                                    disabled={earlyReturnBusy}
+                                >
+                                    Decline
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="afr-btn is-assign"
+                                    onClick={() => handleEarlyReturn("confirm")}
+                                    disabled={earlyReturnBusy}
+                                >
+                                    <StatIcon name="check" size={16} />
+                                    {earlyReturnBusy ? "Saving..." : "Confirm Return"}
+                                </button>
+                            </footer>
+                        </div>
+                    </div>
+                );
+            })()}
 
             {reviewingRequest && (
                 <div

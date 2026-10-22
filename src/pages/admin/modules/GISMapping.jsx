@@ -6,6 +6,9 @@ import {
     Popup,
     TileLayer,
     Circle,
+    Tooltip,
+    useMap,
+    useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -42,6 +45,131 @@ const shelterIcon = createMarkerIcon(
     "Shelter location"
 );
 
+// ---------------------------
+// Staff/Admin map icons (SVGs in public/gis)
+// ---------------------------
+const gisIcon = (file, size, anchor) =>
+    L.icon({
+        iconUrl: `/gis/${file}`,
+        iconSize: size,
+        iconAnchor: anchor || [size[0] / 2, size[1] / 2],
+        popupAnchor: [0, -(anchor ? anchor[1] : size[1] / 2) + 4],
+    });
+
+const GM_ICONS = {
+    shelter: gisIcon("shelter-pin.svg", [34, 44], [17, 44]),
+    clinic: gisIcon("clinic-pin.svg", [34, 44], [17, 44]),
+    stray: gisIcon("stray-marker.svg", [26, 26]),
+    lost: gisIcon("lost-pet-marker.svg", [26, 26]),
+    found: gisIcon("found-pet-marker.svg", [26, 26]),
+    resolved: gisIcon("stray-marker-resolved.svg", [24, 24]),
+    newPin: gisIcon("new-sighting-pin.svg", [36, 48], [18, 48]),
+    me: gisIcon("user-location-dot.svg", [22, 22]),
+    rescued: L.divIcon({
+        className: "gm-rescued-icon",
+        html: '<span></span>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+    }),
+};
+
+const PLACE_LABEL = { shelter: "Shelter", clinic: "Vet clinic", pound: "City pound" };
+
+const isClinic = (place) => place?.category === "clinic";
+const placeIcon = (place) => (isClinic(place) ? GM_ICONS.clinic : GM_ICONS.shelter);
+const placePinSrc = (place) => (isClinic(place) ? "/gis/clinic-pin.svg" : "/gis/shelter-pin.svg");
+
+function reportIcon(location) {
+    if (location.status === "resolved") return GM_ICONS.resolved;
+    if (location.reportType === "lost") return GM_ICONS.lost;
+    if (location.reportType === "found") return GM_ICONS.found;
+    return GM_ICONS.stray;
+}
+
+const TYPE_LABEL = {
+    stray: "Stray",
+    lost: "Lost",
+    found: "Found",
+    rescue: "Rescue",
+    intake: "Intake",
+};
+
+const SPECIES_LABEL = {
+    dog: "dog",
+    cat: "cat",
+    other: "animal",
+    unknown: "animal",
+};
+
+function timeAgo(dateValue) {
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return "";
+    const minutes = Math.round((Date.now() - date.getTime()) / 60000);
+    if (minutes < 60) return `${Math.max(minutes, 1)}m ago`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.round(hours / 24);
+    if (days === 1) return "yesterday";
+    if (days < 7) return `${days} days ago`;
+    return date.toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+}
+
+// Turns coordinates into a short place name (OpenStreetMap Nominatim)
+async function reverseGeocode(latitude, longitude) {
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&lat=${latitude}&lon=${longitude}`
+        );
+        const data = await response.json();
+        const a = data.address || {};
+        const street = a.road || a.pedestrian || a.neighbourhood || "";
+        const area = a.suburb || a.village || a.quarter || a.city_district || "";
+        const city = a.city || a.town || a.municipality || "";
+        const main = [street, area].filter(Boolean).join(", ");
+        return {
+            name: main || data.name || `${Number(latitude).toFixed(4)}, ${Number(longitude).toFixed(4)}`,
+            city,
+        };
+    } catch {
+        return {
+            name: `${Number(latitude).toFixed(4)}, ${Number(longitude).toFixed(4)}`,
+            city: "",
+        };
+    }
+}
+
+// Lets the form pick a spot by clicking the map
+function GmMapClicker({ active, onPick }) {
+    useMapEvents({
+        click(event) {
+            if (active) onPick(event.latlng.lat, event.latlng.lng);
+        },
+    });
+    return null;
+}
+
+// Moves the map when a new focus point is set
+function GmFlyTo({ target }) {
+    const map = useMap();
+    useEffect(() => {
+        if (target) map.flyTo([target.latitude, target.longitude], target.zoom || 15, { duration: 0.8 });
+    }, [target, map]);
+    return null;
+}
+
+const emptyGmReport = {
+    reportType: "stray",
+    species: "dog",
+    petName: "",
+    description: "",
+    status: "open",
+    where: "me",
+    latitude: null,
+    longitude: null,
+    placeName: "",
+    placeCity: "",
+};
+
 const emptyLocationForm = {
     petName: "",
     reportType: "lost",
@@ -61,6 +189,7 @@ const emptyShelterForm = {
     contact: "",
     email: "",
     description: "",
+    category: "shelter",
     status: "active",
 };
 
@@ -136,6 +265,49 @@ export default function GISMapping() {
     const [manualLongitude, setManualLongitude] = useState("");
 
     const canManage = ["admin", "staff"].includes(userRole);
+
+    // ---------------------------
+    // Staff/Admin redesigned view state
+    // ---------------------------
+    const [gmPanel, setGmPanel] = useState("list"); // list | report | shelter | nearest
+    const [gmTab, setGmTab] = useState("reports"); // reports | hotspots | shelters
+    const [gmStatus, setGmStatus] = useState("open");
+    const [gmType, setGmType] = useState("all");
+    const [gmSpecies, setGmSpecies] = useState({ dog: true, cat: true });
+    const [gmShowRescued, setGmShowRescued] = useState(false);
+    const [gmAnimals, setGmAnimals] = useState([]);
+    const [gmMyLoc, setGmMyLoc] = useState(null);
+    const [gmFocus, setGmFocus] = useState(null);
+    const [gmReport, setGmReport] = useState({ ...emptyGmReport });
+    const [gmShelterWhere, setGmShelterWhere] = useState("pin");
+    const [gmLocating, setGmLocating] = useState(false);
+    const [gmNearestCategory, setGmNearestCategory] = useState("shelter");
+
+    const gmPinActive =
+        (gmPanel === "report" && gmReport.where === "pin") ||
+        gmPanel === "shelter";
+
+    const gmFiltered = useMemo(
+        () =>
+            locations.filter((item) => {
+                if (gmStatus !== "all" && item.status !== gmStatus) return false;
+                if (gmType !== "all" && item.reportType !== gmType) return false;
+                if (item.species === "dog" && !gmSpecies.dog) return false;
+                if (item.species === "cat" && !gmSpecies.cat) return false;
+                return true;
+            }),
+        [locations, gmStatus, gmType, gmSpecies]
+    );
+
+    const gmStats = useMemo(() => {
+        const open = locations.filter((item) => item.status === "open");
+        return {
+            total: locations.length,
+            strays: open.filter((item) => item.reportType === "stray").length,
+            lost: open.filter((item) => item.reportType === "lost").length,
+            found: open.filter((item) => item.reportType === "found").length,
+        };
+    }, [locations]);
 
     const openCases = useMemo(
         () => locations.filter((item) => item.status === "open").length,
@@ -537,6 +709,7 @@ export default function GISMapping() {
             contact: shelter.contact || "",
             email: shelter.email || "",
             description: shelter.description || "",
+            category: shelter.category || "shelter",
             status: shelter.status || "active",
         });
 
@@ -599,6 +772,7 @@ export default function GISMapping() {
             contact: shelterForm.contact.trim(),
             email: shelterForm.email.trim(),
             description: shelterForm.description.trim(),
+            category: shelterForm.category || "shelter",
             status: shelterForm.status,
         };
 
@@ -636,6 +810,7 @@ export default function GISMapping() {
             );
 
             await loadShelters();
+            return true;
         } catch (err) {
             console.error("Save shelter error:", err);
             setShelterError(err.message || "Failed to save shelter.");
@@ -715,11 +890,12 @@ export default function GISMapping() {
         );
     }
 
-    function findNearestShelters(latitude, longitude) {
+    function findNearestShelters(latitude, longitude, category) {
         const sorted = shelters
             .filter(
                 (shelter) =>
                     shelter.status === "active" &&
+                    (!category || shelter.category === category) &&
                     validCoordinates(shelter.latitude, shelter.longitude)
             )
             .map((shelter) => ({
@@ -794,6 +970,915 @@ export default function GISMapping() {
     const activeShelters = shelters.filter(
         (shelter) => shelter.status === "active"
     );
+
+    // ---------------------------
+    // Staff/Admin redesigned view logic
+    // ---------------------------
+
+    async function loadGmAnimals() {
+        try {
+            const response = await fetch(`${API}/api/animals`, {
+                headers: { Authorization: `Bearer ${getToken()}` },
+            });
+            const data = await readResponse(response, "Failed to load animals.");
+            setGmAnimals(Array.isArray(data.animals) ? data.animals : []);
+        } catch (err) {
+            console.error("Load animals for GIS error:", err);
+            setGmAnimals([]);
+        }
+    }
+
+    useEffect(() => {
+        if (["admin", "staff"].includes(userRole)) {
+            loadGmAnimals(); // eslint-disable-line react-hooks/set-state-in-effect -- load data on open
+        }
+    }, [userRole]);
+
+    // Animals linked to a shelter by its name in the animal's location field
+    function shelterCounts(shelter) {
+        const name = String(shelter.name || "").trim().toLowerCase();
+        if (!name) return null;
+        const mine = gmAnimals.filter((animal) =>
+            String(animal.location || "").toLowerCase().includes(name)
+        );
+        if (mine.length === 0) return null;
+        const available = mine.filter(
+            (animal) =>
+                animal.availabilityStatus === "available" &&
+                animal.adoptionStatus !== "adopted" &&
+                animal.fosterStatus !== "in_foster"
+        );
+        return {
+            dogs: available.filter((animal) => animal.type === "Dog").length,
+            cats: available.filter((animal) => animal.type === "Cat").length,
+            inFoster: mine.filter((animal) => animal.fosterStatus === "in_foster").length,
+        };
+    }
+
+    function gmLocate(onFound, onFail) {
+        setError("");
+        if (!navigator.geolocation) {
+            setError("Your browser can't share your location. Pin the spot on the map instead.");
+            return;
+        }
+        setGmLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const spot = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: Math.round(position.coords.accuracy || 0),
+                };
+                setGmLocating(false);
+                setGmMyLoc(spot);
+                setGmFocus({ ...spot, zoom: 16 });
+                if (onFound) onFound(spot);
+            },
+            () => {
+                setGmLocating(false);
+                setError("Couldn't get your location. Allow location access, or pin the spot on the map.");
+                if (onFail) onFail();
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+    }
+
+    async function gmSetReportSpot(latitude, longitude, where) {
+        setGmReport((current) => ({ ...current, where, latitude, longitude, placeName: "Finding address...", placeCity: "" }));
+        const place = await reverseGeocode(latitude, longitude);
+        setGmReport((current) =>
+            current.latitude === latitude && current.longitude === longitude
+                ? { ...current, placeName: place.name, placeCity: place.city }
+                : current
+        );
+    }
+
+    async function gmSetShelterSpot(latitude, longitude) {
+        setShelterForm((current) => ({ ...current, latitude: String(latitude), longitude: String(longitude) }));
+        const place = await reverseGeocode(latitude, longitude);
+        setShelterForm((current) =>
+            current.address ? current : { ...current, address: [place.name, place.city].filter(Boolean).join(", ") }
+        );
+    }
+
+    function gmMapPick(latitude, longitude) {
+        if (gmPanel === "report") gmSetReportSpot(latitude, longitude, "pin");
+        if (gmPanel === "shelter") gmSetShelterSpot(latitude, longitude);
+    }
+
+    function gmOpenReport() {
+        setError("");
+        setSuccess("");
+        setEditingLocationId(null);
+        setGmReport({ ...emptyGmReport });
+        setGmPanel("report");
+        gmLocate(
+            (spot) => gmSetReportSpot(spot.latitude, spot.longitude, "me"),
+            () => setGmReport((current) => ({ ...current, where: "pin" }))
+        );
+    }
+
+    function gmEditReport(location) {
+        setError("");
+        setSuccess("");
+        setEditingLocationId(location._id);
+        setGmReport({
+            reportType: location.reportType || "stray",
+            species: location.species || "unknown",
+            petName: location.petName || "",
+            description: location.description || "",
+            status: location.status || "open",
+            where: "pin",
+            latitude: Number(location.latitude),
+            longitude: Number(location.longitude),
+            placeName: location.locationName || "",
+            placeCity: "",
+        });
+        setGmFocus({ latitude: Number(location.latitude), longitude: Number(location.longitude), zoom: 16 });
+        setGmPanel("report");
+    }
+
+    function gmChooseWhere(where) {
+        if (where === "me") {
+            gmLocate(
+                (spot) => gmSetReportSpot(spot.latitude, spot.longitude, "me"),
+                () => setGmReport((current) => ({ ...current, where: "pin" }))
+            );
+        } else {
+            setError("");
+            setGmReport((current) => ({ ...current, where: "pin" }));
+        }
+    }
+
+    function gmClosePanel() {// update this for shelter panel and clinic differences
+        setError("");
+        setGmPanel("list");
+        setEditingLocationId(null);
+        setEditingShelterId(null);
+        setShelterForm({ ...emptyShelterForm });
+    }
+
+    async function gmSubmitReport(event) {
+        event.preventDefault();
+        setError("");
+        setSuccess("");
+
+        if (!validCoordinates(gmReport.latitude, gmReport.longitude)) {
+            setError("Choose a location first: use your location or tap the map.");
+            return;
+        }
+
+        const speciesWord = SPECIES_LABEL[gmReport.species] || "animal";
+        const isEditing = Boolean(editingLocationId);
+        const body = {
+            petName: gmReport.petName.trim() || `Unknown ${speciesWord}`,
+            reportType: gmReport.reportType,
+            species: gmReport.species,
+            locationName: gmReport.placeName.trim() || "Pinned location",
+            latitude: Number(gmReport.latitude),
+            longitude: Number(gmReport.longitude),
+            status: gmReport.status,
+            description: gmReport.description.trim(),
+        };
+
+        try {
+            setSubmitting(true);
+            const response = await fetch(
+                isEditing ? `${API}/api/gis/${editingLocationId}` : `${API}/api/gis`,
+                {
+                    method: isEditing ? "PATCH" : "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${getToken()}`,
+                    },
+                    body: JSON.stringify(body),
+                }
+            );
+            await readResponse(response, isEditing ? "Failed to update the report." : "Failed to save the report.");
+            setSuccess(isEditing ? "Report updated." : "Report pinned on the map.");
+            setEditingLocationId(null);
+            setGmReport({ ...emptyGmReport });
+            setGmPanel("list");
+            await loadLocations(userRole);
+            await loadHotspots();
+        } catch (err) {
+            console.error("Save map report error:", err);
+            setError(err.message || "Failed to save the report.");
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    function gmOpenShelter(shelter) {
+        setShelterError("");
+        setShelterSuccess("");
+        if (shelter) {
+            editShelter(shelter);
+            setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 });
+        } else {
+            setEditingShelterId(null);
+            setShelterForm({ ...emptyShelterForm });
+        }
+        setGmShelterWhere("pin");
+        setGmPanel("shelter");
+    }
+
+    function gmShelterUseMe() {
+        setGmShelterWhere("me");
+        gmLocate((spot) => gmSetShelterSpot(spot.latitude, spot.longitude));
+    }
+
+    async function gmSaveShelter(event) {
+        const saved = await saveShelter(event);
+        if (saved) {
+            setGmPanel("list");
+            setGmTab("shelters");
+        }
+    }
+
+    function gmOpenNearest(category = "shelter") {
+        setGmNearestCategory(category);
+        setGmPanel("nearest");
+        setShelterError("");
+        gmLocate((spot) => findNearestShelters(spot.latitude, spot.longitude, category));
+    }
+
+    const gmShelterDraft = validCoordinates(shelterForm.latitude, shelterForm.longitude)
+        ? [Number(shelterForm.latitude), Number(shelterForm.longitude)]
+        : null;
+
+    const gmRescued = gmShowRescued
+        ? gmAnimals.filter(
+            (animal) =>
+                animal.intakeStatus !== "rejected" &&
+                validCoordinates(animal.latitude, animal.longitude)
+        )
+        : [];
+
+    // ---------------------------
+    // Staff/Admin redesigned view (volunteers keep the view below)
+    // ---------------------------
+    if (canManage) {
+        const reportTypes = ["stray", "lost", "found", "rescue", "intake"];
+
+        return (
+            <section className="gm-page">
+                <div className="gm-toolbar">
+                    <p>Strays, lost and found reports, hotspots and shelters.</p>
+                    <div className="gm-toolbar-actions">
+                        <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenNearest("clinic")}>
+                            <img src="/gis/icon-find-nearest.svg" alt="" className="gm-btn-icon" />
+                            Find near clinic
+                        </button>
+                        <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenNearest()}>
+                            <img src="/gis/icon-find-nearest.svg" alt="" className="gm-btn-icon" />
+                            Find near shelter
+                        </button>
+                        <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenShelter(null)}>
+                            <img src="/gis/icon-add-shelter.svg" alt="" className="gm-btn-icon" />
+                            Add shelter
+                        </button>
+                        <button type="button" className="gm-btn gm-btn-orange" onClick={gmOpenReport}>
+                            Pin a report
+                        </button>
+                    </div>
+                </div>
+
+                {error && <div className="admin-gis-error">{error}</div>}
+                {success && <div className="admin-gis-success">{success}</div>}
+
+                <div className="um-strip">
+                    <div className="um-strip-total">
+                        <b>{gmStats.total}</b>
+                        <small>Total map reports</small>
+                    </div>
+                    <div>
+                        <small>Open strays</small>
+                        <b>{gmStats.strays}</b>
+                    </div>
+                    <div>
+                        <small>Open lost / found</small>
+                        <b>{gmStats.lost} / {gmStats.found}</b>
+                    </div>
+                    <div>
+                        <small>Hotspots</small>
+                        <b>{hotspots.length}</b>
+                    </div>
+                </div>
+
+                <div className="gm-grid">
+                    {/* Map */}
+                    <div className={`gm-map-wrap${gmPinActive ? " is-picking" : ""}`}>
+                        <MapContainer center={cebuCenter} zoom={13} scrollWheelZoom className="gm-map">
+                            <TileLayer
+                                attribution="&copy; OpenStreetMap contributors"
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                            <GmMapClicker active={gmPinActive} onPick={gmMapPick} />
+                            <GmFlyTo target={gmFocus} />
+
+                            {hotspots.map((hotspot, index) => (
+                                <Circle
+                                    key={`gm-hot-${index}`}
+                                    center={[Number(hotspot.latitude), Number(hotspot.longitude)]}
+                                    radius={500}
+                                    pathOptions={{ color: "#d62828", weight: 2, dashArray: "6 5", fillColor: "#d62828", fillOpacity: 0.16 }}
+                                >
+                                    <Tooltip direction="top" permanent className="gm-hot-label">
+                                        {(hotspot.areaName || `Hotspot ${index + 1}`)} · {hotspot.count}
+                                    </Tooltip>
+                                </Circle>
+                            ))}
+
+                            {gmFiltered
+                                .filter((item) => validCoordinates(item.latitude, item.longitude))
+                                .map((location) => (
+                                    <Marker
+                                        key={`gm-report-${location._id}`}
+                                        position={[Number(location.latitude), Number(location.longitude)]}
+                                        icon={reportIcon(location)}
+                                    >
+                                        <Popup>
+                                            <strong>
+                                                {TYPE_LABEL[location.reportType] || "Report"} {SPECIES_LABEL[location.species] || "animal"}
+                                                {location.locationName ? ` · ${location.locationName}` : ""}
+                                            </strong>
+                                            <br />
+                                            {location.status === "open" ? "Open" : "Resolved"} · {timeAgo(location.createdAt)}
+                                            {location.description && (<><br />{location.description}</>)}
+                                            {location.status === "open" && (
+                                                <>
+                                                    <br />
+                                                    <button type="button" className="gm-link" onClick={() => handleResolveLocation(location._id)}>
+                                                        Resolve
+                                                    </button>
+                                                </>
+                                            )}
+                                        </Popup>
+                                    </Marker>
+                                ))}
+
+                            {activeShelters
+                                .filter((item) => validCoordinates(item.latitude, item.longitude))
+                                .map((shelter) => {
+                                    const counts = isClinic(shelter) ? null : shelterCounts(shelter);
+                                    return (
+                                        <Marker
+                                            key={`gm-shelter-${shelter._id}`}
+                                            position={[Number(shelter.latitude), Number(shelter.longitude)]}
+                                            icon={placeIcon(shelter)}
+                                        >
+                                            <Popup>
+                                                <strong>{shelter.name}</strong>
+                                                <br />
+                                                {isClinic(shelter) && (
+                                                    <>
+                                                        Vet clinic{shelter.contact ? ` · ${shelter.contact}` : ""}
+                                                        <br />
+                                                    </>
+                                                )}
+                                                {counts
+                                                    ? `${counts.dogs} dogs · ${counts.cats} cats available · ${counts.inFoster} in foster`
+                                                    : shelter.address}
+                                                <br />
+                                                <button type="button" className="gm-link" onClick={() => gmOpenShelter(shelter)}>
+                                                    Edit
+                                                </button>
+                                            </Popup>
+                                        </Marker>
+                                    );
+                                })}
+
+                            {gmRescued.map((animal) => (
+                                <Marker
+                                    key={`gm-rescued-${animal._id}`}
+                                    position={[Number(animal.latitude), Number(animal.longitude)]}
+                                    icon={GM_ICONS.rescued}
+                                >
+                                    <Popup>
+                                        <strong>{animal.name}</strong>
+                                        <br />
+                                        Rescued from here
+                                        {animal.intakeDate ? ` · ${new Date(animal.intakeDate).toLocaleDateString("en-PH")}` : ""}
+                                    </Popup>
+                                </Marker>
+                            ))}
+
+                            {gmMyLoc && (
+                                <>
+                                    <Circle
+                                        center={[gmMyLoc.latitude, gmMyLoc.longitude]}
+                                        radius={Math.max(gmMyLoc.accuracy, 20)}
+                                        pathOptions={{ color: "#2563eb", weight: 1, fillColor: "#2563eb", fillOpacity: 0.12 }}
+                                    />
+                                    <Marker position={[gmMyLoc.latitude, gmMyLoc.longitude]} icon={GM_ICONS.me} />
+                                </>
+                            )}
+
+                            {gmPanel === "report" && validCoordinates(gmReport.latitude, gmReport.longitude) && gmReport.where === "pin" && (
+                                <Marker position={[gmReport.latitude, gmReport.longitude]} icon={GM_ICONS.newPin} />
+                            )}
+
+                            {gmPanel === "shelter" && gmShelterDraft && (
+                                <Marker position={gmShelterDraft} icon={placeIcon(shelterForm)} />
+                            )}
+                        </MapContainer>
+
+                        {gmPinActive && (
+                            <div className="gm-map-hint">
+                                {gmPanel === "shelter" ? "Tap the map to place the shelter" : "Tap the map to drop a pin"}
+                            </div>
+                        )}
+
+                        <button
+                            type="button"
+                            className={`gm-locate${gmMyLoc ? " is-on" : ""}`}
+                            onClick={() => gmLocate()}
+                            title="Show my location"
+                            aria-label="Show my location"
+                        >
+                            <img src="/gis/icon-find-nearest.svg" alt="" />
+                        </button>
+
+                        <div className="gm-legend">
+                            <div><img src="/gis/shelter-pin.svg" alt="" /> Shelter</div>
+                            <div><img src="/gis/clinic-pin.svg" alt="" /> Vet clinic</div>
+                            <div><img src="/gis/stray-marker.svg" alt="" /> Stray</div>
+                            <div><img src="/gis/lost-pet-marker.svg" alt="" /> Lost pet</div>
+                            <div><img src="/gis/found-pet-marker.svg" alt="" /> Found pet</div>
+                            <div><img src="/gis/stray-marker-resolved.svg" alt="" /> Resolved</div>
+                            {gmShowRescued && <div><span className="gm-diamond" /> Rescued from</div>}
+                            <div><span className="gm-hot-dot" /> Hotspot (500 m)</div>
+                        </div>
+
+                        {loading && <div className="admin-gis-map-loading">Loading map reports...</div>}
+                    </div>
+
+                    {/* Side panel */}
+                    <div className="gm-side">
+                        {gmPanel === "list" && (
+                            <>
+                                <div className="gm-card">
+                                    <div className="gm-tabs">
+                                        {["reports", "hotspots", "shelters"].map((tab) => (
+                                            <button
+                                                key={tab}
+                                                type="button"
+                                                className={gmTab === tab ? "is-active" : ""}
+                                                onClick={() => setGmTab(tab)}
+                                            >
+                                                {tab[0].toUpperCase() + tab.slice(1)}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {gmTab === "reports" && (
+                                        <>
+                                            <div className="gm-filters">
+                                                <label className="gm-select">
+                                                    <span>Status</span>
+                                                    <select value={gmStatus} onChange={(e) => setGmStatus(e.target.value)}>
+                                                        <option value="open">Open</option>
+                                                        <option value="resolved">Resolved</option>
+                                                        <option value="all">All</option>
+                                                    </select>
+                                                </label>
+                                                <label className="gm-select">
+                                                    <span>Type</span>
+                                                    <select value={gmType} onChange={(e) => setGmType(e.target.value)}>
+                                                        <option value="all">All types</option>
+                                                        <option value="stray">Strays</option>
+                                                        <option value="lost">Lost pets</option>
+                                                        <option value="found">Found pets</option>
+                                                        <option value="rescue">Rescue</option>
+                                                        <option value="intake">Intake</option>
+                                                    </select>
+                                                </label>
+                                                <div className="gm-chips">
+                                                    {["dog", "cat"].map((kind) => (
+                                                        <button
+                                                            key={kind}
+                                                            type="button"
+                                                            className={gmSpecies[kind] ? "is-active" : ""}
+                                                            onClick={() => setGmSpecies((current) => ({ ...current, [kind]: !current[kind] }))}
+                                                        >
+                                                            {kind === "dog" ? "Dogs" : "Cats"}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="gm-list">
+                                                {loading ? (
+                                                    <p className="gm-empty">Loading reports...</p>
+                                                ) : gmFiltered.length === 0 ? (
+                                                    <p className="gm-empty">No reports match these filters.</p>
+                                                ) : (
+                                                    gmFiltered.map((location) => (
+                                                        <article className="gm-row" key={location._id}>
+                                                            <img src={reportIcon(location).options.iconUrl} alt="" className="gm-row-icon" />
+                                                            <button
+                                                                type="button"
+                                                                className="gm-row-text"
+                                                                onClick={() => setGmFocus({ latitude: Number(location.latitude), longitude: Number(location.longitude), zoom: 17 })}
+                                                            >
+                                                                <b>
+                                                                    {TYPE_LABEL[location.reportType] || "Report"} {SPECIES_LABEL[location.species] || "animal"}
+                                                                    {location.reportType === "lost" && location.petName && !location.petName.startsWith("Unknown") ? ` "${location.petName}"` : ""}
+                                                                    {location.locationName ? ` · ${location.locationName.split(",")[0]}` : ""}
+                                                                </b>
+                                                                <span>
+                                                                    {location.description ? `${location.description} · ` : ""}
+                                                                    {location.createdByName ? `by ${location.createdByName}${location.createdBy?.role ? ` (${location.createdBy.role[0].toUpperCase()}${location.createdBy.role.slice(1)})` : ""} · ` : ""}
+                                                                    {timeAgo(location.createdAt)}
+                                                                </span>
+                                                            </button>
+                                                            <div className="gm-row-actions">
+                                                                {location.status === "open" ? (
+                                                                    <button type="button" className="gm-mini" onClick={() => handleResolveLocation(location._id)}>
+                                                                        Resolve
+                                                                    </button>
+                                                                ) : (
+                                                                    <span className="gm-mini is-done">Resolved</span>
+                                                                )}
+                                                                <span className="gm-row-links">
+                                                                    <button type="button" className="gm-link" onClick={() => gmEditReport(location)}>Edit</button>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="gm-link gm-link-danger"
+                                                                        onClick={() => handleDeleteLocation(location)}
+                                                                        disabled={deletingId === location._id}
+                                                                    >
+                                                                        {deletingId === location._id ? "Deleting..." : "Delete"}
+                                                                    </button>
+                                                                </span>
+                                                            </div>
+                                                        </article>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {gmTab === "hotspots" && (
+                                        <div className="gm-list">
+                                            {hotspotError && <div className="admin-gis-error">{hotspotError}</div>}
+                                            {hotspotLoading ? (
+                                                <p className="gm-empty">Loading hotspots...</p>
+                                            ) : hotspots.length === 0 ? (
+                                                <p className="gm-empty">No hotspots yet. Hotspots need 2 or more open reports within 500 m.</p>
+                                            ) : (
+                                                hotspots.map((hotspot, index) => (
+                                                    <button
+                                                        type="button"
+                                                        className="gm-hot-row"
+                                                        key={`gm-hot-row-${index}`}
+                                                        onClick={() => setGmFocus({ latitude: Number(hotspot.latitude), longitude: Number(hotspot.longitude), zoom: 15 })}
+                                                    >
+                                                        <div>
+                                                            <b>{hotspot.areaName || `Hotspot ${index + 1}`}</b>
+                                                            <span>
+                                                                {["stray", "lost", "found", "rescue", "intake"]
+                                                                    .filter((key) => hotspot[key])
+                                                                    .map((key) => `${hotspot[key]} ${TYPE_LABEL[key].toLowerCase()}`)
+                                                                    .join(" · ")}
+                                                            </span>
+                                                        </div>
+                                                        <em>{hotspot.count} reports</em>
+                                                    </button>
+                                                ))
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {gmTab === "shelters" && (
+                                        <div className="gm-list">
+                                            {shelterError && <div className="admin-gis-error">{shelterError}</div>}
+                                            {shelterSuccess && <div className="admin-gis-success">{shelterSuccess}</div>}
+                                            {shelterLoading ? (
+                                                <p className="gm-empty">Loading shelters...</p>
+                                            ) : shelters.length === 0 ? (
+                                                <p className="gm-empty">No shelters yet. Use Add shelter to place one.</p>
+                                            ) : (
+                                                shelters.map((shelter) => (
+                                                    <article className="gm-row" key={shelter._id}>
+                                                        <img src={placePinSrc(shelter)} alt="" className="gm-row-icon" />
+                                                        <button
+                                                            type="button"
+                                                            className="gm-row-text"
+                                                            onClick={() => setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 })}
+                                                        >
+                                                            <b>{shelter.name}</b>
+                                                            <span>{PLACE_LABEL[shelter.category] || "Shelter"} · {shelter.address}{shelter.status !== "active" ? " · Inactive" : ""}</span>
+                                                        </button>
+                                                        <div className="gm-row-actions">
+                                                            <button type="button" className="gm-link" onClick={() => gmOpenShelter(shelter)}>Edit</button>
+                                                            <button
+                                                                type="button"
+                                                                className="gm-link"
+                                                                onClick={() => toggleShelterStatus(shelter)}
+                                                                disabled={changingShelterId === shelter._id}
+                                                            >
+                                                                {shelter.status === "active" ? "Deactivate" : "Activate"}
+                                                            </button>
+                                                        </div>
+                                                    </article>
+                                                ))
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="gm-card">
+                                    <h3>Top hotspots</h3>
+                                    <p className="gm-sub">Open reports within 500 m of each other</p>
+                                    {hotspots.slice(0, 3).map((hotspot, index) => (
+                                        <div className="gm-hot-row is-static" key={`gm-top-${index}`}>
+                                            <div>
+                                                <b>{hotspot.areaName || `Hotspot ${index + 1}`}</b>
+                                            </div>
+                                            <em>{hotspot.count} reports</em>
+                                        </div>
+                                    ))}
+                                    {!hotspotLoading && hotspots.length === 0 && (
+                                        <p className="gm-empty">No hotspots yet.</p>
+                                    )}
+                                    <button type="button" className="gm-btn gm-btn-primary gm-block" onClick={loadHotspots} disabled={hotspotLoading}>
+                                        {hotspotLoading ? "Analyzing..." : "Run hotspot analysis"}
+                                    </button>
+                                    <label className="gm-switch">
+                                        <span>
+                                            Show where animals were rescued.
+                                        </span>
+                                        <input
+                                            type="checkbox"
+                                            checked={gmShowRescued}
+                                            onChange={(e) => setGmShowRescued(e.target.checked)}
+                                        />
+                                        <i aria-hidden="true" />
+                                    </label>
+                                </div>
+                            </>
+                        )}
+
+                        {gmPanel === "report" && (
+                            <form className="gm-card gm-form" onSubmit={gmSubmitReport}>
+                                <div className="gm-card-head">
+                                    <h3>{editingLocationId ? "Edit map report" : "New map report"}</h3>
+                                    <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
+                                </div>
+
+                                <div className="gm-seg gm-seg-5">
+                                    {reportTypes.map((type) => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            className={gmReport.reportType === type ? "is-active" : ""}
+                                            onClick={() => setGmReport((current) => ({ ...current, reportType: type }))}
+                                        >
+                                            {TYPE_LABEL[type]}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <span className="gm-label">Where?</span>
+                                <div className="gm-where">
+                                    <button
+                                        type="button"
+                                        className={gmReport.where === "me" ? "is-me" : ""}
+                                        onClick={() => gmChooseWhere("me")}
+                                    >
+                                        <img src="/gis/icon-find-nearest.svg" alt="" />
+                                        {gmLocating ? "Locating..." : "Use my location"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={gmReport.where === "pin" ? "is-pin" : ""}
+                                        onClick={() => gmChooseWhere("pin")}
+                                    >
+                                        <img src="/gis/new-sighting-pin.svg" alt="" />
+                                        Pin on map
+                                    </button>
+                                </div>
+                                {validCoordinates(gmReport.latitude, gmReport.longitude) ? (
+                                    <div className="gm-address">
+                                        <img src={gmReport.where === "me" ? "/gis/user-location-dot.svg" : "/gis/new-sighting-pin.svg"} alt="" />
+                                        <div>
+                                            <input
+                                                value={gmReport.placeName}
+                                                onChange={(e) => setGmReport((current) => ({ ...current, placeName: e.target.value }))}
+                                                aria-label="Place name"
+                                            />
+                                            <small>
+                                                {gmReport.placeCity ? `${gmReport.placeCity} · ` : ""}
+                                                {gmReport.where === "me" && gmMyLoc ? `accurate to about ${gmMyLoc.accuracy} m` : "Pinned on the map"}
+                                            </small>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="gm-empty">
+                                        {gmReport.where === "pin" ? "Tap the map where it happened." : "Getting your location..."}
+                                    </p>
+                                )}
+
+                                <span className="gm-label">Animal</span>
+                                <div className="gm-seg">
+                                    {[["dog", "Dog"], ["cat", "Cat"], ["unknown", "Not sure"]].map(([value, label]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            className={gmReport.species === value ? "is-active" : ""}
+                                            onClick={() => setGmReport((current) => ({ ...current, species: value }))}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {(gmReport.reportType === "lost" || gmReport.reportType === "found") && (
+                                    <>
+                                        <span className="gm-label">Pet name (optional)</span>
+                                        <input
+                                            className="gm-input"
+                                            value={gmReport.petName}
+                                            onChange={(e) => setGmReport((current) => ({ ...current, petName: e.target.value }))}
+                                            placeholder="e.g. Bantay"
+                                        />
+                                    </>
+                                )}
+
+                                <span className="gm-label">What did you see?</span>
+                                <textarea
+                                    className="gm-input"
+                                    rows={3}
+                                    value={gmReport.description}
+                                    onChange={(e) => setGmReport((current) => ({ ...current, description: e.target.value }))}
+                                    placeholder="Color, size, condition, landmarks..."
+                                />
+
+                                <span className="gm-label">Status</span>
+                                <div className="gm-seg">
+                                    {[["open", "Open"], ["resolved", "Rescued now"]].map(([value, label]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            className={gmReport.status === value ? "is-active" : ""}
+                                            onClick={() => setGmReport((current) => ({ ...current, status: value }))}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="gm-note">"Rescued now" saves it as resolved, e.g. when staff pick the animal up on the spot.</p>
+
+                                <button type="submit" className="gm-btn gm-btn-primary gm-block" disabled={submitting}>
+                                    {submitting ? "Saving..." : editingLocationId ? "Save changes" : "Submit report"}
+                                </button>
+                            </form>
+                        )}
+
+                        {gmPanel === "shelter" && (
+                            <form className="gm-card gm-form" onSubmit={gmSaveShelter}>
+                                <div className="gm-card-head">
+                                    <h3>{editingShelterId ? "Edit place" : "Add shelter or clinic"}</h3>
+                                    <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
+                                </div>
+                                <p className="gm-sub">It shows on the public map once saved and active.</p>
+
+                                {shelterError && <div className="admin-gis-error">{shelterError}</div>}
+
+                                <span className="gm-label">Type</span>
+                                <div className="gm-seg">
+                                    {[["shelter", "Shelter"], ["clinic", "Vet clinic"], ["pound", "City pound"]].map(([value, label]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            className={shelterForm.category === value ? "is-active" : ""}
+                                            onClick={() => handleShelterFormChange("category", value)}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <span className="gm-label">Name</span>
+                                <input
+                                    className="gm-input"
+                                    value={shelterForm.name}
+                                    onChange={(e) => handleShelterFormChange("name", e.target.value)}
+                                    required
+                                />
+
+                                <span className="gm-label">Location</span>
+                                <div className="gm-where">
+                                    <button type="button" className={gmShelterWhere === "me" ? "is-me" : ""} onClick={gmShelterUseMe}>
+                                        <img src="/gis/icon-find-nearest.svg" alt="" />
+                                        {gmLocating ? "Locating..." : "Use my location"}
+                                    </button>
+                                    <button type="button" className={gmShelterWhere === "pin" ? "is-pin" : ""} onClick={() => setGmShelterWhere("pin")}>
+                                        <img src="/gis/new-sighting-pin.svg" alt="" />
+                                        Pin on map
+                                    </button>
+                                </div>
+                                <div className="gm-address">
+                                    <img src="/gis/shelter-pin.svg" alt="" />
+                                    <div>
+                                        <input
+                                            value={shelterForm.address}
+                                            onChange={(e) => handleShelterFormChange("address", e.target.value)}
+                                            placeholder="Tap the map, then check the address"
+                                            aria-label="Shelter address"
+                                            required
+                                        />
+                                        <small>
+                                            {gmShelterDraft
+                                                ? `${gmShelterDraft[0].toFixed(4)}, ${gmShelterDraft[1].toFixed(4)}`
+                                                : "No spot yet. Tap the map to place it."}
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div className="gm-two">
+                                    <label>
+                                        <span className="gm-label">Contact number</span>
+                                        <input className="gm-input" type="tel" value={shelterForm.contact} onChange={(e) => handleShelterFormChange("contact", e.target.value)} />
+                                    </label>
+                                    <label>
+                                        <span className="gm-label">Email</span>
+                                        <input className="gm-input" type="email" value={shelterForm.email} onChange={(e) => handleShelterFormChange("email", e.target.value)} />
+                                    </label>
+                                </div>
+
+                                <span className="gm-label">Description</span>
+                                <textarea
+                                    className="gm-input"
+                                    rows={2}
+                                    value={shelterForm.description}
+                                    onChange={(e) => handleShelterFormChange("description", e.target.value)}
+                                />
+
+                                <label className="gm-switch">
+                                    <span>Active (show on public map)</span>
+                                    <input
+                                        type="checkbox"
+                                        checked={shelterForm.status === "active"}
+                                        onChange={(e) => handleShelterFormChange("status", e.target.checked ? "active" : "inactive")}
+                                    />
+                                    <i aria-hidden="true" />
+                                </label>
+
+                                <div className="gm-two">
+                                    <button type="button" className="gm-btn gm-btn-ghost" onClick={gmClosePanel}>Cancel</button>
+                                    <button type="submit" className="gm-btn gm-btn-primary" disabled={savingShelter}>
+                                        {savingShelter ? "Saving..." : "Save"}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {gmPanel === "nearest" && (
+                            <div className="gm-card">
+                                <div className="gm-card-head">
+                                    <h3>{gmNearestCategory === "clinic" ? "Nearest vet clinics" : "Nearest shelters"}</h3>
+                                    <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
+                                </div>
+                                <p className="gm-sub">
+                                    {gmLocating
+                                        ? "Getting your location..."
+                                        : userLocation
+                                            ? "From your current location"
+                                            : `Allow location access to see the closest ${gmNearestCategory === "clinic" ? "vet clinics" : "shelters"}.`}
+                                </p>
+                                {shelterError && <div className="admin-gis-error">{shelterError}</div>}
+                                {nearestShelters.slice(0, 5).map((shelter, index) => (
+                                    <article className="gm-near-row" key={shelter._id}>
+                                        <span className={`gm-rank${index === 0 ? " is-first" : ""}`}>{index + 1}</span>
+                                        <div>
+                                            <b>{shelter.name}</b>
+                                            <span>{PLACE_LABEL[shelter.category] || "Shelter"} · {shelter.address}</span>
+                                            <button
+                                                type="button"
+                                                className="gm-link"
+                                                onClick={() => setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 })}
+                                            >
+                                                Show on map
+                                            </button>
+                                        </div>
+                                        <em>{shelter.distance.toFixed(1)} km</em>
+                                    </article>
+                                ))}
+                                {userLocation && nearestShelters.length === 0 && (
+                                    <p className="gm-empty">
+                                        No active {gmNearestCategory === "clinic" ? "vet clinics" : "shelters"} are available.
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="admin-gis-page">

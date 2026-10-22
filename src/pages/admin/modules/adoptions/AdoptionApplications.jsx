@@ -763,18 +763,25 @@ function ApplicationModal({
     onCompleteInterview,
     onApprove,
     onReject,
+    onRequestDocuments,
     loading,
 }) {
     const [interviewDay, setInterviewDay] = useState("");
     const [interviewTime, setInterviewTime] = useState("");
     const [rescheduling, setRescheduling] = useState(false);
     const [interviewError, setInterviewError] = useState("");
+    const [docRequestOpen, setDocRequestOpen] = useState(false);
+    const [docRequestReason, setDocRequestReason] = useState("");
+    const [docRequestError, setDocRequestError] = useState("");
 
     useEffect(() => {
         setInterviewDay("");
         setInterviewTime("");
         setRescheduling(false);
         setInterviewError("");
+        setDocRequestOpen(false);
+        setDocRequestReason("");
+        setDocRequestError("");
     }, [application?._id]);
 
     if (!application) return null;
@@ -787,6 +794,24 @@ function ApplicationModal({
     const documents = Array.isArray(application.documents) ? application.documents : [];
     const showInterviewForm = isPending || (isScheduled && rescheduling);
     const today = getLocalDateTimeValue(new Date()).slice(0, 10);
+    const docRequest = application.documentRequest || {};
+
+    async function handleSendDocRequest() {
+        const reason = docRequestReason.trim();
+
+        if (!reason) {
+            setDocRequestError("Tell the applicant what needs to be fixed.");
+            return;
+        }
+
+        setDocRequestError("");
+        const sent = await onRequestDocuments?.(application._id, reason);
+
+        if (sent) {
+            setDocRequestOpen(false);
+            setDocRequestReason("");
+        }
+    }
 
     async function handleSchedule() {
         if (!interviewDay || !interviewTime || loading) return;
@@ -954,6 +979,20 @@ function ApplicationModal({
                                 </span>
                             </div>
 
+                            {docRequest.status === "requested" && (
+                                <div className="admin-doc-request-note is-waiting">
+                                    <strong>Resubmission requested · {formatShortDate(docRequest.requestedAt)}</strong>
+                                    <small>{docRequest.reason}</small>
+                                </div>
+                            )}
+
+                            {docRequest.status === "resubmitted" && (
+                                <div className="admin-doc-request-note is-new">
+                                    <strong>New documents uploaded · {formatShortDate(docRequest.resubmittedAt)}</strong>
+                                    <small>Previous request: {docRequest.reason}</small>
+                                </div>
+                            )}
+
                             {documents.length === 0 ? (
                                 <p className="admin-review-text">No documents uploaded.</p>
                             ) : (
@@ -963,8 +1002,20 @@ function ApplicationModal({
 
                                         <p>
                                             <strong>{document.documentName || "Unnamed document"}</strong>
-                                            <small className={application.documentsVerified ? "is-verified" : ""}>
-                                                {application.documentsVerified ? "Verified" : "Pending verification"}
+                                            <small
+                                                className={
+                                                    document.status === "rejected"
+                                                        ? "is-rejected"
+                                                        : application.documentsVerified
+                                                            ? "is-verified"
+                                                            : ""
+                                                }
+                                            >
+                                                {document.status === "rejected"
+                                                    ? "Needs resubmission"
+                                                    : application.documentsVerified
+                                                        ? "Verified"
+                                                        : "Pending verification"}
                                             </small>
                                         </p>
 
@@ -979,6 +1030,78 @@ function ApplicationModal({
                                         )}
                                     </div>
                                 ))
+                            )}
+
+                            {!isClosed && docRequest.status !== "requested" && !docRequestOpen && (
+                                <button
+                                    type="button"
+                                    className="admin-doc-request-btn"
+                                    onClick={() => setDocRequestOpen(true)}
+                                    disabled={loading}
+                                >
+                                    Request resubmission
+                                </button>
+                            )}
+
+                            {docRequestOpen && (
+                                <div className="admin-doc-request-form">
+                                    <label htmlFor="doc-request-reason">What should the applicant fix?</label>
+
+                                    <div className="admin-doc-request-chips">
+                                        {["ID photo is blurry", "ID is expired", "Name does not match the application", "Not a valid ID"].map((chip) => (
+                                            <button
+                                                key={chip}
+                                                type="button"
+                                                className={docRequestReason === chip ? "is-picked" : ""}
+                                                onClick={() => {
+                                                    setDocRequestReason(chip);
+                                                    setDocRequestError("");
+                                                }}
+                                            >
+                                                {chip}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <textarea
+                                        id="doc-request-reason"
+                                        rows={3}
+                                        maxLength={500}
+                                        value={docRequestReason}
+                                        onChange={(event) => {
+                                            setDocRequestReason(event.target.value);
+                                            setDocRequestError("");
+                                        }}
+                                        placeholder="e.g. The photo is too dark to read your name."
+                                    />
+
+                                    {docRequestError && (
+                                        <small className="admin-doc-request-error">{docRequestError}</small>
+                                    )}
+
+                                    <div className="admin-doc-request-actions">
+                                        <button
+                                            type="button"
+                                            className="admin-doc-request-cancel"
+                                            onClick={() => {
+                                                setDocRequestOpen(false);
+                                                setDocRequestReason("");
+                                                setDocRequestError("");
+                                            }}
+                                            disabled={loading}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="admin-doc-request-send"
+                                            onClick={handleSendDocRequest}
+                                            disabled={loading}
+                                        >
+                                            {loading ? "Sending..." : "Send request"}
+                                        </button>
+                                    </div>
+                                </div>
                             )}
                         </article>
 
@@ -1317,6 +1440,49 @@ export default function AdoptionApplications() {
         }
     }
 
+    async function handleRequestDocuments(id, reason) {
+        try {
+            setSaving(true);
+
+            const response = await fetch(`${API}/api/adoptions/${id}/documents/request`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ reason }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to send the request.");
+            }
+
+            // Keep the modal open and show the new state right away
+            setSelectedApplication((current) =>
+                current && current._id === id
+                    ? {
+                        ...current,
+                        documents: data.application.documents,
+                        documentsVerified: data.application.documentsVerified,
+                        documentRequest: data.application.documentRequest,
+                    }
+                    : current
+            );
+
+            notify("Resubmission request sent to the applicant.");
+            await fetchApplications();
+            return true;
+        } catch (error) {
+            console.error("Request documents error:", error);
+            notifyErr(error.message || "Server error while sending the request.");
+            return false;
+        } finally {
+            setSaving(false);
+        }
+    }
+
     async function handleRejectApplication(id, reason) {
         return handleUpdateStatus(id, "rejected", reason);
     }
@@ -1358,22 +1524,25 @@ export default function AdoptionApplications() {
 
     return (
         <section className="admin-adoption-page">
-            <section className="admin-panel admin-adoption-summary">
-                <article>
-                    <span>Total Applications</span>
-                    <strong>{applications.length}</strong>
-                </article>
-
-                <article>
-                    <span>Pending Review</span>
-                    <strong>{pendingCount}</strong>
-                </article>
-
-                <article>
-                    <span>Interview Stage</span>
-                    <strong>{interviewCount}</strong>
-                </article>
-            </section>
+            {/* Stats strip (same style as User Management) */}
+            <div className="um-strip">
+                <div className="um-strip-total">
+                    <b>{applications.length}</b>
+                    <small>Total applications</small>
+                </div>
+                <div>
+                    <small>Pending review</small>
+                    <b>{pendingCount}</b>
+                </div>
+                <div>
+                    <small>Interview stage</small>
+                    <b>{interviewCount}</b>
+                </div>
+                <div>
+                    <small>Approved</small>
+                    <b>{applications.filter((item) => item.status === "approved").length}</b>
+                </div>
+            </div>
 
             <section className="admin-panel admin-adoption-list-panel">
                 <div className="admin-adoption-tabs" role="tablist">
@@ -1447,7 +1616,7 @@ export default function AdoptionApplications() {
                 {loading ? (
                     <p className="admin-empty">Loading applications...</p>
                 ) : visibleApplications.length === 0 ? (
-                    <p className="admin-empty">
+                    <p className="admin-empty ad-empty">
                         {searchTerm || statusFilter !== "all"
                             ? "No applications match your search or filter."
                             : activeTab === "active"
@@ -1455,7 +1624,7 @@ export default function AdoptionApplications() {
                                 : "No closed applications yet."}
                     </p>
                 ) : (
-                    <>
+                    <div className="admin-adoption-table">
                         <div className="admin-application-columns" aria-hidden="true">
                             <span>Applicant</span>
                             <span>Pet</span>
@@ -1481,7 +1650,7 @@ export default function AdoptionApplications() {
                                 />
                             ))}
                         </div>
-                    </>
+                    </div>
                 )}
             </section>
 
@@ -1491,7 +1660,8 @@ export default function AdoptionApplications() {
                 onScheduleInterview={handleScheduleInterview}
                 onCompleteInterview={handleCompleteInterview}
                 onApprove={handleApproveApplication}
-                onReject={setRejectionApplication}
+                onReject={setRejectionApplication}        
+                onRequestDocuments={handleRequestDocuments}
                 loading={saving}
             />
 

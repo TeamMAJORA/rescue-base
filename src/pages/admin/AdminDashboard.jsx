@@ -30,6 +30,7 @@ import assets from "../../data/assets.json";
 import AdminOverview from "./modules/AdminOverview";
 import FosterCare from "./modules/FosterCare";
 import GISMapping from "./modules/GISMapping";
+import Rescue from "./modules/Rescue";
 import UserManagement from "./modules/UserManagement";
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
@@ -55,6 +56,25 @@ import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
+
+// Sidebar icons (only the shape is used; the colour comes from CSS)
+const ICONS = {
+    overview: "/icons/sidebar/dashboard-brown.svg",
+    users: "/icons/User-brown.svg",
+    animals: "/icons/sidebar/brown paw.svg",
+    adoptions: "/icons/heart-brown.svg",
+    "foster-care": "/icons/home.svg",
+    donations: "/icons/sidebar/donation-brown.svg",
+    "needed-supplies": "/icons/sidebar/supplies-brown.svg", 
+    "lost-found": "/icons/sidebar/LostnFound-brown.svg",
+    rescue: "/icons/Volunteer.svg",
+    "gis-mapping": "/icons/strayMap-brown.svg",
+    feedback: "/icons/sidebar/Feedback-brown.svg",
+    analytics: "/icons/sidebar/Status.svg",
+    reports: "/icons/sidebar/clipboard-brown.svg",
+    "activity-log": "/icons/sidebar/history.svg",
+    "global-settings": "/icons/sidebar/settings-brown.svg",
+};
 
 const adminMenu = [
     { key: "overview", label: "Dashboard" },
@@ -89,6 +109,7 @@ const adminMenu = [
     { key: "donations", label: "Donations" },
     { key: "needed-supplies", label: "Needed Supplies" },
     { key: "lost-found", label: "Lost & Found" },
+    { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
@@ -98,14 +119,6 @@ const adminMenu = [
     { key: "global-settings", label: "Global Settings" }
 ]
 
-function AdminStatCard({ label, value }) {
-    return (
-        <article className="admin-stat-card">
-            <span>{label}</span>
-            <strong>{value}</strong>
-        </article>
-    );
-}
 
 function getAdminPageTitle(activeAdminPage) {
     for (const item of adminMenu) {
@@ -126,15 +139,6 @@ const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminDashboard({ setPage }) {
 
-    const [fosterForm, setFosterForm] = useState({
-        petName: "",
-        petBreed: "",
-        petImage: "",
-        fosterName: "",
-        fosterEmail: "",
-        careInstructions: "",
-    });
-
     const [activeAdminPage, setActiveAdminPage] = useState("overview");
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotification] = useState([]);
@@ -152,11 +156,41 @@ export default function AdminDashboard({ setPage }) {
     })();
     const isWrongRole = savedRole !== "admin";
     const [signedOut, setSignedOut] = useState(false);
+    // Server is under maintenance to message the roles that are not allowed to log in
+    const [maintenance, setMaintenance] = useState("");
+    // Saved maintenance settings, for the banner (admins are never blocked by the full screen)
+    const [maintenanceInfo, setMaintenanceInfo] = useState({ enabled: false, allowAdminAccess: true });
+
+    useEffect(() => {
+        if (isWrongRole) return;
+
+        const token = localStorage.getItem("token");
+
+        // /api/settings always works for admins, even during maintenance
+        fetch(`${API}/api/settings`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => (response.ok ? response.json() : null))
+            .then((data) => {
+                if (data?.settings?.maintenance) setMaintenanceInfo(data.settings.maintenance);
+            })
+            .catch(() => {});
+
+        //output the maintenance message if the server is under maintenance and the user is not an admin
+        function handleSaved(event) {
+            const next = event.detail?.maintenance;
+            if (!next) return;
+
+            setMaintenanceInfo(next);
+            if (!next.enabled || next.allowAdminAccess) setMaintenance("");
+        }
+
+        window.addEventListener("rb-settings-saved", handleSaved);
+        return () => window.removeEventListener("rb-settings-saved", handleSaved);
+    }, []);
     const [confirmBox, setConfirmBox] = useState(null);
     const [toasts, setToasts] = useState([]);
 
     useEffect(() => {
-        // Any API call that comes back 401 means the login ran out
+        // 401 for all API calls: sign out the user and show the signed out screen
         const originalFetch = window.fetch;
 
         window.fetch = async (...args) => {
@@ -164,7 +198,25 @@ export default function AdminDashboard({ setPage }) {
             const url = String(args[0]?.url || args[0] || "");
 
             if (response.status === 401 && API && url.startsWith(API)) {
-                setSignedOut(true);
+                // The server marks deactivated accounts so we can show the right screen
+                let disabled = false;
+                try {
+                    disabled = Boolean((await response.clone().json())?.accountDisabled);
+                } catch {
+                    // not a JSON answer
+                }
+                setSignedOut((current) => (current === "disabled" || disabled ? "disabled" : true));
+            }
+            // 503 + maintenance flag: show the maintenance screen (admins are let through by the server)
+            if (response.status === 503 && API && url.startsWith(API)) {
+                try {
+                    const body = await response.clone().json();
+                    if (body?.maintenance) {
+                        setMaintenance(body.message || "RescueBase is under maintenance.");
+                    }
+                } catch {
+                    // not a JSON answer
+                }
             }
 
             return response;
@@ -202,14 +254,27 @@ export default function AdminDashboard({ setPage }) {
         setPage(goTo);
     }
 
-
     function handleSidebarClick(item) {
         if (item.children) {
-            setOpenSidebarMenu((current) =>
-                current === item.key ? null : item.key
+            const isOpen = openSidebarMenu === item.key;
+
+            // Clicking an open group just collapses it
+            if (isOpen) {
+                setOpenSidebarMenu(null);
+                return;
+            }
+
+            setOpenSidebarMenu(item.key);
+
+            // Stay on a sub-page of this group if already there; otherwise open its first page
+            const alreadyInside = item.children.some(
+                (child) => child.key === activeAdminPage
             );
 
-            setActiveAdminPage(item.key);
+            if (!alreadyInside) {
+                setActiveAdminPage(item.children[0].key);
+            }
+
             return;
         }
 
@@ -334,6 +399,10 @@ export default function AdminDashboard({ setPage }) {
             return <LostFound />
         }
 
+        if (activeAdminPage === "rescue") {
+            return <Rescue />;
+        }
+
         if (activeAdminPage === "gis-mapping") {
             return <GISMapping />;
         }
@@ -393,8 +462,11 @@ export default function AdminDashboard({ setPage }) {
     }
 
     useEffect(() => {
-        if (isWrongRole || signedOut) return;
+        if (isWrongRole || signedOut || maintenance) return;
 
+        // Loading data when the page opens is the normal use of an effect;
+        // this newer lint rule flags it anyway, so it is switched off for this one line.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchAdminNotifications();
 
         const interval = setInterval(() => {
@@ -402,8 +474,35 @@ export default function AdminDashboard({ setPage }) {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [signedOut]);
+    }, [signedOut, maintenance]);
 
+
+    // Admins never get the full maintenance screen (they must reach Global Settings);
+    // a banner shows instead when "Let admins in" is off.
+
+    // Account was deactivated by an admin
+    if (signedOut === "disabled") {
+        return (
+            <main className="ao-signed-out">
+                <section className="ao-signed-out-card">
+                    <div className="ao-signed-out-icon is-blocked">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M5.6 5.6l12.8 12.8" />
+                        </svg>
+                    </div>
+                    <h2>Your account has been deactivated</h2>
+                    <p>An admin turned off this account, so you've been signed out.</p>
+                    <p className="ao-signed-out-note">
+                        Think this is a mistake? Please contact the shelter staff.
+                    </p>
+                    <button type="button" onClick={() => signOut("home")}>
+                        Back to home
+                    </button>
+                </section>
+            </main>
+        );
+    }
 
     if (signedOut || isWrongRole) {
         return (
@@ -428,10 +527,17 @@ export default function AdminDashboard({ setPage }) {
     return (
         <main className="admin-page">
             <aside className="admin-sidebar">
-                <div className="admin-logo">
+                <button
+                    type="button"
+                    className="admin-logo"
+                    onClick={() => handleSidebarClick({ key: "overview" })}
+                >
                     <img src={assets.logo} alt="RescueBase logo" />
-                    <span>RescueBase</span>
-                </div>
+                    <span>
+                        RescueBase
+                        <small>Admin</small>
+                    </span>
+                </button>
 
                 <nav className="admin-menu">
                     {adminMenu.map((item) => {
@@ -439,6 +545,7 @@ export default function AdminDashboard({ setPage }) {
                         const isActive =
                             activeAdminPage === item.key ||
                             item.children?.some((child) => child.key === activeAdminPage);
+                        const icon = ICONS[item.key];
 
                         return (
                             <div className="admin-menu-group" key={item.key}>
@@ -449,6 +556,11 @@ export default function AdminDashboard({ setPage }) {
                                     onClick={() => handleSidebarClick(item)}
                                 >
                                     <div className="admin-menu-text">
+                                        <span
+                                            className="admin-menu-icon"
+                                            style={icon ? { "--icon": `url("${icon}")` } : undefined}
+                                            aria-hidden="true"
+                                        />
                                         <strong>{item.label}</strong>
                                     </div>
 
@@ -484,14 +596,17 @@ export default function AdminDashboard({ setPage }) {
                 <button
                     className="admin-user-card"
                     type="button"
+                    title="Log out"
                     onClick={() => signOut("home")}
                 >
-                    <span>👤</span>
-                    <div>
+                    <span className="admin-user-avatar">
+                        <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                    </span>
+                    <span className="admin-user-info">
                         <strong>Admin User</strong>
-                        <small>Admin</small>
-                    </div>
-                    <span>→</span>
+                        <small>Admin · Log out</small>
+                    </span>
+                    <span className="admin-user-arrow" aria-hidden="true">→</span>
                 </button>
             </aside>
 
@@ -556,6 +671,33 @@ export default function AdminDashboard({ setPage }) {
                         )}
                     </div>
                 </header>
+
+                {activeAdminPage !== "global-settings" &&
+                    (maintenance || maintenanceInfo.enabled) && (
+                        maintenance || !maintenanceInfo.allowAdminAccess ? (
+                            <div className="gs-maint-banner is-blocked" role="alert">
+                                <span className="gs-maint-dot" aria-hidden="true" />
+                                <span className="gs-maint-text">
+                                    <b>Maintenance mode is on for everyone</b>
+                                    Pages won't load until you turn it off. Global Settings still works.
+                                </span>
+                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                    Open Global Settings
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="gs-maint-banner" role="status">
+                                <span className="gs-maint-dot" aria-hidden="true" />
+                                <span className="gs-maint-text">
+                                    <b>Maintenance mode is on</b>
+                                    Users can't use RescueBase right now. Only admins are signed in.
+                                </span>
+                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                    Turn off in Global Settings
+                                </button>
+                            </div>
+                        )
+                    )}
                 {renderAdminContent()}
             </section>
             {confirmBox && (

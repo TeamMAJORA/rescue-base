@@ -950,6 +950,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 15px;
+    
 }
 
 .adopter-panel-heading h2 {
@@ -2226,3 +2227,99 @@
 
 /* Foster form shown inside the Role Application page */
 .ffa-embedded { display: grid; margin-top: 20px; }
+
+/* ===== Revoke pending foster application ===== */
+.ra-withdraw,
+.ra-withdraw-keep {
+    min-height: 36px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.ra-withdraw {
+    margin-top: 10px;
+    border: 1px solid rgba(214, 40, 40, 0.35);
+    background: #fff;
+    color: #b42318;
+}
+
+.ra-withdraw:hover:not(:disabled) {
+    border-color: #d62828;
+    background: #fdeaea;
+}
+
+.ra-withdraw-keep {
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    background: #fffaf0;
+    color: #5a1b00;
+}
+
+.ra-withdraw-confirm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ra-withdraw-confirm .ra-withdraw {
+    margin-top: 0;
+}
+
+.ra-withdraw:disabled,
+.ra-withdraw-keep:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+/* Maintenance screen: secondary "Log out" link under "Check again" */
+.adopter-signed-out-card button.adopter-signed-out-link {
+    display: block;
+    margin: 10px auto 0;
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    color: #7a6a5a;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+
+/* Deactivated account screen */
+.adopter-signed-out-icon.is-blocked {
+    background: #ffe1e1;
+    color: #b42318;
+}
+
+.adopter-signed-out-card p.adopter-signed-out-note {
+    margin: 0 0 18px;
+    padding: 10px 12px;
+    background: #fff8dc;
+    color: #5a1b00;
+    font-size: 13px;
+}
+
+/* "Back to Foster Dashboard" leaves the adopter portal, so it sits apart
+   (same treatment as "Adopt a Pet" in the foster sidebar) */
+.adopter-menu-group > button.adopter-menu-switch {
+    margin-top: 8px;
+    border-top: 1px dashed var(--adopter-border);
+    border-radius: 0 0 14px 14px;
+    padding-top: 16px;
+}
+
+/* Tablet/phone: the menu becomes a grid, so drop the divider there */
+@media (max-width: 900px) {
+    .adopter-menu-group > button.adopter-menu-switch {
+        margin-top: 0;
+        border-top: 1px solid transparent;
+        border-radius: 14px;
+        padding-top: 12px;
+    }
+}
