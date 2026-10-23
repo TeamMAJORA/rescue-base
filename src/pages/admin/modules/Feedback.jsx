@@ -263,14 +263,16 @@ export default function Feedback() {
         setRole("all");
     }
 
-    function renderActions(item) {
+    function renderActions(item, inModal = false) {
         const archived = item.status === "archived";
 
         return (
             <div className="fb2-actions">
-                <button type="button" className="fb2-link" onClick={() => openFeedback(item)}>
-                    View
-                </button>
+                {!inModal && (
+                    <button type="button" className={`fb2-mini${item.repliedAt ? "" : " fb2-reply-btn"}`} onClick={() => openFeedback(item)}>
+                        {item.repliedAt ? "Replied" : "Reply"}
+                    </button>
+                )}
 
                 <button
                     type="button"
@@ -435,7 +437,7 @@ export default function Feedback() {
                                     const archived = item.status === "archived";
 
                                     return (
-                                        <tr key={item._id}>
+                                        <tr key={item._id} className="fb2-row" onClick={() => openFeedback(item)}>
                                             <td>
                                                 <b>{item.userName || "Unknown user"}</b>
                                                 <small className="fb2-muted">{item.userEmail}</small>
@@ -464,7 +466,7 @@ export default function Feedback() {
                                                 {item.repliedAt && <small className="fb2-replied">Replied</small>}
                                             </td>
                                             <td className="fb2-nowrap">{formatDate(item.createdAt)}</td>
-                                            <td>{renderActions(item)}</td>
+                                            <td onClick={(event) => event.stopPropagation()}>{renderActions(item)}</td>
                                         </tr>
                                     );
                                 })}
@@ -499,9 +501,12 @@ export default function Feedback() {
                                 <h3>{selectedFeedback.userName || "Unknown user"}</h3>
                                 <small>{selectedFeedback.userEmail}</small>
                             </div>
-                            <button type="button" className="fb2-close" onClick={() => setSelectedFeedback(null)} aria-label="Close">
+                            <div className="fb2-modal-top">
+                                {renderActions(selectedFeedback, true)}
+                                <button type="button" className="fb2-close" onClick={() => setSelectedFeedback(null)} aria-label="Close">
                                 ✕
                             </button>
+                            </div>
                         </div>
 
                         <div className="fb2-modal-meta">
@@ -539,7 +544,6 @@ export default function Feedback() {
                                 }}
                             />
                             <div className="fb2-reply-foot">
-                                <small>Sent to {selectedFeedback.userEmail || "the user"} by email, plus a notification in RescueBase.</small>
                                 <button
                                     type="button"
                                     className="fb2-send"
@@ -552,7 +556,6 @@ export default function Feedback() {
                             {notice && <p className="fb2-notice">{notice}</p>}
                         </div>
 
-                        <div className="fb2-modal-actions">{renderActions(selectedFeedback)}</div>
                     </div>
                 </div>
             )}

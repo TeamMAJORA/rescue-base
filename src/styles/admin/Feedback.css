@@ -1435,3 +1435,51 @@ textarea.fbf-input {
     color: #2f6b47;
     font-size: 12.5px;
 }
+
+/* Click a row to open it */
+.fb2-row {
+    cursor: pointer;
+}
+
+.fb2-row:hover td {
+    background: #fffaf0;
+}
+
+.fb2-reply-btn {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #fff;
+}
+
+.fb2-reply-btn:hover:not(:disabled) {
+    border-color: #e97800;
+    background: #e97800;
+    color: #fff;
+}
+
+.fb2-reply-foot {
+    justify-content: flex-end;
+}
+
+/* Archive / delete beside the close button */
+.fb2-modal-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.fb2-modal-top .fb2-actions {
+    gap: 6px;
+}
+
+/* Keep delete well away from the close button */
+.fb2-modal-top {
+    gap: 0;
+}
+
+.fb2-modal-top .fb2-actions {
+    margin-right: 22px;
+    padding-right: 22px;
+    border-right: 1px solid rgba(90, 27, 0, 0.15);
+}
