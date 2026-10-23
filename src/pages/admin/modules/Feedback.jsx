@@ -67,6 +67,9 @@ export default function Feedback() {
     const [error, setError] = useState("");
     const [selectedFeedback, setSelectedFeedback] = useState(null);
     const [busyId, setBusyId] = useState("");
+    const [replyText, setReplyText] = useState("");
+    const [replying, setReplying] = useState(false);
+    const [notice, setNotice] = useState("");
 
     const canDelete = isAdmin();
 
@@ -134,6 +137,44 @@ export default function Feedback() {
             setError(err.message || `Failed to ${action} feedback.`);
         } finally {
             setBusyId("");
+        }
+    }
+
+    function openFeedback(item) {
+        setSelectedFeedback(item);
+        setReplyText(item.reply || "");
+        setNotice("");
+    }
+
+    async function sendReply() {
+        const token = localStorage.getItem("token");
+        const text = replyText.trim();
+        if (!token || !selectedFeedback || !text) return;
+
+        try {
+            setReplying(true);
+            setError("");
+            const response = await fetch(`${BACKEND_URL}/api/feedback/${selectedFeedback._id}/reply`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ reply: text }),
+            });
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to send reply.");
+            }
+
+            setNotice(data.message || "Reply sent.");
+            setFeedback((current) =>
+                current.map((item) => (item._id === selectedFeedback._id ? { ...item, ...data.feedback } : item))
+            );
+            setSelectedFeedback((current) => (current ? { ...current, ...data.feedback } : current));
+        } catch (err) {
+            console.error("Feedback reply error:", err);
+            setError(err.message || "Failed to send reply.");
+        } finally {
+            setReplying(false);
         }
     }
 
@@ -227,7 +268,7 @@ export default function Feedback() {
 
         return (
             <div className="fb2-actions">
-                <button type="button" className="fb2-link" onClick={() => setSelectedFeedback(item)}>
+                <button type="button" className="fb2-link" onClick={() => openFeedback(item)}>
                     View
                 </button>
 
@@ -411,7 +452,7 @@ export default function Feedback() {
                                                     type="button"
                                                     className="fb2-msg"
                                                     title={item.message}
-                                                    onClick={() => setSelectedFeedback(item)}
+                                                    onClick={() => openFeedback(item)}
                                                 >
                                                     {item.message}
                                                 </button>
@@ -420,6 +461,7 @@ export default function Feedback() {
                                                 <span className={`fb2-pill ${archived ? "archived" : "active"}`}>
                                                     {archived ? "Archived" : "Active"}
                                                 </span>
+                                                {item.repliedAt && <small className="fb2-replied">Replied</small>}
                                             </td>
                                             <td className="fb2-nowrap">{formatDate(item.createdAt)}</td>
                                             <td>{renderActions(item)}</td>
@@ -474,6 +516,41 @@ export default function Feedback() {
                         <p className="fb2-modal-msg">{selectedFeedback.message}</p>
 
                         <small className="fb2-muted">Submitted {formatDate(selectedFeedback.createdAt, true)}</small>
+
+                        <div className="fb2-reply">
+                            <label htmlFor="fb2-reply-text">
+                                {selectedFeedback.repliedAt ? "Your reply" : "Reply"}
+                                {selectedFeedback.repliedAt && (
+                                    <small>
+                                        {" "}· sent {formatDate(selectedFeedback.repliedAt, true)}
+                                        {selectedFeedback.repliedByName ? ` by ${selectedFeedback.repliedByName}` : ""}
+                                    </small>
+                                )}
+                            </label>
+                            <textarea
+                                id="fb2-reply-text"
+                                rows={3}
+                                maxLength={2000}
+                                value={replyText}
+                                placeholder={`Write a reply to ${selectedFeedback.userName || "the user"}...`}
+                                onChange={(event) => {
+                                    setReplyText(event.target.value);
+                                    setNotice("");
+                                }}
+                            />
+                            <div className="fb2-reply-foot">
+                                <small>Sent to {selectedFeedback.userEmail || "the user"} by email, plus a notification in RescueBase.</small>
+                                <button
+                                    type="button"
+                                    className="fb2-send"
+                                    disabled={replying || !replyText.trim() || replyText.trim() === (selectedFeedback.reply || "")}
+                                    onClick={sendReply}
+                                >
+                                    {replying ? "Sending..." : selectedFeedback.repliedAt ? "Send updated reply" : "Send reply"}
+                                </button>
+                            </div>
+                            {notice && <p className="fb2-notice">{notice}</p>}
+                        </div>
 
                         <div className="fb2-modal-actions">{renderActions(selectedFeedback)}</div>
                     </div>
