@@ -692,3 +692,289 @@
     background: #cbb89a;
     color: #fff;
 }
+
+/* ===== Activity Log redesign (al2) — matches Reports / Feedback ===== */
+.al2-page {
+    display: grid;
+    gap: 14px;
+}
+
+.al2-page *,
+.al2-page *::before,
+.al2-page *::after {
+    box-sizing: border-box;
+}
+
+.al2-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.al2-card {
+    min-width: 0;
+    padding: 18px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 14px;
+    background: #fffdf4;
+    color: #5a1b00;
+}
+
+.al2-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.al2-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.al2-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.al2-refresh:hover:not(:disabled) {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.al2-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: stretch;
+    margin: 12px 0;
+}
+
+.al2-search {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #e3d5b5;
+    background: #fff;
+    color: #b8a890;
+}
+
+.al2-search:focus-within,
+.al2-dates:focus-within {
+    border-color: #fb8500;
+}
+
+.al2-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.al2-select {
+    min-width: 150px;
+    max-width: 230px;
+    padding: 9px 34px 9px 12px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    appearance: none;
+    background: #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 12px center;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #3d2410;
+    cursor: pointer;
+    outline: none;
+}
+
+.al2-select:focus {
+    border-color: #fb8500;
+}
+
+.al2-dates {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    border: 1px solid #e3d5b5;
+    background: #fff;
+    color: #8a6f62;
+}
+
+.al2-dates.is-invalid {
+    border-color: #d62828;
+}
+
+.al2-dates input {
+    padding: 8px 2px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.al2-clear {
+    align-self: center;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: #c2410c;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.al2-error {
+    margin: 0 0 10px;
+    padding: 9px 12px;
+    border: 1px solid #f0c9c9;
+    background: #fdecec;
+    color: #a12020;
+    font-size: 13px;
+}
+
+.al2-empty {
+    margin: 0;
+    padding: 40px 0;
+    text-align: center;
+    font-size: 13px;
+    color: #7a3e19;
+}
+
+.al2-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+}
+
+.al2-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.al2-table th {
+    padding: 10px;
+    background: #faf3df;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.15);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #7a3e19;
+}
+
+.al2-table td {
+    padding: 11px 10px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.08);
+    vertical-align: middle;
+}
+
+.al2-table td b {
+    display: block;
+    color: #5a1b00;
+}
+
+.al2-table td small {
+    display: block;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+.al2-day td {
+    padding: 7px 10px;
+    background: #fbf6e8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #7a3e19;
+}
+
+.al2-time {
+    width: 96px;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #7a3e19;
+}
+
+.al2-activity {
+    min-width: 260px;
+}
+
+.al2-type {
+    display: inline-block;
+    padding: 3px 9px;
+    background: #efe8d4;
+    color: #7b6658;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.al2-type.is-adoption { background: #fde6c8; color: #9a4b00; }
+.al2-type.is-animal { background: #f6e3d6; color: #8a3b12; }
+.al2-type.is-medical { background: #e3effd; color: #1c5cab; }
+.al2-type.is-foster { background: #d9f0e3; color: #2f8f5b; }
+.al2-type.is-rescue { background: #fde2e2; color: #a12020; }
+.al2-type.is-lostfound,
+.al2-type.is-gis { background: #e8e2f6; color: #5b3f9a; }
+.al2-type.is-donation { background: #fff3cd; color: #8a5a00; }
+.al2-type.is-report { background: #f6edd6; color: #7a3e19; }
+
+.al2-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+.al2-more {
+    padding: 7px 14px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.al2-more:hover:not(:disabled) {
+    background: #5a1b00;
+    color: #fff;
+}
+
+@media (max-width: 760px) {
+    .al2-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
