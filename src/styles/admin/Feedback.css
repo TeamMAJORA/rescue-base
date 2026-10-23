@@ -931,3 +931,423 @@ textarea.fbf-input {
     z-index: 0;
     isolation: isolate;
 }
+/* ===== Feedback redesign (fb2) — matches Reports / Lost & Found ===== */
+.fb2-page {
+    display: grid;
+    gap: 14px;
+}
+
+.fb2-page *,
+.fb2-page *::before,
+.fb2-page *::after {
+    box-sizing: border-box;
+}
+
+.fb2-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.fb2-avg {
+    display: flex !important;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.fb2-stars {
+    display: inline-flex;
+    gap: 1px;
+    color: #e3d5b5;
+    font-size: 14px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.fb2-stars .on {
+    color: #f5a400;
+}
+
+.fb2-stars.is-small {
+    font-size: 13px;
+}
+
+.fb2-error {
+    margin: 0;
+    padding: 10px 14px;
+    border: 1px solid #f0c9c9;
+    background: #fdecec;
+    color: #a12020;
+    font-size: 13px;
+}
+
+.fb2-card {
+    background: #fffdf4;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 14px;
+    padding: 18px 20px;
+    min-width: 0;
+}
+
+.fb2-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.fb2-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+    color: #5a1b00;
+}
+
+.fb2-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.fb2-chips button {
+    padding: 6px 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 999px;
+    background: #fffdf0;
+    color: #7b452d;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.fb2-chips button.on {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #fff;
+}
+
+.fb2-chips em {
+    margin-left: 4px;
+    font-style: normal;
+    opacity: 0.7;
+}
+
+.fb2-tools {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    margin: 12px 0;
+    flex-wrap: wrap;
+}
+
+.fb2-search {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #e3d5b5;
+    background: #fff;
+    color: #b8a890;
+}
+
+.fb2-search:focus-within {
+    border-color: #fb8500;
+}
+
+.fb2-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.fb2-select {
+    min-width: 150px;
+    padding: 9px 34px 9px 12px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    appearance: none;
+    background: #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 12px center;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #3d2410;
+    cursor: pointer;
+    outline: none;
+}
+
+.fb2-select:focus {
+    border-color: #fb8500;
+}
+
+.fb2-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+}
+
+.fb2-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.fb2-table th {
+    padding: 10px;
+    background: #faf3df;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.15);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #7a3e19;
+    white-space: nowrap;
+}
+
+.fb2-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.08);
+    vertical-align: middle;
+}
+
+.fb2-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.fb2-table td b {
+    display: block;
+    color: #5a1b00;
+}
+
+.fb2-muted {
+    display: block;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+.fb2-right {
+    text-align: right !important;
+}
+
+.fb2-nowrap {
+    white-space: nowrap;
+}
+
+.fb2-role {
+    display: inline-block;
+    padding: 3px 9px;
+    background: #efe8d4;
+    color: #7b6658;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.fb2-msg {
+    display: block;
+    max-width: 340px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 12.5px;
+    color: #5b3a26;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.fb2-msg:hover {
+    color: #5a1b00;
+    text-decoration: underline;
+}
+
+.fb2-pill {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.fb2-pill.active {
+    background: #d9f0e3;
+    color: #2f8f5b;
+}
+
+.fb2-pill.archived {
+    background: #ece6da;
+    color: #7b6658;
+}
+
+.fb2-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+.fb2-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.fb2-mini {
+    padding: 6px 10px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.fb2-mini:hover:not(:disabled) {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.fb2-icon {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #f0c9c9;
+    border-radius: 0;
+    background: #fff;
+    color: #d62828;
+    cursor: pointer;
+}
+
+.fb2-icon:hover:not(:disabled) {
+    border-color: #d62828;
+}
+
+.fb2-actions button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+.fb2-empty {
+    margin: 0;
+    padding: 28px 0;
+    text-align: center;
+    font-size: 13px;
+    color: #7a3e19;
+}
+
+.fb2-foot {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+.fb2-foot button {
+    margin-left: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #c2410c;
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Details window */
+.fb2-modal {
+    width: min(520px, calc(100vw - 32px));
+    padding: 20px 22px;
+    border-radius: 14px;
+    background: #fffdf4;
+}
+
+.fb2-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.fb2-modal-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+    color: #5a1b00;
+}
+
+.fb2-modal-head small {
+    color: #7a3e19;
+    font-size: 12px;
+}
+
+.fb2-close {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    cursor: pointer;
+}
+
+.fb2-modal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.fb2-modal-msg {
+    margin: 0 0 10px;
+    padding: 12px 14px;
+    border: 1px solid #e3d5b5;
+    background: #fff;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #3d2410;
+    white-space: pre-wrap;
+}
+
+.fb2-modal-actions {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.fb2-modal-actions .fb2-link {
+    display: none;
+}
+
+@media (max-width: 760px) {
+    .fb2-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

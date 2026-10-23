@@ -993,3 +993,92 @@
 .gm-page .gm-toolbar {
     margin-top: -6px;
 }
+
+/* Nearest list: the place currently shown on the map */
+.gm-near-row.is-picked {
+    margin: 0 -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background: #fff4d6;
+    box-shadow: inset 3px 0 0 #fb8500;
+}
+
+/* Find nearest buttons floating on the map (top right) */
+.gm-map-find {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 500;
+    display: flex;
+    gap: 6px;
+}
+
+.gm-map-find button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px 7px 9px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(90, 27, 0, 0.18);
+    cursor: pointer;
+}
+
+.gm-map-find button img {
+    width: 15px;
+    height: 20px;
+}
+
+.gm-map-find button:hover:not(:disabled) {
+    background: #fff4d6;
+}
+
+.gm-map-find button.is-on {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.gm-map-find button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+@media (max-width: 600px) {
+    .gm-map-find {
+        left: 54px;
+        right: 10px;
+        flex-wrap: wrap;
+    }
+}
+
+/* Nearest list: tap a row to show it on the map */
+.gm-near-btn {
+    width: 100%;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.gm-near-btn:hover:not(.is-picked) {
+    background: #fffaf0;
+}
+
+.gm-near-btn:focus-visible {
+    outline: 2px solid #fb8500;
+    outline-offset: -2px;
+}
+
+.gm-near-row.gm-near-btn.is-picked {
+    width: calc(100% + 20px);
+}

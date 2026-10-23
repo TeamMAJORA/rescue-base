@@ -190,3 +190,505 @@
         justify-items: start;
     }
 }
+/* ===== Reports redesign (rp2) — square inputs, matches other admin pages ===== */
+.rp2-page {
+    display: grid;
+    gap: 14px;
+}
+
+.rp2-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.rp2-grid {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.rp2-card {
+    background: #fffdf4;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 14px;
+    padding: 18px 20px;
+    min-width: 0;
+}
+
+.rp2-card h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+    color: #5a1b00;
+}
+
+.rp2-sub {
+    margin: 4px 0 4px;
+    font-size: 12.5px;
+    color: #7a3e19;
+}
+
+.rp2-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.rp2-label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #5a1b00;
+}
+
+.rp2-input,
+.rp2-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff;
+    font: inherit;
+    font-size: 13px;
+    color: #3d2410;
+    outline: none;
+}
+
+.rp2-select {
+    padding-right: 34px;
+    appearance: none;
+    cursor: pointer;
+    font-weight: 600;
+    background: #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 12px center;
+}
+
+.rp2-input:focus,
+.rp2-select:focus {
+    border-color: #fb8500;
+}
+
+.rp2-seg {
+    display: flex;
+    border: 1px solid #5a1b00;
+}
+
+.rp2-seg button {
+    flex: 1;
+    padding: 9px 4px;
+    border: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rp2-seg button + button {
+    border-left: 1px solid #5a1b00;
+}
+
+.rp2-seg button.on {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.rp2-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.rp2-dates label {
+    display: grid;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7a3e19;
+}
+
+.rp2-checks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+}
+
+.rp2-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #3d2410;
+    cursor: pointer;
+}
+
+.rp2-check input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rp2-check i {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid #5a1b00;
+    background: #fff;
+}
+
+.rp2-check input:checked + i {
+    background: #5a1b00;
+}
+
+.rp2-check input:checked + i::after {
+    content: "";
+    width: 4px;
+    height: 8px;
+    border-right: 2px solid #fcbf49;
+    border-bottom: 2px solid #fcbf49;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.rp2-check input:focus-visible + i {
+    outline: 2px solid #fb8500;
+    outline-offset: 2px;
+}
+
+.rp2-check.is-locked {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.rp2-hint {
+    margin: 8px 0 0;
+    font-size: 11.5px;
+    color: #7a3e19;
+}
+
+.rp2-generate {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border: 0;
+    border-radius: 0;
+    background: #fb8500;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rp2-generate:hover:not(:disabled) {
+    background: #e97800;
+}
+
+.rp2-generate:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.rp2-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.rp2-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.rp2-chips button {
+    padding: 6px 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 999px;
+    background: #fffdf0;
+    color: #7b452d;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rp2-chips button.on {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #fff;
+}
+
+.rp2-chips em {
+    margin-left: 4px;
+    font-style: normal;
+    opacity: 0.7;
+}
+
+.rp2-tools {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    margin: 12px 0;
+    flex-wrap: wrap;
+}
+
+.rp2-tools .rp2-select {
+    width: auto;
+    min-width: 150px;
+}
+
+.rp2-search {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #e3d5b5;
+    background: #fff;
+    color: #b8a890;
+}
+
+.rp2-search:focus-within {
+    border-color: #fb8500;
+}
+
+.rp2-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.rp2-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+}
+
+.rp2-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.rp2-table th {
+    padding: 10px;
+    background: #faf3df;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.15);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #7a3e19;
+    white-space: nowrap;
+}
+
+.rp2-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.08);
+    vertical-align: middle;
+}
+
+.rp2-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.rp2-table td b {
+    display: block;
+    color: #5a1b00;
+}
+
+.rp2-right {
+    text-align: right !important;
+}
+
+.rp2-muted {
+    display: block;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+.rp2-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.rp2-counts span {
+    padding: 2px 6px;
+    background: #f6edd6;
+    font-size: 10.5px;
+    color: #7a3e19;
+}
+
+.rp2-type {
+    font-size: 12.5px;
+}
+
+.rp2-species {
+    display: inline-block;
+    margin-top: 3px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #efe8d4;
+    color: #7b6658;
+}
+
+.rp2-species.is-dog {
+    background: #fde6c8;
+    color: #9a4b00;
+}
+
+.rp2-species.is-cat {
+    background: #e8e2f6;
+    color: #5b3f9a;
+}
+
+.rp2-pill {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.rp2-pill.finalized {
+    background: #d9f0e3;
+    color: #2f8f5b;
+}
+
+.rp2-pill.draft {
+    background: #fff3cd;
+    color: #8a5a00;
+}
+
+.rp2-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+}
+
+.rp2-mini {
+    padding: 6px 10px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.rp2-mini:hover {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.rp2-icon {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    cursor: pointer;
+}
+
+.rp2-icon:hover {
+    border-color: #5a1b00;
+}
+
+.rp2-icon.is-danger {
+    border-color: #f0c9c9;
+    color: #d62828;
+}
+
+.rp2-icon.is-danger:hover {
+    border-color: #d62828;
+}
+
+.rp2-foot {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+@media (max-width: 1100px) {
+    .rp2-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .rp2-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.rp2-page *,
+.rp2-page *::before,
+.rp2-page *::after {
+    box-sizing: border-box;
+}
+
+.rp2-species {
+    white-space: nowrap;
+}
+
+.rp2-dates input {
+    min-width: 0;
+}
+
+.rp2-warn {
+    color: #d62828;
+    font-weight: 600;
+}
+
+.rp2-seg,
+.rp2-seg button {
+    border-radius: 0;
+}
+
+.rp2-seg.is-disabled {
+    border-color: #d8c9a8;
+}
+
+.rp2-seg.is-disabled button {
+    background: #f4efe2;
+    color: #a8957f;
+    cursor: not-allowed;
+}
+
+.rp2-seg.is-disabled button + button {
+    border-left-color: #d8c9a8;
+}
+
+.rp2-seg.is-disabled button.on {
+    background: #cbb89a;
+    color: #fff;
+}

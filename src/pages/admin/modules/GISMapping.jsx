@@ -6,6 +6,7 @@ import {
     Popup,
     TileLayer,
     Circle,
+    Polyline,
     Tooltip,
     useMap,
     useMapEvents,
@@ -152,7 +153,14 @@ function GmMapClicker({ active, onPick }) {
 function GmFlyTo({ target }) {
     const map = useMap();
     useEffect(() => {
-        if (target) map.flyTo([target.latitude, target.longitude], target.zoom || 15, { duration: 0.8 });
+        if (!target) return;
+
+        // Fit two points (you + a place) or fly to one spot
+        if (target.bounds) {
+            map.flyToBounds(target.bounds, { padding: [70, 70], maxZoom: 16, duration: 0.8 });
+        } else {
+            map.flyTo([target.latitude, target.longitude], target.zoom || 15, { duration: 0.8 });
+        }
     }, [target, map]);
     return null;
 }
@@ -282,6 +290,7 @@ export default function GISMapping() {
     const [gmShelterWhere, setGmShelterWhere] = useState("pin");
     const [gmLocating, setGmLocating] = useState(false);
     const [gmNearestCategory, setGmNearestCategory] = useState("shelter");
+    const [gmNearPick, setGmNearPick] = useState(null);
 
     const gmPinActive =
         (gmPanel === "report" && gmReport.where === "pin") ||
@@ -912,6 +921,7 @@ export default function GISMapping() {
         setUserLocation({ latitude, longitude });
         setNearestShelters(sorted);
         setSelectedShelter(null);
+        return sorted;
     }
 
     function useMyLocation() {
@@ -1015,7 +1025,7 @@ export default function GISMapping() {
         };
     }
 
-    function gmLocate(onFound, onFail) {
+    function gmLocate(onFound, onFail, focusOnMe = true) {
         setError("");
         if (!navigator.geolocation) {
             setError("Your browser can't share your location. Pin the spot on the map instead.");
@@ -1031,7 +1041,7 @@ export default function GISMapping() {
                 };
                 setGmLocating(false);
                 setGmMyLoc(spot);
-                setGmFocus({ ...spot, zoom: 16 });
+                if (focusOnMe) setGmFocus({ ...spot, zoom: 16 });
                 if (onFound) onFound(spot);
             },
             () => {
@@ -1196,12 +1206,39 @@ export default function GISMapping() {
         }
     }
 
+    // Fit the map to you + one place from the nearest list
+    function gmShowNearest(place, from = gmMyLoc) {
+        if (!place) return;
+        setGmNearPick(place._id);
+
+        const target = [Number(place.latitude), Number(place.longitude)];
+        setGmFocus(
+            from
+                ? { bounds: [[from.latitude, from.longitude], target] }
+                : { latitude: target[0], longitude: target[1], zoom: 16 }
+        );
+    }
+
     function gmOpenNearest(category = "shelter") {
         setGmNearestCategory(category);
         setGmPanel("nearest");
         setShelterError("");
-        gmLocate((spot) => findNearestShelters(spot.latitude, spot.longitude, category));
+        setGmNearPick(null);
+
+        // Don't zoom to you first; go straight to you + the #1 place
+        gmLocate(
+            (spot) => {
+                const sorted = findNearestShelters(spot.latitude, spot.longitude, category);
+                if (sorted.length > 0) gmShowNearest(sorted[0], spot);
+                else setGmFocus({ ...spot, zoom: 15 });
+            },
+            null,
+            false
+        );
     }
+
+    const gmNearPlace =
+        gmPanel === "nearest" ? nearestShelters.find((item) => item._id === gmNearPick) : null;
 
     const gmShelterDraft = validCoordinates(shelterForm.latitude, shelterForm.longitude)
         ? [Number(shelterForm.latitude), Number(shelterForm.longitude)]
@@ -1226,14 +1263,6 @@ export default function GISMapping() {
                 <div className="gm-toolbar">
                     <p>Strays, lost and found reports, hotspots and shelters.</p>
                     <div className="gm-toolbar-actions">
-                        <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenNearest("clinic")}>
-                            <img src="/gis/icon-find-nearest.svg" alt="" className="gm-btn-icon" />
-                            Find near clinic
-                        </button>
-                        <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenNearest()}>
-                            <img src="/gis/icon-find-nearest.svg" alt="" className="gm-btn-icon" />
-                            Find near shelter
-                        </button>
                         <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenShelter(null)}>
                             <img src="/gis/icon-add-shelter.svg" alt="" className="gm-btn-icon" />
                             Add shelter
@@ -1364,6 +1393,16 @@ export default function GISMapping() {
                                 </Marker>
                             ))}
 
+                            {gmMyLoc && gmNearPlace && (
+                                <Polyline
+                                    positions={[
+                                        [gmMyLoc.latitude, gmMyLoc.longitude],
+                                        [Number(gmNearPlace.latitude), Number(gmNearPlace.longitude)],
+                                    ]}
+                                    pathOptions={{ color: "#5a1b00", weight: 3, dashArray: "8 7" }}
+                                />
+                            )}
+
                             {gmMyLoc && (
                                 <>
                                     <Circle
@@ -1399,6 +1438,28 @@ export default function GISMapping() {
                         >
                             <img src="/gis/icon-find-nearest.svg" alt="" />
                         </button>
+
+                        {/* Find nearest — floating on the map */}
+                        <div className="gm-map-find">
+                            <button
+                                type="button"
+                                className={gmPanel === "nearest" && gmNearestCategory === "shelter" ? "is-on" : ""}
+                                onClick={() => gmOpenNearest("shelter")}
+                                disabled={gmLocating}
+                            >
+                                <img src="/gis/shelter-pin.svg" alt="" />
+                                Nearest shelter
+                            </button>
+                            <button
+                                type="button"
+                                className={gmPanel === "nearest" && gmNearestCategory === "clinic" ? "is-on" : ""}
+                                onClick={() => gmOpenNearest("clinic")}
+                                disabled={gmLocating}
+                            >
+                                <img src="/gis/clinic-pin.svg" alt="" />
+                                Nearest clinic
+                            </button>
+                        </div>
 
                         <div className="gm-legend">
                             <div><img src="/gis/shelter-pin.svg" alt="" /> Shelter</div>
@@ -1851,21 +1912,20 @@ export default function GISMapping() {
                                 </p>
                                 {shelterError && <div className="admin-gis-error">{shelterError}</div>}
                                 {nearestShelters.slice(0, 5).map((shelter, index) => (
-                                    <article className="gm-near-row" key={shelter._id}>
+                                    <button
+                                        type="button"
+                                        className={`gm-near-row gm-near-btn${gmNearPick === shelter._id ? " is-picked" : ""}`}
+                                        key={shelter._id}
+                                        aria-pressed={gmNearPick === shelter._id}
+                                        onClick={() => gmShowNearest(shelter)}
+                                    >
                                         <span className={`gm-rank${index === 0 ? " is-first" : ""}`}>{index + 1}</span>
                                         <div>
                                             <b>{shelter.name}</b>
                                             <span>{PLACE_LABEL[shelter.category] || "Shelter"} · {shelter.address}</span>
-                                            <button
-                                                type="button"
-                                                className="gm-link"
-                                                onClick={() => setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 })}
-                                            >
-                                                Show on map
-                                            </button>
                                         </div>
                                         <em>{shelter.distance.toFixed(1)} km</em>
-                                    </article>
+                                    </button>
                                 ))}
                                 {userLocation && nearestShelters.length === 0 && (
                                     <p className="gm-empty">
