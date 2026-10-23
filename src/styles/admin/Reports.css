@@ -978,3 +978,414 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+/* ===== Rescue Assignments redesign (rs2) — matches Reports ===== */
+.rs2-page {
+    display: grid;
+    gap: 14px;
+}
+
+.rs2-page *,
+.rs2-page *::before,
+.rs2-page *::after {
+    box-sizing: border-box;
+}
+
+.rs2-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.rs2-msg {
+    margin: 0;
+    padding: 10px 14px;
+    border: 1px solid #cfe8d9;
+    background: #eef8f1;
+    color: #2f6b47;
+    font-size: 13px;
+}
+
+.rs2-msg.is-error {
+    border-color: #f0c9c9;
+    background: #fdecec;
+    color: #a12020;
+}
+
+.rs2-grid {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.rs2-card {
+    min-width: 0;
+    padding: 18px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 14px;
+    background: #fffdf4;
+    color: #5a1b00;
+}
+
+.rs2-card h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.rs2-sub {
+    margin: 4px 0 4px;
+    font-size: 12.5px;
+    color: #7a3e19;
+}
+
+.rs2-form {
+    display: grid;
+    gap: 12px;
+}
+
+.rs2-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.rs2-field {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+}
+
+.rs2-field > span {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rs2-field em {
+    font-style: normal;
+    color: #d62828;
+}
+
+.rs2-field small {
+    font-weight: 500;
+    color: #a08670;
+}
+
+.rs2-field input,
+.rs2-field select,
+.rs2-field textarea,
+.rs2-select {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff;
+    color: #3d2410;
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.rs2-field select,
+.rs2-select {
+    padding-right: 32px;
+    appearance: none;
+    background: #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 11px center;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rs2-field textarea {
+    resize: vertical;
+}
+
+.rs2-field input:focus,
+.rs2-field select:focus,
+.rs2-field textarea:focus,
+.rs2-select:focus {
+    border-color: #fb8500;
+}
+
+.rs2-submit {
+    margin-top: 4px;
+    padding: 12px;
+    border: 0;
+    border-radius: 0;
+    background: #fb8500;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rs2-submit:hover:not(:disabled) {
+    background: #e97800;
+}
+
+.rs2-submit:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.rs2-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.rs2-link.is-warn {
+    color: #c2410c;
+}
+
+.rs2-cancel-edit {
+    justify-self: center;
+}
+
+.rs2-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.rs2-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.rs2-chips button {
+    padding: 6px 14px;
+    border: 1px solid #8a5a44;
+    border-radius: 999px;
+    background: #fffdf0;
+    color: #7b452d;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rs2-chips button.on {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #fff;
+}
+
+.rs2-chips em {
+    margin-left: 4px;
+    font-style: normal;
+    opacity: 0.7;
+}
+
+.rs2-tools {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+
+.rs2-tools .rs2-select {
+    width: auto;
+    min-width: 150px;
+}
+
+.rs2-search {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #e3d5b5;
+    background: #fff;
+    color: #b8a890;
+}
+
+.rs2-search:focus-within {
+    border-color: #fb8500;
+}
+
+.rs2-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.rs2-empty {
+    margin: 0;
+    padding: 40px 0;
+    text-align: center;
+    font-size: 13px;
+    color: #7a3e19;
+}
+
+.rs2-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+}
+
+.rs2-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: #3d2410;
+}
+
+.rs2-table th {
+    padding: 10px;
+    background: #faf3df;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.15);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #7a3e19;
+    white-space: nowrap;
+}
+
+.rs2-table td {
+    padding: 11px 10px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.08);
+    vertical-align: middle;
+}
+
+.rs2-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.rs2-table tr.is-editing td {
+    background: #fff4d6;
+}
+
+.rs2-table td b {
+    display: block;
+    color: #5a1b00;
+}
+
+.rs2-table td small {
+    display: block;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+.rs2-nowrap {
+    white-space: nowrap;
+}
+
+.rs2-right {
+    text-align: right !important;
+}
+
+.rs2-priority {
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: #efe8d4;
+    color: #7b6658;
+}
+
+.rs2-priority.is-urgent { background: #fde2e2; color: #a12020; }
+.rs2-priority.is-high { background: #fde6c8; color: #9a4b00; }
+.rs2-priority.is-low { background: #f4f1ea; color: #8a7a68; }
+
+.rs2-status {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: #ece6da;
+    color: #7b6658;
+}
+
+.rs2-status.is-pending { background: #fff3cd; color: #8a5a00; }
+.rs2-status.is-accepted,
+.rs2-status.is-active { background: #e3effd; color: #1c5cab; }
+.rs2-status.is-completed { background: #d9f0e3; color: #2f8f5b; }
+
+.rs2-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+.rs2-mini {
+    padding: 6px 10px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rs2-mini:hover {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.rs2-icon {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #f0c9c9;
+    border-radius: 0;
+    background: #fff;
+    color: #d62828;
+    cursor: pointer;
+}
+
+.rs2-icon:hover {
+    border-color: #d62828;
+}
+
+.rs2-foot {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+@media (max-width: 1100px) {
+    .rs2-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .rs2-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.rs2-mini.is-go {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #fff;
+}
+
+.rs2-mini.is-go:hover {
+    background: #e97800;
+}
