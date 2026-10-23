@@ -149,6 +149,38 @@ function GmMapClicker({ active, onPick }) {
     return null;
 }
 
+// Place search limited to Cebu (mainland, Mactan and nearby islands)
+async function searchCebuPlaces(query, signal) {
+    const params = new URLSearchParams({
+        format: "jsonv2",
+        q: query,
+        limit: "6",
+        countrycodes: "ph",
+        viewbox: "123.25,11.35,124.25,9.40",
+        bounded: "1",
+        addressdetails: "1",
+    });
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, { signal });
+    const data = await response.json();
+
+    return (Array.isArray(data) ? data : []).map((item) => {
+        const a = item.address || {};
+        const name = item.name || String(item.display_name || "").split(",")[0];
+        const area = [a.suburb || a.village || a.neighbourhood || a.quarter, a.city || a.town || a.municipality]
+            .filter(Boolean)
+            .filter((part) => part !== name)
+            .join(", ");
+
+        return {
+            id: String(item.place_id),
+            name,
+            area: area || String(item.display_name || "").split(",").slice(1, 3).join(",").trim(),
+            latitude: Number(item.lat),
+            longitude: Number(item.lon),
+        };
+    });
+}
+
 // Moves the map when a new focus point is set
 function GmFlyTo({ target }) {
     const map = useMap();
@@ -291,6 +323,34 @@ export default function GISMapping() {
     const [gmLocating, setGmLocating] = useState(false);
     const [gmNearestCategory, setGmNearestCategory] = useState("shelter");
     const [gmNearPick, setGmNearPick] = useState(null);
+    const [gmQuery, setGmQuery] = useState("");
+    const [gmResults, setGmResults] = useState([]);
+    const [gmSearchOpen, setGmSearchOpen] = useState(false);
+    const [gmSearching, setGmSearching] = useState(false);
+    const [gmSearchSpot, setGmSearchSpot] = useState(null);
+
+    // Suggestions while typing (waits for a pause, Cebu only)
+    useEffect(() => {
+        const query = gmQuery.trim();
+        if (query.length < 3) return undefined;
+
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            setGmSearching(true);
+            try {
+                setGmResults(await searchCebuPlaces(query, controller.signal));
+            } catch (err) {
+                if (err.name !== "AbortError") setGmResults([]);
+            } finally {
+                setGmSearching(false);
+            }
+        }, 400);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [gmQuery]);
 
     const gmPinActive =
         (gmPanel === "report" && gmReport.where === "pin") ||
@@ -1071,6 +1131,37 @@ export default function GISMapping() {
         );
     }
 
+    function gmPickResult(place) {
+        setGmQuery(place.name);
+        setGmSearchOpen(false);
+        setGmSearchSpot(place);
+        setGmFocus({ latitude: place.latitude, longitude: place.longitude, zoom: 17 });
+        // While adding a report or shelter, the result also becomes its spot
+        gmMapPick(place.latitude, place.longitude);
+    }
+
+    // From a search result: open the report form with that spot already pinned
+    function gmReportAtSearch() {
+        if (!gmSearchSpot) return;
+        const spot = gmSearchSpot;
+        setError("");
+        setSuccess("");
+        setEditingLocationId(null);
+        setGmReport({ ...emptyGmReport, where: "pin" });
+        setGmPanel("report");
+        gmSetReportSpot(spot.latitude, spot.longitude, "pin");
+        setGmSearchSpot(null);
+    }
+
+    function gmShelterAtSearch() {
+        if (!gmSearchSpot) return;
+        const spot = gmSearchSpot;
+        gmOpenShelter(null);
+        setShelterForm((current) => ({ ...current, address: [spot.name, spot.area].filter(Boolean).join(", ") }));
+        gmSetShelterSpot(spot.latitude, spot.longitude);
+        setGmSearchSpot(null);
+    }
+
     function gmMapPick(latitude, longitude) {
         if (gmPanel === "report") gmSetReportSpot(latitude, longitude, "pin");
         if (gmPanel === "shelter") gmSetShelterSpot(latitude, longitude);
@@ -1393,6 +1484,18 @@ export default function GISMapping() {
                                 </Marker>
                             ))}
 
+                            {gmSearchSpot && gmPanel !== "report" && gmPanel !== "shelter" && (
+                                <Circle
+                                    center={[gmSearchSpot.latitude, gmSearchSpot.longitude]}
+                                    radius={18}
+                                    pathOptions={{ color: "#fb8500", weight: 3, fillColor: "#fb8500", fillOpacity: 0.35 }}
+                                >
+                                    <Tooltip direction="top" offset={[0, -8]} permanent>
+                                        {gmSearchSpot.name}
+                                    </Tooltip>
+                                </Circle>
+                            )}
+
                             {gmMyLoc && gmNearPlace && (
                                 <Polyline
                                     positions={[
@@ -1438,6 +1541,73 @@ export default function GISMapping() {
                         >
                             <img src="/gis/icon-find-nearest.svg" alt="" />
                         </button>
+
+                        {/* Place search with suggestions */}
+                        <div className="gm-map-search">
+                            <input
+                                type="search"
+                                value={gmQuery}
+                                placeholder="Search a place in Cebu..."
+                                aria-label="Search a place"
+                                onChange={(event) => {
+                                    setGmQuery(event.target.value);
+                                    setGmSearchOpen(true);
+                                    if (event.target.value.trim().length < 3) setGmResults([]);
+                                }}
+                                onFocus={() => setGmSearchOpen(true)}
+                                onBlur={() => setTimeout(() => setGmSearchOpen(false), 150)}
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter" && gmResults[0]) {
+                                        event.preventDefault();
+                                        gmPickResult(gmResults[0]);
+                                    }
+                                    if (event.key === "Escape") setGmSearchOpen(false);
+                                }}
+                            />
+                            {gmSearchOpen && gmQuery.trim().length >= 3 && (
+                                <ul className="gm-map-results">
+                                    {gmSearching && gmResults.length === 0 && <li className="is-note">Searching...</li>}
+                                    {!gmSearching && gmResults.length === 0 && <li className="is-note">No places found in Cebu.</li>}
+                                    {gmResults.map((place) => (
+                                        <li key={place.id}>
+                                            <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => gmPickResult(place)}>
+                                                <b>{place.name}</b>
+                                                {place.area && <small>{place.area}</small>}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        {/* After picking a search result: quick actions for that spot */}
+                        {gmSearchSpot && !gmSearchOpen && gmPanel !== "report" && gmPanel !== "shelter" && (
+                            <div className="gm-search-card">
+                                <div>
+                                    <b>{gmSearchSpot.name}</b>
+                                    {gmSearchSpot.area && <small>{gmSearchSpot.area}</small>}
+                                </div>
+                                <div className="gm-search-card-actions">
+                                    <button type="button" className="is-primary" onClick={gmReportAtSearch}>
+                                        Pin a report here
+                                    </button>
+                                    <button type="button" onClick={gmShelterAtSearch}>
+                                        Add shelter here
+                                    </button>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="gm-search-card-close"
+                                    aria-label="Close"
+                                    onClick={() => {
+                                        setGmSearchSpot(null);
+                                        setGmQuery("");
+                                    }}
+                                >
+                                    &times;
+                                </button>
+                            </div>
+                        )}
 
                         {/* Find nearest — floating on the map */}
                         <div className="gm-map-find">
