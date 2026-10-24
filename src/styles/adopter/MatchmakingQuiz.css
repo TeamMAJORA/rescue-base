@@ -1448,3 +1448,177 @@
         width: 110px;
     }
 }
+
+/* ===== Question screen (mockup 3) ===== */
+.matchmaking-module {
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 120px);
+    padding: 28px 24px 32px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #fffaf0 0%, #fdebc8 100%);
+}
+
+.mq-top {
+    display: flex;
+    justify-content: space-between;
+}
+
+.mq-top button {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: #fffdf5;
+    box-shadow: 0 4px 12px rgba(90, 27, 0, 0.14);
+    cursor: pointer;
+}
+
+.mq-top button img {
+    width: 16px;
+}
+
+/* same arrow, mirrored to point forward */
+.mq-top-next img {
+    transform: scaleX(-1);
+}
+
+.mq-top button:hover:not(:disabled) {
+    background: #fff7cb;
+}
+
+.mq-top button:focus-visible {
+    outline: 3px solid #fb8500;
+    outline-offset: 2px;
+}
+
+.mq-top button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+/* question sits in the middle of the card */
+.matchmaking-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 0;
+}
+
+.matchmaking-form > * {
+    width: 100%;
+    max-width: 380px;
+}
+
+.mq-card {
+    align-items: flex-start;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    text-align: left;
+}
+
+.mq-card-chip {
+    padding: 6px 20px;
+    border: 0;
+    border-radius: 14px 4px 14px 4px;
+    background: #fdb562;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.mq-card-title {
+    margin-top: 12px;
+    font-size: clamp(24px, 2.4vw, 28px);
+}
+
+.mq-card-hint {
+    margin: 4px 0 18px;
+    font-size: 12px;
+}
+
+.mq-options {
+    max-width: none;
+    gap: 10px;
+}
+
+.mq-option {
+    padding: 14px 16px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: #fffaf0;
+    box-shadow: 0 4px 14px rgba(90, 27, 0, 0.12);
+}
+
+.mq-option:hover {
+    background: #ffffff;
+}
+
+.mq-option.is-selected {
+    background: #ffffff;
+    box-shadow: inset 0 0 0 2px #fb8500, 0 4px 14px rgba(251, 133, 0, 0.16);
+}
+
+.mq-option-dot {
+    width: 20px;
+    height: 20px;
+}
+
+.mq-slider {
+    max-width: none;
+    border: 0;
+    background: #fffaf0;
+    box-shadow: 0 4px 14px rgba(90, 27, 0, 0.12);
+}
+
+.matchmaking-actions {
+    margin-top: 18px;
+    padding: 0;
+}
+
+/* brown label: white on orange fails contrast */
+.matchmaking-submit-button {
+    width: 100%;
+    border-radius: 999px;
+    color: #5a1b00;
+    font-size: 14px;
+}
+
+/* 3 dashes = Home, Lifestyle, Preferences; each fills as you go */
+.mq-dashes {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.mq-dashes span {
+    width: 28px;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(251, 133, 0, 0.25);
+}
+
+.mq-dashes i {
+    display: block;
+    height: 100%;
+    background: #fb8500;
+    transition: width 0.3s ease;
+}
+
+@media (max-width: 640px) {
+    .matchmaking-module {
+        min-height: calc(100vh - 90px);
+        padding: 20px 16px 24px;
+    }
+}
