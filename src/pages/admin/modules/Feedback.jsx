@@ -175,11 +175,17 @@ export default function Feedback() {
                 throw new Error(data.message || "Failed to send reply.");
             }
 
-            setNotice(data.message || "Reply sent.");
+            const who = selectedFeedback.userName || "the user";
+            const via = [data.emailed && "email", data.notified && "notification"].filter(Boolean).join(" and ");
+            const successText = via ? `Reply sent to ${who} by ${via}.` : `Reply saved for ${who}.`;
+
             setFeedback((current) =>
                 current.map((item) => (item._id === selectedFeedback._id ? { ...item, ...data.feedback } : item))
             );
-            setSelectedFeedback((current) => (current ? { ...current, ...data.feedback } : current));
+            setSelectedFeedback(null);
+            setReplyText("");
+            setNotice(successText);
+            if (window.rbToast) window.rbToast(successText, "success");
         } catch (err) {
             console.error("Feedback reply error:", err);
             setError(err.message || "Failed to send reply.");
@@ -280,7 +286,7 @@ export default function Feedback() {
             <div className="fb2-actions">
                 {!inModal && (
                     <button type="button" className={`fb2-mini${item.repliedAt ? "" : " fb2-reply-btn"}`} onClick={() => openFeedback(item)}>
-                        {item.repliedAt ? "Replied" : "Reply"}
+                        Reply
                     </button>
                 )}
 
@@ -478,7 +484,6 @@ export default function Feedback() {
                                                 <span className={`fb2-pill ${archived ? "archived" : "active"}`}>
                                                     {archived ? "Archived" : "Active"}
                                                 </span>
-                                                {item.repliedAt && <small className="fb2-replied">Replied</small>}
                                             </td>
                                             <td className="fb2-nowrap">{formatDate(item.createdAt)}</td>
                                             <td onClick={(event) => event.stopPropagation()}>{renderActions(item)}</td>
