@@ -1342,3 +1342,109 @@
         animation: none;
     }
 }
+
+/* ===== Quiz intro screen ===== */
+.mq-intro {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 775px;
+    padding: 48px 24px 56px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #fdb562 0%, #fde3bf 100%);
+    color: #5a1b00;
+    text-align: center;
+    justify-content: center;
+}
+
+/* keep content above the background paw */
+.mq-intro > :not(.mq-intro-paw) {
+    position: relative;
+}
+
+.mq-intro-paw {
+    position: absolute;
+    right: -70px;
+    bottom: -100px;
+    width: 550px;
+    opacity: 0.55;
+    transform: rotate(-15deg);
+    pointer-events: none;
+}
+
+.mq-intro-brand {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 24px;
+}
+
+.mq-intro-logo {
+    width: 150px;
+    margin: 28px 0 8px;
+}
+
+.mq-intro h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.mq-intro h2 span {
+    color: #b45f06;
+}
+
+.mq-intro-text {
+    max-width: 420px;
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.mq-intro-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 36px;
+    padding: 14px 40px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #fb8500, #fca43a);
+    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.3);
+    color: #5a1b00;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mq-intro-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 22px rgba(251, 133, 0, 0.35);
+}
+
+.mq-intro-button:focus-visible {
+    outline: 3px solid #5a1b00;
+    outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+    .mq-intro {
+        min-height: 0;
+        padding: 36px 18px 44px;
+    }
+
+    .mq-intro-paw {
+        width: 240px;
+        right: -60px;
+        bottom: -60px;
+    }
+
+    .mq-intro-logo {
+        width: 110px;
+    }
+}

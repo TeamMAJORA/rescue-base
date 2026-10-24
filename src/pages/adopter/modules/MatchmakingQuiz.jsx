@@ -280,7 +280,8 @@ export default function MatchmakingQuiz({
 
     const [messageType, setMessageType] =
         useState("");
-
+    
+    const [started, setStarted] = useState(false);
     const question = QUESTIONS[questionIndex];
     const isLastQuestion = questionIndex === QUESTIONS.length - 1;
 
@@ -392,6 +393,35 @@ export default function MatchmakingQuiz({
             setSubmitting(false);
         }
     }
+
+if (!started) {
+    return (
+        <section className="mq-intro">
+            <img className="mq-intro-paw" src="/icons/heroPaw.svg" alt="" />
+
+            <p className="mq-intro-brand">RescueBase</p>
+            <img className="mq-intro-logo" src="/Logo.svg" alt="" />
+
+            <h2>
+                Find Your <span>Perfect Pet Match</span>
+            </h2>
+
+            <p className="mq-intro-text">
+                Answer a few simple questions about your lifestyle, home, and
+                preferences. Our smart matching system will recommend pets that
+                are the perfect fit for you.
+            </p>
+
+            <button
+                type="button"
+                className="mq-intro-button"
+                onClick={() => setStarted(true)}
+            >
+                Take the Quiz <span aria-hidden="true">→</span>
+            </button>
+        </section>
+    );
+}
 
     return (
         <section className="matchmaking-module">
