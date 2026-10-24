@@ -224,3 +224,490 @@
         gap: 10px;
     }
 }
+/* ===== Analytics redesign (an2) — matches Reports / Feedback ===== */
+.an2-page {
+    display: grid;
+    gap: 14px;
+}
+
+.an2-page *,
+.an2-page *::before,
+.an2-page *::after {
+    box-sizing: border-box;
+}
+
+.an2-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.an2-strip em {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-style: normal;
+    color: #7a3e19;
+}
+
+.an2-strip .um-strip-total em {
+    color: #f3dcc0;
+}
+
+.an2-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 14px;
+}
+
+.an2-card {
+    position: relative;
+    min-width: 0;
+    padding: 18px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 14px;
+    background: #fffdf4;
+    color: #5a1b00;
+}
+
+.an2-card h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+    color: #5a1b00;
+}
+
+.an2-muted {
+    margin: 0;
+    font-size: 13px;
+    color: #7a3e19;
+}
+
+.an2-error p {
+    margin: 6px 0 12px;
+    font-size: 13px;
+    color: #7a3e19;
+}
+
+.an2-retry {
+    padding: 8px 14px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.an2-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.an2-seg {
+    display: flex;
+    border: 1px solid #5a1b00;
+}
+
+.an2-seg button {
+    padding: 7px 14px;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.an2-seg button + button {
+    border-left: 1px solid #5a1b00;
+}
+
+.an2-seg button.on {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.an2-sum {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: #7a3e19;
+}
+
+.an2-sum b {
+    margin-right: 2px;
+    font-size: 15px;
+    color: #5a1b00;
+}
+
+/* Bar chart */
+.an2-chart {
+    margin-top: 18px;
+    padding-left: 30px;
+}
+
+.an2-plot {
+    position: relative;
+    height: 240px;
+}
+
+.an2-gridline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.an2-gridline span {
+    position: absolute;
+    left: -30px;
+    top: -8px;
+    width: 24px;
+    text-align: right;
+    font-size: 11px;
+    color: #a08670;
+}
+
+.an2-cols,
+.an2-months {
+    display: flex;
+    gap: 6px;
+    padding: 0 6px;
+}
+
+.an2-cols {
+    position: absolute;
+    inset: 0;
+}
+
+.an2-col {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    outline: none;
+    cursor: default;
+}
+
+.an2-col:focus-visible .an2-bar {
+    outline: 2px solid #fb8500;
+    outline-offset: 2px;
+}
+
+.an2-bar-area {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.an2-bar {
+    width: min(46px, 70%);
+    min-height: 2px;
+    border-radius: 4px 4px 0 0;
+    background: #7a3e19;
+    transition: background 0.15s ease;
+}
+
+.an2-bar.is-current {
+    background: #fb8500;
+}
+
+.an2-bar.is-hover {
+    background: #5a1b00;
+}
+
+.an2-bar.is-current.is-hover {
+    background: #d96f00;
+}
+
+.an2-val {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-bottom: 4px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #5a1b00;
+    transform: translateY(-2px);
+}
+
+.an2-months span {
+    flex: 1;
+    padding-top: 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7a3e19;
+}
+
+.an2-months small {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: #a08670;
+}
+
+.an2-tip {
+    position: absolute;
+    z-index: 5;
+    padding: 8px 10px;
+    background: #3d2410;
+    color: #fff;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+.an2-tip b {
+    display: block;
+    font-size: 13px;
+}
+
+.an2-bar-area .an2-tip {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.an2-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+/* Donut */
+.an2-donut-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.an2-donut {
+    position: relative;
+    width: 240px;
+    max-width: 100%;
+    aspect-ratio: 1;
+}
+
+.an2-donut svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.an2-slice {
+    stroke: #fffdf4;
+    stroke-width: 2;
+    cursor: pointer;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.an2-slice.is-dim {
+    opacity: 0.35;
+}
+
+.an2-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none;
+}
+
+.an2-center b {
+    font-size: 30px;
+    line-height: 1;
+}
+
+.an2-center span {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.an2-center small {
+    font-size: 11px;
+    color: #7a3e19;
+}
+
+.an2-donut-tip {
+    top: -10px;
+    left: 62%;
+}
+
+.an2-legend {
+    width: 100%;
+    display: grid;
+    gap: 2px;
+}
+
+.an2-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.an2-legend-row:hover,
+.an2-legend-row.is-on {
+    background: #fff4d6;
+}
+
+.an2-legend-row i {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    border-radius: 3px;
+}
+
+.an2-legend-row span {
+    flex: 1;
+    font-weight: 600;
+}
+
+.an2-legend-row b {
+    font-size: 14px;
+}
+
+.an2-legend-row em {
+    width: 38px;
+    font-size: 12px;
+    font-style: normal;
+    text-align: right;
+    color: #7a3e19;
+}
+
+/* Insights */
+.an2-insights {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.an2-insight {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #e3d5b5;
+    background: #fff;
+}
+
+.an2-insight b {
+    display: block;
+    font-size: 13.5px;
+}
+
+.an2-insight p {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: #7a3e19;
+}
+
+.an2-insight-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    background: #efe8d4;
+    color: #7b6658;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.an2-insight-tag {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #7b6658;
+}
+
+.an2-insight.is-positive .an2-insight-icon {
+    background: #d9f0e3;
+    color: #2f8f5b;
+}
+
+.an2-insight.is-positive .an2-insight-tag {
+    color: #2f8f5b;
+}
+
+.an2-insight.is-warning .an2-insight-icon {
+    background: #fff3cd;
+    color: #8a5a00;
+}
+
+.an2-insight.is-warning .an2-insight-tag {
+    color: #8a5a00;
+}
+
+@media (max-width: 1100px) {
+    .an2-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .an2-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.an2-plot {
+    height: 300px;
+}
+
+/* Bar tooltip sits beside the bar so it never covers the header */
+.an2-bar-area .an2-bar-tip {
+    left: calc(50% + min(23px, 35%) + 8px);
+    transform: translateY(50%);
+}
+
+.an2-bar-area .an2-bar-tip.is-left {
+    left: auto;
+    right: calc(50% + min(23px, 35%) + 8px);
+}
+
+/* Strip: same as the other pages — short note beside the number */
+.an2-strip > div:not(.um-strip-total) em {
+    display: inline;
+    margin: 0 0 0 6px;
+    color: #8a6a55;
+    font-size: 12px;
+}
+
+.an2-strip > .um-strip-total em {
+    display: block;
+    margin: 2px 0 0;
+    font-size: 11.5px;
+    color: #f3dcc0;
+}

@@ -6,6 +6,8 @@ const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const INITIAL_CONFIG = {
     title: "Complete Shelter Report",
     reportType: "all",
+    species: "all",
+    includeAnimals: true,
     dateRange: "all",
     // Used when dateRange is "custom" (YYYY-MM-DD)
     fromDate: "",
@@ -104,6 +106,9 @@ export default function Reports() {
     );
 
     const [listFilter, setListFilter] = useState("all");
+    const [listSearch, setListSearch] = useState("");
+    const [typeFilter, setTypeFilter] = useState("all");
+    const [speciesFilter, setSpeciesFilter] = useState("all");
 
     const requestJson = useCallback(async (url, options = {}) => {
         const token = getToken();
@@ -155,12 +160,25 @@ export default function Reports() {
         setConfig((current) => ({
             ...current,
             [key]: value,
+            // No animal list = no dogs/cats split
+            ...(key === "includeAnimals" && !value ? { species: "all" } : {}),
         }));
     }
+
+    const speciesLocked = config.reportType === "all" && !config.includeAnimals;
 
     // The generate endpoint returns a ZIP file, not JSON.
     async function handleGenerateReport(event) {
         event.preventDefault();
+
+        if (
+            config.reportType === "all" &&
+            ["includeAnimals", "includeMedical", "includeVaccinations", "includeAdoptions", "includeFoster", "includeLostFound"]
+                .every((key) => !config[key])
+        ) {
+            setError("Pick at least one dataset to include.");
+            return;
+        }
 
         // Custom range: a start date is needed; no end date = that one day
         let body = config;
@@ -339,17 +357,42 @@ export default function Reports() {
         { value: "all", label: "All records" },
         { value: "current-year", label: "This year" },
         { value: "current-month", label: "This month" },
-        { value: "custom", label: "Custom" },
+        { value: "custom", label: "Custom range" },
     ];
+
+    const REPORT_TYPES = [
+        { value: "all", label: "Complete shelter report", short: "Complete" },
+        { value: "animals", label: "Animals", short: "Animals" },
+        { value: "medical", label: "Medical records", short: "Medical" },
+        { value: "vaccinations", label: "Vaccinations", short: "Vaccinations" },
+        { value: "adoption", label: "Adoption applications", short: "Adoptions" },
+        { value: "foster", label: "Foster assignments", short: "Foster" },
+        { value: "lost-found", label: "Lost and found reports", short: "Lost & Found" },
+    ];
+
+    const SPECIES = [
+        { value: "all", label: "Dogs & cats" },
+        { value: "dog", label: "Dogs only" },
+        { value: "cat", label: "Cats only" },
+    ];
+
+    const SPECIES_TAG = { all: "Dogs & cats", dog: "Dogs", cat: "Cats" };
+
+    const typeShort = (type) =>
+        REPORT_TYPES.find((item) => item.value === type)?.short || "Complete";
+
+    const reportSpecies = (report) =>
+        report.species || report.datasets?.species || "all";
 
     const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local
 
     const DATASETS = [
-        { key: "includeMedical", label: "Medical records" },
-        { key: "includeVaccinations", label: "Vaccination records" },
-        { key: "includeAdoptions", label: "Adoption applications" },
-        { key: "includeFoster", label: "Foster assignments" },
-        { key: "includeLostFound", label: "Lost and found reports" },
+        { key: "includeAnimals", label: "Animals" },
+        { key: "includeMedical", label: "Medical" },
+        { key: "includeVaccinations", label: "Vaccinations" },
+        { key: "includeAdoptions", label: "Adoptions" },
+        { key: "includeFoster", label: "Foster" },
+        { key: "includeLostFound", label: "Lost & Found" },
     ];
 
     const COUNT_LABELS = {
@@ -361,14 +404,35 @@ export default function Reports() {
         lost_found_reports: "lost & found",
     };
 
-    const shownReports =
-        listFilter === "all"
-            ? generatedReports
-            : generatedReports.filter((report) => report.status === listFilter);
+    const now = new Date();
+    const thisMonthCount = generatedReports.filter((report) => {
+        const created = report.createdAt ? new Date(report.createdAt) : null;
+        return (
+            created &&
+            created.getFullYear() === now.getFullYear() &&
+            created.getMonth() === now.getMonth()
+        );
+    }).length;
+
+    const searchTerm = listSearch.trim().toLowerCase();
+
+    const shownReports = generatedReports.filter((report) => {
+        if (listFilter !== "all" && (report.status || "draft") !== listFilter) return false;
+        if (typeFilter !== "all" && (report.type || "all") !== typeFilter) return false;
+        if (speciesFilter !== "all" && reportSpecies(report) !== speciesFilter) return false;
+        if (!searchTerm) return true;
+
+        return [report.title, report.createdByName]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(searchTerm));
+    });
+
+    const statusCount = (status) =>
+        generatedReports.filter((report) => (report.status || "draft") === status).length;
 
     return (
-        <section className="rp-page">
-            <div className="rp-strip">
+        <section className="rp-page rp2-page">
+            <div className="um-strip rp2-strip">
                 <div className="um-strip-total">
                     <b>{generatedReports.length}</b>
                     <small>Total reports</small>
@@ -380,6 +444,10 @@ export default function Reports() {
                 <div>
                     <small>Drafts</small>
                     <b>{draftReports}</b>
+                </div>
+                <div>
+                    <small>This month</small>
+                    <b>{thisMonthCount}</b>
                 </div>
             </div>
 
@@ -395,47 +463,72 @@ export default function Reports() {
                 </p>
             )}
 
-            <div className="rp-grid">
-                {/* New report */}
-                <form className="gs-card rp-form" onSubmit={handleGenerateReport}>
-                    <h3>
-                        <span className="gs-mark">New report</span>
-                    </h3>
-                    <p className="rp-sub">Creates a ZIP with one CSV file per dataset.</p>
+            <div className="rp2-grid">
+                {/* Create new report */}
+                <form className="rp2-card rp2-form" onSubmit={handleGenerateReport}>
+                    <h3>Create new report</h3>
+                    <p className="rp2-sub">Downloads as a ZIP with one CSV file per dataset.</p>
 
-                    <label className="gs-field">
-                        Report title
-                        <input
-                            type="text"
-                            value={config.title}
-                            maxLength={160}
-                            required
-                            onChange={(event) => updateConfig("title", event.target.value)}
-                        />
-                    </label>
+                    <label className="rp2-label" htmlFor="rp2-type">Report type</label>
+                    <select
+                        id="rp2-type"
+                        className="rp2-select"
+                        value={config.reportType}
+                        onChange={(event) => updateConfig("reportType", event.target.value)}
+                    >
+                        {REPORT_TYPES.map((item) => (
+                            <option key={item.value} value={item.value}>
+                                {item.label}
+                            </option>
+                        ))}
+                    </select>
 
-                    <div className="rp-label">Date range</div>
-                    <div className="rp-seg" role="radiogroup" aria-label="Date range">
-                        {DATE_RANGES.map((range) => (
+                    <span className="rp2-label">Animals</span>
+                    <div
+                        className={`rp2-seg${speciesLocked ? " is-disabled" : ""}`}
+                        role="radiogroup"
+                        aria-label="Animals"
+                        aria-disabled={speciesLocked}
+                    >
+                        {SPECIES.map((item) => (
                             <button
                                 type="button"
-                                key={range.value}
+                                key={item.value}
                                 role="radio"
-                                aria-checked={config.dateRange === range.value}
-                                className={config.dateRange === range.value ? "on" : ""}
-                                onClick={() => updateConfig("dateRange", range.value)}
+                                aria-checked={config.species === item.value}
+                                className={config.species === item.value ? "on" : ""}
+                                disabled={speciesLocked}
+                                onClick={() => updateConfig("species", item.value)}
                             >
-                                {range.label}
+                                {item.label}
                             </button>
                         ))}
                     </div>
+                    {speciesLocked && (
+                        <p className="rp2-hint">Check "Animals" under Include to pick dogs or cats.</p>
+                    )}
+
+                    <label className="rp2-label" htmlFor="rp2-range">Date range</label>
+                    <select
+                        id="rp2-range"
+                        className="rp2-select"
+                        value={config.dateRange}
+                        onChange={(event) => updateConfig("dateRange", event.target.value)}
+                    >
+                        {DATE_RANGES.map((range) => (
+                            <option key={range.value} value={range.value}>
+                                {range.label}
+                            </option>
+                        ))}
+                    </select>
 
                     {config.dateRange === "custom" && (
-                        <div className="rp-dates">
-                            <label className="gs-field">
-                                From
+                        <div className="rp2-dates">
+                            <label>
+                                <span>From</span>
                                 <input
                                     type="date"
+                                    className="rp2-input"
                                     value={config.fromDate}
                                     max={today}
                                     required
@@ -443,62 +536,72 @@ export default function Reports() {
                                 />
                             </label>
 
-                            <label className="gs-field">
-                                <span>
-                                    To <small>(optional)</small>
-                                </span>
+                            <label>
+                                <span>To <small>(optional)</small></span>
                                 <input
                                     type="date"
+                                    className="rp2-input"
                                     value={config.toDate}
                                     min={config.fromDate || undefined}
                                     max={today}
                                     onChange={(event) => updateConfig("toDate", event.target.value)}
                                 />
                             </label>
-
-                            <p className="rp-hint rp-dates-hint">
-                                Leave "To" empty to get one specific day only.
-                            </p>
                         </div>
                     )}
 
-                    <div className="rp-label">Include</div>
-                    <div className="rp-checks">
-                        {DATASETS.map((item) => (
-                            <button
-                                type="button"
-                                key={item.key}
-                                role="checkbox"
-                                aria-checked={config[item.key]}
-                                className={`rp-check ${config[item.key] ? "on" : ""}`}
-                                onClick={() => updateConfig(item.key, !config[item.key])}
-                            >
-                                <i aria-hidden="true" />
-                                {item.label}
-                            </button>
-                        ))}
-                    </div>
+                    {config.reportType === "all" && (
+                        <>
+                            <span className="rp2-label">Include</span>
+                            <div className="rp2-checks">
+                                {DATASETS.map((item) => (
+                                    <label className="rp2-check" key={item.key}>
+                                        <input
+                                            type="checkbox"
+                                            checked={config[item.key]}
+                                            onChange={() => updateConfig(item.key, !config[item.key])}
+                                        />
+                                        <i aria-hidden="true" />
+                                        {item.label}
+                                    </label>
+                                ))}
+                            </div>
+                            {DATASETS.every((item) => !config[item.key]) && (
+                                <p className="rp2-hint rp2-warn">Pick at least one to include.</p>
+                            )}
+                        </>
+                    )}
 
-                    <p className="rp-hint">Animal profiles are always included.</p>
+                    <label className="rp2-label" htmlFor="rp2-title">Report title</label>
+                    <input
+                        id="rp2-title"
+                        type="text"
+                        className="rp2-input"
+                        value={config.title}
+                        maxLength={160}
+                        required
+                        onChange={(event) => updateConfig("title", event.target.value)}
+                    />
 
-                    <button type="submit" className="gs-btn primary rp-generate" disabled={generating}>
+                    <button type="submit" className="rp2-generate" disabled={generating}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <path d="M12 3v12M6 11l6 6 6-6M4 21h16" />
+                        </svg>
                         {generating ? "Generating..." : "Generate report"}
                     </button>
                 </form>
 
                 {/* Generated reports */}
-                <section className="gs-card">
-                    <div className="rp-list-head">
-                        <h3>
-                            <span className="gs-mark">Generated reports</span>
-                        </h3>
+                <section className="rp2-card">
+                    <div className="rp2-head">
+                        <h3>Generated reports</h3>
 
-                        <div className="rp-filters">
+                        <div className="rp2-chips">
                             {[
-                                ["all", "All"],
-                                ["finalized", "Finalized"],
-                                ["draft", "Drafts"],
-                            ].map(([value, label]) => (
+                                ["all", "All", generatedReports.length],
+                                ["finalized", "Finalized", statusCount("finalized")],
+                                ["draft", "Drafts", statusCount("draft")],
+                            ].map(([value, label, count]) => (
                                 <button
                                     type="button"
                                     key={value}
@@ -506,9 +609,50 @@ export default function Reports() {
                                     onClick={() => setListFilter(value)}
                                 >
                                     {label}
+                                    <em>{count}</em>
                                 </button>
                             ))}
                         </div>
+                    </div>
+
+                    <div className="rp2-tools">
+                        <label className="rp2-search">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7" />
+                                <path d="m21 21-4.3-4.3" />
+                            </svg>
+                            <input
+                                type="search"
+                                value={listSearch}
+                                placeholder="Search report name or author..."
+                                onChange={(event) => setListSearch(event.target.value)}
+                            />
+                        </label>
+
+                        <select
+                            className="rp2-select"
+                            value={typeFilter}
+                            aria-label="Filter by type"
+                            onChange={(event) => setTypeFilter(event.target.value)}
+                        >
+                            <option value="all">All types</option>
+                            {REPORT_TYPES.map((item) => (
+                                <option key={item.value} value={item.value}>
+                                    {item.short}
+                                </option>
+                            ))}
+                        </select>
+
+                        <select
+                            className="rp2-select"
+                            value={speciesFilter}
+                            aria-label="Filter by animals"
+                            onChange={(event) => setSpeciesFilter(event.target.value)}
+                        >
+                            <option value="all">All animals</option>
+                            <option value="dog">Dogs</option>
+                            <option value="cat">Cats</option>
+                        </select>
                     </div>
 
                     {loading ? (
@@ -519,85 +663,120 @@ export default function Reports() {
                         <p className="rp-empty">
                             {generatedReports.length === 0
                                 ? "No reports yet. Generate one and it will be saved here."
-                                : "No reports match this filter."}
+                                : "No reports match your search or filters."}
                         </p>
                     ) : (
-                        <div className="rp-list">
-                            {shownReports.map((report) => {
-                                const status = report.status || "draft";
-                                const counts =
-                                    report.recordCounts && typeof report.recordCounts === "object"
-                                        ? Object.entries(report.recordCounts)
-                                        : [];
-                                const createdAt = report.createdAt ? new Date(report.createdAt) : null;
+                        <div className="rp2-table-wrap">
+                            <table className="rp2-table">
+                                <thead>
+                                    <tr>
+                                        <th>Report name</th>
+                                        <th>Type</th>
+                                        <th>Date range</th>
+                                        <th>Generated by</th>
+                                        <th>Status</th>
+                                        <th className="rp2-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {shownReports.map((report) => {
+                                        const status = report.status || "draft";
+                                        const speciesKey = reportSpecies(report);
+                                        const counts =
+                                            report.recordCounts && typeof report.recordCounts === "object"
+                                                ? Object.entries(report.recordCounts)
+                                                : [];
+                                        const createdAt = report.createdAt ? new Date(report.createdAt) : null;
+                                        const createdLabel =
+                                            createdAt && !Number.isNaN(createdAt.getTime())
+                                                ? createdAt.toLocaleString("en-PH", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric",
+                                                    hour: "numeric",
+                                                    minute: "2-digit",
+                                                })
+                                                : "";
 
-                                return (
-                                    <article className="rp-row" key={report._id}>
-                                        <div>
-                                            <h4>
-                                                {report.title || "Untitled report"}
-                                                <span className={`rp-pill ${status}`}>
-                                                    {status === "finalized" ? "Finalized" : "Draft"}
-                                                </span>
-                                            </h4>
+                                        return (
+                                            <tr key={report._id}>
+                                                <td>
+                                                    <b>{report.title || "Untitled report"}</b>
+                                                    {counts.length > 0 && (
+                                                        <div className="rp2-counts">
+                                                            {counts.map(([key, value]) => (
+                                                                <span key={key}>
+                                                                    {COUNT_LABELS[key] || key.replaceAll("_", " ")} {value}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <b className="rp2-type">{typeShort(report.type)}</b>
+                                                    <span className={`rp2-species is-${speciesKey}`}>
+                                                        {SPECIES_TAG[speciesKey] || "Dogs & cats"}
+                                                    </span>
+                                                </td>
+                                                <td>{report.period || "All records"}</td>
+                                                <td>
+                                                    <b>{report.createdByName || "Unknown"}</b>
+                                                    <small className="rp2-muted">{createdLabel}</small>
+                                                </td>
+                                                <td>
+                                                    <span className={`rp2-pill ${status}`}>
+                                                        {status === "finalized" ? "Finalized" : "Draft"}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="rp2-actions">
+                                                        {status === "draft" && (
+                                                            <button
+                                                                type="button"
+                                                                className="rp2-mini"
+                                                                onClick={() => handleFinalizeReport(report._id)}
+                                                            >
+                                                                Finalize
+                                                            </button>
+                                                        )}
 
-                                            <p className="rp-meta">
-                                                {report.period || "All records"}
-                                                {" · by "}
-                                                {report.createdByName || "Unknown"}
-                                                {createdAt && !Number.isNaN(createdAt.getTime())
-                                                    ? ` · ${createdAt.toLocaleString("en-PH", {
-                                                        month: "short",
-                                                        day: "numeric",
-                                                        year: "numeric",
-                                                        hour: "numeric",
-                                                        minute: "2-digit",
-                                                    })}`
-                                                    : ""}
-                                            </p>
+                                                        <button
+                                                            type="button"
+                                                            className="rp2-icon"
+                                                            title="Download ZIP"
+                                                            aria-label={`Download ${report.title || "report"}`}
+                                                            onClick={() => handleDownloadReport(report)}
+                                                        >
+                                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                                                                <path d="M12 3v12M6 11l6 6 6-6M4 21h16" />
+                                                            </svg>
+                                                        </button>
 
-                                            {counts.length > 0 && (
-                                                <div className="rp-counts">
-                                                    {counts.map(([key, value]) => (
-                                                        <span key={key}>
-                                                            {COUNT_LABELS[key] || key.replaceAll("_", " ")} {value}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="rp-actions">
-                                            {status === "draft" && (
-                                                <button
-                                                    type="button"
-                                                    className="gs-btn ghost"
-                                                    onClick={() => handleFinalizeReport(report._id)}
-                                                >
-                                                    Finalize
-                                                </button>
-                                            )}
-
-                                            <button
-                                                type="button"
-                                                className="gs-btn rp-download"
-                                                onClick={() => handleDownloadReport(report)}
-                                            >
-                                                Download ZIP
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                className="gs-btn rp-delete"
-                                                onClick={() => handleDeleteReport(report._id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </article>
-                                );
-                            })}
+                                                        <button
+                                                            type="button"
+                                                            className="rp2-icon is-danger"
+                                                            title="Delete"
+                                                            aria-label={`Delete ${report.title || "report"}`}
+                                                            onClick={() => handleDeleteReport(report._id)}
+                                                        >
+                                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                                                                <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
+                    )}
+
+                    {!loading && generatedReports.length > 0 && (
+                        <p className="rp2-foot">
+                            Showing {shownReports.length} of {generatedReports.length}
+                        </p>
                     )}
                 </section>
             </div>
