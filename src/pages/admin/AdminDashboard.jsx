@@ -50,6 +50,7 @@ import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
 import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 import ActivityLog from "./modules/ActivityLog";
+import AccountSettings from "../AccountSettings";
 
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
@@ -117,7 +118,7 @@ const adminMenu = [
     { key: "intake-forecast", label: "AI Intake Forecast" },
     { key: "reports", label: "Reports" },
     { key: "activity-log", label: "Activity Log" },
-    { key: "global-settings", label: "Global Settings" }
+    { key: "global-settings", label: "Settings" }
 ]
 
 
@@ -248,6 +249,16 @@ export default function AdminDashboard({ setPage }) {
         confirmBox?.resolve(answer);
         setConfirmBox(null);
     }
+
+    // Name + photo for the sidebar card (re-read after Settings saves)
+    const [, setUserVersion] = useState(0);
+    const sidebarUser = (() => {
+        try {
+            return JSON.parse(localStorage.getItem("rescuebase_user") || "{}") || {};
+        } catch {
+            return {};
+        }
+    })();
 
     function signOut(goTo) {
         localStorage.removeItem("token");
@@ -453,7 +464,14 @@ export default function AdminDashboard({ setPage }) {
         }
 
         if (activeAdminPage === "global-settings") {
-            return <GlobalSettings />;
+            return (
+                <AccountSettings
+                    initialTab="system"
+                    onProfileSaved={() => setUserVersion((n) => n + 1)}
+                    onLogout={() => signOut("home")}
+                    extraTabs={[{ key: "system", label: "System settings", content: <GlobalSettings /> }]}
+                />
+            );
         }
         
         if (activeAdminPage === "intake-forecast") {
@@ -601,10 +619,14 @@ export default function AdminDashboard({ setPage }) {
                     onClick={() => signOut("home")}
                 >
                     <span className="admin-user-avatar">
-                        <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                        {sidebarUser.profileImage ? (
+                            <img className="is-photo" src={sidebarUser.profileImage} alt="" />
+                        ) : (
+                            <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                        )}
                     </span>
                     <span className="admin-user-info">
-                        <strong>Admin User</strong>
+                        <strong>{sidebarUser.name || sidebarUser.username || "Admin User"}</strong>
                         <small>Admin · Log out</small>
                     </span>
                     <span className="admin-user-arrow" aria-hidden="true">→</span>
@@ -680,10 +702,10 @@ export default function AdminDashboard({ setPage }) {
                                 <span className="gs-maint-dot" aria-hidden="true" />
                                 <span className="gs-maint-text">
                                     <b>Maintenance mode is on for everyone</b>
-                                    Pages won't load until you turn it off. Global Settings still works.
+                                    Pages won't load until you turn it off. System settings still works.
                                 </span>
                                 <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
-                                    Open Global Settings
+                                    Open System settings
                                 </button>
                             </div>
                         ) : (
@@ -694,7 +716,7 @@ export default function AdminDashboard({ setPage }) {
                                     Users can't use RescueBase right now. Only admins are signed in.
                                 </span>
                                 <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
-                                    Turn off in Global Settings
+                                    Turn off in System settings
                                 </button>
                             </div>
                         )

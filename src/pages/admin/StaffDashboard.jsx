@@ -50,6 +50,7 @@ import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
 import Recommendations from "./modules/adoptions/Recommendations";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
+import AccountSettings from "../AccountSettings";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -65,6 +66,7 @@ const ICONS = {
     analytics: "/icons/sidebar/Status.svg",
     "intake-forecast": "/icons/sidebar/forecast.svg",
     reports: "/icons/sidebar/clipboard-brown.svg",
+    settings: "/icons/sidebar/settings-brown.svg",
 };
 
 const staffMenu = [
@@ -103,6 +105,7 @@ const staffMenu = [
     { key: "analytics", label: "Analytics" },
     { key: "intake-forecast", label: "AI Intake Forecast" },
     { key: "reports", label: "Reports" },
+    { key: "settings", label: "Settings" },
 ]
 
 //removed the mock data
@@ -211,6 +214,16 @@ export default function StaffDashboard({ setPage }) {
         confirmBox?.resolve(answer);
         setConfirmBox(null);
     }
+
+    // Name + photo for the sidebar card (re-read after Settings saves)
+    const [, setUserVersion] = useState(0);
+    const sidebarUser = (() => {
+        try {
+            return JSON.parse(localStorage.getItem("rescuebase_user") || "{}") || {};
+        } catch {
+            return {};
+        }
+    })();
 
     function signOut(goTo) {
         localStorage.removeItem("token");
@@ -365,6 +378,10 @@ export default function StaffDashboard({ setPage }) {
 
         if (activeStaffPage === "analytics") {
             return <Analytics />;
+        }
+
+        if (activeStaffPage === "settings") {
+            return <AccountSettings onLogout={() => signOut("home")} onProfileSaved={() => setUserVersion((n) => n + 1)} />;
         }
 
         if (activeStaffPage === "intake-forecast") {
@@ -559,10 +576,14 @@ export default function StaffDashboard({ setPage }) {
                     onClick={() => signOut("home")}
                 >
                     <span className="staff-user-avatar">
-                        <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                        {sidebarUser.profileImage ? (
+                            <img className="is-photo" src={sidebarUser.profileImage} alt="" />
+                        ) : (
+                            <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                        )}
                     </span>
                     <span className="staff-user-info">
-                        <strong>Staff User</strong>
+                        <strong>{sidebarUser.name || sidebarUser.username || "Staff User"}</strong>
                         <small>Staff · Log out</small>
                     </span>
                     <span className="staff-user-arrow" aria-hidden="true">→</span>

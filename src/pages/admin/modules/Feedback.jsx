@@ -55,6 +55,16 @@ function Stars({ rating, size }) {
     );
 }
 
+// Profile photo, or initials when the user has none
+function UserAvatar({ src, name, big = false }) {
+    const letters = String(name || "?").split(" ").filter(Boolean).slice(0, 2).map((part) => part[0].toUpperCase()).join("") || "?";
+    return (
+        <span className={`fb2-avatar ${big ? "is-big" : ""}`} aria-hidden="true">
+            {src ? <img src={src} alt="" /> : letters}
+        </span>
+    );
+}
+
 export default function Feedback() {
     const [feedback, setFeedback] = useState([]);
     const [statusFilter, setStatusFilter] = useState("all");
@@ -439,8 +449,13 @@ export default function Feedback() {
                                     return (
                                         <tr key={item._id} className="fb2-row" onClick={() => openFeedback(item)}>
                                             <td>
-                                                <b>{item.userName || "Unknown user"}</b>
-                                                <small className="fb2-muted">{item.userEmail}</small>
+                                                <div className="fb2-who">
+                                                    <UserAvatar src={item.userImage} name={item.userName} />
+                                                    <div>
+                                                        <b>{item.userName || "Unknown user"}</b>
+                                                        <small className="fb2-muted">{item.userEmail}</small>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td>
                                                 <span className="fb2-role">{ROLE_LABELS[item.role] || item.role}</span>
@@ -497,9 +512,12 @@ export default function Feedback() {
                         onClick={(event) => event.stopPropagation()}
                     >
                         <div className="fb2-modal-head">
-                            <div>
+                            <div className="fb2-who">
+                                <UserAvatar src={selectedFeedback.userImage} name={selectedFeedback.userName} big />
+                                <div>
                                 <h3>{selectedFeedback.userName || "Unknown user"}</h3>
                                 <small>{selectedFeedback.userEmail}</small>
+                                </div>
                             </div>
                             <div className="fb2-modal-top">
                                 {renderActions(selectedFeedback, true)}

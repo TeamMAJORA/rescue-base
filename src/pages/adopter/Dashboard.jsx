@@ -30,6 +30,7 @@ import RoleApplication from "./modules/RoleApplication";
 import PetList from "../../components/adopter/PetList";
 import PetDetailPanel from "../../components/adopter/PetDetailPanel";
 import { formatAge } from "../../utils/formatAge";
+import AccountSettings from "../AccountSettings";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -102,6 +103,12 @@ const adopterMenu = [
         icon: "Feedback-brown.svg",
         activeIcon: "Feedback-light.svg",
     },
+    {
+        key: "settings",
+        label: "Settings",
+        icon: "settings-brown.svg",
+        activeIcon: "settings-light.svg",
+    },
 ];
 
 const emptyPet = {
@@ -149,6 +156,7 @@ function getAdopterPageTitle(activeAdopterPage) {
 
 export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
     const savedUser = getSavedUser();
+    const [, setUserVersion] = useState(0);
 
     // Signed out: login expired (server answered 401) or this account is not an adopter
     const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
@@ -1415,6 +1423,16 @@ async function fetchPets({ silent = false } = {}) {
 
         if (activeAdopterPage === "feedback") {
             return <FeedbackForm />
+        }
+
+        if (activeAdopterPage === "settings") {
+            return (
+                <AccountSettings
+                    onLogout={handleLogout}
+                    onProfileSaved={() => setUserVersion((n) => n + 1)}
+                    onApplyRole={() => setActiveAdopterPage("role-application")}
+                />
+            );
         }
 
         if (activeAdopterPage === "role-application") {
