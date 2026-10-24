@@ -258,3 +258,22 @@ export function isPetAvailable(pet) {
 
     return status === "available";
 }
+
+// animalId → AI score from the server (null = AI couldn't score it)
+export function toAiScores(matches = []) {
+    return new Map(
+        matches
+            .filter((match) => match.score !== null)
+            .map((match) => [String(match.animalId), match.score])
+    );
+}
+
+// Use the server's AI score when there is one; the formula stays as the fallback
+export function applyAiScore(recommendation, aiScores) {
+    const aiScore = aiScores.get(String(recommendation.pet._id));
+    if (aiScore === undefined) return recommendation;
+
+    // floor, not round: the server caps conflicts at 59.99 and that must stay below 60
+    const score = Math.floor(aiScore);
+    return { ...recommendation, score, tier: getTier(score), isAi: true };
+}

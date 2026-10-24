@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FACTORS,
+    applyAiScore,
     calculateRecommendation,
     isPetAvailable,
+    toAiScores,
 } from "../../../utils/matchScore";
+const API = import.meta.env.VITE_BACKEND_URL;
 
 function formatStatus(value) {
     return String(value || "available").replaceAll("_", " ");
@@ -41,16 +44,37 @@ export default function Recommendations({
 }) {
     const quiz = useMemo(() => readSavedQuiz(), []);
 
+    const [aiScores, setAiScores] = useState(new Map());
+
+    // Fetch the server's AI scores again whenever the pets reload
+    useEffect(() => {
+        let quizResponseId = null;
+
+        try {
+            quizResponseId = JSON.parse(
+                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+            )?.quizResponseId;
+        } catch {
+            // bad saved data → formula only
+        }
+
+        if (!quizResponseId) return;
+
+        fetch(`${API}/api/matchmaking/results/${quizResponseId}`)
+            .then((response) => response.json())
+            .then((data) => setAiScores(toAiScores(data.matches)))
+            .catch(() => setAiScores(new Map()));
+    }, [pets]);
+
     const recommendations = useMemo(() => {
         if (!quiz) {
             return [];
         }
 
         return pets
-            .map((pet) => calculateRecommendation(pet, quiz))
+            .map((pet) => applyAiScore(calculateRecommendation(pet, quiz), aiScores))
             .sort((first, second) => second.score - first.score);
-    }, [pets, quiz]);
-
+    }, [pets, quiz, aiScores]);
     
     // Carousel: which recommendation is shown in full below
     const [activeIndex, setActiveIndex] = useState(0);
@@ -490,6 +514,7 @@ export default function Recommendations({
                                     tier,
                                     breakdown,
                                     measuredCount,
+                                    isAi,
                                     matchesPreferredType,
                                     matchesPreferredSize,
                                 } = recommendation;
@@ -552,7 +577,7 @@ export default function Recommendations({
 
                                             <div className="rcard-section-head">
                                                 <h4>Behavioral Compatibility</h4>
-                                                <span>{measuredCount}/{FACTORS.length} factors assessed</span>
+                                                <span>{measuredCount}/{FACTORS.length} factors assessed{isAi ? " · AI score" : ""}</span>
                                             </div>
 
                                             <div className="rcard-factors">
