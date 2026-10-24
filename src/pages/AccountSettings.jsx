@@ -338,7 +338,6 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                         <section className="as2-card">
                             <header className="as2-card-head">
                                 <h2>Profile</h2>
-                                <p>How your name and photo appear across RescueBase.</p>
                             </header>
 
                             <div className="as2-photo-row">
@@ -531,7 +530,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                         <section className="as2-card">
                             <header className="as2-card-head">
                                 <h2>Email notifications</h2>
-                                <p>Choose which emails you get. In-app notifications still show either way.</p>
+                                <p>Choose which emails you get. & in app notifications still updates.</p>
                             </header>
 
                             {emailKeys.length === 0 && (
