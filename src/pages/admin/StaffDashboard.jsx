@@ -32,6 +32,7 @@ import Rescue from "./modules/Rescue";
 import LostFound from "./modules/LostFound";
 import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
+import IntakeForecast from "./modules/IntakeForecast";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
 
@@ -62,6 +63,7 @@ const ICONS = {
     "gis-mapping": "/icons/strayMap-brown.svg",
     feedback: "/icons/sidebar/Feedback-brown.svg",
     analytics: "/icons/sidebar/Status.svg",
+    "intake-forecast": "/icons/sidebar/forecast.svg",
     reports: "/icons/sidebar/clipboard-brown.svg",
 };
 
@@ -99,6 +101,7 @@ const staffMenu = [
     { key: "gis-mapping", label: "GIS Mapping" },
     { key: "feedback", label: "Feedback" },
     { key: "analytics", label: "Analytics" },
+    { key: "intake-forecast", label: "AI Intake Forecast" },
     { key: "reports", label: "Reports" },
 ]
 
@@ -362,6 +365,10 @@ export default function StaffDashboard({ setPage }) {
 
         if (activeStaffPage === "analytics") {
             return <Analytics />;
+        }
+
+        if (activeStaffPage === "intake-forecast") {
+            return <IntakeForecast />;
         }
 
         if (activeStaffPage === "reports") {

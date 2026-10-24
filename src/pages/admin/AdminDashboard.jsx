@@ -71,6 +71,7 @@ const ICONS = {
     "gis-mapping": "/icons/strayMap-brown.svg",
     feedback: "/icons/sidebar/Feedback-brown.svg",
     analytics: "/icons/sidebar/Status.svg",
+    "intake-forecast": "/icons/sidebar/forecast.svg",
     reports: "/icons/sidebar/clipboard-brown.svg",
     "activity-log": "/icons/sidebar/history.svg",
     "global-settings": "/icons/sidebar/settings-brown.svg",
