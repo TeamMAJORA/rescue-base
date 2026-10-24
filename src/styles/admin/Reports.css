@@ -1460,3 +1460,12 @@
     .as2-panel .gs-grid, .as2-panel .gs-fields { grid-template-columns: 1fr; }
 }
 .as2-panel .gs-mark { background: none; padding: 0; font-size: 16px; font-weight: 800; }
+
+/* ===================== Needed Supplies (ns2, reuses rs2) ===================== */
+.ns2-progress { width: 120px; height: 8px; background: #efe4cb; overflow: hidden; margin-bottom: 4px; }
+.ns2-progress span { display: block; height: 100%; background: #fb8500; }
+.ns2-progress span.is-done { background: #2e9e4f; }
+.ns2-remaining { font-weight: 800; font-size: 15px; }
+.rs2-status:not(.is-active):not(.is-completed):not(.is-pending):not(.is-accepted) { background: #f1ece2; color: #7a6a58; }
+.ns2-actions { display: grid; grid-template-columns: 52px 76px 32px; gap: 8px; justify-content: end; align-items: center; }
+.ns2-actions .rs2-mini { width: 100%; justify-content: center; text-align: center; }
