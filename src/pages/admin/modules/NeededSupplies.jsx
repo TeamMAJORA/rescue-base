@@ -243,8 +243,27 @@ export default function NeededSupplies() {
     }
 
     useEffect(() => {
-        fetchSupplies();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        let alive = true;
+        fetch(`${API}/api/supplies`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+            .then((response) => response.json().then((data) => ({ response, data })))
+            .then(({ response, data }) => {
+                if (!alive) return;
+                if (!response.ok || !data.success) {
+                    setMessage(data.message || "Failed to fetch needed supplies.");
+                    setIsError(true);
+                    return;
+                }
+                setSupplies(data.supplies || []);
+            })
+            .catch(() => {
+                if (!alive) return;
+                setMessage("Server error while fetching supplies.");
+                setIsError(true);
+            })
+            .finally(() => {
+                if (alive) setLoading(false);
+            });
+        return () => { alive = false; };
     }, []);
 
     const counts = useMemo(() => {
