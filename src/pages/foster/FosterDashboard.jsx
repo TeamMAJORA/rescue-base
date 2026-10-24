@@ -9,6 +9,8 @@ import FosterNotifications from "./modules/FosterNotifications";
 import MedicalAssistance from "./modules/MedicalAssistance";
 import FosterUpdates from "./modules/FosterUpdates";
 import FeedbackForm from "../FeedbackForm";
+import AccountSettings from "../AccountSettings";
+//hehe nag add ko settings for all roles
 
 import "../../styles/foster/FosterDashboard.css";
 import "../../styles/foster/FosterApplication.css";
@@ -35,6 +37,7 @@ const PAGE_TITLES = {
     medical: "Medical Assistance",
     notifications: "Notifications",
     feedback: "Feedback",
+    settings: "Settings",
 };
 
 // Sidebar items (same icon set as the Adopter sidebar)
@@ -47,6 +50,7 @@ const FOSTER_MENU = [
     { key: "history", label: "Foster History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
     { key: "application", label: "My Application", icon: "/icons/sidebar/role-brown.svg", activeIcon: "/icons/sidebar/role-light.svg" },
     { key: "feedback", label: "Feedback", icon: "/icons/sidebar/Feedback-brown.svg", activeIcon: "/icons/sidebar/Feedback-light.svg" },
+    { key: "settings", label: "Settings", icon: "/icons/sidebar/settings-brown.svg", activeIcon: "/icons/sidebar/settings-light.svg" },
 ];
 
 export default function FosterDashboard({ setPage }) {
@@ -65,6 +69,7 @@ export default function FosterDashboard({ setPage }) {
         "Foster User";
 
     const [activePage, setActivePage] = useState("dashboard");
+    const [, setUserVersion] = useState(0);
     const [loading, setLoading] = useState(true);
     const [application, setApplication] = useState(null);
     const [confirmRevoke, setConfirmRevoke] = useState(false);
@@ -800,7 +805,9 @@ function goToPage(page, petId = null) {
 
                 ) : (
 
-                    pages[activePage]
+                    activePage === "settings"
+                        ? <AccountSettings onLogout={() => signOut("home")} onProfileSaved={() => setUserVersion((n) => n + 1)} />
+                        : pages[activePage]
 
                 )}
 

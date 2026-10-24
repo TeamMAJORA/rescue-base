@@ -1947,3 +1947,498 @@
     background: #fffaf2;
     color: #814b1c;
 }
+/* ===== Lost & Found: match Reports / Feedback (square controls, row buttons) ===== */
+.lost-found-page .lf2-search,
+.lost-found-page .lf2-select select {
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background-color: #fff;
+}
+
+.lost-found-page .lf2-search:focus,
+.lost-found-page .lf2-select select:focus {
+    border-color: #fb8500;
+}
+
+.lf2-mini {
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.lf2-mini.is-dark,
+.lf2-mini:hover {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.lf2-icon {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #f0c9c9;
+    border-radius: 0;
+    background: #fff;
+    color: #d62828;
+    cursor: pointer;
+}
+
+.lf2-icon:hover {
+    border-color: #d62828;
+}
+
+.lf2-name {
+    font-weight: 600;
+    color: #5a1b00;
+}
+
+.lf2-thumb {
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    background: #f6edd6;
+}
+
+.lf2-foot {
+    margin: 0;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+/* ===== Report-a-pet form (lfr2) — clean, square, matches other pages ===== */
+.lfr2 *,
+.lfr2 *::before,
+.lfr2 *::after {
+    box-sizing: border-box;
+}
+
+.lfr2-card {
+    padding: 20px 22px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 14px;
+    background: #fffdf4;
+    color: #5a1b00;
+}
+
+.lfr2-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.lfr2-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+.lfr2-head p {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: #7a3e19;
+}
+
+.lfr2 em {
+    font-style: normal;
+    color: #d62828;
+}
+
+.lfr2-seg {
+    display: flex;
+    border: 1px solid #5a1b00;
+}
+
+.lfr2-seg button {
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.lfr2-seg button + button {
+    border-left: 1px solid #5a1b00;
+}
+
+.lfr2-seg button.on {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.lfr2-sec {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.lfr2-sec h4 {
+    margin: 0 0 2px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.lfr2-sec > p {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+.lfr2-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.lfr2-span-2 {
+    grid-column: span 2;
+}
+
+.lfr2-span-4 {
+    grid-column: 1 / -1;
+}
+
+.lfr2-two {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+}
+
+.lfr2-col {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+}
+
+.lfr2-field {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+}
+
+.lfr2-field > span {
+    font-size: 12px;
+    font-weight: 700;
+    color: #5a1b00;
+}
+
+.lfr2-field > span small {
+    font-weight: 500;
+    color: #a08670;
+}
+
+.lfr2-field input,
+.lfr2-field select,
+.lfr2-field textarea {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff;
+    color: #3d2410;
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.lfr2-field textarea {
+    resize: vertical;
+}
+
+.lfr2-field select {
+    padding-right: 32px;
+    appearance: none;
+    background: #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 11px center;
+    cursor: pointer;
+}
+
+.lfr2-field input:focus,
+.lfr2-field select:focus,
+.lfr2-field textarea:focus {
+    border-color: #fb8500;
+}
+
+.lfr2-field input.is-readonly {
+    background: #faf3df;
+}
+
+.lfr2-age {
+    display: flex;
+}
+
+.lfr2-age input {
+    flex: 1;
+    min-width: 0;
+}
+
+.lfr2-age select {
+    width: auto;
+    border-left: 0;
+}
+
+.lfr2-photo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    flex-wrap: wrap;
+}
+
+.lfr2-photo img {
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    border: 1px solid #e3d5b5;
+}
+
+.lfr2-photo small {
+    font-size: 12px;
+    color: #a08670;
+}
+
+.lfr2-photo-btn {
+    padding: 8px 12px;
+    border: 1px solid #5a1b00;
+    background: #fff;
+    color: #5a1b00;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.lfr2-photo-btn:hover {
+    background: #5a1b00;
+    color: #fff;
+}
+
+.lfr2-photo-btn.is-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.lfr2-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.lfr2-error {
+    font-size: 12px;
+    color: #d62828;
+}
+
+.lfr2-map {
+    position: relative;
+    height: 230px;
+    border: 1px solid #e3d5b5;
+}
+
+
+.lfr2-coord {
+    font-size: 11.5px;
+    color: #7a3e19;
+}
+
+.lfr2-phone {
+    display: flex;
+}
+
+.lfr2-phone b {
+    padding: 9px 11px;
+    border: 1px solid #e3d5b5;
+    border-right: 0;
+    background: #faf3df;
+    font-size: 13px;
+}
+
+.lfr2-phone input {
+    flex: 1;
+    min-width: 0;
+}
+
+.lfr2-phone.is-invalid input {
+    border-color: #d62828;
+}
+
+.lfr2-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.lfr2-foot small {
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+.lfr2-foot > div {
+    display: flex;
+    gap: 8px;
+}
+
+.lfr2-btn {
+    padding: 10px 18px;
+    border: 1px solid #5a1b00;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.lfr2-btn.is-primary {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #fff;
+}
+
+.lfr2-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+@media (max-width: 900px) {
+    .lfr2-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lfr2-two {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Place search with suggestions (GIS map + report form map) */
+.gm-map-search,
+.lfr2-map-search {
+    position: absolute;
+    top: 10px;
+    left: 54px;
+    z-index: 600;
+    width: min(320px, calc(100% - 64px));
+}
+
+.gm-map-search input,
+.lfr2-map-search input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1px solid #e3d5b5;
+    border-radius: 0;
+    background: #fff;
+    color: #3d2410;
+    font: inherit;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(90, 27, 0, 0.18);
+    outline: none;
+}
+
+.gm-map-search input:focus,
+.lfr2-map-search input:focus {
+    border-color: #fb8500;
+}
+
+.gm-map-results {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid #e3d5b5;
+    border-top: 0;
+    background: #fff;
+    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.18);
+}
+
+.gm-map-results li + li {
+    border-top: 1px solid rgba(90, 27, 0, 0.08);
+}
+
+.gm-map-results button {
+    width: 100%;
+    display: grid;
+    gap: 1px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.gm-map-results button:hover,
+.gm-map-results button:focus-visible {
+    background: #fff4d6;
+    outline: none;
+}
+
+.gm-map-results b {
+    font-size: 13px;
+}
+
+.gm-map-results small {
+    font-size: 11.5px;
+    color: #7a3e19;
+}
+
+.gm-map-results .is-note {
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #7a3e19;
+}
+
+/* "My location" button on the report map (under the zoom buttons) */
+.lfr2-locate {
+    position: absolute;
+    top: 80px;
+    left: 10px;
+    z-index: 600;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.lfr2-locate img {
+    width: 18px;
+    height: 18px;
+}
+
+.lfr2-locate:hover {
+    background: #fff4d6;
+}
+
+.lfr2-locate.is-busy {
+    cursor: wait;
+    opacity: 0.6;
+}
