@@ -48,7 +48,6 @@ import VaccinationRecords from "./modules/animals/VaccinationRecords";
 import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
 import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
-import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 import ActivityLog from "./modules/ActivityLog";
 import AccountSettings from "../AccountSettings";
 
@@ -88,13 +87,8 @@ const adminMenu = [
         label: "Animals",
         children: [
             { key: "animal-profiles", label: "Animal Profiles" },
-            { key: "medical-records", label: "Medical Records" },
-            { key: "intake-records", label: "Intake Records" },
-            { key: "vaccination-records", label: "Vaccination Records" },
             { key: "behavior-assessment", label: "Behavioral Assessment" },
             { key: "qr-tags", label: "QR Tags" },
-            { key: "animal-transfers", label: "Animal Transfers" },
-            { key: "mobile-intake", label: "Mobile Field Intake" },
         ],
     },
 
@@ -372,7 +366,7 @@ export default function AdminDashboard({ setPage }) {
 
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
-            return <AdminOverview />;
+            return <AdminOverview onNavigate={setActiveAdminPage} />;
         }
 
         if (activeAdminPage === "users") {
@@ -381,6 +375,18 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "animals" || activeAdminPage === "animal-profiles") {
             return <AnimalProfiles />;
+        }
+
+        // Old record pages now live as tabs inside Animal Profiles
+        const animalRecordTabs = {
+            "intake-records": "intake",
+            "mobile-intake": "intake",
+            "medical-records": "medical",
+            "vaccination-records": "vaccinations",
+            "animal-transfers": "transfers",
+        };
+        if (animalRecordTabs[activeAdminPage]) {
+            return <AnimalProfiles key={activeAdminPage} initialTab={animalRecordTabs[activeAdminPage]} />;
         }
 
         if (activeAdminPage === "medical-records") {
@@ -455,9 +461,6 @@ export default function AdminDashboard({ setPage }) {
             return <AnimalTransfers />;
         }
 
-        if (activeAdminPage === "mobile-intake") {
-            return <MobileFieldIntake />;
-        }
 
         if (activeAdminPage === "activity-log") {
             return <ActivityLog />;

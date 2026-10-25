@@ -738,6 +738,13 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         </label>
                     </div>
 
+                    {!selectedAnimal && (
+                        <div className="ao-select-first" role="status">
+                            Select an animal first.
+                        </div>
+                    )}
+
+                    <fieldset className={`ao-assess-body${selectedAnimal ? "" : " is-locked"}`} disabled={!selectedAnimal}>
                     <div className="ao-progress">
                         <span>
                             {ratedCount} of {BEHAVIOR_TRAITS.length} traits rated
@@ -770,6 +777,8 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         ))}
                     </div>
 
+                    </fieldset>
+
                     {message && <div className={`ao-alert ${messageType || "info"}`}>{message}</div>}
 
                     <div className="ao-assess-foot">
@@ -778,6 +787,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}
+                                disabled={!selectedAnimal}
                                 placeholder="e.g. Warms up after a few minutes, nervous around loud noises."
                                 required
                             />
@@ -794,7 +804,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                                     Cancel
                                 </button>
                             )}
-                            <button type="submit" className="ao-btn primary" disabled={submitting}>
+                            <button type="submit" className="ao-btn primary" disabled={submitting || !selectedAnimal}>
                                 {submitting
                                     ? "Saving..."
                                     : editingId

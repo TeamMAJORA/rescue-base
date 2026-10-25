@@ -43,7 +43,6 @@ import VaccinationRecords from "./modules/animals/VaccinationRecords";
 import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
 import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
-import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 
 // // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
@@ -77,13 +76,8 @@ const staffMenu = [
         label: "Animals",
         children: [
             { key: "animal-profiles", label: "Animal Profiles" },
-            { key: "medical-records", label: "Medical Records" },
-            { key: "intake-records", label: "Intake Records" },
-            { key: "vaccination-records", label: "Vaccination Records" },
             { key: "behavior-assessment", label: "Behavioral Assessment" },
             { key: "qr-tags", label: "QR Tags" },
-            { key: "animal-transfers", label: "Animal Transfers" },
-            { key: "mobile-intake", label: "Mobile Field Intake" },
         ],
     },
 
@@ -329,11 +323,23 @@ export default function StaffDashboard({ setPage }) {
 
     function renderStaffContent() {
         if (activeStaffPage === "overview") {
-            return <AdminOverview />;
+            return <AdminOverview onNavigate={setActiveStaffPage} />;
         }
 
         if (activeStaffPage === "animals" || activeStaffPage === "animal-profiles") {
             return <AnimalProfiles />;
+        }
+
+        // Old record pages now live as tabs inside Animal Profiles
+        const animalRecordTabs = {
+            "intake-records": "intake",
+            "mobile-intake": "intake",
+            "medical-records": "medical",
+            "vaccination-records": "vaccinations",
+            "animal-transfers": "transfers",
+        };
+        if (animalRecordTabs[activeStaffPage]) {
+            return <AnimalProfiles key={activeStaffPage} initialTab={animalRecordTabs[activeStaffPage]} />;
         }
 
         if (activeStaffPage === "medical-records") {
@@ -412,9 +418,6 @@ export default function StaffDashboard({ setPage }) {
             return <AnimalTransfers />
         }
 
-        if (activeStaffPage === "mobile-intake") {
-            return <MobileFieldIntake />
-        }
 
     }
 

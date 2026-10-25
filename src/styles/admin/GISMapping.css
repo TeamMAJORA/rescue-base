@@ -1228,3 +1228,17 @@
     line-height: 1;
     cursor: pointer;
 }
+
+/* Add shelter / Pin a report floating at the bottom right of the map */
+.gm-map-actions { position: absolute; right: 12px; bottom: 26px; z-index: 500; display: flex; gap: 8px; }
+.gm-map-actions .gm-btn { border-radius: 0; box-shadow: 0 4px 12px rgba(90, 27, 0, 0.18); }
+.gm-map-actions .gm-btn-ghost { background: #fff; }
+@media (max-width: 640px) {
+    .gm-map-actions { left: 12px; right: 12px; bottom: auto; top: 56px; justify-content: flex-end; }
+}
+
+/* Lists scroll without a visible scrollbar; place rows open the editor */
+.gm-list { scrollbar-width: none; -ms-overflow-style: none; }
+.gm-list::-webkit-scrollbar { display: none; }
+.gm-row .gm-row-text { cursor: pointer; }
+.gm-row:hover { background: #fff7e0; }

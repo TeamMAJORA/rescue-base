@@ -3,6 +3,8 @@ import { getCurrentUser, isAdmin, isStaff } from "../../../../utils/auth";
 import BehaviorAssessment from "./BehaviorAssessment";
 import VaccinationRecords from "./VaccinationRecords";
 import MedicalRecords from "./MedicalRecords";
+import IntakeRecords from "./IntakeRecords";
+import AnimalTransfers from "./AnimalTransfers";
 import InfoTip from "../../../../components/system/InfoTip";
 import { formatAge } from "../../../../utils/formatAge";
 
@@ -319,7 +321,7 @@ const ANIMAL_FORM_TABS = [
     },
 ];
 
-export default function AnimalProfiles() {
+function AnimalProfilesList({ onOpenRecords }) {
     const canManage = isAdmin() || isStaff();
     const [animals, setAnimals] = useState([]);
     const [animalForm, setAnimalForm] = useState(emptyAnimalForm);
@@ -393,6 +395,11 @@ export default function AnimalProfiles() {
 
     function openAnimalTab(animal, tabKey) {
         setExpandedId(null);
+        // Vaccinations / Medical open the page tab filtered to this animal
+        if (onOpenRecords && (tabKey === "vaccinations" || tabKey === "medical")) {
+            onOpenRecords(tabKey, animal);
+            return;
+        }
         handleEditAnimal(animal);
         setActiveFormTab(tabKey);
     }
@@ -1307,19 +1314,6 @@ export default function AnimalProfiles() {
     return (
         <section className="admin-animal-page">
             {toastElement}
-            <div className="admin-page-header">
-                <div />
-
-                 {canManage && (//new up for add button
-                    <button
-                        type="button"
-                        className="admin-page-header-btn"
-                        onClick={handleAddAnimal}
-                    >
-                        + Add Animal
-                    </button>
-                 )}
-            </div>
             
             {/* Stats strip — same design as the other Animal pages (styles in IntakeRecords.css) */}
             <div className="ao-page">
@@ -1422,6 +1416,16 @@ export default function AnimalProfiles() {
                             {filter.label}
                         </button>
                     ))}
+
+                    {canManage && (
+                        <button
+                            type="button"
+                            className="admin-add-animal-btn"
+                            onClick={handleAddAnimal}
+                        >
+                            + Add Animal
+                        </button>
+                    )}
                 </div>
 
                 {loading ? (
@@ -1522,7 +1526,15 @@ export default function AnimalProfiles() {
 
                                         return (
                                             <Fragment key={animal._id}>
-                                                <tr className={isExpanded ? "expanded" : ""}>
+                                                <tr
+                                                    className={`admin-animal-row${isExpanded ? " expanded" : ""}`}
+                                                    tabIndex={0}
+                                                    title={`Open ${animal.name}'s profile`}
+                                                    onClick={() => setExpandedId(animal._id)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") setExpandedId(animal._id);
+                                                    }}
+                                                >
                                                     <td>
                                                         <div className="admin-animal-name-cell">
                                                             <span className="admin-animal-avatar">
@@ -1562,14 +1574,7 @@ export default function AnimalProfiles() {
                                                         )}
                                                     </td>
                                                     <td>
-                                                        <div className="admin-animal-row-actions">
-                                                            <button
-                                                                type="button"
-                                                                className="view"
-                                                                onClick={() => setExpandedId(animal._id)}
-                                                            >
-                                                                View
-                                                            </button>
+                                                        <div className="admin-animal-row-actions" onClick={(e) => e.stopPropagation()}>
 
                                                             {canManage && (//updated for edit button
                                                                 <button
@@ -1769,9 +1774,7 @@ export default function AnimalProfiles() {
                         </div>
 
                         <footer className="admin-animal-modal-foot">
-                            <button type="button" className="admin-animal-modal-back" onClick={closeAnimalModal}>
-                                ← Back to list
-                            </button>
+                            <span />
 
                             <div>
                                 {isAdmin() && (
@@ -1813,5 +1816,61 @@ export default function AnimalProfiles() {
                 </div>
             )}
         </section>
+    );
+}
+
+// ---------- Animal Profiles page with record tabs ----------
+const RECORD_TABS = [
+    { key: "profiles", label: "Profiles" },
+    { key: "intake", label: "Intake" },
+    { key: "medical", label: "Medical" },
+    { key: "vaccinations", label: "Vaccinations" },
+    { key: "transfers", label: "Transfers" },
+];
+
+export default function AnimalProfiles({ initialTab = "profiles" }) {
+    const [tab, setTab] = useState(initialTab);
+    const [filterAnimal, setFilterAnimal] = useState(null);
+
+    function switchTab(key) {
+        setTab(key);
+        setFilterAnimal(null);
+    }
+
+    function openRecords(key, animal) {
+        setTab(key);
+        setFilterAnimal({ _id: animal._id, name: animal.name });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    const clearFilter = () => setFilterAnimal(null);
+    const filterKey = filterAnimal?._id || "all";
+
+    return (
+        <div className="ap-tabs-page">
+            <nav className="ap-tabs" aria-label="Animal records">
+                {RECORD_TABS.map((item) => (
+                    <button
+                        key={item.key}
+                        type="button"
+                        className={tab === item.key ? "is-active" : ""}
+                        aria-current={tab === item.key ? "page" : undefined}
+                        onClick={() => switchTab(item.key)}
+                    >
+                        {item.label}
+                    </button>
+                ))}
+            </nav>
+
+            {tab === "profiles" && <AnimalProfilesList onOpenRecords={openRecords} />}
+            {tab === "intake" && <IntakeRecords />}
+            {tab === "medical" && (
+                <MedicalRecords key={filterKey} filterAnimal={filterAnimal} onClearFilter={clearFilter} />
+            )}
+            {tab === "vaccinations" && (
+                <VaccinationRecords key={filterKey} filterAnimal={filterAnimal} onClearFilter={clearFilter} />
+            )}
+            {tab === "transfers" && <AnimalTransfers />}
+        </div>
     );
 }

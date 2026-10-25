@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS = {
         contactEmail: "",
         contactPhone: "",
         timezone: "Asia/Manila",
+        shelterCapacity: 30,
     },
     security: {
         maxLoginAttempts: 5,
@@ -376,6 +377,16 @@ export default function GlobalSettings() {
                                 onChange={(event) => updateSetting("general", "contactPhone", event.target.value)}
                             />
                         </label>
+
+                        <NumberField
+                            label="Shelter capacity"
+                            unit="animals"
+                            hint="How many animals the shelter can hold. Used by the dashboard."
+                            min={1}
+                            max={10000}
+                            value={general.shelterCapacity ?? 30}
+                            onChange={(value) => updateSetting("general", "shelterCapacity", value)}
+                        />
                     </div>
                 </section>
 
