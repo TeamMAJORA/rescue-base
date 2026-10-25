@@ -1351,19 +1351,6 @@ export default function GISMapping() {
 
         return (
             <section className="gm-page">
-                <div className="gm-toolbar">
-                    <p>Strays, lost and found reports, hotspots and shelters.</p>
-                    <div className="gm-toolbar-actions">
-                        <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenShelter(null)}>
-                            <img src="/gis/icon-add-shelter.svg" alt="" className="gm-btn-icon" />
-                            Add shelter
-                        </button>
-                        <button type="button" className="gm-btn gm-btn-orange" onClick={gmOpenReport}>
-                            Pin a report
-                        </button>
-                    </div>
-                </div>
-
                 {error && <div className="admin-gis-error">{error}</div>}
                 {success && <div className="admin-gis-success">{success}</div>}
 
@@ -1631,6 +1618,17 @@ export default function GISMapping() {
                             </button>
                         </div>
 
+                        {/* Add shelter / Pin a report — bottom right of the map */}
+                        <div className="gm-map-actions">
+                            <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenShelter(null)}>
+                                <img src="/gis/icon-add-shelter.svg" alt="" className="gm-btn-icon" />
+                                Add shelter
+                            </button>
+                            <button type="button" className="gm-btn gm-btn-orange" onClick={gmOpenReport}>
+                                Pin a report
+                            </button>
+                        </div>
+
                         <div className="gm-legend">
                             <div><img src="/gis/shelter-pin.svg" alt="" /> Shelter</div>
                             <div><img src="/gis/clinic-pin.svg" alt="" /> Vet clinic</div>
@@ -1797,22 +1795,15 @@ export default function GISMapping() {
                                                         <button
                                                             type="button"
                                                             className="gm-row-text"
-                                                            onClick={() => setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 })}
+                                                            title="Edit this place"
+                                                            onClick={() => {
+                                                                setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 });
+                                                                gmOpenShelter(shelter);
+                                                            }}
                                                         >
                                                             <b>{shelter.name}</b>
                                                             <span>{PLACE_LABEL[shelter.category] || "Shelter"} · {shelter.address}{shelter.status !== "active" ? " · Inactive" : ""}</span>
                                                         </button>
-                                                        <div className="gm-row-actions">
-                                                            <button type="button" className="gm-link" onClick={() => gmOpenShelter(shelter)}>Edit</button>
-                                                            <button
-                                                                type="button"
-                                                                className="gm-link"
-                                                                onClick={() => toggleShelterStatus(shelter)}
-                                                                disabled={changingShelterId === shelter._id}
-                                                            >
-                                                                {shelter.status === "active" ? "Deactivate" : "Activate"}
-                                                            </button>
-                                                        </div>
                                                     </article>
                                                 ))
                                             )}
