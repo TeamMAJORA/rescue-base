@@ -21,6 +21,38 @@ const PIN_ICON = L.divIcon({
     iconAnchor: [13, 34],
 });
 
+// Place search limited to Cebu (mainland, Mactan and nearby islands)
+async function searchCebuPlaces(query, signal) {
+    const params = new URLSearchParams({
+        format: "jsonv2",
+        q: query,
+        limit: "6",
+        countrycodes: "ph",
+        viewbox: "123.25,11.35,124.25,9.40",
+        bounded: "1",
+        addressdetails: "1",
+    });
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, { signal });
+    const data = await response.json();
+
+    return (Array.isArray(data) ? data : []).map((item) => {
+        const a = item.address || {};
+        const name = item.name || String(item.display_name || "").split(",")[0];
+        const area = [a.suburb || a.village || a.neighbourhood || a.quarter, a.city || a.town || a.municipality]
+            .filter(Boolean)
+            .filter((part) => part !== name)
+            .join(", ");
+
+        return {
+            id: String(item.place_id),
+            name,
+            area: area || String(item.display_name || "").split(",").slice(1, 3).join(",").trim(),
+            latitude: Number(item.lat),
+            longitude: Number(item.lon),
+        };
+    });
+}
+
 // Click on the map = drop a pin
 function MapClick({ onPick }) {
     useMapEvents({
@@ -70,6 +102,10 @@ export default function LostFoundPage({ setPage }) {
     const [lat, setLat] = useState("");
     const [lng, setLng] = useState("");
     const [mapSearch, setMapSearch] = useState(""); 
+    const [mapResults, setMapResults] = useState([]);
+    const [mapSearchOpen, setMapSearchOpen] = useState(false);
+    const [mapSearching, setMapSearching] = useState(false);
+    const [locating, setLocating] = useState(false);
     const [viewingReport, setViewingReport] = useState(null);
     const [claimOpen, setClaimOpen] = useState(false);
     const [claimText, setClaimText] = useState("");
@@ -77,7 +113,6 @@ export default function LostFoundPage({ setPage }) {
     const [photoName, setPhotoName] = useState("");
     const [photoUploading, setPhotoUploading] = useState(false);
     const [photoError, setPhotoError] = useState("");
-    const [dragOver, setDragOver] = useState(false);
     const phoneInvalid = contactNumber.length > 0 && !/^9\d{9}$/.test(contactNumber);
     useEffect(() => {
         try {
@@ -126,7 +161,6 @@ export default function LostFoundPage({ setPage }) {
             setLoading(true);
             setError("");
 
-            const endpoint = canManageReports ? `${API}/api/lost-found/reports` : `${API}/api/lost-found/reports/me`
             const response = await fetch(`${API}/api/lost-found/reports`, {
             headers: {
             Authorization: `Bearer ${token}`,
@@ -200,7 +234,6 @@ export default function LostFoundPage({ setPage }) {
                           reportType === "lost" && age && `Age: ${age} ${ageUnit}`,
                           reportType === "lost" && gender && `Gender: ${gender}`,
                           size && `Size: ${size}`,
-                          reportType === "found" && lat && lng && `Pin: ${lat}, ${lng}`,
                           contactNumber && `Contact: +63 ${contactNumber}`,
                           notes.trim() && `Notes: ${notes.trim()}`,
                           ].filter(Boolean).join(" · "),
@@ -209,6 +242,8 @@ export default function LostFoundPage({ setPage }) {
                           dateReported ||
                           new Date().toISOString(),
                           photoUrl: photoUrl.trim(),
+                          latitude: lat || undefined,
+                          longitude: lng || undefined,
                  }),
                 }
             );
@@ -516,7 +551,7 @@ const LF_CHIPS = [
     { value: "all", label: "All", count: reports.length },
     { value: "lost", label: "Lost", count: countLost },
     { value: "found", label: "Found", count: countFound },
-    ...(canManageReports ? [{ value: "claims", label: "Claims to review", count: countClaims }] : []),
+    ...(canManageReports ? [{ value: "claims", label: "To review", count: countClaims }] : []),
     { value: "reunited", label: "Reunited", count: countReunited },
 ];
 
@@ -546,78 +581,70 @@ const visibleReports = reports
         const diff = new Date(b.dateReported || b.createdAt) - new Date(a.dateReported || a.createdAt);
         return sortBy === "newest" ? diff : -diff;
     });
+useEffect(() => {
+    const query = mapSearch.trim();
+    if (query.length < 3) return undefined;
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+        setMapSearching(true);
+        try {
+            setMapResults(await searchCebuPlaces(query, controller.signal));
+        } catch (err) {
+            if (err.name !== "AbortError") setMapResults([]);
+        } finally {
+            setMapSearching(false);
+        }
+    }, 400);
+
+    return () => {
+        clearTimeout(timer);
+        controller.abort();
+    };
+}, [mapSearch]);
+
+// Fill the location box from a pin (only if the user hasn't typed one)
+async function fillLocationFromPin(la, ln) {
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&lat=${la}&lon=${ln}`
+        );
+        const data = await res.json();
+        const a = data.address || {};
+        const place = [
+            a.road || a.neighbourhood || data.name,
+            a.suburb || a.village || a.quarter,
+            a.city || a.town || a.municipality,
+        ]
+            .filter(Boolean)
+            .filter((part, i, list) => list.indexOf(part) === i)
+            .join(", ");
+        if (place) setLocation((current) => (current.trim() ? current : place));
+    } catch {
+        // Address lookup is a nice-to-have; the pin is already saved
+    }
+}
+
+function pickOnMap(la, ln) {
+    pickPoint(la, ln);
+    fillLocationFromPin(la, ln);
+}
+
+function pickMapResult(place) {
+    pickPoint(place.latitude, place.longitude);
+    setMapSearch(place.name);
+    setMapSearchOpen(false);
+    if (!location.trim()) setLocation([place.name, place.area].filter(Boolean).join(", "));
+}
+
 function pickPoint(la, ln) {
     setLat(la.toFixed(6));
     setLng(ln.toFixed(6));
 }
 
-async function searchMap() {
-    if (!mapSearch.trim()) return;
-
-    try {
-        const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ph&q=${encodeURIComponent(mapSearch)}`
-        );
-        const data = await res.json();
-
-        if (data[0]) {
-            pickPoint(Number(data[0].lat), Number(data[0].lon));
-            if (!location.trim()) setLocation(mapSearch.trim());
-        } else {
-            setError("Place not found on the map. Try a nearby landmark.");
-        }
-    } catch {
-        setError("Map search failed. Click the map to drop a pin instead.");
-    }
-}
 
 if (showReportForm && canSubmitReport) {
     const isLost = reportType === "lost";
-
-    const contactFields = (
-        <>
-            <label className="lfr-field lfr-span-2">
-    <span>
-        Phone Number <em>*</em>{" "}
-        <i className="lfr-help" tabIndex={0} data-tip="Shown to staff so they can reach you">?</i>
-    </span>
-
-    <div className={`lfr-phone ${phoneInvalid ? "is-invalid" : ""}`}>
-        <span className="lfr-phone-code">+63</span>
-        <input
-            type="tel"
-            inputMode="numeric"
-            value={contactNumber}
-            onChange={(e) => {
-                let digits = e.target.value.replace(/\D/g, "");
-                if (digits.startsWith("63")) digits = digits.slice(2);
-                if (digits.startsWith("0")) digits = digits.slice(1);
-                setContactNumber(digits.slice(0, 10));
-            }}
-            placeholder="9XX XXX XXXX"
-            maxLength={10}
-            required
-        />
-    </div>
-
-    {phoneInvalid && (
-        <small className="lfr-field-error">
-            Enter a 10-digit mobile number starting with 9 (e.g. 917 123 4567).
-        </small>
-    )}
-</label>
-
-            <label className="lfr-field lfr-span-2">
-                <span>Reported By</span>
-                <input value={user?.name || user?.username || ""} placeholder="Auto-filled from your account" readOnly />
-            </label>
-
-            <label className="lfr-field lfr-span-4">
-                <span>Notes</span>
-                <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" />
-            </label>
-        </>
-    );
 
    function openReport(report, withClaim = false) {
        setViewingReport(report);
@@ -625,48 +652,66 @@ if (showReportForm && canSubmitReport) {
        setClaimText("");
        setClaimError("");
    }
-    return (
-        <main className="lfr-page">
-            <header className="lfr-header">
-                <h1>Lost &amp; Found</h1>
-                <p>Report a lost and found pet to help reconnect them with their family</p>
-            </header>
+    function pinMyLocation() {
+        if (!navigator.geolocation) {
+            setError("Your browser can't share your location. Tap the map instead.");
+            return;
+        }
+        setLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setLocating(false);
+                pickOnMap(position.coords.latitude, position.coords.longitude);
+                setSuccess("");
+                setError("");
+            },
+            () => {
+                setLocating(false);
+                setError("Couldn't get your location. Allow location access, or tap the map to drop a pin.");
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+    }
 
-            <form className="lfr-card" onSubmit={handleSubmitReport}>
-                <div className="lfr-tabs">
-                    <button type="button" className={isLost ? "is-active" : ""} onClick={() => setReportType("lost")}>
-                        Lost Pet
-                    </button>
-                    <button type="button" className={!isLost ? "is-active" : ""} onClick={() => setReportType("found")}>
-                        Found Pet
-                    </button>
+    return (
+        <main className="lfr-page lfr2">
+            <form className="lfr2-card" onSubmit={handleSubmitReport}>
+                <div className="lfr2-head">
+                    <div>
+                        <h3>Report a pet</h3>
+                        <p>
+                            Fields marked <em>*</em> are required.
+                        </p>
+                    </div>
+
+                    <div className="lfr2-seg" role="radiogroup" aria-label="Report type">
+                        <button type="button" role="radio" aria-checked={isLost} className={isLost ? "on" : ""} onClick={() => setReportType("lost")}>
+                            Lost pet
+                        </button>
+                        <button type="button" role="radio" aria-checked={!isLost} className={!isLost ? "on" : ""} onClick={() => setReportType("found")}>
+                            Found pet
+                        </button>
+                    </div>
                 </div>
 
                 {error && <div className="lost-found-message error">{error}</div>}
 
-                <section className="lfr-section">
-                    <h2>Pet Details</h2>
-                    <p>
-                        {isLost
-                            ? "Describe the pet so people can recognize it. Fields marked * are required."
-                            : "Used to match your report with lost pet reports. Fields marked * are required."}
-                    </p>
+                <section className="lfr2-sec">
+                    <h4>The pet</h4>
+                    <p>{isLost ? "What your pet looks like, so people can recognize it." : "What it looks like, so the owner can recognize it."}</p>
 
-                    <div className="lfr-grid">
-                        <label className="lfr-field">
+                    <div className="lfr2-grid">
+                        <label className="lfr2-field">
                             <span>
-                                Pet Name {!isLost && <small className="lfr-optional">(optional)</small>}{" "}
-                                <i className="lfr-help" tabIndex={0} data-tip="Your best guess is fine">?</i>
+                                Pet name {!isLost && <small>(if known)</small>}
                             </span>
-                            <input
-                                value={petName}
-                                onChange={(e) => setPetName(e.target.value)}
-                                placeholder={isLost ? "e.g. Brownie" : "Leave blank if unknown"}
-                            />
+                            <input value={petName} onChange={(e) => setPetName(e.target.value)} placeholder={isLost ? "e.g. Brownie" : "Leave blank if unknown"} />
                         </label>
 
-                        <label className="lfr-field">
-                            <span>Species <em>*</em></span>
+                        <label className="lfr2-field">
+                            <span>
+                                Species <em>*</em>
+                            </span>
                             <select value={species} onChange={(e) => setSpecies(e.target.value)} required>
                                 <option value="">Select</option>
                                 <option value="Dog">Dog</option>
@@ -675,30 +720,30 @@ if (showReportForm && canSubmitReport) {
                             </select>
                         </label>
 
-                        <label className="lfr-field">
+                        <label className="lfr2-field">
                             <span>Breed</span>
                             <input value={breed} onChange={(e) => setBreed(e.target.value)} placeholder="e.g. Aspin" />
                         </label>
 
-                        <label className="lfr-field">
+                        <label className="lfr2-field">
                             <span>Color</span>
                             <input value={color} onChange={(e) => setColor(e.target.value)} placeholder="e.g. Brown and white" />
                         </label>
 
                         {isLost && (
                             <>
-                                <label className="lfr-field">
+                                <label className="lfr2-field">
                                     <span>Age</span>
-                                    <div className="lfr-age">
+                                    <div className="lfr2-age">
                                         <input type="number" min="0" value={age} onChange={(e) => setAge(e.target.value)} placeholder="e.g. 2" />
-                                        <select value={ageUnit} onChange={(e) => setAgeUnit(e.target.value)}>
+                                        <select value={ageUnit} onChange={(e) => setAgeUnit(e.target.value)} aria-label="Age unit">
                                             <option value="Years">Years</option>
                                             <option value="Months">Months</option>
                                         </select>
                                     </div>
                                 </label>
 
-                                <label className="lfr-field">
+                                <label className="lfr2-field">
                                     <span>Gender</span>
                                     <select value={gender} onChange={(e) => setGender(e.target.value)}>
                                         <option value="">Select</option>
@@ -710,10 +755,8 @@ if (showReportForm && canSubmitReport) {
                             </>
                         )}
 
-                        <label className="lfr-field">
-                            <span>
-                                Size {!isLost && <i className="lfr-help" tabIndex={0} data-tip="Your best guess is fine">?</i>}
-                            </span>
+                        <label className="lfr2-field">
+                            <span>Size</span>
                             <select value={size} onChange={(e) => setSize(e.target.value)}>
                                 <option value="">Select</option>
                                 <option value="Small">Small</option>
@@ -722,190 +765,215 @@ if (showReportForm && canSubmitReport) {
                             </select>
                         </label>
 
-                        <label className="lfr-field">
+                        <label className="lfr2-field">
                             <span>
-                                 {isLost ? "Date Lost" : "Date Found"} <em>*</em>{" "}
-                                 <i className="lfr-help" tabIndex={0} data-tip="Your best guess is fine">?</i>
-                             </span>
+                                {isLost ? "Date lost" : "Date found"} <em>*</em>
+                            </span>
                             <input type="date" value={dateReported} onChange={(e) => setDateReported(e.target.value)} required />
                         </label>
 
-                        <div className="lfr-field lfr-span-4">
-    <span>Photo</span>
+                        <div className={`lfr2-field ${isLost ? "lfr2-span-4" : "lfr2-span-2"}`}>
+                            <span>Photo</span>
+                            <div className="lfr2-photo">
+                                {photoUrl && <img src={photoUrl} alt="Pet preview" />}
+                                <label htmlFor="lfr-photo-input" className={`lfr2-photo-btn${photoUploading ? " is-disabled" : ""}`}>
+                                    {photoUploading ? "Uploading..." : photoUrl ? "Change photo" : "Choose photo"}
+                                </label>
+                                <input
+                                    id="lfr-photo-input"
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/webp"
+                                    hidden
+                                    disabled={photoUploading}
+                                    onChange={(e) => {
+                                        uploadPhoto(e.target.files[0]);
+                                        e.target.value = "";
+                                    }}
+                                />
+                                <small>{photoUrl ? photoName || "Photo added" : "PNG, JPG or WEBP · max 5 MB"}</small>
+                                {photoUrl && (
+                                    <button
+                                        type="button"
+                                        className="lfr2-link"
+                                        onClick={() => {
+                                            setPhotoUrl("");
+                                            setPhotoName("");
+                                        }}
+                                    >
+                                        Remove
+                                    </button>
+                                )}
+                            </div>
+                            {photoError && <small className="lfr2-error">{photoError}</small>}
+                        </div>
 
-    {photoUrl ? (
-        <div className="lfr-photo-done">
-            <img src={photoUrl} alt="Pet preview" />
-            <div>
-                <b>{photoName || "Uploaded photo"}</b>
-                <small>Uploaded</small>
-            </div>
-            <button
-                type="button"
-                className="lfr-photo-remove"
-                onClick={() => {
-                    setPhotoUrl("");
-                    setPhotoName("");
-                }}
-            >
-                Remove
-            </button>
-        </div>
-    ) : (
-        <div
-            className={`lfr-drop ${dragOver ? "is-over" : ""}`}
-            onDragOver={(e) => {
-                e.preventDefault();
-                setDragOver(true);
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-                e.preventDefault();
-                setDragOver(false);
-                uploadPhoto(e.dataTransfer.files[0]);
-            }}
-        >
-            <span className="lfr-drop-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
-                </svg>
-            </span>
-
-            <div className="lfr-drop-text">
-                <b>{photoUploading ? "Uploading..." : "Drag and drop a photo here"}</b>
-                <small>or click to browse from your device</small>
-                <div className="lfr-drop-tags">
-                    <span>PNG</span>
-                    <span>JPG</span>
-                    <span>JPEG</span>
-                    <span>WEBP</span>
-                    <span>Max 5 MB</span>
-                </div>
-            </div>
-
-            <label
-                htmlFor="lfr-photo-input"
-                className={`lfr-drop-btn ${photoUploading ? "is-disabled" : ""}`}
-            >
-                {photoUploading ? "Uploading..." : "Choose File"}
-            </label>
-            <input
-                id="lfr-photo-input"
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                hidden
-                disabled={photoUploading}
-                onChange={(e) => {
-                    uploadPhoto(e.target.files[0]);
-                    e.target.value = "";
-                }}
-            />
-        </div>
-    )}
-
-    {photoError && <small className="lfr-photo-error">{photoError}</small>}
-</div>
-
-                        <label className="lfr-field lfr-span-4">
-                            <span>Description <em>*</em></span>
-                            <input
+                        <label className="lfr2-field lfr2-span-4">
+                            <span>
+                                Description <em>*</em>
+                            </span>
+                            <textarea
+                                rows={2}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder={
-                                    isLost
-                                        ? "Markings, collar, behavior or other identifying details..."
-                                        : "Markings, collar, condition, and where the pet is now..."
-                                }
+                                placeholder={isLost ? "Markings, collar, behavior or other identifying details..." : "Markings, collar, condition, and where the pet is now..."}
                                 required
                             />
                         </label>
                     </div>
                 </section>
 
-                {isLost ? (
-                    <section className="lfr-section">
-                        <h2>Location &amp; Contact</h2>
-                        <p>Where the pet was last seen and how to reach the reporter.</p>
+                <section className="lfr2-sec">
+                    <h4>Where &amp; contact</h4>
+                    <p>
+                        {isLost ? "Where your pet was last seen." : "Where you found the pet."} Tap the map to drop a pin. It shows on the GIS map.
+                    </p>
 
-                        <div className="lfr-grid">
-                            <label className="lfr-field lfr-span-4">
+                    <div className="lfr2-two">
+                        <div className="lfr2-col">
+                            <label className="lfr2-field">
                                 <span>
-                                      Last Seen Location <em>*</em>{" "}
-                                      <i className="lfr-help" tabIndex={0} data-tip="Barangay and city is enough">?</i>
+                                    {isLost ? "Last seen location" : "Location name"} <em>*</em>
                                 </span>
-                                <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Brgy. Lahug, Cebu City" required />
+                                <input
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    placeholder={isLost ? "e.g. Brgy. Lahug, Cebu City" : "e.g. Near Ayala Center, Cebu City"}
+                                    required
+                                />
                             </label>
 
-                            {contactFields}
-                        </div>
-                    </section>
-                ) : (
-                    <section className="lfr-section">
-                        <h2>Found Location</h2>
-                        <p>Type where you found the pet, then drop a pin so the owner can see it on the GIS map.</p>
-
-                        <div className="lfr-grid">
-                            <label className="lfr-field lfr-span-2">
-                                <span>
-                                      Location Name <em>*</em>{" "}
-                                      <i className="lfr-help" tabIndex={0} data-tip="A landmark or street name helps">?</i>
-                                 </span>
-                                <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Near Ayala Center, Cebu City" required />
-                            </label>
-
-                            <label className="lfr-field">
-                                <span>Latitude</span>
-                                <input value={lat} placeholder="10.3157" readOnly />
-                            </label>
-
-                            <label className="lfr-field">
-                                <span>Longitude</span>
-                                <input value={lng} placeholder="123.8854" readOnly />
-                            </label>
-
-                            <div className="lfr-map lfr-span-4">
+                            <div className="lfr2-map">
                                 <MapContainer
                                     center={lat && lng ? [Number(lat), Number(lng)] : CEBU_CENTER}
                                     zoom={14}
                                     scrollWheelZoom={false}
                                     style={{ height: "100%", width: "100%" }}
                                 >
-                                    <TileLayer
-                                        attribution="&copy; OpenStreetMap contributors"
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    />
-                                    <MapClick onPick={pickPoint} />
+                                    <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                    <MapClick onPick={pickOnMap} />
                                     <MapFollow lat={Number(lat)} lng={Number(lng)} />
                                     {lat && lng && <Marker position={[Number(lat), Number(lng)]} icon={PIN_ICON} />}
                                 </MapContainer>
 
-                                <input
-                                    className="lfr-map-search"
-                                    value={mapSearch}
-                                    onChange={(e) => setMapSearch(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                            e.preventDefault(); // stops the form from submitting
-                                            searchMap();
-                                        }
-                                    }}
-                                    placeholder="🔍 Search a place or click the map..."
-                                />
+                                <button
+                                    type="button"
+                                    className={`lfr2-locate${locating ? " is-busy" : ""}`}
+                                    onClick={pinMyLocation}
+                                    disabled={locating}
+                                    title="Pin my current location"
+                                    aria-label="Pin my current location"
+                                >
+                                    <img src="/gis/icon-find-nearest.svg" alt="" />
+                                </button>
+
+                                <div className="lfr2-map-search">
+                                    <input
+                                        type="search"
+                                        value={mapSearch}
+                                        aria-label="Search a place"
+                                        onChange={(e) => {
+                                            setMapSearch(e.target.value);
+                                            setMapSearchOpen(true);
+                                            if (e.target.value.trim().length < 3) setMapResults([]);
+                                        }}
+                                        onFocus={() => setMapSearchOpen(true)}
+                                        onBlur={() => setTimeout(() => setMapSearchOpen(false), 150)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault(); // stops the form from submitting
+                                                if (mapResults[0]) pickMapResult(mapResults[0]);
+                                            }
+                                            if (e.key === "Escape") setMapSearchOpen(false);
+                                        }}
+                                        placeholder="Search a place in Cebu..."
+                                    />
+                                    {mapSearchOpen && mapSearch.trim().length >= 3 && (
+                                        <ul className="gm-map-results">
+                                            {mapSearching && mapResults.length === 0 && <li className="is-note">Searching...</li>}
+                                            {!mapSearching && mapResults.length === 0 && <li className="is-note">No places found in Cebu.</li>}
+                                            {mapResults.map((place) => (
+                                                <li key={place.id}>
+                                                    <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pickMapResult(place)}>
+                                                        <b>{place.name}</b>
+                                                        {place.area && <small>{place.area}</small>}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
                             </div>
 
-                            {contactFields}
+                            <small className="lfr2-coord">
+                                {lat && lng ? `Pinned at ${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)}` : "No pin yet"}
+                                {" · "}
+                                <button type="button" className="lfr2-link" onClick={pinMyLocation} disabled={locating}>
+                                    {locating ? "Getting your location..." : "Use my location"}
+                                </button>
+                                {lat && lng && (
+                                    <>
+                                        {" · "}
+                                        <button
+                                            type="button"
+                                            className="lfr2-link"
+                                            onClick={() => {
+                                                setLat("");
+                                                setLng("");
+                                            }}
+                                        >
+                                            Clear pin
+                                        </button>
+                                    </>
+                                )}
+                            </small>
                         </div>
-                    </section>
-                )}
 
-                <footer className="lfr-foot">
-                    <small>Next: your report appears in the Lost &amp; Found list right away.</small>
+                        <div className="lfr2-col">
+                            <label className="lfr2-field">
+                                <span>
+                                    Phone number <em>*</em>
+                                </span>
+                                <div className={`lfr2-phone ${phoneInvalid ? "is-invalid" : ""}`}>
+                                    <b>+63</b>
+                                    <input
+                                        type="tel"
+                                        inputMode="numeric"
+                                        value={contactNumber}
+                                        onChange={(e) => {
+                                            let digits = e.target.value.replace(/\D/g, "");
+                                            if (digits.startsWith("63")) digits = digits.slice(2);
+                                            if (digits.startsWith("0")) digits = digits.slice(1);
+                                            setContactNumber(digits.slice(0, 10));
+                                        }}
+                                        placeholder="9XX XXX XXXX"
+                                        maxLength={10}
+                                        required
+                                    />
+                                </div>
+                                {phoneInvalid && <small className="lfr2-error">Enter a 10-digit mobile number starting with 9 (e.g. 917 123 4567).</small>}
+                            </label>
+
+                            <label className="lfr2-field">
+                                <span>Reported by</span>
+                                <input className="is-readonly" value={user?.name || user?.username || ""} readOnly />
+                            </label>
+
+                            <label className="lfr2-field">
+                                <span>Notes</span>
+                                <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" />
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <footer className="lfr2-foot">
+                    <small>Your report shows in the Lost &amp; Found list right away.</small>
                     <div>
-                        <button type="button" className="lfr-cancel" onClick={() => setShowReportForm(false)}>
+                        <button type="button" className="lfr2-btn" onClick={() => setShowReportForm(false)}>
                             Cancel
                         </button>
-                        <button type="submit" className="lfr-submit" disabled={submitting || photoUploading}>
-                            {submitting ? "Submitting..." : "Submit Report"}
+                        <button type="submit" className="lfr2-btn is-primary" disabled={submitting || photoUploading}>
+                            {submitting ? "Submitting..." : "Submit report"}
                         </button>
                     </div>
                 </footer>
@@ -917,30 +985,40 @@ if (showReportForm && canSubmitReport) {
 
     return (
         <main className="lost-found-page">
-            <section className="lf-hero">
-    <div className="lf-hero-text">
-        <span className="lf-hero-badge">Lost &amp; Found</span>
-        <h1>Help a pet find its way home</h1>
-        <p>Spot a pet you recognize, or lost your own? Reports from the community appear here.</p>
-    </div>
+            <div className="lf2-actions">
+                <button
+                    type="button"
+                    className={`lf2-btn ${onlyMine ? "is-on" : ""}`}
+                    onClick={() => setOnlyMine(!onlyMine)}
+                >
+                    My reports <span>{countMine}</span>
+                </button>
 
-    <div className="lf-hero-actions">
-        <button
-            type="button"
-            className={`lf-hero-ghost ${onlyMine ? "is-on" : ""}`}
-            onClick={() => setOnlyMine(!onlyMine)}
-        >
-            My reports <span>{countMine}</span>
-        </button>
+                {canSubmitReport && (
+                    <button type="button" className="lf2-btn is-primary" onClick={() => setShowReportForm(true)}>
+                        + Report a pet
+                    </button>
+                )}
+            </div>
 
-        {canSubmitReport && (
-            <button type="button" className="lf-hero-btn" onClick={() => setShowReportForm(true)}>
-                + Report a Pet
-            </button>
-        )}
-    </div>
-</section>
-            
+            <div className="um-strip">
+                <div className="um-strip-total">
+                    <b>{reports.length}</b>
+                    <small>Total reports</small>
+                </div>
+                <div>
+                    <small>Lost (open)</small>
+                    <b>{countLostOpen}</b>
+                </div>
+                <div>
+                    <small>Found (open)</small>
+                    <b>{countFoundOpen}</b>
+                </div>
+                <div>
+                    <small>Reunited</small>
+                    <b>{countReunited}</b>
+                </div>
+            </div>
 
             {error && <div className="lost-found-message error">{error}</div>}
             {success && <div className="lost-found-message success">{success}</div>}
@@ -992,110 +1070,154 @@ if (showReportForm && canSubmitReport) {
                         {reports.length === 0 ? "No lost or found reports yet." : "No reports match your filters."}
                     </p>
                 ) : (
-                    <div className="lf-grid">
-    {visibleReports.map((report, index) => {
-        const isMine = report.reporterEmail === user?.email;
-        const isOpen = report.status !== "reunited" && report.status !== "rejected";
-        const canClaimThis =
-            canClaimReport && !isMine && isOpen &&
-            report.claimStatus !== "pending" && report.claimStatus !== "approved";
-        const badge = report.status === "reunited" ? "reunited" : report.reportType;
-        const s = String(report.species || "").toLowerCase();
-        const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
-        const openDetails = (withClaim = false) => {
-            setViewingReport(report);
-            setClaimOpen(withClaim);
-            setClaimText("");
-            setClaimError("");
-        };
+                    <div className="lf2-table-wrap">
+                        <table className="lf2-table">
+                            <thead>
+                                <tr>
+                                    <th>Pet</th>
+                                    <th>Type</th>
+                                    <th>Last seen / found at</th>
+                                    <th>Reported by</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th className="lf2-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {visibleReports.map((report) => {
+                                    const isMine = report.reporterEmail === user?.email;
+                                    const isOpen = report.status !== "reunited" && report.status !== "rejected";
+                                    const canClaimThis =
+                                        canClaimReport && !isMine && isOpen &&
+                                        report.claimStatus !== "pending" && report.claimStatus !== "approved";
+                                    const s = String(report.species || "").toLowerCase();
+                                    const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
+                                    const openDetails = (withClaim = false) => {
+                                        setViewingReport(report);
+                                        setClaimOpen(withClaim);
+                                        setClaimText("");
+                                        setClaimError("");
+                                    };
 
-        return (
-            <article
-                className={`lf-card ${isMine ? "is-mine" : ""}`}
-                key={report._id}
-                onClick={() => openDetails(false)}
-            >
-                <div className={`lf-card-media tint-${index % 4}`}>
-                    {report.photoUrl ? (
-                        <img src={report.photoUrl} alt={report.petName || "Pet"} />
-                    ) : (
-                        <span className="lf-card-emoji">{emoji}</span>
-                    )}
+                                    let statusKey = "open";
+                                    let statusLabel = "Open";
+                                    if (report.status === "reunited") {
+                                        statusKey = "reunited";
+                                        statusLabel = "Reunited";
+                                    } else if (report.status === "rejected") {
+                                        statusKey = "rejected";
+                                        statusLabel = "Closed";
+                                    } else if (report.claimStatus === "pending") {
+                                        statusKey = "claim-pending";
+                                        statusLabel = "Claim pending";
+                                    } else if (report.claimStatus === "approved") {
+                                        statusKey = "claim-approved";
+                                        statusLabel = "Claim approved";
+                                    }
 
-                    <span className={`lf-card-badge is-${badge}`}>{badge}</span>
+                                    return (
+                                        <tr key={report._id} onClick={() => openDetails(false)}>
+                                            <td>
+                                                <div className="lf2-pet">
+                                                    {report.photoUrl ? (
+                                                        <img src={report.photoUrl} alt="" />
+                                                    ) : (
+                                                        <span className="lf2-thumb" aria-hidden="true">{emoji}</span>
+                                                    )}
+                                                    <div>
+                                                        <b>{report.petName || "Unknown"}</b>
+                                                        <small>
+                                                            {[report.species, report.breed].filter(Boolean).join(" · ")}
+                                                            {isMine ? " · Your report" : ""}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`lf2-pill is-${report.reportType}`}>
+                                                    {report.reportType === "found" ? "Found" : "Lost"}
+                                                </span>
+                                            </td>
+                                            <td>{report.location || "—"}</td>
+                                            <td>
+                                                <b className="lf2-name">{report.reporterName || report.reporterEmail || "—"}</b>
+                                            </td>
+                                            <td>
+                                                <span className={`lf2-pill is-${statusKey}`}>{statusLabel}</span>
+                                            </td>
+                                            <td className="lf2-date">
+                                                {report.dateReported
+                                                    ? new Date(report.dateReported).toLocaleDateString("en-US", {
+                                                        month: "short",
+                                                        day: "numeric",
+                                                        year: "numeric",
+                                                    })
+                                                    : "—"}
+                                            </td>
+                                            <td onClick={(e) => e.stopPropagation()}>
+                                                <div className="lf2-row-actions">
+                                                    {canClaimThis && report.reportType === "found" && (
+                                                        <button type="button" className="lf2-mini is-dark" onClick={() => openDetails(true)}>
+                                                            This is my pet
+                                                        </button>
+                                                    )}
 
-                    <span className="lf-card-date">
-                        {report.dateReported
-                            ? new Date(report.dateReported).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                            })
-                            : "No date"}
-                    </span>
+                                                    {!isMine && isOpen && report.reportType === "lost" && !canManageReports && (
+                                                        <a
+                                                            className="lf2-mini"
+                                                            href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(report.reporterEmail)}&su=${encodeURIComponent(
+                                                                `I've seen ${report.petName || "your pet"} (RescueBase)`
+                                                            )}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                        >
+                                                            I've seen this pet
+                                                        </a>
+                                                    )}
 
-                    {isMine && <span className="lf-card-mine">Your report</span>}
-                </div>
+                                                    {canManageReports && report.claimStatus === "pending" && (
+                                                        <button type="button" className="lf2-mini is-dark" onClick={() => openDetails(false)}>
+                                                            Review claim
+                                                        </button>
+                                                    )}
 
-                <div className="lf-card-body">
-                    <h3>{report.petName || "Unknown"}</h3>
-                    <small>{[report.species, report.breed].filter(Boolean).join(" · ")}</small>
-                    <small className="lf-card-loc">📍 {report.location}</small>
-                    <p>{String(report.description || "").split(" · ")[0]}</p>
+                                                    {canManageReports && report.claimStatus === "approved" && report.status !== "reunited" && (
+                                                        <button type="button" className="lf2-mini is-dark" onClick={() => handleMarkReunited(report._id)}>
+                                                            Mark reunited
+                                                        </button>
+                                                    )}
 
-                    {report.claimStatus && report.claimStatus !== "none" && (
-                        <small className="lf-card-claim">Claim: {report.claimStatus}</small>
-                    )}
+                                                    <button type="button" className="lf2-link" onClick={() => openDetails(false)}>
+                                                        View
+                                                    </button>
 
-                    <div className="lf-card-actions" onClick={(e) => e.stopPropagation()}>
-                        {canClaimThis && report.reportType === "found" && (
-                            <button type="button" onClick={() => openDetails(true)}>
-                                This Is My Pet
-                            </button>
-                        )}
-
-                        {!isMine && isOpen && report.reportType === "lost" && !canManageReports && (
-                            <a
-                                className="lf-card-btn"
-                                href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(report.reporterEmail)}&su=${encodeURIComponent(
-                                    `I've seen ${report.petName || "your pet"} (RescueBase)`
-                                )}`}
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                I've Seen This Pet
-                            </a>
-                        )}
-
-                        {canManageReports && report.claimStatus === "pending" && (
-                            <button type="button" onClick={() => openDetails(false)}>
-                                Review Claim
-                            </button>
-                        )}
-
-                        {canManageReports && report.claimStatus === "approved" && report.status !== "reunited" && (
-                            <button type="button" onClick={() => handleMarkReunited(report._id)}>
-                                Mark Reunited
-                            </button>
-                        )}
-
-                        {canDeleteReport && (
-                            <button
-                                type="button"
-                                className="lf-card-icon is-danger"
-                                title="Delete"
-                                aria-label="Delete report"
-                                onClick={() => handleDeleteReport(report._id)}
-                            >
-                                🗑
-                            </button>
-                        )}
+                                                    {canDeleteReport && (
+                                                        <button
+                                                            type="button"
+                                                            className="lf2-icon"
+                                                            title="Delete"
+                                                            aria-label="Delete report"
+                                                            onClick={() => handleDeleteReport(report._id)}
+                                                        >
+                                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                                                                <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+                                                            </svg>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </article>
-        );
-    })}
-</div>
+                )}
+
+                {!loading && reports.length > 0 && (
+                    <p className="lf2-foot">
+                        Showing {visibleReports.length} of {reports.length}
+                    </p>
                 )}
             </section>
             {viewingReport && (() => {

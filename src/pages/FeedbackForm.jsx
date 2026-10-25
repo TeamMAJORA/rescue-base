@@ -292,23 +292,31 @@ useEffect(() => {
             <span className="fb-history-cat">
                 {categories.find((c) => c.value === item.category)?.label || item.category}
             </span>
-            <span className={`fb-history-status is-${item.status}`}>
-                {item.status === "archived" ? "Reviewed" : "Received"}
-            </span>
+            {item.reply ? (
+                <span className="fb-history-status is-replied">Replied</span>
+            ) : (
+                <span className={`fb-history-status is-${item.status}`}>
+                    {item.status === "archived" ? "Reviewed" : "Received"}
+                </span>
+            )}
         </div>
 
         {item.message && <p>{item.message}</p>}
+
+        {item.reply && (
+            <div className="fb-history-reply">
+                <b>Shelter reply</b>
+                <span>{item.reply}</span>
+            </div>
+        )}
+
+        <span className="fb-history-open">{item.reply ? "Read full reply →" : "View details →"}</span>
     </li>
 ))}
             </ul>
         )}
     </section>
 </aside>
-                        <ul className="fb-tips">
-                            <li>Say what you were trying to do.</li>
-                            <li>Describe what worked or didn't.</li>
-                            <li>Don't include passwords or payment details.</li>
-                        </ul>
                    
                 
             </div>
@@ -383,7 +391,27 @@ useEffect(() => {
             </dl>
 
             <h4>Your message</h4>
-            <p className="fb-modal-message">{viewingFeedback.message}</p>
+            <p className="fb-modal-message">{viewingFeedback.message || "No message, rating only."}</p>
+
+            <h4>Shelter reply</h4>
+            {viewingFeedback.reply ? (
+                <div className="fb-modal-reply">
+                    <p>{viewingFeedback.reply}</p>
+                    <small>
+                        {viewingFeedback.repliedByName ? `${viewingFeedback.repliedByName} · ` : ""}
+                        {viewingFeedback.repliedAt &&
+                            new Date(viewingFeedback.repliedAt).toLocaleString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                            })}
+                    </small>
+                </div>
+            ) : (
+                <p className="fb-modal-noreply">No reply yet. You'll get an email and a notification when the team replies.</p>
+            )}
 
             <footer className="fb-modal-foot">
                 <button type="button" className="fb-modal-btn" onClick={() => setViewingFeedback(null)}>

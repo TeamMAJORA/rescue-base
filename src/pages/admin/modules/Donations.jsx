@@ -259,7 +259,6 @@ export default function Donations() {
     const [page, setPage] = useState(1);
     const [openMenuId, setOpenMenuId] = useState(null);
 
-    const [showMethods, setShowMethods] = useState(false);
     const [methods, setMethods] = useState([]);
     const [methodForm, setMethodForm] = useState(emptyMethodForm);
     const [editingMethodId, setEditingMethodId] = useState(null);
@@ -299,6 +298,7 @@ export default function Donations() {
 
     useEffect(() => {
         fetchDonations();
+        fetchMethods();
     }, []);
 
     // Close the ⋯ menu when clicking anywhere else
@@ -545,15 +545,6 @@ export default function Donations() {
             console.error("Fetch payment methods error:", error);
             setMethodMessage("Server error while loading payment methods.");
         }
-    }
-
-    function openMethods() {
-        setMethodForm(emptyMethodForm);
-        setEditingMethodId(null);
-        setMethodMessage("");
-        setMethodView("list");
-        setShowMethods(true);
-        fetchMethods();
     }
 
     function newMethod() {
@@ -909,9 +900,6 @@ export default function Donations() {
                     <button type="button" className="dl-btn" onClick={fetchDonations}>
                         Refresh
                     </button>
-                    <button type="button" className="dl-btn" onClick={openMethods}>
-                        Payment methods
-                    </button>
                     <button type="button" className="dl-btn primary" onClick={openNewForm}>
                         + Record donation
                     </button>
@@ -939,6 +927,7 @@ export default function Donations() {
 
             {message && !showForm && <p className={`gs-alert ${messageTone} dl-message`}>{message}</p>}
 
+            <div className="dl-layout">
             <div className="dl-card">
             <div className="dl-toolbar">
                 <input
@@ -1141,18 +1130,12 @@ export default function Donations() {
             )}
             </div>
 
-            {/* Payment methods pop-up */}
-            {showMethods && (
-                <div className="ao-confirm-backdrop" onClick={() => setShowMethods(false)}>
-                    <div className="dl-pm" onClick={(e) => e.stopPropagation()}>
-                        <button type="button" className="dl-pm-close" onClick={() => setShowMethods(false)} aria-label="Close">
-                            ✕
-                        </button>
-
+            {/* Payment methods side card */}
+            <aside className="dl-card dl-pm dl-pm-side">
                         {methodView === "list" ? (
                             <>
-                                <h3>Payment Methods</h3>
-                                <p className="dl-pm-sub">Shown to donors on the Donation page under Monetary.</p>
+                                <h3>Payment methods</h3>
+                                <p className="dl-pm-sub">Shown to donors under Monetary. Click one to edit.</p>
 
                                 {methodMessage && <p className={`gs-alert ${methodTone}`}>{methodMessage}</p>}
 
@@ -1185,13 +1168,13 @@ export default function Donations() {
                                 <div className="dl-pm-foot">
                                     <span />
                                     <button type="button" className="dl-btn primary" onClick={newMethod}>
-                                        + Add Method
+                                        + Add method
                                     </button>
                                 </div>
                             </>
                         ) : (
                             <form onSubmit={saveMethod}>
-                                <h3>{editingMethodId ? "Edit Payment Method" : "Add Payment Method"}</h3>
+                                <h3>{editingMethodId ? "Edit method" : "Add method"}</h3>
                                 <p className="dl-pm-sub">
                                     <button type="button" className="dl-link" onClick={backToMethodList}>
                                         ← Back to list
@@ -1199,7 +1182,7 @@ export default function Donations() {
                                     · Changes show on the donor's Donation page right away.
                                 </p>
 
-                                <div className="dl-grid two">
+                                <div className="dl-grid">
                                     <label className="dl-field">
                                         <span>Method Name <b>*</b></span>
                                         <select
@@ -1324,9 +1307,8 @@ export default function Donations() {
                                 </div>
                             </form>
                         )}
-                    </div>
-                </div>
-            )}
+            </aside>
+            </div>
         </section>
     );
 }

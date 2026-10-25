@@ -948,3 +948,18 @@
 .dl-card .dl-select > span {
     z-index: 1;
 }
+
+/* ===== Payment methods as a side card (left of the donations list) ===== */
+.dl-layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; align-items: start; }
+.dl-pm.dl-pm-side { order: -1; position: sticky; top: 12px; width: auto; max-height: none; overflow: visible; padding: 16px 18px; border: 1px solid rgba(90, 27, 0, 0.12); border-radius: 14px; box-shadow: none; background: #fffdf4; align-content: start; }
+.dl-pm-side h3 { font-size: 1.35rem; }
+.dl-pm-side .dl-grid { grid-template-columns: 1fr 1fr; }
+.dl-pm-side .dl-field { min-width: 0; }
+.dl-pm-side .dl-field input, .dl-pm-side .dl-field select, .dl-pm-side .dl-field textarea { width: 100%; min-width: 0; box-sizing: border-box; }
+.dl-pm-side .dl-pm-foot { flex-wrap: wrap; gap: 8px; justify-content: space-between; }
+.dl-pm-side .dl-pm-foot > .dl-btn.primary { width: 100%; justify-content: center; }
+.dl-pm-side .dl-form-actions { width: 100%; justify-content: flex-end; }
+@media (max-width: 1100px) {
+    .dl-layout { grid-template-columns: 1fr; }
+    .dl-pm.dl-pm-side { order: 1; position: static; }
+}
