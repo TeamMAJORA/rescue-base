@@ -1,4 +1,45 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+const AO_PIN = L.divIcon({
+    className: "ao-pin",
+    html: "<span></span>",
+    iconSize: [26, 34],
+    iconAnchor: [13, 34],
+});
+
+// Turn coordinates into "Street, Barangay, City" (OpenStreetMap)
+async function lookupAddress(lat, lng) {
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&lat=${lat}&lon=${lng}`
+        );
+        const data = await res.json();
+        const a = data.address || {};
+        return [
+            a.road || a.pedestrian || a.neighbourhood || data.name,
+            a.suburb || a.village || a.quarter || a.hamlet,
+            a.city || a.town || a.municipality,
+        ]
+            .filter(Boolean)
+            .filter((part, i, list) => list.indexOf(part) === i)
+            .join(", ");
+    } catch {
+        return "";
+    }
+}
+
+// Click anywhere on the map to move the pin
+function PinPicker({ onPick }) {
+    useMapEvents({
+        click(event) {
+            onPick(event.latlng.lat, event.latlng.lng);
+        },
+    });
+    return null;
+}
 
 // ---------- Shared UI pieces (stats strip, tabs, search bar, chips) ----------
 
@@ -362,6 +403,8 @@ export default function MobileFieldIntake() {
     const [photoPreview, setPhotoPreview] = useState("");
     const [loading, setLoading] = useState(false);
     const [locating, setLocating] = useState(false);
+    const [accuracy, setAccuracy] = useState(null);
+    const [openId, setOpenId] = useState(null);
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
@@ -428,6 +471,22 @@ export default function MobileFieldIntake() {
         }));
     }
 
+    // Save the pin and fill "Where?" with the street/barangay (always replace when asked)
+    async function setPin(lat, lng, replaceText = true) {
+        setForm((previous) => ({
+            ...previous,
+            latitude: Number(lat).toFixed(6),
+            longitude: Number(lng).toFixed(6),
+        }));
+        const place = await lookupAddress(lat, lng);
+        if (place) {
+            setForm((previous) => ({
+                ...previous,
+                rescueLocation: replaceText || !previous.rescueLocation.trim() ? place : previous.rescueLocation,
+            }));
+        }
+    }
+
     function getCurrentLocation() {
         if (!navigator.geolocation) {
             setError("Geolocation is not supported by this browser.");
@@ -438,24 +497,31 @@ export default function MobileFieldIntake() {
         setLocating(true);
 
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setForm((previous) => ({
-                    ...previous,
-                    latitude: position.coords.latitude.toFixed(6),
-                    longitude: position.coords.longitude.toFixed(6),
-                }));
+            async (position) => {
+                setAccuracy(Math.round(position.coords.accuracy || 0));
+                await setPin(position.coords.latitude, position.coords.longitude);
                 setLocating(false);
             },
             () => {
-                setError("Unable to retrieve location. Please allow location access.");
+                setError("Unable to retrieve location. Please allow location access, or tap the map to drop a pin.");
                 setLocating(false);
             },
             {
                 enableHighAccuracy: true,
-                timeout: 10000,
+                timeout: 15000,
                 maximumAge: 0,
             }
         );
+    }
+
+    function pickOnMap(lat, lng) {
+        setAccuracy(null);
+        setPin(lat, lng);
+    }
+
+    function clearPin() {
+        setAccuracy(null);
+        setForm((previous) => ({ ...previous, latitude: "", longitude: "" }));
     }
 
     async function uploadPhoto(token) {
@@ -696,22 +762,58 @@ export default function MobileFieldIntake() {
                             />
                         </label>
 
-                        {hasLocation ? (
-                            <div className="ao-location">
-                                <Icon name="pin" />
-                                GPS captured ({form.latitude}, {form.longitude})
-                            </div>
-                        ) : (
-                            <button
-                                type="button"
-                                className="ao-btn"
-                                onClick={getCurrentLocation}
-                                disabled={loading || locating}
+                        <button
+                            type="button"
+                            className="ao-btn"
+                            onClick={getCurrentLocation}
+                            disabled={loading || locating}
+                        >
+                            <Icon name="pin" />
+                            {locating ? "Getting location..." : hasLocation ? "Use my location again" : "Use my current location"}
+                        </button>
+
+                        <div className="ao-pickmap">
+                            <MapContainer
+                                key={hasLocation ? "pinned" : "empty"}
+                                center={hasLocation ? [Number(form.latitude), Number(form.longitude)] : [10.3157, 123.8854]}
+                                zoom={hasLocation ? 17 : 12}
+                                scrollWheelZoom={false}
+                                className="ao-pickmap-map"
                             >
-                                <Icon name="pin" />
-                                {locating ? "Getting location..." : "Use my current location"}
-                            </button>
-                        )}
+                                <TileLayer
+                                    attribution="&copy; OpenStreetMap"
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+                                <PinPicker onPick={pickOnMap} />
+                                {hasLocation && (
+                                    <Marker
+                                        position={[Number(form.latitude), Number(form.longitude)]}
+                                        icon={AO_PIN}
+                                        draggable
+                                        eventHandlers={{
+                                            dragend: (event) => {
+                                                const point = event.target.getLatLng();
+                                                pickOnMap(point.lat, point.lng);
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </MapContainer>
+                            <div className="ao-pickmap-note">
+                                {hasLocation ? (
+                                    <>
+                                        <span>
+                                            {accuracy && accuracy > 50
+                                                ? `Approximate (±${accuracy >= 1000 ? `${(accuracy / 1000).toFixed(1)} km` : `${accuracy} m`}). Tap the exact spot or drag the pin.`
+                                                : "Pin saved. Tap the map or drag the pin to adjust."}
+                                        </span>
+                                        <button type="button" onClick={clearPin}>Remove pin</button>
+                                    </>
+                                ) : (
+                                    <span>Tap the map where you found the animal.</span>
+                                )}
+                            </div>
+                        </div>
 
                         <div className="ao-field">
                             <span>Condition <span className="ao-req">*</span></span>
@@ -801,7 +903,17 @@ export default function MobileFieldIntake() {
                                 return (
                                     <article
                                         key={s._id}
-                                        className={`ao-item ${status === "pending" ? "flag" : ""}`}
+                                        className={`ao-item is-clickable ${status === "pending" ? "flag" : ""} ${openId === s._id ? "is-open" : ""}`}
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-expanded={openId === s._id}
+                                        onClick={() => setOpenId((current) => (current === s._id ? null : s._id))}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter" || event.key === " ") {
+                                                event.preventDefault();
+                                                setOpenId((current) => (current === s._id ? null : s._id));
+                                            }
+                                        }}
                                     >
                                         <div className="ao-avatar">
                                             {s.image ? <img src={s.image} alt="" /> : speciesEmoji(s.type)}
@@ -824,18 +936,30 @@ export default function MobileFieldIntake() {
                                             {s.description && <p className="ao-note">"{s.description}"</p>}
                                         </div>
 
-                                        <div className="ao-actions">
-                                            {hasCoords && (
-                                                <a
-                                                    className="ao-btn sm"
-                                                    href={`https://www.google.com/maps?q=${s.latitude},${s.longitude}`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                >
-                                                    View on Map
-                                                </a>
-                                            )}
-                                        </div>
+                                        <span className="ao-open-hint" aria-hidden="true">
+                                            {openId === s._id ? "Hide map ▴" : "Show map ▾"}
+                                        </span>
+
+                                        {openId === s._id && (
+                                            <div className="ao-item-map" onClick={(event) => event.stopPropagation()}>
+                                                {hasCoords ? (
+                                                    <MapContainer
+                                                        center={[Number(s.latitude), Number(s.longitude)]}
+                                                        zoom={16}
+                                                        scrollWheelZoom={false}
+                                                        className="ao-item-map-view"
+                                                    >
+                                                        <TileLayer
+                                                            attribution="&copy; OpenStreetMap"
+                                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                        />
+                                                        <Marker position={[Number(s.latitude), Number(s.longitude)]} icon={AO_PIN} />
+                                                    </MapContainer>
+                                                ) : (
+                                                    <p className="ao-item-nomap">No GPS pin was saved for this entry.</p>
+                                                )}
+                                            </div>
+                                        )}
                                     </article>
                                 );
                             })}
