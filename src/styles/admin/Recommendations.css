@@ -3,6 +3,10 @@
     gap: 18px;
 }
 
+.admin-recommendation-page .um-strip {
+    margin-bottom: 0;
+}
+
 .admin-recommendation-grid {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -10,148 +14,158 @@
     align-items: start;
 }
 
-.admin-recommendation-form-panel,
 .admin-recommendation-list-panel {
-    min-height: 430px;
-}
-
-.admin-recommendation-form {
     display: grid;
-    gap: 14px;
+    gap: 12px;
 }
 
-.admin-recommendation-form label {
-    display: grid;
-    gap: 6px;
-    color: var(--brown);
-    font-size: 13px;
-    font-weight: 700;
+.arec-title {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
 }
 
-.admin-recommendation-form input,
-.admin-recommendation-form select,
-.admin-recommendation-form textarea {
+.arec-search {
+    box-sizing: border-box;
     width: 100%;
-    border: 1px solid rgba(90, 27, 0, 0.28);
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid rgba(90, 27, 0, 0.22);
     border-radius: 12px;
-    background: var(--white-yellow);
-    color: var(--brown);
-    padding: 11px 13px;
-    font-family: "Inter", sans-serif;
+    background: #fffdf5;
+    color: #5a1b00;
+    font: inherit;
     font-size: 13px;
     outline: none;
 }
 
-.admin-recommendation-form input,
-.admin-recommendation-form select {
-    height: 42px;
+.arec-search::placeholder {
+    color: #a08a74;
 }
 
-.admin-recommendation-form textarea {
-    min-height: 120px;
-    resize: vertical;
-}
-
-.admin-recommendation-form input:focus,
-.admin-recommendation-form select:focus,
-.admin-recommendation-form textarea:focus {
-    border-color: var(--orange);
+.arec-search:focus {
+    border-color: #fb8500;
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
 }
 
-.admin-recommendation-form button {
-    height: 44px;
-    border: none;
+/* status tabs */
+.arec-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.arec-tabs button {
+    padding: 5px 14px;
+    border: 1.5px solid #5a1b00;
     border-radius: 999px;
-    background: var(--brown);
-    color: var(--yellow);
-    font-family: "Itim", cursive;
-    font-size: 15px;
+    background: #fffdf5;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
 }
 
-.admin-recommendation-list {
+.arec-tabs button:hover:not(.is-active) {
+    background: #fff7cb;
+}
+
+.arec-tabs button.is-active {
+    background: #5a1b00;
+    color: #fff7cb;
+}
+
+.arec-tabs button:focus-visible {
+    outline: 3px solid #fb8500;
+    outline-offset: 2px;
+}
+
+/* cards */
+.arec-list {
     display: grid;
-    gap: 12px;
+    gap: 10px;
     max-height: 520px;
     overflow-y: auto;
-    padding-right: 6px;
+    padding-right: 4px;
 }
 
-.admin-recommendation-row {
-    background: var(--white-yellow);
-    border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 14px;
-    padding: 15px;
+.arec-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.admin-recommendation-row h3 {
-    font-family: "Itim", cursive;
-    color: var(--brown);
-    font-size: 22px;
-}
-
-.admin-recommendation-row p {
-    margin-top: 4px;
-    color: #6f4a35;
-    font-size: 13px;
-}
-
-.admin-recommendation-row small {
-    display: block;
-    margin-top: 6px;
-    color: var(--brown);
-    font-size: 12px;
-    opacity: 0.75;
-}
-
-.admin-recommendation-row div > span {
-    display: block;
-    margin-top: 8px;
-    color: var(--red);
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-.admin-recommendation-score {
-    min-width: 105px;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 14px;
-    background: rgba(252, 191, 73, 0.28);
-    padding: 12px;
+    background: #fffdf5;
+    box-shadow: 0 2px 8px rgba(90, 27, 0, 0.05);
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.arec-row:hover {
+    border-color: rgba(251, 133, 0, 0.5);
+    background: #fffaf0;
+}
+
+.arec-avatar {
     display: grid;
-    gap: 4px;
-    text-align: center;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #f2d27a;
+    border-radius: 10px;
+    background: #fff7cb;
+    color: #7b452d;
+    font-size: 13px;
+    font-weight: 800;
 }
 
-.admin-recommendation-score strong {
-    font-family: "Itim", cursive;
-    color: var(--brown);
-    font-size: 26px;
+.arec-info {
+    flex: 1;
+    min-width: 0;
 }
 
-.admin-recommendation-score span {
-    color: var(--red);
+.arec-info b {
+    display: block;
+    overflow: hidden;
+    color: #5a1b00;
+    font-size: 14px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.arec-info small {
+    display: block;
+    margin-top: 2px;
+    color: #7b452d;
     font-size: 12px;
-    font-weight: 700;
-    text-transform: capitalize;
+}
+
+.arec-score {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.arec-score.is-none { background: #efe8d4; color: #6b5648; }
+.arec-score.is-high { background: #dff3e6; color: #1f6e43; }
+.arec-score.is-mid { background: #fde3bf; color: #b45f06; }
+.arec-score.is-low { background: #f9dddd; color: #b42318; }
+
+.arec-empty {
+    margin: 8px 0;
+    color: #a08a74;
+    font-size: 13px;
+    text-align: center;
 }
 
 @media (max-width: 950px) {
     .admin-recommendation-grid {
         grid-template-columns: 1fr;
-    }
-
-    .admin-recommendation-row {
-        align-items: start;
-        flex-direction: column;
-    }
-
-    .admin-recommendation-score {
-        width: 100%;
-        text-align: left;
     }
 }
