@@ -38,10 +38,23 @@ export default function Recommendations() {
         status: "recommended"
     });
 
-    const highMatches = useMemo(() => {
-        return recommendations.filter(
-            (recommendation) => (recommendation.score) >= 85
-        ).length;
+    const stats = useMemo(() => {
+        const count = (status) =>
+            recommendations.filter((item) => item.status === status).length;
+
+        const averageMatch = recommendations.length
+            ? Math.round(
+                recommendations.reduce((sum, item) => sum + Number(item.score || 0), 0) /
+                recommendations.length
+            )
+            : 0;
+
+        return {
+            waiting: count("review"),
+            approved: count("approved"),
+            rejected: count("rejected"),
+            averageMatch,
+        };
     }, [recommendations]);
 
     function handleAddRecommendations(e) {
@@ -68,142 +81,26 @@ export default function Recommendations() {
 
     return (
         <section className="admin-recommendation-page">
-            <section className="admin-recommendation-stats">
-                <article className="admin-panel admin-recommendation-stat-card">
-                    <span>Total Recommendations</span>
-                    <strong>{recommendations.length}</strong>
-                </article>
-
-                <article className="admin-panel admin-recommendation-stat-card">
-                    <span>High Match Results</span>
-                    <strong>{highMatches}</strong>
-                </article>
-            </section>
+            <div className="um-strip">
+                <div className="um-strip-total">
+                    <b>{stats.waiting}</b>
+                    <small>Waiting for review</small>
+                </div>
+                <div>
+                    <small>Approved</small>
+                    <b>{stats.approved}</b>
+                </div>
+                <div>
+                    <small>Rejected</small>
+                    <b>{stats.rejected}</b>
+                </div>
+                <div>
+                    <small>Average match</small>
+                    <b>{stats.averageMatch}%</b>
+                </div>
+            </div>
 
             <section className="admin-recommendation-grid">
-                <section className="admin-panel admin-recommendation-form-panel">
-                    <div className="admin-panel-heading">
-                        <h2>Add Recommendation</h2>
-                    </div>
-
-                    <form
-                        className="admin-recommendation-form"
-                        onSubmit={handleAddRecommendations}
-                    >
-                        <label>
-                            Adopter Name
-                            <input
-                                type="text"
-                                value={recommendationForm.adopterName}
-                                onChange={(e) =>
-                                    setRecommendationForm({
-                                        ...recommendationForm,
-                                        adopterName: e.target.value,
-                                    })
-                                }
-                                required
-                            />
-                        </label>
-
-                        <label>
-                            Email
-                            <input
-                                type="email"
-                                value={recommendationForm.email}
-                                onChange={(e) =>
-                                    setRecommendationForm({
-                                        ...recommendationForm,
-                                        email: e.target.value,
-                                    })
-                                }
-                                required
-                            />
-                        </label>
-
-                        <label>
-                            Recommended Pet
-                            <input
-                                type="text"
-                                value={recommendationForm.recommendedPet}
-                                onChange={(e) =>
-                                    setRecommendationForm({
-                                        ...recommendationForm,
-                                        recommendedPet: e.target.value,
-                                    })
-                                }
-                                required
-                            />
-                        </label>
-
-                        <label>
-                            Pet Type
-                            <select
-                                value={recommendationForm.petType}
-                                onChange={(e) =>
-                                    setRecommendationForm({
-                                        ...recommendationForm,
-                                        petType: e.target.value,
-                                    })
-                                }
-                            >
-                                <option value="Dog">Dog</option>
-                                <option value="Cat">Cat</option>
-                                <option value="Any">Any</option>
-                            </select>
-                        </label>
-
-                        <label>
-                            Match Score
-                            <input
-                                type="number"
-                                min="0"
-                                max="100"
-                                value={recommendationForm.score}
-                                onChange={(e) =>
-                                    setRecommendationForm({
-                                        ...recommendationForm,
-                                        score: e.target.value,
-                                    })
-                                }
-                                required
-                            />
-                        </label>
-
-                        <label>
-                            Status
-                            <select
-                                value={recommendationForm.status}
-                                onChange={(e) =>
-                                    setRecommendationForm({
-                                        ...recommendationForm,
-                                        status: e.target.value,
-                                    })
-                                }
-                            >
-                                <option value="recommended">Recommended</option>
-                                <option value="review">Needs Review</option>
-                            </select>
-                        </label>
-
-                        <label className="admin-recommendation-reason-field">
-                            Reason
-                            <textarea
-                                value={recommendationForm.reason}
-                                onChange={(e) =>
-                                    setRecommendationForm({
-                                        ...recommendationForm,
-                                        reason: e.target.value,
-                                    })
-                                }
-                                placeholder="Explain why this pet is recommended."
-                                required
-                            />
-                        </label>
-
-                        <button type="submit">Add Recommendation</button>
-                    </form>
-                </section>
-
                 <section className="admin-panel admin-recommendation-list-panel">
                     <div className="admin-panel-heading">
                         <h2>Recommendations</h2>
