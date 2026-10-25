@@ -1,5 +1,5 @@
 import {
-    useMemo, useState
+    useMemo, useRef, useState
 } from "react";
 import { fireSideCannons } from "../../../utils/confetti";
 
@@ -22,29 +22,6 @@ const factorDescriptions = {
         "How prepared are you to manage challenging or aggressive behavior?",
     activityPreference:
         "How active should the pet be during the day?",
-};
-
-// Labels for the step tracker under the header
-const QUIZ_STEPS = ["Home", "Lifestyle", "Preferences"];
-
-
-// Side card text for each step ("Why we ask")
-const WHY_WE_ASK = {
-    1: [
-        "Home type and ownership check space and rules",
-        "Children and pets help match temperament",
-        "Type and size narrow down your featured pet",
-    ],
-    2: [
-        "Experience shows how much guidance you may need",
-        "Daily time and exercise match a pet's energy",
-        "Willingness to train opens up more pets for you",
-    ],
-    3: [
-        "Each answer is compared with every pet's behavior assessment",
-        "Tolerance means what you can handle, not what you prefer",
-        "Your answers rank the pets in your Recommendations",
-    ],
 };
 
 const factorLabels = {
@@ -192,6 +169,13 @@ const QUESTIONS = [
     })),
 ];
 
+// One dash per section; each fills as you move through its questions
+const SECTIONS = ["Home", "Lifestyle", "Preferences"].map((name) => ({
+    name,
+    start: QUESTIONS.findIndex((item) => item.section === name),
+    count: QUESTIONS.filter((item) => item.section === name).length,
+}));
+
 function getSavedQuiz() {
     try {
         return JSON.parse(
@@ -214,59 +198,25 @@ export default function MatchmakingQuiz({
     );
 
     const [form, setForm] = useState({
-        preferredPetType:
-            savedQuiz?.preferredPetType || "Any",
+        preferredPetType: savedQuiz?.preferredPetType || "",
+        preferredSize: savedQuiz?.preferredSize || "",
+        homeType: savedQuiz?.homeType || "",
+        homeOwnership: savedQuiz?.homeOwnership || "",
+        hasChildren: savedQuiz?.hasChildren || "",
+        hasOtherPets: savedQuiz?.hasOtherPets || "",
+        petExperience: savedQuiz?.petExperience || "",
+        dailyAvailableHours: savedQuiz?.dailyAvailableHours || "",
+        exerciseFrequency: savedQuiz?.exerciseFrequency || "",
+        willingToTrain: savedQuiz?.willingToTrain || "",
 
-        preferredSize:
-            savedQuiz?.preferredSize || "Any",
-
-        homeType:
-            savedQuiz?.homeType || "House",
-
-        homeOwnership:
-            savedQuiz?.homeOwnership || "Owned",
-
-        hasChildren:
-            savedQuiz?.hasChildren || "No",
-
-        hasOtherPets:
-            savedQuiz?.hasOtherPets || "No",
-
-        petExperience:
-            savedQuiz?.petExperience || "Beginner",
-
-        dailyAvailableHours:
-            savedQuiz?.dailyAvailableHours || "2-4",
-
-        exerciseFrequency:
-            savedQuiz?.exerciseFrequency || "Moderate",
-
-        willingToTrain:
-            savedQuiz?.willingToTrain || "Yes",
-
-        energyPreference:
-            savedQuiz?.energyPreference || 3,
-
-        friendlinessPreference:
-            savedQuiz?.friendlinessPreference || 3,
-
-        humanSociabilityPreference:
-            savedQuiz?.humanSociabilityPreference || 3,
-
-        animalSociabilityPreference:
-            savedQuiz?.animalSociabilityPreference || 3,
-
-        trainabilityPreference:
-            savedQuiz?.trainabilityPreference || 3,
-
-        anxietyTolerance:
-            savedQuiz?.anxietyTolerance || 3,
-
-        aggressionTolerance:
-            savedQuiz?.aggressionTolerance || 1,
-
-        activityPreference:
-            savedQuiz?.activityPreference || 3,
+        energyPreference: savedQuiz?.energyPreference || 1,
+        friendlinessPreference: savedQuiz?.friendlinessPreference || 1,
+        humanSociabilityPreference: savedQuiz?.humanSociabilityPreference || 1,
+        animalSociabilityPreference: savedQuiz?.animalSociabilityPreference || 1,
+        trainabilityPreference: savedQuiz?.trainabilityPreference || 1,
+        anxietyTolerance: savedQuiz?.anxietyTolerance || 1,
+        aggressionTolerance: savedQuiz?.aggressionTolerance || 1,
+        activityPreference: savedQuiz?.activityPreference || 1,
     });
 
     const [questionIndex, setQuestionIndex] =
@@ -280,20 +230,26 @@ export default function MatchmakingQuiz({
 
     const [messageType, setMessageType] =
         useState("");
-
+    
+    const [started, setStarted] = useState(false);
     const question = QUESTIONS[questionIndex];
     const isLastQuestion = questionIndex === QUESTIONS.length - 1;
-
-    // 1 = Home, 2 = Lifestyle, 3 = Preferences (used by the tracker and side card)
-    const currentStep = QUIZ_STEPS.indexOf(question.section) + 1;
-
-    const progress = Math.round(((questionIndex + 1) / QUESTIONS.length) * 100);
+    const answered = form[question.name] !== "";    
 
     function chooseAnswer(value) {
         setForm((currentForm) => ({
             ...currentForm,
             [question.name]: value,
         }));
+    }
+
+    const advanceTimer = useRef(null);
+
+    // Option questions: save the answer, then move on after a short pause
+    function pickOption(value) {
+        chooseAnswer(value);
+        window.clearTimeout(advanceTimer.current); // double-clicks only advance once
+        advanceTimer.current = window.setTimeout(nextStep, 250);
     }
 
     function nextStep(event) {
@@ -308,6 +264,7 @@ export default function MatchmakingQuiz({
     }
 
     function previousStep() {
+        window.clearTimeout(advanceTimer.current);
         setMessage("");
         setMessageType("");
 
@@ -393,75 +350,64 @@ export default function MatchmakingQuiz({
         }
     }
 
+if (!started) {
+    return (
+        <section className="mq-intro">
+            <img className="mq-intro-paw" src="/icons/heroPaw.svg" alt="" />
+
+            <p className="mq-intro-brand">RescueBase</p>
+            <img className="mq-intro-logo" src="/Logo.svg" alt="" />
+
+            <h2>
+                Find Your <span>Perfect Pet Match</span>
+            </h2>
+
+            <p className="mq-intro-text">
+                Answer a few simple questions about your lifestyle, home, and
+                preferences. Our smart matching system will recommend pets that
+                are the perfect fit for you.
+            </p>
+
+            <button
+                type="button"
+                className="mq-intro-button"
+                onClick={() => setStarted(true)}
+            >
+                Take the Quiz <span aria-hidden="true">→</span>
+            </button>
+        </section>
+    );
+}
+
     return (
         <section className="matchmaking-module">
-            <header className="matchmaking-header">
-                <div>
-                    <span>
-                        Behavioral Matching
-                    </span>
+            <div className="mq-top">
+                <button
+                    type="button"
+                    className="mq-top-back"
+                    onClick={questionIndex === 0 ? () => setStarted(false) : previousStep}
+                    disabled={submitting}
+                    aria-label={questionIndex === 0 ? "Back to intro" : "Previous question"}
+                >
+                    <img src="/icons/sidebar/return-brown.svg" alt="" />
+                </button>
 
-                    <h2>
-                        Find Your Best Pet Match
-                    </h2>
-
-                    <p>
-                        Tell RescueBase about your home,
-                        lifestyle, experience, and preferred
-                        animal behavior.
-                    </p>
-                </div>
-
-                <div className="matchmaking-progress-summary">
-                    <span>
-                        Question {questionIndex + 1} of {QUESTIONS.length}
-                    </span>
-
-                    <strong>{progress}%</strong>
-                </div>
-            </header>
-
-            <ol className="matchmaking-steps" aria-label="Quiz progress">
-                {QUIZ_STEPS.map((label, index) => {
-                    const step = index + 1;
-                    const state =
-                        step < currentStep
-                            ? "is-done"
-                            : step === currentStep
-                                ? "is-active"
-                                : "";
-
-                    return (
-                        <li
-                            key={label}
-                            className={`mq-step ${state}`}
-                            aria-current={step === currentStep ? "step" : undefined}
-                        >
-                            <span className="mq-step-dot">
-                                {step < currentStep && (
-                                    <img src="/icons/checkmark.svg" alt="" />
-                                )}
-                                <small>{label}</small>
-                            </span>
-                        </li>
-                    );
-                })}
-            </ol>
+                <button
+                    type="button"
+                    className="mq-top-next"
+                    onClick={nextStep}
+                    disabled={isLastQuestion || !answered || submitting}
+                    aria-label="Next question"
+                >
+                    <img src="/icons/sidebar/return-brown.svg" alt="" />
+                </button>
+            </div>
 
             <form
                 className="matchmaking-form"
                 onSubmit={handleSubmit}
             >
                 <section className="mq-card" key={question.name}>
-                    <div className="mq-card-count">
-                        <span>
-                            <b>{questionIndex + 1}</b> / {QUESTIONS.length}
-                        </span>
-                        <div className="mq-card-bar">
-                            <div style={{ width: `${progress}%` }} />
-                        </div>
-                    </div>
-
                     <span className="mq-card-chip">{question.section}</span>
                     <h3 className="mq-card-title">{question.title}</h3>
                     <p className="mq-card-hint">{question.hint}</p>
@@ -506,6 +452,16 @@ export default function MatchmakingQuiz({
                                     </button>
                                 ))}
                             </div>
+                            
+                            {!isLastQuestion && (
+                                <button
+                                    type="button"
+                                    className="matchmaking-submit-button"
+                                    onClick={nextStep}
+                                >
+                                    Confirm answer
+                                </button>
+                            )}
                         </div>
                     ) : (
                     <div
@@ -523,7 +479,7 @@ export default function MatchmakingQuiz({
                                     role="radio"
                                     aria-checked={selected}
                                     className={`mq-option ${selected ? "is-selected" : ""}`}
-                                    onClick={() => chooseAnswer(option.value)}
+                                    onClick={() => pickOption(option.value)}
                                 >
                                     <span className="mq-option-dot" aria-hidden="true">
                                         {selected && <img src="/icons/checkmark.svg" alt="" />}
@@ -547,58 +503,36 @@ export default function MatchmakingQuiz({
                     </div>
                 )}
 
-                <div className="matchmaking-actions">
-                    <button
-                        type="button"
-                        className="matchmaking-back-button"
-                        onClick={previousStep}
-                        disabled={questionIndex === 0 || submitting}
-                    >
-                        ← Back
-                    </button>
-
-                    {!isLastQuestion ? (
+                {isLastQuestion && (
+                    <div className="matchmaking-actions">
                         <button
-                            key={`next-${questionIndex}`}
-                            type="button"
-                            className="matchmaking-next-button"
-                            onClick={nextStep}
-                            disabled={submitting}
-                        >
-                            Next →
-                        </button>
-                    ) : (
-                        <button
-                            key="complete-matchmaking-quiz"
                             type="submit"
                             className="matchmaking-submit-button"
                             disabled={submitting}
                         >
-                            {submitting
-                                ? "Saving Preferences..."
-                                : "Complete Matchmaking Quiz"}
+                            {submitting ? "Saving Preferences..." : "Complete Matchmaking Quiz"}
                         </button>
-                    )}
-                </div>
-
-                <aside className="mq-why" aria-label="Why we ask">
-                    <span className="mq-why-eyebrow">Why we ask</span>
-                    <h3>Your answers</h3>
-
-                    <ul>
-                        {WHY_WE_ASK[currentStep].map((reason) => (
-                            <li key={reason}>
-                                <span className="mq-why-check" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24">
-                                        <polyline points="5 12.5 10 17 19 7.5" />
-                                    </svg>
-                                </span>
-                                {reason}
-                            </li>
-                        ))}
-                    </ul>
-                </aside>
+                    </div>
+                )}          
             </form>
+            <div
+                className="mq-dashes"
+                role="progressbar"
+                aria-label={`Question ${questionIndex + 1} of ${QUESTIONS.length}`}
+                aria-valuemin={1}
+                aria-valuemax={QUESTIONS.length}
+                aria-valuenow={questionIndex + 1}
+            >
+                {SECTIONS.map((section) => {
+                    const done = (questionIndex - section.start + 1) / section.count;
+
+                    return (
+                        <span key={section.name}>
+                            <i style={{ width: `${Math.min(Math.max(done, 0), 1) * 100}%` }} />
+                        </span>
+                    );
+                })}
+            </div>        
         </section>
     );
 }

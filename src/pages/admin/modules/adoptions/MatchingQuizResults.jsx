@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FACTORS, calculateRecommendation } from "../../../../utils/matchScore";
+import { FACTORS, applyAiScore, calculateRecommendation, toAiScores } from "../../../../utils/matchScore";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -139,8 +139,9 @@ export default function MatchingQuizResults() {
     const rows = useMemo(() => {
         return responses
             .map((response) => {
+                const aiScores = toAiScores(response.aiMatches);
                 const matches = animals
-                    .map((animal) => calculateRecommendation(animal, response))
+                    .map((animal) => applyAiScore(calculateRecommendation(animal, response), aiScores))
                     .sort((a, b) => b.score - a.score);
 
                 return { response, matches, top: matches[0] || null };
