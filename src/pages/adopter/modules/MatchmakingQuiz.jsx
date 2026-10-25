@@ -198,59 +198,25 @@ export default function MatchmakingQuiz({
     );
 
     const [form, setForm] = useState({
-        preferredPetType:
-            savedQuiz?.preferredPetType || "Any",
+        preferredPetType: savedQuiz?.preferredPetType || "",
+        preferredSize: savedQuiz?.preferredSize || "",
+        homeType: savedQuiz?.homeType || "",
+        homeOwnership: savedQuiz?.homeOwnership || "",
+        hasChildren: savedQuiz?.hasChildren || "",
+        hasOtherPets: savedQuiz?.hasOtherPets || "",
+        petExperience: savedQuiz?.petExperience || "",
+        dailyAvailableHours: savedQuiz?.dailyAvailableHours || "",
+        exerciseFrequency: savedQuiz?.exerciseFrequency || "",
+        willingToTrain: savedQuiz?.willingToTrain || "",
 
-        preferredSize:
-            savedQuiz?.preferredSize || "Any",
-
-        homeType:
-            savedQuiz?.homeType || "House",
-
-        homeOwnership:
-            savedQuiz?.homeOwnership || "Owned",
-
-        hasChildren:
-            savedQuiz?.hasChildren || "No",
-
-        hasOtherPets:
-            savedQuiz?.hasOtherPets || "No",
-
-        petExperience:
-            savedQuiz?.petExperience || "Beginner",
-
-        dailyAvailableHours:
-            savedQuiz?.dailyAvailableHours || "2-4",
-
-        exerciseFrequency:
-            savedQuiz?.exerciseFrequency || "Moderate",
-
-        willingToTrain:
-            savedQuiz?.willingToTrain || "Yes",
-
-        energyPreference:
-            savedQuiz?.energyPreference || 3,
-
-        friendlinessPreference:
-            savedQuiz?.friendlinessPreference || 3,
-
-        humanSociabilityPreference:
-            savedQuiz?.humanSociabilityPreference || 3,
-
-        animalSociabilityPreference:
-            savedQuiz?.animalSociabilityPreference || 3,
-
-        trainabilityPreference:
-            savedQuiz?.trainabilityPreference || 3,
-
-        anxietyTolerance:
-            savedQuiz?.anxietyTolerance || 3,
-
-        aggressionTolerance:
-            savedQuiz?.aggressionTolerance || 1,
-
-        activityPreference:
-            savedQuiz?.activityPreference || 3,
+        energyPreference: savedQuiz?.energyPreference || 1,
+        friendlinessPreference: savedQuiz?.friendlinessPreference || 1,
+        humanSociabilityPreference: savedQuiz?.humanSociabilityPreference || 1,
+        animalSociabilityPreference: savedQuiz?.animalSociabilityPreference || 1,
+        trainabilityPreference: savedQuiz?.trainabilityPreference || 1,
+        anxietyTolerance: savedQuiz?.anxietyTolerance || 1,
+        aggressionTolerance: savedQuiz?.aggressionTolerance || 1,
+        activityPreference: savedQuiz?.activityPreference || 1,
     });
 
     const [questionIndex, setQuestionIndex] =
@@ -268,6 +234,7 @@ export default function MatchmakingQuiz({
     const [started, setStarted] = useState(false);
     const question = QUESTIONS[questionIndex];
     const isLastQuestion = questionIndex === QUESTIONS.length - 1;
+    const answered = form[question.name] !== "";    
 
     function chooseAnswer(value) {
         setForm((currentForm) => ({
@@ -429,7 +396,7 @@ if (!started) {
                     type="button"
                     className="mq-top-next"
                     onClick={nextStep}
-                    disabled={isLastQuestion || submitting}
+                    disabled={isLastQuestion || !answered || submitting}
                     aria-label="Next question"
                 >
                     <img src="/icons/sidebar/return-brown.svg" alt="" />
@@ -485,6 +452,16 @@ if (!started) {
                                     </button>
                                 ))}
                             </div>
+                            
+                            {!isLastQuestion && (
+                                <button
+                                    type="button"
+                                    className="matchmaking-submit-button"
+                                    onClick={nextStep}
+                                >
+                                    Confirm answer
+                                </button>
+                            )}
                         </div>
                     ) : (
                     <div
