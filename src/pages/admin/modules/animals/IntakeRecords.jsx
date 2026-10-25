@@ -1,5 +1,69 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { isAdmin } from "../../../../utils/auth";
+
+const CEBU_CENTER = [10.3157, 123.8854];
+
+const AO_PIN = L.divIcon({
+    className: "ao-pin",
+    html: "<span></span>",
+    iconSize: [26, 34],
+    iconAnchor: [13, 34],
+});
+
+// Coordinates -> "Street, Barangay, City" (OpenStreetMap)
+async function lookupAddress(lat, lng) {
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&lat=${lat}&lon=${lng}`
+        );
+        const data = await res.json();
+        const a = data.address || {};
+        return [
+            a.road || a.pedestrian || a.neighbourhood || data.name,
+            a.suburb || a.village || a.quarter || a.hamlet,
+            a.city || a.town || a.municipality,
+        ]
+            .filter(Boolean)
+            .filter((part, i, list) => list.indexOf(part) === i)
+            .join(", ");
+    } catch {
+        return "";
+    }
+}
+
+// Tap the map to move the pin
+function PinPicker({ onPick }) {
+    useMapEvents({
+        click(event) {
+            onPick(event.latlng.lat, event.latlng.lng);
+        },
+    });
+    return null;
+}
+
+// Saved from a phone? (small screen or a mobile browser)
+function isPhoneDevice() {
+    const small = typeof window !== "undefined" && window.matchMedia?.("(max-width: 820px)").matches;
+    const mobileAgent = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+    return Boolean(small || mobileAgent);
+}
+
+function todayISO() {
+    const now = new Date();
+    return new Date(now - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
+function currentUserName() {
+    try {
+        const user = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
+        return user.name || user.username || "";
+    } catch {
+        return "";
+    }
+}
 
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
@@ -256,6 +320,7 @@ function isSameMonth(date, now = new Date()) {
 }
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
+const UPLOAD_URL = `${import.meta.env.VITE_BACKEND_URL}/api/uploads/image`;
 
 const initialForm = {
     animalName: "",
@@ -266,7 +331,15 @@ const initialForm = {
     rescuedBy: "",
     condition: "Healthy",
     notes: "",
+    latitude: "",
+    longitude: "",
+    image: "",
 };
+
+// New form: today's date and the signed-in person filled in
+function freshForm() {
+    return { ...initialForm, intakeDate: todayISO(), rescuedBy: currentUserName() };
+}
 
 const SPECIES_OPTIONS = [
     { value: "Dog", label: "Dog" },
@@ -310,6 +383,7 @@ const DEFAULT_FILTERS = {
     intakeType: "All",
     condition: "All",
     sort: "newest",
+    source: "All",
 };
 
 function getHeaders(includeJson = false) {
@@ -377,7 +451,11 @@ function getCurrentUserRole() {
 export default function IntakeRecords() {
     const [records, setRecords] = useState([]);
     const [editingId, setEditingId] = useState(null);
-    const [form, setForm] = useState(initialForm);
+    const [form, setForm] = useState(freshForm);
+    const [photo, setPhoto] = useState(null);
+    const [locating, setLocating] = useState(false);
+    const [accuracy, setAccuracy] = useState(null);
+    const [openId, setOpenId] = useState(null);
 
     const [tab, setTab] = useState("pending");
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
@@ -451,8 +529,74 @@ export default function IntakeRecords() {
     }
 
     function resetForm() {
-        setForm(initialForm);
+        setForm(freshForm());
         setEditingId(null);
+        setPhoto(null);
+        setAccuracy(null);
+    }
+
+    // Photo preview (freed when the photo changes)
+    const photoPreview = useMemo(() => (photo ? URL.createObjectURL(photo) : ""), [photo]);
+    useEffect(() => () => {
+        if (photoPreview) URL.revokeObjectURL(photoPreview);
+    }, [photoPreview]);
+
+    async function uploadPhoto() {
+        const formData = new FormData();
+        formData.append("image", photo);
+        formData.append("folder", "rescuebase/intakes");
+        const response = await fetch(UPLOAD_URL, {
+            method: "POST",
+            headers: getHeaders(),
+            body: formData,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.imageUrl) {
+            throw new Error(data.message || "Failed to upload the photo.");
+        }
+        return data.imageUrl;
+    }
+
+    // ---------- Location ----------
+    async function setPin(lat, lng) {
+        setForm((current) => ({
+            ...current,
+            latitude: Number(lat).toFixed(6),
+            longitude: Number(lng).toFixed(6),
+        }));
+        const place = await lookupAddress(lat, lng);
+        if (place) setForm((current) => ({ ...current, rescueLocation: place }));
+    }
+
+    function locateMe() {
+        if (!navigator.geolocation) {
+            setError("This browser can't share its location. Tap the map instead.");
+            return;
+        }
+        setError("");
+        setLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                setAccuracy(Math.round(position.coords.accuracy || 0));
+                await setPin(position.coords.latitude, position.coords.longitude);
+                setLocating(false);
+            },
+            () => {
+                setError("Couldn't get your location. Allow location access, or tap the map.");
+                setLocating(false);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    }
+
+    function pickOnMap(lat, lng) {
+        setAccuracy(null);
+        setPin(lat, lng);
+    }
+
+    function clearPin() {
+        setAccuracy(null);
+        setForm((current) => ({ ...current, latitude: "", longitude: "" }));
     }
 
     function handleEditRecord(record) {
@@ -467,7 +611,12 @@ export default function IntakeRecords() {
             rescuedBy: record.rescuedBy || "",
             condition: record.intakeCondition || "Healthy",
             notes: record.description || "",
+            latitude: record.latitude != null ? String(record.latitude) : "",
+            longitude: record.longitude != null ? String(record.longitude) : "",
+            image: record.image || "",
         });
+        setPhoto(null);
+        setAccuracy(null);
 
         setError("");
         setSuccessMessage("");
@@ -487,6 +636,8 @@ export default function IntakeRecords() {
             setError("");
             setSuccessMessage("");
 
+            const imageUrl = photo ? await uploadPhoto() : form.image;
+
             const payload = {
                 name: form.animalName.trim(),
                 type: form.animalType,
@@ -496,7 +647,15 @@ export default function IntakeRecords() {
                 rescuedBy: form.rescuedBy.trim(),
                 intakeCondition: form.condition,
                 description: form.notes.trim(),
+                latitude: form.latitude ? Number(form.latitude) : null,
+                longitude: form.longitude ? Number(form.longitude) : null,
+                image: imageUrl || "",
             };
+
+            // Tag new intakes saved from a phone (the source never changes on edit)
+            if (!editingId) {
+                payload.intakeSource = isPhoneDevice() ? "field" : "desk";
+            }
 
             const endpoint = editingId ? `${API_BASE_URL}/${editingId}` : API_BASE_URL;
             const method = editingId ? "PATCH" : "POST";
@@ -648,8 +807,16 @@ export default function IntakeRecords() {
     const stats = useMemo(
         () => ({
             thisMonth: records.filter((r) => isSameMonth(r.intakeDate || r.createdAt)).length,
-            rescued: records.filter((r) => r.intakeType === "Rescued").length,
-            surrendered: records.filter((r) => r.intakeType === "Owner Surrender").length,
+            fromPhone: records.filter((r) => r.intakeSource === "field").length,
+            topArea: (() => {
+                const tally = {};
+                records.forEach((r) => {
+                    const area = String(r.location || "").split(",")[0].trim();
+                    if (area) tally[area] = (tally[area] || 0) + 1;
+                });
+                const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
+                return top ? top[0] : "—";
+            })(),
         }),
         [records]
     );
@@ -665,7 +832,9 @@ export default function IntakeRecords() {
                 matchesSearch(record, filters.search, filters.searchBy, SEARCH_FIELDS) &&
                 (filters.intakeType === "All" || record.intakeType === filters.intakeType) &&
                 (filters.condition === "All" ||
-                    (record.intakeCondition || "Unknown") === filters.condition)
+                    (record.intakeCondition || "Unknown") === filters.condition) &&
+                (filters.source === "All" ||
+                    (filters.source === "field" ? record.intakeSource === "field" : record.intakeSource !== "field"))
         );
 
         const dateOf = (r) => new Date(r.intakeDate || r.createdAt || 0).getTime();
@@ -682,7 +851,7 @@ export default function IntakeRecords() {
     }
 
     const tabs = [
-        { value: "pending", label: "Waiting for Review", count: counts.pending },
+        { value: "pending", label: "Waiting", count: counts.pending },
         { value: "approved", label: "Approved" },
         { value: "rejected", label: "Rejected" },
         { value: "all", label: "All" },
@@ -709,8 +878,8 @@ export default function IntakeRecords() {
                 }}
                 items={[
                     { icon: "paw", label: "Intakes this month", value: stats.thisMonth },
-                    { icon: "check", label: "Rescued", value: stats.rescued },
-                    { icon: "home", label: "Surrendered", value: stats.surrendered },
+                    { icon: "phone", label: "From the field (phone)", value: stats.fromPhone },
+                    { icon: "pin", label: "Top area", value: stats.topArea },
                 ]}
             />
 
@@ -721,12 +890,37 @@ export default function IntakeRecords() {
                     <p className="ao-hint">
                         {editingId
                             ? "Update the arrival details, then save."
-                            : "A new animal profile is created once the intake is saved."}
+                            : "Works the same on a phone or a computer. Photo and map pin are optional."}
                     </p>
 
                     <form className="ao-form" onSubmit={handleSubmit}>
+                        <label className="ao-photo-pick">
+                            <span className="ao-photo-thumb">
+                                {photoPreview || form.image ? (
+                                    <img src={photoPreview || form.image} alt="" />
+                                ) : (
+                                    <Icon name="camera" size={20} />
+                                )}
+                            </span>
+                            <span>
+                                <b>{photoPreview || form.image ? "Change photo" : "Add photo"}</b>
+                                <small>Optional · opens the camera on a phone</small>
+                            </span>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                hidden
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    e.target.value = "";
+                                    if (file) setPhoto(file);
+                                }}
+                            />
+                        </label>
+
                         <label className="ao-field">
-                            <span>Animal Name <span className="ao-req">*</span></span>
+                            <span>Name or Nickname <span className="ao-req">*</span></span>
                             <input
                                 value={form.animalName}
                                 onChange={(e) => updateForm("animalName", e.target.value)}
@@ -755,7 +949,7 @@ export default function IntakeRecords() {
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                <span>Intake Date <span className="ao-req">*</span></span>
+                                <span>Date <span className="ao-req">*</span></span>
                                 <input
                                     type="date"
                                     value={form.intakeDate}
@@ -775,18 +969,66 @@ export default function IntakeRecords() {
                             </label>
                         </div>
 
-                        <label className="ao-field">
-                            <span>Found / Surrendered At <span className="ao-req">*</span></span>
-                            <input
-                                value={form.rescueLocation}
-                                onChange={(e) => updateForm("rescueLocation", e.target.value)}
-                                placeholder="e.g. Brgy. Guadalupe, Cebu City"
-                                required
-                            />
-                        </label>
+                        <div className="ao-field">
+                            <span>Where? <span className="ao-req">*</span></span>
+                            <div className="ao-where">
+                                <input
+                                    value={form.rescueLocation}
+                                    onChange={(e) => updateForm("rescueLocation", e.target.value)}
+                                    placeholder="e.g. Brgy. Guadalupe, Cebu City"
+                                    required
+                                />
+                                <button type="button" className="ao-btn" onClick={locateMe} disabled={locating}>
+                                    <Icon name="pin" />
+                                    {locating ? "Locating..." : "Locate"}
+                                </button>
+                            </div>
+                            <div className="ao-pickmap">
+                                <MapContainer
+                                    key={form.latitude ? "pinned" : "empty"}
+                                    center={form.latitude ? [Number(form.latitude), Number(form.longitude)] : CEBU_CENTER}
+                                    zoom={form.latitude ? 17 : 12}
+                                    scrollWheelZoom={false}
+                                    className="ao-pickmap-map"
+                                >
+                                    <TileLayer
+                                        attribution="&copy; OpenStreetMap"
+                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    />
+                                    <PinPicker onPick={pickOnMap} />
+                                    {form.latitude && (
+                                        <Marker
+                                            position={[Number(form.latitude), Number(form.longitude)]}
+                                            icon={AO_PIN}
+                                            draggable
+                                            eventHandlers={{
+                                                dragend: (event) => {
+                                                    const point = event.target.getLatLng();
+                                                    pickOnMap(point.lat, point.lng);
+                                                },
+                                            }}
+                                        />
+                                    )}
+                                </MapContainer>
+                                <div className="ao-pickmap-note">
+                                    {form.latitude ? (
+                                        <>
+                                            <span>
+                                                {accuracy && accuracy > 50
+                                                    ? `Approximate (±${accuracy >= 1000 ? `${(accuracy / 1000).toFixed(1)} km` : `${accuracy} m`}). Tap the exact spot.`
+                                                    : "Pin saved. Tap or drag to adjust."}
+                                            </span>
+                                            <button type="button" onClick={clearPin}>Remove pin</button>
+                                        </>
+                                    ) : (
+                                        <span>Optional: tap the map to pin the spot.</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
 
                         <div className="ao-field">
-                            <span>Condition on Arrival <span className="ao-req">*</span></span>
+                            <span>Condition <span className="ao-req">*</span></span>
                             <ChipGroup
                                 options={CONDITION_OPTIONS}
                                 value={form.condition}
@@ -864,6 +1106,16 @@ export default function IntakeRecords() {
                                 ],
                             },
                             {
+                                label: "Source",
+                                value: filters.source,
+                                onChange: (value) => setFilter("source", value),
+                                options: [
+                                    { value: "All", label: "All sources" },
+                                    { value: "field", label: "Phone" },
+                                    { value: "desk", label: "Computer" },
+                                ],
+                            },
+                            {
                                 label: "Sort",
                                 value: filters.sort,
                                 onChange: (value) => setFilter("sort", value),
@@ -897,7 +1149,14 @@ export default function IntakeRecords() {
                                 return (
                                     <article
                                         key={record._id}
-                                        className={`ao-item ${status === "pending" ? "flag" : ""}`}
+                                        className={`ao-item is-clickable ${status === "pending" ? "flag" : ""} ${openId === record._id ? "is-open" : ""}`}
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-expanded={openId === record._id}
+                                        onClick={() => setOpenId((current) => (current === record._id ? null : record._id))}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter") setOpenId((current) => (current === record._id ? null : record._id));
+                                        }}
                                     >
                                         <div className="ao-avatar">
                                             {record.image ? (
@@ -919,6 +1178,11 @@ export default function IntakeRecords() {
                                             </div>
 
                                             <div className="ao-tags">
+                                                {record.intakeSource === "field" && (
+                                                    <span className="ao-tag blue">
+                                                        <Icon name="phone" size={11} />Phone
+                                                    </span>
+                                                )}
                                                 {tab === "all" && (
                                                     <span className={`ao-tag ${statusTag[status]?.tone || ""}`}>
                                                         {statusTag[status]?.label || status}
@@ -953,7 +1217,7 @@ export default function IntakeRecords() {
                                             )}
                                         </div>
 
-                                        <div className="ao-actions">
+                                        <div className="ao-actions" onClick={(event) => event.stopPropagation()}>
                                             {status === "pending" && canManage && (
                                                 <>
                                                     <button
@@ -997,6 +1261,27 @@ export default function IntakeRecords() {
                                                 </button>
                                             )}
                                         </div>
+
+                                        {openId === record._id && (
+                                            <div className="ao-item-map" onClick={(event) => event.stopPropagation()}>
+                                                {record.latitude != null && record.longitude != null ? (
+                                                    <MapContainer
+                                                        center={[Number(record.latitude), Number(record.longitude)]}
+                                                        zoom={16}
+                                                        scrollWheelZoom={false}
+                                                        className="ao-item-map-view"
+                                                    >
+                                                        <TileLayer
+                                                            attribution="&copy; OpenStreetMap"
+                                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                        />
+                                                        <Marker position={[Number(record.latitude), Number(record.longitude)]} icon={AO_PIN} />
+                                                    </MapContainer>
+                                                ) : (
+                                                    <p className="ao-item-nomap">No map pin was saved for this intake.</p>
+                                                )}
+                                            </div>
+                                        )}
                                     </article>
                                 );
                             })}

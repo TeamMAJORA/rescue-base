@@ -2963,3 +2963,16 @@ a.ao-tag {
 .ao-assess-body.is-locked { display: flex; flex-direction: column; gap: 12px; opacity: 0.45; filter: grayscale(0.4); pointer-events: none; user-select: none; }
 .ao-select-first { padding: 10px 14px; border: 1px solid #f5d39b; border-left: 4px solid #fb8500; background: #fff7e6; color: #8a5300; font-size: 13.5px; font-weight: 600; }
 .ao-assess-foot textarea:disabled { background: #f6f0e1; cursor: not-allowed; }
+
+/* ===== Intake Records: photo + locate (merged from Mobile Field Intake) ===== */
+.ao-photo-pick { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px dashed #e3b36b; background: #fff9ec; cursor: pointer; }
+.ao-photo-pick:hover { border-color: #fb8500; }
+.ao-photo-thumb { width: 48px; height: 48px; flex: none; display: grid; place-items: center; overflow: hidden; background: #fff3d6; color: #d96f00; }
+.ao-photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ao-photo-pick b { display: block; font-size: 13.5px; color: #5a1b00; }
+.ao-photo-pick small { display: block; font-size: 11.5px; color: #8a6a4a; }
+.ao-where { display: flex; gap: 8px; }
+.ao-where input { flex: 1; min-width: 0; }
+.ao-where .ao-btn { flex: none; }
+.ao-field .ao-pickmap { margin-top: 6px; }
+.ao-field .ao-pickmap-map { height: 160px; }

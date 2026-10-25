@@ -48,7 +48,6 @@ import VaccinationRecords from "./modules/animals/VaccinationRecords";
 import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
 import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
-import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 import ActivityLog from "./modules/ActivityLog";
 import AccountSettings from "../AccountSettings";
 
@@ -90,7 +89,6 @@ const adminMenu = [
             { key: "animal-profiles", label: "Animal Profiles" },
             { key: "behavior-assessment", label: "Behavioral Assessment" },
             { key: "qr-tags", label: "QR Tags" },
-            { key: "mobile-intake", label: "Mobile Field Intake" },
         ],
     },
 
@@ -382,6 +380,7 @@ export default function AdminDashboard({ setPage }) {
         // Old record pages now live as tabs inside Animal Profiles
         const animalRecordTabs = {
             "intake-records": "intake",
+            "mobile-intake": "intake",
             "medical-records": "medical",
             "vaccination-records": "vaccinations",
             "animal-transfers": "transfers",
@@ -462,9 +461,6 @@ export default function AdminDashboard({ setPage }) {
             return <AnimalTransfers />;
         }
 
-        if (activeAdminPage === "mobile-intake") {
-            return <MobileFieldIntake />;
-        }
 
         if (activeAdminPage === "activity-log") {
             return <ActivityLog />;

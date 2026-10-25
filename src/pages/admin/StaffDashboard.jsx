@@ -43,7 +43,6 @@ import VaccinationRecords from "./modules/animals/VaccinationRecords";
 import BehaviorAssessment from "./modules/animals/BehaviorAssessment";
 import IntakeRecords from "./modules/animals/IntakeRecords";
 import QRTags from "./modules/animals/QRTags";
-import MobileFieldIntake from "./modules/animals/MobileFieldIntake";
 
 // // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
@@ -79,7 +78,6 @@ const staffMenu = [
             { key: "animal-profiles", label: "Animal Profiles" },
             { key: "behavior-assessment", label: "Behavioral Assessment" },
             { key: "qr-tags", label: "QR Tags" },
-            { key: "mobile-intake", label: "Mobile Field Intake" },
         ],
     },
 
@@ -335,6 +333,7 @@ export default function StaffDashboard({ setPage }) {
         // Old record pages now live as tabs inside Animal Profiles
         const animalRecordTabs = {
             "intake-records": "intake",
+            "mobile-intake": "intake",
             "medical-records": "medical",
             "vaccination-records": "vaccinations",
             "animal-transfers": "transfers",
@@ -419,9 +418,6 @@ export default function StaffDashboard({ setPage }) {
             return <AnimalTransfers />
         }
 
-        if (activeStaffPage === "mobile-intake") {
-            return <MobileFieldIntake />
-        }
 
     }
 
