@@ -323,7 +323,7 @@ export default function StaffDashboard({ setPage }) {
 
     function renderStaffContent() {
         if (activeStaffPage === "overview") {
-            return <AdminOverview />;
+            return <AdminOverview onNavigate={setActiveStaffPage} />;
         }
 
         if (activeStaffPage === "animals" || activeStaffPage === "animal-profiles") {

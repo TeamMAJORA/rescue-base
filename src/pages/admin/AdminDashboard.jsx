@@ -366,7 +366,7 @@ export default function AdminDashboard({ setPage }) {
 
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
-            return <AdminOverview />;
+            return <AdminOverview onNavigate={setActiveAdminPage} />;
         }
 
         if (activeAdminPage === "users") {
