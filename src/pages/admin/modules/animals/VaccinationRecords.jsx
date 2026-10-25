@@ -136,14 +136,6 @@ function daysUntil(value) {
     return Math.round((date - parseLocal(todayISO())) / 86400000);
 }
 
-function addToDate(value, { months = 0, years = 0 }) {
-    const date = parseLocal(value || todayISO());
-    date.setMonth(date.getMonth() + months);
-    date.setFullYear(date.getFullYear() + years);
-    const offset = date.getTimezoneOffset() * 60000;
-    return new Date(date - offset).toISOString().slice(0, 10);
-}
-
 // overdue | soon | ok | none — what the list should warn about
 function getDueState(vaccination) {
     const days = daysUntil(vaccination.nextDueDate);
@@ -374,9 +366,9 @@ function matchesSearch(record, term, searchBy, fieldMap) {
 
 // ---------- Page ----------
 
-export default function VaccinationRecords({ lockedAnimal = null }) {
+export default function VaccinationRecords({ lockedAnimal = null, filterAnimal = null, onClearFilter }) {
     const blankForm = {
-        animalName: lockedAnimal?.name || "",
+        animalName: lockedAnimal?.name || filterAnimal?.name || "",
         vaccineName: "",
         veterinarian: "",
         vaccinationDate: "",
@@ -388,7 +380,7 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
     const [vaccinations, setVaccinations] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [vaccinationForm, setVaccinationForm] = useState(blankForm);
-    const [tab, setTab] = useState(lockedAnimal ? "all" : "unvaccinated");
+    const [tab, setTab] = useState(lockedAnimal || filterAnimal ? "all" : "unvaccinated");
     const [animals, setAnimals] = useState([]);
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
@@ -417,12 +409,6 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
     useEffect(() => {
         loadVaccinations();
     }, []);
-
-    function startVaccinationFor(animal) {
-        setEditingId(null);
-        setVaccinationForm({ ...blankForm, animalName: animal.name });
-        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
 
     function updateField(name, value) {
         setVaccinationForm((current) => ({ ...current, [name]: value }));
@@ -547,8 +533,10 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
         () =>
             lockedAnimal
                 ? vaccinations.filter((v) => v.animalName === lockedAnimal.name)
-                : vaccinations,
-        [vaccinations, lockedAnimal]
+                : filterAnimal
+                    ? vaccinations.filter((v) => v.animalId === filterAnimal._id || v.animalName === filterAnimal.name)
+                    : vaccinations,
+        [vaccinations, lockedAnimal, filterAnimal]
     );
 
     const counts = useMemo(() => {
@@ -661,7 +649,7 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
     }
 
     const tabs = [
-        ...(lockedAnimal
+        ...(lockedAnimal || filterAnimal
             ? []
             : [{ value: "unvaccinated", label: "Not Vaccinated", count: unvaccinated.length }]),
         { value: "all", label: "All" },
@@ -779,28 +767,6 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                             </label>
                         </div>
 
-                        <div className="ao-chips ao-quick-due">
-                            {[
-                                { label: "+1 month", add: { months: 1 } },
-                                { label: "+3 months", add: { months: 3 } },
-                                { label: "+1 year", add: { years: 1 } },
-                            ].map((option) => (
-                                <button
-                                    type="button"
-                                    key={option.label}
-                                    className="ao-chip"
-                                    onClick={() =>
-                                        updateField(
-                                            "nextDueDate",
-                                            addToDate(vaccinationForm.vaccinationDate, option.add)
-                                        )
-                                    }
-                                >
-                                    {option.label}
-                                </button>
-                            ))}
-                        </div>
-
                         <div className="ao-field">
                             <span className="ao-label-tip">
                                 <span>Status <span className="ao-req">*</span></span>
@@ -841,6 +807,12 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                 <section className="ao-card" ref={listRef}>
                     <div className="ao-list-head">
                         {lockedAnimal && <h2>Vaccination Records</h2>}
+                        {filterAnimal && !lockedAnimal && (
+                            <span className="ap-filter-chip">
+                                Showing: {filterAnimal.name}
+                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}>✕</button>
+                            </span>
+                        )}
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
                     </div>
 
@@ -899,15 +871,6 @@ export default function VaccinationRecords({ lockedAnimal = null }) {
                                                 <div className="ao-tags">
                                                     <span className="ao-tag red">No vaccine on record</span>
                                                 </div>
-                                            </div>
-                                            <div className="ao-actions">
-                                                <button
-                                                    type="button"
-                                                    className="ao-btn sm ok"
-                                                    onClick={() => startVaccinationFor(animal)}
-                                                >
-                                                    Record Vaccine
-                                                </button>
                                             </div>
                                         </article>
                                     ))}

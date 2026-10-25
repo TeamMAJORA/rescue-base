@@ -88,12 +88,8 @@ const adminMenu = [
         label: "Animals",
         children: [
             { key: "animal-profiles", label: "Animal Profiles" },
-            { key: "medical-records", label: "Medical Records" },
-            { key: "intake-records", label: "Intake Records" },
-            { key: "vaccination-records", label: "Vaccination Records" },
             { key: "behavior-assessment", label: "Behavioral Assessment" },
             { key: "qr-tags", label: "QR Tags" },
-            { key: "animal-transfers", label: "Animal Transfers" },
             { key: "mobile-intake", label: "Mobile Field Intake" },
         ],
     },
@@ -381,6 +377,17 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "animals" || activeAdminPage === "animal-profiles") {
             return <AnimalProfiles />;
+        }
+
+        // Old record pages now live as tabs inside Animal Profiles
+        const animalRecordTabs = {
+            "intake-records": "intake",
+            "medical-records": "medical",
+            "vaccination-records": "vaccinations",
+            "animal-transfers": "transfers",
+        };
+        if (animalRecordTabs[activeAdminPage]) {
+            return <AnimalProfiles key={activeAdminPage} initialTab={animalRecordTabs[activeAdminPage]} />;
         }
 
         if (activeAdminPage === "medical-records") {

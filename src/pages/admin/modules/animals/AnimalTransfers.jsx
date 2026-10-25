@@ -396,7 +396,9 @@ export default function AnimalTransfers() {
             .then((data) => {
                 const list = data.animals || [];
                 setAnimals(list);
-                setAnimalNames([...new Set(list.map((a) => a.name).filter(Boolean))].sort());
+                // Adopted animals have left the shelter, so they can't be transferred
+                const inCare = list.filter((a) => String(a.status || "").toLowerCase() !== "adopted");
+                setAnimalNames([...new Set(inCare.map((a) => a.name).filter(Boolean))].sort((x, y) => x.localeCompare(y)));
             })
             .catch(() => {
                 setAnimals([]);
@@ -604,18 +606,22 @@ export default function AnimalTransfers() {
                     <form className="ao-form" onSubmit={handleSubmit}>
                         <label className="ao-field">
                             <span>Animal <span className="ao-req">*</span></span>
-                            <input
-                                list="ao-animal-names"
+                            <select
                                 value={form.animalName}
                                 onChange={(e) => updateField("animalName", e.target.value)}
-                                placeholder="Start typing a name..."
                                 required
-                            />
-                            <datalist id="ao-animal-names">
+                            >
+                                <option value="">Select an animal</option>
+                                {/* Keep an old transfer's animal selectable when editing */}
+                                {form.animalName && !animalNames.includes(form.animalName) && (
+                                    <option value={form.animalName}>{form.animalName}</option>
+                                )}
                                 {animalNames.map((name) => (
-                                    <option key={name} value={name} />
+                                    <option key={name} value={name}>
+                                        {name}
+                                    </option>
                                 ))}
-                            </datalist>
+                            </select>
                         </label>
 
                         <div className="ao-route">

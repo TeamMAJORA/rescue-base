@@ -347,9 +347,9 @@ function matchesSearch(record, term, searchBy, fieldMap) {
 
 // ---------- Page ----------
 
-export default function MedicalRecords({ lockedAnimal = null }) {
+export default function MedicalRecords({ lockedAnimal = null, filterAnimal = null, onClearFilter }) {
     const blankForm = {
-        animalName: lockedAnimal?.name || "",
+        animalName: lockedAnimal?.name || filterAnimal?.name || "",
         recordType: "Checkup",
         vetName: "",
         recordDate: "",
@@ -486,8 +486,10 @@ export default function MedicalRecords({ lockedAnimal = null }) {
         () =>
             lockedAnimal
                 ? records.filter((r) => r.animalName === lockedAnimal.name)
-                : records,
-        [records, lockedAnimal]
+                : filterAnimal
+                    ? records.filter((r) => r.animalId === filterAnimal._id || r.animalName === filterAnimal.name)
+                    : records,
+        [records, lockedAnimal, filterAnimal]
     );
 
     const counts = useMemo(() => {
@@ -669,6 +671,12 @@ export default function MedicalRecords({ lockedAnimal = null }) {
                 <section className="ao-card">
                     <div className="ao-list-head">
                         {lockedAnimal && <h2>Medical Records</h2>}
+                        {filterAnimal && !lockedAnimal && (
+                            <span className="ap-filter-chip">
+                                Showing: {filterAnimal.name}
+                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}>✕</button>
+                            </span>
+                        )}
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
                     </div>
 
