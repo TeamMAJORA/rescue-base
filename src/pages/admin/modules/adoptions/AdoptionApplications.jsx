@@ -1018,7 +1018,7 @@ function ApplicationModal({
                         <p>
                             <span><ReviewIcon name="mail" />{application.email}</span>
                             {application.phone && (
-                                <span><ReviewIcon name="phone" />{application.phone}</span>
+                                <span><ReviewIcon name="phone" />0{application.phone}</span>
                             )}
                         </p>
                     </div>
@@ -1120,7 +1120,7 @@ function ApplicationModal({
                             <dl className="arv-rows">
                                 <div>
                                     <dt>Phone</dt>
-                                    <dd>{application.phone || "Not provided"}</dd>
+                                    <dd>0{application.phone || "Not provided"}</dd>
                                 </div>
                                 <div>
                                     <dt>Home type</dt>
