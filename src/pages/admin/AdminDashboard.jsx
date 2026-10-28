@@ -9,8 +9,6 @@ import "../../styles/admin/AnimalProfiles.css";
 import "../../styles/admin/MedicalRecords.css";
 import "../../styles/admin/IntakeRecords.css";
 import "../../styles/admin/AdoptionApplications.css";
-import "../../styles/admin/MatchingQuizResults.css";
-import "../../styles/admin/Recommendations.css";
 import "../../styles/admin/FosterCare.css";
 import "../../styles/admin/LostFound.css";
 import "../../styles/admin/GISMapping.css";
@@ -53,8 +51,6 @@ import AccountSettings from "../AccountSettings";
 
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
-import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
-import Recommendations from "./modules/adoptions/Recommendations";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
@@ -63,6 +59,7 @@ const ICONS = {
     users: "/icons/User-brown.svg",
     animals: "/icons/sidebar/brown paw.svg",
     adoptions: "/icons/heart-brown.svg",
+    "adoption-applications": "/icons/heart-brown.svg",
     "foster-care": "/icons/home.svg",
     donations: "/icons/sidebar/donation-brown.svg",
     "needed-supplies": "/icons/sidebar/supplies-brown.svg", 
@@ -92,15 +89,7 @@ const adminMenu = [
         ],
     },
 
-    {
-        key: "adoptions",
-        label: "Adoptions",
-        children: [
-            { key: "adoption-applications", label: "Applications" },
-            { key: "matching-quiz", label: "Matching Quiz Results" },
-            { key: "recommendations", label: "Recommendations" },
-        ],
-    },//removed bcs of the new animal intake form
+    { key: "adoption-applications", label: "Adoptions" },//removed bcs of the new animal intake form
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "needed-supplies", label: "Needed Supplies" },
@@ -399,14 +388,6 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "adoptions" || activeAdminPage === "adoption-applications") {
             return <AdoptionApplications />;
-        }
-
-        if (activeAdminPage === "matching-quiz") {
-            return <MatchingQuizResults />;
-        }
-
-        if (activeAdminPage === "recommendations") {
-            return <Recommendations />
         }
 
         if (activeAdminPage === "foster-care") {

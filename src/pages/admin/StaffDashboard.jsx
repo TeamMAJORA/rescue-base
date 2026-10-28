@@ -10,8 +10,6 @@ import "../../styles/admin/AnimalProfiles.css";
 import "../../styles/admin/MedicalRecords.css";
 import "../../styles/admin/IntakeRecords.css";
 import "../../styles/admin/AdoptionApplications.css";
-import "../../styles/admin/MatchingQuizResults.css";
-import "../../styles/admin/Recommendations.css";
 import "../../styles/admin/FosterCare.css";
 import "../../styles/admin/LostFound.css";
 import "../../styles/admin/GISMapping.css";
@@ -46,8 +44,6 @@ import QRTags from "./modules/animals/QRTags";
 
 // // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
-import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
-import Recommendations from "./modules/adoptions/Recommendations";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 import AccountSettings from "../AccountSettings";
 
@@ -56,6 +52,7 @@ const ICONS = {
     overview: "/icons/sidebar/dashboard-brown.svg",
     animals: "/icons/sidebar/brown paw.svg",
     adoptions: "/icons/heart-brown.svg",
+    "adoption-applications": "/icons/heart-brown.svg",
     "foster-care": "/icons/home.svg",
     donations: "/icons/sidebar/donation-brown.svg",
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
@@ -81,15 +78,7 @@ const staffMenu = [
         ],
     },
 
-    {
-        key: "adoptions",
-        label: "Adoptions",
-        children: [
-            { key: "adoption-applications", label: "Applications" },
-            { key: "matching-quiz", label: "Matching Quiz Results" },
-            { key: "recommendations", label: "Recommendations" },
-        ],
-    },
+    { key: "adoption-applications", label: "Adoptions" },
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "lost-found", label: "Lost & Found" },
@@ -352,14 +341,6 @@ export default function StaffDashboard({ setPage }) {
 
         if (activeStaffPage === "adoptions" || activeStaffPage === "adoption-applications") {
             return <AdoptionApplications />;
-        }
-
-        if (activeStaffPage === "matching-quiz") {
-            return <MatchingQuizResults />;
-        }
-
-        if (activeStaffPage === "recommendations") {
-            return <Recommendations />
         }
 
         if (activeStaffPage === "foster-care") {
