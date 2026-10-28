@@ -544,9 +544,56 @@ function getQuizScore(application, quizByEmail) {
     return { score: Math.floor(quiz.appliedScore) };
 }
 
+// ---------- "New / updated" highlight on application rows ----------
+// A row stays highlighted until you open it. Remembered per account in this browser.
+
+function seenAppsKey() {
+    try {
+        const user = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
+        return `rescuebase_seen_applications_${user.email || user._id || "me"}`;
+    } catch {
+        return "rescuebase_seen_applications_me";
+    }
+}
+
+function readSeenApps() {
+    try {
+        const raw = localStorage.getItem(seenAppsKey());
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+function writeSeenApps(seen) {
+    try {
+        localStorage.setItem(seenAppsKey(), JSON.stringify(seen));
+    } catch {
+        // storage blocked: highlights just won't be remembered
+    }
+}
+
+// The latest thing the applicant did: applied, re-uploaded documents, or withdrew
+function applicantActivity(application) {
+    const events = [
+        { label: "New", time: application.createdAt },
+        application.documentRequest?.status === "resubmitted" && {
+            label: "New documents",
+            time: application.documentRequest.resubmittedAt,
+        },
+        application.withdrawnAt && { label: "Withdrew", time: application.withdrawnAt },
+    ]
+        .filter((event) => event && event.time)
+        .map((event) => ({ ...event, ms: new Date(event.time).getTime() }))
+        .filter((event) => Number.isFinite(event.ms));
+
+    return events.sort((a, b) => b.ms - a.ms)[0] || null;
+}
+
 function ApplicationRow({
     application,
     quizByEmail = {},
+    highlight = null,
     onReview,
     onSchedule,
     onCompleteInterview,
@@ -573,7 +620,7 @@ function ApplicationRow({
 
     return (
         <article
-            className="admin-application-row is-clickable"
+            className={`admin-application-row is-clickable${highlight ? " is-fresh" : ""}`}
             role="button"
             tabIndex={0}
             title="Open application"
@@ -588,7 +635,10 @@ function ApplicationRow({
                 </span>
 
                 <div>
-                    <h3>{application.fullName || "Unknown Applicant"}</h3>
+                    <h3>
+                        {application.fullName || "Unknown Applicant"}
+                        {highlight && <span className="arv-fresh-tag">{highlight}</span>}
+                    </h3>
                     <p>{application.email}</p>
                 </div>
             </div>
@@ -1531,6 +1581,8 @@ function ApplicationModal({
 export default function AdoptionApplications() {
     const [applications, setApplications] = useState([]);
     const [quizByEmail, setQuizByEmail] = useState({});
+    // appId -> time of the applicant's last activity you've seen (null until first load)
+    const [seenApps, setSeenApps] = useState(readSeenApps);
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [rejectionApplication, setRejectionApplication] = useState(null);
     const [interviewApplication, setInterviewApplication] = useState(null);
@@ -1595,6 +1647,52 @@ export default function AdoptionApplications() {
             ),
         [applications]
     );
+
+    // First visit on this browser: treat everything already here as seen
+    useEffect(() => {
+        if (seenApps || applications.length === 0) return undefined;
+        const timer = setTimeout(() => {
+            const seeded = {};
+            applications.forEach((application) => {
+                seeded[application._id] = applicantActivity(application)?.ms || 0;
+            });
+            writeSeenApps(seeded);
+            setSeenApps(seeded);
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [applications, seenApps]);
+
+    // Which rows to highlight, and with what label
+    const freshLabels = useMemo(() => {
+        if (!seenApps) return {};
+        const labels = {};
+        applications.forEach((application) => {
+            const activity = applicantActivity(application);
+            if (activity && activity.ms > (seenApps[application._id] || 0)) {
+                labels[application._id] = activity.label;
+            }
+        });
+        return labels;
+    }, [applications, seenApps]);
+
+    const freshCount = Object.keys(freshLabels).length;
+
+    function markSeen(list) {
+        setSeenApps((current) => {
+            const next = { ...(current || {}) };
+            list.forEach((application) => {
+                next[application._id] = applicantActivity(application)?.ms || Date.now();
+            });
+            writeSeenApps(next);
+            return next;
+        });
+    }
+
+    // Opening an application clears its highlight
+    function openApplication(application) {
+        markSeen([application]);
+        setSelectedApplication(application);
+    }
 
     const visibleApplications = useMemo(() => {
         const source =
@@ -1914,14 +2012,16 @@ export default function AdoptionApplications() {
                         </button>
                     ))}
 
-                    <button
-                        type="button"
-                        className="admin-adoption-refresh"
-                        onClick={fetchApplications}
-                        disabled={loading || saving}
-                    >
-                        {loading ? "Refreshing..." : "Refresh"}
-                    </button>
+                    {freshCount > 0 && (
+                        <button
+                            type="button"
+                            className="arv-fresh-clear"
+                            onClick={() => markSeen(applications.filter((application) => freshLabels[application._id]))}
+                            title="Remove all highlights"
+                        >
+                            {freshCount} new · Mark all seen
+                        </button>
+                    )}
                 </div>
 
                 <div className="admin-adoption-toolbar">
@@ -2009,7 +2109,8 @@ export default function AdoptionApplications() {
                                     key={application._id}
                                     application={application}
                                     quizByEmail={quizByEmail}
-                                    onReview={setSelectedApplication}
+                                    highlight={freshLabels[application._id] || null}
+                                    onReview={openApplication}
                                     onSchedule={setInterviewApplication}
                                     onCompleteInterview={handleCompleteInterview}
                                     onApprove={handleApproveApplication}
