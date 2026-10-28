@@ -1596,7 +1596,20 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                     <td>{animal.type}</td>
                                                     <td>{animal.breed || "—"}</td>
                                                     <td>{formatAge(animal.age)}</td>
-                                                    <td>{animal.gender}</td>
+                                                    <td>
+                                                        {animal.gender ? (
+                                                            <span
+                                                                className={`agc-gender ${String(animal.gender).toLowerCase() === "male" ? "is-male" : String(animal.gender).toLowerCase() === "female" ? "is-female" : ""}`}
+                                                            >
+                                                                {["male", "female"].includes(String(animal.gender).toLowerCase()) && (
+                                                                    <img src={`/icons/${String(animal.gender).toLowerCase()}.svg`} alt="" aria-hidden="true" />
+                                                                )}
+                                                                {animal.gender}
+                                                            </span>
+                                                        ) : (
+                                                            "—"
+                                                        )}
+                                                    </td>
                                                     <td>
                                                         <StatusPill key={status} status={status} />
                                                     </td>
