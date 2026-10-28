@@ -2360,3 +2360,8 @@ button.admin-schedule-day.is-selected:hover {
 .art-checks li + li { margin-top: 4px; }
 .art-checks b { color: #3a1200; }
 @media (max-width: 760px) { .art-compat { grid-template-columns: 1fr; } }
+
+/* Clickable email / phone in the review header */
+.admin-review-identity p .arv-contact { display: inline-flex; align-items: center; gap: 5px; color: inherit; text-decoration: none; border-bottom: 1px dashed transparent; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+.admin-review-identity p .arv-contact:hover { color: #d96f00; border-bottom-color: #d96f00; }
+.admin-review-identity p .arv-contact:focus-visible { outline: 2px solid #fb8500; outline-offset: 2px; }

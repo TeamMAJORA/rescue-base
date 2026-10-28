@@ -1086,9 +1086,28 @@ function ApplicationModal({
                         <span>Application Details</span>
                         <h2>{application.fullName || "Unknown Applicant"}</h2>
                         <p>
-                            <span><ReviewIcon name="mail" />{application.email}</span>
+                            {/* Email opens a Gmail draft in a new tab; phone opens the dialer */}
+                            {application.email ? (
+                                <a
+                                    className="arv-contact"
+                                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(application.email)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title={`Email ${application.email}`}
+                                >
+                                    <ReviewIcon name="mail" />{application.email}
+                                </a>
+                            ) : (
+                                <span><ReviewIcon name="mail" />No email</span>
+                            )}
                             {application.phone && (
-                                <span><ReviewIcon name="phone" />0{application.phone}</span>
+                                <a
+                                    className="arv-contact"
+                                    href={`tel:0${String(application.phone).replace(/[^\d]/g, "")}`}
+                                    title={`Call 0${application.phone}`}
+                                >
+                                    <ReviewIcon name="phone" />0{application.phone}
+                                </a>
                             )}
                         </p>
                     </div>
