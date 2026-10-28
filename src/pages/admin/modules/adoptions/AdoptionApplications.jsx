@@ -54,14 +54,6 @@ function formatDate(date) {
         : parsed.toLocaleString();
 }
 
-function getLocalDateTimeValue(date) {
-    const localDate = new Date(
-        date.getTime() - date.getTimezoneOffset() * 60000
-    );
-
-    return localDate.toISOString().slice(0, 16);
-}
-
 function RejectModal({ application, onClose, onConfirm, loading }) {
     const [reason, setReason] = useState("");
 
@@ -228,6 +220,213 @@ function WheelColumn({ items, value, onChange, label }) {
                     </button>
                 );
             })}
+        </div>
+    );
+}
+
+// ---------- Interview picker (review popup): month calendar + time wheel ----------
+const PICKER_WEEK_DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+const PICKER_MINUTES = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
+
+function toDayValue(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+// "HH:mm" (24h) <-> wheel values
+function splitTime(time) {
+    const [h, m] = String(time || "09:00").split(":").map(Number);
+    return {
+        hour: String(h % 12 || 12),
+        minute: String(Number.isFinite(m) ? m : 0).padStart(2, "0"),
+        period: h >= 12 ? "PM" : "AM",
+    };
+}
+
+function joinTime(hour, minute, period) {
+    return `${String(to24Hour(hour, period)).padStart(2, "0")}:${minute}`;
+}
+
+const PICKER_MONTHS = Array.from({ length: 12 }, (_, index) =>
+    new Date(2000, index, 1).toLocaleString("en-PH", { month: "long" })
+);
+
+function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const selected = day ? new Date(`${day}T00:00`) : null;
+    const [open, setOpen] = useState(null); // null | "date" | "time"
+    const [viewMonth, setViewMonth] = useState(() => {
+        const base = selected || today;
+        return new Date(base.getFullYear(), base.getMonth(), 1);
+    });
+    const boxRef = useRef(null);
+
+    // Click outside the picker closes the open panel
+    useEffect(() => {
+        if (!open) return undefined;
+        function handleClick(event) {
+            if (boxRef.current && !boxRef.current.contains(event.target)) setOpen(null);
+        }
+        function handleKey(event) {
+            if (event.key === "Escape") setOpen(null);
+        }
+        document.addEventListener("mousedown", handleClick);
+        document.addEventListener("keydown", handleKey);
+        return () => {
+            document.removeEventListener("mousedown", handleClick);
+            document.removeEventListener("keydown", handleKey);
+        };
+    }, [open]);
+
+    const year = viewMonth.getFullYear();
+    const month = viewMonth.getMonth();
+    const lead = (new Date(year, month, 1).getDay() + 6) % 7; // Monday first
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrev = new Date(year, month, 0).getDate();
+    const trail = (7 - ((lead + daysInMonth) % 7)) % 7;
+    const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+    const years = [today.getFullYear(), today.getFullYear() + 1, today.getFullYear() + 2]; //interviews more than a year away aren’t realistic
+
+    const cells = [
+        ...Array.from({ length: lead }, (_, i) => ({ day: daysInPrev - lead + i + 1, outside: true })),
+        ...Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, date: new Date(year, month, i + 1) })),
+        ...Array.from({ length: trail }, (_, i) => ({ day: i + 1, outside: true })),
+    ];
+
+    const { hour, minute, period } = splitTime(time);
+
+    // Never show a month before the current one
+    function goToMonth(nextYear, nextMonth) {
+        const target = new Date(nextYear, nextMonth, 1);
+        const floor = new Date(today.getFullYear(), today.getMonth(), 1);
+        setViewMonth(target < floor ? floor : target);
+    }
+
+    function toggle(panel) {
+        setOpen((current) => (current === panel ? null : panel));
+    }
+
+    return (
+        <div className={`aip${disabled ? " is-disabled" : ""}`} ref={boxRef}>
+            <div className="aip-fields">
+                <button
+                    type="button"
+                    className={`aip-field${open === "date" ? " is-open" : ""}${selected ? "" : " is-empty"}`}
+                    onClick={() => toggle("date")}
+                    disabled={disabled}
+                    aria-expanded={open === "date"}
+                >
+                    <ReviewIcon name="calendar" />
+                    <span>
+                        {selected
+                            ? selected.toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+                            : "Pick a date"}
+                    </span>
+                    <i aria-hidden="true">▾</i>
+                </button>
+
+                <button
+                    type="button"
+                    className={`aip-field${open === "time" ? " is-open" : ""}`}
+                    onClick={() => toggle("time")}
+                    disabled={disabled}
+                    aria-expanded={open === "time"}
+                >
+                    <span className="aip-clock" aria-hidden="true">🕘</span>
+                    <span>{hour}:{minute} {period}</span>
+                    <i aria-hidden="true">▾</i>
+                </button>
+            </div>
+
+            {open === "date" && (
+                <div className="aip-pop aip-calendar">
+                    <div className="aip-month">
+                        <div className="aip-month-selects">
+                            <select
+                                value={month}
+                                onChange={(event) => goToMonth(year, Number(event.target.value))}
+                                aria-label="Month"
+                            >
+                                {PICKER_MONTHS.map((name, index) => (
+                                    <option
+                                        key={name}
+                                        value={index}
+                                        disabled={year === today.getFullYear() && index < today.getMonth()}
+                                    >
+                                        {name}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                value={year}
+                                onChange={(event) => goToMonth(Number(event.target.value), month)}
+                                aria-label="Year"
+                            >
+                                {years.map((value) => (
+                                    <option key={value} value={value}>{value}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <button
+                                type="button"
+                                onClick={() => goToMonth(year, month - 1)}
+                                disabled={isCurrentMonth}
+                                aria-label="Previous month"
+                            >
+                                ‹
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => goToMonth(year, month + 1)}
+                                disabled={year === years[years.length - 1] && month === 11}
+                                aria-label="Next month"
+                            >
+                                ›
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="aip-grid">
+                        {PICKER_WEEK_DAYS.map((name) => (
+                            <span key={name} className="aip-weekday">{name}</span>
+                        ))}
+                        {cells.map((cell, index) =>
+                            cell.outside ? (
+                                <span key={`out-${index}`} className="aip-day is-outside">{cell.day}</span>
+                            ) : (
+                                <button
+                                    key={cell.day}
+                                    type="button"
+                                    className={`aip-day${isSameDay(cell.date, selected) ? " is-selected" : ""}${isSameDay(cell.date, today) ? " is-today" : ""}`}
+                                    disabled={cell.date < today}
+                                    onClick={() => {
+                                        onDayChange(toDayValue(cell.date));
+                                        setOpen(null);
+                                    }}
+                                >
+                                    {cell.day}
+                                </button>
+                            )
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {open === "time" && (
+                <div className="aip-pop aip-time">
+                    <span className="aip-time-label">Time</span>
+                    <div className="admin-wheel aip-wheel">
+                        <WheelColumn items={WHEEL_HOURS} value={hour} onChange={(value) => onTimeChange(joinTime(value, minute, period))} label="Hour" />
+                        <span className="admin-wheel-colon">:</span>
+                        <WheelColumn items={PICKER_MINUTES} value={minute} onChange={(value) => onTimeChange(joinTime(hour, value, period))} label="Minute" />
+                        <WheelColumn items={WHEEL_PERIODS} value={period} onChange={(value) => onTimeChange(joinTime(hour, minute, value))} label="AM or PM" />
+                    </div>
+                    <button type="button" className="aip-done" onClick={() => setOpen(null)}>
+                        Done
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
@@ -1073,7 +1272,7 @@ function ApplicationModal({
     useEffect(() => {
         setReviewTab("application");
         setInterviewDay("");
-        setInterviewTime("");
+        setInterviewTime("09:00");
         setRescheduling(false);
         setInterviewError("");
         setDocRequestOpen(false);
@@ -1090,7 +1289,6 @@ function ApplicationModal({
     const isClosed = ["approved", "rejected", "withdrawn"].includes(status);
     const documents = Array.isArray(application.documents) ? application.documents : [];
     const showInterviewForm = isPending || (isScheduled && rescheduling);
-    const today = getLocalDateTimeValue(new Date()).slice(0, 10);
     const docRequest = application.documentRequest || {};
 
     async function handleSendDocRequest() {
@@ -1117,6 +1315,11 @@ function ApplicationModal({
 
         if (Number.isNaN(selected.getTime()) || selected <= new Date()) {
             setInterviewError("Please pick a future date and time.");
+            return;
+        }
+
+        if (selected.getHours() < SHELTER_OPEN_HOUR || selected.getHours() >= SHELTER_CLOSE_HOUR) {
+            setInterviewError("Interviews run from 8:00 AM to 5:00 PM only.");
             return;
         }
 
@@ -1483,21 +1686,19 @@ function ApplicationModal({
                                     </p>
 
                                     <div className="admin-review-interview-inputs">
-                                        <input
-                                            type="date"
-                                            min={today}
-                                            value={interviewDay}
-                                            onChange={(event) => setInterviewDay(event.target.value)}
+                                        <InterviewPicker
+                                            key={application._id}
+                                            day={interviewDay}
+                                            time={interviewTime}
+                                            onDayChange={(value) => {
+                                                setInterviewDay(value);
+                                                setInterviewError("");
+                                            }}
+                                            onTimeChange={(value) => {
+                                                setInterviewTime(value);
+                                                setInterviewError("");
+                                            }}
                                             disabled={loading}
-                                            aria-label="Interview date"
-                                        />
-
-                                        <input
-                                            type="time"
-                                            value={interviewTime}
-                                            onChange={(event) => setInterviewTime(event.target.value)}
-                                            disabled={loading}
-                                            aria-label="Interview time"
                                         />
                                     </div>
 
