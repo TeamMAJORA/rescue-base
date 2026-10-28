@@ -2224,3 +2224,85 @@ button.admin-schedule-day.is-selected:hover {
     .art-hero { grid-template-columns: 64px 1fr; }
     .art-hero-score { grid-column: 1 / -1; text-align: left; }
 }
+
+/* ===== Review body: two-column sheet (flat sections, divider in the middle) ===== */
+.admin-review-body.is-sheet { gap: 0; padding: 6px 0 12px; }
+.admin-review-body.is-sheet .admin-review-column { gap: 0; padding: 0 26px; }
+.admin-review-body.is-sheet .admin-review-column + .admin-review-column { border-left: 1px solid rgba(251, 133, 0, 0.28); }
+.admin-review-body.is-sheet .admin-review-card { padding: 16px 0 6px; border: 0; border-radius: 0; background: transparent; }
+.admin-review-body.is-sheet .admin-review-card h3,
+.admin-review-body.is-sheet .admin-review-card-heading h3 {
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(251, 133, 0, 0.3);
+    color: #3a1200;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+.admin-review-body.is-sheet .admin-review-card-heading { align-items: flex-start; margin-bottom: 0; }
+.admin-review-body.is-sheet .admin-review-card-heading h3 { flex: 1; }
+
+.arv-rows { display: grid; gap: 7px; margin: 0; }
+.arv-rows > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; font-size: 13.5px; }
+.arv-rows dt { color: #8a6a4a; font-weight: 600; }
+.arv-rows dd { margin: 0; color: #3a1200; font-weight: 700; overflow-wrap: anywhere; }
+.arv-rows dd.is-yes { color: #2f8f5b; }
+.arv-rows dd.is-no { color: #8a6a4a; }
+
+.arv-answer + .arv-answer { margin-top: 12px; }
+.arv-answer small { display: block; color: #8a6a4a; font-size: 12px; font-weight: 600; }
+.arv-answer p { margin: 3px 0 0; color: #3a1200; font-size: 13.5px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+@media (max-width: 760px) {
+    .admin-review-body.is-sheet { grid-template-columns: 1fr; }
+    .admin-review-body.is-sheet .admin-review-column + .admin-review-column { border-left: 0; border-top: 1px solid rgba(251, 133, 0, 0.28); }
+}
+/* Heading with a badge: underline runs under both */
+.admin-review-body.is-sheet .admin-review-card-heading { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(251, 133, 0, 0.3); align-items: center; }
+.admin-review-body.is-sheet .admin-review-card-heading h3 { margin: 0; padding: 0; border: 0; }
+
+/* "Applying for" spans both columns as the first row */
+.admin-review-body.is-sheet .arv-pet-row { grid-column: 1 / -1; margin: 0 26px; padding-bottom: 14px; border-bottom: 1px solid rgba(251, 133, 0, 0.28); }
+.admin-review-body.is-sheet .arv-pet-row h3 { border-bottom: 0; padding-bottom: 0; margin-bottom: 8px; }
+
+/* ===== "Applying for" band: between the header and the steps ===== */
+.arv-applying {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    margin: 0 26px;
+    padding: 12px 14px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-left: 5px solid #fb8500;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #fff3d6, #fffaf0);
+    box-shadow: 0 6px 16px rgba(90, 27, 0, 0.06);
+    transform: translateY(-14px);
+    margin-bottom: -6px;
+}
+.arv-applying-photo { width: 58px; height: 58px; overflow: hidden; display: grid; place-items: center; border-radius: 12px; background: #ffe7b8; box-shadow: inset 0 0 0 2px #fff; }
+.arv-applying-photo img { width: 100%; height: 100%; object-fit: cover; }
+.arv-applying-photo img.is-placeholder { width: 28px; height: 28px; object-fit: contain; }
+.arv-applying-info { min-width: 0; display: grid; }
+.arv-applying-info small { color: #d96f00; font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.arv-applying-info strong { color: #3a1200; font-family: "Itim", cursive; font-size: 22px; font-weight: 500; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arv-applying-info span { color: #75432f; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arv-applying-score { display: grid; justify-items: center; min-width: 74px; padding: 6px 10px; border: 1.5px dashed currentColor; border-radius: 12px; background: #fffdf4; }
+.arv-applying-score b { font-size: 20px; line-height: 1.1; }
+.arv-applying-score small { font-size: 10.5px; font-weight: 700; }
+.arv-applying-score.is-high { color: #2f8f5b; }
+.arv-applying-score.is-mid { color: #d96f00; }
+.arv-applying-score.is-low { color: #c62828; }
+@media (max-width: 560px) {
+    .arv-applying { grid-template-columns: 48px minmax(0, 1fr); margin: 0 14px; }
+    .arv-applying-photo { width: 48px; height: 48px; }
+    .arv-applying-score { grid-column: 1 / -1; justify-items: start; }
+}
+
+/* "Applying for" band: sits in its own space, no overlap with the header or steps */
+.arv-applying { transform: none; margin: 14px 26px 12px; box-shadow: none; }
+@media (max-width: 560px) { .arv-applying { margin: 12px 14px 10px; } }

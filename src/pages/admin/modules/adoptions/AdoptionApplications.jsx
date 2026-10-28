@@ -1037,6 +1037,44 @@ function ApplicationModal({
                     </button>
                 </header>
 
+                {/* Which pet this application is for (shown on every tab) */}
+                {(() => {
+                    const isLatest =
+                        quiz && String(quiz.latestApplication?._id || "") === String(application._id);
+                    const matchScore =
+                        isLatest && quiz.appliedScore != null ? Math.floor(quiz.appliedScore) : null;
+                    const pet = (isLatest && quiz.appliedAnimal) || {};
+
+                    return (
+                        <section className="arv-applying" aria-label="Applying for">
+                            <span className="arv-applying-photo">
+                                {application.petImage || pet.image ? (
+                                    <img src={application.petImage || pet.image} alt="" />
+                                ) : (
+                                    <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
+                                )}
+                            </span>
+
+                            <div className="arv-applying-info">
+                                <small>Applying for</small>
+                                <strong>{application.petName || "Not selected"}</strong>
+                                <span>
+                                    {[pet.type, application.petBreed || pet.breed || "Breed not available", pet.gender]
+                                        .filter(Boolean)
+                                        .join(" · ")}
+                                </span>
+                            </div>
+
+                            {matchScore != null && (
+                                <div className={`arv-applying-score ${scoreToneOf(matchScore)}`}>
+                                    <b>{matchScore}%</b>
+                                    <small>quiz match</small>
+                                </div>
+                            )}
+                        </section>
+                    );
+                })()}
+
                 <ol className="admin-review-steps">
                     {getReviewSteps(application).map((step, index) => (
                         <li key={step.label} className={`is-${step.state}`}>
@@ -1075,61 +1113,54 @@ function ApplicationModal({
                 {reviewTab === "quiz" && <QuizAnswersTab quiz={quiz} />}
                 {reviewTab === "why" && <WhyMatchTab application={application} quiz={quiz} />}
 
-                <div className="admin-review-body" hidden={reviewTab !== "application"}>
+                <div className="admin-review-body is-sheet" hidden={reviewTab !== "application"}>
                     <div className="admin-review-column">
                         <article className="admin-review-card">
-                            <h3>Applicant</h3>
-
-                            <div className="admin-review-facts">
+                            <h3>Applicant information</h3>
+                            <dl className="arv-rows">
                                 <div>
-                                    <span className="admin-review-fact-icon"><ReviewIcon name="phone" /></span>
-                                    <p><small>Phone</small>{application.phone || "Not provided"}</p>
+                                    <dt>Phone</dt>
+                                    <dd>{application.phone || "Not provided"}</dd>
                                 </div>
-
                                 <div>
-                                    <span className="admin-review-fact-icon"><ReviewIcon name="home" /></span>
-                                    <p><small>Home type</small>{application.homeType || "Not provided"}</p>
+                                    <dt>Home type</dt>
+                                    <dd>{application.homeType || "Not provided"}</dd>
                                 </div>
-
-                                <div className="is-wide">
-                                    <span className="admin-review-fact-icon"><ReviewIcon name="pin" /></span>
-                                    <p><small>Address</small>{application.address || "Not provided"}</p>
+                                <div>
+                                    <dt>Address</dt>
+                                    <dd>{application.address || "Not provided"}</dd>
                                 </div>
-                            </div>
+                            </dl>
                         </article>
 
                         <article className="admin-review-card">
                             <h3>Household</h3>
-
-                            <div className="admin-review-household">
+                            <dl className="arv-rows">
                                 <div>
-                                    <span>Has children</span>
-                                    <b className={application.hasChildren === "Yes" ? "is-yes" : "is-no"}>
+                                    <dt>Has children</dt>
+                                    <dd className={application.hasChildren === "Yes" ? "is-yes" : "is-no"}>
                                         {application.hasChildren || "N/A"}
-                                    </b>
+                                    </dd>
                                 </div>
-
                                 <div>
-                                    <span>Other pets</span>
-                                    <b className={application.hasOtherPets === "Yes" ? "is-yes" : "is-no"}>
+                                    <dt>Other pets</dt>
+                                    <dd className={application.hasOtherPets === "Yes" ? "is-yes" : "is-no"}>
                                         {application.hasOtherPets || "N/A"}
-                                    </b>
+                                    </dd>
                                 </div>
+                            </dl>
+                        </article>
+
+                        <article className="admin-review-card">
+                            <h3>Responses</h3>
+                            <div className="arv-answer">
+                                <small>Reason for adoption</small>
+                                <p>{application.reason || "No reason provided."}</p>
                             </div>
-                        </article>
-
-                        <article className="admin-review-card">
-                            <h3>Reason for adoption</h3>
-                            <p className="admin-review-text">
-                                {application.reason || "No reason provided."}
-                            </p>
-                        </article>
-
-                        <article className="admin-review-card">
-                            <h3>Pet-care experience</h3>
-                            <p className="admin-review-text">
-                                {application.experience || "No experience provided."}
-                            </p>
+                            <div className="arv-answer">
+                                <small>Pet-care experience</small>
+                                <p>{application.experience || "No experience provided."}</p>
+                            </div>
                         </article>
 
                         {application.reviewNotes && (
@@ -1148,31 +1179,7 @@ function ApplicationModal({
 
                     <div className="admin-review-column">
                         <article className="admin-review-card">
-                            <h3>Applying for</h3>
-
-                            <div className="admin-review-pet">
-                                <span className="admin-application-pet-thumb admin-review-pet-thumb">
-                                    {application.petImage ? (
-                                        <img src={application.petImage} alt={application.petName} />
-                                    ) : (
-                                        <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
-                                    )}
-                                </span>
-
-                                <div>
-                                    <strong>{application.petName || "Not selected"}</strong>
-                                    <small>{application.petBreed || "Breed not available"}</small>
-                                </div>
-                            </div>
-                        </article>
-
-                        <article className="admin-review-card">
-                            <div className="admin-review-card-heading">
-                                <h3>Submitted documents</h3>
-                                <span className="admin-review-count">
-                                    {documents.length} {documents.length === 1 ? "file" : "files"}
-                                </span>
-                            </div>
+                            <h3>Submitted documents ({documents.length})</h3>
 
                             {docRequest.status === "requested" && (
                                 <div className="admin-doc-request-note is-waiting">
@@ -1302,7 +1309,7 @@ function ApplicationModal({
 
                         <article className="admin-review-card">
                             <div className="admin-review-card-heading">
-                                <h3>Interview</h3>
+                                <h3>{application.interviewSchedule ? "Interview" : "Schedule interview"}</h3>
                                 <span className={`admin-review-count ${application.interviewSchedule ? "is-set" : ""}`}>
                                     {isCompleted || (isClosed && application.interviewSchedule)
                                         ? "Completed"
