@@ -1449,55 +1449,87 @@ function AnimalProfilesList({ onOpenRecords }) {
                 ) : filteredAnimals.length === 0 ? (
                     <p className="admin-empty">No animals match your search.</p>
                 ) : viewMode === "grid" ? (
-                    <div className="admin-animal-list">
-                        {filteredAnimals.map((animal) => (
-                            <article className="admin-animal-card" key={animal._id}>
-                                <div className="admin-animal-image">
-                                    {animal.image ? (
-                                        <img src={animal.image} alt={animal.name} />
-                                    ) : (
-                                        <span>🐾</span>
-                                    )}
-                                </div>
+                    <div className="agc-grid">
+                        {filteredAnimals.map((animal) => {
+                            const status = getAnimalStatus(animal);
+                            const gender = String(animal.gender || "").toLowerCase();
+                            const genderClass = gender === "male" ? "is-male" : gender === "female" ? "is-female" : "";
+                            const genderIcon = gender === "male" ? "/icons/male.svg" : gender === "female" ? "/icons/female.svg" : "";
 
-                                <div className="admin-animal-info">
-                                    <h3>{animal.name}</h3>
-                                    <p>
-                                        {animal.type} • {animal.breed || "Unknown breed"} •{" "}
-                                        {animal.gender}
-                                    </p>
-                                    <small>{animal.location || "RescueBase Shelter"}</small>
-
-                                    <div className="admin-animal-badges">
-                                        <StatusPill status={getAnimalStatus(animal)} />
+                            return (
+                                <article
+                                    className="agc-card"
+                                    key={animal._id}
+                                    tabIndex={0}
+                                    title={`Open ${animal.name}'s profile`}
+                                    onClick={() => setExpandedId(animal._id)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") setExpandedId(animal._id);
+                                    }}
+                                >
+                                    <div className="agc-photo">
+                                        {animal.image ? (
+                                            <img src={animal.image} alt={animal.name} />
+                                        ) : (
+                                            <img src="/icons/brown paw.svg" alt="" className="is-placeholder" />
+                                        )}
+                                        <span className="agc-status">
+                                            <StatusPill key={status} status={status} />
+                                        </span>
+                                        {qrCodes[animal._id] && (
+                                            <span className="agc-qr" title="Has a QR tag">QR ✓</span>
+                                        )}
                                     </div>
-                                </div>
 
-                                <div className="admin-animal-details">
-                                    <p><b>Age:</b> {formatAge(animal.age)}</p>
-                                    <p><b>Size:</b> {animal.size}</p>
-                                    <p><b>Condition:</b> {animal.intakeCondition}</p>
-                                </div>
+                                    <div className="agc-body">
+                                        <h3>{animal.name}</h3>
+                                        <p>
+                                            {animal.type || "Animal"} · {animal.breed || "Unknown breed"}
+                                        </p>
+                                        <div className="agc-chips">
+                                            {animal.gender && (
+                                                <span className={genderClass}>
+                                                    {genderIcon && <img src={genderIcon} alt="" aria-hidden="true" />}
+                                                    {animal.gender}
+                                                </span>
+                                            )}
+                                            <span>{formatAge(animal.age)}</span>
+                                            {animal.size && <span>{animal.size}</span>}
+                                        </div>
+                                        <small>
+                                            Condition: <b>{animal.intakeCondition || "—"}</b>
+                                        </small>
+                                    </div>
 
-                                <div className="admin-animal-actions">
-                                    {canManage && (//new up for edit button
-                                        <button type="button" onClick={() => handleEditAnimal(animal)}>
-                                            Edit
-                                        </button>
-                                    )}
-
-                                    {isAdmin() && (
-                                        <button
-                                            type="button"
-                                            className="delete"
-                                            onClick={() => handleDeleteAnimal(animal._id)}
-                                        >
-                                            Delete
-                                        </button>
-                                    )}
-                                </div>
-                            </article>
-                        ))}
+                                    <div className="agc-footer">
+                                        <span>Intake {formatIntakeDate(animal.intakeDate)}</span>
+                                        <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                                            {canManage && (
+                                                <button
+                                                    type="button"
+                                                    title="Edit"
+                                                    aria-label={`Edit ${animal.name}`}
+                                                    onClick={() => handleEditAnimal(animal)}
+                                                >
+                                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z" /><path d="m13.5 6.5 4 4" /></svg>
+                                                </button>
+                                            )}
+                                            {isAdmin() && (
+                                                <button
+                                                    type="button"
+                                                    className="is-delete"
+                                                    title="Delete"
+                                                    aria-label={`Delete ${animal.name}`}
+                                                    onClick={() => handleDeleteAnimal(animal._id)}
+                                                >
+                                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="admin-animal-table-wrap">

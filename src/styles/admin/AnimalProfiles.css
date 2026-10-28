@@ -1542,3 +1542,33 @@
 .admin-view-toggle button img { width: 18px; height: 18px; display: block; }
 .admin-view-toggle button:not(.active):hover { background: #fff3d6; }
 .admin-view-toggle button:focus-visible { outline: 2px solid #fb8500; outline-offset: -2px; }
+
+
+/* ===== Animal grid cards (agc) ===== */
+.agc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.agc-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e3d5b5; border-radius: 16px; background: #ffffff; color: #5a1b00; cursor: pointer; outline: none; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; }
+.agc-card:hover, .agc-card:focus-visible { border-color: #fb8500; box-shadow: 0 10px 24px rgba(90, 27, 0, 0.12); transform: translateY(-2px); }
+.agc-photo { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; background: #fff3d6; }
+.agc-photo img { width: 100%; height: 100%; object-fit: cover; }
+.agc-photo img.is-placeholder { width: 56px; height: 56px; object-fit: contain; opacity: 0.6; }
+.agc-status { position: absolute; top: 10px; left: 10px; }
+.agc-status .admin-status-svg { height: 22px; }
+.agc-qr { position: absolute; top: 10px; right: 10px; padding: 4px 8px; border-radius: 8px; background: rgba(255, 253, 244, 0.92); font-size: 10.5px; font-weight: 800; }
+.agc-body { flex: 1; padding: 12px 14px 10px; }
+.agc-body h3 { margin: 0; font-family: "Itim", cursive; font-size: 21px; font-weight: 400; line-height: 1.15; color: #3a1200; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agc-body > p { margin: 1px 0 10px; font-size: 12px; color: #8a6a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agc-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.agc-chips span { padding: 4px 9px; border: 1px solid #efe4cb; border-radius: 8px; background: #fbf6e8; font-size: 11.5px; font-weight: 700; text-transform: capitalize; }
+.agc-chips span.is-male { border-color: #cfe0f7; background: #e3effd; color: #1c5cab; }
+.agc-chips span.is-female { border-color: #f6cfdc; background: #fde7ef; color: #b3305f; }
+.agc-body > small { display: block; margin-top: 9px; font-size: 12px; color: #75432f; }
+.agc-body > small b { color: #5a1b00; }
+.agc-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; box-sizing: border-box; padding: 9px 14px; border-top: 1px solid #f1e7cf; background: #fffdf4; font-size: 11.5px; color: #8a6a4a; }
+.agc-footer > div { display: flex; gap: 6px; }
+.agc-footer button { width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border: 1px solid #e3d5b5; border-radius: 9px; background: #ffffff; color: #5a1b00; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
+.agc-footer button svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.agc-footer button:hover { border-color: #fb8500; background: #fff3d6; }
+.agc-footer button.is-delete { border-color: #f3c9c0; color: #d62828; }
+.agc-footer button.is-delete:hover { border-color: #d62828; background: #d62828; color: #ffffff; }
+.agc-chips span { display: inline-flex; align-items: center; gap: 4px; }
+.agc-chips span img { width: 13px; height: 13px; }
