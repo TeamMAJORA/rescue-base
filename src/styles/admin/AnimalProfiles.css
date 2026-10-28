@@ -1536,3 +1536,9 @@
 .admin-status-filters { align-items: center; }
 .admin-status-filters .admin-add-animal-btn { margin-left: auto; padding: 9px 18px; border: 0; border-radius: 0; background: #fb8500; color: #fff; font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; }
 .admin-status-filters .admin-add-animal-btn:hover { background: #e07600; }
+
+/* View toggle: icon buttons (list / grid) */
+.admin-view-toggle button { display: grid; place-items: center; width: 40px; min-height: 36px; padding: 0; }
+.admin-view-toggle button img { width: 18px; height: 18px; display: block; }
+.admin-view-toggle button:not(.active):hover { background: #fff3d6; }
+.admin-view-toggle button:focus-visible { outline: 2px solid #fb8500; outline-offset: -2px; }

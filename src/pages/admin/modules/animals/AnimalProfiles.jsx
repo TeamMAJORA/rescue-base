@@ -334,7 +334,7 @@ function AnimalProfilesList({ onOpenRecords }) {
     const [search, setSearch] = useState("");
     const [speciesFilter, setSpeciesFilter] = useState("All");
     const [searchBy, setSearchBy] = useState("all");
-    const [viewMode, setViewMode] = useState("table");
+    const [viewMode, setViewMode] = useState("list"); // "list" (table) | "grid" (cards)
     const [statusFilter, setStatusFilter] = useState("all");
     const [qrCodes, setQrCodes] = useState({});
     const [qrImages, setQrImages] = useState({});
@@ -1390,17 +1390,31 @@ function AnimalProfilesList({ onOpenRecords }) {
                     <div className="admin-view-toggle">
                         <button
                             type="button"
-                            className={viewMode === "cards" ? "active" : ""}
-                            onClick={() => setViewMode("cards")}
+                            className={viewMode === "list" ? "active" : ""}
+                            onClick={() => setViewMode("list")}
+                            title="List view"
+                            aria-label="List view"
+                            aria-pressed={viewMode === "list"}
                         >
-                            Cards
+                            <img
+                                src={viewMode === "list" ? "/icons/list-white.svg" : "/icons/list-brown.svg"}
+                                alt=""
+                                aria-hidden="true"
+                            />
                         </button>
                         <button
                             type="button"
-                            className={viewMode === "table" ? "active" : ""}
-                            onClick={() => setViewMode("table")}
+                            className={viewMode === "grid" ? "active" : ""}
+                            onClick={() => setViewMode("grid")}
+                            title="Grid view"
+                            aria-label="Grid view"
+                            aria-pressed={viewMode === "grid"}
                         >
-                            Table
+                            <img
+                                src={viewMode === "grid" ? "/icons/grid-white.svg" : "/icons/grid-brown.svg"}
+                                alt=""
+                                aria-hidden="true"
+                            />
                         </button>
                     </div>
                 </div>
@@ -1434,7 +1448,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                     <p className="admin-empty">No animal profiles found.</p>
                 ) : filteredAnimals.length === 0 ? (
                     <p className="admin-empty">No animals match your search.</p>
-                ) : viewMode === "cards" ? (
+                ) : viewMode === "grid" ? (
                     <div className="admin-animal-list">
                         {filteredAnimals.map((animal) => (
                             <article className="admin-animal-card" key={animal._id}>
