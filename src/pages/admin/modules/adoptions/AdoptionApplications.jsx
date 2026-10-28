@@ -54,6 +54,15 @@ function formatDate(date) {
         : parsed.toLocaleString();
 }
 
+const REJECT_REASON_LIMIT = 500;
+const QUICK_REJECT_REASONS = [
+    "Home not suitable",
+    "Incomplete documents",
+    "Failed interview",
+    "Pet already adopted",
+    "Low match score",
+];
+
 function RejectModal({ application, onClose, onConfirm, loading }) {
     const [reason, setReason] = useState("");
 
@@ -73,62 +82,121 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
         onConfirm(application._id, trimmedReason);
     }
 
+    function pickQuickReason(label) {
+        setReason((current) => {
+            const text = current.trim();
+            if (!text) return `${label}. `;
+            if (text.startsWith(label)) return current;
+            return `${label}. ${text}`.slice(0, REJECT_REASON_LIMIT);
+        });
+    }
+
+    const petDetails = [application.petName, application.petBreed]
+        .filter(Boolean)
+        .join(" · ");
+
     return (
         <div className="admin-modal-overlay">
-            <section className="admin-modal">
-                <button
-                    className="admin-modal-class"
-                    type="button"
-                    onClick={onClose}
-                    disabled={loading}
-                >
-                    x
-                </button>
-
-                <h2>Reject Adoption Application</h2>
-
-                <p>
-                    Provide a reason for rejecting the application of{" "}
-                    <strong>{application.fullName}</strong> for{" "}
-                    <strong>{application.petName}</strong>.
-                </p>
+            <section
+                className="arj-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="arj-title"
+            >
+                <header className="arj-header">
+                    <span className="arj-badge">
+                        <ReviewIcon name="x" />
+                    </span>
+                    <div>
+                        <span>Reject application</span>
+                        <h2 id="arj-title">Decline this adoption?</h2>
+                    </div>
+                    <button
+                        className="arj-close"
+                        type="button"
+                        onClick={onClose}
+                        disabled={loading}
+                        aria-label="Close"
+                    >
+                        <ReviewIcon name="x" />
+                    </button>
+                </header>
 
                 <form onSubmit={handleSubmit}>
-                    <label htmlFor="rejection-reason">
-                        Rejection Reason
-                    </label>
+                    <div className="arj-body">
+                        <div className="arj-who">
+                            <span className="arj-who-photo">
+                                {application.petImage ? (
+                                    <img src={application.petImage} alt="" />
+                                ) : (
+                                    <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
+                                )}
+                            </span>
+                            <div>
+                                <b>{application.fullName || "Applicant"}</b>
+                                <small>
+                                    Applying for {petDetails || "a pet"}
+                                </small>
+                            </div>
+                        </div>
 
-                    <textarea
-                        id="rejection-reason"
-                        value={reason}
-                        onChange={(event) =>
-                            setReason(event.target.value)
-                        }
-                        placeholder="Explain why this application is being rejected..."
-                        rows={5}
-                        required
-                        disabled={loading}
-                    />
+                        <div className="arj-label">Quick reasons (optional)</div>
+                        <div className="arj-chips">
+                            {QUICK_REJECT_REASONS.map((label) => (
+                                <button
+                                    key={label}
+                                    type="button"
+                                    className={reason.trim().startsWith(label) ? "is-on" : ""}
+                                    onClick={() => pickQuickReason(label)}
+                                    disabled={loading}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
 
-                    <div className="admin-modal-actions">
-                        <button
-                            type="button"
-                            onClick={onClose}
+                        <label className="arj-label" htmlFor="rejection-reason">
+                            Rejection reason *
+                        </label>
+                        <textarea
+                            id="rejection-reason"
+                            className="arj-textarea"
+                            value={reason}
+                            onChange={(event) =>
+                                setReason(event.target.value.slice(0, REJECT_REASON_LIMIT))
+                            }
+                            placeholder="Explain why this application is being rejected..."
+                            rows={5}
+                            maxLength={REJECT_REASON_LIMIT}
+                            required
                             disabled={loading}
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            className="reject"
-                            disabled={loading || !reason.trim()}
-                        >
-                            {loading
-                                ? "Rejecting..."
-                                : "Confirm Rejection"}
-                        </button>
+                        />
+                        <div className="arj-meta">
+                            <span>Saved on the application as the rejection reason.</span>
+                            <span>{reason.length} / {REJECT_REASON_LIMIT}</span>
+                        </div>
                     </div>
+
+                    <footer className="arj-footer">
+                        <p>This can&apos;t be undone.</p>
+                        <div>
+                            <button
+                                type="button"
+                                className="arj-cancel"
+                                onClick={onClose}
+                                disabled={loading}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="arj-confirm"
+                                disabled={loading || !reason.trim()}
+                            >
+                                {loading ? "Rejecting..." : "Reject application"}
+                            </button>
+                        </div>
+                    </footer>
                 </form>
             </section>
         </div>
