@@ -388,6 +388,11 @@ function AnimalProfilesList({ onOpenRecords }) {
     const [editingAnimal, setEditingAnimal] = useState(null);
 
     const viewedAnimal = animals.find((a) => a._id === expandedId) || null;
+    const viewedGender = String(viewedAnimal?.gender || "").toLowerCase();
+    const viewedIsKnownGender = viewedGender === "male" || viewedGender === "female";
+    const viewedTagCode = viewedAnimal ? qrCodes[viewedAnimal._id] : "";
+    const viewedTagImage = viewedAnimal ? qrImages[viewedAnimal._id] : "";
+    const viewedTraits = viewedAnimal ? getPreviewPersonalityTags(viewedAnimal) : [];
 
     function closeAnimalModal() {
         setExpandedId(null);
@@ -574,6 +579,44 @@ function AnimalProfilesList({ onOpenRecords }) {
         } catch {
             // QR search is optional; name/breed search still works
         }
+    }
+
+    const [qrGenerating, setQrGenerating] = useState(false);
+
+    async function handleGenerateQr(animal) {
+        if (!animal?._id || qrGenerating) return;
+        setQrGenerating(true);
+        try {
+            const response = await fetch(`${API}/api/qr-tags/generate`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ animalId: animal._id }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || "Could not generate the QR tag.");
+            const tag = data.qrTag || {};
+            setQrCodes((current) => ({ ...current, [animal._id]: tag.tagCode }));
+            setQrImages((current) => ({ ...current, [animal._id]: tag.qrImageUrl }));
+            showToast(`QR tag generated for ${animal.name}.`);
+        } catch (err) {
+            showToast(err.message || "Could not generate the QR tag.", "error");
+        } finally {
+            setQrGenerating(false);
+        }
+    }
+
+    function handleDownloadQr(animal) {
+        const image = qrImages[animal._id];
+        if (!image) return;
+        const link = document.createElement("a");
+        link.href = image;
+        link.download = `${String(animal.name || "animal").replace(/[^a-z0-9]+/gi, "-")}-${qrCodes[animal._id] || "qr"}.png`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
     }
 
     async function handleSubmitAnimal(e) {
@@ -1722,14 +1765,14 @@ function AnimalProfilesList({ onOpenRecords }) {
             {viewedAnimal && (
                 <div className="admin-modal-backdrop" onClick={closeAnimalModal}>
                     <div
-                        className="admin-animal-modal"
+                        className="apm-modal"
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="animal-modal-title"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <header className="admin-animal-modal-head">
-                            <div className="admin-animal-modal-photo">
+                        <header className="apm-head">
+                            <div className="apm-photo">
                                 {viewedAnimal.image ? (
                                     <img src={viewedAnimal.image} alt="" />
                                 ) : (
@@ -1737,86 +1780,121 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 )}
                             </div>
 
-                            <div className="admin-animal-modal-title">
+                            <div className="apm-title">
+                                <span>Animal profile</span>
                                 <h2 id="animal-modal-title">{viewedAnimal.name}</h2>
                                 <p>
-                                    {viewedAnimal.type}
+                                    {viewedAnimal.type || "Animal"}
                                     {viewedAnimal.breed ? ` · ${viewedAnimal.breed}` : ""}
+                                    {viewedAnimal.gender && (
+                                        <span className={`agc-gender ${viewedIsKnownGender ? `is-${viewedGender}` : ""}`}>
+                                            {viewedIsKnownGender && (
+                                                <img src={`/icons/${viewedGender}.svg`} alt="" aria-hidden="true" />
+                                            )}
+                                            {viewedAnimal.gender}
+                                        </span>
+                                    )}
                                 </p>
                             </div>
 
-                            <StatusPill status={getAnimalStatus(viewedAnimal)} />
+                            <div className="apm-status">
+                                <StatusPill status={getAnimalStatus(viewedAnimal)} />
+                            </div>
 
                             <button
                                 type="button"
-                                className="admin-animal-modal-close"
+                                className="apm-close"
                                 onClick={closeAnimalModal}
                                 aria-label="Close"
                             >
-                                ✕
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" /></svg>
                             </button>
                         </header>
 
-                        <div className="admin-animal-modal-body">
-                            <div className="admin-animal-modal-grid">
-                                <div><span>Age</span><p>{formatAge(viewedAnimal.age)}</p></div>
-                                <div><span>Gender</span><p>{viewedAnimal.gender || "—"}</p></div>
-                                <div><span>Size</span><p>{viewedAnimal.size || "—"}</p></div>
-                                <div><span>Color</span><p>{viewedAnimal.color || "—"}</p></div>
-                                <div><span>Condition</span><p>{viewedAnimal.intakeCondition || "—"}</p></div>
-                                <div><span>Location</span><p>{viewedAnimal.location || "RescueBase Shelter"}</p></div>
-                                <div><span>Intake Date</span><p>{formatIntakeDate(viewedAnimal.intakeDate)}</p></div>
-                                <div>
-                                    <span>QR Code</span>
-                                    {qrCodes[viewedAnimal._id] ? (
-                                        <div>
-                                            {qrImages[viewedAnimal._id] && (
-                                                <img
-                                                    src={qrImages[viewedAnimal._id]}
-                                                    alt="QR"
-                                                    title="Click to enlarge"
-                                                    onClick={() => setQrOpen({ image: qrImages[viewedAnimal._id], code: qrCodes[viewedAnimal._id], name: viewedAnimal.name })}
-                                                    style={{ width: 72, height: 72, cursor: "zoom-in", transition: "transform .15s" }}
-                                                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-                                                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                                                />
-                                            )}
-                                            <p>{qrCodes[viewedAnimal._id]}</p>
-                                        </div>
-                                    ) : (
-                                        <p className="muted">No tag yet</p>
-                                    )}
-                                </div>
-                                <div className="half">
-                                    <span>Medical Status</span>
-                                    <p className="plain">{viewedAnimal.medicalStatus || "—"}</p>
-                                </div>
-                                <div className="half">
-                                    <span>Behavior Notes</span>
-                                    <p className="plain">{viewedAnimal.behaviorNotes || "—"}</p>
-                                </div>
-                                <div className="full">
-                                    <span>Description</span>
-                                    <p className="plain">{viewedAnimal.description || "—"}</p>
-                                </div>
-                            </div>
+                        <div className="apm-body">
+                            <div className="apm-main">
+                                <section className="apm-card">
+                                    <h4>Basics</h4>
+                                    <div className="apm-facts">
+                                        <div><span>Age</span><b>{formatAge(viewedAnimal.age)}</b></div>
+                                        <div><span>Size</span><b>{viewedAnimal.size || "—"}</b></div>
+                                        <div><span>Color</span><b>{viewedAnimal.color || "—"}</b></div>
+                                        <div><span>Condition</span><b>{viewedAnimal.intakeCondition || "—"}</b></div>
+                                    </div>
+                                </section>
 
-                            <aside className="admin-animal-modal-side">
-                                <div className="admin-animal-modal-box">
+                                <section className="apm-card">
+                                    <h4>Intake</h4>
+                                    <div className="apm-facts is-3">
+                                        <div><span>Intake date</span><b>{formatIntakeDate(viewedAnimal.intakeDate)}</b></div>
+                                        <div><span>Location</span><b>{viewedAnimal.location || "RescueBase Shelter"}</b></div>
+                                        <div><span>Medical status</span><b>{viewedAnimal.medicalStatus || "—"}</b></div>
+                                    </div>
+                                </section>
+
+                                <section className="apm-card apm-notes">
+                                    <h4>Notes</h4>
+                                    <p><small>Behavior notes</small>{viewedAnimal.behaviorNotes || "—"}</p>
+                                    <p><small>Description</small>{viewedAnimal.description || "—"}</p>
+                                </section>
+
+                                <section className="apm-card">
                                     <h4>Adopters see</h4>
-                                    {getPreviewPersonalityTags(viewedAnimal).length > 0 ? (
-                                        <div className="admin-animal-modal-tags">
-                                            {getPreviewPersonalityTags(viewedAnimal).map((tag) => (
+                                    {viewedTraits.length > 0 ? (
+                                        <div className="apm-tags">
+                                            {viewedTraits.map((tag) => (
                                                 <span key={tag}>{tag}</span>
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="muted">No personality tags yet.</p>
+                                        <p className="apm-muted">No personality tags yet.</p>
                                     )}
-                                </div>
+                                </section>
+                            </div>
+
+                            <aside className="apm-side">
+                                <section className="apm-card apm-qr">
+                                    <h4>QR tag</h4>
+                                    {viewedTagCode && viewedTagImage ? (
+                                        <>
+                                            <button
+                                                type="button"
+                                                className="apm-qr-image"
+                                                title="Click to enlarge"
+                                                onClick={() => setQrOpen({ image: viewedTagImage, code: viewedTagCode, name: viewedAnimal.name })}
+                                            >
+                                                <img src={viewedTagImage} alt={`QR tag for ${viewedAnimal.name}`} />
+                                            </button>
+                                            <code>{viewedTagCode}</code>
+                                            <div className="apm-qr-actions">
+                                                <button type="button" onClick={() => handleDownloadQr(viewedAnimal)}>
+                                                    Download
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="apm-qr-empty">
+                                                {viewedTagCode ? `Tag ${viewedTagCode}` : "No QR tag yet"}
+                                            </div>
+                                            {canManage && !viewedTagCode && (
+                                                <div className="apm-qr-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="is-primary"
+                                                        onClick={() => handleGenerateQr(viewedAnimal)}
+                                                        disabled={qrGenerating}
+                                                    >
+                                                        {qrGenerating ? "Generating..." : "Generate QR tag"}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </section>
 
                                 {canManage && (
-                                    <div className="admin-animal-modal-box">
+                                    <section className="apm-card apm-records">
                                         <h4>Manage records</h4>
                                         <button type="button" onClick={() => openAnimalTab(viewedAnimal, "behavior")}>
                                             Behavioral Assessment <span aria-hidden="true">›</span>
@@ -1827,19 +1905,17 @@ function AnimalProfilesList({ onOpenRecords }) {
                                         <button type="button" onClick={() => openAnimalTab(viewedAnimal, "medical")}>
                                             Medical Records <span aria-hidden="true">›</span>
                                         </button>
-                                    </div>
+                                    </section>
                                 )}
                             </aside>
                         </div>
 
-                        <footer className="admin-animal-modal-foot">
-                            <span />
-
-                            <div>
+                        {(canManage || isAdmin()) && (
+                            <footer className="apm-foot">
                                 {isAdmin() && (
                                     <button
                                         type="button"
-                                        className="admin-animal-modal-delete"
+                                        className="apm-delete"
                                         onClick={() => handleDeleteAnimal(viewedAnimal._id)}
                                     >
                                         Delete
@@ -1848,7 +1924,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 {canManage && (
                                     <button
                                         type="button"
-                                        className="admin-animal-modal-edit"
+                                        className="apm-edit"
                                         onClick={() => {
                                             closeAnimalModal();
                                             handleEditAnimal(viewedAnimal);
@@ -1857,8 +1933,8 @@ function AnimalProfilesList({ onOpenRecords }) {
                                         Edit Animal
                                     </button>
                                 )}
-                            </div>
-                        </footer>
+                            </footer>
+                        )}
                     </div>
                 </div>
             )}
