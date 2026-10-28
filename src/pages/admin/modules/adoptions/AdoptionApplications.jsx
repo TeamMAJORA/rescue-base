@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FACTORS } from "../../../../utils/matchScore";
 
 
 
@@ -53,13 +54,14 @@ function formatDate(date) {
         : parsed.toLocaleString();
 }
 
-function getLocalDateTimeValue(date) {
-    const localDate = new Date(
-        date.getTime() - date.getTimezoneOffset() * 60000
-    );
-
-    return localDate.toISOString().slice(0, 16);
-}
+const REJECT_REASON_LIMIT = 500;
+const QUICK_REJECT_REASONS = [
+    "Home not suitable",
+    "Incomplete documents",
+    "Failed interview",
+    "Pet already adopted",
+    "Low match score",
+];
 
 function RejectModal({ application, onClose, onConfirm, loading }) {
     const [reason, setReason] = useState("");
@@ -80,62 +82,121 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
         onConfirm(application._id, trimmedReason);
     }
 
+    function pickQuickReason(label) {
+        setReason((current) => {
+            const text = current.trim();
+            if (!text) return `${label}. `;
+            if (text.startsWith(label)) return current;
+            return `${label}. ${text}`.slice(0, REJECT_REASON_LIMIT);
+        });
+    }
+
+    const petDetails = [application.petName, application.petBreed]
+        .filter(Boolean)
+        .join(" · ");
+
     return (
         <div className="admin-modal-overlay">
-            <section className="admin-modal">
-                <button
-                    className="admin-modal-class"
-                    type="button"
-                    onClick={onClose}
-                    disabled={loading}
-                >
-                    x
-                </button>
-
-                <h2>Reject Adoption Application</h2>
-
-                <p>
-                    Provide a reason for rejecting the application of{" "}
-                    <strong>{application.fullName}</strong> for{" "}
-                    <strong>{application.petName}</strong>.
-                </p>
+            <section
+                className="arj-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="arj-title"
+            >
+                <header className="arj-header">
+                    <span className="arj-badge">
+                        <ReviewIcon name="x" />
+                    </span>
+                    <div>
+                        <span>Reject application</span>
+                        <h2 id="arj-title">Decline this adoption?</h2>
+                    </div>
+                    <button
+                        className="arj-close"
+                        type="button"
+                        onClick={onClose}
+                        disabled={loading}
+                        aria-label="Close"
+                    >
+                        <ReviewIcon name="x" />
+                    </button>
+                </header>
 
                 <form onSubmit={handleSubmit}>
-                    <label htmlFor="rejection-reason">
-                        Rejection Reason
-                    </label>
+                    <div className="arj-body">
+                        <div className="arj-who">
+                            <span className="arj-who-photo">
+                                {application.petImage ? (
+                                    <img src={application.petImage} alt="" />
+                                ) : (
+                                    <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
+                                )}
+                            </span>
+                            <div>
+                                <b>{application.fullName || "Applicant"}</b>
+                                <small>
+                                    Applying for {petDetails || "a pet"}
+                                </small>
+                            </div>
+                        </div>
 
-                    <textarea
-                        id="rejection-reason"
-                        value={reason}
-                        onChange={(event) =>
-                            setReason(event.target.value)
-                        }
-                        placeholder="Explain why this application is being rejected..."
-                        rows={5}
-                        required
-                        disabled={loading}
-                    />
+                        <div className="arj-label">Quick reasons (optional)</div>
+                        <div className="arj-chips">
+                            {QUICK_REJECT_REASONS.map((label) => (
+                                <button
+                                    key={label}
+                                    type="button"
+                                    className={reason.trim().startsWith(label) ? "is-on" : ""}
+                                    onClick={() => pickQuickReason(label)}
+                                    disabled={loading}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
 
-                    <div className="admin-modal-actions">
-                        <button
-                            type="button"
-                            onClick={onClose}
+                        <label className="arj-label" htmlFor="rejection-reason">
+                            Rejection reason *
+                        </label>
+                        <textarea
+                            id="rejection-reason"
+                            className="arj-textarea"
+                            value={reason}
+                            onChange={(event) =>
+                                setReason(event.target.value.slice(0, REJECT_REASON_LIMIT))
+                            }
+                            placeholder="Explain why this application is being rejected..."
+                            rows={5}
+                            maxLength={REJECT_REASON_LIMIT}
+                            required
                             disabled={loading}
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            className="reject"
-                            disabled={loading || !reason.trim()}
-                        >
-                            {loading
-                                ? "Rejecting..."
-                                : "Confirm Rejection"}
-                        </button>
+                        />
+                        <div className="arj-meta">
+                            <span>Saved on the application as the rejection reason.</span>
+                            <span>{reason.length} / {REJECT_REASON_LIMIT}</span>
+                        </div>
                     </div>
+
+                    <footer className="arj-footer">
+                        <p>This can&apos;t be undone.</p>
+                        <div>
+                            <button
+                                type="button"
+                                className="arj-cancel"
+                                onClick={onClose}
+                                disabled={loading}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="arj-confirm"
+                                disabled={loading || !reason.trim()}
+                            >
+                                {loading ? "Rejecting..." : "Reject application"}
+                            </button>
+                        </div>
+                    </footer>
                 </form>
             </section>
         </div>
@@ -227,6 +288,213 @@ function WheelColumn({ items, value, onChange, label }) {
                     </button>
                 );
             })}
+        </div>
+    );
+}
+
+// ---------- Interview picker (review popup): month calendar + time wheel ----------
+const PICKER_WEEK_DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+const PICKER_MINUTES = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
+
+function toDayValue(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+// "HH:mm" (24h) <-> wheel values
+function splitTime(time) {
+    const [h, m] = String(time || "09:00").split(":").map(Number);
+    return {
+        hour: String(h % 12 || 12),
+        minute: String(Number.isFinite(m) ? m : 0).padStart(2, "0"),
+        period: h >= 12 ? "PM" : "AM",
+    };
+}
+
+function joinTime(hour, minute, period) {
+    return `${String(to24Hour(hour, period)).padStart(2, "0")}:${minute}`;
+}
+
+const PICKER_MONTHS = Array.from({ length: 12 }, (_, index) =>
+    new Date(2000, index, 1).toLocaleString("en-PH", { month: "long" })
+);
+
+function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const selected = day ? new Date(`${day}T00:00`) : null;
+    const [open, setOpen] = useState(null); // null | "date" | "time"
+    const [viewMonth, setViewMonth] = useState(() => {
+        const base = selected || today;
+        return new Date(base.getFullYear(), base.getMonth(), 1);
+    });
+    const boxRef = useRef(null);
+
+    // Click outside the picker closes the open panel
+    useEffect(() => {
+        if (!open) return undefined;
+        function handleClick(event) {
+            if (boxRef.current && !boxRef.current.contains(event.target)) setOpen(null);
+        }
+        function handleKey(event) {
+            if (event.key === "Escape") setOpen(null);
+        }
+        document.addEventListener("mousedown", handleClick);
+        document.addEventListener("keydown", handleKey);
+        return () => {
+            document.removeEventListener("mousedown", handleClick);
+            document.removeEventListener("keydown", handleKey);
+        };
+    }, [open]);
+
+    const year = viewMonth.getFullYear();
+    const month = viewMonth.getMonth();
+    const lead = (new Date(year, month, 1).getDay() + 6) % 7; // Monday first
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrev = new Date(year, month, 0).getDate();
+    const trail = (7 - ((lead + daysInMonth) % 7)) % 7;
+    const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+    const years = [today.getFullYear(), today.getFullYear() + 1, today.getFullYear() + 2]; //interviews more than a year away aren’t realistic
+
+    const cells = [
+        ...Array.from({ length: lead }, (_, i) => ({ day: daysInPrev - lead + i + 1, outside: true })),
+        ...Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, date: new Date(year, month, i + 1) })),
+        ...Array.from({ length: trail }, (_, i) => ({ day: i + 1, outside: true })),
+    ];
+
+    const { hour, minute, period } = splitTime(time);
+
+    // Never show a month before the current one
+    function goToMonth(nextYear, nextMonth) {
+        const target = new Date(nextYear, nextMonth, 1);
+        const floor = new Date(today.getFullYear(), today.getMonth(), 1);
+        setViewMonth(target < floor ? floor : target);
+    }
+
+    function toggle(panel) {
+        setOpen((current) => (current === panel ? null : panel));
+    }
+
+    return (
+        <div className={`aip${disabled ? " is-disabled" : ""}`} ref={boxRef}>
+            <div className="aip-fields">
+                <button
+                    type="button"
+                    className={`aip-field${open === "date" ? " is-open" : ""}${selected ? "" : " is-empty"}`}
+                    onClick={() => toggle("date")}
+                    disabled={disabled}
+                    aria-expanded={open === "date"}
+                >
+                    <ReviewIcon name="calendar" />
+                    <span>
+                        {selected
+                            ? selected.toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+                            : "Pick a date"}
+                    </span>
+                    <i aria-hidden="true">▾</i>
+                </button>
+
+                <button
+                    type="button"
+                    className={`aip-field${open === "time" ? " is-open" : ""}`}
+                    onClick={() => toggle("time")}
+                    disabled={disabled}
+                    aria-expanded={open === "time"}
+                >
+                    <span className="aip-clock" aria-hidden="true">🕘</span>
+                    <span>{hour}:{minute} {period}</span>
+                    <i aria-hidden="true">▾</i>
+                </button>
+            </div>
+
+            {open === "date" && (
+                <div className="aip-pop aip-calendar">
+                    <div className="aip-month">
+                        <div className="aip-month-selects">
+                            <select
+                                value={month}
+                                onChange={(event) => goToMonth(year, Number(event.target.value))}
+                                aria-label="Month"
+                            >
+                                {PICKER_MONTHS.map((name, index) => (
+                                    <option
+                                        key={name}
+                                        value={index}
+                                        disabled={year === today.getFullYear() && index < today.getMonth()}
+                                    >
+                                        {name}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                value={year}
+                                onChange={(event) => goToMonth(Number(event.target.value), month)}
+                                aria-label="Year"
+                            >
+                                {years.map((value) => (
+                                    <option key={value} value={value}>{value}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <button
+                                type="button"
+                                onClick={() => goToMonth(year, month - 1)}
+                                disabled={isCurrentMonth}
+                                aria-label="Previous month"
+                            >
+                                ‹
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => goToMonth(year, month + 1)}
+                                disabled={year === years[years.length - 1] && month === 11}
+                                aria-label="Next month"
+                            >
+                                ›
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="aip-grid">
+                        {PICKER_WEEK_DAYS.map((name) => (
+                            <span key={name} className="aip-weekday">{name}</span>
+                        ))}
+                        {cells.map((cell, index) =>
+                            cell.outside ? (
+                                <span key={`out-${index}`} className="aip-day is-outside">{cell.day}</span>
+                            ) : (
+                                <button
+                                    key={cell.day}
+                                    type="button"
+                                    className={`aip-day${isSameDay(cell.date, selected) ? " is-selected" : ""}${isSameDay(cell.date, today) ? " is-today" : ""}`}
+                                    disabled={cell.date < today}
+                                    onClick={() => {
+                                        onDayChange(toDayValue(cell.date));
+                                        setOpen(null);
+                                    }}
+                                >
+                                    {cell.day}
+                                </button>
+                            )
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {open === "time" && (
+                <div className="aip-pop aip-time">
+                    <span className="aip-time-label">Time</span>
+                    <div className="admin-wheel aip-wheel">
+                        <WheelColumn items={WHEEL_HOURS} value={hour} onChange={(value) => onTimeChange(joinTime(value, minute, period))} label="Hour" />
+                        <span className="admin-wheel-colon">:</span>
+                        <WheelColumn items={PICKER_MINUTES} value={minute} onChange={(value) => onTimeChange(joinTime(hour, value, period))} label="Minute" />
+                        <WheelColumn items={WHEEL_PERIODS} value={period} onChange={(value) => onTimeChange(joinTime(hour, minute, value))} label="AM or PM" />
+                    </div>
+                    <button type="button" className="aip-done" onClick={() => setOpen(null)}>
+                        Done
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
@@ -502,6 +770,18 @@ function getInitials(name) {
         .toUpperCase();
 }
 
+// "Oct 26" this year, "Oct 26, 2025" for older years (Date column)
+function formatDayLabel(date) {
+    if (!date) return "—";
+    const parsed = new Date(date);
+    if (Number.isNaN(parsed.getTime())) return "—";
+    const sameYear = parsed.getFullYear() === new Date().getFullYear();
+    return parsed.toLocaleDateString(
+        "en-PH",
+        sameYear ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" }
+    );
+}
+
 function formatShortDate(date, withTime = false) {
     if (!date) return "";
 
@@ -517,8 +797,70 @@ function formatShortDate(date, withTime = false) {
     );
 }
 
+// Quiz match score for this application (from /api/matchmaking/responses).
+// Only the adopter's latest application gets a score.
+function getQuizScore(application, quizByEmail) {
+    const quiz = quizByEmail[String(application.email || "").toLowerCase()];
+    if (!quiz) return { label: "Not from match results" };
+
+    const isThisApplication =
+        String(quiz.latestApplication?._id || "") === String(application._id);
+    if (!isThisApplication) return { label: "Older application" };
+
+    if (quiz.appliedScore == null) return { label: quiz.appliedScoreNote || "No score" };
+    return { score: Math.floor(quiz.appliedScore) };
+}
+
+// ---------- "New / updated" highlight on application rows ----------
+// A row stays highlighted until you open it. Remembered per account in this browser.
+
+function seenAppsKey() {
+    try {
+        const user = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
+        return `rescuebase_seen_applications_${user.email || user._id || "me"}`;
+    } catch {
+        return "rescuebase_seen_applications_me";
+    }
+}
+
+function readSeenApps() {
+    try {
+        const raw = localStorage.getItem(seenAppsKey());
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+function writeSeenApps(seen) {
+    try {
+        localStorage.setItem(seenAppsKey(), JSON.stringify(seen));
+    } catch {
+        // storage blocked: highlights just won't be remembered
+    }
+}
+
+// The latest thing the applicant did: applied, re-uploaded documents, or withdrew
+function applicantActivity(application) {
+    const events = [
+        { label: "New", time: application.createdAt },
+        application.documentRequest?.status === "resubmitted" && {
+            label: "New documents",
+            time: application.documentRequest.resubmittedAt,
+        },
+        application.withdrawnAt && { label: "Withdrew", time: application.withdrawnAt },
+    ]
+        .filter((event) => event && event.time)
+        .map((event) => ({ ...event, ms: new Date(event.time).getTime() }))
+        .filter((event) => Number.isFinite(event.ms));
+
+    return events.sort((a, b) => b.ms - a.ms)[0] || null;
+}
+
 function ApplicationRow({
     application,
+    quizByEmail = {},
+    highlight = null,
     onReview,
     onSchedule,
     onCompleteInterview,
@@ -539,21 +881,31 @@ function ApplicationRow({
         withdrawn: "Withdrawn",
     }[status] || status.replaceAll("_", " ");
 
-    const household = [
-        application.homeType,
-        application.hasChildren === "Yes" ? "Has kids" : "No kids",
-        application.hasOtherPets === "Yes" ? "Has pets" : "No pets",
-    ].filter(Boolean);
+    const quiz = getQuizScore(application, quizByEmail);
+    const scoreTone =
+        quiz.score == null ? "" : quiz.score >= 80 ? "is-high" : quiz.score >= 60 ? "is-mid" : "is-low";
 
     return (
-        <article className="admin-application-row">
+        <article
+            className={`admin-application-row is-clickable${highlight ? " is-fresh" : ""}`}
+            role="button"
+            tabIndex={0}
+            title="Open application"
+            onClick={() => onReview(application)}
+            onKeyDown={(event) => {
+                if (event.key === "Enter") onReview(application);
+            }}
+        >
             <div className="admin-application-applicant">
                 <span className="admin-application-avatar" aria-hidden="true">
                     {getInitials(application.fullName)}
                 </span>
 
                 <div>
-                    <h3>{application.fullName || "Unknown Applicant"}</h3>
+                    <h3>
+                        {application.fullName || "Unknown Applicant"}
+                        {highlight && <span className="arv-fresh-tag">{highlight}</span>}
+                    </h3>
                     <p>{application.email}</p>
                 </div>
             </div>
@@ -577,105 +929,26 @@ function ApplicationRow({
                 </div>
             </div>
 
-            <div className="admin-application-household">
-                {household.map((item) => (
-                    <span key={item}>{item}</span>
-                ))}
-            </div>
+            {quiz.score == null ? (
+                <div className="admin-application-score is-none">{quiz.label}</div>
+            ) : (
+                <div className={`admin-application-score ${scoreTone}`}>
+                    <b>{quiz.score}%</b>
+                    <span className="admin-score-bar">
+                        <i style={{ width: `${quiz.score}%` }} />
+                    </span>
+                </div>
+            )}
 
             <div className="admin-application-state">
                 <span className={`admin-status-pill ${status}`}>
                     {statusLabel}
                 </span>
-
-                <small>
-                    {status === "interview_scheduled" && application.interviewSchedule
-                        ? `Interview ${formatShortDate(application.interviewSchedule, true)}`
-                        : `Applied ${formatShortDate(application.createdAt)}`}
-                </small>
             </div>
-
-            <div className="admin-application-status">
-                <button
-                    type="button"
-                    onClick={() => onReview(application)}
-                >
-                    Review
-                </button>
-
-                {status === "pending" && (
-                    <>
-                        <button
-                            type="button"
-                            className="approve"
-                            onClick={() => onSchedule(application)}
-                            disabled={busy}
-                        >
-                            Schedule Interview
-                        </button>
-
-                        <button
-                            type="button"
-                            className="reject"
-                            onClick={() => onReject(application)}
-                            disabled={busy}
-                        >
-                            Reject
-                        </button>
-                    </>
-                )}
-
-                {status === "interview_scheduled" && (
-                    <>
-                        <button
-                            type="button"
-                            className="secondary"
-                            onClick={() => onSchedule(application)}
-                            disabled={busy}
-                        >
-                            Reschedule
-                        </button>
-
-                        <button
-                            type="button"
-                            className="approve"
-                            onClick={() => onCompleteInterview(application)}
-                            disabled={busy}
-                        >
-                            Mark Completed
-                        </button>
-
-                        <button
-                            type="button"
-                            className="reject"
-                            onClick={() => onReject(application)}
-                            disabled={busy}
-                        >
-                            Reject
-                        </button>
-                    </>
-                )}
-
-                {status === "interview_completed" && (
-                    <>
-                        <button
-                            type="button"
-                            className="approve"
-                            onClick={() => onApprove(application)}
-                            disabled={busy}
-                        >
-                            Approve Adoption
-                        </button>
-
-                        <button
-                            type="button"
-                            className="reject"
-                            onClick={() => onReject(application)}
-                            disabled={busy}
-                        >
-                            Reject
-                        </button>
-                    </>
+            <div className="admin-application-date">
+                <b>{formatDayLabel(application.createdAt)}</b>
+                {status === "interview_scheduled" && application.interviewSchedule && (
+                    <small>Interview {formatShortDate(application.interviewSchedule, true)}</small>
                 )}
             </div>
         </article>
@@ -756,8 +1029,297 @@ function getReviewSteps(application) {
     ];
 }
 
+// ---------- Review tabs: Quiz Answers + Why This Match ----------
+
+const REVIEW_TABS = [
+    { key: "application", label: "Application" },
+    { key: "quiz", label: "Quiz Answers" },
+    { key: "why", label: "Why This Match" },
+];
+
+const QUIZ_GROUPS = [
+    {
+        title: "Pet preferences",
+        rows: [
+            ["Pet type", "preferredPetType"],
+            ["Size", "preferredSize"],
+        ],
+    },
+    {
+        title: "Home & household",
+        rows: [
+            ["Home type", "homeType"],
+            ["Home ownership", "homeOwnership"],
+            ["Children at home", "hasChildren"],
+            ["Other pets", "hasOtherPets"],
+        ],
+    },
+    {
+        title: "Experience & time",
+        rows: [
+            ["Pet experience", "petExperience"],
+            ["Hours available daily", "dailyAvailableHours"],
+            ["Exercise", "exerciseFrequency"],
+            ["Willing to train", "willingToTrain"],
+        ],
+    },
+];
+
+const LEVELS = ["", "very low", "low", "moderate", "high", "very high"];
+
+function scoreToneOf(score) {
+    if (score == null) return "is-none";
+    if (score >= 80) return "is-high";
+    if (score >= 60) return "is-mid";
+    return "is-low";
+}
+
+// Same reasons as the Recommendations page: up to 2 strong factors + conflicts/weakest factor
+function buildMatchReasons(factors, conflicts, petName) {
+    if (!factors) return [];
+
+    const scored = FACTORS
+        .map((factor) => ({ ...factor, ...factors[factor.key] }))
+        .filter((factor) => factor.similarity !== null && factor.similarity !== undefined)
+        .sort((a, b) => b.similarity - a.similarity);
+
+    const describe = (factor) =>
+        factor.type === "tolerance"
+            ? `Can handle ${LEVELS[factor.adopterValue]}; ${petName} is ${LEVELS[factor.animalValue]}.`
+            : `Wants ${LEVELS[factor.adopterValue]}; ${petName} is ${LEVELS[factor.animalValue]}.`;
+
+    const good = scored
+        .filter((factor) => factor.similarity >= 0.75)
+        .slice(0, 2)
+        .map((factor) => ({ tone: "is-good", title: factor.label, text: describe(factor) }));
+
+    const weakest = scored.filter((factor) => factor.similarity < 0.75).slice(-1);
+
+    const checks = [
+        ...(conflicts || []).map((text) => ({ tone: "is-check", title: "Check", text })),
+        ...weakest.map((factor) => ({ tone: "is-check", title: `Check: ${factor.label}`, text: describe(factor) })),
+    ];
+
+    return [...good, ...checks].slice(0, 4);
+}
+
+function QuizAnswersTab({ quiz }) {
+    if (!quiz) {
+        return (
+            <div className="art-empty">
+                <b>No quiz on record</b>
+                <p>This applicant didn&apos;t take the matching quiz, so there are no answers to show.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="art-body is-sheet">
+            <div className="art-grid-3">
+                {QUIZ_GROUPS.map((group) => (
+                    <article className="admin-review-card art-card" key={group.title}>
+                        <h4>{group.title}</h4>
+                        <dl className="art-answers">
+                            {group.rows.map(([label, key]) => (
+                                <div key={key}>
+                                    <dt>{label}</dt>
+                                    <dd>{quiz[key] || "—"}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </article>
+                ))}
+            </div>
+
+            <article className="admin-review-card art-card">
+                <h4>Behavior preferences (1 = low, 5 = high)</h4>
+                <div className="art-ratings">
+                    {FACTORS.map((factor) => {
+                        const value = Number(quiz[factor.quizKey]) || 0;
+                        return (
+                            <div key={factor.key}>
+                                <span>{factor.label}</span>
+                                <span className="art-dots" aria-label={`${value} of 5`}>
+                                    {[1, 2, 3, 4, 5].map((dot) => (
+                                        <i key={dot} className={dot <= value ? "is-on" : ""} />
+                                    ))}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </article>
+
+            <p className="art-note">
+                Answered {quiz.completedAt || quiz.createdAt
+                    ? new Date(quiz.completedAt || quiz.createdAt).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })
+                    : "—"}.
+            </p>
+        </div>
+    );
+}
+
+// Words for each 1–5 level, per behavior factor (used in the compatibility card)
+const FACTOR_WORDS = {
+    energy: ["Very calm", "Calm", "Moderate energy", "High energy", "Very high energy"],
+    friendliness: ["Reserved", "Somewhat shy", "Moderately friendly", "Friendly", "Very friendly"],
+    humanSociability: ["Shy with people", "Cautious with people", "Moderate sociability", "Friendly with guests", "Loves people"],
+    animalSociability: ["Prefers being alone", "Picky with animals", "Okay with animals", "Good with animals", "Loves other animals"],
+    trainability: ["Stubborn", "Slow learner", "Average learner", "High trainability", "Quick learner"],
+    anxiety: ["Very relaxed", "Relaxed", "Sometimes anxious", "Anxious", "Very anxious"],
+    aggression: ["Gentle", "Mostly gentle", "Sometimes reactive", "Reactive", "Very reactive"],
+    activity: ["Mostly resting", "Low activity", "Moderate activity", "Active", "Always moving"],
+};
+
+function factorWords(factor, value, side) {
+    if (!value) return "Not rated";
+    const words = FACTOR_WORDS[factor.key]?.[value - 1] || `${LEVELS[value]}`;
+    // For tolerance factors the applicant says how much they can handle
+    if (side === "wants" && factor.type === "tolerance") return `Can handle: ${words.toLowerCase()}`;
+    return words;
+}
+
+function CompatibilityColumn({ title, tone, rows, side }) {
+    return (
+        <div className={`art-compat-col is-${tone}`}>
+            <h5>{title}</h5>
+            {rows.map((row) => {
+                const value = side === "wants" ? row.adopterValue : row.animalValue;
+                return (
+                    <div className="art-compat-row" key={row.key}>
+                        <b>{row.label}</b>
+                        <span className="art-compat-track">
+                            <i
+                                className={row.matched == null ? "is-none" : row.matched ? "is-good" : "is-check"}
+                                style={{ width: `${((value || 0) / 5) * 100}%` }}
+                            />
+                        </span>
+                        <small>{factorWords(row, value, side)}</small>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+function WhyMatchTab({ application, quiz }) {
+    if (!quiz) {
+        return (
+            <div className="art-empty">
+                <b>Not from match results</b>
+                <p>This applicant didn&apos;t take the matching quiz, so there&apos;s no match score to explain.</p>
+            </div>
+        );
+    }
+
+    const isThisApplication =
+        String(quiz.latestApplication?._id || "") === String(application._id);
+
+    if (!isThisApplication) {
+        return (
+            <div className="art-empty">
+                <b>Older application</b>
+                <p>Match details are only worked out for this applicant&apos;s latest application.</p>
+            </div>
+        );
+    }
+
+    const pet = quiz.appliedAnimal || {};
+    const petName = pet.name || application.petName || "this pet";
+    const score = quiz.appliedScore == null ? null : Math.floor(quiz.appliedScore);
+    const reasons = buildMatchReasons(quiz.appliedFactors, quiz.appliedConflicts, petName);
+    const checks = reasons.filter((reason) => reason.tone === "is-check");
+    const firstName = String(application.fullName || quiz.adopterName || "Applicant").split(" ")[0];
+
+    // One row per behavior factor with both sides' 1–5 values
+    const compatRows = FACTORS.map((factor) => {
+        const result = quiz.appliedFactors?.[factor.key] || {};
+        const adopterValue = Number(result.adopterValue) || null;
+        const animalValue = Number(result.animalValue) || null;
+        const similarity = result.similarity;
+        return {
+            ...factor,
+            adopterValue,
+            animalValue,
+            matched: similarity == null ? null : similarity >= 0.75,
+        };
+    }).filter((row) => row.adopterValue || row.animalValue);
+    const others = (quiz.aiMatches || [])
+        .filter((match) => match.score != null && String(match.animalId) !== String(application.animalId?._id || application.animalId))
+        .slice(0, 3);
+
+    return (
+        <div className="art-body">
+            <article className="admin-review-card art-card">
+                <h4>
+                    Compatibility
+                    {score != null && (
+                        <span className={`art-score ${scoreToneOf(score)}`}>{score}% match</span>
+                    )}
+                </h4>
+
+                {compatRows.length > 0 ? (
+                    <>
+                        <div className="art-compat">
+                            <CompatibilityColumn
+                                title={`What ${firstName} wants`}
+                                tone="wants"
+                                rows={compatRows}
+                                side="wants"
+                            />
+                            <CompatibilityColumn
+                                title={`What ${petName} has`}
+                                tone="has"
+                                rows={compatRows}
+                                side="has"
+                            />
+                        </div>
+
+                        <div className="art-compat-legend">
+                            <span className="is-good">Close match</span>
+                            <span className="is-check">Worth checking</span>
+                        </div>
+                    </>
+                ) : (
+                    <p className="art-note">No behavior ratings to compare yet.</p>
+                )}
+
+                {checks.length > 0 && (
+                    <ul className="art-checks">
+                        {checks.map((reason) => (
+                            <li key={reason.title + reason.text}>
+                                <b>{reason.title}</b> {reason.text}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
+                <p className="art-note">
+                    Score from the matchmaking model. Bars compare the applicant&apos;s quiz answers
+                    with the pet&apos;s behavior ratings (1–5). Advisory only.
+                </p>
+            </article>
+
+            {others.length > 0 && (
+                <article className="admin-review-card art-card">
+                    <h4>Other good matches for this applicant</h4>
+                    <div className="art-others">
+                        {others.map((match) => (
+                            <div key={match.animalId}>
+                                <span>{match.name} · {match.type}</span>
+                                <b className={`art-score ${scoreToneOf(Math.floor(match.score))}`}>{Math.floor(match.score)}%</b>
+                            </div>
+                        ))}
+                    </div>
+                </article>
+            )}
+        </div>
+    );
+}
+
 function ApplicationModal({
     application,
+    quiz = null,
     onClose,
     onScheduleInterview,
     onCompleteInterview,
@@ -773,10 +1335,12 @@ function ApplicationModal({
     const [docRequestOpen, setDocRequestOpen] = useState(false);
     const [docRequestReason, setDocRequestReason] = useState("");
     const [docRequestError, setDocRequestError] = useState("");
+    const [reviewTab, setReviewTab] = useState("application");
 
     useEffect(() => {
+        setReviewTab("application");
         setInterviewDay("");
-        setInterviewTime("");
+        setInterviewTime("09:00");
         setRescheduling(false);
         setInterviewError("");
         setDocRequestOpen(false);
@@ -793,7 +1357,6 @@ function ApplicationModal({
     const isClosed = ["approved", "rejected", "withdrawn"].includes(status);
     const documents = Array.isArray(application.documents) ? application.documents : [];
     const showInterviewForm = isPending || (isScheduled && rescheduling);
-    const today = getLocalDateTimeValue(new Date()).slice(0, 10);
     const docRequest = application.documentRequest || {};
 
     async function handleSendDocRequest() {
@@ -823,6 +1386,11 @@ function ApplicationModal({
             return;
         }
 
+        if (selected.getHours() < SHELTER_OPEN_HOUR || selected.getHours() >= SHELTER_CLOSE_HOUR) {
+            setInterviewError("Interviews run from 8:00 AM to 5:00 PM only.");
+            return;
+        }
+
         setInterviewError("");
         await onScheduleInterview(application._id, selected.toISOString());
     }
@@ -839,9 +1407,28 @@ function ApplicationModal({
                         <span>Application Details</span>
                         <h2>{application.fullName || "Unknown Applicant"}</h2>
                         <p>
-                            <span><ReviewIcon name="mail" />{application.email}</span>
+                            {/* Email opens a Gmail draft in a new tab; phone opens the dialer */}
+                            {application.email ? (
+                                <a
+                                    className="arv-contact"
+                                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(application.email)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title={`Email ${application.email}`}
+                                >
+                                    <ReviewIcon name="mail" />{application.email}
+                                </a>
+                            ) : (
+                                <span><ReviewIcon name="mail" />No email</span>
+                            )}
                             {application.phone && (
-                                <span><ReviewIcon name="phone" />{application.phone}</span>
+                                <a
+                                    className="arv-contact"
+                                    href={`tel:0${String(application.phone).replace(/[^\d]/g, "")}`}
+                                    title={`Call 0${application.phone}`}
+                                >
+                                    <ReviewIcon name="phone" />0{application.phone}
+                                </a>
                             )}
                         </p>
                     </div>
@@ -859,6 +1446,44 @@ function ApplicationModal({
                         <ReviewIcon name="x" />
                     </button>
                 </header>
+
+                {/* Which pet this application is for (shown on every tab) */}
+                {(() => {
+                    const isLatest =
+                        quiz && String(quiz.latestApplication?._id || "") === String(application._id);
+                    const matchScore =
+                        isLatest && quiz.appliedScore != null ? Math.floor(quiz.appliedScore) : null;
+                    const pet = (isLatest && quiz.appliedAnimal) || {};
+
+                    return (
+                        <section className="arv-applying" aria-label="Applying for">
+                            <span className="arv-applying-photo">
+                                {application.petImage || pet.image ? (
+                                    <img src={application.petImage || pet.image} alt="" />
+                                ) : (
+                                    <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
+                                )}
+                            </span>
+
+                            <div className="arv-applying-info">
+                                <small>Applying for</small>
+                                <strong>{application.petName || "Not selected"}</strong>
+                                <span>
+                                    {[pet.type, application.petBreed || pet.breed || "Breed not available", pet.gender]
+                                        .filter(Boolean)
+                                        .join(" · ")}
+                                </span>
+                            </div>
+
+                            {matchScore != null && (
+                                <div className={`arv-applying-score ${scoreToneOf(matchScore)}`}>
+                                    <b>{matchScore}%</b>
+                                    <small>quiz match</small>
+                                </div>
+                            )}
+                        </section>
+                    );
+                })()}
 
                 <ol className="admin-review-steps">
                     {getReviewSteps(application).map((step, index) => (
@@ -880,61 +1505,72 @@ function ApplicationModal({
                     ))}
                 </ol>
 
-                <div className="admin-review-body">
+                <nav className="art-tabs" role="tablist" aria-label="Review sections">
+                    {REVIEW_TABS.map((tab) => (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            role="tab"
+                            aria-selected={reviewTab === tab.key}
+                            className={reviewTab === tab.key ? "is-active" : ""}
+                            onClick={() => setReviewTab(tab.key)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </nav>
+
+                {reviewTab === "quiz" && <QuizAnswersTab quiz={quiz} />}
+                {reviewTab === "why" && <WhyMatchTab application={application} quiz={quiz} />}
+
+                <div className="admin-review-body is-sheet" hidden={reviewTab !== "application"}>
                     <div className="admin-review-column">
                         <article className="admin-review-card">
-                            <h3>Applicant</h3>
-
-                            <div className="admin-review-facts">
+                            <h3>Applicant information</h3>
+                            <dl className="arv-rows">
                                 <div>
-                                    <span className="admin-review-fact-icon"><ReviewIcon name="phone" /></span>
-                                    <p><small>Phone</small>{application.phone || "Not provided"}</p>
+                                    <dt>Phone</dt>
+                                    <dd>0{application.phone || "Not provided"}</dd>
                                 </div>
-
                                 <div>
-                                    <span className="admin-review-fact-icon"><ReviewIcon name="home" /></span>
-                                    <p><small>Home type</small>{application.homeType || "Not provided"}</p>
+                                    <dt>Home type</dt>
+                                    <dd>{application.homeType || "Not provided"}</dd>
                                 </div>
-
-                                <div className="is-wide">
-                                    <span className="admin-review-fact-icon"><ReviewIcon name="pin" /></span>
-                                    <p><small>Address</small>{application.address || "Not provided"}</p>
+                                <div>
+                                    <dt>Address</dt>
+                                    <dd>{application.address || "Not provided"}</dd>
                                 </div>
-                            </div>
+                            </dl>
                         </article>
 
                         <article className="admin-review-card">
                             <h3>Household</h3>
-
-                            <div className="admin-review-household">
+                            <dl className="arv-rows">
                                 <div>
-                                    <span>Has children</span>
-                                    <b className={application.hasChildren === "Yes" ? "is-yes" : "is-no"}>
+                                    <dt>Has children</dt>
+                                    <dd className={application.hasChildren === "Yes" ? "is-yes" : "is-no"}>
                                         {application.hasChildren || "N/A"}
-                                    </b>
+                                    </dd>
                                 </div>
-
                                 <div>
-                                    <span>Other pets</span>
-                                    <b className={application.hasOtherPets === "Yes" ? "is-yes" : "is-no"}>
+                                    <dt>Other pets</dt>
+                                    <dd className={application.hasOtherPets === "Yes" ? "is-yes" : "is-no"}>
                                         {application.hasOtherPets || "N/A"}
-                                    </b>
+                                    </dd>
                                 </div>
+                            </dl>
+                        </article>
+
+                        <article className="admin-review-card">
+                            <h3>Responses</h3>
+                            <div className="arv-answer">
+                                <small>Reason for adoption</small>
+                                <p>{application.reason || "No reason provided."}</p>
                             </div>
-                        </article>
-
-                        <article className="admin-review-card">
-                            <h3>Reason for adoption</h3>
-                            <p className="admin-review-text">
-                                {application.reason || "No reason provided."}
-                            </p>
-                        </article>
-
-                        <article className="admin-review-card">
-                            <h3>Pet-care experience</h3>
-                            <p className="admin-review-text">
-                                {application.experience || "No experience provided."}
-                            </p>
+                            <div className="arv-answer">
+                                <small>Pet-care experience</small>
+                                <p>{application.experience || "No experience provided."}</p>
+                            </div>
                         </article>
 
                         {application.reviewNotes && (
@@ -953,31 +1589,7 @@ function ApplicationModal({
 
                     <div className="admin-review-column">
                         <article className="admin-review-card">
-                            <h3>Applying for</h3>
-
-                            <div className="admin-review-pet">
-                                <span className="admin-application-pet-thumb admin-review-pet-thumb">
-                                    {application.petImage ? (
-                                        <img src={application.petImage} alt={application.petName} />
-                                    ) : (
-                                        <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
-                                    )}
-                                </span>
-
-                                <div>
-                                    <strong>{application.petName || "Not selected"}</strong>
-                                    <small>{application.petBreed || "Breed not available"}</small>
-                                </div>
-                            </div>
-                        </article>
-
-                        <article className="admin-review-card">
-                            <div className="admin-review-card-heading">
-                                <h3>Submitted documents</h3>
-                                <span className="admin-review-count">
-                                    {documents.length} {documents.length === 1 ? "file" : "files"}
-                                </span>
-                            </div>
+                            <h3>Submitted documents ({documents.length})</h3>
 
                             {docRequest.status === "requested" && (
                                 <div className="admin-doc-request-note is-waiting">
@@ -1107,7 +1719,7 @@ function ApplicationModal({
 
                         <article className="admin-review-card">
                             <div className="admin-review-card-heading">
-                                <h3>Interview</h3>
+                                <h3>{application.interviewSchedule ? "Interview" : "Schedule interview"}</h3>
                                 <span className={`admin-review-count ${application.interviewSchedule ? "is-set" : ""}`}>
                                     {isCompleted || (isClosed && application.interviewSchedule)
                                         ? "Completed"
@@ -1142,21 +1754,19 @@ function ApplicationModal({
                                     </p>
 
                                     <div className="admin-review-interview-inputs">
-                                        <input
-                                            type="date"
-                                            min={today}
-                                            value={interviewDay}
-                                            onChange={(event) => setInterviewDay(event.target.value)}
+                                        <InterviewPicker
+                                            key={application._id}
+                                            day={interviewDay}
+                                            time={interviewTime}
+                                            onDayChange={(value) => {
+                                                setInterviewDay(value);
+                                                setInterviewError("");
+                                            }}
+                                            onTimeChange={(value) => {
+                                                setInterviewTime(value);
+                                                setInterviewError("");
+                                            }}
                                             disabled={loading}
-                                            aria-label="Interview date"
-                                        />
-
-                                        <input
-                                            type="time"
-                                            value={interviewTime}
-                                            onChange={(event) => setInterviewTime(event.target.value)}
-                                            disabled={loading}
-                                            aria-label="Interview time"
                                         />
                                     </div>
 
@@ -1198,9 +1808,16 @@ function ApplicationModal({
                     </p>
 
                     <div>
-                        <button type="button" className="admin-review-secondary" onClick={onClose}>
-                            Close
-                        </button>
+                        {!isClosed && !isScheduled && (
+                            <button
+                                type="button"
+                                className="admin-review-approve"
+                                onClick={() => onApprove(application)}
+                                disabled={loading || !isCompleted}
+                            >
+                                Approve
+                            </button>
+                        )}
 
                         {!isClosed && (
                             <button
@@ -1223,17 +1840,6 @@ function ApplicationModal({
                                 Mark Interview Done
                             </button>
                         )}
-
-                        {!isClosed && !isScheduled && (
-                            <button
-                                type="button"
-                                className="admin-review-approve"
-                                onClick={() => onApprove(application)}
-                                disabled={loading || !isCompleted}
-                            >
-                                Approve
-                            </button>
-                        )}
                     </div>
                 </footer>
             </section>
@@ -1243,6 +1849,9 @@ function ApplicationModal({
 
 export default function AdoptionApplications() {
     const [applications, setApplications] = useState([]);
+    const [quizByEmail, setQuizByEmail] = useState({});
+    // appId -> time of the applicant's last activity you've seen (null until first load)
+    const [seenApps, setSeenApps] = useState(readSeenApps);
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [rejectionApplication, setRejectionApplication] = useState(null);
     const [interviewApplication, setInterviewApplication] = useState(null);
@@ -1266,7 +1875,36 @@ export default function AdoptionApplications() {
     const [activeTab, setActiveTab] = useState("active");
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const [sortOrder, setSortOrder] = useState("newest");
+    // One sort for the list: "score-high" | "score-low" | "newest" | "oldest"
+    const [sortOrder, setSortOrder] = useState("score-high");
+
+    // Each header remembers its own direction, so both arrows always show.
+    // ↓ = smallest to biggest, ↑ = biggest to smallest
+    const [scoreDirection, setScoreDirection] = useState("score-high");
+    const [dateDirection, setDateDirection] = useState("newest");
+
+    // Clicking the column already in use flips it; clicking the other one switches to it
+    function toggleScoreSort() {
+        const next = sortOrder.startsWith("score")
+            ? (scoreDirection === "score-high" ? "score-low" : "score-high")
+            : scoreDirection;
+        setScoreDirection(next);
+        setSortOrder(next);
+    }
+
+    function toggleDateSort() {
+        const isDate = sortOrder === "newest" || sortOrder === "oldest";
+        const next = isDate ? (dateDirection === "newest" ? "oldest" : "newest") : dateDirection;
+        setDateDirection(next);
+        setSortOrder(next);
+    }
+
+    // Dropdown: also remembers the direction for its column
+    function chooseSort(value) {
+        if (value.startsWith("score")) setScoreDirection(value);
+        else if (value === "newest" || value === "oldest") setDateDirection(value);
+        setSortOrder(value);
+    }
 
     const historyApplications = useMemo(
         () =>
@@ -1278,6 +1916,52 @@ export default function AdoptionApplications() {
             ),
         [applications]
     );
+
+    // First visit on this browser: treat everything already here as seen
+    useEffect(() => {
+        if (seenApps || applications.length === 0) return undefined;
+        const timer = setTimeout(() => {
+            const seeded = {};
+            applications.forEach((application) => {
+                seeded[application._id] = applicantActivity(application)?.ms || 0;
+            });
+            writeSeenApps(seeded);
+            setSeenApps(seeded);
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [applications, seenApps]);
+
+    // Which rows to highlight, and with what label
+    const freshLabels = useMemo(() => {
+        if (!seenApps) return {};
+        const labels = {};
+        applications.forEach((application) => {
+            const activity = applicantActivity(application);
+            if (activity && activity.ms > (seenApps[application._id] || 0)) {
+                labels[application._id] = activity.label;
+            }
+        });
+        return labels;
+    }, [applications, seenApps]);
+
+    const freshCount = Object.keys(freshLabels).length;
+
+    function markSeen(list) {
+        setSeenApps((current) => {
+            const next = { ...(current || {}) };
+            list.forEach((application) => {
+                next[application._id] = applicantActivity(application)?.ms || Date.now();
+            });
+            writeSeenApps(next);
+            return next;
+        });
+    }
+
+    // Opening an application clears its highlight
+    function openApplication(application) {
+        markSeen([application]);
+        setSelectedApplication(application);
+    }
 
     const visibleApplications = useMemo(() => {
         const source =
@@ -1293,6 +1977,11 @@ export default function AdoptionApplications() {
                 if (statusFilter === "interview") return status.startsWith("interview");
                 return status === statusFilter;
             })
+            // "No quiz taken": only applicants without a quiz on record
+            .filter((application) =>
+                sortOrder !== "no-quiz" ||
+                !quizByEmail[String(application.email || "").toLowerCase()]
+            )
             .filter((application) => {
                 if (!query) return true;
 
@@ -1305,8 +1994,21 @@ export default function AdoptionApplications() {
                 );
             })
             .sort((a, b) => {
-                const difference = new Date(b.createdAt) - new Date(a.createdAt);
-                return sortOrder === "newest" ? difference : -difference;
+                const newestFirst = new Date(b.createdAt) - new Date(a.createdAt);
+
+                if (sortOrder === "score-high" || sortOrder === "score-low") {
+                    const scoreA = getQuizScore(a, quizByEmail).score;
+                    const scoreB = getQuizScore(b, quizByEmail).score;
+
+                    // Applications without a score always go last
+                    if (scoreA == null && scoreB == null) return newestFirst;
+                    if (scoreA == null) return 1;
+                    if (scoreB == null) return -1;
+                    if (scoreA === scoreB) return newestFirst;
+                    return sortOrder === "score-high" ? scoreB - scoreA : scoreA - scoreB;
+                }
+
+                return sortOrder === "oldest" ? -newestFirst : newestFirst;
             });
     }, [
         activeTab,
@@ -1315,6 +2017,7 @@ export default function AdoptionApplications() {
         searchTerm,
         statusFilter,
         sortOrder,
+        quizByEmail,
     ]);
 
     function switchTab(tab) {
@@ -1376,6 +2079,21 @@ export default function AdoptionApplications() {
             setApplications(
                 Array.isArray(data.applications) ? data.applications : []
             );
+
+            // Quiz match scores (a failure here just leaves the scores blank)
+            try {
+                const quizResponse = await fetch(`${API}/api/matchmaking/responses`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const quizData = await quizResponse.json().catch(() => ({}));
+                const byEmail = {};
+                (quizData.responses || []).forEach((item) => {
+                    if (item.adopterEmail) byEmail[item.adopterEmail.toLowerCase()] = item;
+                });
+                setQuizByEmail(byEmail);
+            } catch (quizError) {
+                console.error("Fetch quiz scores error:", quizError);
+            }
         } catch (error) {
             console.error("Fetch applications error:", error);
             notifyErr(error.message || "Unable to load adoption applications.");
@@ -1563,14 +2281,16 @@ export default function AdoptionApplications() {
                         </button>
                     ))}
 
-                    <button
-                        type="button"
-                        className="admin-adoption-refresh"
-                        onClick={fetchApplications}
-                        disabled={loading || saving}
-                    >
-                        {loading ? "Refreshing..." : "Refresh"}
-                    </button>
+                    {freshCount > 0 && (
+                        <button
+                            type="button"
+                            className="arv-fresh-clear"
+                            onClick={() => markSeen(applications.filter((application) => freshLabels[application._id]))}
+                            title="Remove all highlights"
+                        >
+                            {freshCount} new · Mark all seen
+                        </button>
+                    )}
                 </div>
 
                 <div className="admin-adoption-toolbar">
@@ -1605,11 +2325,14 @@ export default function AdoptionApplications() {
                     <select
                         className="admin-adoption-sort"
                         value={sortOrder}
-                        onChange={(event) => setSortOrder(event.target.value)}
+                        onChange={(event) => chooseSort(event.target.value)}
                         aria-label="Sort applications"
                     >
+                        <option value="score-high">Highest score</option>
+                        <option value="score-low">Lowest score</option>
                         <option value="newest">Newest first</option>
                         <option value="oldest">Oldest first</option>
+                        <option value="no-quiz">No quiz taken</option>
                     </select>
                 </div>
 
@@ -1617,7 +2340,9 @@ export default function AdoptionApplications() {
                     <p className="admin-empty">Loading applications...</p>
                 ) : visibleApplications.length === 0 ? (
                     <p className="admin-empty ad-empty">
-                        {searchTerm || statusFilter !== "all"
+                        {sortOrder === "no-quiz" && !searchTerm && statusFilter === "all"
+                            ? "Everyone here took the matching quiz before applying."
+                            : searchTerm || statusFilter !== "all" || sortOrder === "no-quiz"
                             ? "No applications match your search or filter."
                             : activeTab === "active"
                                 ? "There are no active adoption applications."
@@ -1628,9 +2353,23 @@ export default function AdoptionApplications() {
                         <div className="admin-application-columns" aria-hidden="true">
                             <span>Applicant</span>
                             <span>Pet</span>
-                            <span>Household</span>
+                            <button
+                                type="button"
+                                className={`aqr-sort ${sortOrder.startsWith("score") ? "is-active" : ""}`}
+                                onClick={toggleScoreSort}
+                                title="Sort by quiz score"
+                            >
+                                Quiz Score <span className="aqr-arrow">{scoreDirection === "score-low" ? "↓" : "↑"}</span>
+                            </button>
                             <span>Status</span>
-                            <span>Actions</span>
+                            <button
+                                type="button"
+                                className={`aqr-sort ${sortOrder === "newest" || sortOrder === "oldest" ? "is-active" : ""}`}
+                                onClick={toggleDateSort}
+                                title="Sort by date"
+                            >
+                                Date <span className="aqr-arrow">{dateDirection === "oldest" ? "↓" : "↑"}</span>
+                            </button>
                         </div>
 
                         <div className="admin-application-list">
@@ -1638,7 +2377,9 @@ export default function AdoptionApplications() {
                                 <ApplicationRow
                                     key={application._id}
                                     application={application}
-                                    onReview={setSelectedApplication}
+                                    quizByEmail={quizByEmail}
+                                    highlight={freshLabels[application._id] || null}
+                                    onReview={openApplication}
                                     onSchedule={setInterviewApplication}
                                     onCompleteInterview={handleCompleteInterview}
                                     onApprove={handleApproveApplication}
@@ -1656,6 +2397,11 @@ export default function AdoptionApplications() {
 
             <ApplicationModal
                 application={selectedApplication}
+                quiz={
+                    selectedApplication
+                        ? quizByEmail[String(selectedApplication.email || "").toLowerCase()] || null
+                        : null
+                }
                 onClose={() => setSelectedApplication(null)}
                 onScheduleInterview={handleScheduleInterview}
                 onCompleteInterview={handleCompleteInterview}

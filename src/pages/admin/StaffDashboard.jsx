@@ -10,8 +10,6 @@ import "../../styles/admin/AnimalProfiles.css";
 import "../../styles/admin/MedicalRecords.css";
 import "../../styles/admin/IntakeRecords.css";
 import "../../styles/admin/AdoptionApplications.css";
-import "../../styles/admin/MatchingQuizResults.css";
-import "../../styles/admin/Recommendations.css";
 import "../../styles/admin/FosterCare.css";
 import "../../styles/admin/LostFound.css";
 import "../../styles/admin/GISMapping.css";
@@ -46,8 +44,6 @@ import QRTags from "./modules/animals/QRTags";
 
 // // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
-import MatchingQuizResults from "./modules/adoptions/MatchingQuizResults";
-import Recommendations from "./modules/adoptions/Recommendations";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 import AccountSettings from "../AccountSettings";
 
@@ -56,6 +52,7 @@ const ICONS = {
     overview: "/icons/sidebar/dashboard-brown.svg",
     animals: "/icons/sidebar/brown paw.svg",
     adoptions: "/icons/heart-brown.svg",
+    "adoption-applications": "/icons/heart-brown.svg",
     "foster-care": "/icons/home.svg",
     donations: "/icons/sidebar/donation-brown.svg",
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
@@ -81,15 +78,7 @@ const staffMenu = [
         ],
     },
 
-    {
-        key: "adoptions",
-        label: "Adoptions",
-        children: [
-            { key: "adoption-applications", label: "Applications" },
-            { key: "matching-quiz", label: "Matching Quiz Results" },
-            { key: "recommendations", label: "Recommendations" },
-        ],
-    },
+    { key: "adoption-applications", label: "Adoptions" },
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "lost-found", label: "Lost & Found" },
@@ -123,9 +112,140 @@ function getStaffPageTitle(activeStaffPage) {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+// ---------- Sidebar "new updates" dots ----------
+// A tab gets an orange dot when something new arrived after you last opened it.
+// "Last opened" is remembered per account in this browser.
+const DOT_SOURCES = [
+    {
+        tab: "adoption-applications",
+        url: "/api/adoptions",
+        key: "applications",
+        // Also count an applicant re-uploading documents after a resubmission request
+        extraTime: (item) =>
+            item.documentRequest?.status === "resubmitted" ? item.documentRequest.resubmittedAt : null,
+    },
+    { tab: "animal-profiles", url: "/api/animals/intakes", key: "intakes" },
+    { tab: "feedback", url: "/api/feedback", key: "feedback" },
+    { tab: "lost-found", url: "/api/lost-found/reports", key: "reports" },
+    { tab: "foster-care", url: "/api/foster/applications", key: "applications" },
+    { tab: "donations", url: "/api/donations", key: "donations" },
+];
+
+function dotStorageKey() {
+    try {
+        const user = JSON.parse(localStorage.getItem("rescuebase_user") || "{}");
+        return `rescuebase_seen_tabs_${user.email || user._id || "me"}`;
+    } catch {
+        return "rescuebase_seen_tabs_me";
+    }
+}
+
+function readSeen() {
+    try {
+        return JSON.parse(localStorage.getItem(dotStorageKey()) || "{}") || {};
+    } catch {
+        return {};
+    }
+}
+
+function writeSeen(seen) {
+    try {
+        localStorage.setItem(dotStorageKey(), JSON.stringify(seen));
+    } catch {
+        // storage blocked: dots just won't be remembered
+    }
+}
+
+function useSidebarDots(activePage) {
+    const [latest, setLatest] = useState({});
+    const [seen, setSeen] = useState(readSeen);
+
+    // Check for new items now and every minute
+    useEffect(() => {
+        let alive = true;
+
+        async function check() {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            let myEmail = "";
+            try {
+                myEmail = String(JSON.parse(localStorage.getItem("rescuebase_user") || "{}").email || "").toLowerCase();
+            } catch {
+                myEmail = "";
+            }
+
+            const results = await Promise.allSettled(
+                DOT_SOURCES.map((source) =>
+                    fetch(`${API}${source.url}`, { headers: { Authorization: `Bearer ${token}` } })
+                        .then((response) => (response.ok ? response.json() : {}))
+                        .then((data) => {
+                            const items = Array.isArray(data[source.key]) ? data[source.key] : [];
+                            // Things you created yourself don't count as "new"
+                            const times = items
+                                .filter((item) => String(item.createdByEmail || "").toLowerCase() !== myEmail || !myEmail)
+                                .flatMap((item) => [item.createdAt, source.extraTime?.(item)])
+                                .filter(Boolean)
+                                .map((date) => new Date(date).getTime())
+                                .filter(Number.isFinite);
+                            return [source.tab, times.length ? Math.max(...times) : 0];
+                        })
+                )
+            );
+            if (!alive) return;
+
+            const next = {};
+            results.forEach((result) => {
+                if (result.status === "fulfilled") next[result.value[0]] = result.value[1];
+            });
+            setLatest(next);
+
+            // First visit: start counting from now, so old items don't all light up
+            setSeen((current) => {
+                const filled = { ...current };
+                let changed = false;
+                DOT_SOURCES.forEach(({ tab }) => {
+                    if (!filled[tab]) {
+                        filled[tab] = Date.now();
+                        changed = true;
+                    }
+                });
+                if (changed) writeSeen(filled);
+                return changed ? filled : current;
+            });
+        }
+
+        check();
+        const timer = setInterval(check, 60000);
+        return () => {
+            alive = false;
+            clearInterval(timer);
+        };
+    }, []);
+
+    // Opening a tab marks it as seen
+    useEffect(() => {
+        if (!DOT_SOURCES.some((source) => source.tab === activePage)) return undefined;
+        const timer = setTimeout(() => {
+            setSeen((current) => {
+                const next = { ...current, [activePage]: Date.now() };
+                writeSeen(next);
+                return next;
+            });
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [activePage, latest]);
+
+    return new Set(
+        DOT_SOURCES
+            .filter(({ tab }) => tab !== activePage && latest[tab] && seen[tab] && latest[tab] > seen[tab])
+            .map(({ tab }) => tab)
+    );
+}
+
 export default function StaffDashboard({ setPage }) {
 
     const [activeStaffPage, setActiveStaffPage] = useState("overview");
+    const newDots = useSidebarDots(activeStaffPage);
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotification] = useState([]);
     const [notifOpen, setNotifOpen] = useState(false);
@@ -354,14 +474,6 @@ export default function StaffDashboard({ setPage }) {
             return <AdoptionApplications />;
         }
 
-        if (activeStaffPage === "matching-quiz") {
-            return <MatchingQuizResults />;
-        }
-
-        if (activeStaffPage === "recommendations") {
-            return <Recommendations />
-        }
-
         if (activeStaffPage === "foster-care") {
             return <FosterCare />
         }
@@ -541,6 +653,9 @@ export default function StaffDashboard({ setPage }) {
                                             aria-hidden="true"
                                         />
                                         <strong>{item.label}</strong>
+                                        {(newDots.has(item.key) || item.children?.some((child) => newDots.has(child.key))) && (
+                                            <span className="sb-dot" title="New updates" aria-label="New updates" />
+                                        )}
                                     </div>
 
                                     {item.children && (
@@ -563,6 +678,9 @@ export default function StaffDashboard({ setPage }) {
                                                 onClick={() => setActiveStaffPage(child.key)}
                                             >
                                                 {child.label}
+                                                {newDots.has(child.key) && (
+                                                    <span className="sb-dot" title="New updates" aria-label="New updates" />
+                                                )}
                                             </button>
                                         ))}
                                     </div>
