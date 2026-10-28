@@ -62,6 +62,12 @@ const adopterMenu = [
         activeIcon: "quiz-light.svg",
     },
     {
+        key: "recommendations",
+        label: "Recommendations",
+        icon: "Recommend.svg",
+        activeIcon: "Recommend-light.svg",
+    },
+    {
         key: "application-status",
         label: "Application Status",
         icon: "Status.svg",
@@ -72,12 +78,6 @@ const adopterMenu = [
         label: "Lost & Found",
         icon: "LostnFound-brown.svg",
         activeIcon: "LostnFound-light.svg",
-    },
-    {
-        key: "recommendations",
-        label: "Recommendations",
-        icon: "Recommend.svg",
-        activeIcon: "Recommend-light.svg",
     },
     {
         key: "donation",
