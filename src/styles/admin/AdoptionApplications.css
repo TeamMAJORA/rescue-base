@@ -2162,3 +2162,65 @@ button.admin-schedule-day.is-selected:hover {
 /* Sort arrows always visible; the column in use is full colour, the other is faded */
 .aqr-sort .aqr-arrow { opacity: 0.4; }
 .aqr-sort.is-active .aqr-arrow { opacity: 1; }
+
+/* ===================== Review modal tabs (art) ===================== */
+.admin-review-body[hidden] { display: none; }
+
+.art-tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid rgba(251, 133, 0, 0.22); background: #fffaf0; }
+.art-tabs button { padding: 12px 10px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: #5a1b00; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.art-tabs button:hover { background: #fff3d6; }
+.art-tabs button.is-active { border-bottom-color: #fb8500; color: #fb8500; background: #fffdf4; }
+
+.art-body { flex: 1; overflow-y: auto; display: grid; align-content: start; gap: 14px; padding: 18px 26px; }
+.art-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.art-card h4 { margin: 0 0 10px; color: #3a1200; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+
+.art-answers { display: grid; gap: 8px; margin: 0; }
+.art-answers dt { color: #8a6a4a; font-size: 11.5px; }
+.art-answers dd { margin: 0; color: #3a1200; font-size: 13.5px; font-weight: 800; }
+
+.art-ratings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 32px; }
+.art-ratings > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: #3a1200; font-size: 13px; font-weight: 700; }
+.art-dots { display: inline-flex; gap: 3px; }
+.art-dots i { width: 10px; height: 10px; border: 1.5px solid #fb8500; border-radius: 50%; }
+.art-dots i.is-on { background: #fb8500; }
+
+.art-top { display: grid; gap: 6px; margin: 0; padding-left: 18px; color: #3a1200; font-size: 13.5px; }
+.art-top li b { margin-right: 6px; }
+.art-top li small { margin-right: 8px; color: #8a6a4a; font-size: 12px; }
+
+.art-score { display: inline-block; padding: 1px 8px; border: 1.5px dashed currentColor; border-radius: 999px; font-size: 12px; font-weight: 800; }
+.art-score.is-high { color: #2f8f5b; background: #e9f7ec; }
+.art-score.is-mid { color: #d96f00; background: #fff3e0; }
+.art-score.is-low { color: #c62828; background: #fdecea; }
+
+.art-hero { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 16px 18px; border-radius: 16px; background: linear-gradient(135deg, #fb8500, #ffb347); color: #fff; }
+.art-hero-photo { width: 84px; height: 84px; overflow: hidden; display: grid; place-items: center; border-radius: 14px; background: rgba(255, 255, 255, 0.25); }
+.art-hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+.art-hero-photo img.is-placeholder { width: 40px; height: 40px; object-fit: contain; }
+.art-hero-info small { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.9; }
+.art-hero-info h4 { margin: 2px 0; font-family: "Itim", cursive; font-size: 26px; font-weight: 500; color: #fff; }
+.art-hero-info p { margin: 0; font-size: 13px; opacity: 0.95; }
+.art-hero-score { text-align: right; }
+.art-hero-score b { display: block; font-size: 38px; line-height: 1; }
+.art-hero-score small { font-size: 12px; opacity: 0.9; }
+
+.art-reasons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.art-reason { padding: 10px 12px; border-left: 4px solid #2e9e4f; border-radius: 8px; background: #f2faf4; }
+.art-reason.is-check { border-left-color: #fb8500; background: #fff4e3; }
+.art-reason b { display: block; color: #3a1200; font-size: 13px; }
+.art-reason p { margin: 2px 0 0; color: #75432f; font-size: 12.5px; }
+
+.art-others { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.art-others > div { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid rgba(251, 133, 0, 0.22); border-radius: 10px; background: #fffdf4; color: #3a1200; font-size: 13px; }
+
+.art-note { margin: 8px 0 0; color: #8a6a4a; font-size: 12px; }
+.art-empty { flex: 1; display: grid; place-content: center; gap: 4px; padding: 40px 26px; text-align: center; color: #75432f; }
+.art-empty b { color: #3a1200; font-size: 15px; }
+.art-empty p { margin: 0; font-size: 13px; }
+
+@media (max-width: 760px) {
+    .art-grid-3, .art-ratings, .art-reasons, .art-others { grid-template-columns: 1fr; }
+    .art-hero { grid-template-columns: 64px 1fr; }
+    .art-hero-score { grid-column: 1 / -1; text-align: left; }
+}

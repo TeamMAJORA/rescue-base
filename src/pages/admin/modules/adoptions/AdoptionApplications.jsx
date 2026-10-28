@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FACTORS } from "../../../../utils/matchScore";
 
 
 
@@ -711,8 +712,227 @@ function getReviewSteps(application) {
     ];
 }
 
+// ---------- Review tabs: Quiz Answers + Why This Match ----------
+
+const REVIEW_TABS = [
+    { key: "application", label: "Application" },
+    { key: "quiz", label: "Quiz Answers" },
+    { key: "why", label: "Why This Match" },
+];
+
+const QUIZ_GROUPS = [
+    {
+        title: "Pet preferences",
+        rows: [
+            ["Pet type", "preferredPetType"],
+            ["Size", "preferredSize"],
+        ],
+    },
+    {
+        title: "Home & household",
+        rows: [
+            ["Home type", "homeType"],
+            ["Home ownership", "homeOwnership"],
+            ["Children at home", "hasChildren"],
+            ["Other pets", "hasOtherPets"],
+        ],
+    },
+    {
+        title: "Experience & time",
+        rows: [
+            ["Pet experience", "petExperience"],
+            ["Hours available daily", "dailyAvailableHours"],
+            ["Exercise", "exerciseFrequency"],
+            ["Willing to train", "willingToTrain"],
+        ],
+    },
+];
+
+const LEVELS = ["", "very low", "low", "moderate", "high", "very high"];
+
+function scoreToneOf(score) {
+    if (score == null) return "is-none";
+    if (score >= 80) return "is-high";
+    if (score >= 60) return "is-mid";
+    return "is-low";
+}
+
+// Same reasons as the Recommendations page: up to 2 strong factors + conflicts/weakest factor
+function buildMatchReasons(factors, conflicts, petName) {
+    if (!factors) return [];
+
+    const scored = FACTORS
+        .map((factor) => ({ ...factor, ...factors[factor.key] }))
+        .filter((factor) => factor.similarity !== null && factor.similarity !== undefined)
+        .sort((a, b) => b.similarity - a.similarity);
+
+    const describe = (factor) =>
+        factor.type === "tolerance"
+            ? `Can handle ${LEVELS[factor.adopterValue]}; ${petName} is ${LEVELS[factor.animalValue]}.`
+            : `Wants ${LEVELS[factor.adopterValue]}; ${petName} is ${LEVELS[factor.animalValue]}.`;
+
+    const good = scored
+        .filter((factor) => factor.similarity >= 0.75)
+        .slice(0, 2)
+        .map((factor) => ({ tone: "is-good", title: factor.label, text: describe(factor) }));
+
+    const weakest = scored.filter((factor) => factor.similarity < 0.75).slice(-1);
+
+    const checks = [
+        ...(conflicts || []).map((text) => ({ tone: "is-check", title: "Check", text })),
+        ...weakest.map((factor) => ({ tone: "is-check", title: `Check: ${factor.label}`, text: describe(factor) })),
+    ];
+
+    return [...good, ...checks].slice(0, 4);
+}
+
+function QuizAnswersTab({ quiz }) {
+    if (!quiz) {
+        return (
+            <div className="art-empty">
+                <b>No quiz on record</b>
+                <p>This applicant didn&apos;t take the matching quiz, so there are no answers to show.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="art-body">
+            <div className="art-grid-3">
+                {QUIZ_GROUPS.map((group) => (
+                    <article className="admin-review-card art-card" key={group.title}>
+                        <h4>{group.title}</h4>
+                        <dl className="art-answers">
+                            {group.rows.map(([label, key]) => (
+                                <div key={key}>
+                                    <dt>{label}</dt>
+                                    <dd>{quiz[key] || "—"}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </article>
+                ))}
+            </div>
+
+            <article className="admin-review-card art-card">
+                <h4>Behavior preferences (1 = low, 5 = high)</h4>
+                <div className="art-ratings">
+                    {FACTORS.map((factor) => {
+                        const value = Number(quiz[factor.quizKey]) || 0;
+                        return (
+                            <div key={factor.key}>
+                                <span>{factor.label}</span>
+                                <span className="art-dots" aria-label={`${value} of 5`}>
+                                    {[1, 2, 3, 4, 5].map((dot) => (
+                                        <i key={dot} className={dot <= value ? "is-on" : ""} />
+                                    ))}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </article>
+
+            <p className="art-note">
+                Answered {quiz.completedAt || quiz.createdAt
+                    ? new Date(quiz.completedAt || quiz.createdAt).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })
+                    : "—"}.
+            </p>
+        </div>
+    );
+}
+
+function WhyMatchTab({ application, quiz }) {
+    if (!quiz) {
+        return (
+            <div className="art-empty">
+                <b>Not from match results</b>
+                <p>This applicant didn&apos;t take the matching quiz, so there&apos;s no match score to explain.</p>
+            </div>
+        );
+    }
+
+    const isThisApplication =
+        String(quiz.latestApplication?._id || "") === String(application._id);
+
+    if (!isThisApplication) {
+        return (
+            <div className="art-empty">
+                <b>Older application</b>
+                <p>Match details are only worked out for this applicant&apos;s latest application.</p>
+            </div>
+        );
+    }
+
+    const pet = quiz.appliedAnimal || {};
+    const petName = pet.name || application.petName || "this pet";
+    const score = quiz.appliedScore == null ? null : Math.floor(quiz.appliedScore);
+    const reasons = buildMatchReasons(quiz.appliedFactors, quiz.appliedConflicts, petName);
+    const others = (quiz.aiMatches || [])
+        .filter((match) => match.score != null && String(match.animalId) !== String(application.animalId?._id || application.animalId))
+        .slice(0, 3);
+
+    return (
+        <div className="art-body">
+            <article className="art-hero">
+                <span className="art-hero-photo">
+                    {pet.image || application.petImage ? (
+                        <img src={pet.image || application.petImage} alt="" />
+                    ) : (
+                        <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
+                    )}
+                </span>
+                <div className="art-hero-info">
+                    <small>AI match for this application</small>
+                    <h4>{petName}</h4>
+                    <p>{[pet.type, pet.breed || application.petBreed].filter(Boolean).join(" · ")}</p>
+                </div>
+                <div className={`art-hero-score ${scoreToneOf(score)}`}>
+                    <b>{score == null ? "—" : `${score}%`}</b>
+                    <small>{score == null ? quiz.appliedScoreNote || "No score" : "match score"}</small>
+                </div>
+            </article>
+
+            <article className="admin-review-card art-card">
+                <h4>Why this match works</h4>
+                {reasons.length > 0 ? (
+                    <div className="art-reasons">
+                        {reasons.map((reason) => (
+                            <div className={`art-reason ${reason.tone}`} key={reason.title + reason.text}>
+                                <b>{reason.title}</b>
+                                <p>{reason.text}</p>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="art-note">No behavior ratings to compare yet.</p>
+                )}
+                <p className="art-note">
+                    Score from the matchmaking model. Reasons compare the applicant&apos;s quiz answers
+                    with the pet&apos;s behavior ratings. Advisory only.
+                </p>
+            </article>
+
+            {others.length > 0 && (
+                <article className="admin-review-card art-card">
+                    <h4>Other good matches for this applicant</h4>
+                    <div className="art-others">
+                        {others.map((match) => (
+                            <div key={match.animalId}>
+                                <span>{match.name} · {match.type}</span>
+                                <b className={`art-score ${scoreToneOf(Math.floor(match.score))}`}>{Math.floor(match.score)}%</b>
+                            </div>
+                        ))}
+                    </div>
+                </article>
+            )}
+        </div>
+    );
+}
+
 function ApplicationModal({
     application,
+    quiz = null,
     onClose,
     onScheduleInterview,
     onCompleteInterview,
@@ -728,8 +948,10 @@ function ApplicationModal({
     const [docRequestOpen, setDocRequestOpen] = useState(false);
     const [docRequestReason, setDocRequestReason] = useState("");
     const [docRequestError, setDocRequestError] = useState("");
+    const [reviewTab, setReviewTab] = useState("application");
 
     useEffect(() => {
+        setReviewTab("application");
         setInterviewDay("");
         setInterviewTime("");
         setRescheduling(false);
@@ -835,7 +1057,25 @@ function ApplicationModal({
                     ))}
                 </ol>
 
-                <div className="admin-review-body">
+                <nav className="art-tabs" role="tablist" aria-label="Review sections">
+                    {REVIEW_TABS.map((tab) => (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            role="tab"
+                            aria-selected={reviewTab === tab.key}
+                            className={reviewTab === tab.key ? "is-active" : ""}
+                            onClick={() => setReviewTab(tab.key)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </nav>
+
+                {reviewTab === "quiz" && <QuizAnswersTab quiz={quiz} />}
+                {reviewTab === "why" && <WhyMatchTab application={application} quiz={quiz} />}
+
+                <div className="admin-review-body" hidden={reviewTab !== "application"}>
                     <div className="admin-review-column">
                         <article className="admin-review-card">
                             <h3>Applicant</h3>
@@ -1683,6 +1923,11 @@ export default function AdoptionApplications() {
 
             <ApplicationModal
                 application={selectedApplication}
+                quiz={
+                    selectedApplication
+                        ? quizByEmail[String(selectedApplication.email || "").toLowerCase()] || null
+                        : null
+                }
                 onClose={() => setSelectedApplication(null)}
                 onScheduleInterview={handleScheduleInterview}
                 onCompleteInterview={handleCompleteInterview}
