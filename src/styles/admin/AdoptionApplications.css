@@ -2306,3 +2306,57 @@ button.admin-schedule-day.is-selected:hover {
 /* "Applying for" band: sits in its own space, no overlap with the header or steps */
 .arv-applying { transform: none; margin: 14px 26px 12px; box-shadow: none; }
 @media (max-width: 560px) { .arv-applying { margin: 12px 14px 10px; } }
+
+/* ===== Quiz Answers tab: same flat "sheet" look as the Application tab ===== */
+.art-body.is-sheet { gap: 0; padding: 6px 26px 14px; }
+.art-body.is-sheet .art-card { padding: 16px 0 10px; border: 0; border-radius: 0; background: transparent; }
+.art-body.is-sheet .art-card h4 {
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(251, 133, 0, 0.3);
+    color: #3a1200;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+/* Three answer groups side by side with dividers, like the two review columns */
+.art-body.is-sheet .art-grid-3 { gap: 0; }
+.art-body.is-sheet .art-grid-3 > .art-card { padding-left: 22px; padding-right: 22px; }
+.art-body.is-sheet .art-grid-3 > .art-card:first-child { padding-left: 0; }
+.art-body.is-sheet .art-grid-3 > .art-card:last-child { padding-right: 0; }
+.art-body.is-sheet .art-grid-3 > .art-card + .art-card { border-left: 1px solid rgba(251, 133, 0, 0.28); }
+/* Answers as label / value rows (same as Applicant information) */
+.art-body.is-sheet .art-answers { gap: 7px; }
+.art-body.is-sheet .art-answers > div { display: grid; grid-template-columns: minmax(90px, 0.9fr) minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.art-body.is-sheet .art-answers dt { color: #8a6a4a; font-size: 13px; font-weight: 600; }
+.art-body.is-sheet .art-answers dd { color: #3a1200; font-size: 13.5px; font-weight: 700; overflow-wrap: anywhere; }
+.art-body.is-sheet .art-ratings > div { font-weight: 600; color: #3a1200; }
+.art-body.is-sheet .art-note { margin-top: 10px; }
+@media (max-width: 760px) {
+    .art-body.is-sheet .art-grid-3 > .art-card { padding-left: 0; padding-right: 0; }
+    .art-body.is-sheet .art-grid-3 > .art-card + .art-card { border-left: 0; }
+}
+
+/* ===== Why This Match: compatibility (what the applicant wants vs what the pet has) ===== */
+.art-card h4 .art-score { margin-left: 8px; vertical-align: 1px; letter-spacing: 0; text-transform: none; }
+.art-compat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.art-compat-col { padding: 14px 16px 6px; border: 1px solid rgba(251, 133, 0, 0.22); border-radius: 14px; background: #fffdf4; }
+.art-compat-col h5 { margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(90, 27, 0, 0.1); text-align: center; font-size: 12.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+.art-compat-col.is-wants h5 { color: #d96f00; }
+.art-compat-col.is-has h5 { color: #2f8f5b; }
+.art-compat-row { display: grid; gap: 4px; margin-bottom: 12px; }
+.art-compat-row b { color: #3a1200; font-size: 13px; }
+.art-compat-row small { color: #8a6a4a; font-size: 11.5px; }
+.art-compat-track { display: block; height: 9px; overflow: hidden; border-radius: 99px; background: #efe4cb; }
+.art-compat-track i { display: block; height: 100%; border-radius: 99px; }
+.art-compat-track i.is-good { background: #2e9e4f; }
+.art-compat-track i.is-check { background: #fb8500; }
+.art-compat-track i.is-none { background: #c9b48f; }
+.art-compat-legend { display: flex; gap: 16px; margin-top: 10px; color: #75432f; font-size: 12px; }
+.art-compat-legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 50%; vertical-align: -1px; }
+.art-compat-legend .is-good::before { background: #2e9e4f; }
+.art-compat-legend .is-check::before { background: #fb8500; }
+.art-checks { margin: 10px 0 0; padding: 10px 12px 10px 28px; border-left: 4px solid #fb8500; border-radius: 8px; background: #fff4e3; color: #75432f; font-size: 12.5px; }
+.art-checks li + li { margin-top: 4px; }
+.art-checks b { color: #3a1200; }
+@media (max-width: 760px) { .art-compat { grid-template-columns: 1fr; } }

@@ -797,7 +797,7 @@ function QuizAnswersTab({ quiz }) {
     }
 
     return (
-        <div className="art-body">
+        <div className="art-body is-sheet">
             <div className="art-grid-3">
                 {QUIZ_GROUPS.map((group) => (
                     <article className="admin-review-card art-card" key={group.title}>
@@ -842,6 +842,49 @@ function QuizAnswersTab({ quiz }) {
     );
 }
 
+// Words for each 1–5 level, per behavior factor (used in the compatibility card)
+const FACTOR_WORDS = {
+    energy: ["Very calm", "Calm", "Moderate energy", "High energy", "Very high energy"],
+    friendliness: ["Reserved", "Somewhat shy", "Moderately friendly", "Friendly", "Very friendly"],
+    humanSociability: ["Shy with people", "Cautious with people", "Moderate sociability", "Friendly with guests", "Loves people"],
+    animalSociability: ["Prefers being alone", "Picky with animals", "Okay with animals", "Good with animals", "Loves other animals"],
+    trainability: ["Stubborn", "Slow learner", "Average learner", "High trainability", "Quick learner"],
+    anxiety: ["Very relaxed", "Relaxed", "Sometimes anxious", "Anxious", "Very anxious"],
+    aggression: ["Gentle", "Mostly gentle", "Sometimes reactive", "Reactive", "Very reactive"],
+    activity: ["Mostly resting", "Low activity", "Moderate activity", "Active", "Always moving"],
+};
+
+function factorWords(factor, value, side) {
+    if (!value) return "Not rated";
+    const words = FACTOR_WORDS[factor.key]?.[value - 1] || `${LEVELS[value]}`;
+    // For tolerance factors the applicant says how much they can handle
+    if (side === "wants" && factor.type === "tolerance") return `Can handle: ${words.toLowerCase()}`;
+    return words;
+}
+
+function CompatibilityColumn({ title, tone, rows, side }) {
+    return (
+        <div className={`art-compat-col is-${tone}`}>
+            <h5>{title}</h5>
+            {rows.map((row) => {
+                const value = side === "wants" ? row.adopterValue : row.animalValue;
+                return (
+                    <div className="art-compat-row" key={row.key}>
+                        <b>{row.label}</b>
+                        <span className="art-compat-track">
+                            <i
+                                className={row.matched == null ? "is-none" : row.matched ? "is-good" : "is-check"}
+                                style={{ width: `${((value || 0) / 5) * 100}%` }}
+                            />
+                        </span>
+                        <small>{factorWords(row, value, side)}</small>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
 function WhyMatchTab({ application, quiz }) {
     if (!quiz) {
         return (
@@ -868,48 +911,75 @@ function WhyMatchTab({ application, quiz }) {
     const petName = pet.name || application.petName || "this pet";
     const score = quiz.appliedScore == null ? null : Math.floor(quiz.appliedScore);
     const reasons = buildMatchReasons(quiz.appliedFactors, quiz.appliedConflicts, petName);
+    const checks = reasons.filter((reason) => reason.tone === "is-check");
+    const firstName = String(application.fullName || quiz.adopterName || "Applicant").split(" ")[0];
+
+    // One row per behavior factor with both sides' 1–5 values
+    const compatRows = FACTORS.map((factor) => {
+        const result = quiz.appliedFactors?.[factor.key] || {};
+        const adopterValue = Number(result.adopterValue) || null;
+        const animalValue = Number(result.animalValue) || null;
+        const similarity = result.similarity;
+        return {
+            ...factor,
+            adopterValue,
+            animalValue,
+            matched: similarity == null ? null : similarity >= 0.75,
+        };
+    }).filter((row) => row.adopterValue || row.animalValue);
     const others = (quiz.aiMatches || [])
         .filter((match) => match.score != null && String(match.animalId) !== String(application.animalId?._id || application.animalId))
         .slice(0, 3);
 
     return (
         <div className="art-body">
-            <article className="art-hero">
-                <span className="art-hero-photo">
-                    {pet.image || application.petImage ? (
-                        <img src={pet.image || application.petImage} alt="" />
-                    ) : (
-                        <img src="/icons/sidebar/brown paw.svg" alt="" className="is-placeholder" />
-                    )}
-                </span>
-                <div className="art-hero-info">
-                    <small>AI match for this application</small>
-                    <h4>{petName}</h4>
-                    <p>{[pet.type, pet.breed || application.petBreed].filter(Boolean).join(" · ")}</p>
-                </div>
-                <div className={`art-hero-score ${scoreToneOf(score)}`}>
-                    <b>{score == null ? "—" : `${score}%`}</b>
-                    <small>{score == null ? quiz.appliedScoreNote || "No score" : "match score"}</small>
-                </div>
-            </article>
-
             <article className="admin-review-card art-card">
-                <h4>Why this match works</h4>
-                {reasons.length > 0 ? (
-                    <div className="art-reasons">
-                        {reasons.map((reason) => (
-                            <div className={`art-reason ${reason.tone}`} key={reason.title + reason.text}>
-                                <b>{reason.title}</b>
-                                <p>{reason.text}</p>
-                            </div>
-                        ))}
-                    </div>
+                <h4>
+                    Compatibility
+                    {score != null && (
+                        <span className={`art-score ${scoreToneOf(score)}`}>{score}% match</span>
+                    )}
+                </h4>
+
+                {compatRows.length > 0 ? (
+                    <>
+                        <div className="art-compat">
+                            <CompatibilityColumn
+                                title={`What ${firstName} wants`}
+                                tone="wants"
+                                rows={compatRows}
+                                side="wants"
+                            />
+                            <CompatibilityColumn
+                                title={`What ${petName} has`}
+                                tone="has"
+                                rows={compatRows}
+                                side="has"
+                            />
+                        </div>
+
+                        <div className="art-compat-legend">
+                            <span className="is-good">Close match</span>
+                            <span className="is-check">Worth checking</span>
+                        </div>
+                    </>
                 ) : (
                     <p className="art-note">No behavior ratings to compare yet.</p>
                 )}
+
+                {checks.length > 0 && (
+                    <ul className="art-checks">
+                        {checks.map((reason) => (
+                            <li key={reason.title + reason.text}>
+                                <b>{reason.title}</b> {reason.text}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
                 <p className="art-note">
-                    Score from the matchmaking model. Reasons compare the applicant&apos;s quiz answers
-                    with the pet&apos;s behavior ratings. Advisory only.
+                    Score from the matchmaking model. Bars compare the applicant&apos;s quiz answers
+                    with the pet&apos;s behavior ratings (1–5). Advisory only.
                 </p>
             </article>
 
