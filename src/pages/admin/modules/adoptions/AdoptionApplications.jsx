@@ -1562,7 +1562,7 @@ export default function AdoptionApplications() {
     // Dropdown: also remembers the direction for its column
     function chooseSort(value) {
         if (value.startsWith("score")) setScoreDirection(value);
-        else setDateDirection(value);
+        else if (value === "newest" || value === "oldest") setDateDirection(value);
         setSortOrder(value);
     }
 
@@ -1591,6 +1591,11 @@ export default function AdoptionApplications() {
                 if (statusFilter === "interview") return status.startsWith("interview");
                 return status === statusFilter;
             })
+            // "No quiz taken": only applicants without a quiz on record
+            .filter((application) =>
+                sortOrder !== "no-quiz" ||
+                !quizByEmail[String(application.email || "").toLowerCase()]
+            )
             .filter((application) => {
                 if (!query) return true;
 
@@ -1617,7 +1622,7 @@ export default function AdoptionApplications() {
                     return sortOrder === "score-high" ? scoreB - scoreA : scoreA - scoreB;
                 }
 
-                return sortOrder === "newest" ? newestFirst : -newestFirst;
+                return sortOrder === "oldest" ? -newestFirst : newestFirst;
             });
     }, [
         activeTab,
@@ -1939,6 +1944,7 @@ export default function AdoptionApplications() {
                         <option value="score-low">Lowest score</option>
                         <option value="newest">Newest first</option>
                         <option value="oldest">Oldest first</option>
+                        <option value="no-quiz">No quiz taken</option>
                     </select>
                 </div>
 
@@ -1946,7 +1952,9 @@ export default function AdoptionApplications() {
                     <p className="admin-empty">Loading applications...</p>
                 ) : visibleApplications.length === 0 ? (
                     <p className="admin-empty ad-empty">
-                        {searchTerm || statusFilter !== "all"
+                        {sortOrder === "no-quiz" && !searchTerm && statusFilter === "all"
+                            ? "Everyone here took the matching quiz before applying."
+                            : searchTerm || statusFilter !== "all" || sortOrder === "no-quiz"
                             ? "No applications match your search or filter."
                             : activeTab === "active"
                                 ? "There are no active adoption applications."
