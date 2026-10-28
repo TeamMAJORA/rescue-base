@@ -2096,3 +2096,69 @@ button.admin-schedule-day.is-selected:hover {
     outline: none;
     border-color: #fb8500;
 }
+
+/* ===== Quiz score column + clickable rows ===== */
+.admin-application-row.is-clickable { cursor: pointer; }
+.admin-application-row.is-clickable:hover { border-color: #fb8500; background: #fff7cb39;}
+.admin-application-row.is-clickable:focus-visible { outline: 2px solid #fb8500; outline-offset: 2px; }
+.admin-application-score { display: flex; align-items: center; gap: 10px; }
+.admin-application-score b { min-width: 40px; font-size: 15px; font-weight: 800; }
+.admin-score-bar { width: 70px; height: 7px; overflow: hidden; border-radius: 99px; background: #efe4cb; }
+.admin-score-bar i { display: block; height: 100%; }
+.admin-application-score.is-high b { color: #2f8f5b; }
+.admin-application-score.is-high i { background: #2e9e4f; }
+.admin-application-score.is-mid b { color: #d96f00; }
+.admin-application-score.is-mid i { background: #fb8500; }
+.admin-application-score.is-low b { color: #c62828; }
+.admin-application-score.is-low i { background: #e5534b; }
+.admin-application-score.is-none { font-size: 12px; font-style: italic; color: #8a6a4a; }
+
+/* ===== Status + Date columns (status shows only the pill; dates live in Date) ===== */
+.admin-adoption-list-panel {
+    --application-columns: minmax(200px, 1.5fr) minmax(160px, 1.1fr) minmax(150px, 1fr) minmax(150px, 0.9fr) minmax(110px, 0.6fr);
+}
+.admin-adoption-list-panel .admin-application-columns span:last-child { text-align: left; }
+.admin-adoption-list-panel .admin-application-state { justify-content: center; }
+.admin-adoption-list-panel .admin-application-state .admin-status-pill {
+    justify-self: start;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.admin-application-date { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.admin-application-date b { color: #5a1b00; font-size: 13.5px; font-weight: 600; }
+.admin-application-date small { color: #86604d; font-size: 11px; }
+
+
+.aqr-sort {
+    color: #7b452d;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.aqr-sort {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #7b452d;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.aqr-sort.is-active { color: #b45f06; }
+
+/* Cells */
+.aqr-person {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+/* Sort arrows always visible; the column in use is full colour, the other is faded */
+.aqr-sort .aqr-arrow { opacity: 0.4; }
+.aqr-sort.is-active .aqr-arrow { opacity: 1; }

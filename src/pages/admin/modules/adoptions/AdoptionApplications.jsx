@@ -502,6 +502,18 @@ function getInitials(name) {
         .toUpperCase();
 }
 
+// "Oct 26" this year, "Oct 26, 2025" for older years (Date column)
+function formatDayLabel(date) {
+    if (!date) return "—";
+    const parsed = new Date(date);
+    if (Number.isNaN(parsed.getTime())) return "—";
+    const sameYear = parsed.getFullYear() === new Date().getFullYear();
+    return parsed.toLocaleDateString(
+        "en-PH",
+        sameYear ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" }
+    );
+}
+
 function formatShortDate(date, withTime = false) {
     if (!date) return "";
 
@@ -517,8 +529,23 @@ function formatShortDate(date, withTime = false) {
     );
 }
 
+// Quiz match score for this application (from /api/matchmaking/responses).
+// Only the adopter's latest application gets a score.
+function getQuizScore(application, quizByEmail) {
+    const quiz = quizByEmail[String(application.email || "").toLowerCase()];
+    if (!quiz) return { label: "Not from match results" };
+
+    const isThisApplication =
+        String(quiz.latestApplication?._id || "") === String(application._id);
+    if (!isThisApplication) return { label: "Older application" };
+
+    if (quiz.appliedScore == null) return { label: quiz.appliedScoreNote || "No score" };
+    return { score: Math.floor(quiz.appliedScore) };
+}
+
 function ApplicationRow({
     application,
+    quizByEmail = {},
     onReview,
     onSchedule,
     onCompleteInterview,
@@ -539,14 +566,21 @@ function ApplicationRow({
         withdrawn: "Withdrawn",
     }[status] || status.replaceAll("_", " ");
 
-    const household = [
-        application.homeType,
-        application.hasChildren === "Yes" ? "Has kids" : "No kids",
-        application.hasOtherPets === "Yes" ? "Has pets" : "No pets",
-    ].filter(Boolean);
+    const quiz = getQuizScore(application, quizByEmail);
+    const scoreTone =
+        quiz.score == null ? "" : quiz.score >= 80 ? "is-high" : quiz.score >= 60 ? "is-mid" : "is-low";
 
     return (
-        <article className="admin-application-row">
+        <article
+            className="admin-application-row is-clickable"
+            role="button"
+            tabIndex={0}
+            title="Open application"
+            onClick={() => onReview(application)}
+            onKeyDown={(event) => {
+                if (event.key === "Enter") onReview(application);
+            }}
+        >
             <div className="admin-application-applicant">
                 <span className="admin-application-avatar" aria-hidden="true">
                     {getInitials(application.fullName)}
@@ -577,105 +611,26 @@ function ApplicationRow({
                 </div>
             </div>
 
-            <div className="admin-application-household">
-                {household.map((item) => (
-                    <span key={item}>{item}</span>
-                ))}
-            </div>
+            {quiz.score == null ? (
+                <div className="admin-application-score is-none">{quiz.label}</div>
+            ) : (
+                <div className={`admin-application-score ${scoreTone}`}>
+                    <b>{quiz.score}%</b>
+                    <span className="admin-score-bar">
+                        <i style={{ width: `${quiz.score}%` }} />
+                    </span>
+                </div>
+            )}
 
             <div className="admin-application-state">
                 <span className={`admin-status-pill ${status}`}>
                     {statusLabel}
                 </span>
-
-                <small>
-                    {status === "interview_scheduled" && application.interviewSchedule
-                        ? `Interview ${formatShortDate(application.interviewSchedule, true)}`
-                        : `Applied ${formatShortDate(application.createdAt)}`}
-                </small>
             </div>
-
-            <div className="admin-application-status">
-                <button
-                    type="button"
-                    onClick={() => onReview(application)}
-                >
-                    Review
-                </button>
-
-                {status === "pending" && (
-                    <>
-                        <button
-                            type="button"
-                            className="approve"
-                            onClick={() => onSchedule(application)}
-                            disabled={busy}
-                        >
-                            Schedule Interview
-                        </button>
-
-                        <button
-                            type="button"
-                            className="reject"
-                            onClick={() => onReject(application)}
-                            disabled={busy}
-                        >
-                            Reject
-                        </button>
-                    </>
-                )}
-
-                {status === "interview_scheduled" && (
-                    <>
-                        <button
-                            type="button"
-                            className="secondary"
-                            onClick={() => onSchedule(application)}
-                            disabled={busy}
-                        >
-                            Reschedule
-                        </button>
-
-                        <button
-                            type="button"
-                            className="approve"
-                            onClick={() => onCompleteInterview(application)}
-                            disabled={busy}
-                        >
-                            Mark Completed
-                        </button>
-
-                        <button
-                            type="button"
-                            className="reject"
-                            onClick={() => onReject(application)}
-                            disabled={busy}
-                        >
-                            Reject
-                        </button>
-                    </>
-                )}
-
-                {status === "interview_completed" && (
-                    <>
-                        <button
-                            type="button"
-                            className="approve"
-                            onClick={() => onApprove(application)}
-                            disabled={busy}
-                        >
-                            Approve Adoption
-                        </button>
-
-                        <button
-                            type="button"
-                            className="reject"
-                            onClick={() => onReject(application)}
-                            disabled={busy}
-                        >
-                            Reject
-                        </button>
-                    </>
+            <div className="admin-application-date">
+                <b>{formatDayLabel(application.createdAt)}</b>
+                {status === "interview_scheduled" && application.interviewSchedule && (
+                    <small>Interview {formatShortDate(application.interviewSchedule, true)}</small>
                 )}
             </div>
         </article>
@@ -1198,9 +1153,16 @@ function ApplicationModal({
                     </p>
 
                     <div>
-                        <button type="button" className="admin-review-secondary" onClick={onClose}>
-                            Close
-                        </button>
+                        {!isClosed && !isScheduled && (
+                            <button
+                                type="button"
+                                className="admin-review-approve"
+                                onClick={() => onApprove(application)}
+                                disabled={loading || !isCompleted}
+                            >
+                                Approve
+                            </button>
+                        )}
 
                         {!isClosed && (
                             <button
@@ -1223,17 +1185,6 @@ function ApplicationModal({
                                 Mark Interview Done
                             </button>
                         )}
-
-                        {!isClosed && !isScheduled && (
-                            <button
-                                type="button"
-                                className="admin-review-approve"
-                                onClick={() => onApprove(application)}
-                                disabled={loading || !isCompleted}
-                            >
-                                Approve
-                            </button>
-                        )}
                     </div>
                 </footer>
             </section>
@@ -1243,6 +1194,7 @@ function ApplicationModal({
 
 export default function AdoptionApplications() {
     const [applications, setApplications] = useState([]);
+    const [quizByEmail, setQuizByEmail] = useState({});
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [rejectionApplication, setRejectionApplication] = useState(null);
     const [interviewApplication, setInterviewApplication] = useState(null);
@@ -1266,7 +1218,36 @@ export default function AdoptionApplications() {
     const [activeTab, setActiveTab] = useState("active");
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const [sortOrder, setSortOrder] = useState("newest");
+    // One sort for the list: "score-high" | "score-low" | "newest" | "oldest"
+    const [sortOrder, setSortOrder] = useState("score-high");
+
+    // Each header remembers its own direction, so both arrows always show.
+    // ↓ = smallest to biggest, ↑ = biggest to smallest
+    const [scoreDirection, setScoreDirection] = useState("score-high");
+    const [dateDirection, setDateDirection] = useState("newest");
+
+    // Clicking the column already in use flips it; clicking the other one switches to it
+    function toggleScoreSort() {
+        const next = sortOrder.startsWith("score")
+            ? (scoreDirection === "score-high" ? "score-low" : "score-high")
+            : scoreDirection;
+        setScoreDirection(next);
+        setSortOrder(next);
+    }
+
+    function toggleDateSort() {
+        const isDate = sortOrder === "newest" || sortOrder === "oldest";
+        const next = isDate ? (dateDirection === "newest" ? "oldest" : "newest") : dateDirection;
+        setDateDirection(next);
+        setSortOrder(next);
+    }
+
+    // Dropdown: also remembers the direction for its column
+    function chooseSort(value) {
+        if (value.startsWith("score")) setScoreDirection(value);
+        else setDateDirection(value);
+        setSortOrder(value);
+    }
 
     const historyApplications = useMemo(
         () =>
@@ -1305,8 +1286,21 @@ export default function AdoptionApplications() {
                 );
             })
             .sort((a, b) => {
-                const difference = new Date(b.createdAt) - new Date(a.createdAt);
-                return sortOrder === "newest" ? difference : -difference;
+                const newestFirst = new Date(b.createdAt) - new Date(a.createdAt);
+
+                if (sortOrder === "score-high" || sortOrder === "score-low") {
+                    const scoreA = getQuizScore(a, quizByEmail).score;
+                    const scoreB = getQuizScore(b, quizByEmail).score;
+
+                    // Applications without a score always go last
+                    if (scoreA == null && scoreB == null) return newestFirst;
+                    if (scoreA == null) return 1;
+                    if (scoreB == null) return -1;
+                    if (scoreA === scoreB) return newestFirst;
+                    return sortOrder === "score-high" ? scoreB - scoreA : scoreA - scoreB;
+                }
+
+                return sortOrder === "newest" ? newestFirst : -newestFirst;
             });
     }, [
         activeTab,
@@ -1315,6 +1309,7 @@ export default function AdoptionApplications() {
         searchTerm,
         statusFilter,
         sortOrder,
+        quizByEmail,
     ]);
 
     function switchTab(tab) {
@@ -1376,6 +1371,21 @@ export default function AdoptionApplications() {
             setApplications(
                 Array.isArray(data.applications) ? data.applications : []
             );
+
+            // Quiz match scores (a failure here just leaves the scores blank)
+            try {
+                const quizResponse = await fetch(`${API}/api/matchmaking/responses`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const quizData = await quizResponse.json().catch(() => ({}));
+                const byEmail = {};
+                (quizData.responses || []).forEach((item) => {
+                    if (item.adopterEmail) byEmail[item.adopterEmail.toLowerCase()] = item;
+                });
+                setQuizByEmail(byEmail);
+            } catch (quizError) {
+                console.error("Fetch quiz scores error:", quizError);
+            }
         } catch (error) {
             console.error("Fetch applications error:", error);
             notifyErr(error.message || "Unable to load adoption applications.");
@@ -1605,9 +1615,11 @@ export default function AdoptionApplications() {
                     <select
                         className="admin-adoption-sort"
                         value={sortOrder}
-                        onChange={(event) => setSortOrder(event.target.value)}
+                        onChange={(event) => chooseSort(event.target.value)}
                         aria-label="Sort applications"
                     >
+                        <option value="score-high">Highest score</option>
+                        <option value="score-low">Lowest score</option>
                         <option value="newest">Newest first</option>
                         <option value="oldest">Oldest first</option>
                     </select>
@@ -1628,9 +1640,23 @@ export default function AdoptionApplications() {
                         <div className="admin-application-columns" aria-hidden="true">
                             <span>Applicant</span>
                             <span>Pet</span>
-                            <span>Household</span>
+                            <button
+                                type="button"
+                                className={`aqr-sort ${sortOrder.startsWith("score") ? "is-active" : ""}`}
+                                onClick={toggleScoreSort}
+                                title="Sort by quiz score"
+                            >
+                                Quiz Score <span className="aqr-arrow">{scoreDirection === "score-low" ? "↓" : "↑"}</span>
+                            </button>
                             <span>Status</span>
-                            <span>Actions</span>
+                            <button
+                                type="button"
+                                className={`aqr-sort ${sortOrder === "newest" || sortOrder === "oldest" ? "is-active" : ""}`}
+                                onClick={toggleDateSort}
+                                title="Sort by date"
+                            >
+                                Date <span className="aqr-arrow">{dateDirection === "oldest" ? "↓" : "↑"}</span>
+                            </button>
                         </div>
 
                         <div className="admin-application-list">
@@ -1638,6 +1664,7 @@ export default function AdoptionApplications() {
                                 <ApplicationRow
                                     key={application._id}
                                     application={application}
+                                    quizByEmail={quizByEmail}
                                     onReview={setSelectedApplication}
                                     onSchedule={setInterviewApplication}
                                     onCompleteInterview={handleCompleteInterview}
