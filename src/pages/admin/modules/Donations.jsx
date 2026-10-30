@@ -1426,10 +1426,19 @@ export default function Donations() {
                                         <span>Contact number</span>
                                         <input
                                             type="tel"
+                                            inputMode="numeric"
                                             value={dropOffForm.contactNumber}
-                                            maxLength={30}
-                                            placeholder="e.g. 0917 123 4567"
-                                            onChange={(e) => setDropOffForm({ ...dropOffForm, contactNumber: e.target.value })}
+                                            maxLength={11}
+                                            pattern="09[0-9]{9}"
+                                            title="11-digit mobile number starting with 09, e.g. 09171234567"
+                                            placeholder="e.g. 09171234567"
+                                            onChange={(e) =>
+                                                setDropOffForm({
+                                                    ...dropOffForm,
+                                                    // digits only, max 11
+                                                    contactNumber: e.target.value.replace(/\D/g, "").slice(0, 11),
+                                                })
+                                            }
                                         />
                                     </label>
                                 </div>
