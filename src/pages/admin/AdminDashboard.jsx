@@ -72,7 +72,6 @@ const ICONS = {
     analytics: "/icons/sidebar/Status.svg",
     "intake-forecast": "/icons/sidebar/forecast.svg",
     reports: "/icons/sidebar/clipboard-brown.svg",
-    "activity-log": "/icons/sidebar/history.svg",
     "global-settings": "/icons/sidebar/settings-brown.svg",
 };
 
@@ -103,7 +102,6 @@ const adminMenu = [
     { key: "analytics", label: "Analytics" },
     { key: "intake-forecast", label: "AI Intake Forecast" },
     { key: "reports", label: "Reports" },
-    { key: "activity-log", label: "Activity Log" },
     { key: "global-settings", label: "Settings" }
 ]
 
@@ -258,6 +256,19 @@ function useSidebarDots(activePage) {
 export default function AdminDashboard({ setPage }) {
 
     const [activeAdminPage, setActiveAdminPage] = useState("overview");
+    // Which tab Settings opens on (the dashboard's "View log" opens Activity log)
+    const [settingsTab, setSettingsTab] = useState("system");
+
+    function openAdminPage(page) {
+        if (page === "global-settings") setSettingsTab("system");
+
+        if (page === "activity-log") {
+            setSettingsTab("activity-log");
+            setActiveAdminPage("global-settings");
+            return;
+        }
+        setActiveAdminPage(page);
+    }
     const newDots = useSidebarDots(activeAdminPage);
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotification] = useState([]);
@@ -384,6 +395,8 @@ export default function AdminDashboard({ setPage }) {
     }
 
     function handleSidebarClick(item) {
+        if (item.key === "global-settings") setSettingsTab("system");
+
         if (item.children) {
             const isOpen = openSidebarMenu === item.key;
 
@@ -509,7 +522,7 @@ export default function AdminDashboard({ setPage }) {
 
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
-            return <AdminOverview onNavigate={setActiveAdminPage} />;
+            return <AdminOverview onNavigate={openAdminPage} />;
         }
 
         if (activeAdminPage === "users") {
@@ -601,17 +614,17 @@ export default function AdminDashboard({ setPage }) {
         }
 
 
-        if (activeAdminPage === "activity-log") {
-            return <ActivityLog />;
-        }
-
         if (activeAdminPage === "global-settings") {
             return (
                 <AccountSettings
-                    initialTab="system"
+                    key={settingsTab}
+                    initialTab={settingsTab}
                     onProfileSaved={() => setUserVersion((n) => n + 1)}
                     onLogout={() => signOut("home")}
-                    extraTabs={[{ key: "system", label: "System settings", content: <GlobalSettings /> }]}
+                    extraTabs={[
+                        { key: "system", label: "System settings", content: <GlobalSettings /> },
+                        { key: "activity-log", label: "Activity log", content: <ActivityLog /> },
+                    ]}
                 />
             );
         }
@@ -852,7 +865,7 @@ export default function AdminDashboard({ setPage }) {
                                     <b>Maintenance mode is on for everyone</b>
                                     Pages won't load until you turn it off. System settings still works.
                                 </span>
-                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                <button type="button" onClick={() => openAdminPage("global-settings")}>
                                     Open System settings
                                 </button>
                             </div>
@@ -863,7 +876,7 @@ export default function AdminDashboard({ setPage }) {
                                     <b>Maintenance mode is on</b>
                                     Users can't use RescueBase right now. Only admins are signed in.
                                 </span>
-                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                <button type="button" onClick={() => openAdminPage("global-settings")}>
                                     Turn off in System settings
                                 </button>
                             </div>
