@@ -56,28 +56,28 @@ const adopterMenu = [
         activeIcon: "clipboard-light.svg",
     },
     {
-        key: "matchmaking-quiz",
-        label: "Matchmaking Quiz",
-        icon: "quiz-brown.svg",
-        activeIcon: "quiz-light.svg",
-    },
-    {
         key: "application-status",
         label: "Application Status",
         icon: "Status.svg",
         activeIcon: "Status-light.svg",
     },
     {
-        key: "lost-found",
-        label: "Lost & Found",
-        icon: "LostnFound-brown.svg",
-        activeIcon: "LostnFound-light.svg",
+        key: "matchmaking-quiz",
+        label: "Matchmaking Quiz",
+        icon: "quiz-brown.svg",
+        activeIcon: "quiz-light.svg",
     },
     {
         key: "recommendations",
         label: "Recommendations",
         icon: "Recommend.svg",
         activeIcon: "Recommend-light.svg",
+    },
+    {
+        key: "lost-found",
+        label: "Lost & Found",
+        icon: "LostnFound-brown.svg",
+        activeIcon: "LostnFound-light.svg",
     },
     {
         key: "donation",

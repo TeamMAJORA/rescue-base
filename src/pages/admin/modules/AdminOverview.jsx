@@ -105,10 +105,24 @@ function namesLine(list, max = 5) {
     return list.length > max ? `${shown} +${list.length - max}` : shown;
 }
 
-function speciesEmoji(type) {
-    if (type === "Cat") return "🐱";
-    if (type === "Dog") return "🐶";
-    return "🐾";
+const PET_FALLBACK_ICON = "/icons/brown paw.svg";
+
+// Activity Log type -> existing sidebar/app icon
+const ACTIVITY_ICONS = {
+    Adoption: "/icons/heart-brown.svg",
+    Animal: "/icons/brown paw.svg",
+    Medical: "/icons/medical-brown.svg",
+    Vaccination: "/icons/vaccination-brown.svg",
+    Foster: "/icons/home.svg",
+    Donation: "/icons/donation-brown.svg",
+    "Lost & Found": "/icons/LostnFound-brown.svg",
+    Feedback: "/icons/Feedback.svg",
+    Account: "/icons/User-brown.svg",
+    Report: "/icons/clipboard-brown.svg",
+};
+
+function activityIcon(type) {
+    return ACTIVITY_ICONS[type] || "/icons/sidebar/history.svg";
 }
 
 // ---------- small UI pieces ----------
@@ -145,13 +159,11 @@ function useTip() {
     return { tip, show, hide };
 }
 
-function StatCard({ hero, icon, iconBg, badge, badgeClass, label, value, note }) {
+function StatCard({ hero, icon, badge, badgeClass, label, value, note }) {
     return (
         <div className={`db2-stat${hero ? " is-hero" : ""}`}>
             <div className="db2-stat-top">
-                <span className="db2-stat-icon" style={{ background: iconBg }} aria-hidden="true">
-                    {icon}
-                </span>
+                <img className="db2-stat-svg" src={icon} alt="" aria-hidden="true" />
                 {badge && <span className={`db2-badge ${badgeClass || ""}`}>{badge}</span>}
             </div>
             <small>{label}</small>
@@ -247,61 +259,6 @@ function LineChart({ months, intakes, adoptions, forecast }) {
     );
 }
 
-function StatusBars({ groups }) {
-    const { tip, show, hide } = useTip();
-    const width = 560;
-    const height = 210;
-    const left = 30;
-    const top = 14;
-    const bottom = 34;
-    const maxValue = Math.max(3, ...groups.flatMap((g) => [g.dogs.length, g.cats.length]));
-    const niceMax = Math.ceil(maxValue / 3) * 3;
-    const slot = (width - left - 10) / groups.length;
-    const barW = Math.min(36, slot / 3);
-    const h = (v) => (height - top - bottom) * (v / niceMax);
-    const base = height - bottom;
-
-    return (
-        <div className="db2-chart" onMouseLeave={hide}>
-            <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label="Animals by status">
-                {[0, niceMax / 3, (niceMax / 3) * 2, niceMax].map((t) => (
-                    <g key={t}>
-                        <line x1={left} x2={width - 10} y1={base - h(t)} y2={base - h(t)} stroke="#efe4cb" />
-                        <text x={left - 8} y={base - h(t) + 4} textAnchor="end">{t}</text>
-                    </g>
-                ))}
-                {groups.map((g, i) => {
-                    const cx = left + slot * i + slot / 2;
-                    return (
-                        <g key={g.key}>
-                            <rect
-                                className="db2-bar"
-                                x={cx - barW - 2}
-                                y={base - h(g.dogs.length)}
-                                width={barW}
-                                height={Math.max(h(g.dogs.length), 0.5)}
-                                fill="#5a1b00"
-                                onMouseMove={(event) => show(event, `${g.label} dogs · ${g.dogs.length}`, [namesLine(g.dogs, 6)])}
-                            />
-                            <rect
-                                className="db2-bar"
-                                x={cx + 2}
-                                y={base - h(g.cats.length)}
-                                width={barW}
-                                height={Math.max(h(g.cats.length), 0.5)}
-                                fill="#fcbf49"
-                                onMouseMove={(event) => show(event, `${g.label} cats · ${g.cats.length}`, [namesLine(g.cats, 6)])}
-                            />
-                            <text x={cx} y={height - 12} textAnchor="middle">{g.label}</text>
-                        </g>
-                    );
-                })}
-            </svg>
-            <Tip tip={tip} />
-        </div>
-    );
-}
-
 function HealthDonut({ groups, total }) {
     const { tip, show, hide } = useTip();
     const radius = 56;
@@ -348,6 +305,130 @@ function HealthDonut({ groups, total }) {
     );
 }
 
+// ---------- Loading skeleton (same shape as the real dashboard) ----------
+function Bone({ w = "100%", h = 12, r, style }) {
+    return <span className="db2-bone" style={{ width: w, height: h, borderRadius: r, ...style }} />;
+}
+
+function SkeletonCard({ children, titleWidth = "40%" }) {
+    return (
+        <section className="db2-card db2-skel-card">
+            <Bone w={titleWidth} h={16} />
+            <Bone w="62%" h={10} style={{ marginTop: 8, marginBottom: 16 }} />
+            {children}
+        </section>
+    );
+}
+
+function DashboardSkeleton() {
+    return (
+        <>
+            <div className="db2-stats">
+                {[0, 1, 2, 3].map((i) => (
+                    <div className={`db2-stat db2-skel-stat${i === 0 ? " is-hero" : ""}`} key={i}>
+                        <div className="db2-stat-top">
+                            <Bone w={30} h={30} r={8} />
+                            <Bone w={80} h={18} r={999} />
+                        </div>
+                        <Bone w="55%" h={11} style={{ marginTop: 14 }} />
+                        <Bone w={46} h={28} style={{ marginTop: 8 }} />
+                        <Bone w="45%" h={10} style={{ marginTop: 8 }} />
+                    </div>
+                ))}
+            </div>
+
+            <div className="db2-layout">
+                <div className="db2-col">
+                    <SkeletonCard titleWidth="35%">
+                        <div className="db2-skel-chart">
+                            {[55, 70, 40, 85, 60, 50, 75].map((height, i) => (
+                                <Bone key={i} w="100%" h={`${height}%`} r={8} />
+                            ))}
+                        </div>
+                    </SkeletonCard>
+
+                    <SkeletonCard titleWidth="30%">
+                        <div className="db2-interviews">
+                            {[0, 1, 2, 3].map((i) => (
+                                <div className="db2-interview db2-skel-plain" key={i}>
+                                    <Bone w={42} h={42} r="50%" />
+                                    <span style={{ flex: 1, display: "grid", gap: 6 }}>
+                                        <Bone w="75%" h={11} />
+                                        <Bone w="55%" h={9} />
+                                        <Bone w="45%" h={9} />
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </SkeletonCard>
+
+                    <SkeletonCard titleWidth="32%">
+                        <div className="db2-pets">
+                            {[0, 1, 2, 3, 4].map((i) => (
+                                <div className="db2-pet db2-skel-plain" key={i}>
+                                    <Bone w="100%" h={100} r={0} />
+                                    <span style={{ display: "grid", gap: 6, padding: "10px" }}>
+                                        <Bone w="60%" h={11} />
+                                        <Bone w="80%" h={9} />
+                                        <Bone w="100%" h={18} r={999} />
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </SkeletonCard>
+
+                    <SkeletonCard titleWidth="30%">
+                        <div style={{ display: "grid", gap: 14 }}>
+                            {[0, 1, 2, 3].map((i) => (
+                                <div className="db2-skel-row" key={i}>
+                                    <Bone w={34} h={34} r="50%" />
+                                    <Bone w="30%" h={11} />
+                                    <Bone w="14%" h={18} r={999} />
+                                    <Bone w="14%" h={18} r={999} />
+                                    <Bone w="10%" h={11} />
+                                </div>
+                            ))}
+                        </div>
+                    </SkeletonCard>
+                </div>
+
+                <div className="db2-col">
+                    <SkeletonCard titleWidth="40%">
+                        {[0, 1].map((i) => (
+                            <div className="db2-food-item db2-skel-plain" key={i} style={{ marginBottom: 12 }}>
+                                <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                                    <Bone w={30} h={30} r={8} />
+                                    <Bone w="40%" h={12} />
+                                </span>
+                                <Bone w="55%" h={22} style={{ margin: "12px 0 8px" }} />
+                                <Bone w="100%" h={8} r={999} />
+                            </div>
+                        ))}
+                    </SkeletonCard>
+
+                    <SkeletonCard titleWidth="35%">
+                        {[0, 1, 2].map((i) => (
+                            <div key={i} style={{ display: "grid", gap: 6, marginBottom: 16 }}>
+                                <Bone w="50%" h={11} />
+                                <Bone w="100%" h={10} r={999} />
+                            </div>
+                        ))}
+                    </SkeletonCard>
+
+                    <SkeletonCard titleWidth="45%">
+                        <div className="db2-health">
+                            <Bone w={140} h={140} r="50%" />
+                            <span style={{ display: "grid", gap: 10, flex: 1 }}>
+                                {[0, 1, 2, 3].map((i) => <Bone key={i} w="70%" h={10} />)}
+                            </span>
+                        </div>
+                    </SkeletonCard>
+                </div>
+            </div>
+        </>
+    );
+}
+
 // ---------- page ----------
 
 export default function AdminOverview({ onNavigate }) {
@@ -356,6 +437,7 @@ export default function AdminOverview({ onNavigate }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [lastLoaded, setLastLoaded] = useState(null);
+    const [intakeFilter, setIntakeFilter] = useState("all");
 
     const user = savedUser();
     const isAdminUser = String(user.role || "").toLowerCase() === "admin";
@@ -382,6 +464,7 @@ export default function AdminOverview({ onNavigate }) {
                 getJson("/api/supplies"),
                 getJson("/api/settings/capacity"),
                 getJson("/api/analytics/intake-forecast"),
+                getJson("/api/activity-logs?limit=5"),
             ]);
             if (!alive) return;
 
@@ -406,6 +489,7 @@ export default function AdminOverview({ onNavigate }) {
                 supplies: pick(6, "supplies"),
                 capacity: pick(7, "shelterCapacity", 30) || 30,
                 forecast: forecastBody?.target?.roundedPredictedIntake ?? null,
+                activity: sources[9].status === "fulfilled" ? sources[9].value.logs || [] : null,
                 loadedAt: Date.now(),
             });
             setLastLoaded(new Date());
@@ -603,7 +687,11 @@ export default function AdminOverview({ onNavigate }) {
             urgentSupplies,
             recentIntakes: [...data.intakes, ...animals]
                 .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-                .slice(0, 3),
+                .slice(0, 8),
+            upcomingInterviews: data.applications
+                .filter((app) => app.status === "interview_scheduled" && app.interviewSchedule && new Date(app.interviewSchedule).getTime() >= nowMs - 3600000)
+                .sort((a, b) => new Date(a.interviewSchedule) - new Date(b.interviewSchedule))
+                .slice(0, 4),
         };
     }, [data]);
 
@@ -616,10 +704,13 @@ export default function AdminOverview({ onNavigate }) {
 
     const header = (
         <div className="db2-top">
-            <h1>
-                {greeting(now)}
-                {firstName ? `, ${firstName}` : ""}
-            </h1>
+            <div>
+                <h1>
+                    {greeting(now)}
+                    {firstName && <>, <span>{firstName}</span></>}
+                </h1>
+                <p className="db2-hello">Here&apos;s how the shelter is doing today.</p>
+            </div>
             <div className="db2-clock">
                 <b>{clock}</b>
                 <small>{dateLine}</small>
@@ -630,9 +721,9 @@ export default function AdminOverview({ onNavigate }) {
 
     if (loading || !view) {
         return (
-            <section className="db2-page">
+            <section className="db2-page" aria-busy="true" aria-label="Loading the dashboard">
                 {header}
-                <div className="db2-card db2-empty">Loading the dashboard…</div>
+                <DashboardSkeleton />
             </section>
         );
     }
@@ -649,6 +740,20 @@ export default function AdminOverview({ onNavigate }) {
     const sickCount = view.healthGroups.find((g) => g.key === "sick").animals.length;
     const obsCount = view.healthGroups.find((g) => g.key === "observation").animals.length;
 
+    const nowMs = now.getTime();
+    const dayLabel = (date) => {
+        const d = new Date(date);
+        const today = new Date(nowMs);
+        const tomorrow = new Date(nowMs + 86400000);
+        if (d.toDateString() === today.toDateString()) return "Today";
+        if (d.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    };
+    const healthKey = (a) => healthGroup(a);
+    const intakeRows = view.recentIntakes
+        .filter((a) => intakeFilter === "all" || healthKey(a) === intakeFilter)
+        .slice(0, 5);
+
     return (
         <section className="db2-page">
             {header}
@@ -658,8 +763,7 @@ export default function AdminOverview({ onNavigate }) {
             <div className="db2-stats">
                 <StatCard
                     hero
-                    icon="🐾"
-                    iconBg="#fcbf49"
+                    icon="/icons/sidebar/brown paw-light.svg"
                     badge={view.newThisWeek ? `▲ ${view.newThisWeek} this week` : null}
                     badgeClass="is-yellow"
                     label="Animals in care"
@@ -667,8 +771,7 @@ export default function AdminOverview({ onNavigate }) {
                     note={`${view.dogs} dogs · ${view.cats} cats`}
                 />
                 <StatCard
-                    icon="🏠"
-                    iconBg="#ffe1c2"
+                    icon="/icons/heart-brown.svg"
                     badge={adoptionDiff === 0 ? "Same as last month" : `${adoptionDiff > 0 ? "▲" : "▼"} ${Math.abs(adoptionDiff)} vs last month`}
                     badgeClass={adoptionDiff >= 0 ? "is-green" : "is-red"}
                     label="Adoptions this month"
@@ -676,8 +779,7 @@ export default function AdminOverview({ onNavigate }) {
                     note={`${view.pendingAdoptions} application${view.pendingAdoptions === 1 ? "" : "s"} to review`}
                 />
                 <StatCard
-                    icon="💛"
-                    iconBg="#e3effd"
+                    icon="/icons/home.svg"
                     badge="Active"
                     badgeClass="is-blue"
                     label="Foster assignments"
@@ -685,8 +787,7 @@ export default function AdminOverview({ onNavigate }) {
                     note={view.fosterDue.length ? `${view.fosterDue.length} update${view.fosterDue.length === 1 ? "" : "s"} due` : "All updates on time"}
                 />
                 <StatCard
-                    icon="🩺"
-                    iconBg="#fde2e2"
+                    icon="/icons/medical-brown.svg"
                     badge={sickCount + obsCount ? "Alert" : "All clear"}
                     badgeClass={sickCount + obsCount ? "is-red" : "is-green"}
                     label="Need medical care"
@@ -695,196 +796,295 @@ export default function AdminOverview({ onNavigate }) {
                 />
             </div>
 
-            <div className="db2-grid is-7-5">
-                <section className="db2-card">
-                    <h3>Intake vs adoptions</h3>
-                    <p className="db2-sub">Animals that came in vs. went home each month. Hover a month.</p>
-                    <div className="db2-legend">
-                        <span style={{ "--c": "#fb8500" }}>Intakes</span>
-                        <span style={{ "--c": "#2e9e4f" }}>Adoptions</span>
-                        {data.forecast != null && <span style={{ "--c": "#c9b48f" }}>Forecast (AI)</span>}
-                    </div>
-                    <LineChart months={view.months} intakes={view.intakeSeries} adoptions={view.adoptionSeries} forecast={data.forecast} />
-                </section>
+            <div className="db2-layout">
+                {/* ---------- Left (wide) column ---------- */}
+                <div className="db2-col">
+                    <section className="db2-card">
+                        <h3>
+                            Intake vs adoptions
+                            <span className="db2-legend db2-legend-inline">
+                                <span style={{ "--c": "#fb8500" }}>Intakes</span>
+                                <span style={{ "--c": "#2e9e4f" }}>Adoptions</span>
+                                {data.forecast != null && <span style={{ "--c": "#c9b48f" }}>Forecast (AI)</span>}
+                            </span>
+                        </h3>
+                        <p className="db2-sub">Animals that came in vs. went home each month. Hover a month.</p>
+                        <LineChart months={view.months} intakes={view.intakeSeries} adoptions={view.adoptionSeries} forecast={data.forecast} />
+                    </section>
 
-                <section className="db2-card">
-                    <span className="db2-sample">SAMPLE DATA</span>
-                    <h3>Food levels</h3>
-                    <p className="db2-sub">Stock left and how long it lasts at the current headcount.</p>
-                    <div className="db2-food">
-                        {SAMPLE_FOOD.map((food) => {
-                            const eaters = view.inCare.filter((a) => a.type === food.species).length || 1;
-                            const days = Math.floor(food.kg / (eaters * food.dailyKgPerAnimal));
-                            const low = days <= 5;
-                            return (
-                                <div className={`db2-food-item${low ? " is-low" : ""}`} key={food.key}>
-                                    <div className="db2-food-head">
-                                        <i aria-hidden="true">{food.icon}</i>
-                                        <div>
-                                            <b>{food.label}</b>
-                                            <small>{food.detail}</small>
-                                        </div>
-                                    </div>
-                                    <div className="db2-food-value">
-                                        {food.kg} kg <span>· about {days} days left</span>
-                                    </div>
-                                    <div className="db2-meter">
-                                        <i style={{ width: `${Math.min(100, (food.kg / food.maxKg) * 100)}%` }} />
-                                    </div>
-                                    <span className={low ? "db2-low" : "db2-ok"}>{low ? "Low · restock soon" : "Enough for now"}</span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </section>
-            </div>
-
-            <section className="db2-card">
-                <h3>
-                    Needs your attention
-                    {view.attention.length > 0 && <span className="db2-count">{view.attention.length} to do</span>}
-                </h3>
-                <p className="db2-sub">Click a pet to open what needs doing.</p>
-                {view.attention.length === 0 ? (
-                    <p className="db2-allclear">All caught up. Nothing needs your attention right now.</p>
-                ) : (
-                    <div className="db2-pets">
-                        {view.attention.map((item) => (
-                            <button type="button" className="db2-pet" key={item.id} onClick={() => go(item.page)}>
-                                <span className="db2-pet-photo">
-                                    {item.image ? <img src={item.image} alt="" /> : speciesEmoji(item.type)}
-                                </span>
-                                <span className="db2-pet-body">
-                                    <b>{item.name}</b>
-                                    <small>{item.detail}</small>
-                                    <span className={`db2-tag is-${item.tone}`}>{item.tag}</span>
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                )}
-            </section>
-
-            <div className="db2-grid">
-                <section className="db2-card">
-                    <h3>Animals by status</h3>
-                    <p className="db2-sub">Where every animal is right now. Hover a bar.</p>
-                    <div className="db2-legend">
-                        <span style={{ "--c": "#5a1b00" }}>Dogs</span>
-                        <span style={{ "--c": "#fcbf49" }}>Cats</span>
-                    </div>
-                    <StatusBars groups={view.statusGroups} />
-                </section>
-
-                <section className="db2-card">
-                    <h3>
-                        Space used
-                        {isAdminUser && (
-                            <button type="button" className="db2-link" onClick={() => go("global-settings")}>
-                                Change limit
-                            </button>
+                    <section className="db2-card">
+                        <h3>
+                            Upcoming interviews
+                            <span className="db2-chip">
+                                <img src="/icons/Clock.svg" alt="" aria-hidden="true" />
+                                {view.upcomingInterviews.length} scheduled
+                            </span>
+                        </h3>
+                        <p className="db2-sub">Adoption interviews coming up.</p>
+                        {view.upcomingInterviews.length === 0 ? (
+                            <p className="db2-allclear">No interviews scheduled.</p>
+                        ) : (
+                            <div className="db2-interviews">
+                                {view.upcomingInterviews.map((app) => {
+                                    const when = new Date(app.interviewSchedule);
+                                    const soon = when.getTime() - nowMs < 3600000;
+                                    return (
+                                        <button type="button" className="db2-interview" key={app._id} onClick={() => go("adoption-applications")}>
+                                            <span className="db2-interview-avatar">
+                                                {String(app.fullName || "?").split(" ").slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
+                                                <i className={soon ? "is-soon" : ""} />
+                                            </span>
+                                            <span className="db2-interview-info">
+                                                <b>{app.fullName || "Applicant"}</b>
+                                                <small>Adopting {app.petName || "a pet"}</small>
+                                                <em>
+                                                    <img src="/icons/Clock.svg" alt="" aria-hidden="true" />
+                                                    {when.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} · {dayLabel(when)}
+                                                </em>
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         )}
-                    </h3>
-                    <p className="db2-sub">Animals in care vs. the space available.</p>
-                    <div className="db2-util">
-                        <div>
-                            <div className="db2-util-head">
-                                <div>
-                                    <b>RescueBase Shelter</b>
-                                    <small>{shelterUsed} of {capacity} spaces · limit set in Settings</small>
-                                </div>
-                                <span style={{ color: percentColor(shelterPercent) }}>{shelterPercent}%</span>
+                    </section>
+
+                    <section className="db2-card">
+                        <h3>
+                            Needs your attention
+                            {view.attention.length > 0 && <span className="db2-chip">{view.attention.length} to do</span>}
+                        </h3>
+                        <p className="db2-sub">Click a pet to open what needs doing.</p>
+                        {view.attention.length === 0 ? (
+                            <p className="db2-allclear">All caught up. Nothing needs your attention right now.</p>
+                        ) : (
+                            <div className="db2-pets">
+                                {view.attention.map((item) => (
+                                    <button type="button" className="db2-pet" key={item.id} onClick={() => go(item.page)}>
+                                        <span className="db2-pet-photo">
+                                            {item.image ? <img src={item.image} alt="" /> : <img className="is-icon" src={PET_FALLBACK_ICON} alt="" />}
+                                        </span>
+                                        <span className="db2-pet-body">
+                                            <b>{item.name}</b>
+                                            <small>{item.detail}</small>
+                                            <span className={`db2-tag is-${item.tone}`}>{item.tag}</span>
+                                        </span>
+                                    </button>
+                                ))}
                             </div>
-                            <div className="db2-meter is-thick">
-                                <i style={{ width: `${Math.min(100, shelterPercent)}%`, background: barColor(shelterPercent) }} />
+                        )}
+                    </section>
+
+                    <section className="db2-card">
+                        <h3>
+                            Incoming animals
+                            <span className="db2-filters">
+                                {[["all", "All"], ["healthy", "Healthy"], ["sick", "Sick"], ["unknown", "Unknown"]].map(([key, label]) => (
+                                    <button
+                                        type="button"
+                                        key={key}
+                                        className={intakeFilter === key ? "is-on" : ""}
+                                        onClick={() => setIntakeFilter(key)}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </span>
+                        </h3>
+                        <p className="db2-sub">Latest intakes and their review status.</p>
+                        {intakeRows.length === 0 ? (
+                            <p className="db2-allclear">No intakes to show.</p>
+                        ) : (
+                            <div className="db2-table-wrap">
+                                <table className="db2-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Animal</th>
+                                            <th>Source</th>
+                                            <th>Health</th>
+                                            <th>Review</th>
+                                            <th className="is-right">Intake date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {intakeRows.map((a) => {
+                                            const waiting = !a.intakeStatus || a.intakeStatus === "pending_review";
+                                            const health = healthKey(a);
+                                            return (
+                                                <tr key={a._id} onClick={() => go("intake-records")}>
+                                                    <td>
+                                                        <span className="db2-animal">
+                                                            <span className="db2-animal-photo">
+                                                                {a.image ? <img src={a.image} alt="" /> : <img className="is-icon" src={PET_FALLBACK_ICON} alt="" />}
+                                                            </span>
+                                                            <span>
+                                                                <b>{a.name}</b>
+                                                                <small>{[a.intakeType, a.location?.split(",")[0]].filter(Boolean).join(" · ")}</small>
+                                                            </span>
+                                                        </span>
+                                                    </td>
+                                                    <td>{a.intakeSource === "field" ? "📱 Phone" : a.intakeSource === "desk" ? "Computer" : "—"}</td>
+                                                    <td>
+                                                        <span className={`db2-pill is-${health}`}>
+                                                            {health === "sick" ? a.intakeCondition || "Sick" : health === "observation" ? "Observation" : health === "healthy" ? "Healthy" : "Unknown"}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span className={`db2-pill ${waiting ? "is-wait" : a.intakeStatus === "rejected" ? "is-sick" : "is-healthy"}`}>
+                                                            {waiting ? "Waiting" : a.intakeStatus === "rejected" ? "Rejected" : "Approved"}
+                                                        </span>
+                                                    </td>
+                                                    <td className="is-right">{shortDate(a.intakeDate || a.createdAt)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
                             </div>
+                        )}
+                    </section>
+                </div>
+
+                {/* ---------- Right (narrow) column ---------- */}
+                <div className="db2-col">
+                    <section className="db2-card">
+                        <span className="db2-sample">SAMPLE DATA</span>
+                        <h3>Food levels</h3>
+                        <p className="db2-sub">Stock left and how long it lasts at the current headcount.</p>
+                        <div className="db2-food">
+                            {SAMPLE_FOOD.map((food) => {
+                                const eaters = view.inCare.filter((a) => a.type === food.species).length || 1;
+                                const days = Math.floor(food.kg / (eaters * food.dailyKgPerAnimal));
+                                const low = days <= 5;
+                                return (
+                                    <div className={`db2-food-item${low ? " is-low" : ""}`} key={food.key}>
+                                        <div className="db2-food-head">
+                                            <img src="/icons/sidebar/supplies-brown.svg" alt="" aria-hidden="true" />
+                                            <div>
+                                                <b>{food.label}</b>
+                                                <small>{food.detail}</small>
+                                            </div>
+                                        </div>
+                                        <div className="db2-food-value">
+                                            {food.kg} kg <span>· about {days} days left</span>
+                                        </div>
+                                        <div className="db2-meter">
+                                            <i style={{ width: `${Math.min(100, (food.kg / food.maxKg) * 100)}%` }} />
+                                        </div>
+                                        <span className={low ? "db2-low" : "db2-ok"}>{low ? "Low · restock soon" : "Enough for now"}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
-                        <div>
-                            <div className="db2-util-head">
-                                <div>
-                                    <b>Foster homes</b>
-                                    <small>
-                                        {view.fosterSpace
-                                            ? `${view.activeFosters.length} of ${view.fosterSpace} spaces offered by approved fosters`
-                                            : "No approved foster homes yet"}
-                                    </small>
-                                </div>
-                                <span style={{ color: percentColor(fosterPercent) }}>{view.fosterSpace ? `${fosterPercent}%` : "—"}</span>
-                            </div>
-                            <div className="db2-meter is-thick">
-                                <i style={{ width: `${Math.min(100, fosterPercent)}%`, background: barColor(fosterPercent) }} />
-                            </div>
-                        </div>
-                        {forecastPercent != null && (
+                    </section>
+
+                    <section className="db2-card">
+                        <h3>
+                            Space used
+                            {isAdminUser && (
+                                <button type="button" className="db2-link" onClick={() => go("global-settings")}>
+                                    Change limit
+                                </button>
+                            )}
+                        </h3>
+                        <p className="db2-sub">Animals in care vs. the space available.</p>
+                        <div className="db2-util">
                             <div>
                                 <div className="db2-util-head">
                                     <div>
-                                        <b>Next month (AI forecast)</b>
-                                        <small>+{data.forecast} expected intakes → about {forecastTotal} of {capacity}</small>
+                                        <b>RescueBase Shelter</b>
+                                        <small>{shelterUsed} of {capacity} spaces</small>
                                     </div>
-                                    <span style={{ color: percentColor(forecastPercent) }}>{forecastPercent}%</span>
+                                    <span style={{ color: percentColor(shelterPercent) }}>{shelterPercent}%</span>
                                 </div>
                                 <div className="db2-meter is-thick">
-                                    <i className="is-striped" style={{ width: `${Math.min(100, forecastPercent)}%` }} />
+                                    <i style={{ width: `${Math.min(100, shelterPercent)}%`, background: barColor(shelterPercent) }} />
                                 </div>
                             </div>
-                        )}
-                    </div>
-                </section>
-            </div>
-
-            <div className="db2-grid">
-                <section className="db2-card">
-                    <h3>
-                        Incoming animals
-                        <button type="button" className="db2-link" onClick={() => go("intake-records")}>View intakes</button>
-                    </h3>
-                    <p className="db2-sub">Latest intakes and their review status.</p>
-                    <div className="db2-list">
-                        {view.recentIntakes.length === 0 && <p className="db2-allclear">No intakes yet.</p>}
-                        {view.recentIntakes.map((a) => {
-                            const waiting = !a.intakeStatus || a.intakeStatus === "pending_review";
-                            return (
-                                <button type="button" className="db2-row" key={a._id} onClick={() => go("intake-records")}>
-                                    <span className="db2-row-photo">{a.image ? <img src={a.image} alt="" /> : speciesEmoji(a.type)}</span>
-                                    <span className="db2-row-main">
-                                        <b>{a.name}</b>
-                                        <small>{[a.intakeType, a.location].filter(Boolean).join(" · ")}</small>
-                                        <span className={`db2-dot ${waiting ? "is-wait" : "is-ok"}`}>
-                                            {waiting ? "Waiting for review" : a.intakeStatus === "rejected" ? "Rejected" : "Approved"}
-                                        </span>
+                            <div>
+                                <div className="db2-util-head">
+                                    <div>
+                                        <b>Foster homes</b>
+                                        <small>
+                                            {view.fosterSpace
+                                                ? `${view.activeFosters.length} of ${view.fosterSpace} spaces offered`
+                                                : "No approved foster homes yet"}
+                                        </small>
+                                    </div>
+                                    <span style={{ color: view.fosterSpace ? percentColor(fosterPercent) : "#8a6a4a" }}>
+                                        {view.fosterSpace ? `${fosterPercent}%` : "—"}
                                     </span>
-                                    <span className="db2-row-side">
-                                        <b>{a.intakeSource === "field" ? "📱 Phone" : a.intakeCondition || ""}</b>
-                                        {timeAgo(a.createdAt, now.getTime())}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </section>
-
-                <section className="db2-card">
-                    <h3>
-                        Animals health
-                        <button type="button" className="db2-link" onClick={() => go("medical-records")}>View medical</button>
-                    </h3>
-                    <p className="db2-sub">Condition of the {view.inCare.length} animals in care. Hover a slice.</p>
-                    <div className="db2-health">
-                        <HealthDonut groups={view.healthGroups} total={view.inCare.length} />
-                        <div className="db2-health-side">
-                            {view.healthGroups.map((g) => (
-                                <span key={g.key} className="db2-legend-row" style={{ "--c": g.color }}>
-                                    {g.label} · {g.animals.length}
-                                </span>
-                            ))}
-                            <p>
-                                <b>{view.overdue.length}</b> vaccine{view.overdue.length === 1 ? "" : "s"} overdue ·{" "}
-                                <b>{view.withVaccine}/{view.inCare.length}</b> with a vaccine on record
-                            </p>
+                                </div>
+                                <div className="db2-meter is-thick">
+                                    <i style={{ width: `${Math.min(100, fosterPercent)}%`, background: barColor(fosterPercent) }} />
+                                </div>
+                            </div>
+                            {forecastPercent != null && (
+                                <div>
+                                    <div className="db2-util-head">
+                                        <div>
+                                            <b>Next month (AI forecast)</b>
+                                            <small>+{data.forecast} expected → about {forecastTotal} of {capacity}</small>
+                                        </div>
+                                        <span style={{ color: percentColor(forecastPercent) }}>{forecastPercent}%</span>
+                                    </div>
+                                    <div className="db2-meter is-thick">
+                                        <i className="is-striped" style={{ width: `${Math.min(100, forecastPercent)}%` }} />
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    </div>
-                </section>
+                    </section>
+
+                    <section className="db2-card">
+                        <h3>
+                            Animals health
+                            <button type="button" className="db2-link" onClick={() => go("medical-records")}>View medical</button>
+                        </h3>
+                        <p className="db2-sub">Condition of the {view.inCare.length} animals in care. Hover a slice.</p>
+                        <div className="db2-health">
+                            <HealthDonut groups={view.healthGroups} total={view.inCare.length} />
+                            <div className="db2-health-side">
+                                {view.healthGroups.map((g) => (
+                                    <span key={g.key} className="db2-legend-row" style={{ "--c": g.color }}>
+                                        {g.label} · {g.animals.length}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        <p className="db2-health-foot">
+                            <b>{view.overdue.length}</b> vaccine{view.overdue.length === 1 ? "" : "s"} overdue ·{" "}
+                            <b>{view.withVaccine}/{view.inCare.length}</b> with a vaccine on record
+                        </p>
+                    </section>
+
+                    {data.activity && (
+                        <section className="db2-card">
+                            <h3>
+                                Recent activity
+                                <button type="button" className="db2-link" onClick={() => go("activity-log")}>View log</button>
+                            </h3>
+                            <p className="db2-sub">Latest actions in the system.</p>
+                            {data.activity.length === 0 ? (
+                                <p className="db2-allclear">No activity yet.</p>
+                            ) : (
+                                <div className="db2-activity">
+                                    {data.activity.slice(0, 5).map((log) => (
+                                        <div className="db2-activity-row" key={log._id}>
+                                            <img src={activityIcon(log.activityType)} alt="" aria-hidden="true" />
+                                            <span>
+                                                <b>{log.activity}</b>
+                                                <small>
+                                                    {[log.user?.name || log.user?.username, timeAgo(log.activityDate, nowMs)].filter(Boolean).join(" · ")}
+                                                </small>
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </section>
+                    )}
+                </div>
             </div>
         </section>
     );

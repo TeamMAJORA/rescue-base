@@ -8,6 +8,8 @@ import {
 } from "../../../utils/matchScore";
 const API = import.meta.env.VITE_BACKEND_URL;
 
+const MAX_RECOMMENDATIONS = 4;
+
 function formatStatus(value) {
     return String(value || "available").replaceAll("_", " ");
 }
@@ -66,7 +68,7 @@ export default function Recommendations({
             .catch(() => setAiScores(new Map()));
     }, [pets]);
 
-    const recommendations = useMemo(() => {
+    const allRecommendations = useMemo(() => {
         if (!quiz) {
             return [];
         }
@@ -75,6 +77,12 @@ export default function Recommendations({
             .map((pet) => applyAiScore(calculateRecommendation(pet, quiz), aiScores))
             .sort((first, second) => second.score - first.score);
     }, [pets, quiz, aiScores]);
+
+    // Only the top matches are shown in the carousel
+    const recommendations = useMemo(
+        () => allRecommendations.slice(0, MAX_RECOMMENDATIONS),
+        [allRecommendations]
+    );
     
     // Carousel: which recommendation is shown in full below
     const [activeIndex, setActiveIndex] = useState(0);
@@ -134,7 +142,7 @@ export default function Recommendations({
         return () => track.removeEventListener("wheel", handleWheel);
     }, [loading, error, recommendations.length, safeIndex]);
 
-    const perfectMatches = recommendations.filter(
+    const perfectMatches = allRecommendations.filter(
         (recommendation) => recommendation.score >= 80
     ).length;
 
