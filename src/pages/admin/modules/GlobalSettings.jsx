@@ -31,6 +31,15 @@ const DEFAULT_SETTINGS = {
             "RESCUEBASE is temporarily undergoing maintenance. Please try again later.",
         allowAdminAccess: true,
     },
+    donationDropOff: {
+        enabled: false,
+        city: "Cebu",
+        address: "",
+        contactPerson: "",
+        contactNumber: "",
+        operatingHours: "",
+        instructions: "",
+    },
 };
 
 async function requestSettings(method = "GET", body) {
@@ -73,6 +82,10 @@ function mergeSettings(settings) {
         maintenance: {
             ...DEFAULT_SETTINGS.maintenance,
             ...(settings?.maintenance || {}),
+        },
+        donationDropOff: {
+            ...DEFAULT_SETTINGS.donationDropOff,
+            ...(settings?.donationDropOff || {}),
         },
     };
 }
@@ -290,7 +303,7 @@ export default function GlobalSettings() {
         );
     }
 
-    const { general, security, notifications, maintenance } = settings;
+    const { general, security, notifications, maintenance, donationDropOff } = settings;
 
     return (
         <form className="gs-page" onSubmit={handleSave}>
@@ -464,6 +477,86 @@ export default function GlobalSettings() {
                             ))}
                         </div>
                     </div>
+                </section>
+
+                {/* Donation drop-off (shown on the landing page's needed items) */}
+                <section className="gs-card">
+                    <CardHead
+                        title="Donation drop-off"
+                        text="Where donors bring item donations. Shown when they hover the (i) on needed items."
+                        tag={
+                            <span className={`gs-pill ${savedSettings.donationDropOff.enabled ? "on" : ""}`}>
+                                {savedSettings.donationDropOff.enabled ? "Shown" : "Hidden"}
+                            </span>
+                        }
+                    />
+
+                    <div className="gs-rows">
+                        <SettingToggle
+                            label="Show drop-off details"
+                            description="Needs an address. Turn off to hide the details everywhere."
+                            checked={donationDropOff.enabled}
+                            onChange={(value) => updateSetting("donationDropOff", "enabled", value)}
+                        />
+                    </div>
+
+                    <div className="gs-fields">
+                        <label className="gs-field">
+                            Address
+                            <input
+                                type="text"
+                                value={donationDropOff.address}
+                                maxLength={500}
+                                required={donationDropOff.enabled}
+                                placeholder="e.g. RescueBase Shelter, Lahug, Cebu City"
+                                onChange={(event) => updateSetting("donationDropOff", "address", event.target.value)}
+                            />
+                        </label>
+
+                        <label className="gs-field">
+                            Hours
+                            <input
+                                type="text"
+                                value={donationDropOff.operatingHours}
+                                maxLength={150}
+                                placeholder="e.g. Mon–Sat, 8:00 AM – 5:00 PM"
+                                onChange={(event) => updateSetting("donationDropOff", "operatingHours", event.target.value)}
+                            />
+                        </label>
+
+                        <label className="gs-field">
+                            Contact person
+                            <input
+                                type="text"
+                                value={donationDropOff.contactPerson}
+                                maxLength={150}
+                                placeholder="e.g. Ana Reyes"
+                                onChange={(event) => updateSetting("donationDropOff", "contactPerson", event.target.value)}
+                            />
+                        </label>
+
+                        <label className="gs-field">
+                            Contact number
+                            <input
+                                type="tel"
+                                value={donationDropOff.contactNumber}
+                                maxLength={30}
+                                placeholder="e.g. 0917 123 4567"
+                                onChange={(event) => updateSetting("donationDropOff", "contactNumber", event.target.value)}
+                            />
+                        </label>
+                    </div>
+
+                    <label className="gs-field gs-message">
+                        Instructions (optional)
+                        <textarea
+                            rows={2}
+                            maxLength={1000}
+                            value={donationDropOff.instructions}
+                            placeholder="e.g. Ring the bell at the side gate. Label bags with your name."
+                            onChange={(event) => updateSetting("donationDropOff", "instructions", event.target.value)}
+                        />
+                    </label>
                 </section>
 
                 {/* Maintenance */}
