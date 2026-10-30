@@ -275,6 +275,11 @@ export default function DonationCenter() {
                 quantity:
                     Number(donation.quantity),
 
+                amount:
+                    isMoneyDonation
+                        ? Number(donation.quantity)
+                        : 0,
+
                 notes,
 
                 neededSupplyId:
