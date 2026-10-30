@@ -20,7 +20,8 @@ function foodSpeciesOf(name) {
 function buildFoodLevels(inventory, animalsInCare) {
     return inventory
         .map((item) => {
-            const species = foodSpeciesOf(item.name);
+            // Saved choice from Food stock, or a guess from the name for older items
+            const species = item.forAnimals === "All" ? "" : item.forAnimals || foodSpeciesOf(item.name);
             const eaters = species
                 ? animalsInCare.filter((animal) => animal.type === species).length
                 : animalsInCare.length;

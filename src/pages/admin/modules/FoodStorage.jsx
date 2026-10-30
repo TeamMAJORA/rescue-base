@@ -11,6 +11,7 @@ const EMPTY_FORM = {
     unit: "kg",
     foodRatePerAnimalPerDay: "0.5",
     forecastDays: "30",
+    forAnimals: "All",
 };
 
 async function apiRequest(path = "", options = {}) {
@@ -69,9 +70,15 @@ function foodSpeciesOf(name) {
     return "";
 }
 
+// Who eats it: the saved choice, or a guess from the name for older items
+function foodEatersOf(item) {
+    if (item.forAnimals === "All") return "";
+    return item.forAnimals || foodSpeciesOf(item.name);
+}
+
 // Days of food left at the current headcount (null when nothing eats it)
 function getStockLevel(item, animalsInCare) {
-    const species = foodSpeciesOf(item.name);
+    const species = foodEatersOf(item);
     const eaters = species
         ? animalsInCare.filter((animal) => animal.type === species).length
         : animalsInCare.length;
@@ -358,6 +365,7 @@ function ItemModal({ item, onClose, onSaved }) {
                   forecastDays: String(
                       item.forecastDays ?? 30
                   ),
+                  forAnimals: item.forAnimals || foodSpeciesOf(item.name) || "All",
               }
             : {}),
     }));
@@ -410,6 +418,7 @@ function ItemModal({ item, onClose, onSaved }) {
             unit: form.unit,
             foodRatePerAnimalPerDay: rate,
             forecastDays: days,
+            forAnimals: form.forAnimals,
         };
 
         try {
@@ -498,7 +507,7 @@ function ItemModal({ item, onClose, onSaved }) {
                     </label>
 
                     <label>
-                        Current quantity
+                        Current quantity (kg)
 
                         <input
                             type="number"
@@ -517,19 +526,17 @@ function ItemModal({ item, onClose, onSaved }) {
                     </label>
 
                     <label>
-                        Unit
-
+                        For
                         <select
-                            value={form.unit}
-                            onChange={(event) =>
-                                update("unit", event.target.value)
-                            }
+                            value={form.forAnimals}
+                            onChange={(event) => update("forAnimals", event.target.value)}
                         >
-                            <option value="kg">
-                                Kilograms (kg)
-                            </option>
+                            <option value="Dog">Dogs</option>
+                            <option value="Cat">Cats</option>
+                            <option value="All">All animals</option>
                         </select>
                     </label>
+
 
                     <label>
                         Consumption per animal/day (kg)
