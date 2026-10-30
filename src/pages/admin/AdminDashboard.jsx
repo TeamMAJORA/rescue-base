@@ -417,7 +417,7 @@ export default function AdminDashboard({ setPage }) {
                 return;
             }
 
-            const [adoptionResponse, fosterResponse] = await Promise.all([
+            const [adoptionResponse, fosterResponse, fosterApplicationResponse] = await Promise.all([
                 fetch(`${API}/api/adoptions`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -429,10 +429,21 @@ export default function AdminDashboard({ setPage }) {
                         Authorization: `Bearer ${token}`,
                     },
                 }),
+
+                fetch(`${API}/api/foster/applications`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
             ]);
 
             const adoptionData = await adoptionResponse.json();
             const fosterData = await fosterResponse.json();
+            const fosterApplicationData = await fosterApplicationResponse.json();
+
+            const pendingFosterApplications = (fosterApplicationData.applications || []).filter(
+                (application) => application.status === "pending"
+            );
 
             const adoptionApplications = adoptionData.applications || [];
             const fosterAssignments = fosterData.assignments || [];
@@ -457,6 +468,15 @@ export default function AdminDashboard({ setPage }) {
                     title: "Pending Adoption Applications",
                     message: `${pendingApplication.length} application(s) waiting for review.`,
                     page: "adoption-applications",
+                });
+            }
+        
+            if (pendingFosterApplications.length > 0) {
+                newNotifications.push({
+                    id: "pending-foster-applications",
+                    title: "Pending Foster Applications",
+                    message: `${pendingFosterApplications.length} foster application(s) waiting for review.`,
+                    page: "foster-care",
                 });
             }
 
