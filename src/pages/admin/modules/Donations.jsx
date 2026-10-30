@@ -59,6 +59,7 @@ const emptyDonationForm = {
     donorEmail: "",
     donationType: "Pet Food",
     amount: "",
+    paymentReference: "",
     itemName: "",
     quantity: 1,
     notes: "",
@@ -381,6 +382,7 @@ export default function Donations() {
                 status: donationForm.status,
                 itemName: donationForm.itemName.trim() || (money ? "Monetary Donation" : ""),
                 amount: money ? Number(donationForm.amount || 0) : 0,
+                paymentReference: money ? donationForm.paymentReference.trim() : "",
                 quantity: money ? 1 : Number(donationForm.quantity || 1),
                 notes: buildNotes(donationForm),
                 adminName: savedUser.name || savedUser.username || "Admin User",
@@ -434,6 +436,7 @@ export default function Donations() {
             donorEmail: donation.donorEmail || "",
             donationType: donation.donationType || "Money",
             amount: isMoneyDonation(donation) ? moneyValue(donation) : donation.amount || "",
+            paymentReference: donation.paymentReference || "",
             itemName: donation.itemName || "",
             quantity: donation.quantity || 1,
             notes: text,
@@ -796,6 +799,23 @@ export default function Donations() {
                                 required={money}
                             />
                         </label>
+
+                        {money && (
+                            <label className="dl-field">
+                                <span>
+                                    Receipt / Ref. no. {!editingId && <b>*</b>}{" "}
+                                    <Help text="Required for cash recorded by staff, since there is no proof-of-payment photo." />
+                                </span>
+                                <input
+                                    type="text"
+                                    maxLength={100}
+                                    value={donationForm.paymentReference}
+                                    placeholder="e.g. OR-000123"
+                                    onChange={(e) => setField("paymentReference", e.target.value)}
+                                    required={!editingId}
+                                />
+                            </label>
+                        )}
 
                         <label className="dl-field">
                             <span>
