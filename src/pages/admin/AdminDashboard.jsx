@@ -35,7 +35,6 @@ import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
-import NeededSupplies from "./modules/NeededSupplies";
 import GlobalSettings from "./modules/GlobalSettings";
 import IntakeForecast from "./modules/IntakeForecast";
 
@@ -52,7 +51,7 @@ import AccountSettings from "../AccountSettings";
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
-import FoodStorage from "./modules/FoodStorage";
+import { SuppliesPage } from "./modules/FoodStorage";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -63,8 +62,7 @@ const ICONS = {
     "adoption-applications": "/icons/heart-brown.svg",
     "foster-care": "/icons/home.svg",
     donations: "/icons/sidebar/donation-brown.svg",
-    "needed-supplies": "/icons/sidebar/supplies-brown.svg", 
-    "food-storage": "/icons/sidebar/supplies-brown.svg",
+    supplies: "/icons/sidebar/supplies-brown.svg",
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
     rescue: "/icons/Volunteer.svg",
     "gis-mapping": "/icons/strayMap-brown.svg",
@@ -93,8 +91,7 @@ const adminMenu = [
     { key: "adoption-applications", label: "Adoptions" },//removed bcs of the new animal intake form
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
-    { key: "needed-supplies", label: "Needed Supplies" },
-    { key: "food-storage", label: "Food Storage" },
+    { key: "supplies", label: "Supplies" },
     { key: "lost-found", label: "Lost & Found" },
     { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
@@ -258,9 +255,17 @@ export default function AdminDashboard({ setPage }) {
     const [activeAdminPage, setActiveAdminPage] = useState("overview");
     // Which tab Settings opens on (the dashboard's "View log" opens Activity log)
     const [settingsTab, setSettingsTab] = useState("system");
+    // Which tab Supplies opens on (dashboard food links open Food stock)
+    const [suppliesTab, setSuppliesTab] = useState("food");
 
     function openAdminPage(page) {
         if (page === "global-settings") setSettingsTab("system");
+
+        if (page === "food-storage" || page === "needed-supplies") {
+            setSuppliesTab(page === "food-storage" ? "food" : "needed");
+            setActiveAdminPage("supplies");
+            return;
+        }
 
         if (page === "activity-log") {
             setSettingsTab("activity-log");
@@ -396,6 +401,7 @@ export default function AdminDashboard({ setPage }) {
 
     function handleSidebarClick(item) {
         if (item.key === "global-settings") setSettingsTab("system");
+        if (item.key === "supplies") setSuppliesTab("food");
 
         if (item.children) {
             const isOpen = openSidebarMenu === item.key;
@@ -589,12 +595,9 @@ export default function AdminDashboard({ setPage }) {
             return <Donations />;
         }
 
-        if (activeAdminPage === "needed-supplies") {
-            return <NeededSupplies />;
-        }
 
-        if (activeAdminPage === "food-storage") {
-            return <FoodStorage />;
+        if (activeAdminPage === "supplies") {
+            return <SuppliesPage key={suppliesTab} initialTab={suppliesTab} />;
         }
 
         if (activeAdminPage === "vaccination-records") {

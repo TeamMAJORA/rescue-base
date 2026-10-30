@@ -1,4 +1,6 @@
-import assets from "../../data/assets.json";
+import { useEffect, useState } from "react";
+
+const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
 const donors = [
     {
@@ -28,7 +30,62 @@ const donors = [
     },
 ];
 
-export default function DonorSection({ onSignup }) {
+// Card next to the donor wall: the shelter's real payment accounts and QR codes
+function DonateOnlineCard() {
+    const [methods, setMethods] = useState([]);
+    const [activeId, setActiveId] = useState("");
+
+    useEffect(() => {
+        fetch(`${API}/api/payment-methods/public`)
+            .then((response) => response.json())
+            .then((data) => setMethods(Array.isArray(data.methods) ? data.methods : []))
+            .catch(() => setMethods([]));
+    }, []);
+
+    if (methods.length === 0) return null;
+
+    const active = methods.find((method) => method._id === activeId) || methods[0];
+
+    return (
+        <div className="donate-online-card">
+            <span className="sponsor-label">Donate Online</span>
+            <h3>Give through</h3>
+
+            <div className="donate-online-tabs" role="tablist" aria-label="Payment method">
+                {methods.map((method) => (
+                    <button
+                        key={method._id}
+                        type="button"
+                        role="tab"
+                        aria-selected={method._id === active._id}
+                        className={method._id === active._id ? "is-active" : ""}
+                        onClick={() => setActiveId(method._id)}
+                    >
+                        {method.method_type}
+                    </button>
+                ))}
+            </div>
+
+            <div className="donate-online-body">
+                {active.qr_image_url && (
+                    <img
+                        className="donate-online-qr"
+                        src={active.qr_image_url}
+                        alt={`${active.method_type} QR code`}
+                    />
+                )}
+
+                <div className="donate-online-account">
+                    <b>{active.account_name}</b>
+                    <strong>{active.account_number}</strong>
+                    <span>Scan or send to this number</span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function DonorSection() {
     return (
         <section className="donor-section">
             <div className="donor-heading">
@@ -86,20 +143,9 @@ export default function DonorSection({ onSignup }) {
                         ))}
                     </div>
                 </div>
+
+                <DonateOnlineCard />
             </div>
-
-            <button
-                className="donor-button"
-                type="button"
-                onClick={onSignup}
-            >
-                Donate
-
-                <img
-                    src={assets.icons.donate}
-                    alt=""
-                />
-            </button>
         </section>
     );
 }

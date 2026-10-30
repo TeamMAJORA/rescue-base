@@ -988,14 +988,14 @@ export default function AdminOverview({ onNavigate }) {
                         <h3>
                             Food levels
                             <button type="button" className="db2-link" onClick={() => go("food-storage")}>
-                                Food Storage
+                                Supplies
                             </button>
                         </h3>
                         <p className="db2-sub">Stock left and how long it lasts at the current headcount.</p>
                         {data.foodInventory === null ? (
                             <p className="db2-empty">Couldn&apos;t load food stock.</p>
                         ) : foodLevels.length === 0 ? (
-                            <p className="db2-empty">No food items yet. Add stock in Food Storage.</p>
+                            <p className="db2-empty">No food items yet. Add stock in Supplies.</p>
                         ) : (
                             <div className="db2-food">
                                 {foodLevels.slice(0, FOOD_ITEMS_SHOWN).map((food) => (
@@ -1025,7 +1025,7 @@ export default function AdminOverview({ onNavigate }) {
                                 ))}
                                 {foodLevels.length > FOOD_ITEMS_SHOWN && (
                                     <button type="button" className="db2-link" onClick={() => go("food-storage")}>
-                                        +{foodLevels.length - FOOD_ITEMS_SHOWN} more in Food Storage
+                                        +{foodLevels.length - FOOD_ITEMS_SHOWN} more in Supplies
                                     </button>
                                 )}
                             </div>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/FoodStorage.css";
+import NeededSupplies from "./NeededSupplies";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const URL = `${API}/api/food-inventory`;
@@ -105,6 +106,153 @@ function eatersLabel(level) {
     const plural = level.eaters === 1 ? "" : "s";
     const noun = level.species ? level.species.toLowerCase() : "animal";
     return `${level.eaters} ${noun}${plural} eating`;
+}
+
+const MAX_SUPPLY_QUANTITY = 10000;
+
+// Kg needed to get back up to the item's forecast goal
+function suggestedRequestKg(item, level) {
+    const dailyKg = level.eaters * (Number(item.foodRatePerAnimalPerDay) || 0);
+    const goalKg = dailyKg * (Number(item.forecastDays) || 30);
+    // Round to 2 decimals first so float noise (72.0000001) doesn't round up to 73
+    const missing = Math.ceil(
+        Math.round((goalKg - (Number(item.quantityInStock) || 0)) * 100) / 100
+    );
+    return Math.min(MAX_SUPPLY_QUANTITY, Math.max(1, missing));
+}
+
+function RequestMoreModal({ item, level, onClose, onSaved }) {
+    const [quantity, setQuantity] = useState(String(suggestedRequestKg(item, level)));
+    const [priority, setPriority] = useState(level.status === "out" ? "Urgent" : "High");
+    const [note, setNote] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
+
+    async function submit(event) {
+        event.preventDefault();
+        setError("");
+
+        const amount = Number(quantity);
+
+        if (!Number.isInteger(amount) || amount < 1 || amount > MAX_SUPPLY_QUANTITY) {
+            setError(`Enter a whole number from 1 to ${MAX_SUPPLY_QUANTITY.toLocaleString()}.`);
+            return;
+        }
+
+        try {
+            setSaving(true);
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${API}/api/supplies`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({
+                    name: item.name,
+                    category: "Pet Food",
+                    quantityNeeded: amount,
+                    quantityReceived: 0,
+                    priority,
+                    description: note.trim() || `Amount in kg. Received donations are added to ${item.name} stock.`,
+                    foodInventoryId: item._id,
+                }),
+            });
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok || data.success === false) {
+                throw new Error(data.message || "Could not create the request.");
+            }
+
+            onSaved(`Requested ${amount} kg of ${item.name}. It now shows in Needed supplies.`);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <div
+            className="fs-overlay"
+            onMouseDown={(event) => {
+                if (event.target === event.currentTarget && !saving) onClose();
+            }}
+        >
+            <section className="fs-modal fs-modal-small" role="dialog" aria-modal="true" aria-labelledby="fs-request-title">
+                <header className="fs-modal-head">
+                    <div>
+                        <span className="fs-eyebrow">REQUEST MORE</span>
+                        <h2 id="fs-request-title">{item.name}</h2>
+                        <p>
+                            {formatNumber(item.quantityInStock)} kg left
+                            {level.daysLeft !== null ? ` · about ${level.daysLeft} days` : ""}
+                        </p>
+                    </div>
+
+                    <button className="fs-close" type="button" onClick={onClose} disabled={saving} aria-label="Close">
+                        ×
+                    </button>
+                </header>
+
+                <form className="fs-form" onSubmit={submit}>
+                    <label>
+                        Amount needed (kg)
+                        <input
+                            type="number"
+                            min="1"
+                            max={MAX_SUPPLY_QUANTITY}
+                            step="1"
+                            value={quantity}
+                            onChange={(event) => setQuantity(event.target.value)}
+                            required
+                        />
+                        <small>Suggested: enough for {item.forecastDays ?? 30} days.</small>
+                    </label>
+
+                    <label>
+                        Priority
+                        <select value={priority} onChange={(event) => setPriority(event.target.value)}>
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+                            <option>Urgent</option>
+                        </select>
+                    </label>
+
+                    <label className="fs-wide">
+                        Note for donors (optional)
+                        <textarea
+                            rows="2"
+                            maxLength={300}
+                            value={note}
+                            onChange={(event) => setNote(event.target.value)}
+                            placeholder="e.g. Any brand of adult dry dog food"
+                        />
+                    </label>
+
+                    <p className="fs-request-info fs-wide">
+                        Shown to all users. Received donations are added to stock automatically.
+                    </p>
+
+                    {error && (
+                        <p className="fs-error fs-wide" role="alert">
+                            {error}
+                        </p>
+                    )}
+
+                    <div className="fs-actions fs-wide">
+                        <button type="button" className="fs-btn fs-secondary" onClick={onClose} disabled={saving}>
+                            Cancel
+                        </button>
+                        <button className="fs-btn fs-primary" disabled={saving}>
+                            {saving ? "Requesting..." : "Request"}
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    );
 }
 
 function HistoryModal({ item, onClose }) {
@@ -693,6 +841,8 @@ export default function FoodStorage() {
     const [addOpen, setAddOpen] = useState(false);
     const [adjustItem, setAdjustItem] = useState(null);
     const [historyItem, setHistoryItem] = useState(null);
+    const [requestItem, setRequestItem] = useState(null);
+    const [openRequests, setOpenRequests] = useState({});
     const [statusFilter, setStatusFilter] = useState("all");
     const [animalsInCare, setAnimalsInCare] = useState([]);
     const [notice, setNotice] = useState("");
@@ -730,6 +880,37 @@ export default function FoodStorage() {
             )
             .catch(() => setAnimalsInCare([]));
     }, []);
+
+    // Open Needed-supplies requests made from this page, by food item
+    const loadOpenRequests = useCallback(() => {
+        const token = localStorage.getItem("token");
+
+        return fetch(`${API}/api/supplies`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                const requests = {};
+                (data.supplies || []).forEach((supply) => {
+                    if (supply.foodInventoryId && supply.status === "active") {
+                        requests[supply.foodInventoryId] = supply;
+                    }
+                });
+                setOpenRequests(requests);
+            })
+            .catch(() => setOpenRequests({}));
+    }, []);
+
+    useEffect(() => {
+        loadOpenRequests();
+    }, [loadOpenRequests]);
+
+    function handleRequested(message) {
+        setRequestItem(null);
+        setNotice(message);
+        loadOpenRequests();
+        window.setTimeout(() => setNotice(""), 3500);
+    }
 
     const stockLevels = useMemo(() => {
         const levels = {};
@@ -970,10 +1151,21 @@ export default function FoodStorage() {
                                                 <span className={`fs-status is-${level.status}`}>
                                                     {STATUS_TEXT[level.status]}
                                                 </span>
+                                                {openRequests[item._id] && (
+                                                    <small className="fs-requested">
+                                                        Requested {formatNumber(openRequests[item._id].quantityNeeded)} kg ·{" "}
+                                                        {formatNumber(openRequests[item._id].quantityReceived)} received
+                                                    </small>
+                                                )}
                                             </td>
 
                                             <td>
                                                 <div className="fs-row-actions">
+                                                    {level.status !== "ok" && !openRequests[item._id] && (
+                                                        <button className="fs-action-request" type="button" onClick={() => setRequestItem(item)}>
+                                                            Request more
+                                                        </button>
+                                                    )}
                                                     <button className="fs-action-adjust" type="button" onClick={() => setAdjustItem(item)}>
                                                         Adjust stock
                                                     </button>
@@ -1023,6 +1215,45 @@ export default function FoodStorage() {
             {historyItem && (
                 <HistoryModal item={historyItem} onClose={() => setHistoryItem(null)} />
             )}
+
+            {requestItem && (
+                <RequestMoreModal
+                    item={requestItem}
+                    level={stockLevels[requestItem._id || requestItem.name]}
+                    onClose={() => setRequestItem(null)}
+                    onSaved={handleRequested}
+                />
+            )}
         </section>
+    );
+}
+
+const SUPPLY_TABS = [
+    { key: "food", label: "Food stock" },
+    { key: "needed", label: "Needed supplies" },
+];
+
+// One "Supplies" page: what the shelter has (food stock) and what it asks donors for
+export function SuppliesPage({ initialTab = "food" }) {
+    const [tab, setTab] = useState(initialTab);
+
+    return (
+        <div className="ap-tabs-page">
+            <nav className="ap-tabs" aria-label="Supplies">
+                {SUPPLY_TABS.map((item) => (
+                    <button
+                        key={item.key}
+                        type="button"
+                        className={tab === item.key ? "is-active" : ""}
+                        aria-current={tab === item.key ? "page" : undefined}
+                        onClick={() => setTab(item.key)}
+                    >
+                        {item.label}
+                    </button>
+                ))}
+            </nav>
+
+            {tab === "food" ? <FoodStorage /> : <NeededSupplies />}
+        </div>
     );
 }

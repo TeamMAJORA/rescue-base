@@ -554,6 +554,7 @@
 .fs-form label,
 .fs-label {
     display: grid;
+    align-content: start;
     gap: 6px;
     color: #75432f;
     font-size: 12px;
@@ -578,6 +579,11 @@
     font-size: 13.5px;
     font-weight: 500;
     outline: none;
+}
+
+.fs-form input,
+.fs-form select {
+    height: 40px;
 }
 
 .fs-form textarea {
@@ -733,4 +739,34 @@
     .fs-toolbar .fs-btn {
         width: 100%;
     }
+}
+
+/* ---------- request more (link to Needed supplies) ---------- */
+.fs-row-actions .fs-action-request {
+    border-color: var(--fs-orange);
+    background: var(--fs-orange);
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.fs-row-actions .fs-action-request:hover {
+    background: var(--fs-orange-dark);
+}
+
+.fs-requested {
+    display: block;
+    margin-top: 4px;
+    color: var(--fs-muted);
+    font-size: 11px;
+}
+
+.fs-request-info {
+    margin: 0;
+    padding: 9px 12px;
+    border: 1px solid #f1d9a8;
+    border-radius: 10px;
+    background: #fff3dc;
+    color: #75432f;
+    font-size: 12px;
+    line-height: 1.45;
 }
