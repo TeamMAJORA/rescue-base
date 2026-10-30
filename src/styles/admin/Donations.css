@@ -963,3 +963,58 @@
     .dl-layout { grid-template-columns: 1fr; }
     .dl-pm.dl-pm-side { order: 1; position: static; }
 }
+
+/* Drop-off point (side card, under payment methods) */
+.dl-dropoff-title {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #efe4cb;
+}
+
+.dl-method.dl-dropoff {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.dl-method.dl-dropoff .dl-method-info b,
+.dl-method.dl-dropoff .dl-method-info span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Drop-off hours: day buttons + preview */
+.dl-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 5px;
+}
+
+.dl-days button {
+    height: 34px;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 9px;
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.dl-days button.on {
+    border-color: #5a1b00;
+    background: #5a1b00;
+    color: #fffdf4;
+}
+
+.dl-hours-preview {
+    margin: -4px 0 0;
+    color: #8a6a4a;
+    font-size: 12px;
+}
+
+.dl-hours-preview b {
+    color: #5a1b00;
+}
