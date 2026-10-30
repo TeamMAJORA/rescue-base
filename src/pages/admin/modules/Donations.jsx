@@ -817,16 +817,19 @@ export default function Donations() {
                             </label>
                         )}
 
-                        <label className="dl-field">
-                            <span>
-                                Status <Help text="Received counts the donation in the totals and stock." />
-                            </span>
-                            <select value={donationForm.status} onChange={(e) => setField("status", e.target.value)}>
-                                {["pending", "received", "cancelled"].map((value) => (
-                                    <option key={value} value={value}>{STATUS_LABEL[value]}</option>
-                                ))}
-                            </select>
-                        </label>
+                        {/* New donations always start as Pending; status is set when reviewing */}
+                        {editingId && (
+                            <label className="dl-field">
+                                <span>
+                                    Status <Help text="Received counts the donation in the totals and stock." />
+                                </span>
+                                <select value={donationForm.status} onChange={(e) => setField("status", e.target.value)}>
+                                    {["pending", "received", "cancelled"].map((value) => (
+                                        <option key={value} value={value}>{STATUS_LABEL[value]}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        )}
 
                         <label className="dl-field dl-span-4">
                             <span>Notes</span>
