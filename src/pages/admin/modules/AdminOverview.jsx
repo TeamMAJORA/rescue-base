@@ -5,11 +5,44 @@ const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const REFRESH_MS = 60000;
 const MONTHS_SHOWN = 6;
 
-// Teammate's food module is not merged yet: sample numbers until it is.
-const SAMPLE_FOOD = [
-    { key: "dog", label: "Dog food", detail: "Dry · adult & puppy", icon: "🦴", kg: 42, dailyKgPerAnimal: 0.3, species: "Dog", maxKg: 70 },
-    { key: "cat", label: "Cat food", detail: "Dry + wet", icon: "🐟", kg: 6, dailyKgPerAnimal: 0.08, species: "Cat", maxKg: 30 },
-];
+const FOOD_LOW_DAYS = 5;
+const FOOD_ITEMS_SHOWN = 4;
+
+// Which animals eat a food item, guessed from its name ("Dog food adult" -> dogs)
+function foodSpeciesOf(name) {
+    const text = String(name || "").toLowerCase();
+    if (/\b(dog|puppy|puppies)\b/.test(text)) return "Dog";
+    if (/\b(cat|kitten|kittens)\b/.test(text)) return "Cat";
+    return "";
+}
+
+// Real stock from Food Storage: days left at the current headcount, lowest first
+function buildFoodLevels(inventory, animalsInCare) {
+    return inventory
+        .map((item) => {
+            const species = foodSpeciesOf(item.name);
+            const eaters = species
+                ? animalsInCare.filter((animal) => animal.type === species).length
+                : animalsInCare.length;
+            const stockKg = Number(item.quantityInStock) || 0;
+            const dailyKg = eaters * (Number(item.foodRatePerAnimalPerDay) || 0);
+            const targetDays = Number(item.forecastDays) || 30;
+            const daysLeft = dailyKg > 0 ? Math.floor(stockKg / dailyKg) : null;
+
+            return {
+                id: item._id,
+                name: item.name,
+                species,
+                eaters,
+                stockKg,
+                daysLeft,
+                targetDays,
+                coverage: daysLeft === null ? 100 : Math.min(100, (daysLeft / targetDays) * 100),
+                isLow: daysLeft !== null && daysLeft <= FOOD_LOW_DAYS,
+            };
+        })
+        .sort((a, b) => (a.daysLeft ?? Infinity) - (b.daysLeft ?? Infinity));
+}
 
 const HEALTH_GROUPS = [
     { key: "healthy", label: "Healthy", color: "#2e9e4f" },
@@ -465,6 +498,7 @@ export default function AdminOverview({ onNavigate }) {
                 getJson("/api/settings/capacity"),
                 getJson("/api/analytics/intake-forecast"),
                 getJson("/api/activity-logs?limit=5"),
+                getJson("/api/food-inventory"),
             ]);
             if (!alive) return;
 
@@ -490,6 +524,7 @@ export default function AdminOverview({ onNavigate }) {
                 capacity: pick(7, "shelterCapacity", 30) || 30,
                 forecast: forecastBody?.target?.roundedPredictedIntake ?? null,
                 activity: sources[9].status === "fulfilled" ? sources[9].value.logs || [] : null,
+                foodInventory: sources[10].status === "fulfilled" ? sources[10].value.inventory || [] : null,
                 loadedAt: Date.now(),
             });
             setLastLoaded(new Date());
@@ -698,6 +733,8 @@ export default function AdminOverview({ onNavigate }) {
     function go(page) {
         if (onNavigate) onNavigate(page);
     }
+
+    const foodLevels = buildFoodLevels(data?.foodInventory || [], view?.inCare || []);
 
     const clock = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" });
     const dateLine = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
@@ -948,34 +985,51 @@ export default function AdminOverview({ onNavigate }) {
                 {/* ---------- Right (narrow) column ---------- */}
                 <div className="db2-col">
                     <section className="db2-card">
-                        <span className="db2-sample">SAMPLE DATA</span>
-                        <h3>Food levels</h3>
+                        <h3>
+                            Food levels
+                            <button type="button" className="db2-link" onClick={() => go("food-storage")}>
+                                Food Storage
+                            </button>
+                        </h3>
                         <p className="db2-sub">Stock left and how long it lasts at the current headcount.</p>
-                        <div className="db2-food">
-                            {SAMPLE_FOOD.map((food) => {
-                                const eaters = view.inCare.filter((a) => a.type === food.species).length || 1;
-                                const days = Math.floor(food.kg / (eaters * food.dailyKgPerAnimal));
-                                const low = days <= 5;
-                                return (
-                                    <div className={`db2-food-item${low ? " is-low" : ""}`} key={food.key}>
+                        {data.foodInventory === null ? (
+                            <p className="db2-empty">Couldn&apos;t load food stock.</p>
+                        ) : foodLevels.length === 0 ? (
+                            <p className="db2-empty">No food items yet. Add stock in Food Storage.</p>
+                        ) : (
+                            <div className="db2-food">
+                                {foodLevels.slice(0, FOOD_ITEMS_SHOWN).map((food) => (
+                                    <div className={`db2-food-item${food.isLow ? " is-low" : ""}`} key={food.id}>
                                         <div className="db2-food-head">
                                             <img src="/icons/sidebar/supplies-brown.svg" alt="" aria-hidden="true" />
                                             <div>
-                                                <b>{food.label}</b>
-                                                <small>{food.detail}</small>
+                                                <b>{food.name}</b>
+                                                <small>
+                                                    {food.eaters} {food.species ? `${food.species.toLowerCase()}${food.eaters === 1 ? "" : "s"}` : `animal${food.eaters === 1 ? "" : "s"}`} in care
+                                                </small>
                                             </div>
                                         </div>
                                         <div className="db2-food-value">
-                                            {food.kg} kg <span>· about {days} days left</span>
+                                            {food.stockKg.toLocaleString()} kg{" "}
+                                            <span>
+                                                {food.daysLeft === null ? "· no animals eating this now" : `· about ${food.daysLeft} day${food.daysLeft === 1 ? "" : "s"} left`}
+                                            </span>
                                         </div>
-                                        <div className="db2-meter">
-                                            <i style={{ width: `${Math.min(100, (food.kg / food.maxKg) * 100)}%` }} />
+                                        <div className="db2-meter" title={`Goal: ${food.targetDays} days of stock`}>
+                                            <i style={{ width: `${food.coverage}%` }} />
                                         </div>
-                                        <span className={low ? "db2-low" : "db2-ok"}>{low ? "Low · restock soon" : "Enough for now"}</span>
+                                        <span className={food.isLow ? "db2-low" : "db2-ok"}>
+                                            {food.isLow ? "Low · restock soon" : "Enough for now"}
+                                        </span>
                                     </div>
-                                );
-                            })}
-                        </div>
+                                ))}
+                                {foodLevels.length > FOOD_ITEMS_SHOWN && (
+                                    <button type="button" className="db2-link" onClick={() => go("food-storage")}>
+                                        +{foodLevels.length - FOOD_ITEMS_SHOWN} more in Food Storage
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </section>
 
                     <section className="db2-card">

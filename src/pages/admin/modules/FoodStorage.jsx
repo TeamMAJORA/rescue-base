@@ -58,6 +58,140 @@ function formatNumber(value, digits = 2) {
         : "—";
 }
 
+const LOW_STOCK_DAYS = 5;
+
+// Which animals eat a food item, guessed from its name ("Dog food adult" -> dogs)
+function foodSpeciesOf(name) {
+    const text = String(name || "").toLowerCase();
+    if (/\b(dog|puppy|puppies)\b/.test(text)) return "Dog";
+    if (/\b(cat|kitten|kittens)\b/.test(text)) return "Cat";
+    return "";
+}
+
+// Days of food left at the current headcount (null when nothing eats it)
+function getStockLevel(item, animalsInCare) {
+    const species = foodSpeciesOf(item.name);
+    const eaters = species
+        ? animalsInCare.filter((animal) => animal.type === species).length
+        : animalsInCare.length;
+    const stockKg = Number(item.quantityInStock) || 0;
+    const dailyKg = eaters * (Number(item.foodRatePerAnimalPerDay) || 0);
+    const targetDays = Number(item.forecastDays) || 30;
+    const daysLeft = dailyKg > 0 ? Math.floor(stockKg / dailyKg) : null;
+    const status =
+        stockKg <= 0
+            ? "out"
+            : daysLeft !== null && daysLeft <= LOW_STOCK_DAYS
+              ? "low"
+              : "ok";
+
+    return {
+        species,
+        eaters,
+        daysLeft,
+        coverage:
+            stockKg <= 0
+                ? 0
+                : daysLeft === null
+                  ? 100
+                  : Math.min(100, (daysLeft / targetDays) * 100),
+        status,
+    };
+}
+
+const STATUS_TEXT = { ok: "In stock", low: "Low", out: "Out of stock" };
+
+function eatersLabel(level) {
+    const plural = level.eaters === 1 ? "" : "s";
+    const noun = level.species ? level.species.toLowerCase() : "animal";
+    return `${level.eaters} ${noun}${plural} eating`;
+}
+
+function HistoryModal({ item, onClose }) {
+    const [history, setHistory] = useState(null);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        apiRequest(`/${item._id}/history`)
+            .then((data) => setHistory(data.history || []))
+            .catch((err) => setError(err.message || "Could not load history."));
+    }, [item._id]);
+
+    return (
+        <div
+            className="fs-overlay"
+            onMouseDown={(event) => {
+                if (event.target === event.currentTarget) onClose();
+            }}
+        >
+            <section
+                className="fs-modal fs-modal-small"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="fs-history-title"
+            >
+                <header className="fs-modal-head">
+                    <div>
+                        <span className="fs-eyebrow">STOCK HISTORY</span>
+                        <h2 id="fs-history-title">{item.name}</h2>
+                        <p>
+                            Current stock:{" "}
+                            <strong>
+                                {formatNumber(item.quantityInStock)} {item.unit || "kg"}
+                            </strong>
+                        </p>
+                    </div>
+
+                    <button className="fs-close" type="button" onClick={onClose} aria-label="Close">
+                        ×
+                    </button>
+                </header>
+
+                <div className="fs-history">
+                    {error ? (
+                        <p className="fs-error">{error}</p>
+                    ) : history === null ? (
+                        <p className="fs-history-empty">Loading history...</p>
+                    ) : history.length === 0 ? (
+                        <p className="fs-history-empty">No stock changes recorded yet.</p>
+                    ) : (
+                        <ul>
+                            {history.map((entry) => (
+                                <li key={entry._id}>
+                                    <span className={`fs-history-amount ${entry.action}`}>
+                                        {entry.action === "add" ? "+" : "−"}
+                                        {formatNumber(entry.quantity)} kg
+                                    </span>
+                                    <div>
+                                        <b>{entry.reason || "Adjustment"}</b>
+                                        {entry.note && <small>{entry.note}</small>}
+                                        <small>
+                                            {formatNumber(entry.previousStock)} → {formatNumber(entry.newStock)} kg ·{" "}
+                                            {new Date(entry.adjustedAt).toLocaleString("en-US", {
+                                                month: "short",
+                                                day: "numeric",
+                                                year: "numeric",
+                                                hour: "numeric",
+                                                minute: "2-digit",
+                                            })}
+                                        </small>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
+                <div className="fs-actions fs-history-foot">
+                    <button type="button" className="fs-btn fs-secondary" onClick={onClose}>
+                        Close
+                    </button>
+                </div>
+            </section>
+        </div>
+    );
+}
+
 function ItemModal({ item, onClose, onSaved }) {
     const editing = Boolean(item?._id);
 
@@ -558,6 +692,9 @@ export default function FoodStorage() {
     const [itemModal, setItemModal] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
     const [adjustItem, setAdjustItem] = useState(null);
+    const [historyItem, setHistoryItem] = useState(null);
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [animalsInCare, setAnimalsInCare] = useState([]);
     const [notice, setNotice] = useState("");
 
     const loadInventory = useCallback(async () => {
@@ -580,17 +717,48 @@ export default function FoodStorage() {
         loadInventory();
     }, [loadInventory]);
 
+    // Animals still in the shelter's care eat the food (adopted ones don't)
+    useEffect(() => {
+        fetch(`${API}/api/animals`)
+            .then((response) => response.json())
+            .then((data) =>
+                setAnimalsInCare(
+                    (data.animals || []).filter(
+                        (animal) => animal.adoptionStatus !== "adopted"
+                    )
+                )
+            )
+            .catch(() => setAnimalsInCare([]));
+    }, []);
+
+    const stockLevels = useMemo(() => {
+        const levels = {};
+        items.forEach((item) => {
+            levels[item._id || item.name] = getStockLevel(item, animalsInCare);
+        });
+        return levels;
+    }, [items, animalsInCare]);
+
     const filteredItems = useMemo(() => {
         const query = search.trim().toLowerCase();
 
-        return items.filter(
-            (item) =>
+        return items.filter((item) => {
+            const matchesSearch =
                 !query ||
                 String(item.name || "")
                     .toLowerCase()
-                    .includes(query)
-        );
-    }, [items, search]);
+                    .includes(query);
+            const level = stockLevels[item._id || item.name];
+            const matchesStatus =
+                statusFilter === "all" || level?.status === statusFilter;
+
+            return matchesSearch && matchesStatus;
+        });
+    }, [items, search, statusFilter, stockLevels]);
+
+    const lowStock = Object.values(stockLevels).filter(
+        (level) => level.status === "low"
+    ).length;
 
     const totalKg = items.reduce(
         (sum, item) =>
@@ -639,31 +807,10 @@ export default function FoodStorage() {
         window.setTimeout(() => setNotice(""), 3500);
     }
 
+    const isEmpty = !loading && items.length === 0;
+
     return (
         <section className="food-storage-page">
-            <header className="fs-page-header">
-                <div>
-                    <span className="fs-eyebrow">
-                        SUPPLY MANAGEMENT
-                    </span>
-
-                    <h2>Food Storage</h2>
-
-                    <p>
-                        Track available food, record deliveries and
-                        usage, and keep forecasts up to date.
-                    </p>
-                </div>
-
-                <button
-                    className="fs-btn fs-primary"
-                    type="button"
-                    onClick={() => setAddOpen(true)}
-                >
-                    + Add food
-                </button>
-            </header>
-
             {notice && (
                 <div className="fs-success" role="status">
                     {notice}
@@ -674,104 +821,98 @@ export default function FoodStorage() {
                 <div className="fs-error-banner" role="alert">
                     <span>{error}</span>
 
-                    <button
-                        type="button"
-                        onClick={loadInventory}
-                    >
+                    <button type="button" onClick={loadInventory}>
                         Retry
                     </button>
                 </div>
             )}
 
             <div className="fs-stats">
-                <article>
-                    <span className="fs-stat-icon">▤</span>
-                    <div>
-                        <p>Food types</p>
-                        <strong>
-                            {loading ? "—" : items.length}
-                        </strong>
-                        <small>Tracked inventory items</small>
-                    </div>
+                <article className="is-hero">
+                    <small>Total stock</small>
+                    <strong>{loading ? "—" : `${formatNumber(totalKg)} kg`}</strong>
+                    <span>Across all food items</span>
                 </article>
 
                 <article>
-                    <span className="fs-stat-icon green">⚖</span>
-                    <div>
-                        <p>Total stock (kg)</p>
-                        <strong>
-                            {loading ? "—" : formatNumber(totalKg)}
-                        </strong>
-                        <small>Combined kilogram stock</small>
-                    </div>
+                    <small>Food items</small>
+                    <strong>{loading ? "—" : items.length}</strong>
+                    <span>Tracked in inventory</span>
                 </article>
 
-                <article>
-                    <span className="fs-stat-icon amber">!</span>
-                    <div>
-                        <p>Out of stock</p>
-                        <strong>
-                            {loading ? "—" : outOfStock}
-                        </strong>
-                        <small>Items with zero quantity</small>
-                    </div>
+                <article className={lowStock > 0 ? "is-warn" : ""}>
+                    <small>Low stock</small>
+                    <strong>{loading ? "—" : lowStock}</strong>
+                    <span>{LOW_STOCK_DAYS} days or less left</span>
+                </article>
+
+                <article className={outOfStock > 0 ? "is-warn" : ""}>
+                    <small>Out of stock</small>
+                    <strong>{loading ? "—" : outOfStock}</strong>
+                    <span>Items at 0 kg</span>
                 </article>
             </div>
 
             <section className="fs-panel">
-                <header className="fs-panel-head">
-                    <div>
-                        <h3>Inventory list</h3>
-                        <p>
-                            Record deliveries, usage, spoilage, or
-                            stock corrections using Adjust stock.
-                        </p>
-                    </div>
+                {!isEmpty && (
+                    <div className="fs-toolbar">
+                        <label className="fs-search">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7" />
+                                <path d="m20 20-3.5-3.5" />
+                            </svg>
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder="Search food..."
+                                aria-label="Search food inventory"
+                            />
+                        </label>
 
-                    <label className="fs-search">
-                        ⌕
-                        <input
-                            type="search"
-                            value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
-                            placeholder="Search food..."
-                            aria-label="Search food inventory"
-                        />
-                    </label>
-                </header>
+                        <div className="fs-chips">
+                            {[
+                                ["all", "All"],
+                                ["low", "Low"],
+                                ["out", "Out of stock"],
+                            ].map(([key, label]) => (
+                                <button
+                                    key={key}
+                                    type="button"
+                                    className={statusFilter === key ? "active" : ""}
+                                    onClick={() => setStatusFilter(key)}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button className="fs-btn fs-primary" type="button" onClick={() => setAddOpen(true)}>
+                            + Add food
+                        </button>
+                    </div>
+                )}
 
                 {loading ? (
                     <div className="fs-empty">
                         <span className="fs-spinner" />
                         Loading food inventory...
                     </div>
+                ) : isEmpty ? (
+                    <div className="fs-empty">
+                        <span className="fs-empty-icon">
+                            <img src="/icons/sidebar/supplies-brown.svg" alt="" aria-hidden="true" />
+                        </span>
+                        <strong>No food items yet</strong>
+                        <p>Add your first food item to start tracking stock.</p>
+                        <button className="fs-btn fs-primary" type="button" onClick={() => setAddOpen(true)}>
+                            + Add food
+                        </button>
+                    </div>
                 ) : filteredItems.length === 0 ? (
                     <div className="fs-empty">
-                        <span className="fs-empty-icon">▤</span>
-
-                        <strong>
-                            {search
-                                ? "No matching food items"
-                                : "No food inventory yet"}
-                        </strong>
-
-                        <p>
-                            {search
-                                ? "Try another search term."
-                                : "Add your first food item to start tracking current stock."}
-                        </p>
-
-                        {!search && (
-                            <button
-                                className="fs-btn fs-primary"
-                                type="button"
-                                onClick={() => setAddOpen(true)}
-                            >
-                                Add first food item
-                            </button>
-                        )}
+                        <strong>No matching food items</strong>
+                        <p>Try another search or filter.</p>
                     </div>
                 ) : (
                     <div className="fs-table-wrap">
@@ -779,97 +920,68 @@ export default function FoodStorage() {
                             <thead>
                                 <tr>
                                     <th>Food item</th>
-                                    <th>Current stock</th>
-                                    <th>Rate / animal / day</th>
-                                    <th>Forecast</th>
+                                    <th>Stock</th>
+                                    <th>Per animal / day</th>
+                                    <th>Forecast goal</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
+                                    <th className="fs-th-actions">Actions</th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 {filteredItems.map((item) => {
-                                    const empty =
-                                        Number(
-                                            item.quantityInStock || 0
-                                        ) <= 0;
+                                    const level = stockLevels[item._id || item.name];
 
                                     return (
                                         <tr key={item._id || item.name}>
                                             <td>
                                                 <div className="fs-food-name">
-                                                    <span className="fs-food-icon">
-                                                        ▤
-                                                    </span>
-
-                                                    <div>
-                                                        <strong>
-                                                            {item.name}
-                                                        </strong>
-                                                        <small>
-                                                            Food inventory
-                                                        </small>
-                                                    </div>
+                                                    <strong>{item.name}</strong>
+                                                    <small>{eatersLabel(level)}</small>
                                                 </div>
                                             </td>
 
                                             <td>
-                                                <strong>
-                                                    {formatNumber(
-                                                        item.quantityInStock
-                                                    )}{" "}
-                                                    <span className="fs-muted">
-                                                        {item.unit || "kg"}
-                                                    </span>
-                                                </strong>
+                                                <div className="fs-stock">
+                                                    <strong>
+                                                        {formatNumber(item.quantityInStock)} {item.unit || "kg"}
+                                                    </strong>
+                                                    <div className="fs-meter" title={`Goal: ${item.forecastDays ?? 30} days of stock`}>
+                                                        <i
+                                                            className={`is-${level.status}`}
+                                                            style={{ width: `${level.coverage}%` }}
+                                                        />
+                                                    </div>
+                                                    <small>
+                                                        {level.status === "out"
+                                                            ? "No stock left"
+                                                            : level.daysLeft === null
+                                                              ? "No animals eating this now"
+                                                              : `about ${level.daysLeft} day${level.daysLeft === 1 ? "" : "s"} left`}
+                                                    </small>
+                                                </div>
                                             </td>
 
-                                            <td>
-                                                {formatNumber(
-                                                    item.foodRatePerAnimalPerDay ??
-                                                        0.5
-                                                )}{" "}
-                                                kg
-                                            </td>
+                                            <td>{formatNumber(item.foodRatePerAnimalPerDay ?? 0.5)} kg</td>
+
+                                            <td>{item.forecastDays ?? 30} days</td>
 
                                             <td>
-                                                {item.forecastDays ?? 30} days
-                                            </td>
-
-                                            <td>
-                                                <span
-                                                    className={`fs-status ${
-                                                        empty
-                                                            ? "empty"
-                                                            : "ok"
-                                                    }`}
-                                                >
-                                                    <i />
-                                                    {empty
-                                                        ? "Out of stock"
-                                                        : "Tracked"}
+                                                <span className={`fs-status is-${level.status}`}>
+                                                    {STATUS_TEXT[level.status]}
                                                 </span>
                                             </td>
 
                                             <td>
                                                 <div className="fs-row-actions">
-                                                    <button
-                                                        className="fs-action-adjust"
-                                                        type="button"
-                                                        onClick={() =>
-                                                            setAdjustItem(item)
-                                                        }
-                                                    >
+                                                    <button className="fs-action-adjust" type="button" onClick={() => setAdjustItem(item)}>
                                                         Adjust stock
                                                     </button>
-
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            setItemModal(item)
-                                                        }
-                                                    >
+                                                    <button type="button" onClick={() => setItemModal(item)}>
                                                         Edit
+                                                    </button>
+                                                    <button type="button" onClick={() => setHistoryItem(item)}>
+                                                        History
                                                     </button>
                                                 </div>
                                             </td>
@@ -881,53 +993,35 @@ export default function FoodStorage() {
                     </div>
                 )}
 
-                <footer className="fs-panel-foot">
-                    <span>
-                        {loading
-                            ? "Loading..."
-                            : `${filteredItems.length} of ${items.length} items`}
-                    </span>
+                {!isEmpty && (
+                    <footer className="fs-panel-foot">
+                        <span>
+                            {loading ? "Loading..." : `Showing ${filteredItems.length} of ${items.length}`}
+                        </span>
 
-                    <button
-                        type="button"
-                        onClick={loadInventory}
-                        disabled={loading}
-                    >
-                        ↻ Refresh
-                    </button>
-                </footer>
+                        <button type="button" onClick={loadInventory} disabled={loading}>
+                            Refresh
+                        </button>
+                    </footer>
+                )}
             </section>
 
-            <aside className="fs-note">
-                <span>i</span>
-                <p>
-                    <strong>Forecast connection:</strong> the forecast
-                    uses the saved current quantity. Needed Supplies
-                    tracks requests and receipts, not current stock.
-                </p>
-            </aside>
+            <p className="fs-note">Days left are based on the animals currently in care.</p>
 
             {addOpen && (
-                <ItemModal
-                    onClose={() => setAddOpen(false)}
-                    onSaved={handleSaved}
-                />
+                <ItemModal onClose={() => setAddOpen(false)} onSaved={handleSaved} />
             )}
 
             {itemModal && (
-                <ItemModal
-                    item={itemModal}
-                    onClose={() => setItemModal(null)}
-                    onSaved={handleSaved}
-                />
+                <ItemModal item={itemModal} onClose={() => setItemModal(null)} onSaved={handleSaved} />
             )}
 
             {adjustItem && (
-                <AdjustStockModal
-                    item={adjustItem}
-                    onClose={() => setAdjustItem(null)}
-                    onSaved={handleSaved}
-                />
+                <AdjustStockModal item={adjustItem} onClose={() => setAdjustItem(null)} onSaved={handleSaved} />
+            )}
+
+            {historyItem && (
+                <HistoryModal item={historyItem} onClose={() => setHistoryItem(null)} />
             )}
         </section>
     );
