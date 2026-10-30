@@ -45,6 +45,7 @@ import QRTags from "./modules/animals/QRTags";
 // // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
+import FoodStorage from "./modules/FoodStorage";
 import AccountSettings from "../AccountSettings";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
@@ -55,6 +56,7 @@ const ICONS = {
     "adoption-applications": "/icons/heart-brown.svg",
     "foster-care": "/icons/home.svg",
     donations: "/icons/sidebar/donation-brown.svg",
+    "food-storage": "/icons/sidebar/supplies-brown.svg",
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
     rescue: "/icons/Volunteer.svg",
     "gis-mapping": "/icons/strayMap-brown.svg",
@@ -81,6 +83,7 @@ const staffMenu = [
     { key: "adoption-applications", label: "Adoptions" },
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
+    { key: "food-storage", label: "Food Storage" },
     { key: "lost-found", label: "Lost & Found" },
     { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
@@ -531,6 +534,10 @@ export default function StaffDashboard({ setPage }) {
 
         if (activeStaffPage === "donations") {
             return <Donations />;
+        }
+
+        if (activeStaffPage === "food-storage") {
+            return <FoodStorage />;
         }
 
         if (activeStaffPage === "vaccination-records") {

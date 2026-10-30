@@ -447,6 +447,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                                 type="number"
                                 step="0.1"
                                 min="0"
+                                max="150"
                                 value={form.weight}
                                 onChange={(e) => updateField("weight", e.target.value)}
                                 placeholder="e.g. 4.2"

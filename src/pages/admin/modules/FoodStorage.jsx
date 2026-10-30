@@ -221,6 +221,7 @@ function ItemModal({ item, onClose, onSaved }) {
                         <input
                             type="number"
                             min="0"
+                            max="100000"
                             step="0.01"
                             value={form.quantityInStock}
                             onChange={(event) =>
@@ -254,6 +255,7 @@ function ItemModal({ item, onClose, onSaved }) {
                         <input
                             type="number"
                             min="0"
+                            max="50"
                             step="0.01"
                             value={form.foodRatePerAnimalPerDay}
                             onChange={(event) =>
@@ -466,6 +468,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                         <input
                             type="number"
                             min="0.01"
+                            max="100000"
                             step="0.01"
                             value={quantity}
                             onChange={(event) =>

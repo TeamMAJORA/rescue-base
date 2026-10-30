@@ -366,6 +366,7 @@ export default function NeededSupplies() {
                             <input
                                 type="number"
                                 min="1"
+                                max="10000"
                                 value={form.quantityNeeded}
                                 onChange={(event) => updateField("quantityNeeded", event.target.value)}
                                 placeholder="e.g. 20"
@@ -378,6 +379,7 @@ export default function NeededSupplies() {
                             <input
                                 type="number"
                                 min="0"
+                                max="10000"
                                 value={form.quantityReceived}
                                 onChange={(event) => updateField("quantityReceived", event.target.value)}
                             />

@@ -52,6 +52,7 @@ import AccountSettings from "../AccountSettings";
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
+import FoodStorage from "./modules/FoodStorage";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -63,6 +64,7 @@ const ICONS = {
     "foster-care": "/icons/home.svg",
     donations: "/icons/sidebar/donation-brown.svg",
     "needed-supplies": "/icons/sidebar/supplies-brown.svg", 
+    "food-storage": "/icons/sidebar/supplies-brown.svg",
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
     rescue: "/icons/Volunteer.svg",
     "gis-mapping": "/icons/strayMap-brown.svg",
@@ -93,6 +95,7 @@ const adminMenu = [
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
     { key: "needed-supplies", label: "Needed Supplies" },
+    { key: "food-storage", label: "Food Storage" },
     { key: "lost-found", label: "Lost & Found" },
     { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
@@ -575,6 +578,10 @@ export default function AdminDashboard({ setPage }) {
 
         if (activeAdminPage === "needed-supplies") {
             return <NeededSupplies />;
+        }
+
+        if (activeAdminPage === "food-storage") {
+            return <FoodStorage />;
         }
 
         if (activeAdminPage === "vaccination-records") {

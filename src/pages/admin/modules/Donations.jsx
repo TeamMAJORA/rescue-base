@@ -776,6 +776,7 @@ export default function Donations() {
                             <input
                                 type="number"
                                 min="1"
+                                max="1000"
                                 value={money ? 1 : donationForm.quantity}
                                 disabled={money}
                                 onChange={(e) => setField("quantity", e.target.value)}
@@ -791,6 +792,7 @@ export default function Donations() {
                             <input
                                 type="number"
                                 min="1"
+                                max="999999"
                                 step="any"
                                 value={money ? donationForm.amount : ""}
                                 placeholder={money ? "e.g. 500" : "Money donations only"}
