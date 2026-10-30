@@ -491,21 +491,6 @@ export default function FosterCare() {
 
             setMessage(`Foster application ${status}.`);
 
-            await sendNotification({
-                email: application.applicantEmail,
-                title:
-                    status === "approved"
-                        ? "Application Approved"
-                        : "Application Rejected",
-
-                message:
-                    status === "approved"
-                        ? "Congratulations! Your foster application has been approved. Please log out and log in again to open your Foster Dashboard."
-                        : `Unfortunately, your foster application was not approved. Reason: ${note.trim()}`,
-
-                type: "application_update",
-            });
-
             fetchFosterApplications();
             return true;
         } catch (error) {
@@ -538,13 +523,6 @@ export default function FosterCare() {
             }
 
             setMessage("Behavioral evaluation accepted and foster assignment completed.");
-
-            await sendNotification({
-                email: data.assignment.fosterEmail,
-                title: "Behavioral Evaluation Accepted",
-                message: `Your behavioral evaluation for ${data.assignment.petName} has been reviewed and accepted. Your foster assignment has been completed.`,
-                type: "foster_update",
-            });
 
             await fetchAssignments();
         } catch (error) {
@@ -588,13 +566,6 @@ export default function FosterCare() {
             }
 
             setMessage("Behavioral evaluation sent back to the foster for revision.");
-
-            await sendNotification({
-                email: data.assignment.fosterEmail,
-                title: "Behavior Evaluation Needs Changes",
-                message: `Your behavioral evaluation for ${data.assignment.petName} was sent back. Reason: ${returnReason.trim()}`,
-                type: "foster_update",
-            });
 
             setReturningId(null);
             setReturnReason("");
@@ -712,13 +683,6 @@ export default function FosterCare() {
                 handleCancelEdit();
             }
 
-            await sendNotification({
-                email: assignment.fosterEmail,
-                title: "Assignment Cancelled",
-                message: `Your foster assignment for ${assignment.petName} has been cancelled by the shelter.`,
-                type: "foster_update",
-            })
-
             fetchAssignments();
         } catch (error) {
             console.error("Delete foster assignment error:", error);
@@ -774,13 +738,6 @@ export default function FosterCare() {
             }
 
             setMessage("Foster assignment created");
-
-            await sendNotification({
-                email: assignmentForm.fosterEmail,
-                title: "New Foster Assignment",
-                message: `You have been assigned to foster ${data.assignment.petName}. Please log in to RescueBase to review your assignment.`,
-                type: "foster_update",
-            });
 
             setAssignmentForm(emptyAssignmentForm);
             setAssigningApplication(null);
@@ -843,46 +800,6 @@ export default function FosterCare() {
             setMessage("Server error.");
         } finally {
             setSubmitting(false);
-        }
-    }
-
-    async function sendNotification({
-        email,
-        title,
-        message,
-        type = "general",
-    }) {
-        try {
-            const response = await fetch(
-                `${API}/api/notifications`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        email,
-                        title,
-                        message,
-                        type,
-                    }),
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                console.error(
-                    data.message ||
-                    "Failed to create notification."
-                );
-            }
-        } catch (error) {
-            console.error(
-                "Create notification error:",
-                error
-            );
         }
     }
 
