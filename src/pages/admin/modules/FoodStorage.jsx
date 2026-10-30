@@ -3,6 +3,13 @@ import "../../../styles/admin/FoodStorage.css";
 import NeededSupplies from "./NeededSupplies";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
+
+// Styled confirm popup from the dashboard (falls back to the browser box)
+function askConfirm(options) {
+    return window.rbConfirm
+        ? window.rbConfirm(options)
+        : Promise.resolve(window.confirm(options.title));
+}
 const URL = `${API}/api/food-inventory`;
 
 const EMPTY_FORM = {
@@ -130,7 +137,9 @@ function suggestedRequestKg(item, level) {
 
 function RequestMoreModal({ item, level, onClose, onSaved }) {
     const [quantity, setQuantity] = useState(String(suggestedRequestKg(item, level)));
-    const [priority, setPriority] = useState(level.status === "out" ? "Urgent" : "High");
+    const [priority, setPriority] = useState(
+        level.status === "out" ? "Urgent" : level.status === "low" ? "High" : "Medium"
+    );
     const [note, setNote] = useState("");
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
@@ -262,92 +271,7 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
     );
 }
 
-function HistoryModal({ item, onClose }) {
-    const [history, setHistory] = useState(null);
-    const [error, setError] = useState("");
-
-    useEffect(() => {
-        apiRequest(`/${item._id}/history`)
-            .then((data) => setHistory(data.history || []))
-            .catch((err) => setError(err.message || "Could not load history."));
-    }, [item._id]);
-
-    return (
-        <div
-            className="fs-overlay"
-            onMouseDown={(event) => {
-                if (event.target === event.currentTarget) onClose();
-            }}
-        >
-            <section
-                className="fs-modal fs-modal-small"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="fs-history-title"
-            >
-                <header className="fs-modal-head">
-                    <div>
-                        <span className="fs-eyebrow">STOCK HISTORY</span>
-                        <h2 id="fs-history-title">{item.name}</h2>
-                        <p>
-                            Current stock:{" "}
-                            <strong>
-                                {formatNumber(item.quantityInStock)} {item.unit || "kg"}
-                            </strong>
-                        </p>
-                    </div>
-
-                    <button className="fs-close" type="button" onClick={onClose} aria-label="Close">
-                        ×
-                    </button>
-                </header>
-
-                <div className="fs-history">
-                    {error ? (
-                        <p className="fs-error">{error}</p>
-                    ) : history === null ? (
-                        <p className="fs-history-empty">Loading history...</p>
-                    ) : history.length === 0 ? (
-                        <p className="fs-history-empty">No stock changes recorded yet.</p>
-                    ) : (
-                        <ul>
-                            {history.map((entry) => (
-                                <li key={entry._id}>
-                                    <span className={`fs-history-amount ${entry.action}`}>
-                                        {entry.action === "add" ? "+" : "−"}
-                                        {formatNumber(entry.quantity)} kg
-                                    </span>
-                                    <div>
-                                        <b>{entry.reason || "Adjustment"}</b>
-                                        {entry.note && <small>{entry.note}</small>}
-                                        <small>
-                                            {formatNumber(entry.previousStock)} → {formatNumber(entry.newStock)} kg ·{" "}
-                                            {new Date(entry.adjustedAt).toLocaleString("en-US", {
-                                                month: "short",
-                                                day: "numeric",
-                                                year: "numeric",
-                                                hour: "numeric",
-                                                minute: "2-digit",
-                                            })}
-                                        </small>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-
-                <div className="fs-actions fs-history-foot">
-                    <button type="button" className="fs-btn fs-secondary" onClick={onClose}>
-                        Close
-                    </button>
-                </div>
-            </section>
-        </div>
-    );
-}
-
-function ItemModal({ item, onClose, onSaved }) {
+function ItemModal({ item, onClose, onSaved, onDeleted }) {
     const editing = Boolean(item?._id);
 
     const [form, setForm] = useState(() => ({
@@ -378,6 +302,26 @@ function ItemModal({ item, onClose, onSaved }) {
             ...current,
             [field]: value,
         }));
+    }
+
+    async function handleDelete() {
+        const confirmed = await askConfirm({
+            title: `Delete ${item.name}?`,
+            message: "Its stock and history are removed. This can't be undone.",
+            confirmLabel: "Delete",
+        });
+
+        if (!confirmed) return;
+
+        try {
+            setSaving(true);
+            setError("");
+            const data = await apiRequest(`/${item._id}`, { method: "DELETE" });
+            onDeleted(item._id, data.message || "Food item deleted.");
+        } catch (err) {
+            setError(err.message);
+            setSaving(false);
+        }
     }
 
     async function submit(event) {
@@ -590,6 +534,16 @@ function ItemModal({ item, onClose, onSaved }) {
                     )}
 
                     <div className="fs-actions fs-wide">
+                        {editing && (
+                            <button
+                                type="button"
+                                className="fs-btn fs-delete"
+                                onClick={handleDelete}
+                                disabled={saving}
+                            >
+                                Delete
+                            </button>
+                        )}
                         <button
                             type="button"
                             className="fs-btn fs-secondary"
@@ -847,7 +801,6 @@ export default function FoodStorage() {
     const [itemModal, setItemModal] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
     const [adjustItem, setAdjustItem] = useState(null);
-    const [historyItem, setHistoryItem] = useState(null);
     const [requestItem, setRequestItem] = useState(null);
     const [openRequests, setOpenRequests] = useState({});
     const [statusFilter, setStatusFilter] = useState("all");
@@ -960,6 +913,14 @@ export default function FoodStorage() {
     const outOfStock = items.filter(
         (item) => Number(item.quantityInStock || 0) <= 0
     ).length;
+
+    function handleDeleted(itemId, message) {
+        setItemModal(null);
+        setItems((current) => current.filter((item) => item._id !== itemId));
+        setNotice(message);
+        loadOpenRequests();
+        window.setTimeout(() => setNotice(""), 3500);
+    }
 
     function handleSaved(data, fallbackMessage) {
         setNotice(data.message || fallbackMessage);
@@ -1121,7 +1082,16 @@ export default function FoodStorage() {
                                     const level = stockLevels[item._id || item.name];
 
                                     return (
-                                        <tr key={item._id || item.name}>
+                                        <tr
+                                            key={item._id || item.name}
+                                            className="fs-row"
+                                            tabIndex={0}
+                                            title={`Edit ${item.name}`}
+                                            onClick={() => setItemModal(item)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter") setItemModal(item);
+                                            }}
+                                        >
                                             <td>
                                                 <div className="fs-food-name">
                                                     <strong>{item.name}</strong>
@@ -1167,20 +1137,16 @@ export default function FoodStorage() {
                                             </td>
 
                                             <td>
-                                                <div className="fs-row-actions">
-                                                    {level.status !== "ok" && !openRequests[item._id] && (
-                                                        <button className="fs-action-request" type="button" onClick={() => setRequestItem(item)}>
-                                                            Request more
-                                                        </button>
-                                                    )}
+                                                <div
+                                                    className="fs-row-actions"
+                                                    onClick={(event) => event.stopPropagation()}
+                                                    onKeyDown={(event) => event.stopPropagation()}
+                                                >
+                                                    <button className="fs-action-request" type="button" onClick={() => setRequestItem(item)}>
+                                                        Request more
+                                                    </button>
                                                     <button className="fs-action-adjust" type="button" onClick={() => setAdjustItem(item)}>
                                                         Adjust stock
-                                                    </button>
-                                                    <button type="button" onClick={() => setItemModal(item)}>
-                                                        Edit
-                                                    </button>
-                                                    <button type="button" onClick={() => setHistoryItem(item)}>
-                                                        History
                                                     </button>
                                                 </div>
                                             </td>
@@ -1212,16 +1178,18 @@ export default function FoodStorage() {
             )}
 
             {itemModal && (
-                <ItemModal item={itemModal} onClose={() => setItemModal(null)} onSaved={handleSaved} />
+                <ItemModal
+                    item={itemModal}
+                    onClose={() => setItemModal(null)}
+                    onSaved={handleSaved}
+                    onDeleted={handleDeleted}
+                />
             )}
 
             {adjustItem && (
                 <AdjustStockModal item={adjustItem} onClose={() => setAdjustItem(null)} onSaved={handleSaved} />
             )}
 
-            {historyItem && (
-                <HistoryModal item={historyItem} onClose={() => setHistoryItem(null)} />
-            )}
 
             {requestItem && (
                 <RequestMoreModal
@@ -1238,7 +1206,158 @@ export default function FoodStorage() {
 const SUPPLY_TABS = [
     { key: "food", label: "Food stock" },
     { key: "needed", label: "Needed supplies" },
+    { key: "history", label: "History" },
 ];
+
+const HISTORY_KINDS = {
+    all: "All changes",
+    stock: "Stock changes",
+    request: "Requests",
+};
+
+// One list of every food stock change and supply request (same look as Activity Log)
+function SuppliesHistory() {
+    const [history, setHistory] = useState(null);
+    const [total, setTotal] = useState(0);
+    const [error, setError] = useState("");
+    const [search, setSearch] = useState("");
+    const [kind, setKind] = useState("all");
+    const [reloadKey, setReloadKey] = useState(0);
+
+    useEffect(() => {
+        apiRequest("/history")
+            .then((data) => {
+                setHistory(data.history || []);
+                setTotal(Number(data.total) || 0);
+                setError("");
+            })
+            .catch((err) => setError(err.message || "Could not load history."));
+    }, [reloadKey]);
+
+    const query = search.trim().toLowerCase();
+    const shown = (history || []).filter(
+        (entry) =>
+            (kind === "all" || entry.kind === kind) &&
+            (!query ||
+                `${entry.item} ${entry.detail} ${entry.by}`.toLowerCase().includes(query))
+    );
+
+    // Day headings between rows, like the Activity Log
+    const rows = [];
+    let lastDay = "";
+    shown.forEach((entry) => {
+        const date = new Date(entry.date);
+        const day = date.toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+        if (day !== lastDay) {
+            rows.push({ key: `day-${day}`, heading: day });
+            lastDay = day;
+        }
+        rows.push({ key: entry._id, entry, date });
+    });
+
+    return (
+        <section className="al2-card">
+            <div className="al2-head">
+                <h3>Supplies history</h3>
+                <button
+                    type="button"
+                    className="al2-refresh"
+                    onClick={() => setReloadKey((n) => n + 1)}
+                    disabled={history === null && !error}
+                >
+                    Refresh
+                </button>
+            </div>
+
+            <div className="al2-tools">
+                <label className="al2-search">
+                    <input
+                        type="search"
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder="Search item, reason or person..."
+                        aria-label="Search history"
+                    />
+                </label>
+                <select className="al2-select" value={kind} aria-label="Type" onChange={(event) => setKind(event.target.value)}>
+                    {Object.entries(HISTORY_KINDS).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                    ))}
+                </select>
+            </div>
+
+            {error ? (
+                <p className="al2-error" role="alert">{error}</p>
+            ) : history === null ? (
+                <p className="al2-empty">Loading history...</p>
+            ) : shown.length === 0 ? (
+                <p className="al2-empty">
+                    {history.length === 0 ? "No changes yet. Stock updates and requests will show up here." : "Nothing matches your search."}
+                </p>
+            ) : (
+                <div className="al2-table-wrap">
+                    <table className="al2-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Item</th>
+                                <th>Change</th>
+                                <th>Details</th>
+                                <th>By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map((row) =>
+                                row.heading ? (
+                                    <tr className="al2-day" key={row.key}>
+                                        <td colSpan={5}>{row.heading}</td>
+                                    </tr>
+                                ) : (
+                                    <tr key={row.key}>
+                                        <td className="al2-time">
+                                            {row.date.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" })}
+                                        </td>
+                                        <td><b>{row.entry.item}</b></td>
+                                        <td>
+                                            {row.entry.kind === "stock" ? (
+                                                <span className={`fs-history-amount ${row.entry.action}`}>
+                                                    {row.entry.action === "add" ? "+" : "−"}
+                                                    {formatNumber(row.entry.quantity)} kg
+                                                </span>
+                                            ) : (
+                                                <span className="fs-history-amount request">
+                                                    Needs {formatNumber(row.entry.quantity)}
+                                                    {row.entry.unit ? ` ${row.entry.unit}` : ""}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="al2-activity">
+                                            {row.entry.detail || "—"}
+                                            {row.entry.kind === "stock" && (
+                                                <small>
+                                                    {formatNumber(row.entry.previousStock)} → {formatNumber(row.entry.newStock)} kg
+                                                </small>
+                                            )}
+                                        </td>
+                                        <td>{row.entry.by || "—"}</td>
+                                    </tr>
+                                )
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {history !== null && shown.length > 0 && (
+                <div className="al2-foot">
+                    <span>
+                        Showing {shown.length} of {total}
+                    </span>
+                </div>
+            )}
+        </section>
+    );
+}
 
 // One "Supplies" page: what the shelter has (food stock) and what it asks donors for
 export function SuppliesPage({ initialTab = "food" }) {
@@ -1260,7 +1379,9 @@ export function SuppliesPage({ initialTab = "food" }) {
                 ))}
             </nav>
 
-            {tab === "food" ? <FoodStorage /> : <NeededSupplies />}
+            {tab === "food" && <FoodStorage />}
+            {tab === "needed" && <NeededSupplies />}
+            {tab === "history" && <SuppliesHistory />}
         </div>
     );
 }
