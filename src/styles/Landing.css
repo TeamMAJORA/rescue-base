@@ -812,3 +812,325 @@
     position: relative;
     z-index: 0;
 }
+
+
+/* ===== Donate online card (next to the donor wall) ===== */
+.donor-content:has(.donate-online-card) {
+    width: min(1300px, 100%);
+    grid-template-columns: 215px 1fr 290px;
+}
+
+.donate-online-card {
+    min-height: 213px;
+    padding: 22px 24px;
+    border-radius: 15px;
+    background: #513021;
+    color: var(--cream);
+    position: relative;
+    z-index: 2;
+    box-shadow: -10px 10px 0 #a77a50;
+    font-family: "Karma", serif;
+}
+
+.donate-online-card h3 {
+    margin: 5px 0 8px;
+    font-family: "Karma", serif;
+    font-size: 23px;
+    font-weight: 500;
+}
+
+.donate-online-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.donate-online-tabs button {
+    padding: 4px 11px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 253, 244, 0.12);
+    color: #f3e3c9;
+    font-family: "Karma", serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.donate-online-tabs button.is-active {
+    background: var(--yellow);
+    color: var(--brown);
+}
+
+.donate-online-body {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.donate-online-qr {
+    width: 104px;
+    height: 104px;
+    flex-shrink: 0;
+    padding: 6px;
+    border-radius: 10px;
+    background: #ffffff;
+    object-fit: contain;
+}
+
+.donate-online-account {
+    min-width: 0;
+}
+
+.donate-online-account b {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.donate-online-account strong {
+    display: block;
+    margin: 2px 0;
+    color: var(--yellow);
+    font-size: 19px;
+    overflow-wrap: anywhere;
+}
+
+.donate-online-account span {
+    color: #f3e3c9;
+    font-size: 11px;
+}
+
+/* ===== What the shelter needs ===== */
+.needs-section {
+    position: relative;
+    z-index: 5;
+    padding: 20px 70px 60px;
+    color: var(--brown);
+}
+
+.needs-grid {
+    width: min(1060px, 100%);
+    margin: 26px auto 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 254px));
+    justify-content: center;
+    gap: 14px;
+}
+
+.needs-card {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 18px;
+    border: 1px solid var(--brown);
+    border-radius: 15px;
+    background: var(--cream-card, #fffdf4);
+}
+
+.needs-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.needs-card h3 {
+    margin: 0;
+    font-family: "Karma", serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.needs-category {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 2px;
+    color: #8a6a4a;
+    font-size: 11.5px;
+}
+
+.needs-priority {
+    flex-shrink: 0;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    white-space: nowrap;
+    background: #f1ece2;
+    color: #8a6a4a;
+}
+
+.needs-priority.is-urgent {
+    background: #fde2e2;
+    color: #a12020;
+}
+
+.needs-priority.is-high {
+    background: #fff3cd;
+    color: #8a5a00;
+}
+
+.needs-priority.is-medium {
+    background: #e3effd;
+    color: #1c5cab;
+}
+
+.needs-bar {
+    height: 8px;
+    margin: 14px 0 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #efe4cb;
+}
+
+.needs-bar i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: #fb8500;
+}
+
+.needs-numbers {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: #75432f;
+    font-size: 12px;
+}
+
+.needs-numbers b {
+    color: var(--brown);
+}
+
+.needs-note {
+    margin: -4px 0 12px;
+    color: #75432f;
+    font-size: 12px;
+    font-style: italic;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.needs-donate {
+    margin-top: auto;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--brown);
+    color: var(--cream);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.needs-donate:hover {
+    transform: translateY(-1px);
+}
+
+.needs-more {
+    display: block;
+    margin: 18px auto 0;
+    border: 0;
+    background: none;
+    color: #d96f00;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.needs-more:hover {
+    text-decoration: underline;
+}
+
+/* drop-off tooltip */
+.needs-info {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 15px;
+    height: 15px;
+    margin-left: 5px;
+    border: 1.5px solid #8a6a4a;
+    border-radius: 50%;
+    color: #8a6a4a;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: help;
+    outline: none;
+}
+
+.needs-tip {
+    display: none;
+    position: absolute;
+    left: 22px;
+    top: -8px;
+    z-index: 30;
+    width: 230px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #3a1400;
+    color: #fffdf4;
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: left;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.needs-tip b {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--yellow);
+    font-size: 12px;
+}
+
+.needs-tip span {
+    display: block;
+}
+
+.needs-tip .needs-tip-note {
+    margin-top: 4px;
+    color: #f3e3c9;
+    font-style: italic;
+}
+
+.needs-info:hover .needs-tip,
+.needs-info:focus .needs-tip {
+    display: block;
+}
+
+@media (max-width: 1100px) {
+    .donor-content:has(.donate-online-card) {
+        grid-template-columns: 215px 1fr;
+    }
+
+    .donate-online-card {
+        grid-column: 1 / -1;
+        max-width: 420px;
+        justify-self: center;
+    }
+
+    .needs-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .needs-section {
+        padding: 10px 20px 40px;
+    }
+
+    .needs-grid,
+    .donor-content:has(.donate-online-card) {
+        grid-template-columns: 1fr;
+    }
+}

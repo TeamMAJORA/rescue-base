@@ -10,6 +10,59 @@ function askConfirm(options) {
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+// ---------- drop-off hours: day buttons + two time pickers, saved as one line ----------
+const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function toTwelveHour(time) {
+    const [hour, minute] = String(time || "00:00").split(":").map(Number);
+    const suffix = hour >= 12 ? "PM" : "AM";
+    return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${suffix}`;
+}
+
+function toTwentyFourHour(text) {
+    const match = String(text).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!match) return "";
+    let hour = Number(match[1]) % 12;
+    if (match[3].toUpperCase() === "PM") hour += 12;
+    return `${String(hour).padStart(2, "0")}:${match[2]}`;
+}
+
+// [0,1,2,3,4,5] -> "Mon–Sat"; [0,2,4] -> "Mon, Wed, Fri"; all -> "Daily"
+function formatDays(days) {
+    const sorted = [...days].sort((a, b) => a - b);
+    if (sorted.length === 7) return "Daily";
+    const isRun = sorted.every((day, i) => i === 0 || day === sorted[i - 1] + 1);
+    if (isRun && sorted.length > 2) return `${WEEK_DAYS[sorted[0]]}–${WEEK_DAYS[sorted[sorted.length - 1]]}`;
+    return sorted.map((day) => WEEK_DAYS[day]).join(", ");
+}
+
+function formatHours(days, openTime, closeTime) {
+    if (days.length === 0 || !openTime || !closeTime) return "";
+    return `${formatDays(days)}, ${toTwelveHour(openTime)} – ${toTwelveHour(closeTime)}`;
+}
+
+// Reads back a line made by formatHours; anything else falls back to Mon–Sat, 8–5
+function parseHours(text) {
+    const fallback = { days: [0, 1, 2, 3, 4, 5], openTime: "08:00", closeTime: "17:00" };
+    const match = String(text || "").match(/^(.+),\s*(\d{1,2}:\d{2}\s*[AP]M)\s*[–-]\s*(\d{1,2}:\d{2}\s*[AP]M)$/i);
+    if (!match) return fallback;
+
+    const dayPart = match[1].trim();
+    let days = [];
+    if (dayPart === "Daily") {
+        days = [0, 1, 2, 3, 4, 5, 6];
+    } else if (dayPart.includes("–")) {
+        const [from, to] = dayPart.split("–").map((day) => WEEK_DAYS.indexOf(day.trim()));
+        if (from >= 0 && to >= from) days = WEEK_DAYS.map((_, i) => i).filter((i) => i >= from && i <= to);
+    } else {
+        days = dayPart.split(",").map((day) => WEEK_DAYS.indexOf(day.trim())).filter((i) => i >= 0);
+    }
+
+    const openTime = toTwentyFourHour(match[2]);
+    const closeTime = toTwentyFourHour(match[3]);
+    return days.length && openTime && closeTime ? { days, openTime, closeTime } : fallback;
+}
+
 const PAGE_SIZE = 10;
 
 const DONATION_TYPES = [
@@ -59,6 +112,7 @@ const emptyDonationForm = {
     donorEmail: "",
     donationType: "Pet Food",
     amount: "",
+    paymentReference: "",
     itemName: "",
     quantity: 1,
     notes: "",
@@ -267,6 +321,10 @@ export default function Donations() {
     const [methodView, setMethodView] = useState("list");
     const [qrFileName, setQrFileName] = useState("");
     const [uploadingQr, setUploadingQr] = useState(false);
+    // Drop-off point (where donors bring items); edited in the side card
+    const [dropOff, setDropOff] = useState(null);
+    const [dropOffForm, setDropOffForm] = useState(null);
+    const [savingDropOff, setSavingDropOff] = useState(false);
 
     const token = localStorage.getItem("token");
 
@@ -299,6 +357,7 @@ export default function Donations() {
     useEffect(() => {
         fetchDonations();
         fetchMethods();
+        fetchDropOff();
     }, []);
 
     // Close the ⋯ menu when clicking anywhere else
@@ -381,6 +440,7 @@ export default function Donations() {
                 status: donationForm.status,
                 itemName: donationForm.itemName.trim() || (money ? "Monetary Donation" : ""),
                 amount: money ? Number(donationForm.amount || 0) : 0,
+                paymentReference: money ? donationForm.paymentReference.trim() : "",
                 quantity: money ? 1 : Number(donationForm.quantity || 1),
                 notes: buildNotes(donationForm),
                 adminName: savedUser.name || savedUser.username || "Admin User",
@@ -434,6 +494,7 @@ export default function Donations() {
             donorEmail: donation.donorEmail || "",
             donationType: donation.donationType || "Money",
             amount: isMoneyDonation(donation) ? moneyValue(donation) : donation.amount || "",
+            paymentReference: donation.paymentReference || "",
             itemName: donation.itemName || "",
             quantity: donation.quantity || 1,
             notes: text,
@@ -527,6 +588,74 @@ export default function Donations() {
     }
 
     // ---------- payment methods ----------
+
+    async function fetchDropOff() {
+        try {
+            const response = await fetch(`${API}/api/settings/drop-off/manage`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+            if (response.ok && data.success) setDropOff(data.dropOff);
+        } catch (error) {
+            console.error("Fetch drop-off error:", error);
+        }
+    }
+
+    function editDropOff() {
+        setDropOffForm({
+            enabled: false,
+            address: "",
+            contactPerson: "",
+            contactNumber: "",
+            operatingHours: "",
+            instructions: "",
+            ...(dropOff || {}),
+            ...parseHours(dropOff?.operatingHours),
+        });
+        setMethodMessage("");
+        setMethodView("dropoff");
+    }
+
+    async function saveDropOff(event) {
+        event.preventDefault();
+
+        try {
+            setSavingDropOff(true);
+            setMethodMessage("");
+            const response = await fetch(`${API}/api/settings/drop-off`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    enabled: dropOffForm.enabled,
+                    address: dropOffForm.address,
+                    contactPerson: dropOffForm.contactPerson,
+                    contactNumber: dropOffForm.contactNumber,
+                    instructions: dropOffForm.instructions,
+                    operatingHours: formatHours(dropOffForm.days, dropOffForm.openTime, dropOffForm.closeTime),
+                }),
+            });
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok || !data.success) {
+                // "Failed" makes the message show in red (see methodTone)
+                setMethodMessage(`Failed to save: ${data.message || "drop-off details"}`);
+                return;
+            }
+
+            setDropOff(data.dropOff);
+            setDropOffForm(null);
+            setMethodView("list");
+            setMethodMessage("Drop-off details saved.");
+        } catch (error) {
+            console.error("Save drop-off error:", error);
+            setMethodMessage("Server error while saving drop-off details.");
+        } finally {
+            setSavingDropOff(false);
+        }
+    }
 
     async function fetchMethods() {
         try {
@@ -773,6 +902,7 @@ export default function Donations() {
                             <input
                                 type="number"
                                 min="1"
+                                max="1000"
                                 value={money ? 1 : donationForm.quantity}
                                 disabled={money}
                                 onChange={(e) => setField("quantity", e.target.value)}
@@ -788,6 +918,7 @@ export default function Donations() {
                             <input
                                 type="number"
                                 min="1"
+                                max="999999"
                                 step="any"
                                 value={money ? donationForm.amount : ""}
                                 placeholder={money ? "e.g. 500" : "Money donations only"}
@@ -797,16 +928,36 @@ export default function Donations() {
                             />
                         </label>
 
-                        <label className="dl-field">
-                            <span>
-                                Status <Help text="Received counts the donation in the totals and stock." />
-                            </span>
-                            <select value={donationForm.status} onChange={(e) => setField("status", e.target.value)}>
-                                {["pending", "received", "cancelled"].map((value) => (
-                                    <option key={value} value={value}>{STATUS_LABEL[value]}</option>
-                                ))}
-                            </select>
-                        </label>
+                        {money && (
+                            <label className="dl-field">
+                                <span>
+                                    Receipt / Ref. no. {!editingId && <b>*</b>}{" "}
+                                    <Help text="Required for cash recorded by staff, since there is no proof-of-payment photo." />
+                                </span>
+                                <input
+                                    type="text"
+                                    maxLength={100}
+                                    value={donationForm.paymentReference}
+                                    placeholder="e.g. OR-000123"
+                                    onChange={(e) => setField("paymentReference", e.target.value)}
+                                    required={!editingId}
+                                />
+                            </label>
+                        )}
+
+                        {/* New donations always start as Pending; status is set when reviewing */}
+                        {editingId && (
+                            <label className="dl-field">
+                                <span>
+                                    Status <Help text="Received counts the donation in the totals and stock." />
+                                </span>
+                                <select value={donationForm.status} onChange={(e) => setField("status", e.target.value)}>
+                                    {["pending", "received", "cancelled"].map((value) => (
+                                        <option key={value} value={value}>{STATUS_LABEL[value]}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        )}
 
                         <label className="dl-field dl-span-4">
                             <span>Notes</span>
@@ -1171,7 +1322,168 @@ export default function Donations() {
                                         + Add method
                                     </button>
                                 </div>
+
+                                <h3 className="dl-dropoff-title">Drop-off point</h3>
+                                <p className="dl-pm-sub">Where donors bring items. Shown on needed items. Click to edit.</p>
+                                <button type="button" className="dl-method dl-dropoff" onClick={editDropOff}>
+                                    <span className="dl-method-info">
+                                        <b>{dropOff?.address || "Not set yet"}</b>
+                                        <span>
+                                            {[dropOff?.operatingHours, dropOff?.contactPerson, dropOff?.contactNumber]
+                                                .filter(Boolean)
+                                                .join(" · ") || "Add an address, hours and a contact"}
+                                        </span>
+                                    </span>
+                                    <span className={`dl-status ${dropOff?.enabled ? "is-received" : "is-cancelled"}`}>
+                                        {dropOff?.enabled ? "Shown" : "Hidden"}
+                                    </span>
+                                </button>
                             </>
+                        ) : methodView === "dropoff" && dropOffForm ? (
+                            <form onSubmit={saveDropOff}>
+                                <h3>Drop-off point</h3>
+                                <p className="dl-pm-sub">
+                                    <button type="button" className="dl-link" onClick={backToMethodList}>
+                                        ← Back to list
+                                    </button>{" "}
+                                    · Donors see this when they hover the (i) on needed items.
+                                </p>
+
+                                <label className="dl-field">
+                                    <span>Address {dropOffForm.enabled && <b>*</b>}</span>
+                                    <input
+                                        value={dropOffForm.address}
+                                        maxLength={500}
+                                        placeholder="e.g. RescueBase Shelter, Lahug, Cebu City"
+                                        required={dropOffForm.enabled}
+                                        onChange={(e) => setDropOffForm({ ...dropOffForm, address: e.target.value })}
+                                    />
+                                </label>
+
+                                <div className="dl-field">
+                                    <span>Open days</span>
+                                    <div className="dl-days">
+                                        {WEEK_DAYS.map((day, index) => {
+                                            const on = dropOffForm.days.includes(index);
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={day}
+                                                    className={on ? "on" : ""}
+                                                    aria-pressed={on}
+                                                    onClick={() =>
+                                                        setDropOffForm({
+                                                            ...dropOffForm,
+                                                            days: on
+                                                                ? dropOffForm.days.filter((d) => d !== index)
+                                                                : [...dropOffForm.days, index],
+                                                        })
+                                                    }
+                                                >
+                                                    {day}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="dl-grid">
+                                    <label className="dl-field">
+                                        <span>Opens</span>
+                                        <input
+                                            type="time"
+                                            value={dropOffForm.openTime}
+                                            onChange={(e) => setDropOffForm({ ...dropOffForm, openTime: e.target.value })}
+                                        />
+                                    </label>
+                                    <label className="dl-field">
+                                        <span>Closes</span>
+                                        <input
+                                            type="time"
+                                            value={dropOffForm.closeTime}
+                                            onChange={(e) => setDropOffForm({ ...dropOffForm, closeTime: e.target.value })}
+                                        />
+                                    </label>
+                                </div>
+
+                                <p className="dl-hours-preview">
+                                    Donors see:{" "}
+                                    <b>{formatHours(dropOffForm.days, dropOffForm.openTime, dropOffForm.closeTime) || "No hours set"}</b>
+                                </p>
+
+                                <div className="dl-grid">
+                                    <label className="dl-field">
+                                        <span>Contact person</span>
+                                        <input
+                                            value={dropOffForm.contactPerson}
+                                            maxLength={150}
+                                            placeholder="e.g. Ana Reyes"
+                                            onChange={(e) => setDropOffForm({ ...dropOffForm, contactPerson: e.target.value })}
+                                        />
+                                    </label>
+
+                                    <label className="dl-field">
+                                        <span>Contact number</span>
+                                        <input
+                                            type="tel"
+                                            inputMode="numeric"
+                                            value={dropOffForm.contactNumber}
+                                            maxLength={11}
+                                            pattern="09[0-9]{9}"
+                                            title="11-digit mobile number starting with 09, e.g. 09171234567"
+                                            placeholder="e.g. 09171234567"
+                                            onChange={(e) =>
+                                                setDropOffForm({
+                                                    ...dropOffForm,
+                                                    // digits only, max 11
+                                                    contactNumber: e.target.value.replace(/\D/g, "").slice(0, 11),
+                                                })
+                                            }
+                                        />
+                                    </label>
+                                </div>
+
+                                <label className="dl-field">
+                                    <span>Instructions (optional)</span>
+                                    <textarea
+                                        rows="2"
+                                        maxLength={1000}
+                                        value={dropOffForm.instructions}
+                                        placeholder="e.g. Ring the bell at the side gate."
+                                        onChange={(e) => setDropOffForm({ ...dropOffForm, instructions: e.target.value })}
+                                    />
+                                </label>
+
+                                <div className="dl-field">
+                                    <span>Show to donors</span>
+                                    <div className="dl-seg is-half">
+                                        {[true, false].map((value) => (
+                                            <button
+                                                type="button"
+                                                key={String(value)}
+                                                className={dropOffForm.enabled === value ? "on" : ""}
+                                                onClick={() => setDropOffForm({ ...dropOffForm, enabled: value })}
+                                            >
+                                                {value ? "Shown" : "Hidden"}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {methodMessage && <p className={`gs-alert ${methodTone}`}>{methodMessage}</p>}
+
+                                <div className="dl-pm-foot">
+                                    <span />
+                                    <div className="dl-form-actions">
+                                        <button type="button" className="dl-btn" onClick={backToMethodList}>
+                                            Cancel
+                                        </button>
+                                        <button type="submit" className="dl-btn primary" disabled={savingDropOff}>
+                                            {savingDropOff ? "Saving..." : "Save"}
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         ) : (
                             <form onSubmit={saveMethod}>
                                 <h3>{editingMethodId ? "Edit method" : "Add method"}</h3>

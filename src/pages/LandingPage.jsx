@@ -15,6 +15,7 @@ import HeroSection from "../components/landing/HeroSection";
 import RescueSection from "../components/landing/RescueSection";
 import GISSection from "../components/landing/GISSection";
 import DonorSection from "../components/landing/DonorSection";
+import NeedsSection from "../components/landing/NeedsSection";
 import SpotlightSection from "../components/landing/SpotlightSection";
 import TailsSection from "../components/landing/TailsSection";
 import HeartsCodeSection from "../components/landing/HeartsCodeSection";
@@ -236,7 +237,9 @@ export default function LandingPage({
 
             <GISSection />
 
-            <DonorSection onSignup={onSignup} />
+            <DonorSection />
+
+            <NeedsSection onSignup={onSignup} />
 
             <StatsBand stats={stats} />
 

@@ -45,6 +45,7 @@ import QRTags from "./modules/animals/QRTags";
 // // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
+import { SuppliesPage } from "./modules/FoodStorage";
 import AccountSettings from "../AccountSettings";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
@@ -55,6 +56,7 @@ const ICONS = {
     "adoption-applications": "/icons/heart-brown.svg",
     "foster-care": "/icons/home.svg",
     donations: "/icons/sidebar/donation-brown.svg",
+    supplies: "/icons/sidebar/supplies-brown.svg",
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
     rescue: "/icons/Volunteer.svg",
     "gis-mapping": "/icons/strayMap-brown.svg",
@@ -81,6 +83,7 @@ const staffMenu = [
     { key: "adoption-applications", label: "Adoptions" },
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
+    { key: "supplies", label: "Supplies" },
     { key: "lost-found", label: "Lost & Found" },
     { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
@@ -462,7 +465,13 @@ export default function StaffDashboard({ setPage }) {
 
     function renderStaffContent() {
         if (activeStaffPage === "overview") {
-            return <AdminOverview onNavigate={setActiveStaffPage} />;
+            return (
+                <AdminOverview
+                    onNavigate={(page) =>
+                        setActiveStaffPage(page === "food-storage" || page === "needed-supplies" ? "supplies" : page)
+                    }
+                />
+            );
         }
 
         if (activeStaffPage === "animals" || activeStaffPage === "animal-profiles") {
@@ -531,6 +540,10 @@ export default function StaffDashboard({ setPage }) {
 
         if (activeStaffPage === "donations") {
             return <Donations />;
+        }
+
+        if (activeStaffPage === "supplies") {
+            return <SuppliesPage />;
         }
 
         if (activeStaffPage === "vaccination-records") {

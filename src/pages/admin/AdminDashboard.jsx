@@ -35,7 +35,6 @@ import Feedback from "./modules/Feedback";
 import Analytics from "./modules/Analytics";
 import Reports from "./modules/Reports";
 import Donations from "./modules/Donations";
-import NeededSupplies from "./modules/NeededSupplies";
 import GlobalSettings from "./modules/GlobalSettings";
 import IntakeForecast from "./modules/IntakeForecast";
 
@@ -52,6 +51,7 @@ import AccountSettings from "../AccountSettings";
 // ADOPTIONS
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
+import { SuppliesPage } from "./modules/FoodStorage";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -62,7 +62,7 @@ const ICONS = {
     "adoption-applications": "/icons/heart-brown.svg",
     "foster-care": "/icons/home.svg",
     donations: "/icons/sidebar/donation-brown.svg",
-    "needed-supplies": "/icons/sidebar/supplies-brown.svg", 
+    supplies: "/icons/sidebar/supplies-brown.svg",
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
     rescue: "/icons/Volunteer.svg",
     "gis-mapping": "/icons/strayMap-brown.svg",
@@ -70,7 +70,6 @@ const ICONS = {
     analytics: "/icons/sidebar/Status.svg",
     "intake-forecast": "/icons/sidebar/forecast.svg",
     reports: "/icons/sidebar/clipboard-brown.svg",
-    "activity-log": "/icons/sidebar/history.svg",
     "global-settings": "/icons/sidebar/settings-brown.svg",
 };
 
@@ -92,7 +91,7 @@ const adminMenu = [
     { key: "adoption-applications", label: "Adoptions" },//removed bcs of the new animal intake form
     { key: "foster-care", label: "Foster Care" },
     { key: "donations", label: "Donations" },
-    { key: "needed-supplies", label: "Needed Supplies" },
+    { key: "supplies", label: "Supplies" },
     { key: "lost-found", label: "Lost & Found" },
     { key: "rescue", label: "Rescue Assignments" },
     { key: "gis-mapping", label: "GIS Mapping" },
@@ -100,7 +99,6 @@ const adminMenu = [
     { key: "analytics", label: "Analytics" },
     { key: "intake-forecast", label: "AI Intake Forecast" },
     { key: "reports", label: "Reports" },
-    { key: "activity-log", label: "Activity Log" },
     { key: "global-settings", label: "Settings" }
 ]
 
@@ -255,6 +253,27 @@ function useSidebarDots(activePage) {
 export default function AdminDashboard({ setPage }) {
 
     const [activeAdminPage, setActiveAdminPage] = useState("overview");
+    // Which tab Settings opens on (the dashboard's "View log" opens Activity log)
+    const [settingsTab, setSettingsTab] = useState("system");
+    // Which tab Supplies opens on (dashboard food links open Food stock)
+    const [suppliesTab, setSuppliesTab] = useState("food");
+
+    function openAdminPage(page) {
+        if (page === "global-settings") setSettingsTab("system");
+
+        if (page === "food-storage" || page === "needed-supplies") {
+            setSuppliesTab(page === "food-storage" ? "food" : "needed");
+            setActiveAdminPage("supplies");
+            return;
+        }
+
+        if (page === "activity-log") {
+            setSettingsTab("activity-log");
+            setActiveAdminPage("global-settings");
+            return;
+        }
+        setActiveAdminPage(page);
+    }
     const newDots = useSidebarDots(activeAdminPage);
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotification] = useState([]);
@@ -381,6 +400,9 @@ export default function AdminDashboard({ setPage }) {
     }
 
     function handleSidebarClick(item) {
+        if (item.key === "global-settings") setSettingsTab("system");
+        if (item.key === "supplies") setSuppliesTab("food");
+
         if (item.children) {
             const isOpen = openSidebarMenu === item.key;
 
@@ -506,7 +528,7 @@ export default function AdminDashboard({ setPage }) {
 
     function renderAdminContent() {
         if (activeAdminPage === "overview") {
-            return <AdminOverview onNavigate={setActiveAdminPage} />;
+            return <AdminOverview onNavigate={openAdminPage} />;
         }
 
         if (activeAdminPage === "users") {
@@ -573,8 +595,9 @@ export default function AdminDashboard({ setPage }) {
             return <Donations />;
         }
 
-        if (activeAdminPage === "needed-supplies") {
-            return <NeededSupplies />;
+
+        if (activeAdminPage === "supplies") {
+            return <SuppliesPage key={suppliesTab} initialTab={suppliesTab} />;
         }
 
         if (activeAdminPage === "vaccination-records") {
@@ -594,17 +617,17 @@ export default function AdminDashboard({ setPage }) {
         }
 
 
-        if (activeAdminPage === "activity-log") {
-            return <ActivityLog />;
-        }
-
         if (activeAdminPage === "global-settings") {
             return (
                 <AccountSettings
-                    initialTab="system"
+                    key={settingsTab}
+                    initialTab={settingsTab}
                     onProfileSaved={() => setUserVersion((n) => n + 1)}
                     onLogout={() => signOut("home")}
-                    extraTabs={[{ key: "system", label: "System settings", content: <GlobalSettings /> }]}
+                    extraTabs={[
+                        { key: "system", label: "System settings", content: <GlobalSettings /> },
+                        { key: "activity-log", label: "Activity log", content: <ActivityLog /> },
+                    ]}
                 />
             );
         }
@@ -845,7 +868,7 @@ export default function AdminDashboard({ setPage }) {
                                     <b>Maintenance mode is on for everyone</b>
                                     Pages won't load until you turn it off. System settings still works.
                                 </span>
-                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                <button type="button" onClick={() => openAdminPage("global-settings")}>
                                     Open System settings
                                 </button>
                             </div>
@@ -856,7 +879,7 @@ export default function AdminDashboard({ setPage }) {
                                     <b>Maintenance mode is on</b>
                                     Users can't use RescueBase right now. Only admins are signed in.
                                 </span>
-                                <button type="button" onClick={() => setActiveAdminPage("global-settings")}>
+                                <button type="button" onClick={() => openAdminPage("global-settings")}>
                                     Turn off in System settings
                                 </button>
                             </div>

@@ -1005,6 +1005,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 <input
                                     type="number"
                                     min="0"
+                                    max={ageUnit === "months" ? 1200 : 100}
                                     step={ageUnit === "months" ? "1" : "0.5"}
                                     value={
                                         ageUnit === "months" && animalForm.age !== ""

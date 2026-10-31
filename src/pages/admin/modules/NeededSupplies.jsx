@@ -59,6 +59,14 @@ function getPercent(supply) {
 }
 
 export default function NeededSupplies() {
+    // Only admins can delete supplies (the server blocks staff)
+    const [isAdminUser] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem("rescuebase_user") || "{}").role === "admin";
+        } catch {
+            return false;
+        }
+    });
     const [supplies, setSupplies] = useState([]);
     const [form, setForm] = useState(emptyForm);
     const [editingId, setEditingId] = useState(null);
@@ -366,6 +374,7 @@ export default function NeededSupplies() {
                             <input
                                 type="number"
                                 min="1"
+                                max="10000"
                                 value={form.quantityNeeded}
                                 onChange={(event) => updateField("quantityNeeded", event.target.value)}
                                 placeholder="e.g. 20"
@@ -378,6 +387,7 @@ export default function NeededSupplies() {
                             <input
                                 type="number"
                                 min="0"
+                                max="10000"
                                 value={form.quantityReceived}
                                 onChange={(event) => updateField("quantityReceived", event.target.value)}
                             />
@@ -540,17 +550,19 @@ export default function NeededSupplies() {
                                                                 Reopen
                                                             </button>
                                                         )}
-                                                        <button
-                                                            type="button"
-                                                            className="rs2-icon"
-                                                            title="Delete"
-                                                            aria-label={`Delete ${supply.name}`}
-                                                            onClick={() => handleDelete(supply)}
-                                                        >
-                                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                                                                <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-                                                            </svg>
-                                                        </button>
+                                                        {isAdminUser && (
+                                                            <button
+                                                                type="button"
+                                                                className="rs2-icon"
+                                                                title="Delete"
+                                                                aria-label={`Delete ${supply.name}`}
+                                                                onClick={() => handleDelete(supply)}
+                                                            >
+                                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                                                                    <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+                                                                </svg>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
