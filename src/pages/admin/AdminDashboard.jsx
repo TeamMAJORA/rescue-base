@@ -52,6 +52,7 @@ import AccountSettings from "../AccountSettings";
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 import { SuppliesPage } from "./modules/FoodStorage";
+import { fetchUnreadNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -430,6 +431,31 @@ export default function AdminDashboard({ setPage }) {
         setActiveAdminPage(item.key);
     }
 
+    // Clicking a notification: mark it read (if saved), then open its page
+    async function openNotification(notification) {
+        if (notification.savedId) {
+            await markNotificationRead(notification.savedId).catch((error) =>
+                console.error("Mark notification read error:", error)
+            );
+        }
+
+        if (notification.page) {
+            setActiveAdminPage(notification.page);
+        }
+
+        setNotifOpen(false);
+        fetchAdminNotifications();
+    }
+
+    // "Mark all as read" button
+    async function handleMarkAllRead() {
+        await markAllNotificationsRead().catch((error) =>
+            console.error("Mark all notifications read error:", error)
+        );
+
+        fetchAdminNotifications();
+    }
+
     async function fetchAdminNotifications() {
         try {
             const token = localStorage.getItem("token");
@@ -482,7 +508,13 @@ export default function AdminDashboard({ setPage }) {
                 (assignment) => assignment.status === "completed"
             );
 
-            const newNotifications = [];
+            // Saved notifications first, then the summary counts
+            const savedNotifications = await fetchUnreadNotifications().catch((error) => {
+                console.error("Load saved notifications error:", error);
+                return [];
+            });
+
+            const newNotifications = [...savedNotifications];
 
             if (pendingApplication.length > 0) {
                 newNotifications.push({
@@ -832,6 +864,15 @@ export default function AdminDashboard({ setPage }) {
                                 <div className="admin-notification-header">
                                     <strong>Notifications</strong>
                                     <small>{notifications.length} updates(s)</small>
+                                    {notifications.some((item) => item.savedId) && (
+                                        <button
+                                            type="button"
+                                            className="admin-notification-readall"
+                                            onClick={handleMarkAllRead}
+                                        >
+                                            Mark all as read
+                                        </button>
+                                    )}
                                 </div>
 
                                 {notifications.length === 0 ? (
@@ -844,10 +885,7 @@ export default function AdminDashboard({ setPage }) {
                                             key={notification.id}
                                             type="button"
                                             className="admin-notification-item"
-                                            onClick={() => {
-                                                setActiveAdminPage(notification.page);
-                                                setNotifOpen(false);
-                                            }}
+                                            onClick={() => openNotification(notification)}
                                         >
                                             <strong>{notification.title}</strong>
                                             <span>{notification.message}</span>
