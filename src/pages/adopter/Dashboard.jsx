@@ -31,6 +31,7 @@ import PetList from "../../components/adopter/PetList";
 import PetDetailPanel from "../../components/adopter/PetDetailPanel";
 import { formatAge } from "../../utils/formatAge";
 import AccountSettings from "../AccountSettings";
+import { markAllNotificationsRead } from "../../utils/savedNotifications";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1442,6 +1443,14 @@ async function fetchPets({ silent = false } = {}) {
         return renderOverview();
     }
 
+    async function handleMarkAllRead() {
+        await markAllNotificationsRead().catch((error) =>
+            console.error("Mark all notifications read error:", error)
+        );
+
+        await loadNotifications();
+    }
+
     async function handleNotificationClick(notification) {
         if (!notification.read && token) {
             try {
@@ -1850,6 +1859,15 @@ async function fetchPets({ silent = false } = {}) {
                                         }{" "}
                                         update(s)
                                     </small>
+                                    {notifications.some((item) => !item.read) && (
+                                        <button
+                                            type="button"
+                                            className="adopter-notification-readall"
+                                            onClick={handleMarkAllRead}
+                                        >
+                                            Mark all as read
+                                        </button>
+                                    )}                                    
                                 </div>
 
                                 {notifications.length ===

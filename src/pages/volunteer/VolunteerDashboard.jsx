@@ -28,6 +28,8 @@ import GISMapping from "../admin/modules/GISMapping";
 // // ADOPTIONS
 import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
 
+import { markAllNotificationsRead } from "../../utils/savedNotifications";
+
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
     overview: "/icons/sidebar/dashboard-brown.svg",
@@ -283,6 +285,14 @@ export default function VolunteerDashboard({ setPage }) {
                 error
             );
         }
+    }
+
+    async function handleMarkAllRead() {
+        await markAllNotificationsRead().catch((error) =>
+            console.error("Mark all notifications read error:", error)
+        );
+
+        await loadNotifications();
     }
 
     async function handleNotificationClick(notification) {
@@ -564,6 +574,15 @@ export default function VolunteerDashboard({ setPage }) {
                                     <small>
                                         {unreadCount} unread
                                     </small>
+                                    {unreadCount > 0 && (
+                                        <button
+                                            type="button"
+                                            className="staff-notification-readall"
+                                            onClick={handleMarkAllRead}
+                                        >
+                                            Mark all as read
+                                        </button>
+                                    )}                                                                        
                                 </div>
 
                                 {notifications.length === 0 ? (

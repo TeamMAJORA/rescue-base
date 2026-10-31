@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { markAllNotificationsRead } from "../../../utils/savedNotifications";
 
 const ICONS = {
     application_update: "📋",
@@ -26,6 +27,14 @@ export default function FosterNotifications({
     }, [onClose]);
 
     if (!open) return null;
+
+    async function handleMarkAllRead() {
+        await markAllNotificationsRead().catch((error) =>
+            console.error("Mark all notifications read error:", error)
+        );
+
+        await refresh?.();
+    }
 
     async function handleNotification(notification) {
         const token = localStorage.getItem("token");
@@ -83,7 +92,15 @@ export default function FosterNotifications({
             >
                 <div className="notification-header">
                     <h3>Notifications</h3>
-
+                    {notifications.some((item) => !item.read) && (
+                        <button
+                            type="button"
+                            className="foster-notification-readall"
+                            onClick={handleMarkAllRead}
+                        >
+                            Mark all as read
+                        </button>
+                    )}
                     <button
                         type="button"
                         onClick={onClose}
