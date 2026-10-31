@@ -29,6 +29,7 @@ import GISMapping from "../admin/modules/GISMapping";
 import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
 
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
+import NotificationPanel from "../../components/notifications/NotificationPanel";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -565,64 +566,12 @@ export default function VolunteerDashboard({ setPage }) {
                         </button>
 
                         {notifOpen && (
-                            <div className="staff-notification-dropdown">
-                                <div className="staff-notification-header">
-                                    <strong>
-                                        Notifications
-                                    </strong>
-
-                                    <small>
-                                        {unreadCount} unread
-                                    </small>
-                                    {unreadCount > 0 && (
-                                        <button
-                                            type="button"
-                                            className="staff-notification-readall"
-                                            onClick={handleMarkAllRead}
-                                        >
-                                            Mark all as read
-                                        </button>
-                                    )}                                                                        
-                                </div>
-
-                                {notifications.length === 0 ? (
-                                    <p className="staff-notifications-empty">
-                                        No notifications.
-                                    </p>
-                                ) : (
-                                    notifications.map(
-                                        (notification) => (
-                                            <button
-                                                key={notification._id}
-                                                type="button"
-                                                className={`staff-notification-item ${notification.read
-                                                        ? ""
-                                                        : "unread"
-                                                    }`}
-                                                onClick={() =>
-                                                    handleNotificationClick(
-                                                        notification
-                                                    )
-                                                }
-                                            >
-                                                <strong>
-                                                    {notification.title}
-                                                </strong>
-
-                                                <span>
-                                                    {notification.message}
-                                                </span>
-
-                                                <small>
-                                                    {new Date(
-                                                        notification.createdAt
-                                                    ).toLocaleString()}
-                                                </small>
-                                            </button>
-                                        )
-                                    )
-                                )}
-                            </div>
+                            <NotificationPanel
+                                items={notifications.map((notification) => ({ ...notification, id: notification._id }))}
+                                unreadCount={unreadCount}
+                                onItemClick={handleNotificationClick}
+                                onMarkAllRead={handleMarkAllRead}
+                            />
                         )}
                     </div>
                 </header>

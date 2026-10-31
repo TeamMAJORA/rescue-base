@@ -52,7 +52,8 @@ import AccountSettings from "../AccountSettings";
 import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 import { SuppliesPage } from "./modules/FoodStorage";
-import { fetchUnreadNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
+import { fetchRecentNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
+import NotificationPanel from "../../components/notifications/NotificationPanel";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -509,7 +510,7 @@ export default function AdminDashboard({ setPage }) {
             );
 
             // Saved notifications first, then the summary counts
-            const savedNotifications = await fetchUnreadNotifications().catch((error) => {
+            const savedNotifications = await fetchRecentNotifications().catch((error) => {
                 console.error("Load saved notifications error:", error);
                 return [];
             });
@@ -854,45 +855,18 @@ export default function AdminDashboard({ setPage }) {
                                 aria-hidden="true"
                             />
 
-                            {notifications.length > 0 && (
-                                <span>{notifications.length}</span>
+                            {notifications.filter((item) => !item.read).length > 0 && (
+                                <span>{notifications.filter((item) => !item.read).length}</span>
                             )}
                         </button>
 
                         {notifOpen && (
-                            <div className="admin-notification-dropdown">
-                                <div className="admin-notification-header">
-                                    <strong>Notifications</strong>
-                                    <small>{notifications.length} updates(s)</small>
-                                    {notifications.some((item) => item.savedId) && (
-                                        <button
-                                            type="button"
-                                            className="admin-notification-readall"
-                                            onClick={handleMarkAllRead}
-                                        >
-                                            Mark all as read
-                                        </button>
-                                    )}
-                                </div>
-
-                                {notifications.length === 0 ? (
-                                    <p className="admin-notifications-empty">
-                                        No new notifications.
-                                    </p>
-                                ) : (
-                                    notifications.map((notification) => (
-                                        <button
-                                            key={notification.id}
-                                            type="button"
-                                            className="admin-notification-item"
-                                            onClick={() => openNotification(notification)}
-                                        >
-                                            <strong>{notification.title}</strong>
-                                            <span>{notification.message}</span>
-                                        </button>
-                                    ))
-                                )}
-                            </div>
+                            <NotificationPanel
+                                items={notifications}
+                                unreadCount={notifications.filter((item) => item.savedId && !item.read).length}
+                                onItemClick={openNotification}
+                                onMarkAllRead={handleMarkAllRead}
+                            />
                         )}
                     </div>
                 </header>
