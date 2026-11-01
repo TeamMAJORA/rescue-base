@@ -1416,12 +1416,6 @@ export default function FosterCare() {
                                         <span className={`afl-status is-${assignment.status}`}>
                                             {assignment.status}
                                         </span>
-                                        {assignment.behaviorEvaluation?.status === "pending" && (
-                                            <span className="afl-flag">Evaluation to review</span>
-                                        )}
-                                        {assignment.status === "active" && assignment.behaviorEvaluation?.status === "accepted" && (
-                                            <span className="afl-flag is-done">Evaluation accepted</span>
-                                        )}
                                         {assignment.returnRequest?.status === "pending" && (
                                             <span className="afl-flag is-return">
                                                 Return requested{assignment.returnRequest.urgent ? " · Urgent" : ""}
