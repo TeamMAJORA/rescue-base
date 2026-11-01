@@ -337,9 +337,9 @@ export default function GlobalSettings() {
                             <input
                                 type="text"
                                 value={general.appName}
-                                maxLength={100}
-                                required
-                                onChange={(event) => updateSetting("general", "appName", event.target.value)}
+                                readOnly
+                                disabled
+                                title="The application name can't be changed."
                             />
                         </label>
 
