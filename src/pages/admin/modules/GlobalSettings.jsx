@@ -6,6 +6,7 @@ const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const DEFAULT_SETTINGS = {
     general: {
         appName: "RESCUEBASE",
+        shelterName: "RescueBase Shelter",
         contactEmail: "",
         contactPhone: "",
         facebookUrl: "",
@@ -333,14 +334,16 @@ export default function GlobalSettings() {
 
                     <div className="gs-fields">
                         <label className="gs-field">
-                            Application name
+                            Shelter name
                             <input
                                 type="text"
-                                value={general.appName}
-                                readOnly
-                                disabled
-                                title="The application name can't be changed."
+                                value={general.shelterName ?? ""}
+                                maxLength={100}
+                                required
+                                placeholder="e.g. RescueBase Shelter"
+                                onChange={(event) => updateSetting("general", "shelterName", event.target.value)}
                             />
+                            <small>Shown to fosters and on animal records as the shelter.</small>
                         </label>
 
                         <label className="gs-field">

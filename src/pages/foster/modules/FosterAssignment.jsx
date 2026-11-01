@@ -172,6 +172,17 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
         }
     }
 
+    // Load the shelter's name and contacts once (name shows on the pet card)
+    useEffect(() => {
+        if (!token) return;
+        fetch(`${API}/api/settings/contact`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok && data.success) setContact(data.contact);
+            })
+            .catch(() => {});
+    }, [token]);
+
     async function toggleContact() {
         const opening = !contactOpen;
         setContactOpen(opening);
@@ -566,7 +577,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                             <span className="fah-fact-icon"><FaIcon name="home" /></span>
                             <div>
                                 <small>Shelter</small>
-                                <b>{assignment.shelterName || "RescueBase Shelter"}</b>
+                                <b>{contact?.name || assignment.shelterName || "RescueBase Shelter"}</b>
                             </div>
                         </div>
 

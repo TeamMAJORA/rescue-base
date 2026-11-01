@@ -523,6 +523,7 @@ export default function AdminOverview({ onNavigate }) {
                 vaccinations: pick(5, "vaccinations"),
                 supplies: pick(6, "supplies"),
                 capacity: pick(7, "shelterCapacity", 30) || 30,
+                shelterName: pick(7, "shelterName", "RescueBase Shelter") || "RescueBase Shelter",
                 forecast: forecastBody?.target?.roundedPredictedIntake ?? null,
                 activity: sources[9].status === "fulfilled" ? sources[9].value.logs || [] : null,
                 foodInventory: sources[10].status === "fulfilled" ? sources[10].value.inventory || [] : null,
@@ -1047,7 +1048,7 @@ export default function AdminOverview({ onNavigate }) {
                             <div>
                                 <div className="db2-util-head">
                                     <div>
-                                        <b>RescueBase Shelter</b>
+                                        <b>{data.shelterName || "RescueBase Shelter"}</b>
                                         <small>{shelterUsed} of {capacity} spaces</small>
                                     </div>
                                     <span style={{ color: percentColor(shelterPercent) }}>{shelterPercent}%</span>
