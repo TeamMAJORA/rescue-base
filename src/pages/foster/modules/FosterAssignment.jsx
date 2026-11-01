@@ -430,7 +430,6 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                     </div>
 
                     <div className="fah-body">
-                        <span className="fah-eyebrow">No pet assigned yet</span>
                         <h2 className="fah-name">Your foster home is ready</h2>
                         <p className="fah-breed">
                             The shelter will match you with a pet that fits your preferences.
@@ -568,7 +567,6 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                 </div>
 
                 <div className="fah-body">
-                    <span className="fah-eyebrow">Current Foster Assignment</span>
                     <h2 className="fah-name">{assignment.petName}</h2>
                     <p className="fah-breed">{petSubtitle(assignment)}</p>
 

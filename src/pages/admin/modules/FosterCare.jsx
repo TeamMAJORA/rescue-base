@@ -1632,7 +1632,6 @@ export default function FosterCare() {
                             </span>
 
                             <div className="afr-who">
-                                <span className="afr-eyebrow">Foster Application</span>
                                 <h2>{reviewingApplication.applicantName}</h2>
                                 <small>
                                     <StatIcon name="mail" size={14} />
@@ -1862,7 +1861,6 @@ export default function FosterCare() {
                             </span>
 
                             <div className="afr-who">
-                                <span className="afr-eyebrow">New Foster Assignment</span>
                                 <h2>{assigningApplication.applicantName}</h2>
                                 <small>
                                     <StatIcon name="mail" size={14} />
@@ -2179,7 +2177,6 @@ export default function FosterCare() {
                                 </span>
 
                                 <div className="afr-who">
-                                    <span className="afr-eyebrow">Edit Foster Assignment</span>
                                     <h2>{editing.fosterName}</h2>
                                     <small>
                                         <StatIcon name="mail" size={14} />
@@ -2399,7 +2396,6 @@ export default function FosterCare() {
                                 </span>
 
                                 <div className="afr-who">
-                                    <span className="afr-eyebrow">Return Request</span>
                                     <h2>{earlyReturn.fosterName}</h2>
                                     <small>
                                         <StatIcon name="mail" size={14} />

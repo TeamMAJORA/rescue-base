@@ -198,7 +198,6 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
             <section className="fs-modal fs-modal-small" role="dialog" aria-modal="true" aria-labelledby="fs-request-title">
                 <header className="fs-modal-head">
                     <div>
-                        <span className="fs-eyebrow">REQUEST MORE</span>
                         <h2 id="fs-request-title">{item.name}</h2>
                         <p>
                             {formatNumber(item.quantityInStock)} kg left
@@ -409,9 +408,6 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
             >
                 <header className="fs-modal-head">
                     <div>
-                        <span className="fs-eyebrow">
-                            FOOD INVENTORY
-                        </span>
 
                         <h2 id="fs-item-title">
                             {editing
@@ -646,9 +642,6 @@ function AdjustStockModal({ item, onClose, onSaved }) {
             >
                 <header className="fs-modal-head">
                     <div>
-                        <span className="fs-eyebrow">
-                            STOCK ADJUSTMENT
-                        </span>
 
                         <h2 id="fs-adjust-title">{item.name}</h2>
 
