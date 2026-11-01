@@ -29,7 +29,28 @@ const emptyAssignmentForm = {
     petBreed: "",
     petImage: "",
     careInstructions: "",
+    startDate: "",
+    endDate: "",
 };
+
+// Assign pop-up: quick picks for the expected end date
+const FOSTER_LENGTHS = [
+    { label: "2 weeks", days: 14 },
+    { label: "1 month", days: 30 },
+    { label: "2 months", days: 60 },
+    { label: "3 months", days: 90 },
+];
+
+function toDateInputValue(date) {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+}
+
+function addDays(dateText, days) {
+    const date = new Date(`${dateText}T00:00:00`);
+    date.setDate(date.getDate() + days);
+    return toDateInputValue(date);
+}
 
 
 // Update icons here, add nako sa public and mga svgs later
@@ -295,6 +316,9 @@ export default function FosterCare() {
         }
     }
     const [assigningApplication, setAssigningApplication] = useState(null);
+    // Assign pop-up pet picker
+    const [petSearch, setPetSearch] = useState("");
+    const [petScope, setPetScope] = useState("match");
     const token = localStorage.getItem("token")
 
     const [assignmentForm, setAssignmentForm] =
@@ -981,7 +1005,10 @@ export default function FosterCare() {
             fosterApplicationId: application._id,
             fosterName: application.applicantName,
             fosterEmail: application.applicantEmail,
+            startDate: toDateInputValue(new Date()),
         });
+        setPetSearch("");
+        setPetScope("match");
         setAssigningApplication(application);
     }
 
@@ -1905,46 +1932,93 @@ export default function FosterCare() {
                                     const prefers = assigningApplication.preferredAnimalType;
                                     const fits = (animal) =>
                                         !prefers || prefers === "Both" ? true : animal.type === prefers;
-                                    const matching = animals.filter(fits);
-                                    const others = animals.filter((animal) => !fits(animal));
-                                    const petOption = (animal) => (
-                                        <option key={animal._id} value={animal._id}>
-                                            {animal.name} — {animal.type}
-                                            {animal.breed ? `, ${animal.breed}` : ""}
-                                        </option>
+                                    const matchingCount = animals.filter(fits).length;
+                                    const scope = matchingCount === 0 ? "all" : petScope;
+                                    const query = petSearch.trim().toLowerCase();
+                                    const shown = animals.filter(
+                                        (animal) =>
+                                            (scope === "all" || fits(animal)) &&
+                                            (!query ||
+                                                `${animal.name} ${animal.breed || ""} ${animal.type || ""}`
+                                                    .toLowerCase()
+                                                    .includes(query))
                                     );
 
                                     return (
-                                        <label className="is-wide">
-                                            <span>Pet <em>*</em></span>
-                                            <select
-                                                value={assignmentForm.animalId}
-                                                onChange={(e) => pickAnimal(e.target.value)}
-                                                disabled={animalsLoading}
-                                                required
-                                            >
-                                                <option value="">
-                                                    {animalsLoading
-                                                        ? "Loading pets..."
-                                                        : animals.length
-                                                            ? "Select a registered pet"
-                                                            : "No pets available for foster"}
-                                                </option>
+                                        <div className="is-wide afr-picker">
+                                            <span className="acl-label">
+                                                Pick a pet <em>*</em>
+                                            </span>
 
-                                                {others.length > 0 && matching.length > 0 ? (
-                                                    <>
-                                                        <optgroup label={`Matches preference (${PREFERS_LABEL[prefers] || prefers})`}>
-                                                            {matching.map(petOption)}
-                                                        </optgroup>
-                                                        <optgroup label="Other pets">
-                                                            {others.map(petOption)}
-                                                        </optgroup>
-                                                    </>
-                                                ) : (
-                                                    animals.map(petOption)
-                                                )}
-                                            </select>
-                                        </label>
+                                            <div className="afr-picker-tools">
+                                                <input
+                                                    type="search"
+                                                    value={petSearch}
+                                                    placeholder="Search name or breed..."
+                                                    onChange={(event) => setPetSearch(event.target.value)}
+                                                />
+                                                <div className="afr-picker-chips">
+                                                    <button
+                                                        type="button"
+                                                        className={scope === "match" ? "is-on" : ""}
+                                                        disabled={matchingCount === 0}
+                                                        onClick={() => setPetScope("match")}
+                                                    >
+                                                        Matches preference ({matchingCount})
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className={scope === "all" ? "is-on" : ""}
+                                                        onClick={() => setPetScope("all")}
+                                                    >
+                                                        All available ({animals.length})
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {animalsLoading ? (
+                                                <p className="afr-picker-empty">Loading pets...</p>
+                                            ) : shown.length === 0 ? (
+                                                <p className="afr-picker-empty">
+                                                    {animals.length ? "No pets match your search." : "No pets available for foster."}
+                                                </p>
+                                            ) : (
+                                                <div className="afr-picker-grid" role="radiogroup" aria-label="Pet">
+                                                    {shown.map((animal) => {
+                                                        const selected = assignmentForm.animalId === animal._id;
+                                                        return (
+                                                            <button
+                                                                key={animal._id}
+                                                                type="button"
+                                                                role="radio"
+                                                                aria-checked={selected}
+                                                                className={`afr-pick${selected ? " is-selected" : ""}`}
+                                                                onClick={() => pickAnimal(animal._id)}
+                                                            >
+                                                                <span className="afr-pick-photo">
+                                                                    {animal.image ? (
+                                                                        <img src={animal.image} alt="" />
+                                                                    ) : (
+                                                                        <StatIcon name="paw" size={22} />
+                                                                    )}
+                                                                </span>
+                                                                <span className="afr-pick-text">
+                                                                    <b>{animal.name}</b>
+                                                                    <small>
+                                                                        {[animal.type, animal.breed, animal.size !== "Unknown" ? animal.size : ""]
+                                                                            .filter(Boolean)
+                                                                            .join(" · ")}
+                                                                    </small>
+                                                                    {fits(animal) && prefers && prefers !== "Both" && (
+                                                                        <span className="afr-pick-match">Matches</span>
+                                                                    )}
+                                                                </span>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
                                     );
                                 })()}
 
@@ -1988,6 +2062,51 @@ export default function FosterCare() {
                                     );
                                 })()}
 
+                            <div className="is-wide afr-dates">
+                                <label>
+                                    <span>Start date</span>
+                                    <input
+                                        type="date"
+                                        value={assignmentForm.startDate}
+                                        onChange={(event) =>
+                                            setAssignmentForm((form) => ({ ...form, startDate: event.target.value }))
+                                        }
+                                        required
+                                    />
+                                </label>
+                                <label>
+                                    <span>Expected end (optional)</span>
+                                    <input
+                                        type="date"
+                                        value={assignmentForm.endDate}
+                                        min={assignmentForm.startDate ? addDays(assignmentForm.startDate, 1) : undefined}
+                                        onChange={(event) =>
+                                            setAssignmentForm((form) => ({ ...form, endDate: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <div className="afr-lengths">
+                                    <span>Quick pick</span>
+                                    <div>
+                                        {FOSTER_LENGTHS.map((length) => (
+                                            <button
+                                                key={length.label}
+                                                type="button"
+                                                disabled={!assignmentForm.startDate}
+                                                onClick={() =>
+                                                    setAssignmentForm((form) => ({
+                                                        ...form,
+                                                        endDate: addDays(form.startDate, length.days),
+                                                    }))
+                                                }
+                                            >
+                                                {length.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="is-wide acl-field">
                                 <span className="acl-label">
                                     Care instructions
@@ -2028,7 +2147,11 @@ export default function FosterCare() {
                                 disabled={submitting}
                             >
                                 <StatIcon name="paw" size={16} />
-                                {submitting ? "Assigning..." : "Assign Foster"}
+                                {submitting
+                                    ? "Assigning..."
+                                    : assignmentForm.petName
+                                        ? `Assign ${assignmentForm.petName}`
+                                        : "Assign Foster"}
                             </button>
                         </footer>
                     </form>

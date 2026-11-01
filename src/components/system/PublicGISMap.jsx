@@ -2,10 +2,12 @@
 import { useEffect, useState } from "react";
 
 import {
+    Circle,
     MapContainer,
     Marker,
     Popup,
     TileLayer,
+    Tooltip,
 } from "react-leaflet";
 
 import L from "leaflet";
@@ -26,13 +28,15 @@ const createMarkerIcon = (image, className) =>
         popupAnchor: [0, -36],
     });
 
-const markerIcon = createMarkerIcon(
-    assets.icons.straymapbrown,
-    "public-gis-marker"
-);
+// Same pins as the admin GIS map
+const REPORT_ICONS = {
+    stray: createMarkerIcon("/gis/stray-marker.svg", "public-gis-marker"),
+    lost: createMarkerIcon("/gis/lost-pet-marker.svg", "public-gis-marker"),
+    found: createMarkerIcon("/gis/found-pet-marker.svg", "public-gis-marker"),
+};
 
 const shelterIcon = createMarkerIcon(
-    assets.icons.pawpin,
+    "/gis/shelter-pin.svg",
     "public-gis-shelter-marker"
 );
 
@@ -64,6 +68,77 @@ function hasValidCoordinates(item) {
     );
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+const HOTSPOT_RADIUS_METERS = 500;
+const HOTSPOT_MIN_REPORTS = 3;
+
+// "rescue" / "intake" reports show as strays on the public map
+function reportGroupOf(location) {
+    const type = String(location.reportType || "").toLowerCase();
+    return type === "lost" || type === "found" ? type : "stray";
+}
+
+function distanceInMeters(a, b) {
+    const toRadians = (value) => (value * Math.PI) / 180;
+    const latitudeDelta = toRadians(b.latitude - a.latitude);
+    const longitudeDelta = toRadians(b.longitude - a.longitude);
+    const h =
+        Math.sin(latitudeDelta / 2) ** 2 +
+        Math.cos(toRadians(a.latitude)) * Math.cos(toRadians(b.latitude)) * Math.sin(longitudeDelta / 2) ** 2;
+    return 6371000 * 2 * Math.asin(Math.sqrt(h));
+}
+
+// Groups stray reports that sit within 500 m of each other; 3+ reports = a hotspot
+function findHotspots(strayReports) {
+    const points = strayReports.map((report) => ({
+        latitude: Number(report.latitude),
+        longitude: Number(report.longitude),
+        locationName: report.locationName,
+    }));
+    const used = new Set();
+    const hotspots = [];
+
+    points.forEach((point, index) => {
+        if (used.has(index)) return;
+        const nearby = points
+            .map((other, otherIndex) => ({ other, otherIndex }))
+            .filter(({ other, otherIndex }) => !used.has(otherIndex) && distanceInMeters(point, other) <= HOTSPOT_RADIUS_METERS);
+
+        if (nearby.length < HOTSPOT_MIN_REPORTS) return;
+
+        nearby.forEach(({ otherIndex }) => used.add(otherIndex));
+        hotspots.push({
+            latitude: nearby.reduce((sum, { other }) => sum + other.latitude, 0) / nearby.length,
+            longitude: nearby.reduce((sum, { other }) => sum + other.longitude, 0) / nearby.length,
+            count: nearby.length,
+            areaName: point.locationName || "Hotspot",
+        });
+    });
+
+    return hotspots;
+}
+
+// Which reports pass the landing filters (no filters = show everything)
+function matchesFilters(location, filters, loadedAt) {
+    if (!filters) return true;
+    if (!filters.types.includes(reportGroupOf(location))) return false;
+
+    const species = String(location.species || "").toLowerCase();
+    const bothSpecies = filters.dogs && filters.cats;
+    if (!bothSpecies) {
+        if (filters.dogs && species !== "dog") return false;
+        if (filters.cats && species !== "cat") return false;
+        if (!filters.dogs && !filters.cats) return false;
+    }
+
+    if (filters.days) {
+        const created = new Date(location.createdAt).getTime();
+        if (!Number.isFinite(created) || loadedAt - created > filters.days * DAY_MS) return false;
+    }
+
+    return true;
+}
+
 async function fetchJSON(url) {
     const response = await fetch(url);
     const data = await response.json();
@@ -79,8 +154,10 @@ async function fetchJSON(url) {
 
 export default function PublicGISMap({
     landingMode = false,
+    filters = null,
 }) {
     const [locations, setLocations] = useState([]);
+    const [loadedAt, setLoadedAt] = useState(0);
     const [shelters, setShelters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -133,6 +210,7 @@ export default function PublicGISMap({
                 );
             }
 
+            setLoadedAt(Date.now());
             setLoading(false);
         }
 
@@ -144,13 +222,18 @@ export default function PublicGISMap({
     }, []);
 
     const validLocations = locations.filter(
-        hasValidCoordinates
+        (location) => hasValidCoordinates(location) && matchesFilters(location, filters, loadedAt)
     );
 
     const validShelters = shelters.filter(
         (shelter) =>
             shelter.status === "active" &&
-            hasValidCoordinates(shelter)
+            hasValidCoordinates(shelter) &&
+            (!filters || filters.types.includes("shelter"))
+    );
+
+    const hotspots = findHotspots(
+        validLocations.filter((location) => reportGroupOf(location) === "stray")
     );
 
     return (
@@ -188,7 +271,7 @@ export default function PublicGISMap({
                         <article className="public-gis-stat">
                             <div className="public-gis-stat-icon report">
                                 <img
-                                    src={assets.icons.straymapbrown}
+                                    src="/gis/stray-marker.svg"
                                     alt=""
                                 />
                             </div>
@@ -233,7 +316,7 @@ export default function PublicGISMap({
                         <div className="public-gis-legend">
                             <span>
                                 <img
-                                    src={assets.icons.straymapbrown}
+                                    src="/gis/stray-marker.svg"
                                     alt=""
                                 />
                                 Reports
@@ -283,6 +366,19 @@ export default function PublicGISMap({
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
 
+                            {hotspots.map((hotspot, index) => (
+                                <Circle
+                                    key={`hotspot-${index}`}
+                                    center={[hotspot.latitude, hotspot.longitude]}
+                                    radius={HOTSPOT_RADIUS_METERS}
+                                    pathOptions={{ color: "#d62828", weight: 2, dashArray: "6 5", fillColor: "#d62828", fillOpacity: 0.14 }}
+                                >
+                                    <Tooltip direction="top">
+                                        {hotspot.areaName} · {hotspot.count} stray reports
+                                    </Tooltip>
+                                </Circle>
+                            ))}
+
                             {validLocations.map((location) => (
                                 <Marker
                                     key={`report-${location._id}`}
@@ -290,7 +386,7 @@ export default function PublicGISMap({
                                         Number(location.latitude),
                                         Number(location.longitude),
                                     ]}
-                                    icon={markerIcon}
+                                    icon={REPORT_ICONS[reportGroupOf(location)]}
                                 >
                                     <Popup>
                                         <strong>

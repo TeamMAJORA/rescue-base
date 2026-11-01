@@ -793,7 +793,7 @@
 .gis-section .gis-filters,
 .gis-section .gis-map-container {
     position: relative;
-    z-index: 1;
+    z-index: 4;
 }
 
 /* The map sits above the decorative paw prints */
@@ -1133,4 +1133,97 @@
     .donor-content:has(.donate-online-card) {
         grid-template-columns: 1fr;
     }
+}
+
+
+/* ===== Landing map filters (working) ===== */
+.gis-filter img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.gis-filter:not(.gis-filter-active) img {
+    opacity: 0.55;
+}
+
+.gis-filters {
+    flex-wrap: wrap;
+}
+
+.gis-animal-filters .gis-filter {
+    min-width: 80px;
+}
+
+/* Last 30 days / All time, on top of the map */
+.gis-time-toggle {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 500;
+    display: flex;
+    padding: 3px;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    background: var(--cream);
+    box-shadow: 0 4px 12px rgba(58, 18, 0, 0.18);
+}
+
+.gis-time-toggle button {
+    height: 30px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--brown);
+    font-family: "Karma", serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.gis-time-toggle button.is-active {
+    background: var(--brown);
+    color: var(--cream);
+}
+
+@media (max-width: 700px) {
+    .gis-filters {
+        justify-content: center;
+    }
+
+    .gis-time-toggle {
+        top: auto;
+        bottom: 12px;
+        right: 50%;
+        transform: translateX(50%);
+    }
+}
+
+/* Same-size icon badge on every filter, so the row lines up */
+.gis-filter img {
+    box-sizing: content-box;
+    width: 16px;
+    height: 16px;
+    padding: 3px;
+    border-radius: 50%;
+    background: var(--cream);
+    opacity: 1;
+}
+
+.gis-filter:not(.gis-filter-active) img {
+    opacity: 0.6;
+}
+
+.gis-filter {
+    line-height: 1;
+}
+
+/* Time switch: both options the same size, no extra border/shadow on the active one */
+.gis-time-toggle button {
+    margin: 0;
+    min-width: 96px;
+    line-height: 30px;
+    box-shadow: none;
+    transform: none;
 }
