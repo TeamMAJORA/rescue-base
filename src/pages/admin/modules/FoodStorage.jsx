@@ -457,7 +457,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                             type="number"
                             min="0"
                             max="100000"
-                            step="0.01"
+                            step="any"
                             value={form.quantityInStock}
                             onChange={(event) =>
                                 update(
@@ -712,7 +712,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                             type="number"
                             min="0.01"
                             max="100000"
-                            step="0.01"
+                            step="any"
                             value={quantity}
                             onChange={(event) =>
                                 setQuantity(event.target.value)
@@ -927,6 +927,7 @@ export default function FoodStorage() {
         setAddOpen(false);
         setItemModal(null);
         setAdjustItem(null);
+        loadOpenRequests();
 
         const updatedItem =
             data.item ||
