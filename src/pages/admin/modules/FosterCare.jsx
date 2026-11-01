@@ -168,23 +168,27 @@ function StatIcon({ name, size = 15 }) {
 // The essentials are always included and can't be removed; extras (like medicine) are optional.
 const OPTIONAL_CARE_PRESETS = ["Give medicine as prescribed"];
 
-const ESSENTIAL_CARE_KEYS = ESSENTIAL_CARE.map((item) => item.toLowerCase());
+const ESSENTIAL_COUNT = ESSENTIAL_CARE.length;
 
-// Instructions other than the essentials
-function extraCareRows(text) {
-    return String(text || "")
-        .split("\n")
-        .filter((row) => !ESSENTIAL_CARE_KEYS.includes(row.trim().toLowerCase()));
+// The first rows are the essentials (always there, can be reworded); the rest are extras.
+// Older assignments with fewer rows get the essentials added in front.
+function careRows(text) {
+    const lines = String(text || "").split("\n");
+    const filled = lines.filter((line) => line.trim());
+    if (filled.length < ESSENTIAL_COUNT) return [...ESSENTIAL_CARE, ...filled];
+    return lines;
 }
 
-// Essentials first, then the non-empty extras
+// For saving: an essential left empty goes back to its default; empty extras are dropped
 function withEssentialCare(text) {
-    const extras = extraCareRows(text).map((row) => row.trim()).filter(Boolean);
-    return [...ESSENTIAL_CARE, ...extras].join("\n");
+    const rows = careRows(text);
+    const essentials = ESSENTIAL_CARE.map((fallback, index) => String(rows[index] || "").trim() || fallback);
+    const extras = rows.slice(ESSENTIAL_COUNT).map((row) => row.trim()).filter(Boolean);
+    return [...essentials, ...extras].join("\n");
 }
 
 function CareChecklistInput({ value, onChange }) {
-    const extras = extraCareRows(value);
+    const rows = careRows(value);
     const inputsRef = useRef([]);
     const [focusIndex, setFocusIndex] = useState(null);
 
@@ -195,30 +199,33 @@ function CareChecklistInput({ value, onChange }) {
         setFocusIndex(null);
     }, [focusIndex, value]);
 
-    function save(nextExtras) {
-        onChange([...ESSENTIAL_CARE, ...nextExtras].join("\n"));
+    function save(next) {
+        onChange(next.join("\n"));
     }
 
     function editRow(index, text) {
-        const next = [...extras];
+        const next = [...rows];
         next[index] = text.replace(/\n/g, " ");
         save(next);
     }
 
-    function addRow(afterIndex = extras.length - 1, text = "") {
-        const next = [...extras];
-        next.splice(afterIndex + 1, 0, text);
+    function addRow(afterIndex = rows.length - 1, text = "") {
+        const at = Math.max(afterIndex + 1, ESSENTIAL_COUNT);
+        const next = [...rows];
+        next.splice(at, 0, text);
         save(next);
-        setFocusIndex(afterIndex + 1);
+        setFocusIndex(at);
     }
 
     function removeRow(index) {
-        save(extras.filter((_, i) => i !== index));
-        setFocusIndex(index > 0 ? index - 1 : null);
+        if (index < ESSENTIAL_COUNT) return;
+        save(rows.filter((_, i) => i !== index));
+        setFocusIndex(index - 1);
     }
 
     function addPreset(text) {
-        save([...extras.filter((row) => row.trim()), text]);
+        const extras = rows.slice(ESSENTIAL_COUNT).filter((row) => row.trim());
+        save([...rows.slice(0, ESSENTIAL_COUNT), ...extras, text]);
     }
 
     function handleKeyDown(event, index) {
@@ -227,50 +234,48 @@ function CareChecklistInput({ value, onChange }) {
             addRow(index);
         }
 
-        if (event.key === "Backspace" && !extras[index]) {
+        if (event.key === "Backspace" && !rows[index] && index >= ESSENTIAL_COUNT) {
             event.preventDefault();
             removeRow(index);
         }
     }
 
-    const used = extras.map((row) => row.trim().toLowerCase());
+    const used = rows.map((row) => row.trim().toLowerCase());
 
     return (
         <div className="acl">
             <ul className="acl-list">
-                {ESSENTIAL_CARE.map((item) => (
-                    <li key={item} className="acl-row is-essential" title="Always included">
-                        <span className="acl-check" aria-hidden="true">
-                            <StatIcon name="check" size={12} />
-                        </span>
-                        <span className="acl-text">{item}</span>
-                        <small className="acl-lock">Required</small>
-                    </li>
-                ))}
-                {extras.map((row, index) => (
-                    <li key={index} className="acl-row">
-                        <span className="acl-check" aria-hidden="true">
-                            <StatIcon name="check" size={12} />
-                        </span>
-                        <input
-                            ref={(element) => { inputsRef.current[index] = element; }}
-                            value={row}
-                            onChange={(event) => editRow(index, event.target.value)}
-                            onKeyDown={(event) => handleKeyDown(event, index)}
-                            placeholder="e.g. Give medicine as prescribed"
-                            maxLength={120}
-                            aria-label={`Extra care instruction ${index + 1}`}
-                        />
-                        <button
-                            type="button"
-                            className="acl-remove"
-                            onClick={() => removeRow(index)}
-                            aria-label={`Remove instruction ${index + 1}`}
-                        >
-                            <StatIcon name="x" size={12} />
-                        </button>
-                    </li>
-                ))}
+                {rows.map((row, index) => {
+                    const isEssential = index < ESSENTIAL_COUNT;
+                    return (
+                        <li key={index} className={`acl-row ${isEssential ? "is-essential" : ""}`}>
+                            <span className="acl-check" aria-hidden="true">
+                                <StatIcon name="check" size={12} />
+                            </span>
+                            <input
+                                ref={(element) => { inputsRef.current[index] = element; }}
+                                value={row}
+                                onChange={(event) => editRow(index, event.target.value)}
+                                onKeyDown={(event) => handleKeyDown(event, index)}
+                                placeholder={isEssential ? ESSENTIAL_CARE[index] : "e.g. Give medicine as prescribed"}
+                                maxLength={120}
+                                aria-label={`Care instruction ${index + 1}`}
+                            />
+                            {isEssential ? (
+                                <small className="acl-lock" title="Always included. You can reword it.">Required</small>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="acl-remove"
+                                    onClick={() => removeRow(index)}
+                                    aria-label={`Remove instruction ${index + 1}`}
+                                >
+                                    <StatIcon name="x" size={12} />
+                                </button>
+                            )}
+                        </li>
+                    );
+                })}
             </ul>
 
             <button type="button" className="acl-add" onClick={() => addRow()}>
@@ -706,7 +711,7 @@ export default function FosterCare() {
                 assignment.petImage,
 
             careInstructions:
-                assignment.careInstructions,
+                withEssentialCare(assignment.careInstructions),
         });
 
         setMessage("");

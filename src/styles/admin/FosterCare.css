@@ -2530,14 +2530,6 @@
 }
 
 /* Essential care instructions: always included, not editable */
-.acl-row.is-essential .acl-text {
-    flex: 1;
-    min-width: 0;
-    padding: 6px 8px;
-    font-size: 13px;
-    color: #5a1b00;
-}
-
 .acl-lock {
     color: #8a6a4a;
     font-size: 10.5px;
