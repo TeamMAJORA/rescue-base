@@ -5,6 +5,34 @@ import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Planned to last 30+ days (no end date counts as long) -> weekly updates expected
+function isLongAssignment(assignment) {
+    if (!assignment.endDate) return true;
+    const start = new Date(assignment.startDate || assignment.createdAt);
+    return new Date(assignment.endDate) - start >= 30 * DAY_MS;
+}
+
+function lastUpdateDate(assignment) {
+    const dates = (assignment.updates || []).map((update) => new Date(update.createdAt).getTime());
+    if (dates.length === 0) return null;
+    return new Date(Math.max(...dates));
+}
+
+function weeklyUpdateIsDue(assignment) {
+    if (assignment.status !== "active" || !isLongAssignment(assignment)) return false;
+    const since = lastUpdateDate(assignment) || new Date(assignment.startDate || assignment.createdAt);
+    return Date.now() - since.getTime() >= 7 * DAY_MS;
+}
+
+function askedInLastDay(assignment) {
+    return Boolean(
+        assignment.lastUpdateRequestedAt &&
+            Date.now() - new Date(assignment.lastUpdateRequestedAt).getTime() < DAY_MS
+    );
+}
+
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -20,6 +48,15 @@ function seenKey(application) {
         : application._id;
 }
 
+// Care instructions every foster assignment always includes
+const ESSENTIAL_CARE = [
+    "Feed twice a day",
+    "Fresh water at all times",
+    "Daily walk or playtime",
+    "Keep indoors at night",
+    "Submit a weekly update",
+];
+
 const emptyAssignmentForm = {
     animalId: "",
     fosterApplicationId: "",
@@ -28,7 +65,7 @@ const emptyAssignmentForm = {
     petName: "",
     petBreed: "",
     petImage: "",
-    careInstructions: "",
+    careInstructions: ESSENTIAL_CARE.join("\n"),
     startDate: "",
     endDate: "",
 };
@@ -128,17 +165,26 @@ function StatIcon({ name, size = 15 }) {
 
 // ----- Care instructions as a checklist -----
 // Each row is saved as one line; the foster sees every line as a checklist item.
-const CARE_PRESETS = [
-    "Feed twice a day",
-    "Fresh water at all times",
-    "Daily walk or playtime",
-    "Give medicine as prescribed",
-    "Keep indoors at night",
-    "Submit a weekly update",
-];
+// The essentials are always included and can't be removed; extras (like medicine) are optional.
+const OPTIONAL_CARE_PRESETS = ["Give medicine as prescribed"];
+
+const ESSENTIAL_CARE_KEYS = ESSENTIAL_CARE.map((item) => item.toLowerCase());
+
+// Instructions other than the essentials
+function extraCareRows(text) {
+    return String(text || "")
+        .split("\n")
+        .filter((row) => !ESSENTIAL_CARE_KEYS.includes(row.trim().toLowerCase()));
+}
+
+// Essentials first, then the non-empty extras
+function withEssentialCare(text) {
+    const extras = extraCareRows(text).map((row) => row.trim()).filter(Boolean);
+    return [...ESSENTIAL_CARE, ...extras].join("\n");
+}
 
 function CareChecklistInput({ value, onChange }) {
-    const rows = String(value || "").split("\n");
+    const extras = extraCareRows(value);
     const inputsRef = useRef([]);
     const [focusIndex, setFocusIndex] = useState(null);
 
@@ -149,32 +195,30 @@ function CareChecklistInput({ value, onChange }) {
         setFocusIndex(null);
     }, [focusIndex, value]);
 
-    function save(next) {
-        onChange(next.join("\n"));
+    function save(nextExtras) {
+        onChange([...ESSENTIAL_CARE, ...nextExtras].join("\n"));
     }
 
     function editRow(index, text) {
-        const next = [...rows];
+        const next = [...extras];
         next[index] = text.replace(/\n/g, " ");
         save(next);
     }
 
-    function addRow(afterIndex = rows.length - 1, text = "") {
-        const next = [...rows];
+    function addRow(afterIndex = extras.length - 1, text = "") {
+        const next = [...extras];
         next.splice(afterIndex + 1, 0, text);
         save(next);
         setFocusIndex(afterIndex + 1);
     }
 
     function removeRow(index) {
-        const next = rows.filter((_, i) => i !== index);
-        save(next.length ? next : [""]);
-        setFocusIndex(Math.max(0, index - 1));
+        save(extras.filter((_, i) => i !== index));
+        setFocusIndex(index > 0 ? index - 1 : null);
     }
 
     function addPreset(text) {
-        const filled = rows.filter((row) => row.trim());
-        save([...filled, text]);
+        save([...extras.filter((row) => row.trim()), text]);
     }
 
     function handleKeyDown(event, index) {
@@ -183,18 +227,27 @@ function CareChecklistInput({ value, onChange }) {
             addRow(index);
         }
 
-        if (event.key === "Backspace" && !rows[index] && rows.length > 1) {
+        if (event.key === "Backspace" && !extras[index]) {
             event.preventDefault();
             removeRow(index);
         }
     }
 
-    const used = rows.map((row) => row.trim().toLowerCase());
+    const used = extras.map((row) => row.trim().toLowerCase());
 
     return (
         <div className="acl">
             <ul className="acl-list">
-                {rows.map((row, index) => (
+                {ESSENTIAL_CARE.map((item) => (
+                    <li key={item} className="acl-row is-essential" title="Always included">
+                        <span className="acl-check" aria-hidden="true">
+                            <StatIcon name="check" size={12} />
+                        </span>
+                        <span className="acl-text">{item}</span>
+                        <small className="acl-lock">Required</small>
+                    </li>
+                ))}
+                {extras.map((row, index) => (
                     <li key={index} className="acl-row">
                         <span className="acl-check" aria-hidden="true">
                             <StatIcon name="check" size={12} />
@@ -204,16 +257,15 @@ function CareChecklistInput({ value, onChange }) {
                             value={row}
                             onChange={(event) => editRow(index, event.target.value)}
                             onKeyDown={(event) => handleKeyDown(event, index)}
-                            placeholder={index === 0 ? "e.g. Feed twice a day" : "Another instruction"}
+                            placeholder="e.g. Give medicine as prescribed"
                             maxLength={120}
-                            aria-label={`Care instruction ${index + 1}`}
+                            aria-label={`Extra care instruction ${index + 1}`}
                         />
                         <button
                             type="button"
                             className="acl-remove"
                             onClick={() => removeRow(index)}
                             aria-label={`Remove instruction ${index + 1}`}
-                            disabled={rows.length === 1 && !row}
                         >
                             <StatIcon name="x" size={12} />
                         </button>
@@ -227,7 +279,7 @@ function CareChecklistInput({ value, onChange }) {
 
             <div className="acl-presets">
                 <small>Quick add:</small>
-                {CARE_PRESETS.map((preset) => (
+                {OPTIONAL_CARE_PRESETS.map((preset) => (
                     <button
                         key={preset}
                         type="button"
@@ -245,6 +297,7 @@ export default function FosterCare() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
+    const [requestingUpdateId, setRequestingUpdateId] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [medicalRequests, setMedicalRequests] = useState([]);
@@ -547,7 +600,7 @@ export default function FosterCare() {
                 return;
             }
 
-            setMessage("Behavioral evaluation accepted and foster assignment completed.");
+            setMessage(data.message || "Behavioral evaluation accepted.");
 
             await fetchAssignments();
         } catch (error) {
@@ -666,6 +719,51 @@ export default function FosterCare() {
         setMessage("");
     }
 
+    async function handleCompleteAssignment(assignment) {
+        const confirmed = await askConfirm({
+            title: `Complete ${assignment.petName}'s foster assignment?`,
+            message: "The foster care ends today and the foster is notified.",
+            confirmLabel: "Complete",
+        });
+        if (!confirmed) return;
+
+        try {
+            setMessage("");
+            const response = await fetch(`${API}/api/foster/assignments/${assignment._id}/complete`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            setMessage(data.message || (response.ok ? "Foster assignment completed." : "Could not complete the assignment."));
+            if (response.ok && data.success) fetchAssignments();
+        } catch (error) {
+            console.error("Complete foster assignment error:", error);
+            setMessage("Server error while completing the assignment.");
+        }
+    }
+
+    async function handleRequestUpdate(assignment) {
+        try {
+            setRequestingUpdateId(assignment._id);
+            setMessage("");
+
+            const response = await fetch(`${API}/api/foster/assignments/${assignment._id}/request-update`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            setMessage(data.message || (response.ok ? "Update requested." : "Could not ask for an update."));
+            if (response.ok && data.success) fetchAssignments();
+        } catch (error) {
+            console.error("Request weekly update error:", error);
+            setMessage("Server error while asking for an update.");
+        } finally {
+            setRequestingUpdateId("");
+        }
+    }
+
     async function handleDeleteAssignment(id) {
         const confirmDelete = await askConfirm({ title: "Delete this foster assignment?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
@@ -741,6 +839,7 @@ export default function FosterCare() {
                     },
                     body: JSON.stringify({
                         ...assignmentForm,
+                        careInstructions: withEssentialCare(assignmentForm.careInstructions),
 
                         adminName:
                             savedUser.name ||
@@ -797,6 +896,7 @@ export default function FosterCare() {
                     },
                     body: JSON.stringify({
                         ...assignmentForm,
+                        careInstructions: withEssentialCare(assignmentForm.careInstructions),
                         adminName:
                             savedUser.name ||
                             savedUser.username,
@@ -1297,8 +1397,14 @@ export default function FosterCare() {
                                         {formatShortDate(assignment.startDate)}
                                     </span>
 
-                                    <span className="afl-cell" data-label="Updates">
+                                    <span className="afl-cell afl-updates" data-label="Updates">
                                         {assignment.updates?.length || 0}
+                                        {lastUpdateDate(assignment) && (
+                                            <small>Last {formatShortDate(lastUpdateDate(assignment))}</small>
+                                        )}
+                                        {weeklyUpdateIsDue(assignment) && (
+                                            <span className="afl-flag is-due">Update due</span>
+                                        )}
                                     </span>
 
                                     <div className="afl-cell" data-label="Status">
@@ -1307,6 +1413,9 @@ export default function FosterCare() {
                                         </span>
                                         {assignment.behaviorEvaluation?.status === "pending" && (
                                             <span className="afl-flag">Evaluation to review</span>
+                                        )}
+                                        {assignment.status === "active" && assignment.behaviorEvaluation?.status === "accepted" && (
+                                            <span className="afl-flag is-done">Evaluation accepted</span>
                                         )}
                                         {assignment.returnRequest?.status === "pending" && (
                                             <span className="afl-flag is-return">
@@ -1327,6 +1436,33 @@ export default function FosterCare() {
                                                         Review return
                                                     </button>
                                             )}
+                                                {assignment.behaviorEvaluation?.status === "accepted" && (
+                                                    <button
+                                                        type="button"
+                                                        className="afl-ask-btn is-complete"
+                                                        title="End this foster assignment now"
+                                                        onClick={() => handleCompleteAssignment(assignment)}
+                                                    >
+                                                        Complete
+                                                    </button>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    className="afl-ask-btn"
+                                                    disabled={askedInLastDay(assignment) || requestingUpdateId === assignment._id}
+                                                    title={
+                                                        askedInLastDay(assignment)
+                                                            ? "Already asked in the last 24 hours"
+                                                            : "Send the foster a notification and email asking for a weekly update"
+                                                    }
+                                                    onClick={() => handleRequestUpdate(assignment)}
+                                                >
+                                                    {requestingUpdateId === assignment._id
+                                                        ? "Asking..."
+                                                        : askedInLastDay(assignment)
+                                                          ? "Asked"
+                                                          : "Ask for update"}
+                                                </button>
                                                 <button
                                                     type="button"
                                                     className="afl-icon-btn"

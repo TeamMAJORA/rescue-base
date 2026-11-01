@@ -2479,3 +2479,67 @@
 .afr-form > .afr-dates {
     grid-column: 1 / -1;
 }
+
+/* Weekly updates: last update date + ask button */
+.afl-updates small {
+    display: block;
+    margin-top: 2px;
+    color: #8a6a4a;
+    font-size: 11px;
+}
+
+.afl-flag.is-due {
+    color: #b45309;
+}
+
+.afl-ask-btn {
+    padding: 6px 10px;
+    border: 1.5px solid #5a1b00;
+    border-radius: 8px;
+    background: #fff;
+    color: #5a1b00;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.afl-ask-btn:hover:not(:disabled) {
+    background: #fff3d6;
+}
+
+.afl-ask-btn:disabled {
+    border-color: #e3d5b5;
+    color: #8a6a4a;
+    cursor: default;
+}
+
+.afl-ask-btn.is-complete {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #fff;
+}
+
+.afl-ask-btn.is-complete:hover {
+    background: #e07600;
+}
+
+.afl-flag.is-done {
+    color: #2d6a2d;
+}
+
+/* Essential care instructions: always included, not editable */
+.acl-row.is-essential .acl-text {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    font-size: 13px;
+    color: #5a1b00;
+}
+
+.acl-lock {
+    color: #8a6a4a;
+    font-size: 10.5px;
+    font-weight: 700;
+}
