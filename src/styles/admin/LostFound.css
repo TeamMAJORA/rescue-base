@@ -2648,3 +2648,120 @@
     cursor: wait;
     opacity: 0.6;
 }
+.lf-matches {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.lf-match-list {
+    display: grid;
+    gap: 8px;
+}
+
+.lf-match {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid #f3d98a;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.lf-match:hover {
+    border-color: #fb8500;
+}
+
+.lf-match-open {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #5a1b00;
+    text-align: left;
+    cursor: pointer;
+}
+
+.lf-match-photo {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #fdefb8;
+    font-size: 24px;
+}
+
+.lf-match-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lf-match-info {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+}
+
+.lf-match-info b {
+    font-size: 13px;
+}
+
+.lf-match-info small {
+    overflow: hidden;
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 11px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.lf-match-tag {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #2e9e5b;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.lf-match-dismiss {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border: 1px solid rgba(90, 27, 0, 0.3);
+    border-radius: 8px;
+    background: #fff;
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.lf-match-dismiss:hover {
+    border-color: #d62828;
+    color: #d62828;
+}
+
+.lf-match-note {
+    color: rgba(90, 27, 0, 0.55);
+    font-size: 10px;
+}
+
+.lf-match-empty {
+    margin: 0 !important;
+    padding: 10px;
+    border-radius: 8px;
+    background: #fff4e0;
+    color: rgba(90, 27, 0, 0.75);
+    font-size: 12px !important;
+}
