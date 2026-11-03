@@ -5,6 +5,34 @@ import InfoTip from "../../../components/system/InfoTip";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Planned to last 30+ days (no end date counts as long) -> weekly updates expected
+function isLongAssignment(assignment) {
+    if (!assignment.endDate) return true;
+    const start = new Date(assignment.startDate || assignment.createdAt);
+    return new Date(assignment.endDate) - start >= 30 * DAY_MS;
+}
+
+function lastUpdateDate(assignment) {
+    const dates = (assignment.updates || []).map((update) => new Date(update.createdAt).getTime());
+    if (dates.length === 0) return null;
+    return new Date(Math.max(...dates));
+}
+
+function weeklyUpdateIsDue(assignment) {
+    if (assignment.status !== "active" || !isLongAssignment(assignment)) return false;
+    const since = lastUpdateDate(assignment) || new Date(assignment.startDate || assignment.createdAt);
+    return Date.now() - since.getTime() >= 7 * DAY_MS;
+}
+
+function askedInLastDay(assignment) {
+    return Boolean(
+        assignment.lastUpdateRequestedAt &&
+            Date.now() - new Date(assignment.lastUpdateRequestedAt).getTime() < DAY_MS
+    );
+}
+
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -20,6 +48,15 @@ function seenKey(application) {
         : application._id;
 }
 
+// Care instructions every foster assignment always includes
+const ESSENTIAL_CARE = [
+    "Feed twice a day",
+    "Fresh water at all times",
+    "Daily walk or playtime",
+    "Keep indoors at night",
+    "Submit a weekly update",
+];
+
 const emptyAssignmentForm = {
     animalId: "",
     fosterApplicationId: "",
@@ -28,8 +65,29 @@ const emptyAssignmentForm = {
     petName: "",
     petBreed: "",
     petImage: "",
-    careInstructions: "",
+    careInstructions: ESSENTIAL_CARE.join("\n"),
+    startDate: "",
+    endDate: "",
 };
+
+// Assign pop-up: quick picks for the expected end date
+const FOSTER_LENGTHS = [
+    { label: "2 weeks", days: 14 },
+    { label: "1 month", days: 30 },
+    { label: "2 months", days: 60 },
+    { label: "3 months", days: 90 },
+];
+
+function toDateInputValue(date) {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+}
+
+function addDays(dateText, days) {
+    const date = new Date(`${dateText}T00:00:00`);
+    date.setDate(date.getDate() + days);
+    return toDateInputValue(date);
+}
 
 
 // Update icons here, add nako sa public and mga svgs later
@@ -107,17 +165,30 @@ function StatIcon({ name, size = 15 }) {
 
 // ----- Care instructions as a checklist -----
 // Each row is saved as one line; the foster sees every line as a checklist item.
-const CARE_PRESETS = [
-    "Feed twice a day",
-    "Fresh water at all times",
-    "Daily walk or playtime",
-    "Give medicine as prescribed",
-    "Keep indoors at night",
-    "Submit a weekly update",
-];
+// The essentials are always included and can't be removed; extras (like medicine) are optional.
+const OPTIONAL_CARE_PRESETS = ["Give medicine as prescribed"];
+
+const ESSENTIAL_COUNT = ESSENTIAL_CARE.length;
+
+// The first rows are the essentials (always there, can be reworded); the rest are extras.
+// Older assignments with fewer rows get the essentials added in front.
+function careRows(text) {
+    const lines = String(text || "").split("\n");
+    const filled = lines.filter((line) => line.trim());
+    if (filled.length < ESSENTIAL_COUNT) return [...ESSENTIAL_CARE, ...filled];
+    return lines;
+}
+
+// For saving: an essential left empty goes back to its default; empty extras are dropped
+function withEssentialCare(text) {
+    const rows = careRows(text);
+    const essentials = ESSENTIAL_CARE.map((fallback, index) => String(rows[index] || "").trim() || fallback);
+    const extras = rows.slice(ESSENTIAL_COUNT).map((row) => row.trim()).filter(Boolean);
+    return [...essentials, ...extras].join("\n");
+}
 
 function CareChecklistInput({ value, onChange }) {
-    const rows = String(value || "").split("\n");
+    const rows = careRows(value);
     const inputsRef = useRef([]);
     const [focusIndex, setFocusIndex] = useState(null);
 
@@ -139,21 +210,22 @@ function CareChecklistInput({ value, onChange }) {
     }
 
     function addRow(afterIndex = rows.length - 1, text = "") {
+        const at = Math.max(afterIndex + 1, ESSENTIAL_COUNT);
         const next = [...rows];
-        next.splice(afterIndex + 1, 0, text);
+        next.splice(at, 0, text);
         save(next);
-        setFocusIndex(afterIndex + 1);
+        setFocusIndex(at);
     }
 
     function removeRow(index) {
-        const next = rows.filter((_, i) => i !== index);
-        save(next.length ? next : [""]);
-        setFocusIndex(Math.max(0, index - 1));
+        if (index < ESSENTIAL_COUNT) return;
+        save(rows.filter((_, i) => i !== index));
+        setFocusIndex(index - 1);
     }
 
     function addPreset(text) {
-        const filled = rows.filter((row) => row.trim());
-        save([...filled, text]);
+        const extras = rows.slice(ESSENTIAL_COUNT).filter((row) => row.trim());
+        save([...rows.slice(0, ESSENTIAL_COUNT), ...extras, text]);
     }
 
     function handleKeyDown(event, index) {
@@ -162,7 +234,7 @@ function CareChecklistInput({ value, onChange }) {
             addRow(index);
         }
 
-        if (event.key === "Backspace" && !rows[index] && rows.length > 1) {
+        if (event.key === "Backspace" && !rows[index] && index >= ESSENTIAL_COUNT) {
             event.preventDefault();
             removeRow(index);
         }
@@ -173,31 +245,37 @@ function CareChecklistInput({ value, onChange }) {
     return (
         <div className="acl">
             <ul className="acl-list">
-                {rows.map((row, index) => (
-                    <li key={index} className="acl-row">
-                        <span className="acl-check" aria-hidden="true">
-                            <StatIcon name="check" size={12} />
-                        </span>
-                        <input
-                            ref={(element) => { inputsRef.current[index] = element; }}
-                            value={row}
-                            onChange={(event) => editRow(index, event.target.value)}
-                            onKeyDown={(event) => handleKeyDown(event, index)}
-                            placeholder={index === 0 ? "e.g. Feed twice a day" : "Another instruction"}
-                            maxLength={120}
-                            aria-label={`Care instruction ${index + 1}`}
-                        />
-                        <button
-                            type="button"
-                            className="acl-remove"
-                            onClick={() => removeRow(index)}
-                            aria-label={`Remove instruction ${index + 1}`}
-                            disabled={rows.length === 1 && !row}
-                        >
-                            <StatIcon name="x" size={12} />
-                        </button>
-                    </li>
-                ))}
+                {rows.map((row, index) => {
+                    const isEssential = index < ESSENTIAL_COUNT;
+                    return (
+                        <li key={index} className={`acl-row ${isEssential ? "is-essential" : ""}`}>
+                            <span className="acl-check" aria-hidden="true">
+                                <StatIcon name="check" size={12} />
+                            </span>
+                            <input
+                                ref={(element) => { inputsRef.current[index] = element; }}
+                                value={row}
+                                onChange={(event) => editRow(index, event.target.value)}
+                                onKeyDown={(event) => handleKeyDown(event, index)}
+                                placeholder={isEssential ? ESSENTIAL_CARE[index] : "e.g. Give medicine as prescribed"}
+                                maxLength={120}
+                                aria-label={`Care instruction ${index + 1}`}
+                            />
+                            {isEssential ? (
+                                <small className="acl-lock" title="Always included. You can reword it.">Required</small>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="acl-remove"
+                                    onClick={() => removeRow(index)}
+                                    aria-label={`Remove instruction ${index + 1}`}
+                                >
+                                    <StatIcon name="x" size={12} />
+                                </button>
+                            )}
+                        </li>
+                    );
+                })}
             </ul>
 
             <button type="button" className="acl-add" onClick={() => addRow()}>
@@ -206,7 +284,7 @@ function CareChecklistInput({ value, onChange }) {
 
             <div className="acl-presets">
                 <small>Quick add:</small>
-                {CARE_PRESETS.map((preset) => (
+                {OPTIONAL_CARE_PRESETS.map((preset) => (
                     <button
                         key={preset}
                         type="button"
@@ -224,6 +302,7 @@ export default function FosterCare() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
+    const [requestingUpdateId, setRequestingUpdateId] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [medicalRequests, setMedicalRequests] = useState([]);
@@ -295,6 +374,9 @@ export default function FosterCare() {
         }
     }
     const [assigningApplication, setAssigningApplication] = useState(null);
+    // Assign pop-up pet picker
+    const [petSearch, setPetSearch] = useState("");
+    const [petScope, setPetScope] = useState("match");
     const token = localStorage.getItem("token")
 
     const [assignmentForm, setAssignmentForm] =
@@ -523,7 +605,7 @@ export default function FosterCare() {
                 return;
             }
 
-            setMessage("Behavioral evaluation accepted and foster assignment completed.");
+            setMessage(data.message || "Behavioral evaluation accepted.");
 
             await fetchAssignments();
         } catch (error) {
@@ -629,7 +711,7 @@ export default function FosterCare() {
                 assignment.petImage,
 
             careInstructions:
-                assignment.careInstructions,
+                withEssentialCare(assignment.careInstructions),
         });
 
         setMessage("");
@@ -640,6 +722,51 @@ export default function FosterCare() {
         setEditingId(null);
         setAssignmentForm(emptyAssignmentForm);
         setMessage("");
+    }
+
+    async function handleCompleteAssignment(assignment) {
+        const confirmed = await askConfirm({
+            title: `Complete ${assignment.petName}'s foster assignment?`,
+            message: "The foster care ends today and the foster is notified.",
+            confirmLabel: "Complete",
+        });
+        if (!confirmed) return;
+
+        try {
+            setMessage("");
+            const response = await fetch(`${API}/api/foster/assignments/${assignment._id}/complete`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            setMessage(data.message || (response.ok ? "Foster assignment completed." : "Could not complete the assignment."));
+            if (response.ok && data.success) fetchAssignments();
+        } catch (error) {
+            console.error("Complete foster assignment error:", error);
+            setMessage("Server error while completing the assignment.");
+        }
+    }
+
+    async function handleRequestUpdate(assignment) {
+        try {
+            setRequestingUpdateId(assignment._id);
+            setMessage("");
+
+            const response = await fetch(`${API}/api/foster/assignments/${assignment._id}/request-update`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            setMessage(data.message || (response.ok ? "Update requested." : "Could not ask for an update."));
+            if (response.ok && data.success) fetchAssignments();
+        } catch (error) {
+            console.error("Request weekly update error:", error);
+            setMessage("Server error while asking for an update.");
+        } finally {
+            setRequestingUpdateId("");
+        }
     }
 
     async function handleDeleteAssignment(id) {
@@ -717,6 +844,7 @@ export default function FosterCare() {
                     },
                     body: JSON.stringify({
                         ...assignmentForm,
+                        careInstructions: withEssentialCare(assignmentForm.careInstructions),
 
                         adminName:
                             savedUser.name ||
@@ -773,6 +901,7 @@ export default function FosterCare() {
                     },
                     body: JSON.stringify({
                         ...assignmentForm,
+                        careInstructions: withEssentialCare(assignmentForm.careInstructions),
                         adminName:
                             savedUser.name ||
                             savedUser.username,
@@ -981,7 +1110,10 @@ export default function FosterCare() {
             fosterApplicationId: application._id,
             fosterName: application.applicantName,
             fosterEmail: application.applicantEmail,
+            startDate: toDateInputValue(new Date()),
         });
+        setPetSearch("");
+        setPetScope("match");
         setAssigningApplication(application);
     }
 
@@ -1270,17 +1402,20 @@ export default function FosterCare() {
                                         {formatShortDate(assignment.startDate)}
                                     </span>
 
-                                    <span className="afl-cell" data-label="Updates">
+                                    <span className="afl-cell afl-updates" data-label="Updates">
                                         {assignment.updates?.length || 0}
+                                        {lastUpdateDate(assignment) && (
+                                            <small>Last {formatShortDate(lastUpdateDate(assignment))}</small>
+                                        )}
+                                        {weeklyUpdateIsDue(assignment) && (
+                                            <span className="afl-flag is-due">Update due</span>
+                                        )}
                                     </span>
 
                                     <div className="afl-cell" data-label="Status">
                                         <span className={`afl-status is-${assignment.status}`}>
                                             {assignment.status}
                                         </span>
-                                        {assignment.behaviorEvaluation?.status === "pending" && (
-                                            <span className="afl-flag">Evaluation to review</span>
-                                        )}
                                         {assignment.returnRequest?.status === "pending" && (
                                             <span className="afl-flag is-return">
                                                 Return requested{assignment.returnRequest.urgent ? " · Urgent" : ""}
@@ -1300,6 +1435,33 @@ export default function FosterCare() {
                                                         Review return
                                                     </button>
                                             )}
+                                                {assignment.behaviorEvaluation?.status === "accepted" && (
+                                                    <button
+                                                        type="button"
+                                                        className="afl-ask-btn is-complete"
+                                                        title="End this foster assignment now"
+                                                        onClick={() => handleCompleteAssignment(assignment)}
+                                                    >
+                                                        Complete
+                                                    </button>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    className="afl-ask-btn"
+                                                    disabled={askedInLastDay(assignment) || requestingUpdateId === assignment._id}
+                                                    title={
+                                                        askedInLastDay(assignment)
+                                                            ? "Already asked in the last 24 hours"
+                                                            : "Send the foster a notification and email asking for a weekly update"
+                                                    }
+                                                    onClick={() => handleRequestUpdate(assignment)}
+                                                >
+                                                    {requestingUpdateId === assignment._id
+                                                        ? "Asking..."
+                                                        : askedInLastDay(assignment)
+                                                          ? "Asked"
+                                                          : "Ask for update"}
+                                                </button>
                                                 <button
                                                     type="button"
                                                     className="afl-icon-btn"
@@ -1605,7 +1767,6 @@ export default function FosterCare() {
                             </span>
 
                             <div className="afr-who">
-                                <span className="afr-eyebrow">Foster Application</span>
                                 <h2>{reviewingApplication.applicantName}</h2>
                                 <small>
                                     <StatIcon name="mail" size={14} />
@@ -1835,7 +1996,6 @@ export default function FosterCare() {
                             </span>
 
                             <div className="afr-who">
-                                <span className="afr-eyebrow">New Foster Assignment</span>
                                 <h2>{assigningApplication.applicantName}</h2>
                                 <small>
                                     <StatIcon name="mail" size={14} />
@@ -1905,46 +2065,93 @@ export default function FosterCare() {
                                     const prefers = assigningApplication.preferredAnimalType;
                                     const fits = (animal) =>
                                         !prefers || prefers === "Both" ? true : animal.type === prefers;
-                                    const matching = animals.filter(fits);
-                                    const others = animals.filter((animal) => !fits(animal));
-                                    const petOption = (animal) => (
-                                        <option key={animal._id} value={animal._id}>
-                                            {animal.name} — {animal.type}
-                                            {animal.breed ? `, ${animal.breed}` : ""}
-                                        </option>
+                                    const matchingCount = animals.filter(fits).length;
+                                    const scope = matchingCount === 0 ? "all" : petScope;
+                                    const query = petSearch.trim().toLowerCase();
+                                    const shown = animals.filter(
+                                        (animal) =>
+                                            (scope === "all" || fits(animal)) &&
+                                            (!query ||
+                                                `${animal.name} ${animal.breed || ""} ${animal.type || ""}`
+                                                    .toLowerCase()
+                                                    .includes(query))
                                     );
 
                                     return (
-                                        <label className="is-wide">
-                                            <span>Pet <em>*</em></span>
-                                            <select
-                                                value={assignmentForm.animalId}
-                                                onChange={(e) => pickAnimal(e.target.value)}
-                                                disabled={animalsLoading}
-                                                required
-                                            >
-                                                <option value="">
-                                                    {animalsLoading
-                                                        ? "Loading pets..."
-                                                        : animals.length
-                                                            ? "Select a registered pet"
-                                                            : "No pets available for foster"}
-                                                </option>
+                                        <div className="is-wide afr-picker">
+                                            <span className="acl-label">
+                                                Pick a pet <em>*</em>
+                                            </span>
 
-                                                {others.length > 0 && matching.length > 0 ? (
-                                                    <>
-                                                        <optgroup label={`Matches preference (${PREFERS_LABEL[prefers] || prefers})`}>
-                                                            {matching.map(petOption)}
-                                                        </optgroup>
-                                                        <optgroup label="Other pets">
-                                                            {others.map(petOption)}
-                                                        </optgroup>
-                                                    </>
-                                                ) : (
-                                                    animals.map(petOption)
-                                                )}
-                                            </select>
-                                        </label>
+                                            <div className="afr-picker-tools">
+                                                <input
+                                                    type="search"
+                                                    value={petSearch}
+                                                    placeholder="Search name or breed..."
+                                                    onChange={(event) => setPetSearch(event.target.value)}
+                                                />
+                                                <div className="afr-picker-chips">
+                                                    <button
+                                                        type="button"
+                                                        className={scope === "match" ? "is-on" : ""}
+                                                        disabled={matchingCount === 0}
+                                                        onClick={() => setPetScope("match")}
+                                                    >
+                                                        Matches preference ({matchingCount})
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className={scope === "all" ? "is-on" : ""}
+                                                        onClick={() => setPetScope("all")}
+                                                    >
+                                                        All available ({animals.length})
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {animalsLoading ? (
+                                                <p className="afr-picker-empty">Loading pets...</p>
+                                            ) : shown.length === 0 ? (
+                                                <p className="afr-picker-empty">
+                                                    {animals.length ? "No pets match your search." : "No pets available for foster."}
+                                                </p>
+                                            ) : (
+                                                <div className="afr-picker-grid" role="radiogroup" aria-label="Pet">
+                                                    {shown.map((animal) => {
+                                                        const selected = assignmentForm.animalId === animal._id;
+                                                        return (
+                                                            <button
+                                                                key={animal._id}
+                                                                type="button"
+                                                                role="radio"
+                                                                aria-checked={selected}
+                                                                className={`afr-pick${selected ? " is-selected" : ""}`}
+                                                                onClick={() => pickAnimal(animal._id)}
+                                                            >
+                                                                <span className="afr-pick-photo">
+                                                                    {animal.image ? (
+                                                                        <img src={animal.image} alt="" />
+                                                                    ) : (
+                                                                        <StatIcon name="paw" size={22} />
+                                                                    )}
+                                                                </span>
+                                                                <span className="afr-pick-text">
+                                                                    <b>{animal.name}</b>
+                                                                    <small>
+                                                                        {[animal.type, animal.breed, animal.size !== "Unknown" ? animal.size : ""]
+                                                                            .filter(Boolean)
+                                                                            .join(" · ")}
+                                                                    </small>
+                                                                    {fits(animal) && prefers && prefers !== "Both" && (
+                                                                        <span className="afr-pick-match">Matches</span>
+                                                                    )}
+                                                                </span>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
                                     );
                                 })()}
 
@@ -1988,6 +2195,51 @@ export default function FosterCare() {
                                     );
                                 })()}
 
+                            <div className="is-wide afr-dates">
+                                <label>
+                                    <span>Start date</span>
+                                    <input
+                                        type="date"
+                                        value={assignmentForm.startDate}
+                                        onChange={(event) =>
+                                            setAssignmentForm((form) => ({ ...form, startDate: event.target.value }))
+                                        }
+                                        required
+                                    />
+                                </label>
+                                <label>
+                                    <span>Expected end (optional)</span>
+                                    <input
+                                        type="date"
+                                        value={assignmentForm.endDate}
+                                        min={assignmentForm.startDate ? addDays(assignmentForm.startDate, 1) : undefined}
+                                        onChange={(event) =>
+                                            setAssignmentForm((form) => ({ ...form, endDate: event.target.value }))
+                                        }
+                                    />
+                                </label>
+                                <div className="afr-lengths">
+                                    <span>Quick pick</span>
+                                    <div>
+                                        {FOSTER_LENGTHS.map((length) => (
+                                            <button
+                                                key={length.label}
+                                                type="button"
+                                                disabled={!assignmentForm.startDate}
+                                                onClick={() =>
+                                                    setAssignmentForm((form) => ({
+                                                        ...form,
+                                                        endDate: addDays(form.startDate, length.days),
+                                                    }))
+                                                }
+                                            >
+                                                {length.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="is-wide acl-field">
                                 <span className="acl-label">
                                     Care instructions
@@ -2028,7 +2280,11 @@ export default function FosterCare() {
                                 disabled={submitting}
                             >
                                 <StatIcon name="paw" size={16} />
-                                {submitting ? "Assigning..." : "Assign Foster"}
+                                {submitting
+                                    ? "Assigning..."
+                                    : assignmentForm.petName
+                                        ? `Assign ${assignmentForm.petName}`
+                                        : "Assign Foster"}
                             </button>
                         </footer>
                     </form>
@@ -2056,7 +2312,6 @@ export default function FosterCare() {
                                 </span>
 
                                 <div className="afr-who">
-                                    <span className="afr-eyebrow">Edit Foster Assignment</span>
                                     <h2>{editing.fosterName}</h2>
                                     <small>
                                         <StatIcon name="mail" size={14} />
@@ -2276,7 +2531,6 @@ export default function FosterCare() {
                                 </span>
 
                                 <div className="afr-who">
-                                    <span className="afr-eyebrow">Return Request</span>
                                     <h2>{earlyReturn.fosterName}</h2>
                                     <small>
                                         <StatIcon name="mail" size={14} />

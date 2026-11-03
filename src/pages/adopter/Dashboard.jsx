@@ -1666,7 +1666,7 @@ async function fetchPets({ silent = false } = {}) {
 
                     <span>
                         RescueBase
-                        {isFoster && <small>Adopter view</small>}
+                        <small>Adopter</small>
                     </span>
                 </button>
 
@@ -1800,10 +1800,6 @@ async function fetchPets({ silent = false } = {}) {
             <section className="adopter-main">
                 <header className="adopter-dashboard-topbar">
                     <div>
-                        <span className="adopter-dashboard-eyebrow">
-                            Adopter Portal
-                        </span>
-
                         <h1>
                             {getAdopterPageTitle(
                                 activeAdopterPage

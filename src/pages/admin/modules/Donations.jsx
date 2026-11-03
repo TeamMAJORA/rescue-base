@@ -312,6 +312,8 @@ export default function Donations() {
     const [sortBy, setSortBy] = useState("newest");
     const [page, setPage] = useState(1);
     const [openMenuId, setOpenMenuId] = useState(null);
+    // Screen position of the open ⋯ menu (fixed, so the table can't clip it)
+    const [openMenuPosition, setOpenMenuPosition] = useState({ top: 0, right: 0 });
 
     const [methods, setMethods] = useState([]);
     const [methodForm, setMethodForm] = useState(emptyMethodForm);
@@ -366,7 +368,13 @@ export default function Donations() {
 
         const close = () => setOpenMenuId(null);
         document.addEventListener("click", close);
-        return () => document.removeEventListener("click", close);
+        window.addEventListener("scroll", close, true);
+        window.addEventListener("resize", close);
+        return () => {
+            document.removeEventListener("click", close);
+            window.removeEventListener("scroll", close, true);
+            window.removeEventListener("resize", close);
+        };
     }, [openMenuId]);
 
     // ---------- stats + filtering ----------
@@ -918,7 +926,7 @@ export default function Donations() {
                             <input
                                 type="number"
                                 min="1"
-                                max="999999"
+                                max="100000"
                                 step="any"
                                 value={money ? donationForm.amount : ""}
                                 placeholder={money ? "e.g. 500" : "Money donations only"}
@@ -1204,6 +1212,11 @@ export default function Donations() {
                                                             title="More"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
+                                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                                setOpenMenuPosition({
+                                                                    top: rect.bottom + 4,
+                                                                    right: window.innerWidth - rect.right,
+                                                                });
                                                                 setOpenMenuId(openMenuId === donation._id ? null : donation._id);
                                                             }}
                                                         >
@@ -1211,7 +1224,11 @@ export default function Donations() {
                                                         </button>
 
                                                         {openMenuId === donation._id && (
-                                                            <div className="dl-menu" onClick={(e) => e.stopPropagation()}>
+                                                            <div
+                                                                className="dl-menu"
+                                                                style={{ top: openMenuPosition.top, right: openMenuPosition.right }}
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => {

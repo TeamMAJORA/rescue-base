@@ -1167,3 +1167,7 @@ body {
 .rb-ticker-close:hover {
     color: #ffffff;
 }
+
+/* Facebook link in the landing footer */
+.footer-bottom .footer-facebook { display: inline-flex; align-items: center; gap: 6px; }
+.footer-bottom .footer-facebook img { width: 16px; height: 16px; }

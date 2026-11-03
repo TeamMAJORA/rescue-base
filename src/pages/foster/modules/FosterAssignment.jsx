@@ -172,6 +172,17 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
         }
     }
 
+    // Load the shelter's name and contacts once (name shows on the pet card)
+    useEffect(() => {
+        if (!token) return;
+        fetch(`${API}/api/settings/contact`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok && data.success) setContact(data.contact);
+            })
+            .catch(() => {});
+    }, [token]);
+
     async function toggleContact() {
         const opening = !contactOpen;
         setContactOpen(opening);
@@ -419,7 +430,6 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                     </div>
 
                     <div className="fah-body">
-                        <span className="fah-eyebrow">No pet assigned yet</span>
                         <h2 className="fah-name">Your foster home is ready</h2>
                         <p className="fah-breed">
                             The shelter will match you with a pet that fits your preferences.
@@ -476,7 +486,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                             <div className="fah-contact" role="region" aria-label="Shelter contacts">
                                 {!contact ? (
                                     <p className="fah-contact-empty">Loading contacts...</p>
-                                ) : !contact.email && !contact.phone ? (
+                                ) : !contact.email && !contact.phone && !contact.facebook ? (
                                     <p className="fah-contact-empty">The shelter hasn't added contact details yet.</p>
                                 ) : (
                                     <>
@@ -495,6 +505,15 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                                                 <div>
                                                     <small>Email</small>
                                                     <b>{contact.email}</b>
+                                                </div>
+                                            </a>
+                                        )}
+                                        {contact.facebook && (
+                                            <a className="fah-contact-item" href={contact.facebook} target="_blank" rel="noopener noreferrer">
+                                                <span className="fah-fact-icon"><img src="/icons/facebook.svg" alt="" width="18" height="18" /></span>
+                                                <div>
+                                                    <small>Facebook</small>
+                                                    <b>Message us on Facebook</b>
                                                 </div>
                                             </a>
                                         )}
@@ -548,7 +567,6 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                 </div>
 
                 <div className="fah-body">
-                    <span className="fah-eyebrow">Current Foster Assignment</span>
                     <h2 className="fah-name">{assignment.petName}</h2>
                     <p className="fah-breed">{petSubtitle(assignment)}</p>
 
@@ -557,7 +575,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                             <span className="fah-fact-icon"><FaIcon name="home" /></span>
                             <div>
                                 <small>Shelter</small>
-                                <b>{assignment.shelterName || "RescueBase Shelter"}</b>
+                                <b>{contact?.name || assignment.shelterName || "RescueBase Shelter"}</b>
                             </div>
                         </div>
 
@@ -756,7 +774,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                         <div className="fah-contact" role="region" aria-label="Shelter contacts">
                             {!contact ? (
                                 <p className="fah-contact-empty">Loading contacts...</p>
-                            ) : !contact.email && !contact.phone ? (
+                            ) : !contact.email && !contact.phone && !contact.facebook ? (
                                 <p className="fah-contact-empty">
                                     The shelter hasn't added contact details yet.
                                 </p>
@@ -784,6 +802,15 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                                             <div>
                                                 <small>Email</small>
                                                 <b>{contact.email}</b>
+                                            </div>
+                                        </a>
+                                    )}
+                                    {contact.facebook && (
+                                        <a className="fah-contact-item" href={contact.facebook} target="_blank" rel="noopener noreferrer">
+                                            <span className="fah-fact-icon"><img src="/icons/facebook.svg" alt="" width="18" height="18" /></span>
+                                            <div>
+                                                <small>Facebook</small>
+                                                <b>Message us on Facebook</b>
                                             </div>
                                         </a>
                                     )}

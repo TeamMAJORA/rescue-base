@@ -6,8 +6,10 @@ const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const DEFAULT_SETTINGS = {
     general: {
         appName: "RESCUEBASE",
+        shelterName: "RescueBase Shelter",
         contactEmail: "",
         contactPhone: "",
+        facebookUrl: "",
         timezone: "Asia/Manila",
         shelterCapacity: 30,
     },
@@ -332,14 +334,16 @@ export default function GlobalSettings() {
 
                     <div className="gs-fields">
                         <label className="gs-field">
-                            Application name
+                            Shelter name
                             <input
                                 type="text"
-                                value={general.appName}
+                                value={general.shelterName ?? ""}
                                 maxLength={100}
                                 required
-                                onChange={(event) => updateSetting("general", "appName", event.target.value)}
+                                placeholder="e.g. RescueBase Shelter"
+                                onChange={(event) => updateSetting("general", "shelterName", event.target.value)}
                             />
+                            <small>Shown to fosters and on animal records as the shelter.</small>
                         </label>
 
                         <label className="gs-field">
@@ -387,6 +391,23 @@ export default function GlobalSettings() {
                             value={general.shelterCapacity ?? 30}
                             onChange={(value) => updateSetting("general", "shelterCapacity", value)}
                         />
+
+                        <label className="gs-field">
+                            Facebook page
+                            <span className="gs-fb-input">
+                                <img src="/icons/facebook.svg" alt="" />
+                                <input
+                                    type="url"
+                                    value={general.facebookUrl || ""}
+                                    maxLength={300}
+                                    placeholder="https://www.facebook.com/yourshelter"
+                                    pattern="https://(www\.|m\.|web\.)?(facebook|fb)\.com/\S+"
+                                    title="A Facebook page link, e.g. https://www.facebook.com/yourshelter"
+                                    onChange={(event) => updateSetting("general", "facebookUrl", event.target.value)}
+                                />
+                            </span>
+                            <small>Shown on the landing page and in foster contacts.</small>
+                        </label>
                     </div>
                 </section>
 

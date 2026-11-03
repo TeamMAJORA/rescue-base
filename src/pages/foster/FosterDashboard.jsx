@@ -694,7 +694,6 @@ function goToPage(page, petId = null) {
                     <>
                         <header className="fdb-header">
                             <div>
-                                <span className="fdb-eyebrow">Foster Status</span>
                                 <h2>{banner.title}</h2>
                                 <p>{banner.text}</p>
                             </div>

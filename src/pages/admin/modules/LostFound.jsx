@@ -12,6 +12,39 @@ function askConfirm(options) {
 }
 
 const API = import.meta.env.VITE_BACKEND_URL;
+
+const MATCH_FACTOR_LABELS = {
+    species: "Species",
+    breed: "Breed",
+    colour: "Colour",
+    size: "Size",
+    sex: "Sex",
+    description: "Description",
+};
+
+// similarity 0..1 -> tag text and style
+function describeMatchFactor(similarity) {
+    if (similarity >= 0.8) return { text: "match", tone: "is-good" };
+    if (similarity >= 0.4) return { text: "partly", tone: "is-mid" };
+    return { text: "low", tone: "is-low" };
+}
+
+function kilometersBetween(first, second) {
+    const a = first?.coordinates;
+    const b = second?.coordinates;
+    if (!a?.latitude || !a?.longitude || !b?.latitude || !b?.longitude) return null;
+    const toRadians = (degrees) => (degrees * Math.PI) / 180;
+    const dLat = toRadians(b.latitude - a.latitude);
+    const dLng = toRadians(b.longitude - a.longitude);
+    const h =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRadians(a.latitude)) * Math.cos(toRadians(b.latitude)) * Math.sin(dLng / 2) ** 2;
+    return 6371 * 2 * Math.asin(Math.sqrt(h));
+}
+
+function reportDate(report) {
+    return report?.eventDate || report?.dateReported || report?.createdAt || null;
+}
 const CEBU_CENTER = [10.3157, 123.8854];
 
 const PIN_ICON = L.divIcon({
@@ -69,7 +102,69 @@ function MapFollow({ lat, lng }) {
     }, [lat, lng]);
     return null;
 }
+const MATCH_IGNORED_LOCATION_WORDS = new Set(["city", "near", "the", "brgy", "barangay", "street", "and"]);
+const DISMISSED_MATCHES_STORAGE_KEY = "rb_lost_found_dismissed_matches";
 
+function getMeaningfulLocationWords(locationText) {
+    return String(locationText || "")
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((word) => word.length > 2 && !MATCH_IGNORED_LOCATION_WORDS.has(word));
+}
+
+// Reads extra details saved inside the description, e.g. "Color: brown"
+function readDescriptionDetail(report, detailName) {
+    const detailPart = String(report.description || "")
+        .split(" · ")
+        .find((part) => part.startsWith(`${detailName}: `));
+    return detailPart ? detailPart.slice(detailName.length + 2).trim().toLowerCase() : "";
+}
+
+function findPossibleMatches(report, allReports, maximumResults = 4) {
+    const reportSpecies = String(report.species || "").toLowerCase();
+    const reportLocationWords = new Set(getMeaningfulLocationWords(report.location));
+    const reportColor = readDescriptionDetail(report, "Color");
+    const reportSize = readDescriptionDetail(report, "Size");
+
+    return allReports
+        .filter(
+            (candidate) =>
+                candidate._id !== report._id &&
+                candidate.reportType !== report.reportType &&
+                candidate.reporterEmail !== report.reporterEmail &&
+                candidate.status !== "reunited" &&
+                candidate.status !== "rejected" &&
+                String(candidate.species || "").toLowerCase() === reportSpecies
+        )
+        .filter((candidate) => {
+            const lostReport = report.reportType === "lost" ? report : candidate;
+            const foundReport = report.reportType === "lost" ? candidate : report;
+            if (!lostReport.dateReported || !foundReport.dateReported) return true;
+            return new Date(foundReport.dateReported) >= new Date(lostReport.dateReported);
+        })
+        .map((candidate) => {
+            let matchScore = 0;
+
+            if (getMeaningfulLocationWords(candidate.location).some((word) => reportLocationWords.has(word))) {
+                matchScore += 2;
+            }
+            if (report.breed && candidate.breed && report.breed.trim().toLowerCase() === candidate.breed.trim().toLowerCase()) {
+                matchScore += 1;
+            }
+            const candidateColor = readDescriptionDetail(candidate, "Color");
+            if (reportColor && candidateColor && (reportColor.includes(candidateColor) || candidateColor.includes(reportColor))) {
+                matchScore += 1;
+            }
+            const candidateSize = readDescriptionDetail(candidate, "Size");
+            if (reportSize && candidateSize && reportSize === candidateSize) {
+                matchScore += 1;
+            }
+
+            return { matchedReport: candidate, matchScore };
+        })
+        .sort((first, second) => second.matchScore - first.matchScore)
+        .slice(0, maximumResults);
+}
 
 export default function LostFoundPage({ setPage }) {
     const [user, setUser] = useState(null);
@@ -91,6 +186,9 @@ export default function LostFoundPage({ setPage }) {
     const [sortBy, setSortBy] = useState("newest");
     const [typeFilter, setTypeFilter] = useState("all");
     const [onlyMine, setOnlyMine] = useState(false);
+    const [possibleMatches, setPossibleMatches] = useState(null);
+    const [possibleMatchesTotal, setPossibleMatchesTotal] = useState(0);
+    const [decidingMatchId, setDecidingMatchId] = useState("");
     const [color, setColor] = useState("");
     const [age, setAge] = useState("");
     const [ageUnit, setAgeUnit] = useState("Years");
@@ -110,6 +208,23 @@ export default function LostFoundPage({ setPage }) {
     const [claimOpen, setClaimOpen] = useState(false);
     const [claimText, setClaimText] = useState("");
     const [claimError, setClaimError] = useState("");
+    const [dismissedMatchKeys, setDismissedMatchKeys] = useState(() => {
+    try {
+        return JSON.parse(localStorage.getItem(DISMISSED_MATCHES_STORAGE_KEY)) || [];
+    } catch {
+        return [];
+    }
+});
+
+function dismissSuggestedMatch(reportId, matchedReportId) {
+    const updatedDismissedKeys = [...dismissedMatchKeys, `${reportId}:${matchedReportId}`];
+    setDismissedMatchKeys(updatedDismissedKeys);
+    try {
+        localStorage.setItem(DISMISSED_MATCHES_STORAGE_KEY, JSON.stringify(updatedDismissedKeys));
+    } catch {
+        // Storage blocked: the match stays hidden until the page reloads
+    }
+}
     const [photoName, setPhotoName] = useState("");
     const [photoUploading, setPhotoUploading] = useState(false);
     const [photoError, setPhotoError] = useState("");
@@ -179,6 +294,65 @@ export default function LostFoundPage({ setPage }) {
             setError(error.message || "Failed to load reports");
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function loadPossibleMatches() {
+        if (!token) return;
+
+        try {
+            const response = await fetch(`${API}/api/lost-found/matches?limit=100`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to load possible matches.");
+            }
+
+            setPossibleMatches(data.matches || []);
+            setPossibleMatchesTotal(Number(data.pagination?.total) || (data.matches || []).length);
+        } catch (error) {
+            setPossibleMatches([]);
+            setError(error.message || "Failed to load possible matches.");
+        }
+    }
+
+    async function decidePossibleMatch(matchId, decision) {
+        if (decision === "confirm") {
+            const confirmed = await askConfirm({
+                title: "Confirm this match?",
+                message: "Both reports will be marked as matched.",
+                confirmLabel: "Confirm match",
+            });
+            if (!confirmed) return;
+        }
+
+        try {
+            setDecidingMatchId(matchId);
+            setError("");
+            setSuccess("");
+
+            const response = await fetch(`${API}/api/lost-found/matches/${matchId}/decision`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ decision }),
+            });
+            const data = await response.json();
+
+            if (!response.ok || data.success === false) {
+                throw new Error(data.message || "Could not save the decision.");
+            }
+
+            setSuccess(decision === "confirm" ? "Match confirmed." : "Marked as not a match.");
+            await Promise.all([loadReports(), loadPossibleMatches()]);
+        } catch (error) {
+            setError(error.message || "Could not save the decision.");
+        } finally {
+            setDecidingMatchId("");
         }
     }
 
@@ -535,6 +709,10 @@ async function uploadPhoto(file) {
     useEffect(() => {
         if (user) {
             loadReports();
+            const userRole = String(user.role || "").toLowerCase();
+            if (userRole === "admin" || userRole === "staff") {
+                loadPossibleMatches();
+            }
         }
     }, [user]);
 const countLost = reports.filter((r) => r.reportType === "lost").length;
@@ -551,7 +729,12 @@ const LF_CHIPS = [
     { value: "all", label: "All", count: reports.length },
     { value: "lost", label: "Lost", count: countLost },
     { value: "found", label: "Found", count: countFound },
-    ...(canManageReports ? [{ value: "claims", label: "To review", count: countClaims }] : []),
+    ...(canManageReports
+        ? [
+              { value: "claims", label: "To review", count: countClaims },
+              { value: "matches", label: "Possible matches", count: possibleMatchesTotal },
+          ]
+        : []),
     { value: "reunited", label: "Reunited", count: countReunited },
 ];
 
@@ -967,7 +1150,6 @@ if (showReportForm && canSubmitReport) {
                 </section>
 
                 <footer className="lfr2-foot">
-                    <small>Your report shows in the Lost &amp; Found list right away.</small>
                     <div>
                         <button type="button" className="lfr2-btn" onClick={() => setShowReportForm(false)}>
                             Cancel
@@ -1050,11 +1232,13 @@ if (showReportForm && canSubmitReport) {
                     </label>
                 </div>
 
-                <div className="lf2-chips">
+                <div className="lf2-tabs" role="tablist">
                     {LF_CHIPS.map((chip) => (
                         <button
                             key={chip.value}
                             type="button"
+                            role="tab"
+                            aria-selected={typeFilter === chip.value}
                             className={typeFilter === chip.value ? "is-active" : ""}
                             onClick={() => setTypeFilter(chip.value)}
                         >
@@ -1063,7 +1247,129 @@ if (showReportForm && canSubmitReport) {
                     ))}
                 </div>
 
-                {loading ? (
+                {typeFilter === "matches" ? (
+                    <div className="lfm-list">
+                        <p className="lfm-intro">
+                            Suggested by the system from species, breed, colour, size, sex, distance and dates. Check both reports before confirming.
+                        </p>
+                        {possibleMatches === null ? (
+                            <p className="lf2-empty">Loading possible matches...</p>
+                        ) : possibleMatches.length === 0 ? (
+                            <p className="lf2-empty">No possible matches right now.</p>
+                        ) : (
+                            possibleMatches.map((match) => {
+                                const lostReport = match.reportA?.reportType === "found" ? match.reportB : match.reportA;
+                                const foundReport = lostReport === match.reportA ? match.reportB : match.reportA;
+                                const kilometers = kilometersBetween(lostReport, foundReport);
+                                const lostDate = reportDate(lostReport);
+                                const foundDate = reportDate(foundReport);
+                                const daysApart =
+                                    lostDate && foundDate
+                                        ? Math.round(Math.abs(new Date(foundDate) - new Date(lostDate)) / 86400000)
+                                        : null;
+                                const isDeciding = decidingMatchId === match._id;
+
+                                const renderSide = (report) => {
+                                    if (!report) return <div className="lfm-side is-missing">Report removed</div>;
+                                    const s = String(report.species || "").toLowerCase();
+                                    const date = reportDate(report);
+                                    return (
+                                        <button
+                                            type="button"
+                                            className="lfm-side"
+                                            title="Open report"
+                                            onClick={() => {
+                                                setViewingReport(report);
+                                                setClaimOpen(false);
+                                            }}
+                                        >
+                                            {report.photoUrl ? (
+                                                <img src={report.photoUrl} alt="" />
+                                            ) : (
+                                                <span className="lfm-thumb" aria-hidden="true">
+                                                    {s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾"}
+                                                </span>
+                                            )}
+                                            <span className="lfm-info">
+                                                <span className={`lfm-type is-${report.reportType}`}>
+                                                    {report.reportType === "found" ? "Found" : "Lost"}
+                                                </span>
+                                                <b>{report.petName || `Unnamed ${s || "pet"}`}</b>
+                                                <small>
+                                                    {[report.species, report.breed, report.colour || report.color, report.size, report.sex]
+                                                        .filter(Boolean)
+                                                        .join(" · ")}
+                                                </small>
+                                                <small>
+                                                    {[
+                                                        report.location,
+                                                        date &&
+                                                            new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join(" · ")}
+                                                </small>
+                                            </span>
+                                        </button>
+                                    );
+                                };
+
+                                return (
+                                    <article className="lfm-card" key={match._id}>
+                                        <div className="lfm-pair">
+                                            {renderSide(lostReport)}
+                                            <div className="lfm-score">
+                                                <strong>{Math.round(match.score)}%</strong>
+                                                <small>match score</small>
+                                                <small>
+                                                    {[
+                                                        kilometers !== null && `${kilometers.toFixed(1)} km apart`,
+                                                        daysApart !== null && `${daysApart} day${daysApart === 1 ? "" : "s"}`,
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join(" · ")}
+                                                </small>
+                                            </div>
+                                            {renderSide(foundReport)}
+                                        </div>
+                                        <div className="lfm-foot">
+                                            <div className="lfm-factors">
+                                                {Object.entries(MATCH_FACTOR_LABELS).map(([key, label]) => {
+                                                    const similarity = match.factors?.[key];
+                                                    if (similarity === null || similarity === undefined || !Number.isFinite(similarity)) return null;
+                                                    const factor = describeMatchFactor(similarity);
+                                                    return (
+                                                        <span key={key} className={`lfm-factor ${factor.tone}`}>
+                                                            {label} {factor.text}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                            <div className="lfm-actions">
+                                                <button
+                                                    type="button"
+                                                    className="lfm-btn"
+                                                    disabled={isDeciding}
+                                                    onClick={() => decidePossibleMatch(match._id, "not_a_match")}
+                                                >
+                                                    Not a match
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="lfm-btn is-primary"
+                                                    disabled={isDeciding || !lostReport || !foundReport}
+                                                    onClick={() => decidePossibleMatch(match._id, "confirm")}
+                                                >
+                                                    {isDeciding ? "Saving..." : "Confirm match"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </article>
+                                );
+                            })
+                        )}
+                    </div>
+                ) : loading ? (
                     <p className="lf2-empty">Loading reports...</p>
                 ) : visibleReports.length === 0 ? (
                     <p className="lf2-empty">
@@ -1214,7 +1520,7 @@ if (showReportForm && canSubmitReport) {
                     </div>
                 )}
 
-                {!loading && reports.length > 0 && (
+                {!loading && reports.length > 0 && typeFilter !== "matches" && (
                     <p className="lf2-foot">
                         Showing {visibleReports.length} of {reports.length}
                     </p>
@@ -1246,6 +1552,12 @@ if (showReportForm && canSubmitReport) {
     r.status !== "rejected" &&
     r.claimStatus !== "pending" &&
     r.claimStatus !== "approved";
+    const canSeeSuggestions = (isMine || canManageReports) && r.status !== "reunited";
+const suggestedMatches = canSeeSuggestions
+    ? findPossibleMatches(r, reports).filter(
+        ({ matchedReport }) => !dismissedMatchKeys.includes(`${r._id}:${matchedReport._id}`)
+    )
+    : [];
     return (
         <div className="lf-modal-overlay" onClick={() => setViewingReport(null)}>
             <div
@@ -1332,6 +1644,71 @@ if (showReportForm && canSubmitReport) {
 
                     <h3>Description</h3>
                     <p>{mainText || "No description."}</p>
+                    {canSeeSuggestions && (
+    <div className="lf-matches">
+        <h3>{r.reportType === "lost" ? "Possible matches" : "Possible owners"}</h3>
+
+        {suggestedMatches.length === 0 ? (
+            <p className="lf-match-empty">No matching reports yet. Check back later.</p>
+        ) : (
+            <div className="lf-match-list">
+                {suggestedMatches.map(({ matchedReport, matchScore }) => (
+                    <div className="lf-match" key={matchedReport._id}>
+                        <button
+                            type="button"
+                            className="lf-match-open"
+                            onClick={() => {
+                                setViewingReport(matchedReport);
+                                setClaimOpen(false);
+                                setClaimText("");
+                                setClaimError("");
+                            }}
+                        >
+                            <span className="lf-match-photo">
+                                {matchedReport.photoUrl ? <img src={matchedReport.photoUrl} alt="" /> : emoji}
+                            </span>
+
+                            <span className="lf-match-info">
+                                <b>{matchedReport.petName || "Unknown"}</b>
+                                <small>
+                                    {[matchedReport.breed, matchedReport.location && `📍 ${matchedReport.location}`]
+                                        .filter(Boolean)
+                                        .join(" · ")}
+                                </small>
+                                <small>
+                                    {matchedReport.reportType === "found" ? "Found " : "Lost "}
+                                    {matchedReport.dateReported
+                                        ? new Date(matchedReport.dateReported).toLocaleDateString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                            year: "numeric",
+                                        })
+                                        : "—"}
+                                </small>
+                            </span>
+
+                            {matchScore >= 3 && <span className="lf-match-tag">Strong match</span>}
+                        </button>
+
+                        {isMine && (
+                            <button
+                                type="button"
+                                className="lf-match-dismiss"
+                                onClick={() => dismissSuggestedMatch(r._id, matchedReport._id)}
+                            >
+                                {r.reportType === "lost" ? "Not my pet" : "Not a match"}
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+        )}
+
+        <small className="lf-match-note">
+            Suggested by species, dates, location, breed, color and size. Always verify before claiming.
+        </small>
+    </div>
+)}
                     {canManageReports && r.claimStatus && r.claimStatus !== "none" && (
     <div className="lf-claim-review">
         <h3>

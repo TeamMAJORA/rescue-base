@@ -9,12 +9,14 @@ import "../../styles/admin/AdminDashboardOverview.css"
 import "../../styles/admin/AnimalProfiles.css";
 import "../../styles/admin/IntakeRecords.css";
 import "../../styles/admin/LostFound.css";
+import "../../styles/admin/Reports.css"; // activity log table (al2-*)
+import "../../styles/admin/GISMapping.css"; // GIS Mapping page (same map as admin/staff)
 
 // Assets
 import assets from "../../data/assets.json";
 
 // Modules
-import AdminOverview from "../admin/modules/AdminOverview";
+import RescueAssignments, { VolunteerOverview } from "./modules/RescueAssignments";
 import LostFound from "../admin/modules/LostFound";
 
 // // ANIMALS
@@ -34,6 +36,7 @@ import NotificationPanel from "../../components/notifications/NotificationPanel"
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
     overview: "/icons/sidebar/dashboard-brown.svg",
+    rescues: "/icons/Volunteer.svg",
     animals: "/icons/sidebar/brown paw.svg",
     gis: "/icons/strayMap-brown.svg",
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
@@ -43,6 +46,7 @@ const ICONS = {
 
 const staffMenu = [
     { key: "overview", label: "Dashboard" },
+    { key: "rescues", label: "My Rescues" },
 
     {
         key: "animals",
@@ -71,32 +75,6 @@ const staffMenu = [
         label: "Feedback",
     },
 ];
-
-const mockAnimals = [
-    { name: "Max", status: "available" },
-    { name: "Blacky", status: "available" },
-    { name: "Chichay", status: "available" },
-    { name: "Milo", status: "available" },
-    { name: "Luna", status: "available" },
-    { name: "Coco", status: "available" },
-    { name: "Buddy", status: "available" },
-    { name: "Snow", status: "available" },
-    { name: "Oreo", status: "not_available" },
-    { name: "Ming", status: "not_available" },
-];
-
-function StaffStatCard({ label, value, icon }) {
-    return (
-        <article className="staff-stat-card">
-            <div>
-                <p>{label}</p>
-                <h3>{value}</h3>
-            </div>
-
-            <span>{icon}</span>
-        </article>
-    );
-}
 
 function getStaffPageTitle(activeStaffPage) {
     for (const item of staffMenu) {
@@ -341,7 +319,11 @@ export default function VolunteerDashboard({ setPage }) {
 
     function renderStaffContent() {
         if (activeStaffPage === "overview") {
-            return <AdminOverview />;
+            return <VolunteerOverview onNavigate={setActiveStaffPage} />;
+        }
+
+        if (activeStaffPage === "rescues") {
+            return <RescueAssignments />;
         }
 
         if (activeStaffPage === "animals" || activeStaffPage === "animal-profiles") {

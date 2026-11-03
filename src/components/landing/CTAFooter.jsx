@@ -1,6 +1,18 @@
+import { useEffect, useState } from "react";
 import assets from "../../data/assets.json";
 
+const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
+
 export default function CTAFooter() {
+    const [facebookUrl, setFacebookUrl] = useState("");
+
+    useEffect(() => {
+        fetch(`${API}/api/settings/social`)
+            .then((response) => (response.ok ? response.json() : null))
+            .then((data) => setFacebookUrl(data?.facebook || ""))
+            .catch(() => setFacebookUrl(""));
+    }, []);
+
     return (
         <section
             className="cta-footer"
@@ -72,6 +84,19 @@ export default function CTAFooter() {
                     <a href="#privacy">Privacy</a>
                     <a href="#terms">Terms</a>
                     <a href="#contact">Contact</a>
+                    {facebookUrl && (
+                        <a
+                            className="footer-facebook"
+                            href={facebookUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Our Facebook page"
+                            title="Our Facebook page"
+                        >
+                            <img src="/icons/facebook.svg" alt="" />
+                            Facebook
+                        </a>
+                    )}
                 </div>
 
                 <span>

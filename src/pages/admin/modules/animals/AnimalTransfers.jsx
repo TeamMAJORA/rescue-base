@@ -302,6 +302,7 @@ function fromApi(transfer) {
         transferDate: String(transfer.transfer_date || "").slice(0, 10),
         reason: transfer.reason || "",
         status: transfer.status || "Pending",
+        leavesShelter: Boolean(transfer.leaves_shelter),
     };
 }
 
@@ -314,6 +315,7 @@ function toApi(form, animalId) {
         transfer_date: form.transferDate,
         reason: form.reason,
         status: form.status,
+        leaves_shelter: Boolean(form.leavesShelter),
     };
 }
 const emptyForm = {
@@ -323,6 +325,7 @@ const emptyForm = {
     transferDate: "",
     reason: "",
     status: "Pending",
+    leavesShelter: false,
 };
 
 const STATUS_OPTIONS = [
@@ -675,6 +678,18 @@ export default function AnimalTransfers() {
                             />
                         </div>
 
+                        <label className="ao-field at-leaves">
+                            <span className="at-leaves-row">
+                                <input
+                                    type="checkbox"
+                                    checked={Boolean(form.leavesShelter)}
+                                    onChange={(e) => updateField("leavesShelter", e.target.checked)}
+                                />
+                                This animal leaves our care (another shelter or rescue partner)
+                            </span>
+                            <small>When the transfer is Completed, the animal is taken off adoption.</small>
+                        </label>
+
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary">
                                 {editingId ? "Update Transfer" : "Save Transfer"}
@@ -767,6 +782,12 @@ export default function AnimalTransfers() {
 
                                             {transfer.reason && (
                                                 <p className="ao-note">{transfer.reason}</p>
+                                            )}
+
+                                            {transfer.leaves_shelter && (
+                                                <span className="at-left-tag">
+                                                    {transfer.status === "Completed" ? "Left our care" : "Will leave our care"}
+                                                </span>
                                             )}
                                         </div>
 
