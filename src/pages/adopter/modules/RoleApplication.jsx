@@ -218,9 +218,6 @@ export default function RoleApplication() {
             <div className="adopter-panel ra-form-panel">
                 <div className="adopter-panel-heading">
                     <div>
-                        <span className="adopter-dashboard-eyebrow">
-                            RescueBase Community
-                        </span>
 
                         <h2>Join the RescueBase team</h2>
 

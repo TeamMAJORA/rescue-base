@@ -510,7 +510,7 @@ export default function GISMapping() {
 
         loadLocations(userRole);
 
-        if (["admin", "staff"].includes(userRole)) {
+        if (["admin", "staff", "volunteer"].includes(userRole)) {
             loadHotspots();
         } else {
             setHotspots([]);
@@ -1244,8 +1244,13 @@ export default function GISMapping() {
 
         try {
             setSubmitting(true);
+            const isVolunteerSighting = !canManage && !isEditing;
             const response = await fetch(
-                isEditing ? `${API}/api/gis/${editingLocationId}` : `${API}/api/gis`,
+                isEditing
+                    ? `${API}/api/gis/${editingLocationId}`
+                    : isVolunteerSighting
+                        ? `${API}/api/gis/stray-sightings`
+                        : `${API}/api/gis`,
                 {
                     method: isEditing ? "PATCH" : "POST",
                     headers: {
@@ -1346,8 +1351,10 @@ export default function GISMapping() {
     // ---------------------------
     // Staff/Admin redesigned view (volunteers keep the view below)
     // ---------------------------
-    if (canManage) {
-        const reportTypes = ["stray", "lost", "found", "rescue", "intake"];
+    // Admin, staff and volunteers share the new map; manage-only controls check canManage
+    if (canManage || userRole === "volunteer") {
+        // Volunteers can only pin stray sightings (lost/found go through Lost & Found)
+        const reportTypes = canManage ? ["stray", "lost", "found", "rescue", "intake"] : ["stray"];
 
         return (
             <section className="gm-page">
@@ -1413,7 +1420,7 @@ export default function GISMapping() {
                                             <br />
                                             {location.status === "open" ? "Open" : "Resolved"} · {timeAgo(location.createdAt)}
                                             {location.description && (<><br />{location.description}</>)}
-                                            {location.status === "open" && (
+                                            {canManage && location.status === "open" && (
                                                 <>
                                                     <br />
                                                     <button type="button" className="gm-link" onClick={() => handleResolveLocation(location._id)}>
@@ -1447,10 +1454,14 @@ export default function GISMapping() {
                                                 {counts
                                                     ? `${counts.dogs} dogs · ${counts.cats} cats available · ${counts.inFoster} in foster`
                                                     : shelter.address}
-                                                <br />
-                                                <button type="button" className="gm-link" onClick={() => gmOpenShelter(shelter)}>
-                                                    Edit
-                                                </button>
+                                                {canManage && (
+                                                    <>
+                                                        <br />
+                                                        <button type="button" className="gm-link" onClick={() => gmOpenShelter(shelter)}>
+                                                            Edit
+                                                        </button>
+                                                    </>
+                                                )}
                                             </Popup>
                                         </Marker>
                                     );
@@ -1578,9 +1589,11 @@ export default function GISMapping() {
                                     <button type="button" className="is-primary" onClick={gmReportAtSearch}>
                                         Pin a report here
                                     </button>
-                                    <button type="button" onClick={gmShelterAtSearch}>
-                                        Add shelter here
-                                    </button>
+                                    {canManage && (
+                                        <button type="button" onClick={gmShelterAtSearch}>
+                                            Add shelter here
+                                        </button>
+                                    )}
                                 </div>
                                 <button
                                     type="button"
@@ -1620,10 +1633,12 @@ export default function GISMapping() {
 
                         {/* Add shelter / Pin a report — bottom right of the map */}
                         <div className="gm-map-actions">
-                            <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenShelter(null)}>
-                                <img src="/gis/icon-add-shelter.svg" alt="" className="gm-btn-icon" />
-                                Add shelter
-                            </button>
+                            {canManage && (
+                                <button type="button" className="gm-btn gm-btn-ghost" onClick={() => gmOpenShelter(null)}>
+                                    <img src="/gis/icon-add-shelter.svg" alt="" className="gm-btn-icon" />
+                                    Add shelter
+                                </button>
+                            )}
                             <button type="button" className="gm-btn gm-btn-orange" onClick={gmOpenReport}>
                                 Pin a report
                             </button>
@@ -1724,12 +1739,16 @@ export default function GISMapping() {
                                                             </button>
                                                             <div className="gm-row-actions">
                                                                 {location.status === "open" ? (
+                                                                    !canManage ? (
+                                                                        <span className="gm-mini">Open</span>
+                                                                    ) :
                                                                     <button type="button" className="gm-mini" onClick={() => handleResolveLocation(location._id)}>
                                                                         Resolve
                                                                     </button>
                                                                 ) : (
                                                                     <span className="gm-mini is-done">Resolved</span>
                                                                 )}
+                                                                {canManage && (
                                                                 <span className="gm-row-links">
                                                                     <button type="button" className="gm-link" onClick={() => gmEditReport(location)}>Edit</button>
                                                                     <button
@@ -1741,6 +1760,7 @@ export default function GISMapping() {
                                                                         {deletingId === location._id ? "Deleting..." : "Delete"}
                                                                     </button>
                                                                 </span>
+                                                                )}
                                                             </div>
                                                         </article>
                                                     ))
@@ -1795,10 +1815,10 @@ export default function GISMapping() {
                                                         <button
                                                             type="button"
                                                             className="gm-row-text"
-                                                            title="Edit this place"
+                                                            title={canManage ? "Edit this place" : "Show on map"}
                                                             onClick={() => {
                                                                 setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 });
-                                                                gmOpenShelter(shelter);
+                                                                if (canManage) gmOpenShelter(shelter);
                                                             }}
                                                         >
                                                             <b>{shelter.name}</b>

@@ -383,10 +383,8 @@
 }
 
 .dl-menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    right: 0;
-    z-index: 20;
+    position: fixed;
+    z-index: 1200;
     display: grid;
     min-width: 160px;
     padding: 6px;
@@ -1018,3 +1016,18 @@
 .dl-hours-preview b {
     color: #5a1b00;
 }
+
+/* Keep the donations list inside its card (no spill to the right) */
+.dl-layout > * { min-width: 0; }
+.dl-card { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.dl-card .dl-toolbar > * { min-width: 0; }
+.dl-card .dl-search { flex: 1 1 220px; width: auto; }
+.dl-card .dl-table-card { min-width: 0; }
+/* Stack the side card above the list sooner (the sidebar takes ~260px) */
+@media (max-width: 1400px) {
+    .dl-layout { grid-template-columns: 1fr; }
+    .dl-pm.dl-pm-side { order: 1; position: static; }
+}
+
+/* No scrollbars on the donations table; columns wrap instead */
+.dl-card .dl-table-wrap { overflow: visible; }

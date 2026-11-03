@@ -385,7 +385,7 @@ export default function DashboardOverview({
                         <div className="fah-contact fdo-contact" role="region" aria-label="Shelter contacts">
                             {!contact ? (
                                 <p className="fah-contact-empty">Loading contacts...</p>
-                            ) : !contact.email && !contact.phone ? (
+                            ) : !contact.email && !contact.phone && !contact.facebook ? (
                                 <p className="fah-contact-empty">The shelter hasn't added contact details yet.</p>
                             ) : (
                                 <>
@@ -404,6 +404,15 @@ export default function DashboardOverview({
                                             <div>
                                                 <small>Email</small>
                                                 <b>{contact.email}</b>
+                                            </div>
+                                        </a>
+                                    )}
+                                    {contact.facebook && (
+                                        <a className="fah-contact-item" href={contact.facebook} target="_blank" rel="noopener noreferrer">
+                                            <span className="fah-fact-icon"><img src="/icons/facebook.svg" alt="" width="18" height="18" /></span>
+                                            <div>
+                                                <small>Facebook</small>
+                                                <b>Message us on Facebook</b>
                                             </div>
                                         </a>
                                     )}

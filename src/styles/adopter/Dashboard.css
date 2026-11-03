@@ -2323,3 +2323,14 @@
         padding-top: 12px;
     }
 }
+/* Role label under the logo (matches the foster sidebar) */
+.adopter-logo span { display: grid; text-align: left; }
+.adopter-logo small {
+    margin-top: 4px;
+    color: #7b452d;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}

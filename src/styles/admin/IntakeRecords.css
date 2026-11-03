@@ -2976,3 +2976,11 @@ a.ao-tag {
 .ao-where .ao-btn { flex: none; }
 .ao-field .ao-pickmap { margin-top: 6px; }
 .ao-field .ao-pickmap-map { height: 160px; }
+
+/* Facebook page field (System settings) */
+.gs-fb-input { position: relative; display: block; }
+.gs-fb-input img { position: absolute; left: 10px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); pointer-events: none; }
+.gs-field .gs-fb-input input { padding-left: 36px; }
+
+/* Locked field (Application name) */
+.gs-field input:disabled { background: #f1ece2; color: #7a5a45; cursor: not-allowed; }

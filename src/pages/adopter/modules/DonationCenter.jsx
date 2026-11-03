@@ -211,6 +211,11 @@ export default function DonationCenter() {
             return;
         }
 
+        if (isMoneyDonation && Number(donation.quantity) > 100000) {
+            setMessage("Donation amount can't be more than ₱100,000.");
+            return;
+        }
+
         if (
             isMoneyDonation &&
             !donation.paymentMethod
@@ -696,7 +701,7 @@ export default function DonationCenter() {
                                         <input
                                             type="number"
                                             min="1"
-                                            max={isMoneyDonation ? 999999 : 1000}
+                                            max={isMoneyDonation ? 100000 : 1000}
                                             step="0.01"
                                             placeholder="Enter amount"
                                             value={donation.quantity}
@@ -739,7 +744,7 @@ export default function DonationCenter() {
                                             <input
                                                 type="number"
                                                 min="1"
-                                                max={isMoneyDonation ? 999999 : 1000}
+                                                max={isMoneyDonation ? 100000 : 1000}
                                                 step="1"
                                                 placeholder="0"
                                                 value={donation.quantity}
