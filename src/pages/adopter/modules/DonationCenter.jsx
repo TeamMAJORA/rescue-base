@@ -26,6 +26,9 @@ const donationUnits = [
     "Other",
 ];
 
+// Payment options donors can choose (same list the server accepts)
+const PAYMENT_METHOD_OPTIONS = ["GCash", "Maya", "Bank Account"];
+
 const inKindCategories = donationCategories.filter(
     (category) => category !== "Money"
 );
@@ -685,14 +688,23 @@ export default function DonationCenter() {
                                                     ? "Loading..."
                                                     : "Select payment method"}
                                             </option>
-                                            {paymentMethods.map((method) => (
-                                                <option
-                                                    key={method._id}
-                                                    value={method.method_type}
-                                                >
-                                                    {method.method_type}
-                                                </option>
-                                            ))}
+                                            {PAYMENT_METHOD_OPTIONS.map((methodType) => {
+                                                const hasShelterAccount = paymentMethods.some(
+                                                    (method) => method.method_type === methodType
+                                                );
+
+                                                return (
+                                                    <option
+                                                        key={methodType}
+                                                        value={methodType}
+                                                        disabled={!hasShelterAccount}
+                                                    >
+                                                        {hasShelterAccount
+                                                            ? methodType
+                                                            : `${methodType} (not available yet)`}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     </label>
 

@@ -100,8 +100,7 @@ const DELIVERY_METHODS = ["Drop-off", "Shelter Pickup", "Courier Delivery", "Onl
 const METHOD_NAMES = {
     GCash: "E-wallet",
     Maya: "E-wallet",
-    "Bank Transfer": "Bank",
-    "Wire Transfer": "Bank",
+    "Bank Account": "Bank",
 };
 
 // Lines we keep inside `notes` because the donation model has no fields for them
@@ -695,7 +694,8 @@ export default function Donations() {
     function editMethod(method) {
         setEditingMethodId(method._id);
         setMethodForm({
-            method_type: method.method_type || "GCash",
+            // Records saved before the list was simplified ("Bank Transfer", "Wire Transfer") open as Bank Account
+            method_type: METHOD_NAMES[method.method_type] ? method.method_type : "Bank Account",
             account_name: method.account_name || "",
             account_number: method.account_number || "",
             qr_image_url: method.qr_image_url || "",
@@ -1604,7 +1604,7 @@ export default function Donations() {
                                 {methodMessage && <p className={`gs-alert ${methodTone}`}>{methodMessage}</p>}
 
                                 <div className="dl-pm-foot">
-                                    {editingMethodId && isAdmin() ? (
+                                    {editingMethodId ? (
                                         (() => {
                                             const used = methodUsage(methodForm.method_type);
                                             const current = methods.find((m) => m._id === editingMethodId);
