@@ -10,7 +10,8 @@ import MedicalAssistance from "./modules/MedicalAssistance";
 import FosterUpdates from "./modules/FosterUpdates";
 import FeedbackForm from "../FeedbackForm";
 import AccountSettings from "../AccountSettings";
-
+import DonationCenter from "../adopter/modules/DonationCenter";
+import DonationHistory from "../adopter/modules/DonationHistory";
 //hehe nag add ko settings for all roles
 
 import "../../styles/foster/FosterDashboard.css";
@@ -20,6 +21,8 @@ import "../../styles/foster/DashboardOverview.css"
 import "../../styles/foster/WeeklyUpdates.css";
 import "../../styles/foster/FosterHistory.css";
 import "../../styles/foster/FosterNotifications.css";
+import "../../styles/adopter/DonationCenter.css";
+import "../../styles/adopter/DonationHistory.css";
 import "../../styles/admin/IntakeRecords.css"; // shared page styles (stats strip, cards, traits)
 
 import assets from "../../data/assets.json";
@@ -37,8 +40,21 @@ const PAGE_TITLES = {
     application: "My Application",
     medical: "Medical Assistance",
     notifications: "Notifications",
+    donation: "Donation",
+    "donation-history": "Donation History",
     feedback: "Feedback",
     settings: "Settings",
+};
+
+// The donation pages are shared with the Adopter dashboard and use its colour variables,
+// which are only defined inside the adopter page. Give them the same colours here.
+const ADOPTER_DONATION_COLOURS = {
+    "--adopter-brown": "#5a1b00",
+    "--adopter-light-brown": "#7b452d",
+    "--adopter-red": "#d62828",
+    "--adopter-orange": "#fb8500",
+    "--adopter-yellow": "#fcbf49",
+    "--adopter-light-yellow": "#fff7cb",
 };
 
 // Sidebar items (same icon set as the Adopter sidebar)
@@ -49,6 +65,8 @@ const FOSTER_MENU = [
     { key: "behavior", label: "Behavior Evaluation", icon: "/icons/heart-brown.svg", activeIcon: "/icons/heart-light.svg", also: ["fosterUpdates"] },
     { key: "medical", label: "Medical Assistance", icon: "/icons/sidebar/medical-brown.svg", activeIcon: "/icons/sidebar/medical-light.svg" },
     { key: "history", label: "Foster History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
+    { key: "donation", label: "Donation", icon: "/icons/sidebar/donation-brown.svg", activeIcon: "/icons/sidebar/donation-light.svg" },
+    { key: "donation-history", label: "Donation History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
     { key: "application", label: "My Application", icon: "/icons/sidebar/role-brown.svg", activeIcon: "/icons/sidebar/role-light.svg" },
     { key: "feedback", label: "Feedback", icon: "/icons/sidebar/Feedback-brown.svg", activeIcon: "/icons/sidebar/Feedback-light.svg" },
     { key: "settings", label: "Settings", icon: "/icons/sidebar/settings-brown.svg", activeIcon: "/icons/sidebar/settings-light.svg" },
@@ -442,6 +460,18 @@ function goToPage(page, petId = null) {
                 onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
+        ),
+
+        donation: (
+            <div style={ADOPTER_DONATION_COLOURS}>
+                <DonationCenter />
+            </div>
+        ),
+
+        "donation-history": (
+            <div style={ADOPTER_DONATION_COLOURS}>
+                <DonationHistory onMakeDonation={() => goToPage("donation")} />
+            </div>
         ),
 
         feedback: (
