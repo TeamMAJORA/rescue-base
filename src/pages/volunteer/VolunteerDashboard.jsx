@@ -11,6 +11,8 @@ import "../../styles/admin/IntakeRecords.css";
 import "../../styles/admin/LostFound.css";
 import "../../styles/admin/Reports.css"; // activity log table (al2-*)
 import "../../styles/admin/GISMapping.css"; // GIS Mapping page (same map as admin/staff)
+import "../../styles/adopter/DonationCenter.css";
+import "../../styles/adopter/DonationHistory.css";
 
 // Assets
 import assets from "../../data/assets.json";
@@ -26,6 +28,8 @@ import QRTags from "../admin/modules/animals/QRTags";
 import ActivityLog from "./modules/ActivityLog";
 import FeedbackForm from "../FeedbackForm";
 import GISMapping from "../admin/modules/GISMapping";
+import DonationCenter from "../adopter/modules/DonationCenter";
+import DonationHistory from "../adopter/modules/DonationHistory";
 
 // // ADOPTIONS
 import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
@@ -39,6 +43,7 @@ const ICONS = {
     "lost-found": "/icons/sidebar/LostnFound-brown.svg",
     "activity-log": "/icons/sidebar/history.svg",
     feedback: "/icons/sidebar/Feedback-brown.svg",
+    donation: "/icons/sidebar/donation-brown.svg",
 };
 
 const staffMenu = [
@@ -71,7 +76,58 @@ const staffMenu = [
         key: "feedback",
         label: "Feedback",
     },
+    {
+        key: "donation",
+        label: "Donation",
+    },
 ];
+
+// The donation pages are shared with the Adopter dashboard and use its colour variables,
+// which are only defined inside the adopter page. Give them the same colours here.
+const ADOPTER_DONATION_COLOURS = {
+    "--adopter-brown": "#5a1b00",
+    "--adopter-light-brown": "#7b452d",
+    "--adopter-red": "#d62828",
+    "--adopter-orange": "#fb8500",
+    "--adopter-yellow": "#fcbf49",
+    "--adopter-light-yellow": "#fff7cb",
+};
+
+// Donation page for volunteers: donate (monetary or in-kind) and see their own donation history
+function VolunteerDonation() {
+    const [donationTab, setDonationTab] = useState("donate");
+
+    return (
+        <div style={ADOPTER_DONATION_COLOURS}>
+            <div className="rp-filters" role="tablist" aria-label="Donation" style={{ marginBottom: 16 }}>
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={donationTab === "donate"}
+                    className={donationTab === "donate" ? "on" : ""}
+                    onClick={() => setDonationTab("donate")}
+                >
+                    Donate
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={donationTab === "history"}
+                    className={donationTab === "history" ? "on" : ""}
+                    onClick={() => setDonationTab("history")}
+                >
+                    My Donations
+                </button>
+            </div>
+
+            {donationTab === "donate" ? (
+                <DonationCenter />
+            ) : (
+                <DonationHistory onMakeDonation={() => setDonationTab("donate")} />
+            )}
+        </div>
+    );
+}
 
 function getStaffPageTitle(activeStaffPage) {
     for (const item of staffMenu) {
@@ -342,6 +398,10 @@ export default function VolunteerDashboard({ setPage }) {
 
         if (activeStaffPage === "gis") {
             return <GISMapping />
+        }
+
+        if (activeStaffPage === "donation") {
+            return <VolunteerDonation />;
         }
     }
 
