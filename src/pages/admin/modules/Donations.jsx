@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { isAdmin } from "../../../utils/auth";
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -1252,18 +1251,16 @@ export default function Donations() {
                                                                     </button>
                                                                 )}
 
-                                                                {isAdmin() && (
-                                                                    <button
-                                                                        type="button"
-                                                                        className="is-danger"
-                                                                        onClick={() => {
-                                                                            setOpenMenuId(null);
-                                                                            handleDeleteDonation(donation._id);
-                                                                        }}
-                                                                    >
-                                                                        Delete record
-                                                                    </button>
-                                                                )}
+                                                                <button
+                                                                    type="button"
+                                                                    className="is-danger"
+                                                                    onClick={() => {
+                                                                        setOpenMenuId(null);
+                                                                        handleDeleteDonation(donation._id);
+                                                                    }}
+                                                                >
+                                                                    Delete record
+                                                                </button>
                                                             </div>
                                                         )}
                                                     </div>
