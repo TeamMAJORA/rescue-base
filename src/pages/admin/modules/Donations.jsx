@@ -402,6 +402,9 @@ export default function Donations() {
         const term = search.trim().toLowerCase();
 
         const list = donations.filter((donation) => {
+            // Deleted Received donations still count in the totals above, but are not listed
+            if (donation.hiddenFromLedgerAt) return false;
+
             const status = donation.status || "pending";
             const text = `${donation.donorName || ""} ${donation.donorEmail || ""} ${donation.itemName || ""}`.toLowerCase();
 
@@ -560,10 +563,15 @@ export default function Donations() {
         if (confirmed) handleUpdateStatus(donationId, "cancelled");
     }
 
-    async function handleDeleteDonation(donationId) {
+    async function handleDeleteDonation(donation) {
+        const donationId = donation._id;
+        const alreadyReceived = donation.status === "received";
+
         const confirmed = await askConfirm({
             title: "Delete this donation record?",
-            message: "This can't be undone.",
+            message: alreadyReceived
+                ? "It will be removed from this list, but it was already received, so it still counts in the totals."
+                : "This can't be undone.",
             confirmLabel: "Delete",
             danger: true,
         });
@@ -585,7 +593,7 @@ export default function Donations() {
                 return;
             }
 
-            setMessage("Donation deleted successfully.");
+            setMessage(data.message || "Donation deleted successfully.");
             fetchDonations();
         } catch (error) {
             console.error("Delete donation error:", error);
@@ -1256,7 +1264,7 @@ export default function Donations() {
                                                                     className="is-danger"
                                                                     onClick={() => {
                                                                         setOpenMenuId(null);
-                                                                        handleDeleteDonation(donation._id);
+                                                                        handleDeleteDonation(donation);
                                                                     }}
                                                                 >
                                                                     Delete record
