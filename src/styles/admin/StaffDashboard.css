@@ -591,3 +591,19 @@
 .sb-dot { flex: none; width: 5px; height: 5px; margin-left: auto; border-radius: 50%; background: #d70000; box-shadow: 0 0 0 2px #d70000, 0 0 0 3px rgba(90, 27, 0, 0.25);}
 .admin-menu-text, .staff-menu-text { flex: 1; min-width: 0; }
 .admin-submenu button, .staff-submenu button { display: flex; align-items: center; gap: 8px; }
+
+.staff-notification-readall {
+    padding: 4px 10px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 8px;
+    background: #fffdf5;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.staff-notification-readall:hover {
+    background: #fff7cb;
+}

@@ -2323,14 +2323,19 @@
         padding-top: 12px;
     }
 }
-/* Role label under the logo (matches the foster sidebar) */
-.adopter-logo span { display: grid; text-align: left; }
-.adopter-logo small {
-    margin-top: 4px;
-    color: #7b452d;
-    font-family: "Inter", sans-serif;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+
+.adopter-notification-readall {
+    padding: 4px 10px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 8px;
+    background: #fffdf5;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.adopter-notification-readall:hover {
+    background: #fff7cb;
 }

@@ -47,6 +47,8 @@ import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 import { SuppliesPage } from "./modules/FoodStorage";
 import AccountSettings from "../AccountSettings";
+import { fetchRecentNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
+import NotificationPanel from "../../components/notifications/NotificationPanel";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -376,6 +378,31 @@ export default function StaffDashboard({ setPage }) {
         setActiveStaffPage(item.key);
     }
 
+    // Clicking a notification: mark it read (if saved), then open its page
+    async function openNotification(notification) {
+        if (notification.savedId) {
+            await markNotificationRead(notification.savedId).catch((error) =>
+                console.error("Mark notification read error:", error)
+            );
+        }
+
+        if (notification.page) {
+            setActiveStaffPage(notification.page);
+        }
+
+        setNotifOpen(false);
+        fetchStaffNotifications();
+    }
+
+    // "Mark all as read" button
+    async function handleMarkAllRead() {
+        await markAllNotificationsRead().catch((error) =>
+            console.error("Mark all notifications read error:", error)
+        );
+
+        fetchStaffNotifications();
+    }
+
     async function fetchStaffNotifications() {
         try {
             const [adoptionResponse, fosterResponse, fosterApplicationResponse] = await Promise.all([
@@ -419,7 +446,13 @@ export default function StaffDashboard({ setPage }) {
                 (assignment) => assignment.status === "completed"
             );
 
-            const newNotifications = [];
+            // Saved notifications first, then the summary counts
+            const savedNotifications = fetchRecentNotifications().catch((error) => {
+                console.error("Load saved notifications error:", error);
+                return [];
+            });
+
+            const newNotifications = [...savedNotifications];
 
             if (pendingApplication.length > 0) {
                 newNotifications.push({
@@ -768,39 +801,18 @@ export default function StaffDashboard({ setPage }) {
                                 aria-hidden="true"
                             />
 
-                            {notifications.length > 0 && (
-                                <span>{notifications.length}</span>
+                            {notifications.filter((item) => !item.read).length > 0 && (
+                                <span>{notifications.filter((item) => !item.read).length}</span>
                             )}
                         </button>
 
                         {notifOpen && (
-                            <div className="staff-notification-dropdown">
-                                <div className="staff-notification-header">
-                                    <strong>Notifications</strong>
-                                    <small>{notifications.length} updates(s)</small>
-                                </div>
-
-                                {notifications.length === 0 ? (
-                                    <p className="staff-notifications-empty">
-                                        No new notifications.
-                                    </p>
-                                ) : (
-                                    notifications.map((notification) => (
-                                        <button
-                                            key={notification.id}
-                                            type="button"
-                                            className="staff-notification-item"
-                                            onClick={() => {
-                                                setActiveStaffPage(notification.page);
-                                                setNotifOpen(false);
-                                            }}
-                                        >
-                                            <strong>{notification.title}</strong>
-                                            <span>{notification.message}</span>
-                                        </button>
-                                    ))
-                                )}
-                            </div>
+                            <NotificationPanel
+                                items={notifications}
+                                unreadCount={notifications.filter((item) => item.savedId && !item.read).length}
+                                onItemClick={openNotification}
+                                onMarkAllRead={handleMarkAllRead}
+                            />
                         )}
                     </div>
                 </header>

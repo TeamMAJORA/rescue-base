@@ -62,7 +62,9 @@ export default function Recommendations({
 
         if (!quizResponseId) return;
 
-        fetch(`${API}/api/matchmaking/results/${quizResponseId}`)
+        fetch(`${API}/api/matchmaking/results/${quizResponseId}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        })
             .then((response) => response.json())
             .then((data) => setAiScores(toAiScores(data.matches)))
             .catch(() => setAiScores(new Map()));

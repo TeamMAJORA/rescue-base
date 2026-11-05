@@ -31,6 +31,8 @@ import PetList from "../../components/adopter/PetList";
 import PetDetailPanel from "../../components/adopter/PetDetailPanel";
 import { formatAge } from "../../utils/formatAge";
 import AccountSettings from "../AccountSettings";
+import { markAllNotificationsRead } from "../../utils/savedNotifications";
+import NotificationPanel from "../../components/notifications/NotificationPanel";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1442,6 +1444,14 @@ async function fetchPets({ silent = false } = {}) {
         return renderOverview();
     }
 
+    async function handleMarkAllRead() {
+        await markAllNotificationsRead().catch((error) =>
+            console.error("Mark all notifications read error:", error)
+        );
+
+        await loadNotifications();
+    }
+
     async function handleNotificationClick(notification) {
         if (!notification.read && token) {
             try {
@@ -1823,65 +1833,18 @@ async function fetchPets({ silent = false } = {}) {
                                 aria-hidden="true"
                             />
 
-                            {notifications.length >
-                                0 && (
-                                    <span>
-                                        {
-                                            notifications.length
-                                        }
-                                    </span>
-                                )}
+                            {unreadCount > 0 && (
+                                <span>{unreadCount}</span>
+                            )}
                         </button>
 
                         {notificationOpen && (
-                            <div className="adopter-notification-dropdown">
-                                <div className="adopter-notification-header">
-                                    <strong>
-                                        Notifications
-                                    </strong>
-
-                                    <small>
-                                        {
-                                            notifications.length
-                                        }{" "}
-                                        update(s)
-                                    </small>
-                                </div>
-
-                                {notifications.length ===
-                                    0 ? (
-                                    <p className="adopter-notification-empty">
-                                        No new
-                                        notifications.
-                                    </p>
-                                ) : (
-                                    notifications.map(
-                                        (notification) => (
-                                            <button
-                                                key={notification._id}
-                                                type="button"
-                                                className={`adopter-notification-item ${notification.read ? "" : "unread"
-                                                    }`}
-                                                onClick={() =>
-                                                    handleNotificationClick(notification)
-                                                }
-                                            >
-                                                <strong>
-                                                    {
-                                                        notification.title
-                                                    }
-                                                </strong>
-
-                                                <span>
-                                                    {
-                                                        notification.message
-                                                    }
-                                                </span>
-                                            </button>
-                                        )
-                                    )
-                                )}
-                            </div>
+                            <NotificationPanel
+                                items={notifications.map((notification) => ({ ...notification, id: notification._id }))}
+                                unreadCount={unreadCount}
+                                onItemClick={handleNotificationClick}
+                                onMarkAllRead={handleMarkAllRead}
+                            />
                         )}
                     </div>
                 </header>
