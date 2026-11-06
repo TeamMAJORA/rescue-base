@@ -2765,3 +2765,24 @@
     color: rgba(90, 27, 0, 0.75);
     font-size: 12px !important;
 }
+
+/* Possible matches panel (Lost & Found) */
+.lf-suggest-panel {
+    gap: 8px;
+    margin-bottom: 14px;
+    border-left: 4px solid #fb8500;
+}
+
+.lf-suggest-panel h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.lf-suggest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    gap: 8px;
+}

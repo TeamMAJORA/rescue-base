@@ -102,69 +102,6 @@ function MapFollow({ lat, lng }) {
     }, [lat, lng]);
     return null;
 }
-const MATCH_IGNORED_LOCATION_WORDS = new Set(["city", "near", "the", "brgy", "barangay", "street", "and"]);
-const DISMISSED_MATCHES_STORAGE_KEY = "rb_lost_found_dismissed_matches";
-
-function getMeaningfulLocationWords(locationText) {
-    return String(locationText || "")
-        .toLowerCase()
-        .split(/[^a-z0-9]+/)
-        .filter((word) => word.length > 2 && !MATCH_IGNORED_LOCATION_WORDS.has(word));
-}
-
-// Reads extra details saved inside the description, e.g. "Color: brown"
-function readDescriptionDetail(report, detailName) {
-    const detailPart = String(report.description || "")
-        .split(" · ")
-        .find((part) => part.startsWith(`${detailName}: `));
-    return detailPart ? detailPart.slice(detailName.length + 2).trim().toLowerCase() : "";
-}
-
-function findPossibleMatches(report, allReports, maximumResults = 4) {
-    const reportSpecies = String(report.species || "").toLowerCase();
-    const reportLocationWords = new Set(getMeaningfulLocationWords(report.location));
-    const reportColor = readDescriptionDetail(report, "Color");
-    const reportSize = readDescriptionDetail(report, "Size");
-
-    return allReports
-        .filter(
-            (candidate) =>
-                candidate._id !== report._id &&
-                candidate.reportType !== report.reportType &&
-                candidate.reporterEmail !== report.reporterEmail &&
-                candidate.status !== "reunited" &&
-                candidate.status !== "rejected" &&
-                String(candidate.species || "").toLowerCase() === reportSpecies
-        )
-        .filter((candidate) => {
-            const lostReport = report.reportType === "lost" ? report : candidate;
-            const foundReport = report.reportType === "lost" ? candidate : report;
-            if (!lostReport.dateReported || !foundReport.dateReported) return true;
-            return new Date(foundReport.dateReported) >= new Date(lostReport.dateReported);
-        })
-        .map((candidate) => {
-            let matchScore = 0;
-
-            if (getMeaningfulLocationWords(candidate.location).some((word) => reportLocationWords.has(word))) {
-                matchScore += 2;
-            }
-            if (report.breed && candidate.breed && report.breed.trim().toLowerCase() === candidate.breed.trim().toLowerCase()) {
-                matchScore += 1;
-            }
-            const candidateColor = readDescriptionDetail(candidate, "Color");
-            if (reportColor && candidateColor && (reportColor.includes(candidateColor) || candidateColor.includes(reportColor))) {
-                matchScore += 1;
-            }
-            const candidateSize = readDescriptionDetail(candidate, "Size");
-            if (reportSize && candidateSize && reportSize === candidateSize) {
-                matchScore += 1;
-            }
-
-            return { matchedReport: candidate, matchScore };
-        })
-        .sort((first, second) => second.matchScore - first.matchScore)
-        .slice(0, maximumResults);
-}
 
 export default function LostFoundPage({ setPage }) {
     const [user, setUser] = useState(null);
@@ -208,23 +145,7 @@ export default function LostFoundPage({ setPage }) {
     const [claimOpen, setClaimOpen] = useState(false);
     const [claimText, setClaimText] = useState("");
     const [claimError, setClaimError] = useState("");
-    const [dismissedMatchKeys, setDismissedMatchKeys] = useState(() => {
-    try {
-        return JSON.parse(localStorage.getItem(DISMISSED_MATCHES_STORAGE_KEY)) || [];
-    } catch {
-        return [];
-    }
-});
-
-function dismissSuggestedMatch(reportId, matchedReportId) {
-    const updatedDismissedKeys = [...dismissedMatchKeys, `${reportId}:${matchedReportId}`];
-    setDismissedMatchKeys(updatedDismissedKeys);
-    try {
-        localStorage.setItem(DISMISSED_MATCHES_STORAGE_KEY, JSON.stringify(updatedDismissedKeys));
-    } catch {
-        // Storage blocked: the match stays hidden until the page reloads
-    }
-}
+    const [mySuggestions, setMySuggestions] = useState([]);
     const [photoName, setPhotoName] = useState("");
     const [photoUploading, setPhotoUploading] = useState(false);
     const [photoError, setPhotoError] = useState("");
@@ -296,7 +217,41 @@ function dismissSuggestedMatch(reportId, matchedReportId) {
             setLoading(false);
         }
     }
+    async function loadMySuggestions() {
+        try {
+            const response = await fetch(`${API}/api/lost-found/matches/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
 
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to load suggested matches.");
+            }
+
+            setMySuggestions(data.suggestions || []);
+        } catch (error) {
+            setError(error.message || "Failed to load suggested matches.");
+        }
+    }
+
+    async function dismissSuggestedMatch(matchId) {
+        try {
+            const response = await fetch(`${API}/api/lost-found/matches/${matchId}/dismiss`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to dismiss suggestion.");
+            }
+
+            setMySuggestions((current) => current.filter((suggestion) => suggestion.matchId !== matchId));
+        } catch (error) {
+            setError(error.message || "Failed to dismiss suggestion.");
+        }
+    }
+    
     async function loadPossibleMatches() {
         if (!token) return;
 
@@ -712,6 +667,8 @@ async function uploadPhoto(file) {
             const userRole = String(user.role || "").toLowerCase();
             if (userRole === "admin" || userRole === "staff") {
                 loadPossibleMatches();
+            } else {
+                loadMySuggestions();
             }
         }
     }, [user]);
@@ -1205,6 +1162,63 @@ if (showReportForm && canSubmitReport) {
             {error && <div className="lost-found-message error">{error}</div>}
             {success && <div className="lost-found-message success">{success}</div>}
 
+            {mySuggestions.length > 0 && (
+                <section className="lf2-card lf-suggest-panel">
+                    <h3>Possible matches for your reports</h3>
+                    <small className="lf-match-note">
+                        Suggested by species, breed, colour, size, sex, distance and dates. Open one to check it, then claim it or dismiss it.
+                    </small>
+
+                    <div className="lf-suggest-grid">
+                        {mySuggestions.map(({ matchId, score, myReport, matchedReport }) => {
+                            const matchedSpecies = String(matchedReport.species || "").toLowerCase();
+
+                            return (
+                                <div className="lf-match" key={matchId}>
+                                    <button
+                                        type="button"
+                                        className="lf-match-open"
+                                        onClick={() => {
+                                            setViewingReport(matchedReport);
+                                            setClaimOpen(false);
+                                        }}
+                                    >
+                                        <span className="lf-match-photo">
+                                            {matchedReport.photoUrl ? (
+                                                <img src={matchedReport.photoUrl} alt="" />
+                                            ) : matchedSpecies === "cat" ? "🐱" : matchedSpecies === "dog" ? "🐶" : "🐾"}
+                                        </span>
+
+                                        <span className="lf-match-info">
+                                            <b>
+                                                {matchedReport.reportType === "found" ? "Found: " : "Lost: "}
+                                                {matchedReport.petName || "Unknown"}
+                                            </b>
+                                            <small>
+                                                {[matchedReport.breed, matchedReport.location && `📍 ${matchedReport.location}`]
+                                                    .filter(Boolean)
+                                                    .join(" · ")}
+                                            </small>
+                                            <small>For your report: {myReport.petName || myReport.species}</small>
+                                        </span>
+
+                                        <span className="lf-match-tag">{Math.floor(score)}%</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="lf-match-dismiss"
+                                        onClick={() => dismissSuggestedMatch(matchId)}
+                                    >
+                                        {myReport.reportType === "lost" ? "Not my pet" : "Not a match"}
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>
+            )}
+
             <section className="lf2-card">
                 <div className="lf2-toolbar">
                     <input
@@ -1552,12 +1566,10 @@ if (showReportForm && canSubmitReport) {
     r.status !== "rejected" &&
     r.claimStatus !== "pending" &&
     r.claimStatus !== "approved";
-    const canSeeSuggestions = (isMine || canManageReports) && r.status !== "reunited";
-const suggestedMatches = canSeeSuggestions
-    ? findPossibleMatches(r, reports).filter(
-        ({ matchedReport }) => !dismissedMatchKeys.includes(`${r._id}:${matchedReport._id}`)
-    )
-    : [];
+    const canSeeSuggestions = isMine && r.status !== "reunited";
+    const suggestedMatches = canSeeSuggestions
+      ? mySuggestions.filter(({ myReport }) => myReport._id === r._id)
+      : [];
     return (
         <div className="lf-modal-overlay" onClick={() => setViewingReport(null)}>
             <div
@@ -1652,8 +1664,8 @@ const suggestedMatches = canSeeSuggestions
             <p className="lf-match-empty">No matching reports yet. Check back later.</p>
         ) : (
             <div className="lf-match-list">
-                {suggestedMatches.map(({ matchedReport, matchScore }) => (
-                    <div className="lf-match" key={matchedReport._id}>
+                {suggestedMatches.map(({ matchId, matchedReport, score }) => (
+                    <div className="lf-match" key={matchId}>
                         <button
                             type="button"
                             className="lf-match-open"
@@ -1687,14 +1699,14 @@ const suggestedMatches = canSeeSuggestions
                                 </small>
                             </span>
 
-                            {matchScore >= 3 && <span className="lf-match-tag">Strong match</span>}
+                            <span className="lf-match-tag">{Math.floor(score)}%</span>
                         </button>
 
                         {isMine && (
                             <button
                                 type="button"
                                 className="lf-match-dismiss"
-                                onClick={() => dismissSuggestedMatch(r._id, matchedReport._id)}
+                                onClick={() => dismissSuggestedMatch(matchId)}
                             >
                                 {r.reportType === "lost" ? "Not my pet" : "Not a match"}
                             </button>
