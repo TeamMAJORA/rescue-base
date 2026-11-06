@@ -90,6 +90,7 @@ export default function LostFoundPage({ setPage }) {
     const [search, setSearch] = useState("");
     const [speciesFilter, setSpeciesFilter] = useState("all");
     const [sortBy, setSortBy] = useState("newest");
+    const [viewMode, setViewMode] = useState("grid"); // "grid" (cards, default) | "list" (table)
     const [typeFilter, setTypeFilter] = useState("all");
     const [onlyMine, setOnlyMine] = useState(false);
     const [possibleMatches, setPossibleMatches] = useState(null);
@@ -758,6 +759,94 @@ const visibleReports = reports
         const diff = new Date(b.dateReported || b.createdAt) - new Date(a.dateReported || a.createdAt);
         return sortBy === "newest" ? diff : -diff;
     });
+// Shared by the grid and list views
+function describeReport(report) {
+    const isMine = report.reporterEmail === user?.email;
+    const isOpen = report.status !== "reunited" && report.status !== "rejected";
+    const canClaimThis =
+        canClaimReport && !isMine && isOpen &&
+        report.claimStatus !== "pending" && report.claimStatus !== "approved";
+    const species = String(report.species || "").toLowerCase();
+    const emoji = species === "cat" ? "🐱" : species === "dog" ? "🐶" : "🐾";
+
+    let statusKey = "open";
+    let statusLabel = "Open";
+    if (report.status === "reunited") {
+        statusKey = "reunited";
+        statusLabel = "Reunited";
+    } else if (report.status === "rejected") {
+        statusKey = "rejected";
+        statusLabel = "Closed";
+    } else if (report.claimStatus === "pending") {
+        statusKey = "claim-pending";
+        statusLabel = "Claim pending";
+    } else if (report.claimStatus === "approved") {
+        statusKey = "claim-approved";
+        statusLabel = "Claim approved";
+    }
+
+    const dateText = report.dateReported
+        ? new Date(report.dateReported).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        : "—";
+
+    return { isMine, isOpen, canClaimThis, emoji, statusKey, statusLabel, dateText };
+}
+
+function openReportDetails(report, withClaim = false) {
+    setViewingReport(report);
+    setClaimOpen(withClaim);
+    setClaimText("");
+    setClaimError("");
+}
+
+function renderReportActions(report, { isMine, isOpen, canClaimThis }) {
+    return (
+        <div className="lf2-row-actions" onClick={(e) => e.stopPropagation()}>
+            {canClaimThis && report.reportType === "found" && (
+                <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report, true)}>
+                    This is my pet
+                </button>
+            )}
+
+            {!isMine && isOpen && report.reportType === "lost" && !canManageReports && (
+                <button type="button" className="lf2-mini" onClick={() => startFoundReportFromLostReport(report)}>
+                    I found this pet
+                </button>
+            )}
+
+            {canManageReports && report.claimStatus === "pending" && (
+                <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report)}>
+                    Review claim
+                </button>
+            )}
+
+            {canManageReports && report.claimStatus === "approved" && report.status !== "reunited" && (
+                <button type="button" className="lf2-mini is-dark" onClick={() => handleMarkReunited(report._id)}>
+                    Mark reunited
+                </button>
+            )}
+
+            <button type="button" className="lf2-link" onClick={() => openReportDetails(report)}>
+                View
+            </button>
+
+            {canDeleteReport && (
+                <button
+                    type="button"
+                    className="lf2-icon"
+                    title="Delete"
+                    aria-label="Delete report"
+                    onClick={() => handleDeleteReport(report._id)}
+                >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                        <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+                    </svg>
+                </button>
+            )}
+        </div>
+    );
+}
+
 useEffect(() => {
     const query = mapSearch.trim();
     if (query.length < 3) return undefined;
@@ -1266,27 +1355,54 @@ if (showReportForm && canSubmitReport) {
                 <div className="lf2-toolbar">
                     <input
                         type="search"
-                        className="lf2-search"
+                        className="pet-list-search"
+                        aria-label="Search reports"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search by name, breed or location..."
                     />
-                    <label className="lf2-select">
-                        <span>Species</span>
-                        <select value={speciesFilter} onChange={(e) => setSpeciesFilter(e.target.value)}>
-                            <option value="all">All species</option>
-                            <option value="Dog">Dog</option>
-                            <option value="Cat">Cat</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </label>
-                    <label className="lf2-select">
-                        <span>Sort</span>
-                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                            <option value="newest">Newest</option>
-                            <option value="oldest">Oldest</option>
-                        </select>
-                    </label>
+                    <select
+                        className="pet-list-select"
+                        aria-label="Species"
+                        value={speciesFilter}
+                        onChange={(e) => setSpeciesFilter(e.target.value)}
+                    >
+                        <option value="all">Species: All</option>
+                        <option value="Dog">Species: Dogs</option>
+                        <option value="Cat">Species: Cats</option>
+                    </select>
+                    <select
+                        className="pet-list-select"
+                        aria-label="Sort reports"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                    >
+                        <option value="newest">Sort: Newest</option>
+                        <option value="oldest">Sort: Oldest</option>
+                    </select>
+
+                    <div className="admin-view-toggle">
+                        <button
+                            type="button"
+                            className={viewMode === "list" ? "active" : ""}
+                            onClick={() => setViewMode("list")}
+                            title="List view"
+                            aria-label="List view"
+                            aria-pressed={viewMode === "list"}
+                        >
+                            <img src={viewMode === "list" ? "/icons/list-white.svg" : "/icons/list-brown.svg"} alt="" aria-hidden="true" />
+                        </button>
+                        <button
+                            type="button"
+                            className={viewMode === "grid" ? "active" : ""}
+                            onClick={() => setViewMode("grid")}
+                            title="Grid view"
+                            aria-label="Grid view"
+                            aria-pressed={viewMode === "grid"}
+                        >
+                            <img src={viewMode === "grid" ? "/icons/grid-white.svg" : "/icons/grid-brown.svg"} alt="" aria-hidden="true" />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="lf2-tabs" role="tablist">
@@ -1432,6 +1548,45 @@ if (showReportForm && canSubmitReport) {
                     <p className="lf2-empty">
                         {reports.length === 0 ? "No lost or found reports yet." : "No reports match your filters."}
                     </p>
+                ) : viewMode === "grid" ? (
+                    <div className="lf-grid">
+                        {visibleReports.map((report, index) => {
+                            const details = describeReport(report);
+                            const badge = report.status === "reunited" ? "reunited" : report.reportType;
+
+                            return (
+                                <article
+                                    key={report._id}
+                                    className={`lf-card${details.isMine ? " is-mine" : ""}`}
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() => openReportDetails(report)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") openReportDetails(report);
+                                    }}
+                                >
+                                    <div className={`lf-card-media tint-${index % 4}`}>
+                                        {report.photoUrl ? (
+                                            <img src={report.photoUrl} alt="" />
+                                        ) : (
+                                            <span className="lf-card-emoji" aria-hidden="true">{details.emoji}</span>
+                                        )}
+                                        <span className={`lf-card-badge is-${badge}`}>{badge}</span>
+                                        <span className="lf-card-date">{details.dateText}</span>
+                                        {details.isMine && <span className="lf-card-mine">Your report</span>}
+                                    </div>
+
+                                    <div className="lf-card-body">
+                                        <h3>{report.petName || "Unknown"}</h3>
+                                        <small>{[report.species, report.breed].filter(Boolean).join(" · ")}</small>
+                                        <small>📍 {report.location || "—"}</small>
+                                        <span className={`lf2-pill is-${details.statusKey}`}>{details.statusLabel}</span>
+                                        {renderReportActions(report, details)}
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
                 ) : (
                     <div className="lf2-table-wrap">
                         <table className="lf2-table">
@@ -1448,50 +1603,22 @@ if (showReportForm && canSubmitReport) {
                             </thead>
                             <tbody>
                                 {visibleReports.map((report) => {
-                                    const isMine = report.reporterEmail === user?.email;
-                                    const isOpen = report.status !== "reunited" && report.status !== "rejected";
-                                    const canClaimThis =
-                                        canClaimReport && !isMine && isOpen &&
-                                        report.claimStatus !== "pending" && report.claimStatus !== "approved";
-                                    const s = String(report.species || "").toLowerCase();
-                                    const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
-                                    const openDetails = (withClaim = false) => {
-                                        setViewingReport(report);
-                                        setClaimOpen(withClaim);
-                                        setClaimText("");
-                                        setClaimError("");
-                                    };
-
-                                    let statusKey = "open";
-                                    let statusLabel = "Open";
-                                    if (report.status === "reunited") {
-                                        statusKey = "reunited";
-                                        statusLabel = "Reunited";
-                                    } else if (report.status === "rejected") {
-                                        statusKey = "rejected";
-                                        statusLabel = "Closed";
-                                    } else if (report.claimStatus === "pending") {
-                                        statusKey = "claim-pending";
-                                        statusLabel = "Claim pending";
-                                    } else if (report.claimStatus === "approved") {
-                                        statusKey = "claim-approved";
-                                        statusLabel = "Claim approved";
-                                    }
+                                    const details = describeReport(report);
 
                                     return (
-                                        <tr key={report._id} onClick={() => openDetails(false)}>
+                                        <tr key={report._id} onClick={() => openReportDetails(report)}>
                                             <td>
                                                 <div className="lf2-pet">
                                                     {report.photoUrl ? (
                                                         <img src={report.photoUrl} alt="" />
                                                     ) : (
-                                                        <span className="lf2-thumb" aria-hidden="true">{emoji}</span>
+                                                        <span className="lf2-thumb" aria-hidden="true">{details.emoji}</span>
                                                     )}
                                                     <div>
                                                         <b>{report.petName || "Unknown"}</b>
                                                         <small>
                                                             {[report.species, report.breed].filter(Boolean).join(" · ")}
-                                                            {isMine ? " · Your report" : ""}
+                                                            {details.isMine ? " · Your report" : ""}
                                                         </small>
                                                     </div>
                                                 </div>
@@ -1506,66 +1633,10 @@ if (showReportForm && canSubmitReport) {
                                                 <b className="lf2-name">{report.reporterName || report.reporterEmail || "—"}</b>
                                             </td>
                                             <td>
-                                                <span className={`lf2-pill is-${statusKey}`}>{statusLabel}</span>
+                                                <span className={`lf2-pill is-${details.statusKey}`}>{details.statusLabel}</span>
                                             </td>
-                                            <td className="lf2-date">
-                                                {report.dateReported
-                                                    ? new Date(report.dateReported).toLocaleDateString("en-US", {
-                                                        month: "short",
-                                                        day: "numeric",
-                                                        year: "numeric",
-                                                    })
-                                                    : "—"}
-                                            </td>
-                                            <td onClick={(e) => e.stopPropagation()}>
-                                                <div className="lf2-row-actions">
-                                                    {canClaimThis && report.reportType === "found" && (
-                                                        <button type="button" className="lf2-mini is-dark" onClick={() => openDetails(true)}>
-                                                            This is my pet
-                                                        </button>
-                                                    )}
-
-                                                    {!isMine && isOpen && report.reportType === "lost" && !canManageReports && (
-                                                        <button
-                                                            type="button"
-                                                            className="lf2-mini"
-                                                            onClick={() => startFoundReportFromLostReport(report)}
-                                                        >
-                                                            I found this pet
-                                                        </button>
-                                                    )}
-
-                                                    {canManageReports && report.claimStatus === "pending" && (
-                                                        <button type="button" className="lf2-mini is-dark" onClick={() => openDetails(false)}>
-                                                            Review claim
-                                                        </button>
-                                                    )}
-
-                                                    {canManageReports && report.claimStatus === "approved" && report.status !== "reunited" && (
-                                                        <button type="button" className="lf2-mini is-dark" onClick={() => handleMarkReunited(report._id)}>
-                                                            Mark reunited
-                                                        </button>
-                                                    )}
-
-                                                    <button type="button" className="lf2-link" onClick={() => openDetails(false)}>
-                                                        View
-                                                    </button>
-
-                                                    {canDeleteReport && (
-                                                        <button
-                                                            type="button"
-                                                            className="lf2-icon"
-                                                            title="Delete"
-                                                            aria-label="Delete report"
-                                                            onClick={() => handleDeleteReport(report._id)}
-                                                        >
-                                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                                                                <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-                                                            </svg>
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </td>
+                                            <td className="lf2-date">{details.dateText}</td>
+                                            <td>{renderReportActions(report, details)}</td>
                                         </tr>
                                     );
                                 })}

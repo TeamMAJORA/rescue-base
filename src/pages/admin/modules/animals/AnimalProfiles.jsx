@@ -333,8 +333,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
     const [search, setSearch] = useState("");
     const [speciesFilter, setSpeciesFilter] = useState("All");
-    const [searchBy, setSearchBy] = useState("all");
-    const [viewMode, setViewMode] = useState("list"); // "list" (table) | "grid" (cards)
+    const [viewMode, setViewMode] = useState("grid"); // "grid" (cards, default) | "list" (table)
     const [statusFilter, setStatusFilter] = useState("all");
     const [qrCodes, setQrCodes] = useState({});
     const [qrImages, setQrImages] = useState({});
@@ -469,18 +468,27 @@ function AnimalProfilesList({ onOpenRecords }) {
 
             if (!query) return true;
 
-            const fields = {
-                name: animal.name,
-                breed: animal.breed,
-                species: animal.type,
-            };
-            const values = searchBy === "all" ? Object.values(fields) : [fields[searchBy]];
+            // One box searches every detail shown on the profile
+            const searchableValues = [
+                animal.name,
+                animal.type,
+                animal.breed,
+                animal.gender,
+                animal.size,
+                animal.color,
+                animal.location,
+                animal.intakeType,
+                animal.intakeCondition,
+                animal.medicalStatus,
+                animal.description,
+                ANIMAL_STATUS_LABELS[getAnimalStatus(animal)],
+            ];
 
-            return values
+            return searchableValues
                 .filter(Boolean)
                 .some((value) => String(value).toLowerCase().includes(query));
         });
-    }, [animals, search, searchBy, speciesFilter, statusFilter]);
+    }, [animals, search, speciesFilter, statusFilter]);
 
 
     const sortedAnimals = useMemo(() => {
@@ -511,7 +519,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, searchBy, speciesFilter, statusFilter, rowsPerPage]);
+    }, [search, speciesFilter, statusFilter, rowsPerPage]);
 
     function handleSort(key) {
         setSortConfig((current) =>
@@ -1396,16 +1404,6 @@ function AnimalProfilesList({ onOpenRecords }) {
             <section className="admin-panel admin-animal-list-panel">
                     <div className="admin-animal-toolbar ao-toolbar">
                     <div className="ao-searchbox">
-                        <select
-                            value={searchBy}
-                            onChange={(e) => setSearchBy(e.target.value)}
-                            aria-label="Search by"
-                        >
-                            <option value="all">All fields</option>
-                            <option value="name">Animal name</option>
-                            <option value="breed">Breed</option>
-                            <option value="species">Species</option>
-                        </select>
                         <label className="ao-searchbox-input">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                                 <circle cx="11" cy="11" r="7" />
@@ -1413,7 +1411,8 @@ function AnimalProfilesList({ onOpenRecords }) {
                             </svg>
                             <input
                                 type="search"
-                                placeholder="Search animal, breed, or species..."
+                                placeholder="Search name, breed, colour, location, status..."
+                                aria-label="Search animals"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -1426,9 +1425,9 @@ function AnimalProfilesList({ onOpenRecords }) {
                         aria-label="Species"
                         onChange={(e) => setSpeciesFilter(e.target.value)}
                     >
-                        <option value="All">All species</option>
-                        <option value="Dog">Dog</option>
-                        <option value="Cat">Cat</option>
+                        <option value="All">Species: All</option>
+                        <option value="Dog">Species: Dogs</option>
+                        <option value="Cat">Species: Cats</option>
                     </select>
 
                     <div className="admin-view-toggle">

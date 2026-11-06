@@ -1414,57 +1414,25 @@
     background: #fffdf4;
 }
 
+/* Toolbar matches the adopter Browse Pets toolbar (pet-list-search / pet-list-select from BrowsePets.css) */
 .lf2-toolbar {
     display: flex;
+    align-items: stretch;
     gap: 10px;
-    flex-wrap: wrap;
 }
 
-.lf2-search {
-    flex: 1 1 320px;
-    padding: 10px 14px;
-    border: 1px solid rgba(90, 27, 0, 0.25);
-    border-radius: 0;
-    background: #ffffff;
-    color: #5a1b00;
-    font: inherit;
-    font-size: 13px;
-    outline: none;
+.lf2-toolbar .admin-view-toggle {
+    flex-shrink: 0;
 }
 
-.lf2-select {
-    position: relative;
-}
+@media (max-width: 760px) {
+    .lf2-toolbar {
+        flex-wrap: wrap;
+    }
 
-.lf2-select > span {
-    position: absolute;
-    top: -8px;
-    left: 8px;
-    z-index: 1;
-    padding: 0 4px;
-    background: #ffffff;
-    color: #7a3e19;
-    font-size: 10px;
-    font-weight: 600;
-}
-
-.lf2-select select {
-    min-width: 140px;
-    height: 100%;
-    padding: 9px 10px;
-    border: 1px solid #5a1b00;
-    border-radius: 0;
-    background: #ffffff;
-    color: #5a1b00;
-    font: inherit;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.lf2-search:focus,
-.lf2-select select:focus {
-    border-color: #fb8500;
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+    .lf2-toolbar .pet-list-search {
+        flex-basis: 100%;
+    }
 }
 
 .lf2-tabs {
@@ -2148,18 +2116,6 @@
     color: #814b1c;
 }
 /* ===== Lost & Found: match Reports / Feedback (square controls, row buttons) ===== */
-.lost-found-page .lf2-search,
-.lost-found-page .lf2-select select {
-    border: 1px solid #e3d5b5;
-    border-radius: 0;
-    background-color: #fff;
-}
-
-.lost-found-page .lf2-search:focus,
-.lost-found-page .lf2-select select:focus {
-    border-color: #fb8500;
-}
-
 .lf2-mini {
     border-radius: 0;
     background: #fff;
@@ -2792,4 +2748,21 @@
     margin-top: 6px;
     border: 1px solid #f3d98a;
     border-radius: 8px;
+}
+
+/* Grid view cards (shared row actions + status pill) */
+.lf-card-media {
+    height: 140px;
+}
+
+.lf-card-body .lf2-pill {
+    align-self: flex-start;
+    margin-top: 6px;
+}
+
+.lf-card-body .lf2-row-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: auto;
+    padding-top: 12px;
 }
