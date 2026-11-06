@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { isAdmin } from "../../../../utils/auth";
+import { searchCebuPlaces } from "../../../../utils/cebuPlaces";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -41,6 +42,15 @@ function PinPicker({ onPick }) {
             onPick(event.latlng.lat, event.latlng.lng);
         },
     });
+    return null;
+}
+
+// Move the map to the pin whenever it changes
+function MapFollow({ latitude, longitude }) {
+    const map = useMap();
+    useEffect(() => {
+        if (latitude && longitude) map.setView([latitude, longitude], Math.max(map.getZoom(), 16));
+    }, [map, latitude, longitude]);
     return null;
 }
 
@@ -455,6 +465,11 @@ export default function IntakeRecords() {
     const [photo, setPhoto] = useState(null);
     const [locating, setLocating] = useState(false);
     const [accuracy, setAccuracy] = useState(null);
+    // Address typed in "Where?" -> Cebu place suggestions; the top one is pinned automatically
+    const [typedAddress, setTypedAddress] = useState("");
+    const [addressResults, setAddressResults] = useState([]);
+    const [addressSearching, setAddressSearching] = useState(false);
+    const [addressListOpen, setAddressListOpen] = useState(false);
     const [openId, setOpenId] = useState(null);
 
     const [tab, setTab] = useState("pending");
@@ -533,6 +548,7 @@ export default function IntakeRecords() {
         setEditingId(null);
         setPhoto(null);
         setAccuracy(null);
+        setTypedAddress("");
     }
 
     // Photo preview (freed when the photo changes)
@@ -589,6 +605,50 @@ export default function IntakeRecords() {
         );
     }
 
+    // Only typing triggers a search, so pins from the map/Locate never re-pin themselves
+    useEffect(() => {
+        const query = typedAddress.trim();
+        if (query.length < 3) {
+            setAddressResults([]);
+            return undefined;
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            setAddressSearching(true);
+            try {
+                const places = await searchCebuPlaces(query, controller.signal);
+                setAddressResults(places);
+                if (places[0]) pinAddressResult(places[0]);
+            } catch (err) {
+                if (err.name !== "AbortError") setAddressResults([]);
+            } finally {
+                setAddressSearching(false);
+            }
+        }, 600);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [typedAddress]);
+
+    // Pin a search result without overwriting what the user typed
+    function pinAddressResult(place) {
+        setAccuracy(null);
+        setForm((current) => ({
+            ...current,
+            latitude: place.latitude.toFixed(6),
+            longitude: place.longitude.toFixed(6),
+        }));
+    }
+
+    function chooseAddressResult(place) {
+        pinAddressResult(place);
+        setForm((current) => ({ ...current, rescueLocation: [place.name, place.area].filter(Boolean).join(", ") }));
+        setAddressListOpen(false);
+    }
+
     function pickOnMap(lat, lng) {
         setAccuracy(null);
         setPin(lat, lng);
@@ -601,6 +661,7 @@ export default function IntakeRecords() {
 
     function handleEditRecord(record) {
         setEditingId(record._id);
+        setTypedAddress("");
 
         setForm({
             animalName: record.name || "",
@@ -971,31 +1032,57 @@ export default function IntakeRecords() {
 
                         <div className="ao-field">
                             <span>Where? <span className="ao-req">*</span></span>
-                            <div className="ao-where">
+                            <div className="ao-where-search">
                                 <input
+                                    type="search"
                                     value={form.rescueLocation}
-                                    onChange={(e) => updateForm("rescueLocation", e.target.value)}
-                                    placeholder="e.g. Brgy. Guadalupe, Cebu City"
+                                    onChange={(e) => {
+                                        updateForm("rescueLocation", e.target.value);
+                                        setTypedAddress(e.target.value);
+                                        setAddressListOpen(true);
+                                    }}
+                                    onFocus={() => setAddressListOpen(true)}
+                                    onBlur={() => setTimeout(() => setAddressListOpen(false), 150)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault(); // stops the form from submitting
+                                            if (addressResults[0]) chooseAddressResult(addressResults[0]);
+                                        }
+                                        if (e.key === "Escape") setAddressListOpen(false);
+                                    }}
+                                    placeholder="Type an address, e.g. Brgy. Guadalupe, Cebu City"
+                                    autoComplete="off"
                                     required
                                 />
-                                <button type="button" className="ao-btn" onClick={locateMe} disabled={locating}>
-                                    <Icon name="pin" />
-                                    {locating ? "Locating..." : "Locate"}
-                                </button>
+                                {addressListOpen && typedAddress.trim().length >= 3 && (
+                                    <ul className="gm-map-results">
+                                        {addressSearching && addressResults.length === 0 && <li className="is-note">Searching...</li>}
+                                        {!addressSearching && addressResults.length === 0 && <li className="is-note">No places found in Cebu. Tap the map instead.</li>}
+                                        {addressResults.map((place) => (
+                                            <li key={place.id}>
+                                                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chooseAddressResult(place)}>
+                                                    <b>{place.name}</b>
+                                                    {place.area && <small>{place.area}</small>}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
-                            <div className="ao-pickmap">
+
+                            <div className="lfr2-map">
                                 <MapContainer
-                                    key={form.latitude ? "pinned" : "empty"}
                                     center={form.latitude ? [Number(form.latitude), Number(form.longitude)] : CEBU_CENTER}
-                                    zoom={form.latitude ? 17 : 12}
+                                    zoom={form.latitude ? 16 : 12}
                                     scrollWheelZoom={false}
-                                    className="ao-pickmap-map"
+                                    style={{ height: "100%", width: "100%" }}
                                 >
                                     <TileLayer
                                         attribution="&copy; OpenStreetMap"
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                     />
                                     <PinPicker onPick={pickOnMap} />
+                                    <MapFollow latitude={Number(form.latitude)} longitude={Number(form.longitude)} />
                                     {form.latitude && (
                                         <Marker
                                             position={[Number(form.latitude), Number(form.longitude)]}
@@ -1010,21 +1097,38 @@ export default function IntakeRecords() {
                                         />
                                     )}
                                 </MapContainer>
-                                <div className="ao-pickmap-note">
-                                    {form.latitude ? (
-                                        <>
-                                            <span>
-                                                {accuracy && accuracy > 50
-                                                    ? `Approximate (±${accuracy >= 1000 ? `${(accuracy / 1000).toFixed(1)} km` : `${accuracy} m`}). Tap the exact spot.`
-                                                    : "Pin saved. Tap or drag to adjust."}
-                                            </span>
-                                            <button type="button" onClick={clearPin}>Remove pin</button>
-                                        </>
-                                    ) : (
-                                        <span>Optional: tap the map to pin the spot.</span>
-                                    )}
-                                </div>
+
+                                <button
+                                    type="button"
+                                    className={`lfr2-locate${locating ? " is-busy" : ""}`}
+                                    onClick={locateMe}
+                                    disabled={locating}
+                                    title="Pin my current location"
+                                    aria-label="Pin my current location"
+                                >
+                                    <img src="/gis/icon-find-nearest.svg" alt="" />
+                                </button>
                             </div>
+
+                            <small className="lfr2-coord">
+                                {form.latitude
+                                    ? accuracy && accuracy > 50
+                                        ? `Approximate (±${accuracy >= 1000 ? `${(accuracy / 1000).toFixed(1)} km` : `${accuracy} m`}). Tap the exact spot.`
+                                        : `Pinned at ${Number(form.latitude).toFixed(4)}, ${Number(form.longitude).toFixed(4)}`
+                                    : "No pin yet. Type an address or tap the map."}
+                                {" · "}
+                                <button type="button" className="lfr2-link" onClick={locateMe} disabled={locating}>
+                                    {locating ? "Getting your location..." : "Use my location"}
+                                </button>
+                                {form.latitude && (
+                                    <>
+                                        {" · "}
+                                        <button type="button" className="lfr2-link" onClick={clearPin}>
+                                            Clear pin
+                                        </button>
+                                    </>
+                                )}
+                            </small>
                         </div>
 
                         <div className="ao-field">
