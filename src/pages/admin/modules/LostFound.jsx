@@ -144,6 +144,9 @@ export default function LostFoundPage({ setPage }) {
     const [viewingReport, setViewingReport] = useState(null);
     const [claimOpen, setClaimOpen] = useState(false);
     const [claimText, setClaimText] = useState("");
+    const [claimContactNumber, setClaimContactNumber] = useState("");
+    const [claimProofPhotoUrl, setClaimProofPhotoUrl] = useState("");
+    const [claimProofUploading, setClaimProofUploading] = useState(false);
     const [claimError, setClaimError] = useState("");
     const [mySuggestions, setMySuggestions] = useState([]);
     const [photoName, setPhotoName] = useState("");
@@ -335,6 +338,11 @@ export default function LostFoundPage({ setPage }) {
              setError("Please enter a valid phone number: 10 digits starting with 9, e.g. 917 123 4567.");
              return;
         }
+        
+        if (reportType === "found" && !photoUrl) {
+            setError("Please add a photo so the owner can recognize the pet.");
+            return;
+        }
 
         if (!token) {
             setError("You must be logged in to submit a report.");
@@ -357,11 +365,14 @@ export default function LostFoundPage({ setPage }) {
                           petName: petName.trim(),
                           species: species.trim(),
                           breed: breed.trim(),
+                          colour: color,  
+                          size,
+                          sex: gender,
                           description: [
                           description.trim(),
                           color.trim() && `Color: ${color.trim()}`,
                           reportType === "lost" && age && `Age: ${age} ${ageUnit}`,
-                          reportType === "lost" && gender && `Gender: ${gender}`,
+                          gender && `Gender: ${gender}`,
                           size && `Size: ${size}`,
                           contactNumber && `Contact: +63 ${contactNumber}`,
                           notes.trim() && `Notes: ${notes.trim()}`,
@@ -427,40 +438,42 @@ export default function LostFoundPage({ setPage }) {
             setSubmitting(false);
         }
     }
+// Validates and uploads one image; returns its URL or throws a readable error.
+async function uploadLostFoundImage(file) {
+    const okTypes = ["image/png", "image/jpeg", "image/webp"];
+    if (!okTypes.includes(file.type)) {
+        throw new Error("Please choose a PNG, JPG, JPEG or WEBP image.");
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        throw new Error("Image is too large. Max 5 MB.");
+    }
+
+    const formData = new FormData();
+    formData.append("folder", "rescuebase/lost-found");
+    formData.append("image", file);
+
+    const response = await fetch(`${API}/api/uploads/image`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }, // no Content-Type: the browser sets it for files
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+        throw new Error(data.message || "Upload failed.");
+    }
+
+    return data.imageUrl;
+}
+
 async function uploadPhoto(file) {
     setPhotoError("");
     if (!file) return;
 
-    const okTypes = ["image/png", "image/jpeg", "image/webp"];
-    if (!okTypes.includes(file.type)) {
-        setPhotoError("Please choose a PNG, JPG, JPEG or WEBP image.");
-        return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-        setPhotoError("Image is too large. Max 5 MB.");
-        return;
-    }
-
     try {
         setPhotoUploading(true);
-
-        const formData = new FormData();
-        formData.append("folder", "rescuebase/lost-found");
-        formData.append("image", file);
-
-        const response = await fetch(`${API}/api/uploads/image`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` }, // no Content-Type: the browser sets it for files
-            body: formData,
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error(data.message || "Upload failed.");
-        }
-
-        setPhotoUrl(data.imageUrl);
+        setPhotoUrl(await uploadLostFoundImage(file));
         setPhotoName(file.name);
     } catch (err) {
         setPhotoError(err.message || "Upload failed. Please try again.");
@@ -468,20 +481,44 @@ async function uploadPhoto(file) {
         setPhotoUploading(false);
     }
 }
-    async function handleClaim(reportId, notesFromForm) {
+
+async function uploadClaimProofPhoto(file) {
+    setClaimError("");
+    if (!file) return;
+
+    try {
+        setClaimProofUploading(true);
+        setClaimProofPhotoUrl(await uploadLostFoundImage(file));
+    } catch (err) {
+        setClaimError(err.message || "Upload failed. Please try again.");
+    } finally {
+        setClaimProofUploading(false);
+    }
+}
+
+// "I found this pet": open the Found form prefilled from a lost report.
+function startFoundReportFromLostReport(lostReport) {
+    setReportType("found");
+    setPetName(lostReport.petName || "");
+    setSpecies(lostReport.species || "");
+    setBreed(lostReport.breed || "");
+    setColor(lostReport.colour || "");
+    setSize(lostReport.size || "");
+    setGender(lostReport.sex || "");
+    setDescription("");
+    setLocation("");
+    setDateReported("");
+    setPhotoUrl("");
+    setPhotoName("");
+    setLat("");
+    setLng("");
+    setNotes(`Responding to the lost report for ${lostReport.petName || `a ${String(lostReport.species || "pet").toLowerCase()}`}.`);
+    setViewingReport(null);
+    setShowReportForm(true);
+}
+    async function handleClaim(reportId) {
     setError("");
     setSuccess("");
-
-    const claimNotes =
-        notesFromForm !== undefined
-            ? notesFromForm
-            : window.prompt(
-                "Please provide information that can help verify your ownership of this pet:"
-            );
-
-    if (claimNotes === null || !claimNotes.trim()) {
-        return false;
-    }
 
     try {
         const response = await fetch(
@@ -493,7 +530,9 @@ async function uploadPhoto(file) {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    claimNotes: claimNotes.trim(),
+                    claimNotes: claimText.trim(),
+                    claimContactNumber,
+                    claimProofPhotoUrl,
                 }),
             }
         );
@@ -505,6 +544,9 @@ async function uploadPhoto(file) {
         }
 
         setSuccess(data.message || "Claim submitted for verification.");
+        setClaimText("");
+        setClaimContactNumber("");
+        setClaimProofPhotoUrl("");
         await loadReports();
         return true;
     } catch (error) {
@@ -867,7 +909,12 @@ if (showReportForm && canSubmitReport) {
 
                         <label className="lfr2-field">
                             <span>Color</span>
-                            <input value={color} onChange={(e) => setColor(e.target.value)} placeholder="e.g. Brown and white" />
+                            <select value={color} onChange={(e) => setColor(e.target.value)}>
+                                  <option value="">Select</option>
+                                  {["Black", "White", "Brown", "Tan", "Gray", "Cream", "Golden", "Orange", "Red", "Mixed", "Other"].map((colourOption) => (
+                                      <option key={colourOption} value={colourOption}>{colourOption}</option>
+                                  ))}
+                            </select>
                         </label>
 
                         {isLost && (
@@ -882,9 +929,8 @@ if (showReportForm && canSubmitReport) {
                                         </select>
                                     </div>
                                 </label>
-
                                 <label className="lfr2-field">
-                                    <span>Gender</span>
+                                    <span>Sex</span>
                                     <select value={gender} onChange={(e) => setGender(e.target.value)}>
                                         <option value="">Select</option>
                                         <option value="Male">Male</option>
@@ -912,8 +958,8 @@ if (showReportForm && canSubmitReport) {
                             <input type="date" value={dateReported} onChange={(e) => setDateReported(e.target.value)} required />
                         </label>
 
-                        <div className={`lfr2-field ${isLost ? "lfr2-span-4" : "lfr2-span-2"}`}>
-                            <span>Photo</span>
+                        <div className="lfr2-field lfr2-span-4">
+                            <span>Photo {!isLost && <em>*</em>}</span>
                             <div className="lfr2-photo">
                                 {photoUrl && <img src={photoUrl} alt="Pet preview" />}
                                 <label htmlFor="lfr-photo-input" className={`lfr2-photo-btn${photoUploading ? " is-disabled" : ""}`}>
@@ -1566,6 +1612,12 @@ if (showReportForm && canSubmitReport) {
     r.status !== "rejected" &&
     r.claimStatus !== "pending" &&
     r.claimStatus !== "approved";
+    const canReportFoundForThis =
+      canSubmitReport &&
+      !canManageReports &&
+      !isMine &&
+      r.reportType === "lost" &&
+      r.status !== "reunited";
     const canSeeSuggestions = isMine && r.status !== "reunited";
     const suggestedMatches = canSeeSuggestions
       ? mySuggestions.filter(({ myReport }) => myReport._id === r._id)
@@ -1721,7 +1773,7 @@ if (showReportForm && canSubmitReport) {
         </small>
     </div>
 )}
-                    {canManageReports && r.claimStatus && r.claimStatus !== "none" && (
+    {canManageReports && r.claimStatus && r.claimStatus !== "none" && (
     <div className="lf-claim-review">
         <h3>
             Ownership claim{" "}
@@ -1738,10 +1790,14 @@ if (showReportForm && canSubmitReport) {
                 <dd>{r.claimantEmail || r.claimedByEmail || r.claimedBy?.email || "—"}</dd>
             </div>
             <div>
+                  <dt>Mobile</dt>
+                  <dd>{r.claimContactNumber ? `+63 ${r.claimContactNumber}` : "—"}</dd>
+            </div>
+            <div>
                 <dt>Submitted</dt>
                 <dd>
-                    {r.claimedAt || r.claimDate
-                        ? new Date(r.claimedAt || r.claimDate).toLocaleString("en-US", {
+                    {r.claimedAt
+                        ? new Date(r.claimedAt).toLocaleString("en-US", {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
@@ -1755,6 +1811,13 @@ if (showReportForm && canSubmitReport) {
 
         <h3>Proof given</h3>
         <p className="lf-claim-proof">{r.claimNotes || "No proof text was saved."}</p>
+        
+        {r.claimProofPhotoUrl && (
+            <a href={r.claimProofPhotoUrl} target="_blank" rel="noreferrer">
+                <img className="lf-claim-proof-photo" src={r.claimProofPhotoUrl} alt="Proof of ownership" />
+            </a>
+        )}
+        
     </div>
 )}
 {canManageReports && r.claimStatus === "pending" && (
@@ -1781,23 +1844,70 @@ if (showReportForm && canSubmitReport) {
         </button>
     </>
 )}
-                    {canClaimThis && claimOpen && (
+    {canClaimThis && claimOpen && (
     <div className="lf-claim">
         <h3>Submit an ownership claim</h3>
         <p>
             Tell the shelter how they can confirm this is your pet. Staff will
             review your claim before the pet is released.
         </p>
-        <textarea
-            rows={4}
-            maxLength={500}
-            value={claimText}
-            onChange={(e) => {
-                setClaimText(e.target.value);
-                setClaimError("");
-            }}
-            placeholder="e.g. Microchip number, vet records, photos of you with the pet, markings only the owner would know..."
-        />
+        <label className="lfr2-field">
+            <span>Proof of ownership <em>*</em></span>
+            <textarea
+                rows={4}
+                maxLength={500}
+                value={claimText}
+                onChange={(e) => {
+                    setClaimText(e.target.value);
+                    setClaimError("");
+                }}
+                placeholder="Marks or scars, collar, the name it answers to, when and where it was lost..."
+            />
+            <small>{claimText.trim().length}/20 characters minimum</small>
+        </label>
+
+        <label className="lfr2-field">
+            <span>Mobile number <em>*</em></span>
+            <div className="lfr2-phone">
+                <b>+63</b>
+                <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={claimContactNumber}
+                    onChange={(e) => {
+                        let digits = e.target.value.replace(/\D/g, "");
+                        if (digits.startsWith("63")) digits = digits.slice(2);
+                        if (digits.startsWith("0")) digits = digits.slice(1);
+                        setClaimContactNumber(digits.slice(0, 10));
+                        setClaimError("");
+                    }}
+                    placeholder="9XX XXX XXXX"
+                    maxLength={10}
+                />
+            </div>
+        </label>
+
+        <div className="lfr2-field">
+            <span>Proof photo <small>(optional: you with the pet, or its vet card)</small></span>
+            <div className="lfr2-photo">
+                {claimProofPhotoUrl && <img src={claimProofPhotoUrl} alt="Proof preview" />}
+                <label htmlFor="lf-claim-proof-input" className={`lfr2-photo-btn${claimProofUploading ? " is-disabled" : ""}`}>
+                    {claimProofUploading ? "Uploading..." : claimProofPhotoUrl ? "Change photo" : "Choose photo"}
+                </label>
+                <input
+                    id="lf-claim-proof-input"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    hidden
+                    disabled={claimProofUploading}
+                    onChange={(e) => {
+                        uploadClaimProofPhoto(e.target.files[0]);
+                        e.target.value = "";
+                    }}
+                />
+            </div>
+        </div>
+
         {claimError && <small className="lf-claim-error">{claimError}</small>}
     </div>
 )}
@@ -1813,17 +1923,25 @@ if (showReportForm && canSubmitReport) {
             This Is My Pet
         </button>
     )}
-
+    {canReportFoundForThis && (
+        <button type="button" className="lfr-submit" onClick={() => startFoundReportFromLostReport(r)}>
+            I Found This Pet
+        </button>
+    )}
     {canClaimThis && claimOpen && (
         <button
             type="button"
             className="lfr-submit"
             onClick={async () => {
-                if (!claimText.trim()) {
-                    setClaimError("Please describe how we can verify you're the owner.");
+                if (claimText.trim().length < 20) {
+                    setClaimError("Please describe your proof of ownership in at least 20 characters.");
                     return;
                 }
-                const done = await handleClaim(r._id, claimText);
+                if (!/^9\d{9}$/.test(claimContactNumber)) {
+                    setClaimError("Enter a 10-digit mobile number starting with 9 (e.g. 917 123 4567).");
+                    return;
+                }
+                const done = await handleClaim(r._id);
                 if (done) setViewingReport(null);
             }}
         >
