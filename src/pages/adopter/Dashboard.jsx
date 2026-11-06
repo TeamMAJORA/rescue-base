@@ -1494,6 +1494,10 @@ async function fetchPets({ silent = false } = {}) {
                 setActiveAdopterPage("application-status");
                 break;
 
+            case "lost_found_update":
+                setActiveAdopterPage("lost-found");
+                break;
+                                
             default:
                 setActiveAdopterPage("overview");
                 break;

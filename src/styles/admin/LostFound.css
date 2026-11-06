@@ -2788,7 +2788,8 @@
 }
 
 .lf-claim-proof-photo {
-    max-width: 180px;
+    max-width: 220px;
     margin-top: 6px;
+    border: 1px solid #f3d98a;
     border-radius: 8px;
 }

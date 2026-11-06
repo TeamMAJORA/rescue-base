@@ -131,7 +131,7 @@ const DOT_SOURCES = [
     },
     { tab: "animal-profiles", url: "/api/animals/intakes", key: "intakes" },
     { tab: "feedback", url: "/api/feedback", key: "feedback" },
-    { tab: "lost-found", url: "/api/lost-found/reports", key: "reports" },
+    { tab: "lost-found", url: "/api/lost-found/reports", key: "reports", extraTime: (item) => item.claimedAt },
     { tab: "foster-care", url: "/api/foster/applications", key: "applications" },
     { tab: "donations", url: "/api/donations", key: "donations" },
 ];

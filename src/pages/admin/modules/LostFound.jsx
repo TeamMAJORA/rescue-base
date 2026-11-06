@@ -548,6 +548,7 @@ function startFoundReportFromLostReport(lostReport) {
         setClaimContactNumber("");
         setClaimProofPhotoUrl("");
         await loadReports();
+        await loadMySuggestions();
         return true;
     } catch (error) {
         console.error("Submit lost and found claim error:", error);
@@ -555,6 +556,31 @@ function startFoundReportFromLostReport(lostReport) {
         return false;
     }
 }
+
+    async function handleCancelClaim(reportId) {
+        setError("");
+        setSuccess("");
+
+        try {
+            const response = await fetch(`${API}/api/lost-found/reports/${reportId}/claim/cancel`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Failed to cancel claim.");
+            }
+
+            setSuccess(data.message || "Your claim was cancelled.");
+            await loadReports();
+            await loadMySuggestions();
+            return true;
+        } catch (error) {
+            setError(error.message || "Failed to cancel claim.");
+            return false;
+        }
+    }
 
     async function handleReviewClaim(
         reportId,
@@ -929,17 +955,17 @@ if (showReportForm && canSubmitReport) {
                                         </select>
                                     </div>
                                 </label>
-                                <label className="lfr2-field">
-                                    <span>Sex</span>
-                                    <select value={gender} onChange={(e) => setGender(e.target.value)}>
-                                        <option value="">Select</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Unknown">Unknown</option>
-                                    </select>
-                                </label>
                             </>
                         )}
+                        <label className="lfr2-field">
+                            <span>Sex</span>
+                            <select value={gender} onChange={(e) => setGender(e.target.value)}>
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                        </label>
 
                         <label className="lfr2-field">
                             <span>Size</span>
@@ -1132,7 +1158,6 @@ if (showReportForm && canSubmitReport) {
                                             setContactNumber(digits.slice(0, 10));
                                         }}
                                         placeholder="9XX XXX XXXX"
-                                        maxLength={10}
                                         required
                                     />
                                 </div>
@@ -1212,11 +1237,11 @@ if (showReportForm && canSubmitReport) {
                 <section className="lf2-card lf-suggest-panel">
                     <h3>Possible matches for your reports</h3>
                     <small className="lf-match-note">
-                        Suggested by species, breed, colour, size, sex, distance and dates. Open one to check it, then claim it or dismiss it.
+                        Suggested by species, breed, colour, size, sex, distance and dates. Always verify before claiming.
                     </small>
 
                     <div className="lf-suggest-grid">
-                        {mySuggestions.map(({ matchId, score, myReport, matchedReport }) => {
+                        {mySuggestions.map(({ matchId, score, isConfirmedByStaff, myReport, matchedReport }) => {
                             const matchedSpecies = String(matchedReport.species || "").toLowerCase();
 
                             return (
@@ -1248,16 +1273,19 @@ if (showReportForm && canSubmitReport) {
                                             <small>For your report: {myReport.petName || myReport.species}</small>
                                         </span>
 
-                                        <span className="lf-match-tag">{Math.floor(score)}%</span>
+                                        <span className="lf-match-tag">
+                                            {isConfirmedByStaff ? "Confirmed by staff" : `${Math.floor(score)}%`}
+                                        </span>
                                     </button>
-
-                                    <button
-                                        type="button"
-                                        className="lf-match-dismiss"
-                                        onClick={() => dismissSuggestedMatch(matchId)}
-                                    >
-                                        {myReport.reportType === "lost" ? "Not my pet" : "Not a match"}
-                                    </button>
+                                    {!isConfirmedByStaff && ( 
+                                        <button
+                                            type="button"
+                                            className="lf-match-dismiss"
+                                            onClick={() => dismissSuggestedMatch(matchId)}
+                                        >
+                                            {myReport.reportType === "lost" ? "Not my pet" : "Not a match"}
+                                        </button>
+                                    )}
                                 </div>
                             );
                         })}
@@ -1529,16 +1557,13 @@ if (showReportForm && canSubmitReport) {
                                                     )}
 
                                                     {!isMine && isOpen && report.reportType === "lost" && !canManageReports && (
-                                                        <a
+                                                        <button
+                                                            type="button"
                                                             className="lf2-mini"
-                                                            href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(report.reporterEmail)}&su=${encodeURIComponent(
-                                                                `I've seen ${report.petName || "your pet"} (RescueBase)`
-                                                            )}`}
-                                                            target="_blank"
-                                                            rel="noreferrer"
+                                                            onClick={() => startFoundReportFromLostReport(report)}
                                                         >
-                                                            I've seen this pet
-                                                        </a>
+                                                            I found this pet
+                                                        </button>
                                                     )}
 
                                                     {canManageReports && report.claimStatus === "pending" && (
@@ -1618,7 +1643,8 @@ if (showReportForm && canSubmitReport) {
       !isMine &&
       r.reportType === "lost" &&
       r.status !== "reunited";
-    const canSeeSuggestions = isMine && r.status !== "reunited";
+    const isMyPendingClaim = r.claimStatus === "pending" && r.claimedByEmail === user?.email;
+    const canSeeSuggestions = isMine && !canManageReports && r.status !== "reunited";
     const suggestedMatches = canSeeSuggestions
       ? mySuggestions.filter(({ myReport }) => myReport._id === r._id)
       : [];
@@ -1716,7 +1742,7 @@ if (showReportForm && canSubmitReport) {
             <p className="lf-match-empty">No matching reports yet. Check back later.</p>
         ) : (
             <div className="lf-match-list">
-                {suggestedMatches.map(({ matchId, matchedReport, score }) => (
+                {suggestedMatches.map(({ matchId, matchedReport, score, isConfirmedByStaff }) => (
                     <div className="lf-match" key={matchId}>
                         <button
                             type="button"
@@ -1751,10 +1777,12 @@ if (showReportForm && canSubmitReport) {
                                 </small>
                             </span>
 
-                            <span className="lf-match-tag">{Math.floor(score)}%</span>
+                            <span className="lf-match-tag">
+                                {isConfirmedByStaff ? "Confirmed by staff" : `${Math.floor(score)}%`}
+                            </span>
                         </button>
 
-                        {isMine && (
+                        {isMine && !isConfirmedByStaff && (
                             <button
                                 type="button"
                                 className="lf-match-dismiss"
@@ -1769,7 +1797,7 @@ if (showReportForm && canSubmitReport) {
         )}
 
         <small className="lf-match-note">
-            Suggested by species, dates, location, breed, color and size. Always verify before claiming.
+            Suggested by species, breed, colour, size, sex, distance and dates. Always verify before claiming.
         </small>
     </div>
 )}
@@ -1817,7 +1845,7 @@ if (showReportForm && canSubmitReport) {
                 <img className="lf-claim-proof-photo" src={r.claimProofPhotoUrl} alt="Proof of ownership" />
             </a>
         )}
-        
+
     </div>
 )}
 {canManageReports && r.claimStatus === "pending" && (
@@ -1863,7 +1891,7 @@ if (showReportForm && canSubmitReport) {
                 }}
                 placeholder="Marks or scars, collar, the name it answers to, when and where it was lost..."
             />
-            <small>{claimText.trim().length}/20 characters minimum</small>
+            <small>At least 20 characters ({claimText.trim().length} so far)</small>
         </label>
 
         <label className="lfr2-field">
@@ -1882,7 +1910,6 @@ if (showReportForm && canSubmitReport) {
                         setClaimError("");
                     }}
                     placeholder="9XX XXX XXXX"
-                    maxLength={10}
                 />
             </div>
         </label>
@@ -1926,6 +1953,25 @@ if (showReportForm && canSubmitReport) {
     {canReportFoundForThis && (
         <button type="button" className="lfr-submit" onClick={() => startFoundReportFromLostReport(r)}>
             I Found This Pet
+        </button>
+    )}
+    {isMyPendingClaim && (
+        <button
+            type="button"
+            className="lfr-cancel"
+            onClick={async () => {
+                const confirmed = await askConfirm({
+                    title: "Cancel your claim?",
+                    message: "The report will reopen so it can be claimed again.",
+                    confirmLabel: "Cancel claim",
+                });
+                if (!confirmed) return;
+
+                const done = await handleCancelClaim(r._id);
+                if (done) setViewingReport(null);
+            }}
+        >
+            Cancel My Claim
         </button>
     )}
     {canClaimThis && claimOpen && (
