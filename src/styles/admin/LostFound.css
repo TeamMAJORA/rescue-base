@@ -1115,100 +1115,120 @@
     z-index: 2000;
     display: grid;
     place-items: center;
-    padding: 16px;
-    background: rgba(40, 20, 5, 0.45);
+    padding: 24px;
+    background: rgba(40, 20, 5, 0.5);
 }
 
+/* Photo on the left, details scroll on the right, actions stay at the bottom */
 .lf-modal {
-    width: min(560px, 100%);
-    max-height: 90vh;
-    overflow-y: auto;
-    border-radius: 14px;
+    position: relative;
+    width: min(940px, 100%);
+    height: min(640px, calc(100vh - 48px));
+    display: grid;
+    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    overflow: hidden;
+    border-radius: 16px;
     background: #fffaeb;
+    box-shadow: 0 24px 60px rgba(40, 20, 5, 0.3);
 }
 
 .lf-modal-media {
     position: relative;
-    height: 170px;
+    min-height: 0;
     display: grid;
     place-items: center;
+    overflow: hidden;
 }
 
 .lf-modal-media img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
 .lf-modal-media .lf-card-emoji {
-    font-size: 64px;
+    font-size: 88px;
 }
 
 .lf-modal-close {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 30px;
-    height: 30px;
-    border: none;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #f3d98a;
     border-radius: 50%;
     background: #fffaf0;
     color: #5a1b00;
-    font-size: 18px;
+    font-size: 20px;
+    line-height: 1;
     cursor: pointer;
 }
 
+.lf-modal-close:hover {
+    border-color: #fb8500;
+    color: #fb8500;
+}
+
 .lf-modal-body {
-    display: grid;
-    gap: 4px;
-    padding: 18px 20px 20px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    padding: 24px 26px 0;
     color: #5a1b00;
 }
 
 .lf-modal-body h2 {
     margin: 0;
+    padding-right: 40px;
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 400;
 }
 
 .lf-modal-body > small {
     color: rgba(90, 27, 0, 0.7);
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .lf-modal-body h3 {
-    margin: 12px 0 0;
-    font-size: 12px;
+    margin: 16px 0 2px;
+    font-size: 13px;
     font-weight: 800;
 }
 
 .lf-modal-body p {
     margin: 0;
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 1.55;
 }
 
 .lf-modal-facts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 16px;
-    margin: 12px 0 0;
-    padding: 12px;
-    border-radius: 10px;
+    gap: 12px 18px;
+    margin: 14px 0 0;
+    padding: 14px 16px;
+    border-radius: 12px;
     background: #fdefb8;
 }
 
 .lf-modal-facts dt {
     color: rgba(90, 27, 0, 0.6);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 .lf-modal-facts dd {
-    margin: 2px 0 0;
-    font-size: 12px;
+    margin: 3px 0 0;
+    font-size: 14px;
     font-weight: 700;
     word-break: break-word;
 }
@@ -1222,15 +1242,46 @@
 }
 
 .lf-modal-foot {
+    position: sticky;
+    bottom: 0;
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 14px;
+    margin: auto -26px 0;
+    padding: 14px 26px;
+    border-top: 1px solid #f3d98a;
+    background: #fffaeb;
 }
 
-@media (max-width: 480px) {
-    .lf-modal-facts {
+/* Phones and narrow windows: photo on top, details scroll below it */
+@media (max-width: 760px) {
+    .lf-modal-overlay {
+        padding: 12px;
+    }
+
+    .lf-modal {
+        height: calc(100vh - 24px);
         grid-template-columns: 1fr;
+        grid-template-rows: 190px minmax(0, 1fr);
+    }
+
+    .lf-modal-body {
+        padding: 18px 18px 0;
+    }
+
+    .lf-modal-body h2 {
+        font-size: 24px;
+    }
+
+    .lf-modal-foot {
+        margin: auto -18px 0;
+        padding: 12px 18px;
+    }
+
+    .lf-modal-foot > button {
+        flex: 1 1 auto;
+        white-space: nowrap;
     }
 }
 .lf-claim {

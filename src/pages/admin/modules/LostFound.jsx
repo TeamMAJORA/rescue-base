@@ -603,52 +603,6 @@ function startFoundReportFromLostReport(lostReport) {
         }
     }
 
-        async function handleMarkReunited(reportId) {
-        setError("");
-        setSuccess("");
-
-        try {
-            const response = await fetch(
-                `${API}/api/lost-found/reports/${reportId}/reunited`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(
-                    data.message ||
-                    "Failed to mark case as reunited."
-                );
-            }
-
-            setSuccess(
-                data.message ||
-                "Case marked as reunited."
-            );
-
-            await loadReports();
-            return true;
-
-        } catch (error) {
-            console.error(
-                "Mark reunited error:",
-                error
-            );
-
-            setError(
-                error.message ||
-                "Failed to mark case as reunited."
-            );
-            return false;
-        }
-    }
-
     async function handleDeleteReport(reportId) {
         const confirmed = await askConfirm({ title: "Delete this lost and found report?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
@@ -817,12 +771,6 @@ function renderReportActions(report, { isMine, isOpen, canClaimThis }) {
             {canManageReports && report.claimStatus === "pending" && (
                 <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report)}>
                     Review claim
-                </button>
-            )}
-
-            {canManageReports && report.claimStatus === "approved" && report.status !== "reunited" && (
-                <button type="button" className="lf2-mini is-dark" onClick={() => handleMarkReunited(report._id)}>
-                    Mark reunited
                 </button>
             )}
 
@@ -1664,10 +1612,6 @@ if (showReportForm && canSubmitReport) {
     const s = String(r.species || "").toLowerCase();
     const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
     const badge = r.status === "reunited" ? "reunited" : r.reportType;
-    const canMarkReunited =
-    canManageReports &&
-    r.claimStatus === "approved" &&
-    r.status !== "reunited";
     const canClaimThis =
     canClaimReport &&
     !isMine &&
@@ -1703,15 +1647,15 @@ if (showReportForm && canSubmitReport) {
                         <span className="lf-card-emoji">{emoji}</span>
                     )}
                     <span className={`lf-card-badge is-${badge}`}>{badge}</span>
-                    <button
-                        type="button"
-                        className="lf-modal-close"
-                        onClick={() => setViewingReport(null)}
-                        aria-label="Close"
-                    >
-                        ×
-                    </button>
                 </div>
+                <button
+                    type="button"
+                    className="lf-modal-close"
+                    onClick={() => setViewingReport(null)}
+                    aria-label="Close"
+                >
+                    ×
+                </button>
 
                 <div className="lf-modal-body">
                     <h2>{r.petName || "Unknown"}</h2>
@@ -1900,30 +1844,6 @@ if (showReportForm && canSubmitReport) {
 
     </div>
 )}
-{canManageReports && r.claimStatus === "pending" && (
-    <>
-        <button
-            type="button"
-            className="lfr-cancel"
-            onClick={async () => {
-                await handleReviewClaim(r._id, "rejected");
-                setViewingReport(null);
-            }}
-        >
-            Reject Claim
-        </button>
-        <button
-            type="button"
-            className="lfr-submit"
-            onClick={async () => {
-                await handleReviewClaim(r._id, "approved");
-                setViewingReport(null);
-            }}
-        >
-            Approve Claim
-        </button>
-    </>
-)}
     {canClaimThis && claimOpen && (
     <div className="lf-claim">
         <h3>Submit an ownership claim</h3>
@@ -1997,6 +1917,30 @@ if (showReportForm && canSubmitReport) {
     <button type="button" className="lfr-cancel" onClick={() => setViewingReport(null)}>
         Close
     </button>
+{canManageReports && r.claimStatus === "pending" && (
+    <>
+        <button
+            type="button"
+            className="lfr-cancel"
+            onClick={async () => {
+                await handleReviewClaim(r._id, "rejected");
+                setViewingReport(null);
+            }}
+        >
+            Reject Claim
+        </button>
+        <button
+            type="button"
+            className="lfr-submit"
+            onClick={async () => {
+                await handleReviewClaim(r._id, "approved");
+                setViewingReport(null);
+            }}
+        >
+            Approve Claim
+        </button>
+    </>
+)}
 
     {canClaimThis && !claimOpen && (
         <button type="button" className="lfr-submit" onClick={() => setClaimOpen(true)}>
@@ -2048,25 +1992,6 @@ if (showReportForm && canSubmitReport) {
         </button>
     )}
 
-    {canMarkReunited && (
-        <button
-            type="button"
-            className="lfr-submit"
-            onClick={async () => {
-                const ok = await askConfirm({
-                    title: "Mark this pet as reunited?",
-                    message: "The report will show as Reunited for everyone.",
-                    confirmLabel: "Mark Reunited",
-                });
-                if (!ok) return;
-
-                const done = await handleMarkReunited(r._id);
-                if (done) setViewingReport(null);
-            }}
-        >
-            Mark Reunited
-        </button>
-    )}
 </footer>
                 </div>
             </div>
