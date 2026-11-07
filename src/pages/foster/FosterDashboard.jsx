@@ -8,10 +8,7 @@ import FosterHistory from "./modules/FosterHistory";
 import FosterNotifications from "./modules/FosterNotifications";
 import MedicalAssistance from "./modules/MedicalAssistance";
 import FosterUpdates from "./modules/FosterUpdates";
-import FeedbackForm from "../FeedbackForm";
-import AccountSettings from "../AccountSettings";
-import DonationCenter from "../adopter/modules/DonationCenter";
-import DonationHistory from "../adopter/modules/DonationHistory";
+import { openOnAdopterDashboard } from "../../utils/adopterStartPage";
 //hehe nag add ko settings for all roles
 
 import "../../styles/foster/FosterDashboard.css";
@@ -21,8 +18,6 @@ import "../../styles/foster/DashboardOverview.css"
 import "../../styles/foster/WeeklyUpdates.css";
 import "../../styles/foster/FosterHistory.css";
 import "../../styles/foster/FosterNotifications.css";
-import "../../styles/adopter/DonationCenter.css";
-import "../../styles/adopter/DonationHistory.css";
 import "../../styles/admin/IntakeRecords.css"; // shared page styles (stats strip, cards, traits)
 
 import assets from "../../data/assets.json";
@@ -40,21 +35,6 @@ const PAGE_TITLES = {
     application: "My Application",
     medical: "Medical Assistance",
     notifications: "Notifications",
-    donation: "Donation",
-    "donation-history": "Donation History",
-    feedback: "Feedback",
-    settings: "Settings",
-};
-
-// The donation pages are shared with the Adopter dashboard and use its colour variables,
-// which are only defined inside the adopter page. Give them the same colours here.
-const ADOPTER_DONATION_COLOURS = {
-    "--adopter-brown": "#5a1b00",
-    "--adopter-light-brown": "#7b452d",
-    "--adopter-red": "#d62828",
-    "--adopter-orange": "#fb8500",
-    "--adopter-yellow": "#fcbf49",
-    "--adopter-light-yellow": "#fff7cb",
 };
 
 // Sidebar items (same icon set as the Adopter sidebar)
@@ -65,11 +45,7 @@ const FOSTER_MENU = [
     { key: "behavior", label: "Behavior Evaluation", icon: "/icons/heart-brown.svg", activeIcon: "/icons/heart-light.svg", also: ["fosterUpdates"] },
     { key: "medical", label: "Medical Assistance", icon: "/icons/sidebar/medical-brown.svg", activeIcon: "/icons/sidebar/medical-light.svg" },
     { key: "history", label: "Foster History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
-    { key: "donation", label: "Donation", icon: "/icons/sidebar/donation-brown.svg", activeIcon: "/icons/sidebar/donation-light.svg" },
-    { key: "donation-history", label: "Donation History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
     { key: "application", label: "My Application", icon: "/icons/sidebar/role-brown.svg", activeIcon: "/icons/sidebar/role-light.svg" },
-    { key: "feedback", label: "Feedback", icon: "/icons/sidebar/Feedback-brown.svg", activeIcon: "/icons/sidebar/Feedback-light.svg" },
-    { key: "settings", label: "Settings", icon: "/icons/sidebar/settings-brown.svg", activeIcon: "/icons/sidebar/settings-light.svg" },
 ];
 
 export default function FosterDashboard({ setPage }) {
@@ -88,7 +64,6 @@ export default function FosterDashboard({ setPage }) {
         "Foster User";
 
     const [activePage, setActivePage] = useState("dashboard");
-    const [, setUserVersion] = useState(0);
     const [loading, setLoading] = useState(true);
     const [application, setApplication] = useState(null);
     const [confirmRevoke, setConfirmRevoke] = useState(false);
@@ -164,6 +139,14 @@ export default function FosterDashboard({ setPage }) {
 
         action();
     }
+
+// Lost & Found, Donation, Feedback and Settings live on the Adopter dashboard
+function openAdopterPage(adopterPageKey) {
+    guardLeave(() => {
+        openOnAdopterDashboard(adopterPageKey);
+        setPage("dashboard");
+    });
+}
 
 function goToPage(page, petId = null) {
     guardLeave(() => {
@@ -386,6 +369,7 @@ function goToPage(page, petId = null) {
                 onNavigate={goToPage}
                 notifications={notifications}
                 onOpenNotifications={() => setNotificationsOpen(true)}
+                onOpenAdopterPage={openAdopterPage}
                 onRefreshNotifications={loadNotifications}
             />
         ),
@@ -449,6 +433,7 @@ function goToPage(page, petId = null) {
                     setNotificationsOpen(false)
                 }
                 setActivePage={goToPage}
+                onOpenAdopterPage={openAdopterPage}
                 refresh={loadNotifications}
             />
         ),
@@ -460,23 +445,8 @@ function goToPage(page, petId = null) {
                 onDirtyChange={reportDirty}
                 refreshAssignment={fetchAssignment}
             />
-        ),
-
-        donation: (
-            <div style={ADOPTER_DONATION_COLOURS}>
-                <DonationCenter />
-            </div>
-        ),
-
-        "donation-history": (
-            <div style={ADOPTER_DONATION_COLOURS}>
-                <DonationHistory onMakeDonation={() => goToPage("donation")} />
-            </div>
-        ),
-
-        feedback: (
-            <FeedbackForm />
         )
+
 
     }), [
         application,
@@ -717,6 +687,7 @@ function goToPage(page, petId = null) {
                     notifications={notifications}
                     onClose={() => setNotificationsOpen(false)}
                     setActivePage={goToPage}
+                    onOpenAdopterPage={openAdopterPage}
                     refresh={loadNotifications}
                 />
 
@@ -835,9 +806,7 @@ function goToPage(page, petId = null) {
 
                 ) : (
 
-                    activePage === "settings"
-                        ? <AccountSettings onLogout={() => signOut("home")} onProfileSaved={() => setUserVersion((n) => n + 1)} />
-                        : pages[activePage]
+                    pages[activePage]
 
                 )}
 

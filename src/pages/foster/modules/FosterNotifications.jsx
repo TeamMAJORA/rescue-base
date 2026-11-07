@@ -7,6 +7,7 @@ export default function FosterNotifications({
     notifications,
     onClose,
     setActivePage,
+    onOpenAdopterPage,
     refresh,
 }) {
     useEffect(() => {
@@ -66,6 +67,16 @@ export default function FosterNotifications({
 
             case "foster_update":
                 setActivePage("assignment");
+                break;
+
+            // These pages are on the Adopter dashboard
+            case "lost_found_update":
+                onOpenAdopterPage?.("lost-found");
+                break;
+
+            case "donation":
+            case "donation_update":
+                onOpenAdopterPage?.("donation-history");
                 break;
 
             default:

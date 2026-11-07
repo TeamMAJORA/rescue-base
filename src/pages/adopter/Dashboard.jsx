@@ -6,6 +6,7 @@ import {
 
 // Assets
 import assets from "../../data/assets.json";
+import { readAdopterStartPage, clearAdopterStartPage } from "../../utils/adopterStartPage";
 
 // CSS
 import "../../styles/adopter/Dashboard.css";
@@ -174,8 +175,13 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
         .trim()
         .toLowerCase();
 
+    // Opens straight on Lost & Found / Donation when the Foster dashboard asked for it
     const [activeAdopterPage, setActiveAdopterPage] =
-        useState("overview");
+        useState(() => readAdopterStartPage("overview"));
+
+    useEffect(() => {
+        clearAdopterStartPage();
+    }, []);
 
     const [browseStartFilter, setBrowseStartFilter] = useState("all");
 

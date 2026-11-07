@@ -678,3 +678,19 @@ button.fdo-pet:hover {
 @media (max-width: 600px) {
     .fdo-card { padding: 20px 16px; }
 }
+
+/* Shortcuts to the Adopter dashboard (Lost & Found, Donate) */
+.fdo-shortcuts .fdo-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fdo-shortcuts .fdo-action-icon {
+    background: #fff3d6;
+}
+
+@media (max-width: 640px) {
+    .fdo-shortcuts .fdo-actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
