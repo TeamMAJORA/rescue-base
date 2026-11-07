@@ -7,6 +7,9 @@ import { searchCebuPlaces } from "../../../../utils/cebuPlaces";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
+// Same colours as Lost & Found reports, so intakes and reports can be matched
+const INTAKE_COLOUR_OPTIONS = ["Black", "White", "Brown", "Tan", "Gray", "Cream", "Golden", "Orange", "Red", "Mixed", "Other"];
+
 const AO_PIN = L.divIcon({
     className: "ao-pin",
     html: "<span></span>",
@@ -335,7 +338,12 @@ const UPLOAD_URL = `${import.meta.env.VITE_BACKEND_URL}/api/uploads/image`;
 const initialForm = {
     animalName: "",
     animalType: "Dog",
+    breed: "",
+    colour: "",
+    sex: "",
+    size: "",
     intakeType: "Rescued",
+    listOnLostFound: false,
     rescueLocation: "",
     intakeDate: "",
     rescuedBy: "",
@@ -666,6 +674,10 @@ export default function IntakeRecords() {
         setForm({
             animalName: record.name || "",
             animalType: record.type || "Dog",
+            breed: record.breed || "",
+            colour: record.color || "",
+            sex: record.gender === "Unknown" ? "" : record.gender || "",
+            size: record.size === "Unknown" ? "" : record.size || "",
             intakeType: record.intakeType || "Rescued",
             rescueLocation: record.location || "",
             intakeDate: record.intakeDate ? String(record.intakeDate).slice(0, 10) : "",
@@ -702,6 +714,10 @@ export default function IntakeRecords() {
             const payload = {
                 name: form.animalName.trim(),
                 type: form.animalType,
+                breed: form.breed.trim(),
+                color: form.colour,
+                gender: form.sex || "Unknown",
+                size: form.size || "Unknown",
                 intakeType: form.intakeType,
                 location: form.rescueLocation.trim(),
                 intakeDate: form.intakeDate || undefined,
@@ -716,6 +732,7 @@ export default function IntakeRecords() {
             // Tag new intakes saved from a phone (the source never changes on edit)
             if (!editingId) {
                 payload.intakeSource = isPhoneDevice() ? "field" : "desk";
+                payload.listOnLostFound = form.listOnLostFound;
             }
 
             const endpoint = editingId ? `${API_BASE_URL}/${editingId}` : API_BASE_URL;
@@ -999,14 +1016,78 @@ export default function IntakeRecords() {
                             />
                         </div>
 
+                        <div className="ao-row2">
+                            <label className="ao-field">
+                                <span>Breed</span>
+                                <input
+                                    value={form.breed}
+                                    onChange={(e) => updateForm("breed", e.target.value)}
+                                    placeholder="e.g. Aspin"
+                                />
+                            </label>
+
+                            <label className="ao-field">
+                                <span>Colour</span>
+                                <select value={form.colour} onChange={(e) => updateForm("colour", e.target.value)}>
+                                    <option value="">Select</option>
+                                    {INTAKE_COLOUR_OPTIONS.map((colourOption) => (
+                                        <option key={colourOption} value={colourOption}>{colourOption}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        </div>
+
+                        <div className="ao-row2">
+                            <label className="ao-field">
+                                <span>Sex</span>
+                                <select value={form.sex} onChange={(e) => updateForm("sex", e.target.value)}>
+                                    <option value="">Select</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </label>
+
+                            <label className="ao-field">
+                                <span>Size</span>
+                                <select value={form.size} onChange={(e) => updateForm("size", e.target.value)}>
+                                    <option value="">Select</option>
+                                    <option value="Small">Small</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Large">Large</option>
+                                </select>
+                            </label>
+                        </div>
+                        <small className="ao-hint">Fill in at least two of breed, colour, sex or size so lost-pet owners can be matched.</small>
+
                         <div className="ao-field">
                             <span>How did they arrive? <span className="ao-req">*</span></span>
                             <ChipGroup
                                 options={INTAKE_TYPE_OPTIONS}
                                 value={form.intakeType}
-                                onChange={(value) => updateForm("intakeType", value)}
+                                onChange={(value) =>
+                                    // Strays are ticked by default; staff can still change it
+                                    setForm((current) => ({
+                                        ...current,
+                                        intakeType: value,
+                                        listOnLostFound: editingId ? current.listOnLostFound : value === "Stray",
+                                    }))
+                                }
                             />
                         </div>
+
+                        {!editingId && (
+                            <label className="ao-list-lostfound">
+                                <input
+                                    type="checkbox"
+                                    checked={form.listOnLostFound}
+                                    onChange={(e) => updateForm("listOnLostFound", e.target.checked)}
+                                />
+                                <span>
+                                    <b>List on Lost &amp; Found</b>
+                                    <small>Owners can find this animal, get matched and claim it.</small>
+                                </span>
+                            </label>
+                        )}
 
                         <div className="ao-row2">
                             <label className="ao-field">
