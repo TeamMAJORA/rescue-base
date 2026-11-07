@@ -344,7 +344,6 @@ export default function LostFoundPage({ setPage }) {
                           reportType === "lost" && age && `Age: ${age} ${ageUnit}`,
                           gender && `Gender: ${gender}`,
                           size && `Size: ${size}`,
-                          contactNumber && `Contact: +63 ${contactNumber}`,
                           notes.trim() && `Notes: ${notes.trim()}`,
                           ].filter(Boolean).join(" · "),
                           location: location.trim(),
@@ -352,6 +351,7 @@ export default function LostFoundPage({ setPage }) {
                           dateReported ||
                           new Date().toISOString(),
                           photoUrl: photoUrl.trim(),
+                          contactNumber,
                           latitude: lat || undefined,
                           longitude: lng || undefined,
                  }),
@@ -713,7 +713,7 @@ function startFoundReportFromLostReport(lostReport) {
 const countLost = reports.filter((r) => r.reportType === "lost").length;
 const countFound = reports.filter((r) => r.reportType === "found").length;
 const countReunited = reports.filter((r) => r.status === "reunited").length;
-const countMine = reports.filter((r) => r.reporterEmail === user?.email).length;
+const countMine = reports.filter((r) => r.isMine).length;
 
 const countClaims = reports.filter((r) => r.claimStatus === "pending").length;
 const isOpenReport = (r) => r.status !== "reunited" && r.status !== "rejected";
@@ -742,7 +742,7 @@ const visibleReports = reports
         if (typeFilter !== "all") return r.reportType === typeFilter;
         return true;
     })
-    .filter((r) => !onlyMine || r.reporterEmail === user?.email)
+    .filter((r) => !onlyMine || r.isMine)
     .filter((r) => {
         const s = String(r.species || "").toLowerCase();
         if (speciesFilter === "all") return true;
@@ -761,7 +761,7 @@ const visibleReports = reports
     });
 // Shared by the grid and list views
 function describeReport(report) {
-    const isMine = report.reporterEmail === user?.email;
+    const isMine = report.isMine;
     const isOpen = report.status !== "reunited" && report.status !== "rejected";
     const canClaimThis =
         canClaimReport && !isMine && isOpen &&
@@ -1630,7 +1630,7 @@ if (showReportForm && canSubmitReport) {
                                             </td>
                                             <td>{report.location || "—"}</td>
                                             <td>
-                                                <b className="lf2-name">{report.reporterName || report.reporterEmail || "—"}</b>
+                                                <b className="lf2-name">{report.reporterName || "—"}</b>
                                             </td>
                                             <td>
                                                 <span className={`lf2-pill is-${details.statusKey}`}>{details.statusLabel}</span>
@@ -1653,15 +1653,14 @@ if (showReportForm && canSubmitReport) {
             </section>
             {viewingReport && (() => {
     const r = viewingReport;
-    const isMine = r.reporterEmail === user?.email;
-    const canSeeContact = isMine || canManageReports;
+    const isMine = r.isMine;
     const [mainText, ...extras] = String(r.description || "").split(" · ");
     const details = extras
         .map((part) => {
             const i = part.indexOf(": ");
             return i === -1 ? null : [part.slice(0, i), part.slice(i + 2)];
         })
-        .filter((d) => d && (d[0] !== "Contact" || canSeeContact));
+        .filter(Boolean);
     const s = String(r.species || "").toLowerCase();
     const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
     const badge = r.status === "reunited" ? "reunited" : r.reportType;
@@ -1683,7 +1682,7 @@ if (showReportForm && canSubmitReport) {
       !isMine &&
       r.reportType === "lost" &&
       r.status !== "reunited";
-    const isMyPendingClaim = r.claimStatus === "pending" && r.claimedByEmail === user?.email;
+    const isMyPendingClaim = r.claimStatus === "pending" && r.isMyClaim;
     const canSeeSuggestions = isMine && !canManageReports && r.status !== "reunited";
     const suggestedMatches = canSeeSuggestions
       ? mySuggestions.filter(({ myReport }) => myReport._id === r._id)
@@ -1743,6 +1742,12 @@ if (showReportForm && canSubmitReport) {
                             <dt>Reported by</dt>
                             <dd>{isMine ? "You" : r.reporterName || "—"}</dd>
                         </div>
+                        {r.reporterContactNumber && (
+                            <div>
+                                <dt>Contact</dt>
+                                <dd>+63 {r.reporterContactNumber}</dd>
+                            </div>
+                        )}
                         {r.claimStatus && r.claimStatus !== "none" && (
                             <div>
                                 <dt>Claim</dt>
@@ -1841,12 +1846,19 @@ if (showReportForm && canSubmitReport) {
         </small>
     </div>
 )}
-    {canManageReports && r.claimStatus && r.claimStatus !== "none" && (
+    {(canManageReports || (isMine && ["pending", "approved"].includes(r.claimStatus))) && r.claimStatus && r.claimStatus !== "none" && (
     <div className="lf-claim-review">
         <h3>
             Ownership claim{" "}
             <span className={`lf-claim-pill is-${r.claimStatus}`}>{r.claimStatus}</span>
         </h3>
+        {!canManageReports && (
+            <p>
+                {r.claimStatus === "approved"
+                    ? "Staff approved this claim. Contact the owner to hand the pet over."
+                    : "Contact the claimant to confirm the pet is theirs. Shelter staff make the final decision."}
+            </p>
+        )}
 
         <dl className="lf-modal-facts">
             <div>
@@ -1916,8 +1928,9 @@ if (showReportForm && canSubmitReport) {
     <div className="lf-claim">
         <h3>Submit an ownership claim</h3>
         <p>
-            Tell the shelter how they can confirm this is your pet. Staff will
-            review your claim before the pet is released.
+            {r.linkedAnimal
+                ? "Tell the shelter how they can confirm this is your pet. Staff will review your claim before the pet is released."
+                : "The finder and shelter staff will see your name, mobile number and proof so they can confirm this is your pet. Staff make the final decision."}
         </p>
         <label className="lfr2-field">
             <span>Proof of ownership <em>*</em></span>
