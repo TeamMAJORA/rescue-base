@@ -148,12 +148,11 @@ export default function LostFoundPage({ setPage }) {
         "admin",
     ].includes(role);
 
+    // Staff review claims; the server refuses claims from staff and admin
     const canClaimReport = [
         "adopter",
         "foster",
         "volunteer",
-        "staff",
-        "admin",
     ].includes(role);
 
     const canManageReports = isAdmin || isStaff;
@@ -552,8 +551,10 @@ function startFoundReportFromLostReport(lostReport) {
         }
     }
 
+    // Returns the updated report, or null when the review failed
     async function handleReviewClaim(
         reportId,
+        claimId,
         claimStatus
     ) {
         setError("");
@@ -569,6 +570,7 @@ function startFoundReportFromLostReport(lostReport) {
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
+                        claimId,
                         claimStatus,
                     }),
                 }
@@ -589,6 +591,7 @@ function startFoundReportFromLostReport(lostReport) {
             );
 
             await loadReports();
+            return data.report;
 
         } catch (error) {
             console.error(
@@ -600,6 +603,7 @@ function startFoundReportFromLostReport(lostReport) {
                 error.message ||
                 "Failed to review claim."
             );
+            return null;
         }
     }
 
@@ -719,7 +723,7 @@ function describeReport(report) {
     const isOpen = report.status !== "reunited" && report.status !== "rejected";
     const canClaimThis =
         canClaimReport && !isMine && isOpen &&
-        report.claimStatus !== "pending" && report.claimStatus !== "approved";
+        report.claimStatus !== "approved" && report.myClaimStatus !== "pending";
     const species = String(report.species || "").toLowerCase();
     const emoji = species === "cat" ? "🐱" : species === "dog" ? "🐶" : "🐾";
 
@@ -731,9 +735,12 @@ function describeReport(report) {
     } else if (report.status === "rejected") {
         statusKey = "rejected";
         statusLabel = "Closed";
+    } else if (report.myClaimStatus === "pending") {
+        statusKey = "claim-pending";
+        statusLabel = "Your claim: under review";
     } else if (report.claimStatus === "pending") {
         statusKey = "claim-pending";
-        statusLabel = "Claim pending";
+        statusLabel = `${report.pendingClaimCount} claim${report.pendingClaimCount === 1 ? "" : "s"} under review`;
     } else if (report.claimStatus === "approved") {
         statusKey = "claim-approved";
         statusLabel = "Claim approved";
@@ -770,7 +777,7 @@ function renderReportActions(report, { isMine, isOpen, canClaimThis }) {
 
             {canManageReports && report.claimStatus === "pending" && (
                 <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report)}>
-                    Review claim
+                    {report.pendingClaimCount > 1 ? `Review claims (${report.pendingClaimCount})` : "Review claim"}
                 </button>
             )}
 
@@ -1618,15 +1625,18 @@ if (showReportForm && canSubmitReport) {
     r.reportType === "found" &&
     r.status !== "reunited" &&
     r.status !== "rejected" &&
-    r.claimStatus !== "pending" &&
-    r.claimStatus !== "approved";
+    r.claimStatus !== "approved" &&
+    r.myClaimStatus !== "pending";
     const canReportFoundForThis =
       canSubmitReport &&
       !canManageReports &&
       !isMine &&
       r.reportType === "lost" &&
       r.status !== "reunited";
-    const isMyPendingClaim = r.claimStatus === "pending" && r.isMyClaim;
+    const isMyPendingClaim = r.myClaimStatus === "pending";
+    const visibleClaims = r.claims || [];
+    const otherPendingClaimCount = r.pendingClaimCount - (isMyPendingClaim ? 1 : 0);
+    const claimsHeading = canManageReports || isMine ? "Ownership claims" : "Your claim";
     const canSeeSuggestions = isMine && !canManageReports && r.status !== "reunited";
     const suggestedMatches = canSeeSuggestions
       ? mySuggestions.filter(({ myReport }) => myReport._id === r._id)
@@ -1692,10 +1702,16 @@ if (showReportForm && canSubmitReport) {
                                 <dd>+63 {r.reporterContactNumber}</dd>
                             </div>
                         )}
-                        {r.claimStatus && r.claimStatus !== "none" && (
+                        {r.claimStatus === "pending" && (
+                            <div>
+                                <dt>Claims</dt>
+                                <dd>{r.pendingClaimCount} under review</dd>
+                            </div>
+                        )}
+                        {r.claimStatus === "approved" && (
                             <div>
                                 <dt>Claim</dt>
-                                <dd className="lf-cap">{r.claimStatus}</dd>
+                                <dd>Approved</dd>
                             </div>
                         )}
                         {details.map(([key, value]) => {
@@ -1790,58 +1806,99 @@ if (showReportForm && canSubmitReport) {
         </small>
     </div>
 )}
-    {(canManageReports || (isMine && ["pending", "approved"].includes(r.claimStatus))) && r.claimStatus && r.claimStatus !== "none" && (
-    <div className="lf-claim-review">
-        <h3>
-            Ownership claim{" "}
-            <span className={`lf-claim-pill is-${r.claimStatus}`}>{r.claimStatus}</span>
-        </h3>
-        {!canManageReports && (
+    {!canManageReports && !isMine && otherPendingClaimCount > 0 && r.claimStatus === "pending" && (
+        <p className="lf-claim-indicator">
+            {otherPendingClaimCount === 1 ? "Someone else has" : `${otherPendingClaimCount} other people have`} claimed
+            this pet and staff are reviewing.{canClaimThis ? " If it is yours, you can still submit your own claim." : ""}
+        </p>
+    )}
+    {visibleClaims.length > 0 && (
+    <div className="lf-claims">
+        <h3>{claimsHeading}{visibleClaims.length > 1 ? ` (${visibleClaims.length})` : ""}</h3>
+        {isMine && !canManageReports && (
             <p>
                 {r.claimStatus === "approved"
-                    ? "Staff approved this claim. Contact the owner to hand the pet over."
-                    : "Contact the claimant to confirm the pet is theirs. Shelter staff make the final decision."}
+                    ? "Staff approved a claim. Contact the owner to hand the pet over."
+                    : "Contact each claimant to confirm the pet is theirs. Shelter staff make the final decision."}
             </p>
         )}
 
-        <dl className="lf-modal-facts">
-            <div>
-                <dt>Claimed by</dt>
-                <dd>{r.claimantName || r.claimedByName || r.claimedBy?.name || "—"}</dd>
-            </div>
-            <div>
-                <dt>Email</dt>
-                <dd>{r.claimantEmail || r.claimedByEmail || r.claimedBy?.email || "—"}</dd>
-            </div>
-            <div>
-                  <dt>Mobile</dt>
-                  <dd>{r.claimContactNumber ? `+63 ${r.claimContactNumber}` : "—"}</dd>
-            </div>
-            <div>
-                <dt>Submitted</dt>
-                <dd>
-                    {r.claimedAt
-                        ? new Date(r.claimedAt).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                        })
-                        : "—"}
-                </dd>
-            </div>
-        </dl>
+        {visibleClaims.map((claim) => (
+        <div className="lf-claim-review" key={claim._id}>
+            <h3>
+                {claim.claimantName}{" "}
+                <span className={`lf-claim-pill is-${claim.status}`}>{claim.status}</span>
+            </h3>
 
-        <h3>Proof given</h3>
-        <p className="lf-claim-proof">{r.claimNotes || "No proof text was saved."}</p>
-        
-        {r.claimProofPhotoUrl && (
-            <a href={r.claimProofPhotoUrl} target="_blank" rel="noreferrer">
-                <img className="lf-claim-proof-photo" src={r.claimProofPhotoUrl} alt="Proof of ownership" />
-            </a>
-        )}
+            <dl className="lf-modal-facts">
+                <div>
+                    <dt>Email</dt>
+                    <dd>{claim.claimantEmail || "—"}</dd>
+                </div>
+                <div>
+                    <dt>Mobile</dt>
+                    <dd>{claim.contactNumber ? `+63 ${claim.contactNumber}` : "—"}</dd>
+                </div>
+                <div>
+                    <dt>Submitted</dt>
+                    <dd>
+                        {claim.claimedAt
+                            ? new Date(claim.claimedAt).toLocaleString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                            })
+                            : "—"}
+                    </dd>
+                </div>
+            </dl>
 
+            <h3>Proof given</h3>
+            <p className="lf-claim-proof">{claim.proofNotes || "No proof text was saved."}</p>
+
+            {claim.proofPhotoUrl && (
+                <a href={claim.proofPhotoUrl} target="_blank" rel="noreferrer">
+                    <img className="lf-claim-proof-photo" src={claim.proofPhotoUrl} alt={`Proof of ownership from ${claim.claimantName}`} />
+                </a>
+            )}
+
+            {canManageReports && claim.status === "pending" && (
+                <div className="lf-claim-review-actions">
+                    <button
+                        type="button"
+                        className="lfr-cancel"
+                        onClick={async () => {
+                            const updated = await handleReviewClaim(r._id, claim._id, "rejected");
+                            if (updated) setViewingReport(updated.claimStatus === "pending" ? updated : null);
+                        }}
+                    >
+                        Reject
+                    </button>
+                    <button
+                        type="button"
+                        className="lfr-submit"
+                        onClick={async () => {
+                            const otherPending = r.pendingClaimCount - 1;
+                            if (otherPending > 0) {
+                                const confirmed = await askConfirm({
+                                    title: `Approve ${claim.claimantName}'s claim?`,
+                                    message: `The other ${otherPending} pending claim${otherPending === 1 ? "" : "s"} will be rejected and notified.`,
+                                    confirmLabel: "Approve",
+                                });
+                                if (!confirmed) return;
+                            }
+                            const updated = await handleReviewClaim(r._id, claim._id, "approved");
+                            if (updated) setViewingReport(null);
+                        }}
+                    >
+                        Approve
+                    </button>
+                </div>
+            )}
+        </div>
+        ))}
     </div>
 )}
     {canClaimThis && claimOpen && (
@@ -1917,30 +1974,6 @@ if (showReportForm && canSubmitReport) {
     <button type="button" className="lfr-cancel" onClick={() => setViewingReport(null)}>
         Close
     </button>
-{canManageReports && r.claimStatus === "pending" && (
-    <>
-        <button
-            type="button"
-            className="lfr-cancel"
-            onClick={async () => {
-                await handleReviewClaim(r._id, "rejected");
-                setViewingReport(null);
-            }}
-        >
-            Reject Claim
-        </button>
-        <button
-            type="button"
-            className="lfr-submit"
-            onClick={async () => {
-                await handleReviewClaim(r._id, "approved");
-                setViewingReport(null);
-            }}
-        >
-            Approve Claim
-        </button>
-    </>
-)}
 
     {canClaimThis && !claimOpen && (
         <button type="button" className="lfr-submit" onClick={() => setClaimOpen(true)}>
@@ -1959,7 +1992,7 @@ if (showReportForm && canSubmitReport) {
             onClick={async () => {
                 const confirmed = await askConfirm({
                     title: "Cancel your claim?",
-                    message: "The report will reopen so it can be claimed again.",
+                    message: "Staff will no longer review your claim for this pet.",
                     confirmLabel: "Cancel claim",
                 });
                 if (!confirmed) return;

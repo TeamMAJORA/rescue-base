@@ -1363,6 +1363,29 @@
 .lf-claim-pill.is-rejected,
 .lf-claim-pill.is-revoked { background: rgba(214, 40, 40, 0.12); color: #d62828; }
 
+.lf-claims {
+    display: grid;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.lf-claim-review-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.lf-claim-indicator {
+    margin-top: 12px !important;
+    padding: 10px 12px;
+    border-left: 3px solid #fb8500;
+    border-radius: 8px;
+    background: #fff4e0;
+}
+
+.lf-claim-pill.is-cancelled { background: #eee3d0; color: rgba(90, 27, 0, 0.7); }
+
 .lf-claim-proof {
     padding: 10px;
     border-radius: 8px;
