@@ -1171,3 +1171,95 @@ body {
 /* Facebook link in the landing footer */
 .footer-bottom .footer-facebook { display: inline-flex; align-items: center; gap: 6px; }
 .footer-bottom .footer-facebook img { width: 16px; height: 16px; }
+
+/* ================= Shared style rules (Nov 9) =================
+   Corners: cards 12px, things inside a card (inputs, buttons, menus) 8px, chips/tags 6px.
+   Shadow only on what floats (dropdowns, popups, tooltips, the phone menu). */
+:root {
+    --radius-card: 12px;
+    --radius-inner: 8px;
+    --radius-chip: 6px;
+    --shadow-float: 0 12px 28px rgba(90, 27, 0, 0.18);
+}
+
+/* Phone menu button + slide-in sidebar (admin and staff dashboards) */
+.dash-menu-btn { display: none; }
+
+@media (max-width: 900px) {
+    .dash-menu-btn {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 1px solid #e3d5b5;
+        border-radius: var(--radius-inner);
+        background: #fffdf4;
+        color: #5a1b00;
+        cursor: pointer;
+    }
+
+    .admin-page > .admin-main > .admin-topbar,
+    .staff-page > .staff-main > .staff-topbar {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .admin-page > .admin-main > .admin-topbar h1,
+    .staff-page > .staff-main > .staff-topbar h1 {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .admin-page > .admin-sidebar,
+    .staff-page > .staff-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1500;
+        width: min(290px, 85vw);
+        height: 100dvh;
+        padding: 22px 16px 18px;
+        overflow-y: auto;
+        border-right: 1px solid rgba(90, 27, 0, 0.14);
+        border-bottom: 0;
+        box-shadow: none;
+        transform: translateX(-105%);
+        transition: transform 0.2s ease;
+    }
+
+    .admin-page > .admin-sidebar.is-open,
+    .staff-page > .staff-sidebar.is-open {
+        transform: none;
+        box-shadow: var(--shadow-float);
+    }
+
+    .dash-menu-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1400;
+        background: rgba(58, 20, 0, 0.35);
+    }
+}
+
+/* Phones: 16px inputs (stops iPhone zoom) and 44px tap targets */
+@media (max-width: 640px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+@media (pointer: coarse) {
+    button,
+    select,
+    [role="button"],
+    input[type="submit"],
+    input[type="button"] {
+        min-height: 44px;
+    }
+}

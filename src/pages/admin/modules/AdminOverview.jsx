@@ -738,8 +738,11 @@ export default function AdminOverview({ onNavigate }) {
 
     const foodLevels = buildFoodLevels(data?.foodInventory || [], view?.inCare || []);
 
-    const clock = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" });
-    const dateLine = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    const [clockTime, clockPeriod] = now
+        .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+        .split(" ");
+    const dateLong = now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+    const dateShort = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
     const header = (
         <div className="db2-top">
@@ -748,12 +751,19 @@ export default function AdminOverview({ onNavigate }) {
                     {greeting(now)}
                     {firstName && <>, <span>{firstName}</span></>}
                 </h1>
-                <p className="db2-hello">Here&apos;s how the shelter is doing today.</p>
             </div>
-            <div className="db2-clock">
-                <b>{clock}</b>
-                <small>{dateLine}</small>
-                <span className="db2-live">Live · updated {lastLoaded ? timeAgo(lastLoaded, now.getTime()) : "…"}</span>
+            <div className="db2-clockbar" aria-label="Current time">
+                <span className="db2-clockbar-dot" aria-hidden="true" />
+                <span className="db2-clockbar-time">
+                    <b>{clockTime}</b> {clockPeriod}
+                </span>
+                <span className="db2-clockbar-sep" aria-hidden="true" />
+                <span className="db2-clockbar-date-long">{dateLong}</span>
+                <span className="db2-clockbar-date-short">{dateShort}</span>
+                <span className="db2-clockbar-sep is-live" aria-hidden="true" />
+                <span className="db2-clockbar-live">
+                    Updated {lastLoaded ? timeAgo(lastLoaded, now.getTime()) : "…"}
+                </span>
             </div>
         </div>
     );
