@@ -1031,3 +1031,11 @@
 
 /* No scrollbars on the donations table; columns wrap instead */
 .dl-card .dl-table-wrap { overflow: visible; }
+
+/* Drop-off pin map (search list and pin styles come from LostFound.css / IntakeRecords.css) */
+.dl-dropoff-map {
+    height: 220px;
+    margin-top: 6px;
+    overflow: hidden;
+    border-radius: 10px;
+}

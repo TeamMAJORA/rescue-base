@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 const API = import.meta.env.VITE_BACKEND_URL;
+
+const DROP_OFF_PIN = L.divIcon({
+    className: "donation-map-pin",
+    html: "<span></span>",
+    iconSize: [24, 32],
+    iconAnchor: [12, 32],
+});
 
 const donationCategories = [
     "Pet Food",
@@ -891,6 +901,39 @@ export default function DonationCenter() {
                                     <h4>Bring it to the shelter</h4>
 
                                     <div className="donation-info-body">
+                                        {dropOff.latitude != null && dropOff.longitude != null && (
+                                            <div className="donation-info-map">
+                                                {/* Preview only: no dragging or zooming, tap opens directions */}
+                                                <MapContainer
+                                                    center={[dropOff.latitude, dropOff.longitude]}
+                                                    zoom={16}
+                                                    dragging={false}
+                                                    zoomControl={false}
+                                                    scrollWheelZoom={false}
+                                                    doubleClickZoom={false}
+                                                    touchZoom={false}
+                                                    boxZoom={false}
+                                                    keyboard={false}
+                                                    style={{ height: "100%", width: "100%" }}
+                                                >
+                                                    <TileLayer
+                                                        attribution="&copy; OpenStreetMap"
+                                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                    />
+                                                    <Marker position={[dropOff.latitude, dropOff.longitude]} icon={DROP_OFF_PIN} interactive={false} />
+                                                </MapContainer>
+                                                <a
+                                                    className="donation-info-map-link"
+                                                    href={`https://www.google.com/maps/search/?api=1&query=${dropOff.latitude},${dropOff.longitude}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    aria-label="Open the drop-off point in Google Maps"
+                                                >
+                                                    <span>Get directions ↗</span>
+                                                </a>
+                                            </div>
+                                        )}
+
                                         <dl>
                                             <dt>Drop-off point</dt>
                                             <dd>{dropOff.address}</dd>

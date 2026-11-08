@@ -1,5 +1,38 @@
 import { useEffect, useMemo, useState } from "react";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { isAdmin } from "../../../utils/auth";
+import { searchCebuPlaces } from "../../../utils/cebuPlaces";
+
+const CEBU_CENTER = [10.3157, 123.8854];
+
+// Same orange pin as Intake Records (styles in IntakeRecords.css)
+const DROP_OFF_PIN = L.divIcon({
+    className: "ao-pin",
+    html: "<span></span>",
+    iconSize: [26, 34],
+    iconAnchor: [13, 34],
+});
+
+// Tap the map to move the drop-off pin
+function DropOffPinPicker({ onPick }) {
+    useMapEvents({
+        click(event) {
+            onPick(event.latlng.lat, event.latlng.lng);
+        },
+    });
+    return null;
+}
+
+// Keep the map centred on the pin
+function DropOffMapFollow({ latitude, longitude }) {
+    const map = useMap();
+    useEffect(() => {
+        if (latitude && longitude) map.setView([latitude, longitude], Math.max(map.getZoom(), 16));
+    }, [map, latitude, longitude]);
+    return null;
+}
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -327,6 +360,11 @@ export default function Donations() {
     const [dropOff, setDropOff] = useState(null);
     const [dropOffForm, setDropOffForm] = useState(null);
     const [savingDropOff, setSavingDropOff] = useState(false);
+    // Address search for the drop-off pin (only typing searches)
+    const [typedDropOffAddress, setTypedDropOffAddress] = useState("");
+    const [dropOffPlaces, setDropOffPlaces] = useState([]);
+    const [searchingDropOffPlaces, setSearchingDropOffPlaces] = useState(false);
+    const [dropOffPlacesOpen, setDropOffPlacesOpen] = useState(false);
 
     const token = localStorage.getItem("token");
 
@@ -609,7 +647,51 @@ export default function Donations() {
         }
     }
 
+    // Typing an address pins the best match; picking from the list pins that one
+    useEffect(() => {
+        const query = typedDropOffAddress.trim();
+        if (query.length < 3) {
+            setDropOffPlaces([]);
+            return undefined;
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            setSearchingDropOffPlaces(true);
+            try {
+                const places = await searchCebuPlaces(query, controller.signal);
+                setDropOffPlaces(places);
+                if (places[0]) pinDropOff(places[0].latitude, places[0].longitude);
+            } catch (error) {
+                if (error.name !== "AbortError") setDropOffPlaces([]);
+            } finally {
+                setSearchingDropOffPlaces(false);
+            }
+        }, 600);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [typedDropOffAddress]);
+
+    function pinDropOff(latitude, longitude) {
+        setDropOffForm((current) => current && {
+            ...current,
+            latitude: Number(Number(latitude).toFixed(6)),
+            longitude: Number(Number(longitude).toFixed(6)),
+        });
+    }
+
+    function chooseDropOffPlace(place) {
+        pinDropOff(place.latitude, place.longitude);
+        setDropOffForm((current) => ({ ...current, address: [place.name, place.area].filter(Boolean).join(", ") }));
+        setDropOffPlacesOpen(false);
+    }
+
     function editDropOff() {
+        setTypedDropOffAddress("");
+        setDropOffPlaces([]);
         setDropOffForm({
             enabled: false,
             address: "",
@@ -617,6 +699,8 @@ export default function Donations() {
             contactNumber: "",
             operatingHours: "",
             instructions: "",
+            latitude: null,
+            longitude: null,
             ...(dropOff || {}),
             ...parseHours(dropOff?.operatingHours),
         });
@@ -643,6 +727,8 @@ export default function Donations() {
                     contactNumber: dropOffForm.contactNumber,
                     instructions: dropOffForm.instructions,
                     operatingHours: formatHours(dropOffForm.days, dropOffForm.openTime, dropOffForm.closeTime),
+                    latitude: dropOffForm.latitude,
+                    longitude: dropOffForm.longitude,
                 }),
             });
             const data = await response.json().catch(() => ({}));
@@ -1363,19 +1449,97 @@ export default function Donations() {
                                     <button type="button" className="dl-link" onClick={backToMethodList}>
                                         ← Back to list
                                     </button>{" "}
-                                    · Donors see this when they hover the (i) on needed items.
+                                    · Donors see this on the donation page and when they hover the (i) on needed items.
                                 </p>
 
-                                <label className="dl-field">
+                                <div className="dl-field">
                                     <span>Address {dropOffForm.enabled && <b>*</b>}</span>
-                                    <input
-                                        value={dropOffForm.address}
-                                        maxLength={500}
-                                        placeholder="e.g. RescueBase Shelter, Lahug, Cebu City"
-                                        required={dropOffForm.enabled}
-                                        onChange={(e) => setDropOffForm({ ...dropOffForm, address: e.target.value })}
-                                    />
-                                </label>
+                                    <div className="ao-where-search">
+                                        <input
+                                            type="search"
+                                            value={dropOffForm.address}
+                                            maxLength={500}
+                                            placeholder="e.g. RescueBase Shelter, Lahug, Cebu City"
+                                            required={dropOffForm.enabled}
+                                            autoComplete="off"
+                                            onChange={(e) => {
+                                                setDropOffForm({ ...dropOffForm, address: e.target.value });
+                                                setTypedDropOffAddress(e.target.value);
+                                                setDropOffPlacesOpen(true);
+                                            }}
+                                            onFocus={() => setDropOffPlacesOpen(true)}
+                                            onBlur={() => setTimeout(() => setDropOffPlacesOpen(false), 150)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault(); // stops the form from saving
+                                                    if (dropOffPlaces[0]) chooseDropOffPlace(dropOffPlaces[0]);
+                                                }
+                                                if (e.key === "Escape") setDropOffPlacesOpen(false);
+                                            }}
+                                        />
+                                        {dropOffPlacesOpen && typedDropOffAddress.trim().length >= 3 && (
+                                            <ul className="gm-map-results">
+                                                {searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">Searching...</li>}
+                                                {!searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">No places found in Cebu. Tap the map instead.</li>}
+                                                {dropOffPlaces.map((place) => (
+                                                    <li key={place.id}>
+                                                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chooseDropOffPlace(place)}>
+                                                            <b>{place.name}</b>
+                                                            {place.area && <small>{place.area}</small>}
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+
+                                    <div className="lfr2-map dl-dropoff-map">
+                                        <MapContainer
+                                            center={dropOffForm.latitude ? [dropOffForm.latitude, dropOffForm.longitude] : CEBU_CENTER}
+                                            zoom={dropOffForm.latitude ? 16 : 12}
+                                            scrollWheelZoom={false}
+                                            style={{ height: "100%", width: "100%" }}
+                                        >
+                                            <TileLayer
+                                                attribution="&copy; OpenStreetMap"
+                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            />
+                                            <DropOffPinPicker onPick={pinDropOff} />
+                                            <DropOffMapFollow latitude={dropOffForm.latitude} longitude={dropOffForm.longitude} />
+                                            {dropOffForm.latitude && (
+                                                <Marker
+                                                    position={[dropOffForm.latitude, dropOffForm.longitude]}
+                                                    icon={DROP_OFF_PIN}
+                                                    draggable
+                                                    eventHandlers={{
+                                                        dragend: (event) => {
+                                                            const point = event.target.getLatLng();
+                                                            pinDropOff(point.lat, point.lng);
+                                                        },
+                                                    }}
+                                                />
+                                            )}
+                                        </MapContainer>
+                                    </div>
+
+                                    <small className="lfr2-coord">
+                                        {dropOffForm.latitude
+                                            ? `Pinned at ${dropOffForm.latitude.toFixed(4)}, ${dropOffForm.longitude.toFixed(4)}. Drag the pin or tap the exact gate.`
+                                            : "No pin yet. Type the address or tap the map. Donors see this map on the donation page."}
+                                        {dropOffForm.latitude && (
+                                            <>
+                                                {" · "}
+                                                <button
+                                                    type="button"
+                                                    className="dl-link"
+                                                    onClick={() => setDropOffForm({ ...dropOffForm, latitude: null, longitude: null })}
+                                                >
+                                                    Remove pin
+                                                </button>
+                                            </>
+                                        )}
+                                    </small>
+                                </div>
 
                                 <div className="dl-field">
                                     <span>Open days</span>
