@@ -199,13 +199,9 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
     const [petsLoading, setPetsLoading] = useState(true);
     const [petsError, setPetsError] = useState("");
 
-    const [hasTakenQuiz] = useState(() => {
-    try {
-        return Boolean(localStorage.getItem("rescuebase_matchmaking_results"));
-    } catch {
-        return false;
-    }
-    });
+    // Latest quiz answers + matches, always from the database (null = quiz not taken)
+    const [myMatchmaking, setMyMatchmaking] = useState({ quizResponse: null, matches: [] });
+    const hasTakenQuiz = Boolean(myMatchmaking.quizResponse);
 
     const [selectedPet, setSelectedPet] =
         useState(emptyPet);
@@ -262,18 +258,9 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
         }
     })();
 
-    const goodMatchesCount = (() => {
-        try {
-            const results = JSON.parse(
-                localStorage.getItem("rescuebase_matchmaking_results") || "null"
-            );
-            return (results?.matches || []).filter(
-                (match) => match.eligible && Number(match.score) >= 60
-            ).length;
-        } catch {
-            return 0;
-        }
-    })();
+    const goodMatchesCount = myMatchmaking.matches.filter(
+        (match) => match.eligible && Number(match.score) >= 60
+    ).length;
 
     const draftApplication = (() => {
         try {
@@ -424,27 +411,19 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
 
 
     const featuredMatch = (() => {
-        try {
-            const results = JSON.parse(
-                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+        const best = myMatchmaking.matches
+            .filter((match) => match.eligible && match.score !== null)
+            .sort((a, b) => Number(b.score) - Number(a.score))
+            .find((match) =>
+                pets.some((pet) => pet._id === String(match.animalId))
             );
 
-            const best = (results?.matches || [])
-                .filter((match) => match.eligible && match.score !== null)
-                .sort((a, b) => Number(b.score) - Number(a.score))
-                .find((match) =>
-                    pets.some((pet) => pet._id === String(match.animalId))
-                );
+        if (!best) return null;
 
-            if (!best) return null;
-
-            return {
-                pet: pets.find((pet) => pet._id === String(best.animalId)),
-                score: Math.round(Number(best.score)),
-            };
-        } catch {
-            return null;
-        }
+        return {
+            pet: pets.find((pet) => pet._id === String(best.animalId)),
+            score: Math.round(Number(best.score)),
+        };
     })();
 
     const filteredPets = useMemo(() => {
@@ -511,6 +490,23 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
             console.error("Load notifications error: ", error);
         }
     }
+
+async function loadMyMatchmaking() {
+    try {
+        const response = await fetch(`${API}/api/matchmaking/quiz/me`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to load your matchmaking results.");
+        }
+
+        setMyMatchmaking({ quizResponse: data.quizResponse, matches: data.matches || [] });
+    } catch (error) {
+        console.error("Load matchmaking error:", error);
+    }
+}
 
 async function fetchPets({ silent = false } = {}) {
     try {
@@ -1388,10 +1384,14 @@ async function fetchPets({ silent = false } = {}) {
 
             return (
                 <MatchmakingQuiz
+                    // Re-mount once the saved answers arrive so the form starts from them
+                    key={myMatchmaking.quizResponse?._id || "new-quiz"}
                     user={currentUser}
-                    onCompleted={() =>
-                        setActiveAdopterPage("recommendations")
-                    }
+                    previousQuizResponse={myMatchmaking.quizResponse}
+                    onCompleted={(result) => {
+                        setMyMatchmaking({ quizResponse: result.quizResponse, matches: result.matches || [] });
+                        setActiveAdopterPage("recommendations");
+                    }}
                 />
             );
         }
@@ -1400,9 +1400,14 @@ async function fetchPets({ silent = false } = {}) {
             return (
                 <Recommendations
                     pets={pets}
+                    quizResponse={myMatchmaking.quizResponse}
+                    aiMatches={myMatchmaking.matches}
                     loading={petsLoading}
                     error={petsError}
-                    onRefresh={fetchPets}
+                    onRefresh={() => {
+                        fetchPets();
+                        loadMyMatchmaking();
+                    }}
                     onApply={handleApply}
                     hasPendingApplication={hasPendingApplication}
                     applicationStatus={applicationStatus}
@@ -1558,6 +1563,11 @@ async function fetchPets({ silent = false } = {}) {
 
         refreshDashboard();
         loadNotifications();
+        loadMyMatchmaking();
+
+        // Older versions kept the quiz in the browser, shared by everyone on this computer
+        localStorage.removeItem("rescuebase_matchmaking_quiz");
+        localStorage.removeItem("rescuebase_matchmaking_results");
 
         const interval = setInterval(() => {
             fetchApplicationStatus();

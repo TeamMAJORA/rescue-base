@@ -1,5 +1,5 @@
 import {
-    useMemo, useRef, useState
+    useRef, useState
 } from "react";
 import { fireSideCannons } from "../../../utils/confetti";
 
@@ -176,26 +176,13 @@ const SECTIONS = ["Home", "Lifestyle", "Preferences"].map((name) => ({
     count: QUESTIONS.filter((item) => item.section === name).length,
 }));
 
-function getSavedQuiz() {
-    try {
-        return JSON.parse(
-            localStorage.getItem(
-                "rescuebase_matchmaking_quiz"
-            ) || "null"
-        );
-    } catch {
-        return null;
-    }
-}
-
 export default function MatchmakingQuiz({
     user,
+    previousQuizResponse,
     onCompleted,
 }) {
-    const savedQuiz = useMemo(
-        () => getSavedQuiz(),
-        []
-    );
+    // Retaking starts from the answers saved in the database
+    const savedQuiz = previousQuizResponse;
 
     const [form, setForm] = useState({
         preferredPetType: savedQuiz?.preferredPetType || "",
@@ -301,11 +288,6 @@ export default function MatchmakingQuiz({
                     new Date().toISOString(),
             };
 
-            localStorage.setItem(
-                "rescuebase_matchmaking_quiz",
-                JSON.stringify(quizResponse)
-            );
-
             const response = await fetch(`${API}/api/matchmaking/quiz`,
                 {
                     method: "POST",
@@ -322,8 +304,6 @@ export default function MatchmakingQuiz({
             if (!response.ok || !result.success) {
                 throw new Error(result.message || "Failed to process matchmaking quiz.");
             }
-
-            localStorage.setItem("rescuebase_matchmaking_results", JSON.stringify(result));
 
             setMessageType("success");
             setMessage(
