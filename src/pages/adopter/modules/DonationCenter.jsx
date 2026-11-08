@@ -30,13 +30,6 @@ const inKindCategories = donationCategories.filter(
     (category) => category !== "Money"
 );
 
-// TODO: replace with the shelter's real drop-off details
-const SHELTER_DROPOFF = {
-    name: "Shelter name",
-    address: "Shelter address, Cebu City",
-    contact: "09XX XXX XXXX",
-};
-
 const emptyDonation = {
     category: "Pet Food",
     itemName: "",
@@ -79,6 +72,9 @@ export default function DonationCenter() {
 
     const [loadingPaymentMethods, setLoadingPaymentMethods] =
         useState(true);
+
+    // Set by staff on the Donations page; null until loaded or when not shown
+    const [dropOff, setDropOff] = useState(null);
 
     const token = localStorage.getItem("token");
 
@@ -509,6 +505,11 @@ export default function DonationCenter() {
     useEffect(() => {
         fetchNeededSupplies();
         fetchPaymentMethods();
+
+        fetch(`${API}/api/settings/drop-off`)
+            .then((response) => response.json())
+            .then((data) => setDropOff(data.dropOff?.enabled && data.dropOff.address ? data.dropOff : null))
+            .catch(() => setDropOff(null));
     }, []);
 
     return (
@@ -822,62 +823,100 @@ export default function DonationCenter() {
 
                         <aside className="donation-info-card">
                             {isMoneyDonation ? (
-                                <>
-                                    <h4>
-                                        Send to this{" "}
-                                        {selectedMethod
-                                            ? selectedMethod.method_type
-                                            : "account"}
-                                    </h4>
+                                selectedMethod ? (
+                                    <>
+                                        <h4>Send to this {selectedMethod.method_type}</h4>
 
-                                    {selectedMethod ? (
                                         <div className="donation-info-body">
-                                            <div className="donation-info-qr">
-                                                {selectedMethod.qr_image_url && (
+                                            {selectedMethod.qr_image_url && (
+                                                <div className="donation-info-qr">
                                                     <img
                                                         src={selectedMethod.qr_image_url}
                                                         alt={`${selectedMethod.method_type} QR code`}
                                                     />
-                                                )}
-                                            </div>
+                                                </div>
+                                            )}
 
                                             <dl>
                                                 <dt>Account Name</dt>
                                                 <dd>{selectedMethod.account_name}</dd>
                                                 <dt>Account Number</dt>
                                                 <dd>{selectedMethod.account_number}</dd>
+                                                {selectedMethod.instructions && (
+                                                    <>
+                                                        <dt>Note</dt>
+                                                        <dd>{selectedMethod.instructions}</dd>
+                                                    </>
+                                                )}
                                             </dl>
                                         </div>
-                                    ) : (
-                                        <p className="donation-info-empty">
-                                            Select a mode of payment to see where to send your donation.
-                                        </p>
-                                    )}
 
-                                    <small>
-                                        Scan the QR code or send directly to this number.
-                                    </small>
-                                </>
-                            ) : (
+                                        <small>
+                                            {selectedMethod.qr_image_url
+                                                ? "Scan the QR code or send to this account number."
+                                                : "Send to this account number."}
+                                        </small>
+                                    </>
+                                ) : paymentMethods.length > 0 ? (
+                                    <>
+                                        <h4>Shelter payment accounts</h4>
+
+                                        <div className="donation-info-methods">
+                                            {paymentMethods.map((method) => (
+                                                <button
+                                                    type="button"
+                                                    key={method._id}
+                                                    onClick={() => updateDonationField("paymentMethod", method.method_type)}
+                                                >
+                                                    <b>{method.method_type}</b>
+                                                    <span>{method.account_name} · {method.account_number}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <small>Pick one to see its QR code and details.</small>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h4>Send your donation</h4>
+                                        <p className="donation-info-empty">
+                                            {loadingPaymentMethods
+                                                ? "Loading the shelter's payment accounts..."
+                                                : "The shelter hasn't added a payment account yet. You can donate items with In-Kind instead."}
+                                        </p>
+                                    </>
+                                )
+                            ) : dropOff ? (
                                 <>
                                     <h4>Bring it to the shelter</h4>
 
                                     <div className="donation-info-body">
-                                        <div className="donation-info-qr" />
-
                                         <dl>
-                                            <dt>Shelter</dt>
-                                            <dd>{SHELTER_DROPOFF.name}</dd>
-                                            <dt>Address</dt>
-                                            <dd>{SHELTER_DROPOFF.address}</dd>
-                                            <dt>Contact</dt>
-                                            <dd>{SHELTER_DROPOFF.contact}</dd>
+                                            <dt>Drop-off point</dt>
+                                            <dd>{dropOff.address}</dd>
+                                            {dropOff.operatingHours && (
+                                                <>
+                                                    <dt>Hours</dt>
+                                                    <dd>{dropOff.operatingHours}</dd>
+                                                </>
+                                            )}
+                                            {(dropOff.contactPerson || dropOff.contactNumber) && (
+                                                <>
+                                                    <dt>Contact</dt>
+                                                    <dd>{[dropOff.contactPerson, dropOff.contactNumber].filter(Boolean).join(" · ")}</dd>
+                                                </>
+                                            )}
                                         </dl>
                                     </div>
 
-                                    <small>
-                                        You or a friend can drop this off anytime.
-                                    </small>
+                                    <small>{dropOff.instructions || "You or a friend can drop this off during these hours."}</small>
+                                </>
+                            ) : (
+                                <>
+                                    <h4>Bring it to the shelter</h4>
+                                    <p className="donation-info-empty">
+                                        The shelter hasn't posted its drop-off point yet. Please check back later.
+                                    </p>
                                 </>
                             )}
                         </aside>
@@ -899,83 +938,6 @@ export default function DonationCenter() {
                         Your donation shows as <strong>Pending</strong> until the shelter confirms it.
                     </p>
                 </form>
-            </section>
-
-            <section className="adopter-panel payment-methods-panel">
-                <div className="adopter-panel-heading">
-                    <div>
-                        <h2>
-                            Test Payment Methods
-                        </h2>
-
-                        <p>
-                            These payment details are
-                            for testing only. No actual
-                            payment is processed.
-                        </p>
-                    </div>
-                </div>
-
-                {loadingPaymentMethods ? (
-                    <p>
-                        Loading payment methods...
-                    </p>
-                ) : paymentMethods.length === 0 ? (
-                    <p>
-                        No payment methods are
-                        currently available.
-                    </p>
-                ) : (
-                    <div className="payment-methods-grid">
-                        {paymentMethods.map((method) => (
-                            <article
-                                className="payment-method-card"
-                                key={method._id}
-                            >
-                                <h3>
-                                    {method.method_type}
-                                </h3>
-
-                                {method.is_test && (
-                                    <strong>
-                                        TEST MODE
-                                    </strong>
-                                )}
-
-                                <p>
-                                    <strong>
-                                        Account Name:
-                                    </strong>{" "}
-                                    {method.account_name}
-                                </p>
-
-                                <p>
-                                    <strong>
-                                        Account Number:
-                                    </strong>{" "}
-                                    {method.account_number}
-                                </p>
-
-                                {method.qr_image_url && (
-                                    <img
-                                        src={
-                                            method.qr_image_url
-                                        }
-                                        alt={`${method.method_type} test QR code`}
-                                    />
-                                )}
-
-                                {method.instructions && (
-                                    <p>
-                                        {
-                                            method.instructions
-                                        }
-                                    </p>
-                                )}
-                            </article>
-                        ))}
-                    </div>
-                )}
             </section>
 
             <section className="adopter-panel donation-info-panel">

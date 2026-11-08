@@ -386,6 +386,38 @@
     color: #3a1400;
 }
 
+.donation-info-methods {
+    display: grid;
+    gap: 8px;
+}
+
+.donation-info-methods button {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 10px;
+    background: #fffaf0;
+    color: #3a1400;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.donation-info-methods button:hover {
+    border-color: #fb8500;
+}
+
+.donation-info-methods b {
+    font-size: 13px;
+}
+
+.donation-info-methods span {
+    font-size: 12px;
+    color: #8a6a55;
+    word-break: break-word;
+}
+
 .donation-info-card small,
 .donation-info-empty,
 .donation-note {
