@@ -1,6 +1,7 @@
 import {
     useEffect,
     useMemo,
+    useRef,
     useState
 } from "react";
 
@@ -49,6 +50,10 @@ export default function UserManagement() {
     const [reviewingApplication, setReviewingApplication] = useState(null);
     const [rejectionReason, setRejectionReason] = useState("");
     const [reviewing, setReviewing] = useState(false);
+    // Row "⋯" menu: which user it is for, and where it sits on screen (fixed, so the table can't clip it)
+    const [openMenuUserId, setOpenMenuUserId] = useState(null);
+    const [openMenuPosition, setOpenMenuPosition] = useState({ top: 0, right: 0 });
+    const roleSelectRef = useRef(null);
     const totalUsers = users.length;
 
     const activeUsers = useMemo(() => {
@@ -126,6 +131,12 @@ export default function UserManagement() {
         }));
     }
 
+    function handleChangeRole(user) {
+        handleEditUser(user);
+        // Wait for the popup to render, then jump to the Role field
+        window.setTimeout(() => roleSelectRef.current?.focus(), 50);
+    }
+
     function handleEditUser(user) {
         setEditingUser(user);
 
@@ -143,7 +154,7 @@ export default function UserManagement() {
     async function handleDeactivateUser(user) {
         const confirmed = await askConfirm({ title: `Deactivate ${user.username || user.name || "this user"}?`, confirmLabel: "Deactivate", danger: true });
 
-        if (!confirmed) return;
+        if (!confirmed) return false;
 
         try {
             setMessage("");
@@ -164,16 +175,18 @@ export default function UserManagement() {
                 setMessage(
                     data.message || "Failed to deactivate user."
                 );
-                return;
+                return false;
             }
 
             setMessage("User deactivated successfully.");
             await fetchUsers();
+            return true;
         } catch (error) {
             console.error("Deactivate user error:", error);
             setMessage(
                 "Server error while deactivating user."
             );
+            return false;
         }
     }
 
@@ -353,7 +366,7 @@ export default function UserManagement() {
             confirmLabel: "Reactivate",
         });
 
-        if (!confirmed) return;
+        if (!confirmed) return false;
 
         try {
             setMessage("");
@@ -371,20 +384,36 @@ export default function UserManagement() {
 
             if (!response.ok || !data.success) {
                 setMessage(data.message || "Failed to reactivate user.");
-                return;
+                return false;
             }
 
             setMessage("User reactivated.");
             await fetchUsers();
+            return true;
         } catch (error) {
             console.error("Reactivate user error:", error);
             setMessage("Server error while reactivating user.");
+            return false;
         }
     }
 
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    // Close the "⋯" menu on any outside click, scroll or resize
+    useEffect(() => {
+        if (!openMenuUserId) return undefined;
+        const close = () => setOpenMenuUserId(null);
+        document.addEventListener("click", close);
+        window.addEventListener("scroll", close, true);
+        window.addEventListener("resize", close);
+        return () => {
+            document.removeEventListener("click", close);
+            window.removeEventListener("scroll", close, true);
+            window.removeEventListener("resize", close);
+        };
+    }, [openMenuUserId]);
 
     // ----- Search and filters -----
     const [search, setSearch] = useState("");
@@ -472,16 +501,14 @@ export default function UserManagement() {
             <section className="gs-card um-apps">
                 <div className="um-apps-head">
                     <div>
-                        <h3>
-                            <span className="gs-mark">Role applications</span>
-                        </h3>
-                        <p>Adopters asking to become volunteers or staff.</p>
+                        <h3>Role applications</h3>
+                        <p>Adopters asking to become a foster, volunteer or staff.</p>
                     </div>
 
                     <span className={`um-count ${pendingApplications.length ? "has" : ""}`}>
                         {pendingApplications.length
-                            ? `${pendingApplications.length} pending`
-                            : "No pending applications"}
+                            ? `${pendingApplications.length} waiting`
+                            : "None waiting"}
                     </span>
                 </div>
 
@@ -566,9 +593,7 @@ export default function UserManagement() {
             {/* All users */}
             <section className="gs-card">
                 <div className="um-list-head">
-                    <h3>
-                        <span className="gs-mark">All users</span>
-                    </h3>
+                    <h3>All users</h3>
 
                     <button
                         type="button"
@@ -592,14 +617,20 @@ export default function UserManagement() {
                         onChange={(e) => setSearch(e.target.value)}
                     />
 
-                    <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} aria-label="Role">
-                        <option value="all">All roles</option>
-                        {roles.map((role) => (
-                            <option key={role.value} value={role.value}>
-                                {role.label}
-                            </option>
+                    <div className="um-role-tabs" role="tablist" aria-label="Filter by role">
+                        {[{ value: "all", label: "All", count: totalUsers }, ...roles.map((role) => ({ ...role, count: roleCounts[role.value] || 0 }))].map((tab) => (
+                            <button
+                                key={tab.value}
+                                type="button"
+                                role="tab"
+                                aria-selected={roleFilter === tab.value}
+                                className={roleFilter === tab.value ? "is-on" : ""}
+                                onClick={() => setRoleFilter(tab.value)}
+                            >
+                                {tab.label} <span>{tab.count}</span>
+                            </button>
                         ))}
-                    </select>
+                    </div>
 
                     <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Status">
                         <option value="all">All statuses</option>
@@ -627,7 +658,7 @@ export default function UserManagement() {
                                     <th>Role</th>
                                     <th>Status</th>
                                     <th>Email status</th>
-                                    <th className="um-right">Actions</th>
+                                    <th className="um-right"><span className="um-sr">Actions</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -636,7 +667,15 @@ export default function UserManagement() {
                                     const isMe = myEmail && String(user.email || "").toLowerCase() === myEmail;
 
                                     return (
-                                        <tr key={user._id} className={isDisabled ? "is-off" : ""}>
+                                        <tr
+                                            key={user._id}
+                                            className={`um-row${isDisabled ? " is-off" : ""}`}
+                                            tabIndex={0}
+                                            onClick={() => handleEditUser(user)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter") handleEditUser(user);
+                                            }}
+                                        >
                                             <td>
                                                 <div className="um-who">
                                                     <span className="um-avatar">{initials(user)}</span>
@@ -666,21 +705,52 @@ export default function UserManagement() {
                                                 </span>
                                             </td>
                                             <td>
-                                                <div className="um-actions um-right">
-                                                    <button type="button" className="gs-btn ghost" onClick={() => handleEditUser(user)}>
-                                                        Edit
-                                                    </button>
+                                                {!isMe && (
+                                                    <div className="um-actions um-right" onClick={(event) => event.stopPropagation()}>
+                                                        <button
+                                                            type="button"
+                                                            className="um-more"
+                                                            aria-label={`More actions for ${user.username || user.name || "this user"}`}
+                                                            aria-expanded={openMenuUserId === user._id}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                const rect = event.currentTarget.getBoundingClientRect();
+                                                                setOpenMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                                                                setOpenMenuUserId(openMenuUserId === user._id ? null : user._id);
+                                                            }}
+                                                        >
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                                <circle cx="5" cy="12" r="2" />
+                                                                <circle cx="12" cy="12" r="2" />
+                                                                <circle cx="19" cy="12" r="2" />
+                                                            </svg>
+                                                        </button>
 
-                                                    {!isMe && (isDisabled ? (
-                                                        <button type="button" className="gs-btn um-ok" onClick={() => handleReactivateUser(user)}>
-                                                            Reactivate
-                                                        </button>
-                                                    ) : (
-                                                        <button type="button" className="gs-btn um-danger" onClick={() => handleDeactivateUser(user)}>
-                                                            Deactivate
-                                                        </button>
-                                                    ))}
-                                                </div>
+                                                        {openMenuUserId === user._id && (
+                                                            <div
+                                                                className="um-menu"
+                                                                role="menu"
+                                                                style={{ top: openMenuPosition.top, right: openMenuPosition.right }}
+                                                            >
+                                                                <button type="button" role="menuitem" onClick={() => { setOpenMenuUserId(null); handleEditUser(user); }}>
+                                                                    Edit details
+                                                                </button>
+                                                                <button type="button" role="menuitem" onClick={() => { setOpenMenuUserId(null); handleChangeRole(user); }}>
+                                                                    Change role
+                                                                </button>
+                                                                {isDisabled ? (
+                                                                    <button type="button" role="menuitem" className="is-ok" onClick={() => { setOpenMenuUserId(null); handleReactivateUser(user); }}>
+                                                                        Reactivate
+                                                                    </button>
+                                                                ) : (
+                                                                    <button type="button" role="menuitem" className="is-danger" onClick={() => { setOpenMenuUserId(null); handleDeactivateUser(user); }}>
+                                                                        Deactivate
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     );
@@ -695,9 +765,7 @@ export default function UserManagement() {
             {showAddForm && (
                 <div className="ao-confirm-backdrop" onClick={handleCancelAdd}>
                     <form className="um-modal" onSubmit={handleAddUser} onClick={(e) => e.stopPropagation()}>
-                        <h3>
-                            <span className="gs-mark">Add user</span>
-                        </h3>
+                        <h3>Add user</h3>
 
                         <label className="gs-field">
                             Username
@@ -743,9 +811,7 @@ export default function UserManagement() {
             {editingUser && (
                 <div className="ao-confirm-backdrop" onClick={handleCancelEdit}>
                     <form className="um-modal" onSubmit={handleUpdateUser} onClick={(e) => e.stopPropagation()}>
-                        <h3>
-                            <span className="gs-mark">Edit user</span>
-                        </h3>
+                        <h3>Edit user</h3>
                         <p className="um-modal-sub">{editingUser.email}</p>
 
                         <label className="gs-field">
@@ -755,7 +821,13 @@ export default function UserManagement() {
 
                         <label className="gs-field">
                             Role
-                            <select name="role" value={editForm.role} onChange={handleEditFormChange}>
+                            <select
+                                ref={roleSelectRef}
+                                name="role"
+                                value={editForm.role}
+                                onChange={handleEditFormChange}
+                                disabled={Boolean(myEmail) && String(editingUser.email || "").toLowerCase() === myEmail}
+                            >
                                 {roles.map((role) => (
                                     <option key={role.value} value={role.value}>
                                         {role.label}
@@ -763,6 +835,10 @@ export default function UserManagement() {
                                 ))}
                             </select>
                         </label>
+
+                        {Boolean(myEmail) && String(editingUser.email || "").toLowerCase() === myEmail && (
+                            <small className="um-self-note">You can&apos;t change your own role. Ask another admin.</small>
+                        )}
 
                         <label className="gs-field">
                             Status
@@ -784,6 +860,37 @@ export default function UserManagement() {
                         {message && <p className={`gs-alert ${messageTone}`}>{message}</p>}
 
                         <div className="um-actions um-right">
+                            {!(Boolean(myEmail) && String(editingUser.email || "").toLowerCase() === myEmail) && (
+                                editingUser.status === "disabled" ? (
+                                    <button
+                                        type="button"
+                                        className="gs-btn um-ok um-modal-left"
+                                        onClick={async () => {
+                                            const done = await handleReactivateUser(editingUser);
+                                            if (done) {
+                                                setEditingUser(null);
+                                                setEditForm(initialEditForm);
+                                            }
+                                        }}
+                                    >
+                                        Reactivate
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        className="gs-btn um-danger um-modal-left"
+                                        onClick={async () => {
+                                            const done = await handleDeactivateUser(editingUser);
+                                            if (done) {
+                                                setEditingUser(null);
+                                                setEditForm(initialEditForm);
+                                            }
+                                        }}
+                                    >
+                                        Deactivate
+                                    </button>
+                                )
+                            )}
                             <button type="button" className="gs-btn ghost" onClick={handleCancelEdit}>
                                 Cancel
                             </button>

@@ -379,8 +379,72 @@
 /* Phones: chart scales with its width, readable labels, badges that fit */
 @media (max-width: 640px) {
     .db2-chart svg { height: auto; }
-    .db2-chart svg text { font-size: 22px; }
+    .db2-chart:not(.db2-donut-wrap) svg text { font-size: 22px; }
     .db2-stat-top { flex-wrap: wrap; }
     .db2-badge { white-space: normal; }
     .db2-card h3 { flex-wrap: wrap; }
+}
+
+/* ===================== Dashboard text scale (one size per role, everywhere) =====================
+   Card title 15px · subtitle 12px · body 13px · small/meta 11.5px · chips/tags 11px · links 12px */
+.db2-card h3 { min-height: 24px; margin: 0; font-size: 15px; font-weight: 800; line-height: 1.3; }
+.db2-sub { margin: 2px 0 12px; font-size: 12px; line-height: 1.45; color: #8a6a4a; }
+.db2-empty, .db2-allclear { font-size: 13px; }
+
+.db2-chip, .db2-badge, .db2-pill, .db2-tag, .db2-sample, .db2-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: var(--radius-chip, 6px);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+.db2-chip img { width: 12px; height: 12px; }
+
+/* Text links in card titles: same size, and touch-size taps without making the title row taller */
+.db2-link { min-height: 0; padding: 8px 0; margin: -8px 0; font-size: 12px; font-weight: 700; line-height: 1.3; }
+
+.db2-legend, .db2-health-side { font-size: 12.5px; }
+.db2-donut-big { font-size: 24px !important; }
+.db2-donut-wrap svg text:not(.db2-donut-big) { font-size: 11px; fill: #8a6a4a; }
+.db2-health-foot { font-size: 12px; }
+
+.db2-stat small { font-size: 12px; }
+.db2-stat em { font-size: 11.5px; }
+.db2-row-main b, .db2-interview-info b, .db2-pet-body b, .db2-activity-row b, .db2-food-head b, .db2-util-head b, .db2-animal b { font-size: 13px; }
+.db2-row-main small, .db2-interview-info small, .db2-pet-body small, .db2-activity-row small, .db2-food-head small, .db2-util-head small, .db2-animal small { font-size: 11.5px; }
+.db2-table { font-size: 13px; }
+
+/* Card descriptions: hidden, shown as a small floating hint only while hovering the card */
+.db2-card h3 { margin-bottom: 12px; }
+.db2-card .db2-sub {
+    position: absolute;
+    top: 44px;
+    left: 16px;
+    z-index: 5;
+    max-width: calc(100% - 32px);
+    margin: 0;
+    padding: 6px 9px;
+    border-radius: var(--radius-inner, 8px);
+    background: #3a1400;
+    color: #fffdf4;
+    font-size: 11.5px;
+    line-height: 1.4;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-2px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
+    box-shadow: var(--shadow-float, 0 12px 28px rgba(90, 27, 0, 0.18));
+}
+.db2-card:hover .db2-sub {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+@media (hover: none) {
+    .db2-card .db2-sub { display: none; }
 }
