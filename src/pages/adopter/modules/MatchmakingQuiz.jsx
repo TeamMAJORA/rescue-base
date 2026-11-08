@@ -180,7 +180,9 @@ export default function MatchmakingQuiz({
     user,
     previousQuizResponse,
     onCompleted,
+    onSeeRecommendations,
 }) {
+    const hasTakenQuiz = Boolean(previousQuizResponse);
     // Retaking starts from the answers saved in the database
     const savedQuiz = previousQuizResponse;
 
@@ -349,13 +351,25 @@ if (!started) {
                 are the perfect fit for you.
             </p>
 
-            <button
-                type="button"
-                className="mq-intro-button"
-                onClick={() => setStarted(true)}
-            >
-                Take the Quiz <span aria-hidden="true">→</span>
-            </button>
+            <div className="mq-intro-actions">
+                <button
+                    type="button"
+                    className="mq-intro-button"
+                    onClick={() => setStarted(true)}
+                >
+                    {hasTakenQuiz ? "Retake Quiz" : "Take the Quiz"} <span aria-hidden="true">→</span>
+                </button>
+
+                {hasTakenQuiz && (
+                    <button
+                        type="button"
+                        className="mq-intro-button is-secondary"
+                        onClick={() => onSeeRecommendations?.()}
+                    >
+                        See Recommendations
+                    </button>
+                )}
+            </div>
         </section>
     );
 }

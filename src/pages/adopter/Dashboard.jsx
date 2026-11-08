@@ -1388,6 +1388,7 @@ async function fetchPets({ silent = false } = {}) {
                     key={myMatchmaking.quizResponse?._id || "new-quiz"}
                     user={currentUser}
                     previousQuizResponse={myMatchmaking.quizResponse}
+                    onSeeRecommendations={() => setActiveAdopterPage("recommendations")}
                     onCompleted={(result) => {
                         setMyMatchmaking({ quizResponse: result.quizResponse, matches: result.matches || [] });
                         setActiveAdopterPage("recommendations");

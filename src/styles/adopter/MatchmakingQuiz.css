@@ -1422,6 +1422,30 @@
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* Take/Retake + See Recommendations side by side */
+.mq-intro-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 36px;
+}
+
+.mq-intro-actions .mq-intro-button {
+    margin-top: 0;
+}
+
+.mq-intro-button.is-secondary {
+    border: 1.5px solid #5a1b00;
+    background: #fffaf0;
+    box-shadow: none;
+}
+
+.mq-intro-button.is-secondary:hover {
+    background: #fff7cb;
+    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.15);
+}
+
 .mq-intro-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 22px rgba(251, 133, 0, 0.35);
