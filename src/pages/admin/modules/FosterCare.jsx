@@ -1933,6 +1933,8 @@ export default function FosterCare() {
                                 <StatIcon name="info" size={16} />
                                 {reviewingApplication.status === "approved"
                                     ? `${reviewingApplication.applicantName.split(" ")[0]} is an approved foster. Use Assign in the list to place an animal.`
+                                    : reviewingApplication.status === "withdrawn"
+                                        ? `${reviewingApplication.applicantName.split(" ")[0]} withdrew this application, so it can't be approved or rejected. They can submit a new one.`
                                     : reviewingApplication.status === "rejected"
                                         ? "This application was rejected. Approving it now will make them an approved foster."
                                         : `Approving makes ${reviewingApplication.applicantName.split(" ")[0]} an approved foster. You can then assign animals from the list.`}
@@ -1960,7 +1962,7 @@ export default function FosterCare() {
                                     </button>
                                 )}
 
-                                {reviewingApplication.status !== "approved" && (
+                                {["pending", "rejected"].includes(reviewingApplication.status) && (
                                     <button
                                         type="button"
                                         className="afr-btn is-approve"
