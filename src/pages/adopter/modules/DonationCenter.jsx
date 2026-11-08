@@ -283,8 +283,11 @@ export default function DonationCenter() {
 
                 itemName,
 
+                // For money the input holds the peso amount; quantity is always 1
                 quantity:
-                    Number(donation.quantity),
+                    isMoneyDonation
+                        ? 1
+                        : Number(donation.quantity),
 
                 amount:
                     isMoneyDonation
