@@ -314,8 +314,10 @@ export default function DonationCenter() {
                         ? donation.proofOfPayment || ""
                         : "",
 
-                image:
-                    donation.image || "",
+                itemPhotoUrl:
+                    isMoneyDonation
+                        ? ""
+                        : donation.image || "",
 
                 paymentStatus:
                     isMoneyDonation

@@ -138,8 +138,6 @@ const METHOD_NAMES = {
 };
 
 // Lines we keep inside `notes` because the donation model has no fields for them
-const META_LABELS = ["Unit", "Delivery Method", "Preferred Date"];
-
 const emptyDonationForm = {
     donorName: "",
     donorEmail: "",
@@ -149,11 +147,9 @@ const emptyDonationForm = {
     itemName: "",
     quantity: 1,
     notes: "",
-    status: "pending",
     unit: "",
     deliveryMethod: "Drop-off",
     preferredDate: "",
-    receivedDate: null,
 };
 
 const emptyMethodForm = {
@@ -166,25 +162,20 @@ const emptyMethodForm = {
 };
 
 // Split notes into the metadata lines and the free-text part
-function splitNotes(notes) {
-    const meta = {};
-    const rest = [];
+// Donor notes hold "Label: value" lines plus free text; already-shown fields are skipped
+const LABELS_SHOWN_ELSEWHERE = ["donation type", "payment method", "payment reference"];
 
-    String(notes || "")
-        .split("\n")
-        .forEach((line) => {
-            const label = META_LABELS.find((item) =>
-                line.toLowerCase().startsWith(`${item.toLowerCase()}:`)
-            );
+function notesAsRows(notes) {
+    const rows = [];
+    const text = [];
 
-            if (label) {
-                meta[label] = line.slice(label.length + 1).trim();
-            } else {
-                rest.push(line);
-            }
-        });
+    String(notes || "").split("\n").forEach((line) => {
+        const match = line.match(/^([A-Za-z ]{2,30}):\s*(.+)$/);
+        if (!match) return text.push(line);
+        if (!LABELS_SHOWN_ELSEWHERE.includes(match[1].trim().toLowerCase())) rows.push([match[1].trim(), match[2].trim()]);
+    });
 
-    return { meta, text: rest.join("\n").trim() };
+    return { rows, text: text.join("\n").trim() };
 }
 
 function buildNotes(form) {
@@ -304,6 +295,12 @@ function Icon({ name, size = 18 }) {
                 <path d="M13.5 6.5l4 4" />
             </>
         ),
+        eye: (
+            <>
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+            </>
+        ),
         more: (
             <>
                 <circle cx="5" cy="12" r="1.2" />
@@ -333,7 +330,7 @@ function Icon({ name, size = 18 }) {
 export default function Donations() {
     const [donations, setDonations] = useState([]);
     const [donationForm, setDonationForm] = useState(emptyDonationForm);
-    const [editingId, setEditingId] = useState(null);
+    const [viewingDonation, setViewingDonation] = useState(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState("");
@@ -483,7 +480,6 @@ export default function Donations() {
                 donorName: donationForm.donorName.trim(),
                 donorEmail: donationForm.donorEmail.trim(),
                 donationType: donationForm.donationType,
-                status: donationForm.status,
                 itemName: donationForm.itemName.trim() || (money ? "Monetary Donation" : ""),
                 amount: money ? Number(donationForm.amount || 0) : 0,
                 paymentReference: money ? donationForm.paymentReference.trim() : "",
@@ -493,10 +489,8 @@ export default function Donations() {
                 adminEmail: savedUser.email || "admin",
             };
 
-            const url = editingId ? `${API}/api/donations/${editingId}` : `${API}/api/donations`;
-
-            const response = await fetch(url, {
-                method: editingId ? "PATCH" : "POST",
+            const response = await fetch(`${API}/api/donations`, {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -511,9 +505,8 @@ export default function Donations() {
                 return;
             }
 
-            setMessage(editingId ? "Donation updated successfully." : "Donation created successfully.");
+            setMessage("Donation created successfully.");
             setDonationForm(emptyDonationForm);
-            setEditingId(null);
             setShowForm(false);
             fetchDonations();
         } catch (error) {
@@ -525,38 +518,13 @@ export default function Donations() {
     }
 
     function openNewForm() {
-        setEditingId(null);
         setDonationForm(emptyDonationForm);
         setMessage("");
         setShowForm(true);
     }
 
-    function handleEditDonation(donation) {
-        const { meta, text } = splitNotes(donation.notes);
-
-        setEditingId(donation._id);
-        setDonationForm({
-            donorName: donation.donorName || "",
-            donorEmail: donation.donorEmail || "",
-            donationType: donation.donationType || "Money",
-            amount: isMoneyDonation(donation) ? moneyValue(donation) : donation.amount || "",
-            paymentReference: donation.paymentReference || "",
-            itemName: donation.itemName || "",
-            quantity: donation.quantity || 1,
-            notes: text,
-            status: donation.status || "pending",
-            unit: meta.Unit || "",
-            deliveryMethod: meta["Delivery Method"] || "Drop-off",
-            preferredDate: meta["Preferred Date"] || "",
-            receivedDate: donation.receivedDate || null,
-        });
-        setMessage("");
-        setShowForm(true);
-    }
-
-    function handleCancelEdit() {
+    function closeDonationForm() {
         setShowForm(false);
-        setEditingId(null);
         setDonationForm(emptyDonationForm);
         setMessage("");
     }
@@ -582,6 +550,7 @@ export default function Donations() {
             }
 
             setMessage("Donation status updated.");
+            setViewingDonation((current) => (current?._id === donationId ? data.donation : current));
             fetchDonations();
         } catch (error) {
             console.error("Update donation status error:", error);
@@ -626,6 +595,7 @@ export default function Donations() {
             }
 
             setMessage("Donation deleted successfully.");
+            setViewingDonation(null);
             fetchDonations();
         } catch (error) {
             console.error("Delete donation error:", error);
@@ -930,14 +900,14 @@ export default function Donations() {
                         <p>Record and manage money, food, medicine, and supply donations.</p>
                     </div>
 
-                    <button type="button" className="dl-btn" onClick={handleCancelEdit}>
+                    <button type="button" className="dl-btn" onClick={closeDonationForm}>
                         ← Back to Donations
                     </button>
                 </header>
 
                 <form className="dl-form-card" onSubmit={handleSubmitDonation}>
                     <div className="dl-form-section">
-                        <h3>{editingId ? "Edit Donation" : "Donor & Donation"}</h3>
+                        <h3>Donor & Donation</h3>
                         <p>Log a donation received or pledged. Fields marked * are required.</p>
                     </div>
 
@@ -1025,7 +995,7 @@ export default function Donations() {
                         {money && (
                             <label className="dl-field">
                                 <span>
-                                    Receipt / Ref. no. {!editingId && <b>*</b>}{" "}
+                                    Receipt / Ref. no. <b>*</b>{" "}
                                     <Help text="Required for cash recorded by staff, since there is no proof-of-payment photo." />
                                 </span>
                                 <input
@@ -1034,22 +1004,8 @@ export default function Donations() {
                                     value={donationForm.paymentReference}
                                     placeholder="e.g. OR-000123"
                                     onChange={(e) => setField("paymentReference", e.target.value)}
-                                    required={!editingId}
+                                    required
                                 />
-                            </label>
-                        )}
-
-                        {/* New donations always start as Pending; status is set when reviewing */}
-                        {editingId && (
-                            <label className="dl-field">
-                                <span>
-                                    Status <Help text="Received counts the donation in the totals and stock." />
-                                </span>
-                                <select value={donationForm.status} onChange={(e) => setField("status", e.target.value)}>
-                                    {["pending", "received", "cancelled"].map((value) => (
-                                        <option key={value} value={value}>{STATUS_LABEL[value]}</option>
-                                    ))}
-                                </select>
                             </label>
                         )}
 
@@ -1104,17 +1060,6 @@ export default function Donations() {
                                 onChange={(e) => setField("preferredDate", e.target.value)}
                             />
                         </label>
-
-                        <label className="dl-field">
-                            <span>
-                                Received On <Help text="Filled in automatically when the donation is marked Received." />
-                            </span>
-                            <input
-                                value={donationForm.receivedDate ? formatDate(donationForm.receivedDate) : ""}
-                                placeholder="Set when marked Received"
-                                disabled
-                            />
-                        </label>
                     </div>
 
                     {message && <p className={`gs-alert ${messageTone}`}>{message}</p>}
@@ -1123,11 +1068,11 @@ export default function Donations() {
                         <small>Next: you can mark this donation as Received later from the ledger.</small>
 
                         <div className="dl-form-actions">
-                            <button type="button" className="dl-btn" onClick={handleCancelEdit}>
+                            <button type="button" className="dl-btn" onClick={closeDonationForm}>
                                 Cancel
                             </button>
                             <button type="submit" className="dl-btn primary" disabled={submitting}>
-                                {submitting ? "Saving..." : editingId ? "Save Changes" : "Save Donation"}
+                                {submitting ? "Saving..." : "Save Donation"}
                             </button>
                         </div>
                     </div>
@@ -1285,10 +1230,11 @@ export default function Donations() {
                                                     <button
                                                         type="button"
                                                         className="dl-icon-btn"
-                                                        title="Edit"
-                                                        onClick={() => handleEditDonation(donation)}
+                                                        title="View details"
+                                                        aria-label={`View donation from ${donation.donorName || "Anonymous"}`}
+                                                        onClick={() => setViewingDonation(donation)}
                                                     >
-                                                        <Icon name="edit" size={15} />
+                                                        <Icon name="eye" size={15} />
                                                     </button>
 
                                                     <div className="dl-menu-wrap">
@@ -1315,16 +1261,6 @@ export default function Donations() {
                                                                 style={{ top: openMenuPosition.top, right: openMenuPosition.right }}
                                                                 onClick={(e) => e.stopPropagation()}
                                                             >
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        setOpenMenuId(null);
-                                                                        handleEditDonation(donation);
-                                                                    }}
-                                                                >
-                                                                    Edit details
-                                                                </button>
-
                                                                 {status !== "cancelled" && (
                                                                     <button
                                                                         type="button"
@@ -1363,6 +1299,144 @@ export default function Donations() {
                     </div>
                 )}
             </div>
+
+            {viewingDonation && (() => {
+                const donation = viewingDonation;
+                const status = donation.status || "pending";
+                const money = isMoneyDonation(donation);
+                const { rows: noteRows, text: noteText } = notesAsRows(donation.notes);
+                const reference = donation.paymentReference || noteValue(donation.notes, "Payment Reference");
+                const photo = money ? donation.proofOfPayment : donation.itemPhotoUrl;
+
+                return (
+                    <div className="dl-view-overlay" onClick={() => setViewingDonation(null)}>
+                        <div
+                            className="dl-view"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`Donation from ${donation.donorName || "Anonymous"}`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <header className="dl-view-head">
+                                <div>
+                                    <h3>{donation.donorName || "Anonymous"}</h3>
+                                    <span>{donation.donorEmail || "No email"}</span>
+                                </div>
+                                <span className={`dl-status is-${status}`}>{STATUS_LABEL[status] || status}</span>
+                                <button type="button" className="dl-view-close" onClick={() => setViewingDonation(null)} aria-label="Close">
+                                    ×
+                                </button>
+                            </header>
+
+                            <div className="dl-view-body">
+                                <dl className="dl-view-facts">
+                                    <div>
+                                        <dt>Type</dt>
+                                        <dd>{donation.donationType}</dd>
+                                    </div>
+                                    {money ? (
+                                        <>
+                                            <div>
+                                                <dt>Amount</dt>
+                                                <dd>{peso(moneyValue(donation))}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>Payment method</dt>
+                                                <dd>{donation.paymentMethod || "Recorded by staff"}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>Reference no.</dt>
+                                                <dd>{reference || "—"}</dd>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div>
+                                                <dt>Item</dt>
+                                                <dd>{donation.itemName || "—"}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>Quantity</dt>
+                                                <dd>{donation.quantity || 1}</dd>
+                                            </div>
+                                        </>
+                                    )}
+                                    {noteRows.map(([label, value]) => (
+                                        <div key={label}>
+                                            <dt>{label}</dt>
+                                            <dd>{label === "Preferred Date" ? formatDate(value) : value}</dd>
+                                        </div>
+                                    ))}
+                                    <div>
+                                        <dt>Submitted</dt>
+                                        <dd>{formatDate(donation.createdAt)}</dd>
+                                    </div>
+                                    {donation.receivedDate && (
+                                        <div>
+                                            <dt>Received</dt>
+                                            <dd>{formatDate(donation.receivedDate)}</dd>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <dt>Logged by</dt>
+                                        <dd>{donation.createdByName || "—"}</dd>
+                                    </div>
+                                </dl>
+
+                                {noteText && (
+                                    <>
+                                        <h4>Notes</h4>
+                                        <p className="dl-view-notes">{noteText}</p>
+                                    </>
+                                )}
+
+                                <h4>{money ? "Proof of payment" : "Photo of the items"}</h4>
+                                {photo ? (
+                                    <a href={photo} target="_blank" rel="noreferrer" className="dl-view-photo" title="Open full size">
+                                        <img src={photo} alt={money ? "Proof of payment" : "Donated items"} />
+                                    </a>
+                                ) : (
+                                    <p className="dl-view-nophoto">
+                                        {money
+                                            ? "No proof of payment was uploaded (recorded by staff with a receipt number)."
+                                            : "No photo was uploaded with this donation."}
+                                    </p>
+                                )}
+                            </div>
+
+                            <footer className="dl-view-foot">
+                                {isAdmin() && (
+                                    <button
+                                        type="button"
+                                        className="dl-btn danger"
+                                        onClick={() => handleDeleteDonation(donation._id)}
+                                    >
+                                        Delete record
+                                    </button>
+                                )}
+                                {status !== "cancelled" && (
+                                    <button
+                                        type="button"
+                                        className="dl-btn"
+                                        onClick={() => handleCancelDonation(donation._id)}
+                                    >
+                                        Cancel donation
+                                    </button>
+                                )}
+                                {status === "pending" && (
+                                    <button
+                                        type="button"
+                                        className="dl-btn primary"
+                                        onClick={() => handleUpdateStatus(donation._id, "received")}
+                                    >
+                                        Mark received
+                                    </button>
+                                )}
+                            </footer>
+                        </div>
+                    </div>
+                );
+            })()}
 
             {!loading && visibleDonations.length > 0 && (
                 <div className="dl-footer">
