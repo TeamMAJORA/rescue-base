@@ -1676,7 +1676,6 @@ async function fetchPets({ silent = false } = {}) {
 
                     <span>
                         RescueBase
-                        <small>Adopter</small>
                     </span>
                 </button>
 
