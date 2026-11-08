@@ -17,7 +17,6 @@ import assets from "../../data/assets.json";
 
 // Modules
 import RescueAssignments, { VolunteerOverview } from "./modules/RescueAssignments";
-import LostFound from "../admin/modules/LostFound";
 
 // // ANIMALS
 import AnimalProfiles from "../admin/modules/animals/AnimalProfiles";
@@ -31,6 +30,7 @@ import GISMapping from "../admin/modules/GISMapping";
 import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
 
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
+import { openOnAdopterDashboard } from "../../utils/adopterStartPage";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
@@ -39,7 +39,7 @@ const ICONS = {
     rescues: "/icons/Volunteer.svg",
     animals: "/icons/sidebar/brown paw.svg",
     gis: "/icons/strayMap-brown.svg",
-    "lost-found": "/icons/sidebar/LostnFound-brown.svg",
+    "adopter-dashboard": "/icons/sidebar/return-brown.svg",
     "activity-log": "/icons/sidebar/history.svg",
     feedback: "/icons/sidebar/Feedback-brown.svg",
 };
@@ -61,11 +61,6 @@ const staffMenu = [
         key: "gis",
         label: "GIS Mapping"
     },
-    {
-        key: "lost-found",
-        label: "Lost & Found",
-    },
-
     {
         key: "activity-log",
         label: "Activity Log",
@@ -219,6 +214,12 @@ export default function VolunteerDashboard({ setPage }) {
         setActiveStaffPage(item.key);
     }
 
+    // Lost & Found, donating and adopting live on the Adopter dashboard
+    function openAdopterPage(adopterPageKey) {
+        openOnAdopterDashboard(adopterPageKey);
+        setPage("dashboard");
+    }
+
     async function loadNotifications() {
         const token = localStorage.getItem("token");
 
@@ -309,8 +310,18 @@ export default function VolunteerDashboard({ setPage }) {
 
         switch (notification.type) {
             case "lost_found_update":
-                setActiveStaffPage("lost-found");
-            break;
+                openAdopterPage("lost-found");
+                break;
+            case "donation":
+            case "donation_update":
+                openAdopterPage("donation-history");
+                break;
+            case "application_update":
+                openAdopterPage("application-status");
+                break;
+            case "adoption_update":
+                openAdopterPage("browse-pets");
+                break;
             default:
                 setActiveStaffPage("overview");
                 break;
@@ -321,7 +332,7 @@ export default function VolunteerDashboard({ setPage }) {
 
     function renderStaffContent() {
         if (activeStaffPage === "overview") {
-            return <VolunteerOverview onNavigate={setActiveStaffPage} />;
+            return <VolunteerOverview onNavigate={setActiveStaffPage} onOpenAdopterPage={openAdopterPage} />;
         }
 
         if (activeStaffPage === "rescues") {
@@ -334,10 +345,6 @@ export default function VolunteerDashboard({ setPage }) {
 
         if (activeStaffPage === "intake-records") {
             return <IntakeRecords />;
-        }
-
-        if (activeStaffPage === "lost-found") {
-            return <LostFound />
         }
 
         if (activeStaffPage === "qr-tags") {
@@ -498,6 +505,23 @@ export default function VolunteerDashboard({ setPage }) {
                             </div>
                         );
                     })}
+
+                    <div className="staff-menu-group">
+                        <button
+                            type="button"
+                            title="Adopt a Pet"
+                            onClick={() => setPage("dashboard")}
+                        >
+                            <div className="staff-menu-text">
+                                <span
+                                    className="staff-menu-icon"
+                                    style={{ "--icon": `url("${ICONS["adopter-dashboard"]}")` }}
+                                    aria-hidden="true"
+                                />
+                                <strong>Adopt a Pet</strong>
+                            </div>
+                        </button>
+                    </div>
                 </nav>
 
                 <button

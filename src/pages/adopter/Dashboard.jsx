@@ -157,14 +157,15 @@ function getAdopterPageTitle(activeAdopterPage) {
     return currentItem?.label || "Dashboard";
 }
 
-export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
+export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard }) {
     const savedUser = getSavedUser();
     const [, setUserVersion] = useState(0);
 
     // Signed out: login expired (server answered 401) or this account is not an adopter
     const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
-    const isWrongRole = !["adopter", "foster"].includes(savedRole);
-    const isFoster = savedRole === "foster";
+    const isWrongRole = !["adopter", "foster", "volunteer"].includes(savedRole);
+    // Fosters and volunteers also adopt here and can switch back to their own dashboard
+    const roleDashboardName = { foster: "Foster", volunteer: "Volunteer" }[savedRole];
     const [signedOut, setSignedOut] = useState(false);
     // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
     const [maintenance, setMaintenance] = useState("");
@@ -1681,7 +1682,7 @@ async function fetchPets({ silent = false } = {}) {
 
                 <nav className="adopter-menu">
                     {adopterMenu
-                        .filter((item) => !(isFoster && item.key === "role-application"))
+                        .filter((item) => !(roleDashboardName && item.key === "role-application"))
                         .map((item) => {
                         const isActive =
                             activeAdopterPage ===
@@ -1742,13 +1743,13 @@ async function fetchPets({ silent = false } = {}) {
                         );
                     })}
 
-                    {isFoster && (
+                    {roleDashboardName && (
                         <div className="adopter-menu-group">
                             <button
                                 type="button"
-                                title="Foster Dashboard"
+                                title={`${roleDashboardName} Dashboard`}
                                 className="adopter-menu-switch"
-                                onClick={() => onOpenFoster?.()}
+                                onClick={() => onOpenRoleDashboard?.()}
                             >
                                 <div className="adopter-menu-text">
                                     <img
@@ -1763,7 +1764,7 @@ async function fetchPets({ silent = false } = {}) {
                                         alt=""
                                         aria-hidden="true"
                                     />
-                                    <strong>Back to Foster Dashboard</strong>
+                                    <strong>Back to {roleDashboardName} Dashboard</strong>
                                 </div>
                             </button>
                         </div>
