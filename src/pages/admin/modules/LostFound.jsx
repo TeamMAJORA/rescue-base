@@ -937,7 +937,6 @@ if (showReportForm && canSubmitReport) {
                                 <option value="">Select</option>
                                 <option value="Dog">Dog</option>
                                 <option value="Cat">Cat</option>
-                                <option value="Other">Other</option>
                             </select>
                         </label>
 

@@ -362,7 +362,6 @@ function freshForm() {
 const SPECIES_OPTIONS = [
     { value: "Dog", label: "Dog" },
     { value: "Cat", label: "Cat" },
-    { value: "Other", label: "Other" },
 ];
 
 const INTAKE_TYPE_OPTIONS = [

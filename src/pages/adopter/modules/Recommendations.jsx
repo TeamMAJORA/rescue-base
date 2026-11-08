@@ -6,22 +6,11 @@ import {
     isPetAvailable,
     toAiScores,
 } from "../../../utils/matchScore";
-const API = import.meta.env.VITE_BACKEND_URL;
 
 const MAX_RECOMMENDATIONS = 4;
 
 function formatStatus(value) {
     return String(value || "available").replaceAll("_", " ");
-}
-
-function readSavedQuiz() {
-    try {
-        return JSON.parse(
-            localStorage.getItem("rescuebase_matchmaking_quiz") || "null"
-        );
-    } catch {
-        return null;
-    }
 }
 
 // Colour of a factor bar: green 80+, orange 50-79, red below 50, grey when not assessed
@@ -34,6 +23,8 @@ function factorTone(value) {
 
 export default function Recommendations({
     pets = [],
+    quizResponse,
+    aiMatches = [],
     loading,
     error,
     onRefresh,
@@ -44,31 +35,9 @@ export default function Recommendations({
     onBrowsePets,
     onViewPet,
 }) {
-    const quiz = useMemo(() => readSavedQuiz(), []);
-
-    const [aiScores, setAiScores] = useState(new Map());
-
-    // Fetch the server's AI scores again whenever the pets reload
-    useEffect(() => {
-        let quizResponseId = null;
-
-        try {
-            quizResponseId = JSON.parse(
-                localStorage.getItem("rescuebase_matchmaking_results") || "null"
-            )?.quizResponseId;
-        } catch {
-            // bad saved data → formula only
-        }
-
-        if (!quizResponseId) return;
-
-        fetch(`${API}/api/matchmaking/results/${quizResponseId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        })
-            .then((response) => response.json())
-            .then((data) => setAiScores(toAiScores(data.matches)))
-            .catch(() => setAiScores(new Map()));
-    }, [pets]);
+    // Quiz answers and AI scores come from the database via the dashboard
+    const quiz = quizResponse;
+    const aiScores = useMemo(() => toAiScores(aiMatches), [aiMatches]);
 
     const allRecommendations = useMemo(() => {
         if (!quiz) {
@@ -175,7 +144,11 @@ export default function Recommendations({
         return (
             <section className="recommendations-module">
                 <div className="recommendations-empty-state">
-                    <span>🐾</span>
+                    <div className="recommendations-empty-icon">
+                        <img src="/icons/sidebar/brown paw-light.svg" alt="" />
+                    </div>
+
+                    <span>Matchmaking</span>
 
                     <h2>Complete Your Matchmaking Quiz</h2>
 
@@ -188,7 +161,7 @@ export default function Recommendations({
                         type="button"
                         onClick={() => onTakeQuiz?.()}
                     >
-                        Take Matchmaking Quiz
+                        Take Matchmaking Quiz <span aria-hidden="true">→</span>
                     </button>
                 </div>
             </section>

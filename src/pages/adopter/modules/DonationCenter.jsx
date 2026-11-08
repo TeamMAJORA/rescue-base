@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -39,6 +39,25 @@ const donationUnits = [
 const inKindCategories = donationCategories.filter(
     (category) => category !== "Money"
 );
+
+// Needed-supply categories that the donation form names differently
+const SUPPLY_TO_DONATION_CATEGORY = {
+    Medicine: "Medical Supplies",
+    "Feeding Supplies": "Feeding Bowls",
+};
+
+function donationCategoryForSupply(supply) {
+    const category = SUPPLY_TO_DONATION_CATEGORY[supply.category] || supply.category;
+    return inKindCategories.includes(category) ? category : "Other";
+}
+
+// Coloured strip on each needed-supply card
+const PRIORITY_TONE = {
+    Urgent: "is-urgent",
+    High: "is-high",
+    Medium: "is-medium",
+    Low: "is-low",
+};
 
 const emptyDonation = {
     category: "Pet Food",
@@ -478,36 +497,34 @@ export default function DonationCenter() {
         }
     }
 
+    // "Donate" on a needed-supply card: fill the In-Kind form for that item and jump to it
     function handleSelectNeededSupply(supply) {
-        const remaining = Math.max(
-            0,
-            Number(supply.quantityNeeded || 0) -
-            Number(supply.quantityReceived || 0)
-        );
+        const remaining = getRemaining(supply);
 
         setDonation((current) => ({
             ...current,
-            neededSupplyId:
-                supply._id,
-
-            category:
-                supply.category || "Other",
-
-            itemName:
-                supply.name || "",
-
-            quantity:
-                "",
-
+            neededSupplyId: supply._id,
+            category: donationCategoryForSupply(supply),
+            itemName: supply.name || "",
+            quantity: String(Math.min(remaining, 1000)),
+            // Food supplies are tracked in kilograms (Food Storage)
+            unit: supply.foodInventoryId ? "Kilograms" : current.unit,
+            deliveryMethod: current.category === "Money" ? "Drop-off" : current.deliveryMethod,
+            paymentMethod: "",
+            paymentReference: "",
+            proofOfPayment: "",
             description:
-                `Donation for ${supply.name}. ` +
-                `Remaining needed: ${remaining}.`,
+                current.description ||
+                `Donation for ${supply.name}. Remaining needed: ${remaining}.`,
         }));
 
-        setMessage(
-            `Selected: ${supply.name}`
-        );
+        setMessage("");
+
+        donationFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+
+    const donationFormRef = useRef(null);
+    const selectedSupply = neededSupplies.find((supply) => supply._id === donation.neededSupplyId);
 
     function getRemaining(supply) {
         return Math.max(
@@ -573,74 +590,54 @@ export default function DonationCenter() {
                 ) : (
                     <div className="needed-supplies-grid">
                         {neededSupplies.map((supply) => {
-                            const remaining =
-                                getRemaining(supply);
+                            const remaining = getRemaining(supply);
+                            const needed = Number(supply.quantityNeeded) || 0;
+                            const received = Number(supply.quantityReceived) || 0;
+                            const percentReceived = needed > 0 ? Math.min(100, (received / needed) * 100) : 0;
+                            const isFullyStocked = remaining <= 0;
+                            const isSelected = supply._id === donation.neededSupplyId;
 
                             return (
                                 <article
-                                    className="needed-supply-card"
+                                    className={`needed-supply-card${isSelected ? " is-selected" : ""}`}
                                     key={supply._id}
                                 >
-                                    <h3>
-                                        {supply.name}
-                                    </h3>
+                                    <div className="needed-supply-info">
+                                        <h3>{supply.name}</h3>
+                                        <span className="needed-supply-category">{supply.category}</span>
 
-                                    <p>
-                                        <strong>
-                                            Category:
-                                        </strong>{" "}
-                                        {supply.category}
-                                    </p>
+                                        {supply.description && (
+                                            <p className="needed-supply-note">{supply.description}</p>
+                                        )}
 
-                                    <p>
-                                        <strong>
-                                            Priority:
-                                        </strong>{" "}
-                                        {supply.priority}
-                                    </p>
+                                        <div className="needed-supply-progress" aria-hidden="true">
+                                            <span style={{ width: `${percentReceived}%` }} />
+                                        </div>
+                                        <small className="needed-supply-count">
+                                            {isFullyStocked
+                                                ? `All ${needed} received. Thank you!`
+                                                : `${remaining} more needed · ${received} of ${needed} received`}
+                                        </small>
+                                    </div>
 
-                                    <p>
-                                        <strong>
-                                            Needed:
-                                        </strong>{" "}
-                                        {supply.quantityNeeded}
-                                    </p>
+                                    <div className={`needed-supply-strip ${isFullyStocked ? "is-done" : PRIORITY_TONE[supply.priority] || "is-medium"}`}>
+                                        <span className="needed-supply-priority">
+                                            {isFullyStocked ? "Stocked" : supply.priority || "Medium"}
+                                        </span>
 
-                                    <p>
-                                        <strong>
-                                            Received:
-                                        </strong>{" "}
-                                        {supply.quantityReceived}
-                                    </p>
+                                        <img src="/icons/sidebar/brown paw-light.svg" alt="" aria-hidden="true" />
 
-                                    <p>
-                                        <strong>
-                                            Remaining:
-                                        </strong>{" "}
-                                        {remaining}
-                                    </p>
-
-                                    {supply.description && (
-                                        <p>
-                                            {
-                                                supply.description
-                                            }
-                                        </p>
-                                    )}
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleSelectNeededSupply(
-                                                supply
-                                            )
-                                        }
-                                        disabled={
-                                            remaining <= 0
-                                        }
-                                    >
-                                        Donate This Item
-                                    </button>
+                                        <button
+                                            type="button"
+                                            className="needed-supply-go"
+                                            onClick={() => handleSelectNeededSupply(supply)}
+                                            disabled={isFullyStocked}
+                                            aria-label={`Donate ${supply.name}`}
+                                            title={isFullyStocked ? "Fully stocked" : `Donate ${supply.name}`}
+                                        >
+                                            <span aria-hidden="true">→</span>
+                                        </button>
+                                    </div>
                                 </article>
                             );
                         })}
@@ -648,7 +645,7 @@ export default function DonationCenter() {
                 )}
             </section>
 
-            <section className="adopter-panel-form">
+            <section className="adopter-panel-form" ref={donationFormRef}>
                 <div className="adopter-panel-heading">
                     <div>
                         <h2>Donate to Shelter Care</h2>
@@ -682,6 +679,20 @@ export default function DonationCenter() {
 
                     <div className="donation-layout">
                         <div className="donation-fields">
+                            {selectedSupply && !isMoneyDonation && (
+                                <div className="donation-selected-supply">
+                                    <span>
+                                        Donating for <b>{selectedSupply.name}</b> · {getRemaining(selectedSupply)} more needed
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDonation((current) => ({ ...current, neededSupplyId: "", itemName: "" }))}
+                                    >
+                                        Clear
+                                    </button>
+                                </div>
+                            )}
+
                             {isMoneyDonation ? (
                                 <>
                                     <label>
@@ -989,74 +1000,6 @@ export default function DonationCenter() {
             </section>
 
             <section className="adopter-panel donation-info-panel">
-                <div className="adopter-panel-heading">
-                    <div>
-                        <h2>
-                            Shelter's Current Needs
-                        </h2>
-
-                        <p>
-                            We gladly accept the following
-                            items for our rescued animals.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="donation-category-grid">
-                    <article>
-                        <span>🍖</span>
-                        <h3>Puppy Food</h3>
-                        <p>
-                            Dry food, wet food,
-                            treats and milk.
-                        </p>
-                    </article>
-
-                    <article>
-                        <span>💊</span>
-                        <h3>Medical Supplies</h3>
-                        <p>
-                            Medicines, vitamins,
-                            syringes and bandages.
-                        </p>
-                    </article>
-
-                    <article>
-                        <span>🛏️</span>
-                        <h3>Pet Beds</h3>
-                        <p>
-                            Beds, blankets,
-                            towels and cushions.
-                        </p>
-                    </article>
-
-                    <article>
-                        <span>🧸</span>
-                        <h3>Leashes</h3>
-                        <p>
-                            Balls, ropes and chew
-                            toys.
-                        </p>
-                    </article>
-
-                    <article>
-                        <span>🧴</span>
-                        <h3>Cleaning Supplies</h3>
-                        <p>
-                            Disinfectants,
-                            detergents and wipes.
-                        </p>
-                    </article>
-
-                    <article>
-                        <span>💰</span>
-                        <h3>Monetary</h3>
-                        <p>
-                            Every donation helps an animal in need
-                        </p>
-                    </article>
-                </div>
-
                 <div className="donation-note">
                     <h3>
                         Thank you ❤️
