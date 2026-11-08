@@ -144,7 +144,11 @@ export default function Recommendations({
         return (
             <section className="recommendations-module">
                 <div className="recommendations-empty-state">
-                    <span>🐾</span>
+                    <div className="recommendations-empty-icon">
+                        <img src="/icons/sidebar/brown paw-light.svg" alt="" />
+                    </div>
+
+                    <span>Matchmaking</span>
 
                     <h2>Complete Your Matchmaking Quiz</h2>
 
@@ -157,7 +161,7 @@ export default function Recommendations({
                         type="button"
                         onClick={() => onTakeQuiz?.()}
                     >
-                        Take Matchmaking Quiz
+                        Take Matchmaking Quiz <span aria-hidden="true">→</span>
                     </button>
                 </div>
             </section>
