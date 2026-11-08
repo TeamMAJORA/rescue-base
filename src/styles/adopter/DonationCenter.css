@@ -503,3 +503,182 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Needed supplies: card with info on the left and a priority strip on the right ===== */
+.needed-supplies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.needed-supply-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 92px;
+    min-height: 168px;
+    overflow: hidden;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 18px;
+    background: #fffaf0;
+    color: #5a1b00;
+    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.needed-supply-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(90, 27, 0, 0.1);
+}
+
+.needed-supply-card.is-selected {
+    border-color: #fb8500;
+    box-shadow: 0 0 0 2px rgba(251, 133, 0, 0.25), 0 12px 24px rgba(90, 27, 0, 0.1);
+}
+
+.needed-supply-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    padding: 18px 18px 16px;
+}
+
+.needed-supply-info h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.needed-supply-category {
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #fff7cb;
+    color: #75432f;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.needed-supply-note {
+    display: -webkit-box;
+    margin: 2px 0 0;
+    overflow: hidden;
+    color: #75432f;
+    font-size: 12px;
+    line-height: 1.5;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.needed-supply-progress {
+    height: 6px;
+    margin-top: auto;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #f3e6c8;
+}
+
+.needed-supply-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #fb8500, #fcbf49);
+}
+
+.needed-supply-count {
+    color: #75432f;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Right strip: priority on top, paw in the middle, arrow button at the bottom */
+.needed-supply-strip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 8px;
+}
+
+.needed-supply-strip.is-urgent { background: #d62828; color: #ffffff; }
+.needed-supply-strip.is-high { background: #fb8500; color: #ffffff; }
+.needed-supply-strip.is-medium { background: #fcbf49; color: #5a1b00; }
+.needed-supply-strip.is-low { background: #e9dcc4; color: #5a1b00; }
+.needed-supply-strip.is-done { background: #e8e1d4; color: #8a6a55; }
+
+.needed-supply-priority {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.needed-supply-strip img {
+    width: 30px;
+    height: 30px;
+    opacity: 0.9;
+}
+
+.needed-supply-strip.is-medium img,
+.needed-supply-strip.is-low img,
+.needed-supply-strip.is-done img {
+    filter: brightness(0) saturate(100%) invert(14%) sepia(60%) saturate(2500%) hue-rotate(10deg);
+    opacity: 0.55;
+}
+
+.needed-supply-go {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #5a1b00;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(90, 27, 0, 0.18);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.needed-supply-go:hover:not(:disabled) {
+    background: #fff7cb;
+    transform: translateX(2px);
+}
+
+.needed-supply-go:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+}
+
+/* "Donating for ..." chip above the In-Kind fields */
+.donation-selected-supply {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.35);
+    border-radius: 12px;
+    background: #fff7cb;
+    color: #5a1b00;
+    font-size: 13px;
+}
+
+.donation-selected-supply button {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border: 1px solid rgba(90, 27, 0, 0.25);
+    border-radius: 10px;
+    background: #ffffff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
