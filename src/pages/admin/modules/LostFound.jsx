@@ -91,6 +91,11 @@ export default function LostFoundPage({ setPage }) {
     const [speciesFilter, setSpeciesFilter] = useState("all");
     const [sortBy, setSortBy] = useState("newest");
     const [viewMode, setViewMode] = useState("grid"); // "grid" (cards, default) | "list" (table)
+    // Admin "Select" mode: pick several reports and delete them together
+    const [isSelectingReports, setIsSelectingReports] = useState(false);
+    // Fixed "now" for the "x days ago" labels (avoids calling Date.now() while rendering)
+    const [pageOpenedAt] = useState(() => Date.now());
+    const [selectedReportIds, setSelectedReportIds] = useState([]);
     const [typeFilter, setTypeFilter] = useState("all");
     const [onlyMine, setOnlyMine] = useState(false);
     const [possibleMatches, setPossibleMatches] = useState(null);
@@ -607,11 +612,62 @@ function startFoundReportFromLostReport(lostReport) {
         }
     }
 
+    function stopSelectingReports() {
+        setIsSelectingReports(false);
+        setSelectedReportIds([]);
+    }
+
+    function toggleSelectedReport(reportId) {
+        setSelectedReportIds((current) =>
+            current.includes(reportId) ? current.filter((id) => id !== reportId) : [...current, reportId]
+        );
+    }
+
+    async function handleDeleteSelectedReports() {
+        const count = selectedReportIds.length;
+        if (count === 0) return;
+
+        const confirmed = await askConfirm({
+            title: `Delete ${count} report${count === 1 ? "" : "s"}?`,
+            message: "This can't be undone.",
+            confirmLabel: "Delete",
+            danger: true,
+        });
+        if (!confirmed) return;
+
+        setError("");
+        setSuccess("");
+
+        const results = await Promise.allSettled(
+            selectedReportIds.map((reportId) =>
+                fetch(`${API}/api/lost-found/reports/${reportId}`, {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` },
+                }).then((response) => {
+                    if (!response.ok) throw new Error(`Failed to delete report ${reportId}`);
+                })
+            )
+        );
+
+        const failedCount = results.filter((result) => result.status === "rejected").length;
+        const deletedCount = count - failedCount;
+
+        if (failedCount > 0) {
+            setError(`${failedCount} report${failedCount === 1 ? "" : "s"} could not be deleted.`);
+        }
+        if (deletedCount > 0) {
+            setSuccess(`${deletedCount} report${deletedCount === 1 ? "" : "s"} deleted.`);
+        }
+
+        stopSelectingReports();
+        await loadReports();
+    }
+
     async function handleDeleteReport(reportId) {
         const confirmed = await askConfirm({ title: "Delete this lost and found report?", message: "This can't be undone.", confirmLabel: "Delete", danger: true });
 
         if (!confirmed) {
-            return;
+            return false;
         }
 
         setError("");
@@ -643,7 +699,7 @@ function startFoundReportFromLostReport(lostReport) {
             );
 
             await loadReports();
-
+            return true;
         } catch (error) {
             console.error(
                 "Delete lost and found report error:",
@@ -654,6 +710,7 @@ function startFoundReportFromLostReport(lostReport) {
                 error.message ||
                 "Failed to delete report."
             );
+            return false;
         }
     }
 
@@ -717,6 +774,49 @@ const visibleReports = reports
         const diff = new Date(b.dateReported || b.createdAt) - new Date(a.dateReported || a.createdAt);
         return sortBy === "newest" ? diff : -diff;
     });
+// Possible-match count per report id (staff: from the matches list; users: from their suggestions)
+const possibleMatchCountByReportId = {};
+if (canManageReports) {
+    (possibleMatches || []).forEach((match) => {
+        [match.reportA?._id, match.reportB?._id].filter(Boolean).forEach((reportId) => {
+            possibleMatchCountByReportId[reportId] = (possibleMatchCountByReportId[reportId] || 0) + 1;
+        });
+    });
+} else {
+    mySuggestions.forEach((suggestion) => {
+        const reportId = suggestion.myReport?._id;
+        if (reportId) possibleMatchCountByReportId[reportId] = (possibleMatchCountByReportId[reportId] || 0) + 1;
+    });
+}
+
+// One small tag on a card, only when something needs attention
+function getCardFlag(report, details) {
+    if (canManageReports && report.claimStatus === "pending" && report.pendingClaimCount > 0) {
+        return { tone: "claim", text: `${report.pendingClaimCount} claim${report.pendingClaimCount === 1 ? "" : "s"}` };
+    }
+    const matchCount = possibleMatchCountByReportId[report._id] || 0;
+    if (matchCount > 0 && details.isOpen) {
+        return { tone: "match", text: `${matchCount} possible match${matchCount === 1 ? "" : "es"}` };
+    }
+    if (report.myClaimStatus === "pending") {
+        return { tone: "claim", text: "Claim sent" };
+    }
+    if (details.isMine) {
+        return { tone: "mine", text: "Your report" };
+    }
+    return null;
+}
+
+function timeAgo(value) {
+    if (!value) return "No date";
+    const date = new Date(value);
+    const days = Math.floor((pageOpenedAt - date.getTime()) / 86400000);
+    if (days <= 0) return "Today";
+    if (days === 1) return "1 day ago";
+    if (days < 7) return `${days} days ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 // Shared by the grid and list views
 function describeReport(report) {
     const isMine = report.isMine;
@@ -1360,19 +1460,54 @@ if (showReportForm && canSubmitReport) {
                     </div>
                 </div>
 
-                <div className="lf2-tabs" role="tablist">
-                    {LF_CHIPS.map((chip) => (
-                        <button
-                            key={chip.value}
-                            type="button"
-                            role="tab"
-                            aria-selected={typeFilter === chip.value}
-                            className={typeFilter === chip.value ? "is-active" : ""}
-                            onClick={() => setTypeFilter(chip.value)}
-                        >
-                            {chip.label} <span>{chip.count}</span>
-                        </button>
-                    ))}
+                <div className="lf-tabs-row">
+                    <div className="lf2-tabs" role="tablist">
+                        {LF_CHIPS.map((chip) => (
+                            <button
+                                key={chip.value}
+                                type="button"
+                                role="tab"
+                                aria-selected={typeFilter === chip.value}
+                                className={typeFilter === chip.value ? "is-active" : ""}
+                                onClick={() => {
+                                    setTypeFilter(chip.value);
+                                    stopSelectingReports();
+                                }}
+                            >
+                                {chip.label} <span>{chip.count}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {canDeleteReport && viewMode === "grid" && typeFilter !== "matches" && visibleReports.length > 0 && (
+                        isSelectingReports ? (
+                            <div className="lf-select-bar">
+                                <b>{selectedReportIds.length} selected</b>
+                                <button
+                                    type="button"
+                                    className="lf-select-link"
+                                    onClick={() => setSelectedReportIds(visibleReports.map((report) => report._id))}
+                                >
+                                    Select all
+                                </button>
+                                <button type="button" className="lf-select-btn" onClick={stopSelectingReports}>
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className="lf-select-btn is-danger"
+                                    disabled={selectedReportIds.length === 0}
+                                    onClick={handleDeleteSelectedReports}
+                                >
+                                    Delete ({selectedReportIds.length})
+                                </button>
+                            </div>
+                        ) : (
+                            <button type="button" className="lf-select-btn" onClick={() => setIsSelectingReports(true)}>
+                                Select
+                            </button>
+                        )
+                    )}
                 </div>
 
                 {typeFilter === "matches" ? (
@@ -1508,36 +1643,65 @@ if (showReportForm && canSubmitReport) {
                         {visibleReports.map((report, index) => {
                             const details = describeReport(report);
                             const badge = report.status === "reunited" ? "reunited" : report.reportType;
+                            const isSelected = selectedReportIds.includes(report._id);
+                            const cardFlag = getCardFlag(report, details);
+                            const openOrSelect = () =>
+                                isSelectingReports ? toggleSelectedReport(report._id) : openReportDetails(report);
 
                             return (
                                 <article
                                     key={report._id}
-                                    className={`lf-card${details.isMine ? " is-mine" : ""}`}
+                                    className={`lf-card${details.isMine ? " is-mine" : ""}${isSelected ? " is-selected" : ""}`}
                                     role="button"
                                     tabIndex={0}
-                                    onClick={() => openReportDetails(report)}
+                                    aria-pressed={isSelectingReports ? isSelected : undefined}
+                                    onClick={openOrSelect}
                                     onKeyDown={(e) => {
-                                        if (e.key === "Enter") openReportDetails(report);
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault();
+                                            openOrSelect();
+                                        }
                                     }}
                                 >
-                                    <div className={`lf-card-media tint-${index % 4}`}>
+                                    <div className={`lf-card-thumb tint-${index % 4}`}>
                                         {report.photoUrl ? (
-                                            <img src={report.photoUrl} alt="" />
+                                            <img className="lf-card-photo" src={report.photoUrl} alt="" />
                                         ) : (
-                                            <span className="lf-card-emoji" aria-hidden="true">{details.emoji}</span>
+                                            <img className="lf-card-placeholder" src="/icons/sidebar/brown paw.svg" alt="" aria-hidden="true" />
                                         )}
-                                        <span className={`lf-card-badge is-${badge}`}>{badge}</span>
-                                        <span className="lf-card-date">{details.dateText}</span>
-                                        {details.isMine && <span className="lf-card-mine">Your report</span>}
                                     </div>
 
-                                    <div className="lf-card-body">
-                                        <h3>{report.petName || "Unknown"}</h3>
-                                        <small>{[report.species, report.breed].filter(Boolean).join(" · ")}</small>
-                                        <small>📍 {report.location || "—"}</small>
-                                        <span className={`lf2-pill is-${details.statusKey}`}>{details.statusLabel}</span>
-                                        {renderReportActions(report, details)}
+                                    <div className="lf-card-info">
+                                        <div className="lf-card-title">
+                                            <h3>{report.petName || "Unknown"}</h3>
+                                            <span className={`lf-card-badge is-${badge}`}>{badge}</span>
+                                        </div>
+                                        <small className="lf-card-sub">
+                                            {[report.species, report.breed].filter(Boolean).join(" · ") || "Unknown species"}
+                                        </small>
+                                        <div className="lf-card-meta">
+                                            <span>
+                                                <img src="/icons/pawPin.svg" alt="" aria-hidden="true" />
+                                                {report.location || "No location"}
+                                            </span>
+                                            <span>
+                                                <img src="/icons/Clock.svg" alt="" aria-hidden="true" />
+                                                {timeAgo(report.dateReported || report.createdAt)}
+                                            </span>
+                                        </div>
+                                        {cardFlag && <span className={`lf-card-flag is-${cardFlag.tone}`}>{cardFlag.text}</span>}
                                     </div>
+
+                                    {isSelectingReports && (
+                                        <span className={`lf-card-check${isSelected ? " is-on" : ""}`} aria-hidden="true">
+                                            {isSelected && (
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M5 12l5 5L20 7" />
+                                                </svg>
+                                            )}
+                                        </span>
+                                    )}
+
                                 </article>
                             );
                         })}
@@ -1971,6 +2135,19 @@ if (showReportForm && canSubmitReport) {
                     {error && <div className="lost-found-message error">{error}</div>}
 
                     <footer className="lf-modal-foot">
+    {canDeleteReport && (
+        <button
+            type="button"
+            className="lfr-delete"
+            onClick={async () => {
+                const deleted = await handleDeleteReport(r._id);
+                if (deleted) setViewingReport(null);
+            }}
+        >
+            Delete report
+        </button>
+    )}
+
     <button type="button" className="lfr-cancel" onClick={() => setViewingReport(null)}>
         Close
     </button>

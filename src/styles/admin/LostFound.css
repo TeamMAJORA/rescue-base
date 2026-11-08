@@ -2840,3 +2840,244 @@
     margin-top: auto;
     padding-top: 12px;
 }
+
+/* ===== Grid cards: compact, tap to view (Nov 9 redesign) ===== */
+.lf-tabs-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #e3d5b5;
+}
+
+.lf-tabs-row .lf2-tabs {
+    flex: 1;
+    min-width: 0;
+    border-bottom: 0;
+}
+
+.lf-select-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 4px;
+    color: #5a1b00;
+    font-size: 13px;
+}
+
+.lf-select-link {
+    border: 0;
+    background: none;
+    color: #d96f00;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.lf-select-btn {
+    margin-bottom: 4px;
+    padding: 6px 14px;
+    border: 1px solid #5a1b00;
+    border-radius: 9px;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.lf-select-btn.is-danger {
+    border-color: #b42318;
+    background: #b42318;
+    color: #fff;
+}
+
+.lf-select-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.lf-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.lf-grid .lf-card {
+    position: relative;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    overflow: visible;
+    border: 1px solid #e3d5b5;
+    border-radius: 14px;
+    background: #fff;
+    color: #5a1b00;
+    outline: none;
+}
+
+.lf-grid .lf-card:hover,
+.lf-grid .lf-card:focus-visible {
+    border-color: #fb8500;
+    box-shadow: 0 6px 16px rgba(90, 27, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.lf-grid .lf-card.is-mine {
+    border-color: #fb8500;
+    box-shadow: none;
+}
+
+.lf-grid .lf-card.is-selected {
+    border-color: #b42318;
+    background: #fff8f6;
+    box-shadow: 0 0 0 1px #b42318 inset;
+}
+
+.lf-card-thumb {
+    width: 76px;
+    height: 76px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.lf-card-thumb .lf-card-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lf-card-thumb .lf-card-placeholder {
+    width: 34px;
+    height: auto;
+    opacity: 0.75;
+}
+
+.lf-card-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.lf-card-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    padding-right: 26px;
+}
+
+.lf-card-title h3 {
+    margin: 0;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.lf-card-title .lf-card-badge {
+    position: static;
+    flex-shrink: 0;
+    padding: 2px 7px;
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+}
+
+.lf-card-sub {
+    overflow: hidden;
+    color: #75432f;
+    font-size: 12.5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.lf-card-meta {
+    display: flex;
+    gap: 12px;
+    min-width: 0;
+    overflow: hidden;
+    color: #8a6a4a;
+    font-size: 11.5px;
+    white-space: nowrap;
+}
+
+.lf-card-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lf-card-meta span:first-child {
+    flex-shrink: 1;
+}
+
+.lf-card-meta span:last-child {
+    flex-shrink: 0;
+}
+
+.lf-card-meta img {
+    width: auto;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+.lf-card-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid #c9b896;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.lf-card-check.is-on {
+    border-color: #b42318;
+    background: #b42318;
+}
+
+.lf-card-flag {
+    align-self: flex-start;
+    margin-top: 3px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+}
+
+.lf-card-flag.is-match { background: #fde8d4; color: #b45309; }
+.lf-card-flag.is-claim { background: #e3effd; color: #1c5cab; }
+.lf-card-flag.is-mine { background: #fb8500; color: #fff; }
+
+/* Delete one report from its details popup (admin only) */
+.lf-modal-foot .lfr-delete {
+    margin-right: auto;
+    height: 34px;
+    padding: 0 18px;
+    border: 1px solid #b42318;
+    border-radius: 8px;
+    background: #fff;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.lf-modal-foot .lfr-delete:hover {
+    background: #fdeaea;
+}
