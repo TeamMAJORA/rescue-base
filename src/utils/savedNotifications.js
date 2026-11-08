@@ -8,6 +8,7 @@ const PAGE_BY_TYPE = {
     medical_update: "foster-care",
     donation: "donations",
     donation_update: "donations",
+    lost_found_update: "lost-found",
 };
 
 function authHeaders() {

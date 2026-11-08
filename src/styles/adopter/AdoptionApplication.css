@@ -1260,3 +1260,128 @@
         text-align: center;
     }
 }
+
+/* ===== Fields: same look as the Lost & Found report form (lfr2-field), rounded corners kept ===== */
+.adoption-module-form .adoption-form-grid label,
+.adoption-module-form .adoption-choice-field {
+    gap: 5px;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.adoption-module-form .adoption-form-grid input,
+.adoption-module-form .adoption-form-grid select,
+.adoption-module-form .adoption-form-grid textarea,
+.adoption-module-form .adoption-document-upload input {
+    padding: 9px 11px;
+    border: 1px solid #e3d5b5;
+    border-radius: 12px;
+    background: #fff;
+    color: #3d2410;
+    font-size: 13px;
+    font-weight: 400;
+    box-shadow: none;
+}
+
+.adoption-module-form .adoption-form-grid input,
+.adoption-module-form .adoption-form-grid select {
+    min-height: 0;
+}
+
+.adoption-module-form .adoption-form-grid select {
+    padding-right: 32px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        no-repeat right 11px center;
+    cursor: pointer;
+}
+
+.adoption-module-form .adoption-textarea-wrap textarea {
+    padding-bottom: 30px;
+}
+
+.adoption-module-form .adoption-form-grid input:focus,
+.adoption-module-form .adoption-form-grid select:focus,
+.adoption-module-form .adoption-form-grid textarea:focus,
+.adoption-module-form .adoption-document-upload input:focus {
+    border-color: #fb8500;
+    box-shadow: none;
+}
+
+/* Locked account fields */
+.adoption-module-form .adoption-locked-field input[readonly] {
+    padding-right: 38px;
+    border-color: #e3d5b5;
+    background: #faf3df;
+    color: #7b6658;
+}
+
+/* +63 phone */
+.adoption-module-form .adoption-phone-field {
+    border: 1px solid #e3d5b5;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.adoption-module-form .adoption-phone-field:focus-within {
+    border-color: #fb8500;
+    box-shadow: none;
+}
+
+.adoption-module-form .adoption-phone-prefix {
+    padding: 0 11px;
+    border-right: 1px solid #e3d5b5;
+    background: #faf3df;
+    font-weight: 700;
+}
+
+.adoption-module-form .adoption-phone-field input {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+/* Choice buttons (home type, yes / no) */
+.adoption-module-form .adoption-choice-group button {
+    min-height: 0;
+    padding: 9px 6px;
+    border: 1px solid #e3d5b5;
+    border-radius: 12px;
+    background: #fff;
+    color: #3d2410;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.adoption-module-form .adoption-choice-group button:hover {
+    background: #faf3df;
+}
+
+.adoption-module-form .adoption-choice-group button.is-selected {
+    border-color: transparent;
+    background: linear-gradient(115deg, #fb8500, #ffa53a);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.3);
+}
+
+/* Errors stay red */
+.adoption-module-form .adoption-form-grid input.has-error,
+.adoption-module-form .adoption-form-grid textarea.has-error,
+.adoption-module-form .adoption-phone-field.has-error {
+    border-color: #d62828;
+    background: #fff1ee;
+}
+
+.adoption-module-form .adoption-phone-field.has-error input {
+    border: 0;
+    background: transparent;
+}
+
+.adoption-module-form .adoption-phone-field.has-error .adoption-phone-prefix {
+    border-right-color: rgba(214, 40, 40, 0.35);
+    background: #ffe1db;
+}
+

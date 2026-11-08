@@ -386,6 +386,102 @@
     color: #3a1400;
 }
 
+/* Drop-off map preview, larger than the QR box */
+.donation-info-map {
+    position: relative;
+    flex: 0 0 180px;
+    height: 180px;
+    overflow: hidden;
+    border: 1px solid #8a3b12;
+    border-radius: 8px;
+}
+
+.donation-info-map .leaflet-control-attribution {
+    font-size: 8px;
+}
+
+.donation-info-map-link {
+    position: absolute;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 8px;
+    text-decoration: none;
+}
+
+.donation-info-map-link span {
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(255, 250, 240, 0.95);
+    color: #5a1b00;
+    font-size: 11px;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.donation-info-map-link:hover span,
+.donation-info-map-link:focus-visible span {
+    background: #fb8500;
+    color: #fff;
+}
+
+.donation-map-pin span {
+    display: block;
+    width: 24px;
+    height: 24px;
+    margin: 0 auto;
+    border: 3px solid #fff;
+    border-radius: 50% 50% 50% 0;
+    background: #fb8500;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 560px) {
+    .donation-info-body:has(.donation-info-map) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .donation-info-map {
+        flex-basis: auto;
+    }
+}
+
+.donation-info-methods {
+    display: grid;
+    gap: 8px;
+}
+
+.donation-info-methods button {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 10px;
+    background: #fffaf0;
+    color: #3a1400;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.donation-info-methods button:hover {
+    border-color: #fb8500;
+}
+
+.donation-info-methods b {
+    font-size: 13px;
+}
+
+.donation-info-methods span {
+    font-size: 12px;
+    color: #8a6a55;
+    word-break: break-word;
+}
+
 .donation-info-card small,
 .donation-info-empty,
 .donation-note {

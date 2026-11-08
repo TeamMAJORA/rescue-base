@@ -202,6 +202,7 @@ export default function DashboardOverview({
     notifications = [],
     onOpenNotifications,
     onRefreshNotifications,
+    onOpenAdopterPage,
 }) {
     const pets = assignments.length ? assignments : assignment ? [assignment] : [];
     const appStatus = String(application?.status || "").toLowerCase();
@@ -333,6 +334,30 @@ export default function DashboardOverview({
                     <strong className={`status ${appStatus || "pending"}`}>
                         {application?.status || "Not Submitted"}
                     </strong>
+                </div>
+            </section>
+
+            <section className="fdo-actions fdo-shortcuts">
+                <div className="fdo-actions-grid">
+                    <button type="button" className="fdo-action" onClick={() => onOpenAdopterPage?.("lost-found")}>
+                        <span className="fdo-action-icon">
+                            <img src="/icons/sidebar/LostnFound-brown.svg" alt="" width="22" height="22" />
+                        </span>
+                        <span className="fdo-action-text">
+                            <b>Lost &amp; Found</b>
+                            <small>Report or look for a lost pet</small>
+                        </span>
+                    </button>
+
+                    <button type="button" className="fdo-action" onClick={() => onOpenAdopterPage?.("donation")}>
+                        <span className="fdo-action-icon">
+                            <img src="/icons/sidebar/donation-brown.svg" alt="" width="22" height="22" />
+                        </span>
+                        <span className="fdo-action-text">
+                            <b>Donate</b>
+                            <small>Give money or supplies to the shelter</small>
+                        </span>
+                    </button>
                 </div>
             </section>
 

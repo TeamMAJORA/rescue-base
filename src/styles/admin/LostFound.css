@@ -1115,100 +1115,120 @@
     z-index: 2000;
     display: grid;
     place-items: center;
-    padding: 16px;
-    background: rgba(40, 20, 5, 0.45);
+    padding: 24px;
+    background: rgba(40, 20, 5, 0.5);
 }
 
+/* Photo on the left, details scroll on the right, actions stay at the bottom */
 .lf-modal {
-    width: min(560px, 100%);
-    max-height: 90vh;
-    overflow-y: auto;
-    border-radius: 14px;
+    position: relative;
+    width: min(940px, 100%);
+    height: min(640px, calc(100vh - 48px));
+    display: grid;
+    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    overflow: hidden;
+    border-radius: 16px;
     background: #fffaeb;
+    box-shadow: 0 24px 60px rgba(40, 20, 5, 0.3);
 }
 
 .lf-modal-media {
     position: relative;
-    height: 170px;
+    min-height: 0;
     display: grid;
     place-items: center;
+    overflow: hidden;
 }
 
 .lf-modal-media img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
 .lf-modal-media .lf-card-emoji {
-    font-size: 64px;
+    font-size: 88px;
 }
 
 .lf-modal-close {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 30px;
-    height: 30px;
-    border: none;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #f3d98a;
     border-radius: 50%;
     background: #fffaf0;
     color: #5a1b00;
-    font-size: 18px;
+    font-size: 20px;
+    line-height: 1;
     cursor: pointer;
 }
 
+.lf-modal-close:hover {
+    border-color: #fb8500;
+    color: #fb8500;
+}
+
 .lf-modal-body {
-    display: grid;
-    gap: 4px;
-    padding: 18px 20px 20px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    padding: 24px 26px 0;
     color: #5a1b00;
 }
 
 .lf-modal-body h2 {
     margin: 0;
+    padding-right: 40px;
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 400;
 }
 
 .lf-modal-body > small {
     color: rgba(90, 27, 0, 0.7);
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .lf-modal-body h3 {
-    margin: 12px 0 0;
-    font-size: 12px;
+    margin: 16px 0 2px;
+    font-size: 13px;
     font-weight: 800;
 }
 
 .lf-modal-body p {
     margin: 0;
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 1.55;
 }
 
 .lf-modal-facts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 16px;
-    margin: 12px 0 0;
-    padding: 12px;
-    border-radius: 10px;
+    gap: 12px 18px;
+    margin: 14px 0 0;
+    padding: 14px 16px;
+    border-radius: 12px;
     background: #fdefb8;
 }
 
 .lf-modal-facts dt {
     color: rgba(90, 27, 0, 0.6);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 .lf-modal-facts dd {
-    margin: 2px 0 0;
-    font-size: 12px;
+    margin: 3px 0 0;
+    font-size: 14px;
     font-weight: 700;
     word-break: break-word;
 }
@@ -1222,15 +1242,46 @@
 }
 
 .lf-modal-foot {
+    position: sticky;
+    bottom: 0;
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 14px;
+    margin: auto -26px 0;
+    padding: 14px 26px;
+    border-top: 1px solid #f3d98a;
+    background: #fffaeb;
 }
 
-@media (max-width: 480px) {
-    .lf-modal-facts {
+/* Phones and narrow windows: photo on top, details scroll below it */
+@media (max-width: 760px) {
+    .lf-modal-overlay {
+        padding: 12px;
+    }
+
+    .lf-modal {
+        height: calc(100vh - 24px);
         grid-template-columns: 1fr;
+        grid-template-rows: 190px minmax(0, 1fr);
+    }
+
+    .lf-modal-body {
+        padding: 18px 18px 0;
+    }
+
+    .lf-modal-body h2 {
+        font-size: 24px;
+    }
+
+    .lf-modal-foot {
+        margin: auto -18px 0;
+        padding: 12px 18px;
+    }
+
+    .lf-modal-foot > button {
+        flex: 1 1 auto;
+        white-space: nowrap;
     }
 }
 .lf-claim {
@@ -1311,6 +1362,29 @@
 .lf-claim-pill.is-approved { background: rgba(46, 158, 91, 0.15); color: #16834a; }
 .lf-claim-pill.is-rejected,
 .lf-claim-pill.is-revoked { background: rgba(214, 40, 40, 0.12); color: #d62828; }
+
+.lf-claims {
+    display: grid;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.lf-claim-review-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.lf-claim-indicator {
+    margin-top: 12px !important;
+    padding: 10px 12px;
+    border-left: 3px solid #fb8500;
+    border-radius: 8px;
+    background: #fff4e0;
+}
+
+.lf-claim-pill.is-cancelled { background: #eee3d0; color: rgba(90, 27, 0, 0.7); }
 
 .lf-claim-proof {
     padding: 10px;
@@ -1414,57 +1488,25 @@
     background: #fffdf4;
 }
 
+/* Toolbar matches the adopter Browse Pets toolbar (pet-list-search / pet-list-select from BrowsePets.css) */
 .lf2-toolbar {
     display: flex;
+    align-items: stretch;
     gap: 10px;
-    flex-wrap: wrap;
 }
 
-.lf2-search {
-    flex: 1 1 320px;
-    padding: 10px 14px;
-    border: 1px solid rgba(90, 27, 0, 0.25);
-    border-radius: 0;
-    background: #ffffff;
-    color: #5a1b00;
-    font: inherit;
-    font-size: 13px;
-    outline: none;
+.lf2-toolbar .admin-view-toggle {
+    flex-shrink: 0;
 }
 
-.lf2-select {
-    position: relative;
-}
+@media (max-width: 760px) {
+    .lf2-toolbar {
+        flex-wrap: wrap;
+    }
 
-.lf2-select > span {
-    position: absolute;
-    top: -8px;
-    left: 8px;
-    z-index: 1;
-    padding: 0 4px;
-    background: #ffffff;
-    color: #7a3e19;
-    font-size: 10px;
-    font-weight: 600;
-}
-
-.lf2-select select {
-    min-width: 140px;
-    height: 100%;
-    padding: 9px 10px;
-    border: 1px solid #5a1b00;
-    border-radius: 0;
-    background: #ffffff;
-    color: #5a1b00;
-    font: inherit;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.lf2-search:focus,
-.lf2-select select:focus {
-    border-color: #fb8500;
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
+    .lf2-toolbar .pet-list-search {
+        flex-basis: 100%;
+    }
 }
 
 .lf2-tabs {
@@ -2148,18 +2190,6 @@
     color: #814b1c;
 }
 /* ===== Lost & Found: match Reports / Feedback (square controls, row buttons) ===== */
-.lost-found-page .lf2-search,
-.lost-found-page .lf2-select select {
-    border: 1px solid #e3d5b5;
-    border-radius: 0;
-    background-color: #fff;
-}
-
-.lost-found-page .lf2-search:focus,
-.lost-found-page .lf2-select select:focus {
-    border-color: #fb8500;
-}
-
 .lf2-mini {
     border-radius: 0;
     background: #fff;
@@ -2764,4 +2794,49 @@
     background: #fff4e0;
     color: rgba(90, 27, 0, 0.75);
     font-size: 12px !important;
+}
+
+/* Possible matches panel (Lost & Found) */
+.lf-suggest-panel {
+    gap: 8px;
+    margin-bottom: 14px;
+    border-left: 4px solid #fb8500;
+}
+
+.lf-suggest-panel h3 {
+    margin: 0;
+    color: #5a1b00;
+    font-family: "Itim", cursive;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.lf-suggest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    gap: 8px;
+}
+
+.lf-claim-proof-photo {
+    max-width: 220px;
+    margin-top: 6px;
+    border: 1px solid #f3d98a;
+    border-radius: 8px;
+}
+
+/* Grid view cards (shared row actions + status pill) */
+.lf-card-media {
+    height: 140px;
+}
+
+.lf-card-body .lf2-pill {
+    align-self: flex-start;
+    margin-top: 6px;
+}
+
+.lf-card-body .lf2-row-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: auto;
+    padding-top: 12px;
 }

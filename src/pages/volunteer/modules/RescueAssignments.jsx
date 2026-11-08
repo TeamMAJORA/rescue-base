@@ -259,7 +259,7 @@ export default function RescueAssignments() {
 }
 
 // Volunteer dashboard: only the volunteer's own jobs and activity
-export function VolunteerOverview({ onNavigate }) {
+export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
     const { assignments, error, busyId, notice, act } = useMyRescues();
     const [activity, setActivity] = useState(null);
 
@@ -345,8 +345,11 @@ export function VolunteerOverview({ onNavigate }) {
                             <button type="button" className="vr-btn is-primary" onClick={() => go("gis")}>
                                 Pin a stray report
                             </button>
-                            <button type="button" className="vr-btn" onClick={() => go("lost-found")}>
+                            <button type="button" className="vr-btn" onClick={() => onOpenAdopterPage?.("lost-found")}>
                                 Lost &amp; Found
+                            </button>
+                            <button type="button" className="vr-btn" onClick={() => onOpenAdopterPage?.("donation")}>
+                                Donate
                             </button>
                         </div>
                     </section>
