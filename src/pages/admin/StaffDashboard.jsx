@@ -252,6 +252,8 @@ export default function StaffDashboard({ setPage }) {
     const [activeStaffPage, setActiveStaffPage] = useState("overview");
     const newDots = useSidebarDots(activeStaffPage);
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
+    // Phones: the sidebar slides in from the left behind a menu button
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [notifications, setNotification] = useState([]);
     const [notifOpen, setNotifOpen] = useState(false);
     const token = localStorage.getItem("token");
@@ -376,6 +378,7 @@ export default function StaffDashboard({ setPage }) {
 
         setOpenSidebarMenu(null);
         setActiveStaffPage(item.key);
+        setIsMobileMenuOpen(false);
     }
 
     // Clicking a notification: mark it read (if saved), then open its page
@@ -682,7 +685,15 @@ export default function StaffDashboard({ setPage }) {
 
     return (
         <main className="staff-page">
-            <aside className="staff-sidebar">
+            {isMobileMenuOpen && (
+                <div className="dash-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)} aria-hidden="true" />
+            )}
+            <aside
+                className={`staff-sidebar${isMobileMenuOpen ? " is-open" : ""}`}
+                onClick={(event) => {
+                    if (event.target.closest(".staff-submenu button")) setIsMobileMenuOpen(false);
+                }}
+            >
                 <button
                     type="button"
                     className="staff-logo"
@@ -778,6 +789,17 @@ export default function StaffDashboard({ setPage }) {
 
             <section className="staff-main">
                 <header className="staff-topbar">
+                    <button
+                        type="button"
+                        className="dash-menu-btn"
+                        aria-label="Open menu"
+                        aria-expanded={isMobileMenuOpen}
+                        onClick={() => setIsMobileMenuOpen(true)}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <path d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                    </button>
                     <h1>{getStaffPageTitle(activeStaffPage)}</h1>
 
                     <div className="staff-notification-wrap">
