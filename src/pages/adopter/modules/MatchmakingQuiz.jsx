@@ -1,5 +1,5 @@
 import {
-    useMemo, useRef, useState
+    useRef, useState
 } from "react";
 import { fireSideCannons } from "../../../utils/confetti";
 
@@ -176,26 +176,15 @@ const SECTIONS = ["Home", "Lifestyle", "Preferences"].map((name) => ({
     count: QUESTIONS.filter((item) => item.section === name).length,
 }));
 
-function getSavedQuiz() {
-    try {
-        return JSON.parse(
-            localStorage.getItem(
-                "rescuebase_matchmaking_quiz"
-            ) || "null"
-        );
-    } catch {
-        return null;
-    }
-}
-
 export default function MatchmakingQuiz({
     user,
+    previousQuizResponse,
     onCompleted,
+    onSeeRecommendations,
 }) {
-    const savedQuiz = useMemo(
-        () => getSavedQuiz(),
-        []
-    );
+    const hasTakenQuiz = Boolean(previousQuizResponse);
+    // Retaking starts from the answers saved in the database
+    const savedQuiz = previousQuizResponse;
 
     const [form, setForm] = useState({
         preferredPetType: savedQuiz?.preferredPetType || "",
@@ -301,11 +290,6 @@ export default function MatchmakingQuiz({
                     new Date().toISOString(),
             };
 
-            localStorage.setItem(
-                "rescuebase_matchmaking_quiz",
-                JSON.stringify(quizResponse)
-            );
-
             const response = await fetch(`${API}/api/matchmaking/quiz`,
                 {
                     method: "POST",
@@ -322,8 +306,6 @@ export default function MatchmakingQuiz({
             if (!response.ok || !result.success) {
                 throw new Error(result.message || "Failed to process matchmaking quiz.");
             }
-
-            localStorage.setItem("rescuebase_matchmaking_results", JSON.stringify(result));
 
             setMessageType("success");
             setMessage(
@@ -369,13 +351,25 @@ if (!started) {
                 are the perfect fit for you.
             </p>
 
-            <button
-                type="button"
-                className="mq-intro-button"
-                onClick={() => setStarted(true)}
-            >
-                Take the Quiz <span aria-hidden="true">→</span>
-            </button>
+            <div className="mq-intro-actions">
+                <button
+                    type="button"
+                    className="mq-intro-button"
+                    onClick={() => setStarted(true)}
+                >
+                    {hasTakenQuiz ? "Retake Quiz" : "Take the Quiz"} <span aria-hidden="true">→</span>
+                </button>
+
+                {hasTakenQuiz && (
+                    <button
+                        type="button"
+                        className="mq-intro-button is-secondary"
+                        onClick={() => onSeeRecommendations?.()}
+                    >
+                        See Recommendations
+                    </button>
+                )}
+            </div>
         </section>
     );
 }
