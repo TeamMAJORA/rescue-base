@@ -25,6 +25,7 @@ const TYPE_LABELS = {
 const PRIORITY_LABELS = { low: "Low", normal: "Normal", high: "High", urgent: "Urgent" };
 
 const STATUS_LABELS = {
+    open: "Open",
     pending: "Pending",
     accepted: "Accepted",
     declined: "Declined",
@@ -321,13 +322,6 @@ export default function RescueAssignments() {
     async function handleSubmit(e) {
         e.preventDefault();
 
-        if (!form.volunteerId) {
-            setMessage(
-                "Please select a volunteer."
-            );
-            return;
-        }
-
         if (!form.title.trim()) {
             setMessage(
                 "Assignment title is required."
@@ -594,7 +588,7 @@ export default function RescueAssignments() {
         status === "declined" || status === "cancelled" ? "closed" : status === "accepted" ? "active" : status || "pending";
 
     const counts = useMemo(() => {
-        const result = { all: assignments.length, pending: 0, active: 0, completed: 0, closed: 0 };
+        const result = { all: assignments.length, open: 0, pending: 0, active: 0, completed: 0, closed: 0 };
         assignments.forEach((item) => {
             result[statusGroup(item.status)] += 1;
         });
@@ -619,6 +613,9 @@ export default function RescueAssignments() {
     const isError = /required|please|failed|cannot|error|unable|not found/i.test(message);
 
     const myId = currentUserId();
+
+    // Once someone accepted or started it, it can't be handed to someone else
+    const editingAssignmentStatus = assignments.find((item) => item._id === editingId)?.status || "";
 
     const volunteerOptions = useMemo(
         () => ({
@@ -673,8 +670,8 @@ export default function RescueAssignments() {
                     <small>Total assignments</small>
                 </div>
                 <div>
-                    <small>Waiting for reply</small>
-                    <b>{counts.pending}</b>
+                    <small>Open or waiting for reply</small>
+                    <b>{counts.open + counts.pending}</b>
                 </div>
                 <div>
                     <small>In progress</small>
@@ -697,15 +694,20 @@ export default function RescueAssignments() {
                 <form className="rs2-card rs2-form" onSubmit={handleSubmit}>
                     <h3>{editingId ? "Edit assignment" : "New assignment"}</h3>
                     <p className="rs2-sub">
-                        {editingId ? "Changes are sent to the assigned person." : "They get notified and can accept or decline."}
+                        {form.volunteerId
+                            ? "The person you pick is notified and can accept or decline."
+                            : "Open: every volunteer is notified and the first to claim it takes it."}
                     </p>
 
                     <label className="rs2-field">
-                        <span>
-                            Assign to <em>*</em>
-                        </span>
-                        <select name="volunteerId" value={form.volunteerId} onChange={handleChange} required disabled={loadingVolunteers}>
-                            <option value="">{loadingVolunteers ? "Loading..." : "Select volunteer or staff"}</option>
+                        <span>Assign to</span>
+                        <select
+                            name="volunteerId"
+                            value={form.volunteerId}
+                            onChange={handleChange}
+                            disabled={loadingVolunteers || ["accepted", "active"].includes(editingAssignmentStatus)}
+                        >
+                            <option value="">{loadingVolunteers ? "Loading..." : "Open to all volunteers"}</option>
                             {volunteerOptions.volunteers.length > 0 && (
                                 <optgroup label="Volunteers">
                                     {volunteerOptions.volunteers.map((person) => (
@@ -819,6 +821,7 @@ export default function RescueAssignments() {
                         <div className="rs2-chips">
                             {[
                                 ["all", "All"],
+                                ["open", "Open"],
                                 ["pending", "Pending"],
                                 ["active", "Active"],
                                 ["completed", "Completed"],
@@ -909,10 +912,14 @@ export default function RescueAssignments() {
                                                 </td>
                                                 <td>
                                                     <b>
-                                                        {assignment.volunteerName || "Unassigned"}
-                                                        {String(assignment.volunteerId) === myId ? " (you)" : ""}
+                                                        {assignment.volunteerName || "Open to volunteers"}
+                                                        {assignment.volunteerId && String(assignment.volunteerId) === myId ? " (you)" : ""}
                                                     </b>
-                                                    <small>{roleOf(assignment.volunteerId) === "staff" ? "Staff" : "Volunteer"}</small>
+                                                    <small>
+                                                        {!assignment.volunteerId
+                                                            ? "Any volunteer can claim"
+                                                            : roleOf(assignment.volunteerId) === "staff" ? "Staff" : "Volunteer"}
+                                                    </small>
                                                 </td>
                                                 <td>{assignment.location || "—"}</td>
                                                 <td className="rs2-nowrap">

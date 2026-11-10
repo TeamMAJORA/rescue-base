@@ -278,6 +278,8 @@
 .vr-pill.is-done { background: #d9f0e3; color: #2f8f5b; }
 .vr-pill.is-off { background: #f1ece2; color: #8a6a4a; }
 .vr-pill.is-urgent { background: #fde2e2; color: #a12020; }
+.vr-pill.is-open { background: #fde7d4; color: #b35c00; }
+.vr-open-note { margin: 10px 0 0; font-size: 13px; color: #7a3e19; }
 .vr-actions { display: flex; gap: 6px; justify-content: flex-end; }
 .vr-btn { height: 32px; padding: 0 13px; border: 1.5px solid #e3d5b5; border-radius: 9px; background: #ffffff; color: #5a1b00; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
 .vr-btn:hover:not(:disabled) { border-color: #fb8500; }

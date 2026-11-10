@@ -309,6 +309,9 @@ export default function VolunteerDashboard({ setPage }) {
         await loadNotifications();
 
         switch (notification.type) {
+            case "rescue_update":
+                setActiveStaffPage("rescues");
+                break;
             case "lost_found_update":
                 openAdopterPage("lost-found");
                 break;
