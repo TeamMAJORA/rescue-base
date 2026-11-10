@@ -699,8 +699,9 @@ export default function IntakeRecords() {
     async function handleSubmit(e) {
         e.preventDefault();
 
-        if (!canManage) {
-            setError("Only administrators and staff can manage intake records.");
+        // Volunteers may add new intakes (they wait for staff review) but not edit existing ones
+        if (editingId && !canManage) {
+            setError("Only administrators and staff can edit intake records.");
             return;
         }
 
@@ -749,7 +750,9 @@ export default function IntakeRecords() {
             setSuccessMessage(
                 editingId
                     ? "Intake record updated successfully."
-                    : "Intake saved. The animal now has a profile in Animal Profiles."
+                    : canManage
+                        ? "Intake saved. The animal now has a profile in Animal Profiles."
+                        : "Intake submitted. Staff will review it before the animal gets a profile."
             );
 
             resetForm();
