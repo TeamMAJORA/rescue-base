@@ -137,7 +137,8 @@ export function MonthCalendar({ selected, onPick, minDate, maxDate }) {
 }
 
 // A field that opens the calendar below it. value / onChange use "YYYY-MM-DD".
-export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pick a date", ariaLabel }) {
+// floating: the calendar overlays the page; turn it off inside scrolling pop-ups, where it would be cut off.
+export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pick a date", ariaLabel, floating = true }) {
     const [open, setOpen] = useState(false);
     const boxRef = useRef(null);
     const selected = value ? new Date(`${value}T00:00`) : null;
@@ -159,8 +160,13 @@ export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pi
         };
     }, [open]);
 
+    // Inside a scrolling pop-up, bring the opened calendar into view
+    useEffect(() => {
+        if (open && !floating) boxRef.current?.querySelector(".aip-calendar")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, [open, floating]);
+
     return (
-        <div className="aip-datefield" ref={boxRef}>
+        <div className={`aip-datefield${floating ? " is-floating" : ""}`} ref={boxRef}>
             <button
                 type="button"
                 className={`aip-field${open ? " is-open" : ""}${selected ? "" : " is-empty"}`}

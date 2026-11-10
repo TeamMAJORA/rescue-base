@@ -31,10 +31,11 @@
 .aip-month-selects select { padding: 4px 22px 4px 6px; border: 0; border-radius: 8px; background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%233a1200' stroke-width='1.6' fill='none'/%3E%3C/svg%3E") no-repeat right 6px center; color: #3a1200; font: inherit; font-size: 15px; font-weight: 700; appearance: none; cursor: pointer; }
 .aip-month-selects select:hover { background-color: #fff3d6; }
 
-/* Date field whose calendar floats over the form instead of pushing it down */
-.aip-datefield { position: relative; }
+/* Date field: the calendar floats over the form, or sits under the field (floating={false}) */
+.aip-datefield { position: relative; display: grid; gap: 4px; }
 .aip-datefield .aip-field { width: 100%; }
-/* Opens toward the left: the only date field sits in the form's right-hand column */
-.aip-datefield .aip-calendar { position: absolute; top: calc(100% + 4px); right: 0; z-index: 30; width: 300px; max-width: calc(100vw - 32px); }
+.aip-datefield:not(.is-floating) .aip-calendar { max-width: 320px; }
+/* Opens toward the left: the report form's date field sits in its right-hand column */
+.aip-datefield.is-floating .aip-calendar { position: absolute; top: calc(100% + 4px); right: 0; z-index: 30; width: 300px; max-width: calc(100vw - 32px); }
 /* Forms style every select/button inside a field; keep the calendar's own look */
 .aip-calendar .aip-month-selects select { width: auto; height: auto; min-height: 0; padding: 4px 22px 4px 6px; border: 0; box-shadow: none; }
