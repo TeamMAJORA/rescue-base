@@ -171,7 +171,8 @@ export default function LostFoundPage({ setPage }) {
     ].includes(role);
 
     const canManageReports = isAdmin || isStaff;
-    const canDeleteReport = isAdmin;
+    // Selecting several reports to delete at once is admin-only; single deletes use report.canDelete
+    const canBulkDelete = isAdmin;
     const token = localStorage.getItem("token");
 
     async function loadReports() {
@@ -915,7 +916,7 @@ function renderReportActions(report, { canClaimThis, canSayFound }) {
                 View
             </button>
 
-            {canDeleteReport && (
+            {report.canDelete && (
                 <button
                     type="button"
                     className="lf2-icon"
@@ -1505,7 +1506,7 @@ if (showReportForm && canSubmitReport) {
                         ))}
                     </div>
 
-                    {canDeleteReport && viewMode === "grid" && typeFilter !== "matches" && visibleReports.length > 0 && (
+                    {canBulkDelete && viewMode === "grid" && typeFilter !== "matches" && visibleReports.length > 0 && (
                         isSelectingReports ? (
                             <div className="lf-select-bar">
                                 <b>{selectedReportIds.length} selected</b>
@@ -2241,7 +2242,7 @@ if (showReportForm && canSubmitReport) {
                     {error && <div className="lost-found-message error">{error}</div>}
 
                     <footer className="lf-modal-foot">
-    {canDeleteReport && (
+    {r.canDelete && (
         <button
             type="button"
             className="lfr-delete"
