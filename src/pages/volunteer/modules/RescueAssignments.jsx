@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { CompleteWithProofModal } from "../../../components/rescue/RescueProof";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -60,6 +61,7 @@ function useMyRescues() {
     const [error, setError] = useState("");
     const [busyId, setBusyId] = useState("");
     const [notice, setNotice] = useState("");
+    const [completingAssignment, setCompletingAssignment] = useState(null);
 
     const loadOpen = useCallback(() => {
         return fetch(`${API}/api/rescue-assignments/open`, { headers: authHeaders() })
@@ -103,10 +105,10 @@ function useMyRescues() {
             body = { reason };
         }
 
+        // Completing needs proof (notes + photos), collected in its own form
         if (action === "complete") {
-            const completionNotes = window.prompt(`How did "${assignment.title}" go? (e.g. brought to shelter)`, "");
-            if (completionNotes === null) return;
-            body = { completionNotes };
+            setCompletingAssignment(assignment);
+            return;
         }
 
         if (action === "claim") {
@@ -134,6 +136,15 @@ function useMyRescues() {
         }
 
         try {
+            await sendAction(assignment, action, body);
+        } catch (err) {
+            setNotice(err.message || "Could not update the rescue.");
+        }
+    }
+
+    // Throws on failure so the proof form can show the error itself
+    async function sendAction(assignment, action, body) {
+        try {
             setBusyId(assignment._id);
             setNotice("");
             const response = await fetch(`${API}/api/rescue-assignments/${assignment._id}/${action}`, {
@@ -150,18 +161,27 @@ function useMyRescues() {
                 accept: "Rescue accepted.",
                 decline: "Rescue declined. It goes back to the open list for other volunteers.",
                 start: "Rescue started.",
-                complete: "Rescue completed. Thank you!",
+                complete: "Rescue completed. Staff can now see your proof. Thank you!",
             };
             setNotice(done[action]);
             await load();
-        } catch (err) {
-            setNotice(err.message || "Could not update the rescue.");
         } finally {
             setBusyId("");
         }
     }
 
-    return { assignments, openAssignments, error, busyId, notice, act, reload: load };
+    const completionModal = completingAssignment && (
+        <CompleteWithProofModal
+            assignment={completingAssignment}
+            onClose={() => setCompletingAssignment(null)}
+            onSubmit={async (proof) => {
+                await sendAction(completingAssignment, "complete", proof);
+                setCompletingAssignment(null);
+            }}
+        />
+    );
+
+    return { assignments, openAssignments, error, busyId, notice, act, reload: load, completionModal };
 }
 
 function RescueActions({ assignment, busy, onAct }) {
@@ -247,6 +267,15 @@ function RescueRow({ assignment, busy, onAct }) {
                     {assignment.adminName ? ` · ${assignment.status === "open" ? "Posted" : "Assigned"} by ${assignment.adminName}` : ""}
                 </small>
                 {notes && <small className="vr-notes">“{notes}”</small>}
+                {assignment.status === "completed" && assignment.completionPhotos?.length > 0 && (
+                    <span className="rp-row-photos">
+                        {assignment.completionPhotos.map((url) => (
+                            <a key={url} href={url} target="_blank" rel="noreferrer">
+                                <img src={url} alt="Proof" />
+                            </a>
+                        ))}
+                    </span>
+                )}
             </div>
 
             <RescueActions assignment={assignment} busy={busy} onAct={onAct} />
@@ -256,7 +285,7 @@ function RescueRow({ assignment, busy, onAct }) {
 
 // Sidebar page: all of the volunteer's rescue jobs, by status
 export default function RescueAssignments() {
-    const { assignments, openAssignments, error, busyId, notice, act, reload } = useMyRescues();
+    const { assignments, openAssignments, error, busyId, notice, act, reload, completionModal } = useMyRescues();
     const [tab, setTab] = useState("pending");
 
     const list = assignments || [];
@@ -308,13 +337,14 @@ export default function RescueAssignments() {
                     ))}
                 </div>
             )}
+            {completionModal}
         </section>
     );
 }
 
 // Volunteer dashboard: only the volunteer's own jobs and activity
 export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
-    const { assignments, openAssignments, error, busyId, notice, act } = useMyRescues();
+    const { assignments, openAssignments, error, busyId, notice, act, completionModal } = useMyRescues();
     const [activity, setActivity] = useState(null);
 
     useEffect(() => {
@@ -448,6 +478,7 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
                     </section>
                 </div>
             </div>
+            {completionModal}
         </div>
     );
 }

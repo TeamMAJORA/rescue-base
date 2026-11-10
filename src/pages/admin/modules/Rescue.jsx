@@ -3,6 +3,7 @@ import {
     useMemo,
     useState
 } from "react";
+import { CompleteWithProofModal, RescueProofModal } from "../../../components/rescue/RescueProof";
 
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
@@ -83,6 +84,9 @@ export default function RescueAssignments() {
 
     const [form, setForm] =
         useState(emptyForm);
+
+    const [completingAssignment, setCompletingAssignment] = useState(null);
+    const [viewingProofOf, setViewingProofOf] = useState(null);
 
     const token =
         localStorage.getItem("token");
@@ -635,31 +639,37 @@ export default function RescueAssignments() {
             const ok = await askConfirm({ title: `Decline "${assignment.title}"?`, confirmLabel: "Decline", danger: true });
             if (!ok) return;
         }
+
+        // Completing needs proof, collected in its own form
         if (action === "complete") {
-            const ok = await askConfirm({ title: `Mark "${assignment.title}" as completed?`, confirmLabel: "Complete" });
-            if (!ok) return;
-            body = { completionNotes: "" };
+            setCompletingAssignment(assignment);
+            return;
         }
 
         try {
-            const response = await fetch(`${API}/api/rescue-assignments/${assignment._id}/${action}`, {
-                method: "PATCH",
-                headers: getJsonHeaders(),
-                body: JSON.stringify(body),
-            });
-            const data = await response.json().catch(() => ({}));
-
-            if (!response.ok || data.success === false) {
-                throw new Error(data.message || `Failed to ${action} assignment.`);
-            }
-
-            setMessage(
-                { accept: "Assignment accepted.", decline: "Assignment declined.", start: "Assignment started.", complete: "Assignment completed." }[action]
-            );
-            await fetchAssignments();
+            await sendAssignmentAction(assignment, action, body);
         } catch (err) {
             setMessage(err.message || `Failed to ${action} assignment.`);
         }
+    }
+
+    // Throws on failure so the proof form can show the error itself
+    async function sendAssignmentAction(assignment, action, body) {
+        const response = await fetch(`${API}/api/rescue-assignments/${assignment._id}/${action}`, {
+            method: "PATCH",
+            headers: getJsonHeaders(),
+            body: JSON.stringify(body),
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || data.success === false) {
+            throw new Error(data.message || `Failed to ${action} assignment.`);
+        }
+
+        setMessage(
+            { accept: "Assignment accepted.", decline: "Assignment declined.", start: "Assignment started.", complete: "Assignment completed." }[action]
+        );
+        await fetchAssignments();
     }
 
     return (
@@ -956,6 +966,11 @@ export default function RescueAssignments() {
                                                                 Complete
                                                             </button>
                                                         )}
+                                                        {status === "completed" && (
+                                                            <button type="button" className="rs2-mini" onClick={() => setViewingProofOf(assignment)}>
+                                                                View proof
+                                                            </button>
+                                                        )}
                                                         {canEdit && (
                                                             <button type="button" className="rs2-mini" onClick={() => handleEdit(assignment)}>
                                                                 Edit
@@ -996,6 +1011,19 @@ export default function RescueAssignments() {
                     )}
                 </section>
             </div>
+
+            {completingAssignment && (
+                <CompleteWithProofModal
+                    assignment={completingAssignment}
+                    onClose={() => setCompletingAssignment(null)}
+                    onSubmit={async (proof) => {
+                        await sendAssignmentAction(completingAssignment, "complete", proof);
+                        setCompletingAssignment(null);
+                    }}
+                />
+            )}
+
+            {viewingProofOf && <RescueProofModal assignment={viewingProofOf} onClose={() => setViewingProofOf(null)} />}
         </section>
     );
 }
