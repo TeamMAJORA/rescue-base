@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { formatPetStatus } from "../../utils/petStatus";
 
 export default function PetDetailPanel({
@@ -112,5 +113,39 @@ export default function PetDetailPanel({
                 </>
             )}
         </aside>
+    );
+}
+
+// The pet profile as a pop-up over the page (opened by clicking an animal)
+export function PetDetailModal({ onClose, ...panelProps }) {
+    // Esc closes it, and the page behind stops scrolling while it's open
+    useEffect(() => {
+        const handleKey = (event) => event.key === "Escape" && onClose();
+        const previousOverflow = document.body.style.overflow;
+
+        document.body.style.overflow = "hidden";
+        document.addEventListener("keydown", handleKey);
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+            document.removeEventListener("keydown", handleKey);
+        };
+    }, [onClose]);
+
+    return (
+        <div className="pet-modal-backdrop" onClick={onClose}>
+            <div
+                className="pet-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-label={`${panelProps.pet?.name || "Pet"} profile`}
+                onClick={(event) => event.stopPropagation()}
+            >
+                <button type="button" className="pet-modal-close" onClick={onClose} aria-label="Close">
+                    ×
+                </button>
+                <PetDetailPanel className="browse-pet-details-panel" {...panelProps} />
+            </div>
+        </div>
     );
 }

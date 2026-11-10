@@ -135,11 +135,10 @@
     object-position: center;
 }
 
+/* The pet profile opens as a pop-up, so the list gets the full width */
 .browse-pets-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
     gap: 22px;
-    align-items: start;
 }
 
 .browse-pets-list-panel,
@@ -439,11 +438,6 @@
     transform: translateX(2px);
 }
 
-.browse-pet-details-panel {
-    position: sticky;
-    top: 115px;
-    overflow: visible;
-}
 
 .browse-pet-empty-details {
     min-height: 520px;
@@ -612,26 +606,6 @@
     opacity: 0.68;
 }
 
-@media (max-width: 1200px) {
-    .browse-pets-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .browse-pet-details-panel {
-        position: static;
-    }
-}
-
-@media (max-width: 1000px) {
-    .browse-pets-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .browse-pet-details-panel {
-        position: static;
-    }
-}
-
 @media (max-width: 580px) {
     .browse-pet-main-image {
         width: calc(100% + 34px);
@@ -781,4 +755,96 @@
     color: #c2410c;
     font-size: 12px;
     font-weight: 600;
+}
+
+/* ===== Pet profile pop-up ===== */
+.pet-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1600;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    background: rgba(58, 20, 0, 0.45);
+    animation: pet-modal-fade 0.15s ease-out;
+}
+
+.pet-modal {
+    position: relative;
+    width: min(520px, 100%);
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+    border-radius: 20px;
+    box-shadow: 0 20px 48px rgba(58, 20, 0, 0.3);
+    animation: pet-modal-rise 0.18s ease-out;
+    scrollbar-width: none; /* still scrolls, just no visible bar */
+}
+
+.pet-modal::-webkit-scrollbar {
+    display: none;
+}
+
+.pet-modal .browse-pet-details-panel {
+    border: 0;
+    border-radius: 20px;
+    box-shadow: none;
+}
+
+/* Keep the Apply button reachable while reading a long profile */
+.pet-modal .browse-pet-apply-button {
+    position: sticky;
+    bottom: 12px;
+    z-index: 1;
+    box-shadow: 0 6px 18px rgba(90, 27, 0, 0.25);
+}
+
+.pet-modal .browse-pet-main-image {
+    padding: 0;
+}
+
+.pet-modal-close {
+    position: sticky;
+    top: 12px;
+    z-index: 2;
+    float: right;
+    width: 38px;
+    height: 38px;
+    margin: 12px 12px -50px 0;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 250, 240, 0.92);
+    color: #5a1b00;
+    font-size: 24px;
+    line-height: 1;
+    box-shadow: 0 4px 12px rgba(58, 20, 0, 0.2);
+    cursor: pointer;
+}
+
+@keyframes pet-modal-fade { from { opacity: 0; } }
+@keyframes pet-modal-rise { from { opacity: 0; transform: translateY(12px); } }
+
+/* Phones: the profile slides up as a sheet from the bottom */
+@media (max-width: 640px) {
+    .pet-modal-backdrop {
+        place-items: end stretch;
+        padding: 0;
+    }
+
+    .pet-modal {
+        width: 100%;
+        max-height: 92dvh;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .pet-modal .browse-pet-details-panel {
+        border-radius: 20px 20px 0 0;
+    }
+
+    .pet-modal .browse-pet-details-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
 }

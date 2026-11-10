@@ -155,6 +155,7 @@ function openAdopterPage(adopterPageKey) {
 }
 
 function goToPage(page, petId = null) {
+    setIsMobileMenuOpen(false); // also when tapping the page already open
     guardLeave(() => {
         setFocusPetId(petId);
         setActivePage(page);

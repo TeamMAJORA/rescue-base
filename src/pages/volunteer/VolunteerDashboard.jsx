@@ -218,6 +218,7 @@ export default function VolunteerDashboard({ setPage }) {
 
         setOpenSidebarMenu(null);
         setActiveStaffPage(item.key);
+        setIsMobileMenuOpen(false); // also when tapping the page already open
     }
 
     // Lost & Found, donating and adopting live on the Adopter dashboard
@@ -452,7 +453,12 @@ export default function VolunteerDashboard({ setPage }) {
             {isMobileMenuOpen && (
                 <div className="dash-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)} aria-hidden="true" />
             )}
-            <aside className={`staff-sidebar is-volunteer${isMobileMenuOpen ? " is-open" : ""}`}>
+            <aside
+                className={`staff-sidebar is-volunteer${isMobileMenuOpen ? " is-open" : ""}`}
+                onClick={(event) => {
+                    if (event.target.closest(".staff-submenu button")) setIsMobileMenuOpen(false);
+                }}
+            >
                 <button
                     type="button"
                     className="staff-logo"

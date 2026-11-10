@@ -1,5 +1,4 @@
 import PetList from "../../../components/adopter/PetList";
-import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
 
 export default function BrowsePets({
     pets,
@@ -11,10 +10,9 @@ export default function BrowsePets({
     setTypeFilter,
     filteredPets,
     selectedPet,
-    setSelectedPet,
+    onOpenPet,
     hasPendingApplication,
     applicationStatus,
-    onApply,
     onRefresh,
     initialStatusFilter,
 }) {
@@ -59,17 +57,9 @@ export default function BrowsePets({
                     setTypeFilter={setTypeFilter}
                     filteredPets={filteredPets}
                     selectedPet={selectedPet}
-                    setSelectedPet={setSelectedPet}
+                    setSelectedPet={onOpenPet}
                     onRefresh={onRefresh}
                     initialStatusFilter={initialStatusFilter}
-                />
-
-                <PetDetailPanel
-                    className="browse-pet-details-panel"
-                    pet={selectedPet}
-                    hasPendingApplication={hasPendingApplication}
-                    applicationStatus={applicationStatus}
-                    onApply={onApply}
                 />
             </div>
         </section>
