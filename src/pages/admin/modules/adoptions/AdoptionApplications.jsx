@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FACTORS, topScoredMatches } from "../../../../utils/matchScore";
+import { MonthCalendar, isSameDay, startOfToday } from "../../../../components/system/MonthCalendar";
 
 
 
@@ -211,16 +212,6 @@ const WHEEL_PERIODS = ["AM", "PM"];
 const SHELTER_OPEN_HOUR = 8;
 const SHELTER_CLOSE_HOUR = 17;
 
-function isSameDay(a, b) {
-    return (
-        a &&
-        b &&
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth() === b.getMonth() &&
-        a.getDate() === b.getDate()
-    );
-}
-
 function to24Hour(hour, period) {
     return (Number(hour) % 12) + (period === "PM" ? 12 : 0);
 }
@@ -293,12 +284,7 @@ function WheelColumn({ items, value, onChange, label }) {
 }
 
 // ---------- Interview picker (review popup): month calendar + time wheel ----------
-const PICKER_WEEK_DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 const PICKER_MINUTES = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
-
-function toDayValue(date) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
 
 // "HH:mm" (24h) <-> wheel values
 function splitTime(time) {
@@ -314,19 +300,10 @@ function joinTime(hour, minute, period) {
     return `${String(to24Hour(hour, period)).padStart(2, "0")}:${minute}`;
 }
 
-const PICKER_MONTHS = Array.from({ length: 12 }, (_, index) =>
-    new Date(2000, index, 1).toLocaleString("en-PH", { month: "long" })
-);
-
 function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const today = startOfToday();
     const selected = day ? new Date(`${day}T00:00`) : null;
     const [open, setOpen] = useState(null); // null | "date" | "time"
-    const [viewMonth, setViewMonth] = useState(() => {
-        const base = selected || today;
-        return new Date(base.getFullYear(), base.getMonth(), 1);
-    });
     const boxRef = useRef(null);
 
     // Click outside the picker closes the open panel
@@ -346,29 +323,10 @@ function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
         };
     }, [open]);
 
-    const year = viewMonth.getFullYear();
-    const month = viewMonth.getMonth();
-    const lead = (new Date(year, month, 1).getDay() + 6) % 7; // Monday first
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const daysInPrev = new Date(year, month, 0).getDate();
-    const trail = (7 - ((lead + daysInMonth) % 7)) % 7;
-    const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
-    const years = [today.getFullYear(), today.getFullYear() + 1, today.getFullYear() + 2]; //interviews more than a year away aren’t realistic
-
-    const cells = [
-        ...Array.from({ length: lead }, (_, i) => ({ day: daysInPrev - lead + i + 1, outside: true })),
-        ...Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, date: new Date(year, month, i + 1) })),
-        ...Array.from({ length: trail }, (_, i) => ({ day: i + 1, outside: true })),
-    ];
+    // Interviews: today up to the end of the year after next
+    const latestDay = new Date(today.getFullYear() + 2, 11, 31);
 
     const { hour, minute, period } = splitTime(time);
-
-    // Never show a month before the current one
-    function goToMonth(nextYear, nextMonth) {
-        const target = new Date(nextYear, nextMonth, 1);
-        const floor = new Date(today.getFullYear(), today.getMonth(), 1);
-        setViewMonth(target < floor ? floor : target);
-    }
 
     function toggle(panel) {
         setOpen((current) => (current === panel ? null : panel));
@@ -407,78 +365,15 @@ function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
             </div>
 
             {open === "date" && (
-                <div className="aip-pop aip-calendar">
-                    <div className="aip-month">
-                        <div className="aip-month-selects">
-                            <select
-                                value={month}
-                                onChange={(event) => goToMonth(year, Number(event.target.value))}
-                                aria-label="Month"
-                            >
-                                {PICKER_MONTHS.map((name, index) => (
-                                    <option
-                                        key={name}
-                                        value={index}
-                                        disabled={year === today.getFullYear() && index < today.getMonth()}
-                                    >
-                                        {name}
-                                    </option>
-                                ))}
-                            </select>
-                            <select
-                                value={year}
-                                onChange={(event) => goToMonth(Number(event.target.value), month)}
-                                aria-label="Year"
-                            >
-                                {years.map((value) => (
-                                    <option key={value} value={value}>{value}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <button
-                                type="button"
-                                onClick={() => goToMonth(year, month - 1)}
-                                disabled={isCurrentMonth}
-                                aria-label="Previous month"
-                            >
-                                ‹
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => goToMonth(year, month + 1)}
-                                disabled={year === years[years.length - 1] && month === 11}
-                                aria-label="Next month"
-                            >
-                                ›
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="aip-grid">
-                        {PICKER_WEEK_DAYS.map((name) => (
-                            <span key={name} className="aip-weekday">{name}</span>
-                        ))}
-                        {cells.map((cell, index) =>
-                            cell.outside ? (
-                                <span key={`out-${index}`} className="aip-day is-outside">{cell.day}</span>
-                            ) : (
-                                <button
-                                    key={cell.day}
-                                    type="button"
-                                    className={`aip-day${isSameDay(cell.date, selected) ? " is-selected" : ""}${isSameDay(cell.date, today) ? " is-today" : ""}`}
-                                    disabled={cell.date < today}
-                                    onClick={() => {
-                                        onDayChange(toDayValue(cell.date));
-                                        setOpen(null);
-                                    }}
-                                >
-                                    {cell.day}
-                                </button>
-                            )
-                        )}
-                    </div>
-                </div>
+                <MonthCalendar
+                    selected={selected}
+                    minDate={today}
+                    maxDate={latestDay}
+                    onPick={(pickedDay) => {
+                        onDayChange(pickedDay);
+                        setOpen(null);
+                    }}
+                />
             )}
 
             {open === "time" && (

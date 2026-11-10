@@ -3,7 +3,14 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-lea
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { searchCebuPlaces } from "../../../utils/cebuPlaces";
+import { DateField, startOfToday, toDayValue } from "../../../components/system/MonthCalendar";
 
+
+// Lost/found dates: up to 5 years back, never in the future
+function earliestReportDay() {
+    const today = startOfToday();
+    return new Date(today.getFullYear() - 5, 0, 1);
+}
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -308,6 +315,16 @@ export default function LostFoundPage({ setPage }) {
             setError("Please provide the location.");
             return;
         }
+
+        if (!dateReported) {
+            setError(`Please pick the date the pet was ${reportType === "lost" ? "lost" : "found"}.`);
+            return;
+        }
+
+        if (dateReported > toDayValue(startOfToday())) {
+            setError("The date can't be in the future.");
+            return;
+        }
         if (!/^9\d{9}$/.test(contactNumber)) {
              setError("Please enter a valid phone number: 10 digits starting with 9, e.g. 917 123 4567.");
              return;
@@ -351,9 +368,7 @@ export default function LostFoundPage({ setPage }) {
                           notes.trim() && `Notes: ${notes.trim()}`,
                           ].filter(Boolean).join(" · "),
                           location: location.trim(),
-                          dateReported:
-                          dateReported ||
-                          new Date().toISOString(),
+                          dateReported,
                           photoUrl: photoUrl.trim(),
                           contactNumber,
                           latitude: lat || undefined,
@@ -1089,12 +1104,18 @@ if (showReportForm && canSubmitReport) {
                             </select>
                         </label>
 
-                        <label className="lfr2-field">
+                        <div className="lfr2-field">
                             <span>
                                 {isLost ? "Date lost" : "Date found"} <em>*</em>
                             </span>
-                            <input type="date" value={dateReported} onChange={(e) => setDateReported(e.target.value)} required />
-                        </label>
+                            <DateField
+                                value={dateReported}
+                                onChange={setDateReported}
+                                minDate={earliestReportDay()}
+                                maxDate={startOfToday()}
+                                ariaLabel={isLost ? "Date lost" : "Date found"}
+                            />
+                        </div>
 
                         <div className="lfr2-field lfr2-span-4">
                             <span>Photo {!isLost && <em>*</em>}</span>
