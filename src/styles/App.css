@@ -1182,8 +1182,19 @@ body {
     --shadow-float: 0 12px 28px rgba(90, 27, 0, 0.18);
 }
 
-/* Phone menu button + slide-in sidebar (admin and staff dashboards) */
+/* Phone menu button + slide-in sidebar (admin, staff, volunteer, adopter and foster dashboards) */
 .dash-menu-btn { display: none; }
+
+/* Sidebar tabs scroll above the user card, never behind it: fade the last tab
+   so it's clear there are more below */
+.admin-menu,
+.staff-menu,
+.adopter-menu,
+.foster-menu {
+    padding-bottom: 18px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+}
 
 @media (max-width: 900px) {
     .dash-menu-btn {
@@ -1201,20 +1212,26 @@ body {
     }
 
     .admin-page > .admin-main > .admin-topbar,
-    .staff-page > .staff-main > .staff-topbar {
+    .staff-page > .staff-main > .staff-topbar,
+    .adopter-dashboard-page > .adopter-main > .adopter-dashboard-topbar,
+    .foster-page > .foster-main > .foster-topbar {
         flex-direction: row;
         align-items: center;
         gap: 12px;
     }
 
     .admin-page > .admin-main > .admin-topbar h1,
-    .staff-page > .staff-main > .staff-topbar h1 {
+    .staff-page > .staff-main > .staff-topbar h1,
+    .adopter-dashboard-page .adopter-topbar-title,
+    .foster-page .foster-topbar-title {
         flex: 1;
         min-width: 0;
     }
 
     .admin-page > .admin-sidebar,
-    .staff-page > .staff-sidebar {
+    .staff-page > .staff-sidebar,
+    .adopter-dashboard-page > .adopter-sidebar,
+    .foster-page > .foster-sidebar {
         position: fixed;
         top: 0;
         bottom: 0;
@@ -1223,7 +1240,10 @@ body {
         width: min(290px, 85vw);
         height: 100dvh;
         padding: 22px 16px 18px;
-        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        /* The tab list scrolls; the user card stays pinned at the bottom */
+        overflow: hidden;
         border-right: 1px solid rgba(90, 27, 0, 0.14);
         border-bottom: 0;
         box-shadow: none;
@@ -1231,8 +1251,27 @@ body {
         transition: transform 0.2s ease;
     }
 
+    .admin-page > .admin-sidebar .admin-menu,
+    .staff-page > .staff-sidebar .staff-menu,
+    .adopter-dashboard-page > .adopter-sidebar .adopter-menu,
+    .foster-page > .foster-sidebar .foster-menu {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .adopter-dashboard-page > .adopter-sidebar .adopter-menu-group > button,
+    .foster-page > .foster-sidebar .foster-menu > button {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
     .admin-page > .admin-sidebar.is-open,
-    .staff-page > .staff-sidebar.is-open {
+    .staff-page > .staff-sidebar.is-open,
+    .adopter-dashboard-page > .adopter-sidebar.is-open,
+    .foster-page > .foster-sidebar.is-open {
         transform: none;
         box-shadow: var(--shadow-float);
     }

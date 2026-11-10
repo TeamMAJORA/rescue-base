@@ -64,6 +64,12 @@ export default function FosterDashboard({ setPage }) {
         "Foster User";
 
     const [activePage, setActivePage] = useState("dashboard");
+    // Phones: the sidebar slides in from the menu button and closes once a page is picked
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [activePage]);
     const [loading, setLoading] = useState(true);
     const [application, setApplication] = useState(null);
     const [confirmRevoke, setConfirmRevoke] = useState(false);
@@ -565,8 +571,11 @@ function goToPage(page, petId = null) {
     return (
 
         <main className="foster-page">
+            {isMobileMenuOpen && (
+                <div className="dash-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)} aria-hidden="true" />
+            )}
 
-            <aside className="foster-sidebar">
+            <aside className={`foster-sidebar${isMobileMenuOpen ? " is-open" : ""}`}>
                 <button
                     type="button"
                     className="foster-logo"
@@ -635,8 +644,19 @@ function goToPage(page, petId = null) {
             <section className="foster-main">
 
                 <header className="foster-topbar">
+                    <button
+                        type="button"
+                        className="dash-menu-btn"
+                        aria-label="Open menu"
+                        aria-expanded={isMobileMenuOpen}
+                        onClick={() => setIsMobileMenuOpen(true)}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <path d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                    </button>
 
-                    <div>
+                    <div className="foster-topbar-title">
                         <h1>{PAGE_TITLES[activePage] || "Foster Dashboard"}</h1>
                     </div>
 

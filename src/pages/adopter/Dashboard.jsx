@@ -184,6 +184,13 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
         clearAdopterStartPage();
     }, []);
 
+    // Phones: the sidebar slides in from the menu button and closes once a page is picked
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [activeAdopterPage]);
+
     const [browseStartFilter, setBrowseStartFilter] = useState("all");
 
     useEffect(() => {
@@ -1671,7 +1678,10 @@ async function fetchPets({ silent = false } = {}) {
 
     return (
         <main className="adopter-dashboard-page">
-            <aside className="adopter-sidebar">
+            {isMobileMenuOpen && (
+                <div className="dash-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)} aria-hidden="true" />
+            )}
+            <aside className={`adopter-sidebar${isMobileMenuOpen ? " is-open" : ""}`}>
                 <button
                     type="button"
                     className="adopter-logo"
@@ -1785,6 +1795,7 @@ async function fetchPets({ silent = false } = {}) {
                 <button
                     className="adopter-user-card"
                     type="button"
+                    title="Log out"
                     onClick={handleLogout}
                 >
                     <div className="adopter-user-avatar">
@@ -1811,7 +1822,7 @@ async function fetchPets({ silent = false } = {}) {
                                 "Adopter"}
                         </strong>
 
-                        <small>Adopter</small>
+                        <small>Adopter · Log out</small>
                     </div>
 
                     <span>→</span>
@@ -1820,7 +1831,19 @@ async function fetchPets({ silent = false } = {}) {
 
             <section className="adopter-main">
                 <header className="adopter-dashboard-topbar">
-                    <div>
+                    <button
+                        type="button"
+                        className="dash-menu-btn"
+                        aria-label="Open menu"
+                        aria-expanded={isMobileMenuOpen}
+                        onClick={() => setIsMobileMenuOpen(true)}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <path d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                    </button>
+
+                    <div className="adopter-topbar-title">
                         <h1>
                             {getAdopterPageTitle(
                                 activeAdopterPage

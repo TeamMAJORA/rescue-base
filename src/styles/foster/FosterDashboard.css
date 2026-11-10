@@ -991,7 +991,8 @@
     .foster-page { grid-template-columns: 235px 1fr; }
 }
 
-@media (max-width: 1050px) {
+/* Phones: sidebar becomes the slide-in menu (App.css); same breakpoint as the other dashboards */
+@media (max-width: 900px) {
     .foster-page {
         grid-template-columns: 1fr;
         grid-template-rows: auto 1fr;
@@ -1043,4 +1044,21 @@
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+}
+
+/* Phones: the menu button keeps the shared look (not the orange topbar button),
+   and the bell + Refresh stay their own size next to the title */
+@media (max-width: 900px) {
+    .foster-topbar .dash-menu-btn {
+        width: 44px;
+        padding: 0;
+        border: 1px solid #e3d5b5;
+        border-radius: 8px;
+        background: #fffdf4;
+        color: #5a1b00;
+    }
+
+    .foster-topbar .foster-topbar-actions button { width: auto; }
+    .foster-topbar .foster-topbar-title { min-width: 0; }
+    .foster-topbar .foster-topbar-title h1 { font-size: 24px; }
 }
