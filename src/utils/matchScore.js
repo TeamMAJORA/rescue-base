@@ -1,119 +1,65 @@
-// Shared matchmaking score (used by the adopter Recommendations page and the admin Quiz Results page)
-// Keep all scoring here so both pages always show the same numbers.
+// Matchmaking display helpers shared by the adopter Recommendations page and the admin
+// adoption review. Scores are NOT calculated here: both pages show the server's scores
+// (services/matchmakingService.js), so the two sides always show the same numbers.
+
+// How many top matches the adopter sees; staff see the same list
+export const TOP_RECOMMENDATION_COUNT = 4;
 
 export const FACTORS = [
     {
         key: "energy",
         label: "Energy Level",
         quizKey: "energyPreference",
-        petKeys: ["energyLevel", "energy"],
         type: "preference",
     },
     {
         key: "friendliness",
         label: "Friendliness",
         quizKey: "friendlinessPreference",
-        petKeys: ["friendliness"],
         type: "preference",
     },
     {
         key: "humanSociability",
         label: "Human Sociability",
         quizKey: "humanSociabilityPreference",
-        petKeys: ["humanSociability"],
         type: "preference",
     },
     {
         key: "animalSociability",
         label: "Animal Sociability",
         quizKey: "animalSociabilityPreference",
-        petKeys: ["animalSociability"],
         type: "preference",
     },
     {
         key: "trainability",
         label: "Trainability",
         quizKey: "trainabilityPreference",
-        petKeys: ["trainability"],
         type: "preference",
     },
     {
         key: "anxiety",
         label: "Anxiety Compatibility",
         quizKey: "anxietyTolerance",
-        petKeys: ["anxietyLevel", "anxiety"],
         type: "tolerance",
     },
     {
         key: "aggression",
         label: "Aggression Compatibility",
         quizKey: "aggressionTolerance",
-        petKeys: ["aggressionLevel", "aggression"],
         type: "tolerance",
     },
     {
         key: "activity",
         label: "Activity Level",
         quizKey: "activityPreference",
-        petKeys: ["activityLevel", "activity"],
         type: "preference",
     },
 ];
 
-function clamp(value, minimum, maximum) {
-    return Math.min(Math.max(value, minimum), maximum);
-}
-
-export function normalizeText(value) {
+function normalizeText(value) {
     return String(value || "")
         .trim()
         .toLowerCase();
-}
-
-function getBehaviorSources(pet) {
-    return [
-        pet?.behavioralAssessment,
-        pet?.behaviorAssessment,
-        pet?.behaviorScores,
-        pet?.behavior,
-        pet?.assessment,
-        pet,
-    ].filter(Boolean);
-}
-
-function getPetBehaviorScore(pet, keys) {
-    const sources = getBehaviorSources(pet);
-
-    for (const source of sources) {
-        for (const key of keys) {
-            const rawValue = source?.[key];
-            const numericValue = Number(rawValue);
-
-            if (
-                Number.isFinite(numericValue) &&
-                numericValue >= 1 &&
-                numericValue <= 5
-            ) {
-                return numericValue;
-            }
-        }
-    }
-
-    return null;
-}
-
-function calculatePreferenceScore(preferredValue, animalValue) {
-    const difference = Math.abs(preferredValue - animalValue);
-    return clamp(100 - difference * 25, 0, 100);
-}
-
-function calculateToleranceScore(toleranceValue, animalValue) {
-    if (animalValue <= toleranceValue) {
-        return 100;
-    }
-
-    const excess = animalValue - toleranceValue;
-    return clamp(100 - excess * 30, 0, 100);
 }
 
 export function getTier(score) {
@@ -143,108 +89,32 @@ export function getTier(score) {
     };
 }
 
-export function calculateRecommendation(pet, quiz) {
+// Scored server matches, best first (the server already sorted them; unscored ones are dropped)
+export function topScoredMatches(matches = [], count = TOP_RECOMMENDATION_COUNT) {
+    return matches.filter((match) => match.score != null).slice(0, count);
+}
+
+// One server match -> what the Recommendations page shows.
+// floor, not round: the server caps conflicts at 59.99 and that must stay below 60.
+export function buildRecommendation(match, pet) {
+    const score = Math.floor(match.score);
+
     const breakdown = FACTORS.map((factor) => {
-        const adopterValue = Number(quiz?.[factor.quizKey]);
-        const animalValue = getPetBehaviorScore(pet, factor.petKeys);
-
-        if (
-            !Number.isFinite(adopterValue) ||
-            adopterValue < 1 ||
-            adopterValue > 5 ||
-            animalValue === null
-        ) {
-            return {
-                ...factor,
-                adopterValue:
-                    Number.isFinite(adopterValue) &&
-                    adopterValue >= 1 &&
-                    adopterValue <= 5
-                        ? adopterValue
-                        : null,
-                animalValue,
-                compatibility: null,
-            };
-        }
-
-        const compatibility =
-            factor.type === "tolerance"
-                ? calculateToleranceScore(adopterValue, animalValue)
-                : calculatePreferenceScore(adopterValue, animalValue);
-
+        const result = match.factorResults?.[factor.key] || {};
         return {
             ...factor,
-            adopterValue,
-            animalValue,
-            compatibility,
+            adopterValue: result.adopterValue ?? null,
+            animalValue: result.animalValue ?? null,
+            compatibility: result.similarity == null ? null : Math.round(result.similarity * 100),
         };
     });
-
-    const measuredFactors = breakdown.filter(
-        (factor) => factor.compatibility !== null
-    );
-
-    let score =
-        measuredFactors.length > 0
-            ? measuredFactors.reduce(
-                  (total, factor) => total + factor.compatibility,
-                  0
-              ) / measuredFactors.length
-            : 0;
-
-    const preferredPetType = normalizeText(quiz?.preferredPetType);
-    const preferredSize = normalizeText(quiz?.preferredSize);
-    const petType = normalizeText(pet?.type || pet?.species);
-    const petSize = normalizeText(pet?.size);
-
-    const matchesPreferredType =
-        !preferredPetType ||
-        preferredPetType === "any" ||
-        preferredPetType === petType;
-
-    const matchesPreferredSize =
-        !preferredSize ||
-        preferredSize === "any" ||
-        preferredSize === petSize;
-
-    if (!matchesPreferredType) {
-        score -= 12;
-    }
-
-    if (!matchesPreferredSize) {
-        score -= 8;
-    }
-
-    score = Math.round(clamp(score, 0, 100));
-
-    const sortedMeasuredFactors = [...measuredFactors].sort(
-        (first, second) =>
-            second.compatibility - first.compatibility
-    );
-
-    const strongestFactors = sortedMeasuredFactors
-        .slice(0, 2)
-        .map((factor) => factor.label);
-
-    const attentionFactors = [...measuredFactors]
-        .sort(
-            (first, second) =>
-                first.compatibility - second.compatibility
-        )
-        .filter((factor) => factor.compatibility < 75)
-        .slice(0, 2)
-        .map((factor) => factor.label);
 
     return {
         pet,
         score,
         tier: getTier(score),
         breakdown,
-        measuredCount: measuredFactors.length,
-        strongestFactors,
-        attentionFactors,
-        matchesPreferredType,
-        matchesPreferredSize,
+        measuredCount: breakdown.filter((factor) => factor.compatibility !== null).length,
     };
 }
 
@@ -257,23 +127,4 @@ export function isPetAvailable(pet) {
     );
 
     return status === "available";
-}
-
-// animalId → AI score from the server (null = AI couldn't score it)
-export function toAiScores(matches = []) {
-    return new Map(
-        matches
-            .filter((match) => match.score !== null)
-            .map((match) => [String(match.animalId), match.score])
-    );
-}
-
-// Use the server's AI score when there is one; the formula stays as the fallback
-export function applyAiScore(recommendation, aiScores) {
-    const aiScore = aiScores.get(String(recommendation.pet._id));
-    if (aiScore === undefined) return recommendation;
-
-    // floor, not round: the server caps conflicts at 59.99 and that must stay below 60
-    const score = Math.floor(aiScore);
-    return { ...recommendation, score, tier: getTier(score), isAi: true };
 }

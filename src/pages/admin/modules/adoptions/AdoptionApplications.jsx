@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FACTORS } from "../../../../utils/matchScore";
+import { FACTORS, topScoredMatches } from "../../../../utils/matchScore";
 
 
 
@@ -1244,9 +1244,9 @@ function WhyMatchTab({ application, quiz }) {
             matched: similarity == null ? null : similarity >= 0.75,
         };
     }).filter((row) => row.adopterValue || row.animalValue);
-    const others = (quiz.aiMatches || [])
-        .filter((match) => match.score != null && String(match.animalId) !== String(application.animalId?._id || application.animalId))
-        .slice(0, 3);
+    // The adopter's own top recommendations (same list they see), minus the pet applied for
+    const appliedAnimalId = String(application.animalId?._id || application.animalId);
+    const others = topScoredMatches(quiz.aiMatches).filter((match) => String(match.animalId) !== appliedAnimalId);
 
     return (
         <div className="art-body">
@@ -1302,7 +1302,7 @@ function WhyMatchTab({ application, quiz }) {
 
             {others.length > 0 && (
                 <article className="admin-review-card art-card">
-                    <h4>Other good matches for this applicant</h4>
+                    <h4>Also in this applicant&apos;s top recommendations</h4>
                     <div className="art-others">
                         {others.map((match) => (
                             <div key={match.animalId}>
