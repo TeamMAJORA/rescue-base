@@ -242,6 +242,75 @@ function getAnimalStatus(animal) {
     return "unavailable";
 }
 
+// Who has the animal now (adopter or foster), with contacts so the shelter can follow up.
+// The server returns { success, [responseKey]: person | null }.
+function PersonContactCard({ title, url, responseKey, dateLabel, dateField, emptyText }) {
+    const [state, setState] = useState({ loading: true, person: null, error: "" });
+
+    useEffect(() => {
+        let cancelled = false;
+
+        fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+            .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok || !data.success) throw new Error(data.message || "Could not load contact details.");
+                if (!cancelled) setState({ loading: false, person: data[responseKey], error: "" });
+            })
+            .catch((error) => {
+                if (!cancelled) setState({ loading: false, person: null, error: error.message });
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [url, responseKey]);
+
+    const { loading, person, error } = state;
+
+    return (
+        <section className="apm-card apm-person">
+            <h4>{title}</h4>
+            {loading ? (
+                <p className="apm-muted">Loading...</p>
+            ) : error ? (
+                <p className="apm-muted is-error">{error}</p>
+            ) : !person ? (
+                <p className="apm-muted">{emptyText}</p>
+            ) : (
+                <>
+                    <p className="apm-person-name">
+                        {person.fullName}
+                        {person.isFosterAdoption && <small>Foster adoption</small>}
+                    </p>
+                    <div className="apm-facts is-3">
+                        <div>
+                            <span>Email</span>
+                            <b className="is-plain">
+                                <a href={`mailto:${person.email}`}>{person.email}</a>
+                            </b>
+                        </div>
+                        <div>
+                            <span>Phone</span>
+                            <b className="is-plain">
+                                {person.phone ? <a href={`tel:${person.phone}`}>{person.phone}</a> : "—"}
+                            </b>
+                        </div>
+                        <div>
+                            <span>{dateLabel}</span>
+                            <b>{formatIntakeDate(person[dateField])}</b>
+                        </div>
+                    </div>
+                    <p className="apm-person-address">
+                        <small>Address</small>
+                        {person.address || "—"}
+                    </p>
+                    {person.approvedByName && <p className="apm-muted">Approved by {person.approvedByName}</p>}
+                </>
+            )}
+        </section>
+    );
+}
+
 function StatusPill({ status }) {
     const [iconMissing, setIconMissing] = useState(false);
     const label = ANIMAL_STATUS_LABELS[status];
@@ -392,35 +461,6 @@ function AnimalProfilesList({ onOpenRecords }) {
     const viewedTagCode = viewedAnimal ? qrCodes[viewedAnimal._id] : "";
     const viewedTagImage = viewedAnimal ? qrImages[viewedAnimal._id] : "";
     const viewedTraits = viewedAnimal ? getPreviewPersonalityTags(viewedAnimal) : [];
-
-    // Adopted animals: who adopted them, so the shelter can follow up
-    const viewedIsAdopted = viewedAnimal?.adoptionStatus === "adopted";
-    const [adopterInfo, setAdopterInfo] = useState({ animalId: null, adopter: null, error: "" });
-
-    useEffect(() => {
-        if (!expandedId || !viewedIsAdopted) return;
-
-        let cancelled = false;
-        setAdopterInfo({ animalId: null, adopter: null, error: "" });
-
-        fetch(`${API}/api/adoptions/animal/${expandedId}/adopter`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        })
-            .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
-            .then(({ ok, data }) => {
-                if (!ok || !data.success) throw new Error(data.message || "Could not load the adopter.");
-                if (!cancelled) setAdopterInfo({ animalId: expandedId, adopter: data.adopter, error: "" });
-            })
-            .catch((error) => {
-                if (!cancelled) setAdopterInfo({ animalId: expandedId, adopter: null, error: error.message });
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [expandedId, viewedIsAdopted]);
-
-    const adopterLoaded = adopterInfo.animalId === expandedId;
 
     function closeAnimalModal() {
         setExpandedId(null);
@@ -1842,56 +1882,28 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <div className="apm-body">
                             <div className="apm-main">
-                                {viewedIsAdopted && (
-                                    <section className="apm-card apm-adopter">
-                                        <h4>Adopted by</h4>
-                                        {!adopterLoaded ? (
-                                            <p className="apm-muted">Loading adopter...</p>
-                                        ) : adopterInfo.error ? (
-                                            <p className="apm-muted is-error">{adopterInfo.error}</p>
-                                        ) : !adopterInfo.adopter ? (
-                                            <p className="apm-muted">
-                                                No approved adoption application on record. This animal may have
-                                                been marked adopted by hand.
-                                            </p>
-                                        ) : (
-                                            <>
-                                                <p className="apm-adopter-name">
-                                                    {adopterInfo.adopter.fullName}
-                                                    {adopterInfo.adopter.isFosterAdoption && <small>Foster adoption</small>}
-                                                </p>
-                                                <div className="apm-facts is-3">
-                                                    <div>
-                                                        <span>Email</span>
-                                                        <b className="is-plain">
-                                                            <a href={`mailto:${adopterInfo.adopter.email}`}>{adopterInfo.adopter.email}</a>
-                                                        </b>
-                                                    </div>
-                                                    <div>
-                                                        <span>Phone</span>
-                                                        <b className="is-plain">
-                                                            {adopterInfo.adopter.phone ? (
-                                                                <a href={`tel:${adopterInfo.adopter.phone}`}>{adopterInfo.adopter.phone}</a>
-                                                            ) : (
-                                                                "—"
-                                                            )}
-                                                        </b>
-                                                    </div>
-                                                    <div>
-                                                        <span>Adopted on</span>
-                                                        <b>{formatIntakeDate(adopterInfo.adopter.adoptedAt)}</b>
-                                                    </div>
-                                                </div>
-                                                <p className="apm-adopter-address">
-                                                    <small>Address</small>
-                                                    {adopterInfo.adopter.address || "—"}
-                                                </p>
-                                                {adopterInfo.adopter.approvedByName && (
-                                                    <p className="apm-muted">Approved by {adopterInfo.adopter.approvedByName}</p>
-                                                )}
-                                            </>
-                                        )}
-                                    </section>
+                                {viewedAnimal.adoptionStatus === "adopted" && (
+                                    <PersonContactCard
+                                        key={`adopter-${viewedAnimal._id}`}
+                                        title="Adopted by"
+                                        url={`${API}/api/adoptions/animal/${viewedAnimal._id}/adopter`}
+                                        responseKey="adopter"
+                                        dateLabel="Adopted on"
+                                        dateField="adoptedAt"
+                                        emptyText="No approved adoption application on record. This animal may have been marked adopted by hand."
+                                    />
+                                )}
+
+                                {viewedAnimal.fosterStatus === "in_foster" && (
+                                    <PersonContactCard
+                                        key={`foster-${viewedAnimal._id}`}
+                                        title="Currently fostered by"
+                                        url={`${API}/api/foster/assignments/animal/${viewedAnimal._id}/current`}
+                                        responseKey="foster"
+                                        dateLabel="Fostering since"
+                                        dateField="fosteringSince"
+                                        emptyText="No active foster assignment on record."
+                                    />
                                 )}
 
                                 <section className="apm-card">
