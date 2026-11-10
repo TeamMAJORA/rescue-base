@@ -1198,3 +1198,12 @@
         flex: 1 1 auto;
     }
 }
+
+/* "Not received" reason box (uses the dashboard's .ao-confirm dialog) */
+/* Opens on top of the donation details pop-up */
+.ao-confirm-backdrop:has(.dl-notreceived) { z-index: 2100; }
+.ao-confirm.dl-notreceived { max-width: 440px; }
+.dl-notreceived .dl-field { margin-bottom: 10px; }
+.dl-notreceived textarea { width: 100%; }
+.ao-confirm .dl-notreceived-error { margin: 0 0 10px; color: #c62828; font-weight: 600; }
+.dl-view-facts .dl-view-wide { grid-column: 1 / -1; }

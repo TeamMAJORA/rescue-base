@@ -3081,3 +3081,36 @@
 .lf-modal-foot .lfr-delete:hover {
     background: #fdeaea;
 }
+
+/* ===== Claims: "New" markers, found-claim form, staff read-only note ===== */
+.lf2-tabs button .lf2-tab-new {
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #d62828;
+    color: #fff;
+    font-size: 10.5px;
+    font-style: normal;
+    font-weight: 800;
+    animation: lf-new-pulse 1.6s ease-in-out 3;
+}
+
+@keyframes lf-new-pulse {
+    50% { box-shadow: 0 0 0 4px rgba(214, 40, 40, 0.2); }
+}
+
+.lf-card-flag.is-new { background: #d62828; color: #fff; }
+.lf-claim-pill.is-new { background: #d62828; color: #fff; }
+
+.lf-claim-review.is-new {
+    border-left: 4px solid #d62828;
+    background: #fff6f4;
+}
+
+.lf-claim-readonly {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f1ece2;
+    color: #6b5a4a;
+    font-size: 12.5px;
+}

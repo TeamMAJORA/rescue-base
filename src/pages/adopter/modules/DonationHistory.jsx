@@ -35,6 +35,8 @@ function formatDate(date) {
 
 function formatStatus(status) {
     if (!status) return "Pending";
+    // Stored as "cancelled": the donation never reached the shelter
+    if (status === "cancelled") return "Not received";
     return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
@@ -54,7 +56,7 @@ function rowSubtitle(donation) {
     }
 
     if (status === "pending") return "Waiting for staff to confirm receipt";
-    if (status === "cancelled") return "This donation was cancelled";
+    if (status === "cancelled") return "The shelter didn't receive this donation";
 
     return `${donation.quantity || 1} × ${donation.donationType}`;
 }
@@ -332,6 +334,13 @@ export default function DonationHistory({ onMakeDonation }) {
 
                                 <dt>Status</dt>
                                 <dd>{formatStatus(selected.status)}</dd>
+
+                                {selected.status === "cancelled" && (
+                                    <>
+                                        <dt>Reason</dt>
+                                        <dd>{selected.notReceivedReason || "No reason was given."}</dd>
+                                    </>
+                                )}
 
                                 <dt>Submitted</dt>
                                 <dd>{formatDate(selected.createdAt)}</dd>

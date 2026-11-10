@@ -90,6 +90,12 @@ const API = import.meta.env.VITE_BACKEND_URL;
 
 export default function VolunteerDashboard({ setPage }) {
     const [activeStaffPage, setActiveStaffPage] = useState("overview");
+    // Phones: the sidebar slides in from the menu button and closes once a page is picked
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [activeStaffPage]);
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [notifOpen, setNotifOpen] = useState(false);
@@ -212,6 +218,7 @@ export default function VolunteerDashboard({ setPage }) {
 
         setOpenSidebarMenu(null);
         setActiveStaffPage(item.key);
+        setIsMobileMenuOpen(false); // also when tapping the page already open
     }
 
     // Lost & Found, donating and adopting live on the Adopter dashboard
@@ -309,6 +316,9 @@ export default function VolunteerDashboard({ setPage }) {
         await loadNotifications();
 
         switch (notification.type) {
+            case "rescue_update":
+                setActiveStaffPage("rescues");
+                break;
             case "lost_found_update":
                 openAdopterPage("lost-found");
                 break;
@@ -440,7 +450,15 @@ export default function VolunteerDashboard({ setPage }) {
 
     return (
         <main className="staff-page">
-            <aside className="staff-sidebar is-volunteer">
+            {isMobileMenuOpen && (
+                <div className="dash-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)} aria-hidden="true" />
+            )}
+            <aside
+                className={`staff-sidebar is-volunteer${isMobileMenuOpen ? " is-open" : ""}`}
+                onClick={(event) => {
+                    if (event.target.closest(".staff-submenu button")) setIsMobileMenuOpen(false);
+                }}
+            >
                 <button
                     type="button"
                     className="staff-logo"
@@ -543,6 +561,17 @@ export default function VolunteerDashboard({ setPage }) {
 
             <section className="staff-main">
                 <header className="staff-topbar">
+                    <button
+                        type="button"
+                        className="dash-menu-btn"
+                        aria-label="Open menu"
+                        aria-expanded={isMobileMenuOpen}
+                        onClick={() => setIsMobileMenuOpen(true)}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <path d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                    </button>
                     <h1>{getStaffPageTitle(activeStaffPage)}</h1>
 
                     <div className="staff-notification-wrap">

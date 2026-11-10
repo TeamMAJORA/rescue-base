@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { isAdmin } from "../../../utils/auth";
 import { searchCebuPlaces } from "../../../utils/cebuPlaces";
+import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -115,7 +116,8 @@ const DONATION_TYPES = [
     "Other",
 ];
 
-const STATUS_LABEL = { pending: "Pending", received: "Received", cancelled: "Cancelled" };
+// "cancelled" in the data = the donation never arrived
+const STATUS_LABEL = { pending: "Pending", received: "Received", cancelled: "Not received" };
 
 // Segmented type buttons on the Record Donation page (values must match the server enum)
 const TYPE_BUTTONS = [
@@ -125,7 +127,6 @@ const TYPE_BUTTONS = [
     { value: "Other Supplies", label: "Supplies" },
 ];
 
-const UNITS = ["Pieces", "Boxes", "Bags", "Bottles", "Packs", "Kilograms", "Liters", "Other"];
 
 const DELIVERY_METHODS = ["Drop-off", "Shelter Pickup", "Courier Delivery", "Online Transfer", "Cash"];
 
@@ -148,6 +149,7 @@ const emptyDonationForm = {
     quantity: 1,
     notes: "",
     unit: "",
+    otherUnit: "",
     deliveryMethod: "Drop-off",
     preferredDate: "",
 };
@@ -180,7 +182,7 @@ function notesAsRows(notes) {
 
 function buildNotes(form) {
     return [
-        form.unit && `Unit: ${form.unit}`,
+        resolveUnit(form.unit, form.otherUnit) && `Unit: ${resolveUnit(form.unit, form.otherUnit)}`,
         form.deliveryMethod && `Delivery Method: ${form.deliveryMethod}`,
         form.preferredDate && `Preferred Date: ${form.preferredDate}`,
         form.notes.trim(),
@@ -331,6 +333,9 @@ export default function Donations() {
     const [donations, setDonations] = useState([]);
     const [donationForm, setDonationForm] = useState(emptyDonationForm);
     const [viewingDonation, setViewingDonation] = useState(null);
+    const [notReceivedFor, setNotReceivedFor] = useState(null);
+    const [notReceivedReason, setNotReceivedReason] = useState("");
+    const [notReceivedError, setNotReceivedError] = useState("");
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState("");
@@ -529,7 +534,8 @@ export default function Donations() {
         setMessage("");
     }
 
-    async function handleUpdateStatus(donationId, status) {
+    // Returns true when saved
+    async function handleUpdateStatus(donationId, status, notReceivedReason = "") {
         try {
             setMessage("");
 
@@ -539,34 +545,43 @@ export default function Donations() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ status }),
+                body: JSON.stringify(status === "cancelled" ? { status, notReceivedReason } : { status }),
             });
 
             const data = await response.json();
 
             if (!response.ok || !data.success) {
                 setMessage(data.message || "Failed to update donation status.");
-                return;
+                return false;
             }
 
             setMessage("Donation status updated.");
             setViewingDonation((current) => (current?._id === donationId ? data.donation : current));
             fetchDonations();
+            return true;
         } catch (error) {
             console.error("Update donation status error:", error);
             setMessage("Server error while updating donation status.");
+            return false;
         }
     }
 
-    async function handleCancelDonation(donationId) {
-        const confirmed = await askConfirm({
-            title: "Cancel this donation?",
-            message: "It will stay in the ledger marked as cancelled.",
-            confirmLabel: "Cancel donation",
-            danger: true,
-        });
+    // Opens the "Not received" box, which asks for the reason
+    function handleMarkNotReceived(donation) {
+        setNotReceivedFor(donation);
+        setNotReceivedReason("");
+        setNotReceivedError("");
+    }
 
-        if (confirmed) handleUpdateStatus(donationId, "cancelled");
+    async function submitNotReceived() {
+        const reason = notReceivedReason.trim();
+        if (reason.length < 5) {
+            setNotReceivedError("Please give a short reason (at least 5 characters).");
+            return;
+        }
+
+        const saved = await handleUpdateStatus(notReceivedFor._id, "cancelled", reason);
+        if (saved) setNotReceivedFor(null);
     }
 
     async function handleDeleteDonation(donationId) {
@@ -1034,11 +1049,24 @@ export default function Donations() {
                                 onChange={(e) => setField("unit", e.target.value)}
                             >
                                 <option value="">Select</option>
-                                {UNITS.map((unit) => (
+                                {DONATION_UNITS.map((unit) => (
                                     <option key={unit} value={unit}>{unit}</option>
                                 ))}
                             </select>
                         </label>
+
+                        {!money && donationForm.unit === "Other" && (
+                            <label className="dl-field">
+                                <span>Type the unit</span>
+                                <input
+                                    maxLength={30}
+                                    placeholder="e.g. Trays, Dozens"
+                                    value={donationForm.otherUnit}
+                                    onChange={(e) => setField("otherUnit", e.target.value)}
+                                    required
+                                />
+                            </label>
+                        )}
 
                         <label className="dl-field">
                             <span>Delivery Method</span>
@@ -1267,10 +1295,10 @@ export default function Donations() {
                                                                         className="is-danger"
                                                                         onClick={() => {
                                                                             setOpenMenuId(null);
-                                                                            handleCancelDonation(donation._id);
+                                                                            handleMarkNotReceived(donation);
                                                                         }}
                                                                     >
-                                                                        Cancel donation
+                                                                        Mark as not received
                                                                     </button>
                                                                 )}
 
@@ -1299,6 +1327,47 @@ export default function Donations() {
                     </div>
                 )}
             </div>
+
+            {notReceivedFor && (
+                <div className="ao-confirm-backdrop" onClick={() => setNotReceivedFor(null)}>
+                    <div
+                        className="ao-confirm danger dl-notreceived"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="dl-notreceived-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <h3 id="dl-notreceived-title">Mark as not received?</h3>
+                        <p>
+                            {notReceivedFor.donorName || "The donor"}&apos;s donation stays in the ledger as
+                            &quot;Not received&quot;. They&apos;ll see your reason.
+                        </p>
+                        <label className="dl-field">
+                            <span>Reason *</span>
+                            <textarea
+                                rows={3}
+                                maxLength={300}
+                                autoFocus
+                                value={notReceivedReason}
+                                placeholder="e.g. Not dropped off by the preferred date; payment not found in GCash"
+                                onChange={(event) => {
+                                    setNotReceivedReason(event.target.value);
+                                    setNotReceivedError("");
+                                }}
+                            />
+                        </label>
+                        {notReceivedError && <p className="dl-notreceived-error">{notReceivedError}</p>}
+                        <div className="ao-confirm-actions">
+                            <button type="button" onClick={() => setNotReceivedFor(null)}>
+                                Keep it
+                            </button>
+                            <button type="button" className="ao-confirm-ok" onClick={submitNotReceived}>
+                                Mark as not received
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {viewingDonation && (() => {
                 const donation = viewingDonation;
@@ -1377,6 +1446,15 @@ export default function Donations() {
                                             <dd>{formatDate(donation.receivedDate)}</dd>
                                         </div>
                                     )}
+                                    {status === "cancelled" && (
+                                        <div className="dl-view-wide">
+                                            <dt>Not received because</dt>
+                                            <dd>
+                                                {donation.notReceivedReason || "No reason recorded."}
+                                                {donation.notReceivedByName ? ` — ${donation.notReceivedByName}` : ""}
+                                            </dd>
+                                        </div>
+                                    )}
                                     <div>
                                         <dt>Logged by</dt>
                                         <dd>{donation.createdByName || "—"}</dd>
@@ -1418,9 +1496,9 @@ export default function Donations() {
                                     <button
                                         type="button"
                                         className="dl-btn"
-                                        onClick={() => handleCancelDonation(donation._id)}
+                                        onClick={() => handleMarkNotReceived(donation)}
                                     >
-                                        Cancel donation
+                                        Mark as not received
                                     </button>
                                 )}
                                 {status === "pending" && (

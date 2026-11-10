@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FACTORS,
-    applyAiScore,
-    calculateRecommendation,
+    buildRecommendation,
     isPetAvailable,
-    toAiScores,
+    topScoredMatches,
 } from "../../../utils/matchScore";
-
-const MAX_RECOMMENDATIONS = 4;
 
 function formatStatus(value) {
     return String(value || "available").replaceAll("_", " ");
@@ -35,25 +32,22 @@ export default function Recommendations({
     onBrowsePets,
     onViewPet,
 }) {
-    // Quiz answers and AI scores come from the database via the dashboard
+    // Quiz answers and scores come from the server (the same scores staff see).
+    // Pets the AI could not score are left out.
     const quiz = quizResponse;
-    const aiScores = useMemo(() => toAiScores(aiMatches), [aiMatches]);
 
-    const allRecommendations = useMemo(() => {
-        if (!quiz) {
-            return [];
-        }
+    const recommendations = useMemo(() => {
+        if (!quiz) return [];
 
-        return pets
-            .map((pet) => applyAiScore(calculateRecommendation(pet, quiz), aiScores))
-            .sort((first, second) => second.score - first.score);
-    }, [pets, quiz, aiScores]);
+        const petById = new Map(pets.map((pet) => [String(pet._id), pet]));
 
-    // Only the top matches are shown in the carousel
-    const recommendations = useMemo(
-        () => allRecommendations.slice(0, MAX_RECOMMENDATIONS),
-        [allRecommendations]
-    );
+        return topScoredMatches(aiMatches).map((match) =>
+            buildRecommendation(match, petById.get(String(match.animalId)) || match.animal)
+        );
+    }, [pets, quiz, aiMatches]);
+
+    // Matching pets exist, but none could be scored (AI service down or behavior ratings missing)
+    const scoresUnavailable = recommendations.length === 0 && aiMatches.length > 0;
     
     // Carousel: which recommendation is shown in full below
     const [activeIndex, setActiveIndex] = useState(0);
@@ -112,10 +106,6 @@ export default function Recommendations({
         track.addEventListener("wheel", handleWheel, { passive: false });
         return () => track.removeEventListener("wheel", handleWheel);
     }, [loading, error, recommendations.length, safeIndex]);
-
-    const perfectMatches = allRecommendations.filter(
-        (recommendation) => recommendation.score >= 80
-    ).length;
 
     // Podium: 2nd · 1st · 3rd (only the places that exist)
     // Only "Perfect Paw Match" and "Paws for Thought" (60%+) count as real matches
@@ -393,11 +383,23 @@ export default function Recommendations({
                 recommendations.length === 0 && (
                     <div className="recommendations-message-state">
                         <span>🐾</span>
-                        <h3>No animals are available</h3>
-                        <p>
-                            Refresh the page later when new animal profiles are
-                            available.
-                        </p>
+                        {scoresUnavailable ? (
+                            <>
+                                <h3>Match scores are unavailable right now</h3>
+                                <p>
+                                    The animals that fit your preferred type and size could not be
+                                    scored yet. Try refreshing in a little while.
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <h3>No animals match your preferred type and size</h3>
+                                <p>
+                                    Refresh later when new animal profiles are available, or retake
+                                    the quiz and choose &quot;Any&quot;.
+                                </p>
+                            </>
+                        )}
                     </div>
                 )}
 
@@ -497,9 +499,6 @@ export default function Recommendations({
                                     tier,
                                     breakdown,
                                     measuredCount,
-                                    isAi,
-                                    matchesPreferredType,
-                                    matchesPreferredSize,
                                 } = recommendation;
 
                                 const available =
@@ -551,16 +550,9 @@ export default function Recommendations({
 
                                             <p className={`rcard-note ${tier.key}`}>{tier.description}</p>
 
-                                            {(!matchesPreferredType || !matchesPreferredSize) && (
-                                                <p className="rcard-pref">
-                                                    {!matchesPreferredType && "Pet type differs from your preference. "}
-                                                    {!matchesPreferredSize && "Pet size differs from your preference."}
-                                                </p>
-                                            )}
-
                                             <div className="rcard-section-head">
                                                 <h4>Behavioral Compatibility</h4>
-                                                <span>{measuredCount}/{FACTORS.length} factors assessed{isAi ? " · AI score" : ""}</span>
+                                                <span>{measuredCount}/{FACTORS.length} factors assessed · AI score</span>
                                             </div>
 
                                             <div className="rcard-factors">

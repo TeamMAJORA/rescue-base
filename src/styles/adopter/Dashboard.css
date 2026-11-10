@@ -921,11 +921,10 @@
     margin-top: 22px;
 }
 
+/* The pet profile opens as a pop-up, so the overview is one column */
 .adopter-overview-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
     gap: 22px;
-    align-items: start;
 }
 
 .adopter-overview-main {
@@ -1246,30 +1245,6 @@
     }
 }
 
-/* Dashboard only: full-bleed cropped photo in the detail panel */
-.adopter-overview-layout .browse-pet-main-image {
-    width: calc(100% + 44px);
-    max-width: none;
-    margin: -22px -22px 0;
-    padding: 0;
-    aspect-ratio: 4 / 3;
-    border-radius: 20px 20px 0 0;
-    background: #fff7cb;
-}
-
-.adopter-overview-layout .browse-pet-main-image img {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
-    object-fit: cover;
-    object-position: center top;
-}
-
-.adopter-overview-layout .browse-pet-main-image > span {
-    height: 100%;
-    min-height: 0;
-}
-
 @media (max-width: 900px) {
     .adopter-dashboard-page {
         display: block;
@@ -1455,9 +1430,6 @@
 
 .adopter-menu::-webkit-scrollbar {
     display: none;
-}
-.adopter-overview-layout .browse-pet-details-panel {
-    top: 20px;
 }
 
 /* ============================================================
@@ -2338,4 +2310,123 @@
 
 .adopter-notification-readall:hover {
     background: #fff7cb;
+}
+
+/* ============================================================
+   Phones: less clutter across every adopter page
+   ============================================================ */
+@media (max-width: 640px) {
+    .adopter-dashboard-content {
+        padding: 16px 14px 28px;
+    }
+
+    /* Big banners: smaller type, tighter padding */
+    .adopter-dashboard-page .adopter-hero,
+    .adopter-dashboard-page .adopter-donation-hero,
+    .adopter-dashboard-page .dh-hero,
+    .adopter-dashboard-page .fb-hero {
+        padding: 20px 18px;
+        border-radius: 18px;
+    }
+
+    .adopter-dashboard-page .adopter-hero-content h2,
+    .adopter-dashboard-page .adopter-donation-hero h1,
+    .adopter-dashboard-page .adopter-donation-hero h2,
+    .adopter-dashboard-page .dh-hero h1,
+    .adopter-dashboard-page .dh-hero h2,
+    .adopter-dashboard-page .fb-hero h1,
+    .adopter-dashboard-page .fb-hero h2 {
+        font-size: 26px;
+        line-height: 1.15;
+    }
+
+    .adopter-dashboard-page .adopter-donation-hero p,
+    .adopter-dashboard-page .dh-hero p,
+    .adopter-dashboard-page .fb-hero p {
+        font-size: 13px;
+    }
+
+    /* Dashboard: the quiz steps and fine print are repeated on the quiz page itself */
+    .adopter-dashboard-page .adopter-hero-steps,
+    .adopter-dashboard-page .adopter-hero-note {
+        display: none;
+    }
+
+    .adopter-dashboard-page .adopter-match-photo {
+        aspect-ratio: 16 / 9;
+    }
+
+    /* The three status cards become a swipeable row instead of three full-width blocks */
+    .adopter-dashboard-page .adopter-stats {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 72%;
+        grid-template-columns: none;
+        gap: 10px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        margin-top: 16px;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+
+    .adopter-dashboard-page .adopter-stats::-webkit-scrollbar { display: none; }
+    .adopter-dashboard-page .adopter-stats article { scroll-snap-align: start; }
+
+    /* Pet list: search on its own row, filters side by side */
+    .adopter-dashboard-page .browse-pets-list-panel {
+        padding: 14px;
+    }
+
+    .adopter-dashboard-page .browse-pets-panel-heading h3 {
+        font-size: 22px;
+    }
+
+    .adopter-dashboard-page .pet-list-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .adopter-dashboard-page .pet-list-toolbar .pet-list-search {
+        flex: 1 1 100%;
+    }
+
+    .adopter-dashboard-page .pet-list-toolbar .pet-list-select {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    /* Two compact cards per row; the full details are in the pop-up */
+    .adopter-dashboard-page .browse-pets-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .adopter-dashboard-page .browse-pet-card-image {
+        aspect-ratio: 1;
+        font-size: 44px;
+    }
+
+    .adopter-dashboard-page .browse-pet-card-content {
+        gap: 2px;
+        padding: 9px 10px 11px;
+    }
+
+    .adopter-dashboard-page .browse-pet-card-content h3 {
+        font-size: 18px;
+    }
+
+    .adopter-dashboard-page .browse-pet-card-content p {
+        font-size: 12px;
+    }
+
+    .adopter-dashboard-page .browse-pet-card-stats,
+    .adopter-dashboard-page .browse-pet-card-location,
+    .adopter-dashboard-page .browse-pet-card-view {
+        display: none;
+    }
+
+    /* Role application: the Refresh button no longer pushes off the screen */
+    .adopter-dashboard-page .ra-form-panel .adopter-panel-heading {
+        flex-wrap: wrap;
+    }
 }

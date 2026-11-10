@@ -29,7 +29,7 @@ import LostFound from "../admin/modules/LostFound";
 import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
 import PetList from "../../components/adopter/PetList";
-import PetDetailPanel from "../../components/adopter/PetDetailPanel";
+import { PetDetailModal } from "../../components/adopter/PetDetailPanel";
 import { formatAge } from "../../utils/formatAge";
 import AccountSettings from "../AccountSettings";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
@@ -183,6 +183,16 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
     useEffect(() => {
         clearAdopterStartPage();
     }, []);
+
+    // Phones: the sidebar slides in from the menu button and closes once a page is picked
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    // Clicking an animal opens its profile as a pop-up (selectedPet stays chosen for the application)
+    const [isPetModalOpen, setIsPetModalOpen] = useState(false);
+
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+        setIsPetModalOpen(false);
+    }, [activeAdopterPage]);
 
     const [browseStartFilter, setBrowseStartFilter] = useState("all");
 
@@ -900,6 +910,8 @@ async function fetchPets({ silent = false } = {}) {
     }
 
     function handleSidebarClick(item) {
+        setIsMobileMenuOpen(false);
+
         if (
             item.key === "adoption-application"
         ) {
@@ -1083,6 +1095,11 @@ async function fetchPets({ silent = false } = {}) {
         );
     }
 
+    function openPet(pet) {
+        setSelectedPet(pet);
+        setIsPetModalOpen(true);
+    }
+
     function renderPetBrowser() {
         return (
             <PetList
@@ -1095,21 +1112,10 @@ async function fetchPets({ silent = false } = {}) {
                 typeFilter={typeFilter}
                 setTypeFilter={setTypeFilter}
                 filteredPets={filteredPets}
-                selectedPet={selectedPet}
-                setSelectedPet={setSelectedPet}
+                // Only highlight a card while its pop-up is open
+                selectedPet={isPetModalOpen ? selectedPet : null}
+                setSelectedPet={openPet}
                 onRefresh={fetchPets}
-            />
-        );
-    }
-
-    function renderPetDetail() {
-        return (
-            <PetDetailPanel
-                className="browse-pet-details-panel"
-                pet={selectedPet}
-                hasPendingApplication={hasPendingApplication}
-                applicationStatus={applicationStatus}
-                onApply={handleApply}
             />
         );
     }
@@ -1207,7 +1213,7 @@ async function fetchPets({ silent = false } = {}) {
 
                                         <button
                                             type="button"
-                                            onClick={() => setSelectedPet(featuredMatch.pet)}
+                                            onClick={() => openPet(featuredMatch.pet)}
                                         >
                                             Meet {featuredMatch.pet.name} →
                                         </button>
@@ -1297,8 +1303,6 @@ async function fetchPets({ silent = false } = {}) {
 
                     {renderPetBrowser()}
                 </div>
-
-                {renderPetDetail()}
             </div>
         );
     }
@@ -1360,11 +1364,10 @@ async function fetchPets({ silent = false } = {}) {
                     typeFilter={typeFilter}
                     setTypeFilter={setTypeFilter}
                     filteredPets={filteredPets}
-                    selectedPet={selectedPet}
-                    setSelectedPet={setSelectedPet}
+                    selectedPet={isPetModalOpen ? selectedPet : null}
+                    onOpenPet={openPet}
                     hasPendingApplication={hasPendingApplication}
                     applicationStatus={applicationStatus}
-                    onApply={handleApply}
                     onRefresh={fetchPets}
                     initialStatusFilter={browseStartFilter}
                 />
@@ -1416,10 +1419,7 @@ async function fetchPets({ silent = false } = {}) {
                         setActiveAdopterPage("matchmaking-quiz")
                     }
                     onBrowsePets={() => setActiveAdopterPage("browse-pets")}
-                    onViewPet={(pet) => {
-                        setSelectedPet(pet);
-                        setActiveAdopterPage("browse-pets");
-                    }}
+                    onViewPet={openPet}
                 />
             );
         }
@@ -1671,7 +1671,10 @@ async function fetchPets({ silent = false } = {}) {
 
     return (
         <main className="adopter-dashboard-page">
-            <aside className="adopter-sidebar">
+            {isMobileMenuOpen && (
+                <div className="dash-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)} aria-hidden="true" />
+            )}
+            <aside className={`adopter-sidebar${isMobileMenuOpen ? " is-open" : ""}`}>
                 <button
                     type="button"
                     className="adopter-logo"
@@ -1785,6 +1788,7 @@ async function fetchPets({ silent = false } = {}) {
                 <button
                     className="adopter-user-card"
                     type="button"
+                    title="Log out"
                     onClick={handleLogout}
                 >
                     <div className="adopter-user-avatar">
@@ -1811,7 +1815,7 @@ async function fetchPets({ silent = false } = {}) {
                                 "Adopter"}
                         </strong>
 
-                        <small>Adopter</small>
+                        <small>Adopter · Log out</small>
                     </div>
 
                     <span>→</span>
@@ -1820,7 +1824,19 @@ async function fetchPets({ silent = false } = {}) {
 
             <section className="adopter-main">
                 <header className="adopter-dashboard-topbar">
-                    <div>
+                    <button
+                        type="button"
+                        className="dash-menu-btn"
+                        aria-label="Open menu"
+                        aria-expanded={isMobileMenuOpen}
+                        onClick={() => setIsMobileMenuOpen(true)}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <path d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                    </button>
+
+                    <div className="adopter-topbar-title">
                         <h1>
                             {getAdopterPageTitle(
                                 activeAdopterPage
@@ -1873,6 +1889,16 @@ async function fetchPets({ silent = false } = {}) {
                 <section className="adopter-dashboard-content">
                     {renderAdopterContent()}
                 </section>
+
+                {isPetModalOpen && selectedPet?._id && (
+                    <PetDetailModal
+                        pet={selectedPet}
+                        hasPendingApplication={hasPendingApplication}
+                        applicationStatus={applicationStatus}
+                        onApply={handleApply}
+                        onClose={() => setIsPetModalOpen(false)}
+                    />
+                )}
             </section>
         </main>
     );

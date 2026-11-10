@@ -9,6 +9,7 @@ const PAGE_BY_TYPE = {
     donation: "donations",
     donation_update: "donations",
     lost_found_update: "lost-found",
+    rescue_update: "rescue",
 };
 
 function authHeaders() {

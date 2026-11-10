@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
+import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import "leaflet/dist/leaflet.css";
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -22,17 +23,6 @@ const donationCategories = [
     "Feeding Bowls",
     "Leashes & Collars",
     "Money",
-    "Other",
-];
-
-const donationUnits = [
-    "Pieces",
-    "Boxes",
-    "Bags",
-    "Bottles",
-    "Packs",
-    "Kilograms",
-    "Liters",
     "Other",
 ];
 
@@ -64,6 +54,7 @@ const emptyDonation = {
     itemName: "",
     quantity: "",
     unit: "Pieces",
+    otherUnit: "",
     deliveryMethod: "Drop-off",
     preferredDate: "",
     description: "",
@@ -132,6 +123,7 @@ export default function DonationCenter() {
             itemName: "",
             quantity: "",
             unit: "Pieces",
+            otherUnit: "",
             deliveryMethod:
                 category === "Money"
                     ? "Online Payment"
@@ -236,6 +228,18 @@ export default function DonationCenter() {
             return;
         }
 
+        if (!isMoneyDonation && donation.category === "Other" && !donation.itemName.trim()) {
+            setMessage("Please say what item you're donating.");
+            return;
+        }
+
+        const unit = resolveUnit(donation.unit, donation.otherUnit);
+
+        if (!isMoneyDonation && !unit) {
+            setMessage("Please type the unit (e.g. trays, dozens).");
+            return;
+        }
+
         if (isMoneyDonation && Number(donation.quantity) > 100000) {
             setMessage("Donation amount can't be more than ₱100,000.");
             return;
@@ -266,7 +270,7 @@ export default function DonationCenter() {
 
             const notes = [
                 !isMoneyDonation
-                    ? `Unit: ${donation.unit}`
+                    ? `Unit: ${unit}`
                     : "Donation Type: Monetary Donation",
 
                 !isMoneyDonation
@@ -765,6 +769,20 @@ export default function DonationCenter() {
                                         </select>
                                     </label>
 
+                                    {donation.category === "Other" && (
+                                        <label>
+                                            <span>Please specify the item <b>*</b></span>
+                                            <input
+                                                type="text"
+                                                maxLength={80}
+                                                placeholder="e.g. Pet carrier, grooming brush"
+                                                value={donation.itemName}
+                                                onChange={(event) => updateDonationField("itemName", event.target.value)}
+                                                required
+                                            />
+                                        </label>
+                                    )}
+
                                     <div className="donation-row">
                                         <label>
                                             <span>Quantity <b>*</b></span>
@@ -796,7 +814,7 @@ export default function DonationCenter() {
                                                     )
                                                 }
                                             >
-                                                {donationUnits.map((unit) => (
+                                                {DONATION_UNITS.map((unit) => (
                                                     <option key={unit} value={unit}>
                                                         {unit}
                                                     </option>
@@ -804,6 +822,20 @@ export default function DonationCenter() {
                                             </select>
                                         </label>
                                     </div>
+
+                                    {donation.unit === "Other" && (
+                                        <label>
+                                            <span>Type the unit <b>*</b></span>
+                                            <input
+                                                type="text"
+                                                maxLength={30}
+                                                placeholder="e.g. Trays, Dozens"
+                                                value={donation.otherUnit}
+                                                onChange={(event) => updateDonationField("otherUnit", event.target.value)}
+                                                required
+                                            />
+                                        </label>
+                                    )}
                                 </>
                             )}
 

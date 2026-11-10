@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { CompleteWithProofModal } from "../../../components/rescue/RescueProof";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -10,6 +11,7 @@ function askConfirm(options) {
 }
 
 const STATUS_TABS = [
+    { key: "open", label: "Open to claim" },
     { key: "pending", label: "New" },
     { key: "accepted", label: "Accepted" },
     { key: "active", label: "In progress" },
@@ -18,6 +20,7 @@ const STATUS_TABS = [
 ];
 
 const STATUS_PILL = {
+    open: { label: "Open", className: "is-open" },
     pending: { label: "New", className: "is-pending" },
     accepted: { label: "Accepted", className: "is-accepted" },
     active: { label: "In progress", className: "is-active" },
@@ -53,11 +56,27 @@ function formatWhen(assignment) {
 // The volunteer's own rescue jobs + the actions on them (shared by the dashboard and My Rescues)
 function useMyRescues() {
     const [assignments, setAssignments] = useState(null);
+    // Rescues no one is assigned to yet; any volunteer can claim one
+    const [openAssignments, setOpenAssignments] = useState(null);
     const [error, setError] = useState("");
     const [busyId, setBusyId] = useState("");
     const [notice, setNotice] = useState("");
+    const [completingAssignment, setCompletingAssignment] = useState(null);
 
-    const load = useCallback(() => {
+    const loadOpen = useCallback(() => {
+        return fetch(`${API}/api/rescue-assignments/open`, { headers: authHeaders() })
+            .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok || data.success === false) throw new Error(data.message || "Could not load open rescues.");
+                setOpenAssignments(Array.isArray(data.assignments) ? data.assignments : []);
+            })
+            .catch((err) => {
+                setOpenAssignments([]);
+                setError(err.message || "Could not load open rescues.");
+            });
+    }, []);
+
+    const loadMine = useCallback(() => {
         return fetch(`${API}/api/rescue-assignments/my`, { headers: authHeaders() })
             .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
             .then(({ ok, data }) => {
@@ -70,6 +89,8 @@ function useMyRescues() {
                 setError(err.message || "Could not load your rescues.");
             });
     }, []);
+
+    const load = useCallback(() => Promise.all([loadMine(), loadOpen()]), [loadMine, loadOpen]);
 
     useEffect(() => {
         load();
@@ -84,10 +105,25 @@ function useMyRescues() {
             body = { reason };
         }
 
+        // Completing needs proof (notes + photos), collected in its own form
         if (action === "complete") {
-            const completionNotes = window.prompt(`How did "${assignment.title}" go? (e.g. brought to shelter)`, "");
-            if (completionNotes === null) return;
-            body = { completionNotes };
+            setCompletingAssignment(assignment);
+            return;
+        }
+
+        if (action === "claim") {
+            const confirmed = await askConfirm({
+                title: `Claim "${assignment.title}"?`,
+                message: `${assignment.location} · ${formatWhen(assignment)}. It becomes yours and leaves the open list.`,
+                confirmLabel: "Claim",
+            });
+            if (!confirmed) return;
+        }
+
+        if (action === "drop") {
+            const reason = window.prompt(`Why are you dropping "${assignment.title}"? It goes back to the open list. (optional)`, "");
+            if (reason === null) return;
+            body = { reason };
         }
 
         if (action === "accept") {
@@ -100,30 +136,65 @@ function useMyRescues() {
         }
 
         try {
+            await sendAction(assignment, action, body);
+        } catch (err) {
+            setNotice(err.message || "Could not update the rescue.");
+        }
+    }
+
+    // Throws on failure so the proof form can show the error itself
+    async function sendAction(assignment, action, body) {
+        try {
             setBusyId(assignment._id);
             setNotice("");
             const response = await fetch(`${API}/api/rescue-assignments/${assignment._id}/${action}`, {
-                method: "PATCH",
+                method: action === "claim" ? "POST" : "PATCH",
                 headers: authHeaders(true),
                 body: JSON.stringify(body),
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok || data.success === false) throw new Error(data.message || "Could not update the rescue.");
 
-            const done = { accept: "Rescue accepted.", decline: "Rescue declined.", start: "Rescue started.", complete: "Rescue completed. Thank you!" };
+            const done = {
+                claim: "Rescue claimed. It's now in your Accepted list.",
+                drop: "Rescue dropped and returned to the open list.",
+                accept: "Rescue accepted.",
+                decline: "Rescue declined. It goes back to the open list for other volunteers.",
+                start: "Rescue started.",
+                complete: "Rescue completed. Staff can now see your proof. Thank you!",
+            };
             setNotice(done[action]);
             await load();
-        } catch (err) {
-            setNotice(err.message || "Could not update the rescue.");
         } finally {
             setBusyId("");
         }
     }
 
-    return { assignments, error, busyId, notice, act, reload: load };
+    const completionModal = completingAssignment && (
+        <CompleteWithProofModal
+            assignment={completingAssignment}
+            onClose={() => setCompletingAssignment(null)}
+            onSubmit={async (proof) => {
+                await sendAction(completingAssignment, "complete", proof);
+                setCompletingAssignment(null);
+            }}
+        />
+    );
+
+    return { assignments, openAssignments, error, busyId, notice, act, reload: load, completionModal };
 }
 
 function RescueActions({ assignment, busy, onAct }) {
+    if (assignment.status === "open") {
+        return (
+            <div className="vr-actions">
+                <button type="button" className="vr-btn is-primary" disabled={busy} onClick={() => onAct(assignment, "claim")}>
+                    Claim
+                </button>
+            </div>
+        );
+    }
+
     if (assignment.status === "pending") {
         return (
             <div className="vr-actions">
@@ -140,6 +211,9 @@ function RescueActions({ assignment, busy, onAct }) {
     if (assignment.status === "accepted") {
         return (
             <div className="vr-actions">
+                <button type="button" className="vr-btn" disabled={busy} onClick={() => onAct(assignment, "drop")}>
+                    Drop
+                </button>
                 <button type="button" className="vr-btn is-dark" disabled={busy} onClick={() => onAct(assignment, "start")}>
                     Start
                 </button>
@@ -190,9 +264,18 @@ function RescueRow({ assignment, busy, onAct }) {
                 </b>
                 <small>
                     {assignment.location} · {formatWhen(assignment)} · {TYPE_LABEL[assignment.assignmentType] || "Rescue"}
-                    {assignment.adminName ? ` · Assigned by ${assignment.adminName}` : ""}
+                    {assignment.adminName ? ` · ${assignment.status === "open" ? "Posted" : "Assigned"} by ${assignment.adminName}` : ""}
                 </small>
                 {notes && <small className="vr-notes">“{notes}”</small>}
+                {assignment.status === "completed" && assignment.completionPhotos?.length > 0 && (
+                    <span className="rp-row-photos">
+                        {assignment.completionPhotos.map((url) => (
+                            <a key={url} href={url} target="_blank" rel="noreferrer">
+                                <img src={url} alt="Proof" />
+                            </a>
+                        ))}
+                    </span>
+                )}
             </div>
 
             <RescueActions assignment={assignment} busy={busy} onAct={onAct} />
@@ -202,13 +285,17 @@ function RescueRow({ assignment, busy, onAct }) {
 
 // Sidebar page: all of the volunteer's rescue jobs, by status
 export default function RescueAssignments() {
-    const { assignments, error, busyId, notice, act, reload } = useMyRescues();
+    const { assignments, openAssignments, error, busyId, notice, act, reload, completionModal } = useMyRescues();
     const [tab, setTab] = useState("pending");
 
     const list = assignments || [];
-    const shown = list.filter((assignment) =>
-        tab === "declined" ? ["declined", "cancelled"].includes(assignment.status) : assignment.status === tab
-    );
+    const inTab = (key) =>
+        key === "open"
+            ? openAssignments || []
+            : key === "declined"
+                ? list.filter((assignment) => ["declined", "cancelled"].includes(assignment.status))
+                : list.filter((assignment) => assignment.status === key);
+    const shown = inTab(tab);
 
     return (
         <section className="db2-card vr-page">
@@ -218,15 +305,11 @@ export default function RescueAssignments() {
                     Refresh
                 </button>
             </h3>
-            <p className="db2-sub">Rescue jobs the shelter assigned to you.</p>
+            <p className="db2-sub">Rescue jobs assigned to you, plus open ones any volunteer can claim.</p>
 
             <div className="vr-tabs">
                 {STATUS_TABS.map((item) => {
-                    const count = list.filter((assignment) =>
-                        item.key === "declined"
-                            ? ["declined", "cancelled"].includes(assignment.status)
-                            : assignment.status === item.key
-                    ).length;
+                    const count = inTab(item.key).length;
                     return (
                         <button
                             key={item.key}
@@ -243,10 +326,10 @@ export default function RescueAssignments() {
             {notice && <p className="vr-notice">{notice}</p>}
             {error && <p className="db2-error">{error}</p>}
 
-            {assignments === null ? (
+            {assignments === null || (tab === "open" && openAssignments === null) ? (
                 <p className="db2-empty">Loading your rescues...</p>
             ) : shown.length === 0 ? (
-                <p className="db2-empty">Nothing here right now.</p>
+                <p className="db2-empty">{tab === "open" ? "No open rescues right now." : "Nothing here right now."}</p>
             ) : (
                 <div className="vr-list">
                     {shown.map((assignment) => (
@@ -254,13 +337,14 @@ export default function RescueAssignments() {
                     ))}
                 </div>
             )}
+            {completionModal}
         </section>
     );
 }
 
 // Volunteer dashboard: only the volunteer's own jobs and activity
 export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
-    const { assignments, error, busyId, notice, act } = useMyRescues();
+    const { assignments, openAssignments, error, busyId, notice, act, completionModal } = useMyRescues();
     const [activity, setActivity] = useState(null);
 
     useEffect(() => {
@@ -336,6 +420,15 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
                             ))}
                         </div>
                     )}
+
+                    {(openAssignments || []).length > 0 && (
+                        <p className="vr-open-note">
+                            {openAssignments.length} open rescue{openAssignments.length === 1 ? "" : "s"} any volunteer can claim.{" "}
+                            <button type="button" className="db2-link" onClick={() => go("rescues")}>
+                                Claim one in My Rescues →
+                            </button>
+                        </p>
+                    )}
                 </section>
 
                 <div className="db2-col">
@@ -385,6 +478,7 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
                     </section>
                 </div>
             </div>
+            {completionModal}
         </div>
     );
 }

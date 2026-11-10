@@ -3,7 +3,14 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-lea
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { searchCebuPlaces } from "../../../utils/cebuPlaces";
+import { DateField, startOfToday, toDayValue } from "../../../components/system/MonthCalendar";
 
+
+// Lost/found dates: up to 5 years back, never in the future
+function earliestReportDay() {
+    const today = startOfToday();
+    return new Date(today.getFullYear() - 5, 0, 1);
+}
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -97,7 +104,6 @@ export default function LostFoundPage({ setPage }) {
     const [pageOpenedAt] = useState(() => Date.now());
     const [selectedReportIds, setSelectedReportIds] = useState([]);
     const [typeFilter, setTypeFilter] = useState("all");
-    const [onlyMine, setOnlyMine] = useState(false);
     const [possibleMatches, setPossibleMatches] = useState(null);
     const [possibleMatchesTotal, setPossibleMatchesTotal] = useState(0);
     const [decidingMatchId, setDecidingMatchId] = useState("");
@@ -118,6 +124,10 @@ export default function LostFoundPage({ setPage }) {
     const [locating, setLocating] = useState(false);
     const [viewingReport, setViewingReport] = useState(null);
     const [claimOpen, setClaimOpen] = useState(false);
+    // "ownership" = This is my pet (found report); "found" = I found this pet (lost report)
+    const [claimMode, setClaimMode] = useState("ownership");
+    const [foundLocation, setFoundLocation] = useState("");
+    const [foundDate, setFoundDate] = useState("");
     const [claimText, setClaimText] = useState("");
     const [claimContactNumber, setClaimContactNumber] = useState("");
     const [claimProofPhotoUrl, setClaimProofPhotoUrl] = useState("");
@@ -161,7 +171,8 @@ export default function LostFoundPage({ setPage }) {
     ].includes(role);
 
     const canManageReports = isAdmin || isStaff;
-    const canDeleteReport = isAdmin;
+    // Selecting several reports to delete at once is admin-only; single deletes use report.canDelete
+    const canBulkDelete = isAdmin;
     const token = localStorage.getItem("token");
 
     async function loadReports() {
@@ -308,6 +319,16 @@ export default function LostFoundPage({ setPage }) {
             setError("Please provide the location.");
             return;
         }
+
+        if (!dateReported) {
+            setError(`Please pick the date the pet was ${reportType === "lost" ? "lost" : "found"}.`);
+            return;
+        }
+
+        if (dateReported > toDayValue(startOfToday())) {
+            setError("The date can't be in the future.");
+            return;
+        }
         if (!/^9\d{9}$/.test(contactNumber)) {
              setError("Please enter a valid phone number: 10 digits starting with 9, e.g. 917 123 4567.");
              return;
@@ -351,9 +372,7 @@ export default function LostFoundPage({ setPage }) {
                           notes.trim() && `Notes: ${notes.trim()}`,
                           ].filter(Boolean).join(" · "),
                           location: location.trim(),
-                          dateReported:
-                          dateReported ||
-                          new Date().toISOString(),
+                          dateReported,
                           photoUrl: photoUrl.trim(),
                           contactNumber,
                           latitude: lat || undefined,
@@ -470,26 +489,6 @@ async function uploadClaimProofPhoto(file) {
     }
 }
 
-// "I found this pet": open the Found form prefilled from a lost report.
-function startFoundReportFromLostReport(lostReport) {
-    setReportType("found");
-    setPetName(lostReport.petName || "");
-    setSpecies(lostReport.species || "");
-    setBreed(lostReport.breed || "");
-    setColor(lostReport.colour || "");
-    setSize(lostReport.size || "");
-    setGender(lostReport.sex || "");
-    setDescription("");
-    setLocation("");
-    setDateReported("");
-    setPhotoUrl("");
-    setPhotoName("");
-    setLat("");
-    setLng("");
-    setNotes(`Responding to the lost report for ${lostReport.petName || `a ${String(lostReport.species || "pet").toLowerCase()}`}.`);
-    setViewingReport(null);
-    setShowReportForm(true);
-}
     async function handleClaim(reportId) {
     setError("");
     setSuccess("");
@@ -504,9 +503,11 @@ function startFoundReportFromLostReport(lostReport) {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
+                    claimType: claimMode,
                     claimNotes: claimText.trim(),
                     claimContactNumber,
                     claimProofPhotoUrl,
+                    ...(claimMode === "found" ? { foundLocation: foundLocation.trim(), foundDate } : {}),
                 }),
             }
         );
@@ -521,6 +522,8 @@ function startFoundReportFromLostReport(lostReport) {
         setClaimText("");
         setClaimContactNumber("");
         setClaimProofPhotoUrl("");
+        setFoundLocation("");
+        setFoundDate("");
         await loadReports();
         await loadMySuggestions();
         return true;
@@ -609,6 +612,22 @@ function startFoundReportFromLostReport(lostReport) {
                 "Failed to review claim."
             );
             return null;
+        }
+    }
+
+    // The person who decides opened the report: its claims stop showing as "New"
+    async function markClaimsSeen(reportId) {
+        try {
+            const response = await fetch(`${API}/api/lost-found/reports/${reportId}/claims/seen`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.message || "Could not update the report.");
+
+            setReports((current) => current.map((report) => (report._id === reportId ? data.report : report)));
+        } catch (error) {
+            console.error("Mark claims seen error:", error);
         }
     }
 
@@ -729,8 +748,10 @@ const countLost = reports.filter((r) => r.reportType === "lost").length;
 const countFound = reports.filter((r) => r.reportType === "found").length;
 const countReunited = reports.filter((r) => r.status === "reunited").length;
 const countMine = reports.filter((r) => r.isMine).length;
-
-const countClaims = reports.filter((r) => r.claimStatus === "pending").length;
+// Claims waiting on this user's decision (staff: shelter intake listings)
+const needsMyDecision = (r) => r.canReviewClaims && r.pendingClaimCount > 0;
+const countClaims = reports.filter(needsMyDecision).length;
+const countNewClaims = reports.reduce((total, r) => total + (r.newClaimCount || 0), 0);
 const isOpenReport = (r) => r.status !== "reunited" && r.status !== "rejected";
 const countLostOpen = reports.filter((r) => r.reportType === "lost" && isOpenReport(r)).length;
 const countFoundOpen = reports.filter((r) => r.reportType === "found" && isOpenReport(r)).length;
@@ -739,9 +760,10 @@ const LF_CHIPS = [
     { value: "all", label: "All", count: reports.length },
     { value: "lost", label: "Lost", count: countLost },
     { value: "found", label: "Found", count: countFound },
+    ...(canManageReports ? [] : [{ value: "mine", label: "My Reports", count: countMine, newCount: countNewClaims }]),
     ...(canManageReports
         ? [
-              { value: "claims", label: "To review", count: countClaims },
+              { value: "claims", label: "To review", count: countClaims, newCount: countNewClaims },
               { value: "matches", label: "Possible matches", count: possibleMatchesTotal },
           ]
         : []),
@@ -753,11 +775,11 @@ const query = search.trim().toLowerCase();
 const visibleReports = reports
     .filter((r) => {
         if (typeFilter === "reunited") return r.status === "reunited";
-        if (typeFilter === "claims") return r.claimStatus === "pending";
+        if (typeFilter === "claims") return needsMyDecision(r);
+        if (typeFilter === "mine") return r.isMine;
         if (typeFilter !== "all") return r.reportType === typeFilter;
         return true;
     })
-    .filter((r) => !onlyMine || r.isMine)
     .filter((r) => {
         const s = String(r.species || "").toLowerCase();
         if (speciesFilter === "all") return true;
@@ -791,15 +813,18 @@ if (canManageReports) {
 
 // One small tag on a card, only when something needs attention
 function getCardFlag(report, details) {
-    if (canManageReports && report.claimStatus === "pending" && report.pendingClaimCount > 0) {
-        return { tone: "claim", text: `${report.pendingClaimCount} claim${report.pendingClaimCount === 1 ? "" : "s"}` };
+    if (report.newClaimCount > 0) {
+        return { tone: "new", text: `${report.newClaimCount} new claim${report.newClaimCount === 1 ? "" : "s"}` };
+    }
+    if (needsMyDecision(report)) {
+        return { tone: "claim", text: `${report.pendingClaimCount} claim${report.pendingClaimCount === 1 ? "" : "s"} to review` };
     }
     const matchCount = possibleMatchCountByReportId[report._id] || 0;
     if (matchCount > 0 && details.isOpen) {
         return { tone: "match", text: `${matchCount} possible match${matchCount === 1 ? "" : "es"}` };
     }
     if (report.myClaimStatus === "pending") {
-        return { tone: "claim", text: "Claim sent" };
+        return { tone: "claim", text: report.myClaimType === "found" ? "You said you found it" : "Claim sent" };
     }
     if (details.isMine) {
         return { tone: "mine", text: "Your report" };
@@ -824,6 +849,7 @@ function describeReport(report) {
     const canClaimThis =
         canClaimReport && !isMine && isOpen &&
         report.claimStatus !== "approved" && report.myClaimStatus !== "pending";
+    const canSayFound = canClaimThis && report.reportType === "lost";
     const species = String(report.species || "").toLowerCase();
     const emoji = species === "cat" ? "🐱" : species === "dog" ? "🐶" : "🐾";
 
@@ -837,7 +863,7 @@ function describeReport(report) {
         statusLabel = "Closed";
     } else if (report.myClaimStatus === "pending") {
         statusKey = "claim-pending";
-        statusLabel = "Your claim: under review";
+        statusLabel = report.myClaimType === "found" ? "Sent to the owner" : "Your claim: under review";
     } else if (report.claimStatus === "pending") {
         statusKey = "claim-pending";
         statusLabel = `${report.pendingClaimCount} claim${report.pendingClaimCount === 1 ? "" : "s"} under review`;
@@ -850,32 +876,37 @@ function describeReport(report) {
         ? new Date(report.dateReported).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
         : "—";
 
-    return { isMine, isOpen, canClaimThis, emoji, statusKey, statusLabel, dateText };
+    return { isMine, isOpen, canClaimThis, canSayFound, emoji, statusKey, statusLabel, dateText };
 }
 
-function openReportDetails(report, withClaim = false) {
+// claimType: open the "This is my pet" / "I found this pet" form straight away
+function openReportDetails(report, claimType = null) {
     setViewingReport(report);
-    setClaimOpen(withClaim);
+    setClaimOpen(Boolean(claimType));
+    setClaimMode(claimType || (report.reportType === "lost" ? "found" : "ownership"));
     setClaimText("");
     setClaimError("");
+    setFoundLocation("");
+    setFoundDate("");
+    if (report.newClaimCount > 0) markClaimsSeen(report._id);
 }
 
-function renderReportActions(report, { isMine, isOpen, canClaimThis }) {
+function renderReportActions(report, { canClaimThis, canSayFound }) {
     return (
         <div className="lf2-row-actions" onClick={(e) => e.stopPropagation()}>
             {canClaimThis && report.reportType === "found" && (
-                <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report, true)}>
+                <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report, "ownership")}>
                     This is my pet
                 </button>
             )}
 
-            {!isMine && isOpen && report.reportType === "lost" && !canManageReports && (
-                <button type="button" className="lf2-mini" onClick={() => startFoundReportFromLostReport(report)}>
+            {canSayFound && (
+                <button type="button" className="lf2-mini" onClick={() => openReportDetails(report, "found")}>
                     I found this pet
                 </button>
             )}
 
-            {canManageReports && report.claimStatus === "pending" && (
+            {needsMyDecision(report) && (
                 <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report)}>
                     {report.pendingClaimCount > 1 ? `Review claims (${report.pendingClaimCount})` : "Review claim"}
                 </button>
@@ -885,7 +916,7 @@ function renderReportActions(report, { isMine, isOpen, canClaimThis }) {
                 View
             </button>
 
-            {canDeleteReport && (
+            {report.canDelete && (
                 <button
                     type="button"
                     className="lf2-icon"
@@ -967,12 +998,6 @@ function pickPoint(la, ln) {
 if (showReportForm && canSubmitReport) {
     const isLost = reportType === "lost";
 
-   function openReport(report, withClaim = false) {
-       setViewingReport(report);
-       setClaimOpen(withClaim);
-       setClaimText("");
-       setClaimError("");
-   }
     function pinMyLocation() {
         if (!navigator.geolocation) {
             setError("Your browser can't share your location. Tap the map instead.");
@@ -1089,12 +1114,18 @@ if (showReportForm && canSubmitReport) {
                             </select>
                         </label>
 
-                        <label className="lfr2-field">
+                        <div className="lfr2-field">
                             <span>
                                 {isLost ? "Date lost" : "Date found"} <em>*</em>
                             </span>
-                            <input type="date" value={dateReported} onChange={(e) => setDateReported(e.target.value)} required />
-                        </label>
+                            <DateField
+                                value={dateReported}
+                                onChange={setDateReported}
+                                minDate={earliestReportDay()}
+                                maxDate={startOfToday()}
+                                ariaLabel={isLost ? "Date lost" : "Date found"}
+                            />
+                        </div>
 
                         <div className="lfr2-field lfr2-span-4">
                             <span>Photo {!isLost && <em>*</em>}</span>
@@ -1308,14 +1339,6 @@ if (showReportForm && canSubmitReport) {
     return (
         <main className="lost-found-page">
             <div className="lf2-actions">
-                <button
-                    type="button"
-                    className={`lf2-btn ${onlyMine ? "is-on" : ""}`}
-                    onClick={() => setOnlyMine(!onlyMine)}
-                >
-                    My reports <span>{countMine}</span>
-                </button>
-
                 {canSubmitReport && (
                     <button type="button" className="lf2-btn is-primary" onClick={() => setShowReportForm(true)}>
                         + Report a pet
@@ -1474,11 +1497,16 @@ if (showReportForm && canSubmitReport) {
                                 }}
                             >
                                 {chip.label} <span>{chip.count}</span>
+                                {chip.newCount > 0 && (
+                                    <em className="lf2-tab-new" title="New claims on your reports">
+                                        {chip.newCount} new
+                                    </em>
+                                )}
                             </button>
                         ))}
                     </div>
 
-                    {canDeleteReport && viewMode === "grid" && typeFilter !== "matches" && visibleReports.length > 0 && (
+                    {canBulkDelete && viewMode === "grid" && typeFilter !== "matches" && visibleReports.length > 0 && (
                         isSelectingReports ? (
                             <div className="lf-select-bar">
                                 <b>{selectedReportIds.length} selected</b>
@@ -1782,24 +1810,16 @@ if (showReportForm && canSubmitReport) {
     const s = String(r.species || "").toLowerCase();
     const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
     const badge = r.status === "reunited" ? "reunited" : r.reportType;
-    const canClaimThis =
-    canClaimReport &&
-    !isMine &&
-    r.reportType === "found" &&
-    r.status !== "reunited" &&
-    r.status !== "rejected" &&
-    r.claimStatus !== "approved" &&
-    r.myClaimStatus !== "pending";
-    const canReportFoundForThis =
-      canSubmitReport &&
-      !canManageReports &&
-      !isMine &&
-      r.reportType === "lost" &&
-      r.status !== "reunited";
+    const { canClaimThis: canClaimAny } = describeReport(r);
+    // "This is my pet" on found reports, "I found this pet" on lost reports
+    const canClaimThis = canClaimAny && r.reportType === "found";
+    const canSayFoundForThis = canClaimAny && r.reportType === "lost";
     const isMyPendingClaim = r.myClaimStatus === "pending";
     const visibleClaims = r.claims || [];
-    const otherPendingClaimCount = r.pendingClaimCount - (isMyPendingClaim ? 1 : 0);
-    const claimsHeading = canManageReports || isMine ? "Ownership claims" : "Your claim";
+    const ownershipClaims = visibleClaims.filter((claim) => claim.claimType !== "found");
+    const foundClaims = visibleClaims.filter((claim) => claim.claimType === "found");
+    const otherPendingClaimCount = r.otherPendingClaimCount || 0;
+    const decidedBy = r.linkedAnimal ? "shelter staff" : "the finder";
     const canSeeSuggestions = isMine && !canManageReports && r.status !== "reunited";
     const suggestedMatches = canSeeSuggestions
       ? mySuggestions.filter(({ myReport }) => myReport._id === r._id)
@@ -1969,111 +1989,189 @@ if (showReportForm && canSubmitReport) {
         </small>
     </div>
 )}
-    {!canManageReports && !isMine && otherPendingClaimCount > 0 && r.claimStatus === "pending" && (
+    {!r.canReviewClaims && !isMine && otherPendingClaimCount > 0 && r.reportType === "found" && r.claimStatus === "pending" && (
         <p className="lf-claim-indicator">
             {otherPendingClaimCount === 1 ? "Someone else has" : `${otherPendingClaimCount} other people have`} claimed
-            this pet and staff are reviewing.{canClaimThis ? " If it is yours, you can still submit your own claim." : ""}
+            this pet and {decidedBy} {otherPendingClaimCount === 1 ? "is" : "are"} reviewing.
+            {canClaimThis ? " If it is yours, you can still submit your own claim." : ""}
         </p>
     )}
-    {visibleClaims.length > 0 && (
-    <div className="lf-claims">
-        <h3>{claimsHeading}{visibleClaims.length > 1 ? ` (${visibleClaims.length})` : ""}</h3>
-        {isMine && !canManageReports && (
-            <p>
-                {r.claimStatus === "approved"
-                    ? "Staff approved a claim. Contact the owner to hand the pet over."
-                    : "Contact each claimant to confirm the pet is theirs. Shelter staff make the final decision."}
-            </p>
+    {[
+        { claims: ownershipClaims, type: "ownership" },
+        { claims: foundClaims, type: "found" },
+    ].map(({ claims, type }) =>
+        claims.length > 0 && (
+            <div className="lf-claims" key={type}>
+                <h3>
+                    {r.canReviewClaims || canManageReports
+                        ? type === "found" ? "Found claims" : "Ownership claims"
+                        : type === "found" ? "You said you found this pet" : "Your claim"}
+                    {claims.length > 1 ? ` (${claims.length})` : ""}
+                </h3>
+                {r.canReviewClaims && r.claimStatus !== "approved" && (
+                    <p>
+                        {type === "found"
+                            ? "These people say they found your pet. Check the photo, contact them, then approve the right one."
+                            : r.linkedAnimal
+                                ? "Check each owner's proof before releasing the shelter animal."
+                                : "These people say the pet you found is theirs. Contact them, then approve the real owner."}
+                    </p>
+                )}
+                {r.canReviewClaims && r.claimStatus === "approved" && (
+                    <p>A claim was approved. Contact them to arrange the handover.</p>
+                )}
+                {!r.canReviewClaims && canManageReports && (
+                    <p className="lf-claim-readonly">The finder decides these claims. Staff can only decide shelter intake listings.</p>
+                )}
+
+                {claims.map((claim) => {
+                    const isNew = r.canReviewClaims && claim.status === "pending" && !claim.seenByReviewerAt;
+                    const formatDay = (value) =>
+                        value ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+
+                    return (
+                        <div className={`lf-claim-review${isNew ? " is-new" : ""}`} key={claim._id}>
+                            <h3>
+                                {claim.claimantName}{" "}
+                                <span className={`lf-claim-pill is-${claim.status}`}>{claim.status}</span>
+                                {isNew && <span className="lf-claim-pill is-new">New</span>}
+                            </h3>
+
+                            <dl className="lf-modal-facts">
+                                <div>
+                                    <dt>Email</dt>
+                                    <dd>{claim.claimantEmail || "—"}</dd>
+                                </div>
+                                <div>
+                                    <dt>Mobile</dt>
+                                    <dd>{claim.contactNumber ? `+63 ${claim.contactNumber}` : "—"}</dd>
+                                </div>
+                                {type === "found" && (
+                                    <>
+                                        <div>
+                                            <dt>Found at</dt>
+                                            <dd>📍 {claim.foundLocation || "—"}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Date found</dt>
+                                            <dd>{formatDay(claim.foundDate)}</dd>
+                                        </div>
+                                    </>
+                                )}
+                                <div>
+                                    <dt>Submitted</dt>
+                                    <dd>
+                                        {claim.claimedAt
+                                            ? new Date(claim.claimedAt).toLocaleString("en-US", {
+                                                month: "short",
+                                                day: "numeric",
+                                                year: "numeric",
+                                                hour: "numeric",
+                                                minute: "2-digit",
+                                            })
+                                            : "—"}
+                                    </dd>
+                                </div>
+                            </dl>
+
+                            <h3>{type === "found" ? "What they found" : "Proof given"}</h3>
+                            <p className="lf-claim-proof">{claim.proofNotes || "No details were saved."}</p>
+
+                            {claim.proofPhotoUrl && (
+                                <a href={claim.proofPhotoUrl} target="_blank" rel="noreferrer">
+                                    <img
+                                        className="lf-claim-proof-photo"
+                                        src={claim.proofPhotoUrl}
+                                        alt={type === "found" ? `Pet found by ${claim.claimantName}` : `Proof of ownership from ${claim.claimantName}`}
+                                    />
+                                </a>
+                            )}
+
+                            {r.canReviewClaims && claim.status === "pending" && (
+                                <div className="lf-claim-review-actions">
+                                    <button
+                                        type="button"
+                                        className="lfr-cancel"
+                                        onClick={async () => {
+                                            const updated = await handleReviewClaim(r._id, claim._id, "rejected");
+                                            if (updated) setViewingReport(updated.claimStatus === "pending" ? updated : null);
+                                        }}
+                                    >
+                                        Reject
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="lfr-submit"
+                                        onClick={async () => {
+                                            const otherPending = r.pendingClaimCount - 1;
+                                            const confirmed = await askConfirm({
+                                                title: `Approve ${claim.claimantName}'s ${type === "found" ? "found claim" : "claim"}?`,
+                                                message:
+                                                    "The case will be marked as reunited." +
+                                                    (otherPending > 0
+                                                        ? ` The other ${otherPending} pending claim${otherPending === 1 ? "" : "s"} will be rejected and notified.`
+                                                        : ""),
+                                                confirmLabel: "Approve",
+                                            });
+                                            if (!confirmed) return;
+                                            const updated = await handleReviewClaim(r._id, claim._id, "approved");
+                                            if (updated) setViewingReport(null);
+                                        }}
+                                    >
+                                        Approve
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        )
+    )}
+    {claimOpen && (canClaimThis || canSayFoundForThis) && (
+    <div className="lf-claim">
+        <h3>{claimMode === "found" ? "I found this pet" : "Submit an ownership claim"}</h3>
+        <p>
+            {claimMode === "found"
+                ? "Only the owner will see your name, mobile number, photo and details. They'll contact you if it's their pet. This doesn't create a new report."
+                : r.linkedAnimal
+                    ? "Tell the shelter how they can confirm this is your pet. Staff will review your claim before the pet is released."
+                    : "The finder will see your name, mobile number and proof, and decides whether to approve your claim."}
+        </p>
+
+        {claimMode === "found" && (
+            <>
+                <label className="lfr2-field">
+                    <span>Where did you find it? <em>*</em></span>
+                    <input
+                        value={foundLocation}
+                        maxLength={200}
+                        onChange={(e) => {
+                            setFoundLocation(e.target.value);
+                            setClaimError("");
+                        }}
+                        placeholder="e.g. Near Ayala Center, Cebu City"
+                    />
+                </label>
+                <div className="lfr2-field">
+                    <span>Date found <em>*</em></span>
+                    <DateField
+                        value={foundDate}
+                        onChange={(day) => {
+                            setFoundDate(day);
+                            setClaimError("");
+                        }}
+                        minDate={earliestReportDay()}
+                        maxDate={startOfToday()}
+                        ariaLabel="Date found"
+                        floating={false}
+                    />
+                </div>
+            </>
         )}
 
-        {visibleClaims.map((claim) => (
-        <div className="lf-claim-review" key={claim._id}>
-            <h3>
-                {claim.claimantName}{" "}
-                <span className={`lf-claim-pill is-${claim.status}`}>{claim.status}</span>
-            </h3>
-
-            <dl className="lf-modal-facts">
-                <div>
-                    <dt>Email</dt>
-                    <dd>{claim.claimantEmail || "—"}</dd>
-                </div>
-                <div>
-                    <dt>Mobile</dt>
-                    <dd>{claim.contactNumber ? `+63 ${claim.contactNumber}` : "—"}</dd>
-                </div>
-                <div>
-                    <dt>Submitted</dt>
-                    <dd>
-                        {claim.claimedAt
-                            ? new Date(claim.claimedAt).toLocaleString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                                hour: "numeric",
-                                minute: "2-digit",
-                            })
-                            : "—"}
-                    </dd>
-                </div>
-            </dl>
-
-            <h3>Proof given</h3>
-            <p className="lf-claim-proof">{claim.proofNotes || "No proof text was saved."}</p>
-
-            {claim.proofPhotoUrl && (
-                <a href={claim.proofPhotoUrl} target="_blank" rel="noreferrer">
-                    <img className="lf-claim-proof-photo" src={claim.proofPhotoUrl} alt={`Proof of ownership from ${claim.claimantName}`} />
-                </a>
-            )}
-
-            {canManageReports && claim.status === "pending" && (
-                <div className="lf-claim-review-actions">
-                    <button
-                        type="button"
-                        className="lfr-cancel"
-                        onClick={async () => {
-                            const updated = await handleReviewClaim(r._id, claim._id, "rejected");
-                            if (updated) setViewingReport(updated.claimStatus === "pending" ? updated : null);
-                        }}
-                    >
-                        Reject
-                    </button>
-                    <button
-                        type="button"
-                        className="lfr-submit"
-                        onClick={async () => {
-                            const otherPending = r.pendingClaimCount - 1;
-                            if (otherPending > 0) {
-                                const confirmed = await askConfirm({
-                                    title: `Approve ${claim.claimantName}'s claim?`,
-                                    message: `The other ${otherPending} pending claim${otherPending === 1 ? "" : "s"} will be rejected and notified.`,
-                                    confirmLabel: "Approve",
-                                });
-                                if (!confirmed) return;
-                            }
-                            const updated = await handleReviewClaim(r._id, claim._id, "approved");
-                            if (updated) setViewingReport(null);
-                        }}
-                    >
-                        Approve
-                    </button>
-                </div>
-            )}
-        </div>
-        ))}
-    </div>
-)}
-    {canClaimThis && claimOpen && (
-    <div className="lf-claim">
-        <h3>Submit an ownership claim</h3>
-        <p>
-            {r.linkedAnimal
-                ? "Tell the shelter how they can confirm this is your pet. Staff will review your claim before the pet is released."
-                : "The finder and shelter staff will see your name, mobile number and proof so they can confirm this is your pet. Staff make the final decision."}
-        </p>
         <label className="lfr2-field">
-            <span>Proof of ownership <em>*</em></span>
+            <span>{claimMode === "found" ? "Describe the pet and how you found it" : "Proof of ownership"} <em>*</em></span>
             <textarea
                 rows={4}
                 maxLength={500}
@@ -2082,7 +2180,11 @@ if (showReportForm && canSubmitReport) {
                     setClaimText(e.target.value);
                     setClaimError("");
                 }}
-                placeholder="Marks or scars, collar, the name it answers to, when and where it was lost..."
+                placeholder={
+                    claimMode === "found"
+                        ? "Collar, markings, how it behaves, where it is now..."
+                        : "Marks or scars, collar, the name it answers to, when and where it was lost..."
+                }
             />
             <small>At least 20 characters ({claimText.trim().length} so far)</small>
         </label>
@@ -2108,9 +2210,15 @@ if (showReportForm && canSubmitReport) {
         </label>
 
         <div className="lfr2-field">
-            <span>Proof photo <small>(optional: you with the pet, or its vet card)</small></span>
+            <span>
+                {claimMode === "found" ? (
+                    <>Photo of the pet <em>*</em></>
+                ) : (
+                    <>Proof photo <small>(optional: you with the pet, or its vet card)</small></>
+                )}
+            </span>
             <div className="lfr2-photo">
-                {claimProofPhotoUrl && <img src={claimProofPhotoUrl} alt="Proof preview" />}
+                {claimProofPhotoUrl && <img src={claimProofPhotoUrl} alt="Photo preview" />}
                 <label htmlFor="lf-claim-proof-input" className={`lfr2-photo-btn${claimProofUploading ? " is-disabled" : ""}`}>
                     {claimProofUploading ? "Uploading..." : claimProofPhotoUrl ? "Change photo" : "Choose photo"}
                 </label>
@@ -2134,7 +2242,7 @@ if (showReportForm && canSubmitReport) {
                     {error && <div className="lost-found-message error">{error}</div>}
 
                     <footer className="lf-modal-foot">
-    {canDeleteReport && (
+    {r.canDelete && (
         <button
             type="button"
             className="lfr-delete"
@@ -2151,14 +2259,16 @@ if (showReportForm && canSubmitReport) {
         Close
     </button>
 
-    {canClaimThis && !claimOpen && (
-        <button type="button" className="lfr-submit" onClick={() => setClaimOpen(true)}>
-            This Is My Pet
-        </button>
-    )}
-    {canReportFoundForThis && (
-        <button type="button" className="lfr-submit" onClick={() => startFoundReportFromLostReport(r)}>
-            I Found This Pet
+    {!claimOpen && (canClaimThis || canSayFoundForThis) && (
+        <button
+            type="button"
+            className="lfr-submit"
+            onClick={() => {
+                setClaimMode(canSayFoundForThis ? "found" : "ownership");
+                setClaimOpen(true);
+            }}
+        >
+            {canSayFoundForThis ? "I Found This Pet" : "This Is My Pet"}
         </button>
     )}
     {isMyPendingClaim && (
@@ -2167,9 +2277,9 @@ if (showReportForm && canSubmitReport) {
             className="lfr-cancel"
             onClick={async () => {
                 const confirmed = await askConfirm({
-                    title: "Cancel your claim?",
-                    message: "Staff will no longer review your claim for this pet.",
-                    confirmLabel: "Cancel claim",
+                    title: r.myClaimType === "found" ? "Take back your found claim?" : "Cancel your claim?",
+                    message: `It will be withdrawn and ${r.linkedAnimal ? "shelter staff" : "the reporter"} will no longer see it as pending.`,
+                    confirmLabel: "Withdraw",
                 });
                 if (!confirmed) return;
 
@@ -2177,16 +2287,26 @@ if (showReportForm && canSubmitReport) {
                 if (done) setViewingReport(null);
             }}
         >
-            Cancel My Claim
+            {r.myClaimType === "found" ? "Withdraw" : "Cancel My Claim"}
         </button>
     )}
-    {canClaimThis && claimOpen && (
+    {claimOpen && (canClaimThis || canSayFoundForThis) && (
         <button
             type="button"
             className="lfr-submit"
+            disabled={claimProofUploading}
             onClick={async () => {
+                if (claimMode === "found") {
+                    if (!foundLocation.trim()) return setClaimError("Please say where you found the pet.");
+                    if (!foundDate) return setClaimError("Please pick the date you found the pet.");
+                    if (!claimProofPhotoUrl) return setClaimError("Please add a photo so the owner can recognise their pet.");
+                }
                 if (claimText.trim().length < 20) {
-                    setClaimError("Please describe your proof of ownership in at least 20 characters.");
+                    setClaimError(
+                        claimMode === "found"
+                            ? "Please describe the pet and how you found it in at least 20 characters."
+                            : "Please describe your proof of ownership in at least 20 characters."
+                    );
                     return;
                 }
                 if (!/^9\d{9}$/.test(claimContactNumber)) {
@@ -2197,7 +2317,7 @@ if (showReportForm && canSubmitReport) {
                 if (done) setViewingReport(null);
             }}
         >
-            Submit Claim
+            {claimMode === "found" ? "Send to Owner" : "Submit Claim"}
         </button>
     )}
 
