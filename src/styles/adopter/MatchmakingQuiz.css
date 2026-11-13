@@ -1487,7 +1487,16 @@
 
 .mq-top {
     display: flex;
+    align-items: center;
     justify-content: space-between;
+}
+
+/* "Question 4 of 18" between the back and next arrows */
+.mq-count {
+    margin: 0;
+    color: #7a4a33;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .mq-top button {
@@ -1645,4 +1654,4 @@
         min-height: calc(100vh - 90px);
         padding: 20px 16px 24px;
     }
-}
+}

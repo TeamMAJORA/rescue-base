@@ -261,7 +261,7 @@ export default function StaffDashboard({ setPage }) {
 
 
 
-    // ---- Shared states: signed out, confirm popup, toasts ----
+    // ---- Shared states: signed out (confirm popup + toasts live in AppDialogs) ----
     const savedRole = (() => {
         try {
             return String(
@@ -275,8 +275,6 @@ export default function StaffDashboard({ setPage }) {
     const [signedOut, setSignedOut] = useState(false);
     // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
     const [maintenance, setMaintenance] = useState("");
-    const [confirmBox, setConfirmBox] = useState(null);
-    const [toasts, setToasts] = useState([]);
 
     useEffect(() => {
         // 401 for all API calls: sign out the user and show the signed out screen
@@ -311,31 +309,10 @@ export default function StaffDashboard({ setPage }) {
             return response;
         };
 
-        // Modules call these instead of window.confirm / alert
-        window.rbConfirm = (options) =>
-            new Promise((resolve) => {
-                setConfirmBox({ ...options, resolve });
-            });
-
-        window.rbToast = (text, tone = "success") => {
-            const id = `${Date.now()}-${Math.random()}`;
-            setToasts((current) => [...current, { id, text, tone }]);
-            setTimeout(() => {
-                setToasts((current) => current.filter((toast) => toast.id !== id));
-            }, 3200);
-        };
-
         return () => {
             window.fetch = originalFetch;
-            delete window.rbConfirm;
-            delete window.rbToast;
         };
     }, []);
-
-    function closeConfirm(answer) {
-        confirmBox?.resolve(answer);
-        setConfirmBox(null);
-    }
 
     // Name + photo for the sidebar card (re-read after Settings saves)
     const [, setUserVersion] = useState(0);
@@ -839,47 +816,6 @@ export default function StaffDashboard({ setPage }) {
                 </header>
                 {renderStaffContent()}
             </section>
-            {confirmBox && (
-                <div
-                    className="ao-confirm-backdrop"
-                    onClick={() => closeConfirm(false)}
-                    onKeyDown={(event) => {
-                        if (event.key === "Escape") closeConfirm(false);
-                    }}
-                >
-                    <div
-                        className={`ao-confirm${confirmBox.danger ? " danger" : ""}`}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="ao-confirm-title"
-                        onClick={(event) => event.stopPropagation()}
-                    >
-                        <h3 id="ao-confirm-title">{confirmBox.title}</h3>
-                        {confirmBox.message && <p>{confirmBox.message}</p>}
-                        <div className="ao-confirm-actions">
-                            <button type="button" autoFocus onClick={() => closeConfirm(false)}>
-                                {confirmBox.cancelLabel || "Cancel"}
-                            </button>
-                            <button
-                                type="button"
-                                className="ao-confirm-ok"
-                                onClick={() => closeConfirm(true)}
-                            >
-                                {confirmBox.confirmLabel || "Confirm"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <div className="ao-toasts" aria-live="polite">
-                {toasts.map((toast) => (
-                    <div key={toast.id} className={`ao-toast ${toast.tone}`}>
-                        <i aria-hidden="true">{toast.tone === "error" ? "!" : "✓"}</i>
-                        {toast.text}
-                    </div>
-                ))}
-            </div>
         </main>
     );
 }

@@ -803,7 +803,15 @@ export default function IntakeRecords() {
             return;
         }
 
-        const reason = window.prompt("Enter the reason for rejecting this intake:");
+        const reason = await window.rbPrompt({
+            title: "Reject this intake?",
+            message: "The person who submitted it will see your reason.",
+            label: "Reason",
+            placeholder: "e.g. Duplicate record, wrong animal details",
+            required: true,
+            confirmLabel: "Reject",
+            danger: true,
+        });
 
         if (reason === null) {
             return;

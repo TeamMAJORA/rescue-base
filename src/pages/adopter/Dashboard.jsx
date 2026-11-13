@@ -259,7 +259,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
     }, [pets]);
 
     
-    const QUIZ_TOTAL_STEPS = 3;
+    const QUIZ_PART_COUNT = 3; // Your space, Your experience, Energy level
 
     const savedPetsCount = (() => {
         try {
@@ -392,7 +392,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
                 label: "Action Needed",
                 icon: "/icons/Action.svg",
                 title: "Finish your match quiz",
-                linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
+                linkText: `Short quiz, ${QUIZ_PART_COUNT} parts`,
                 page: "matchmaking-quiz",
             };
         }
@@ -1134,8 +1134,8 @@ async function fetchPets({ silent = false } = {}) {
                             <h2>Let's find your perfect companion</h2>
 
                             <p>
-                                Answer {QUIZ_TOTAL_STEPS} quick steps about your home and
-                                we'll pair you with pets that fit your life.
+                                Take a short quiz in {QUIZ_PART_COUNT} parts about your home and
+                                lifestyle, and we'll pair you with pets that fit your life.
                             </p>
 
                             <ol className="adopter-hero-steps">
@@ -1144,7 +1144,7 @@ async function fetchPets({ silent = false } = {}) {
                                 <li><b>3</b> Energy level</li>
                                 <li className="adopter-hero-time">
                                     <img src="/icons/Clock.svg" alt="" />
-                                    ~2 min
+                                    ~3 min
                                 </li>
                             </ol>
 

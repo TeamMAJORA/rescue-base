@@ -207,8 +207,9 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
     }
 
     // Steps: 1 Fill in ratings → 2 Submit for review → 3 Admin accepts
-    const step1 = locked || allRated ? "done" : "current";
-    const step2 = locked ? "done" : allRated ? "current" : "";
+    // No pet yet: the steps only explain how it works, none are done
+    const step1 = !hasAssignment ? "" : locked || allRated ? "done" : "current";
+    const step2 = !hasAssignment ? "" : locked ? "done" : allRated ? "current" : "";
     const step3 = status === "accepted" ? "done" : status === "pending" ? "current" : "";
 
     const banners = {
@@ -288,8 +289,9 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                 </div>
                 )}
 
+                {hasAssignment && (
                 <form className="ao-form" onSubmit={handleSubmit}>
-                        <fieldset className="ao-fieldset" disabled={!hasAssignment}>
+                        <fieldset className="ao-fieldset">
                     <div className="ao-progress">
                         <span>{ratedCount} of {TRAITS.length} traits rated</span>
                         <div className="ao-progress-track">
@@ -345,6 +347,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                     </div>
                 </fieldset>
                     </form>
+                )}
             </section>
         </section>
     );

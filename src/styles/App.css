@@ -1299,6 +1299,15 @@ body {
     [role="button"],
     input[type="submit"],
     input[type="button"] {
-        min-height: 44px;
+        /* !important: module styles set their own heights, but on touch screens 44px is the floor */
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    /* Stand-alone links (nav, footer, "See all"); links inside sentences and the map stay as they are */
+    a[href]:not(p a):not(li a):not(.leaflet-container a) {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px !important;
     }
 }

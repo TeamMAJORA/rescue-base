@@ -681,12 +681,13 @@
 }
 
 .gm-link {
-    padding: 0;
+    min-height: 24px;
+    padding: 4px 6px;
     border: none;
     background: none;
     color: #5a1b00;
     font: inherit;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     text-decoration: underline;
     cursor: pointer;

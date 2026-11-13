@@ -249,7 +249,7 @@ function goToPage(page, petId = null) {
 
             // No longer a foster: the login token still says "foster", so log out
             if (data.roleChanged) {
-                alert(data.message);
+                window.rbToast(data.message);
                 signOut("auth");
                 return;
             }
