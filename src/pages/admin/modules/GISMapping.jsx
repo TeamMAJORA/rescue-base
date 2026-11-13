@@ -95,6 +95,9 @@ const TYPE_LABEL = {
     intake: "Intake",
 };
 
+// Lost and found pins come from the Lost & Found module; they are opened and closed there
+const isLostFoundPin = (location) => location.source === "lost-found";
+
 const SPECIES_LABEL = {
     dog: "dog",
     cat: "cat",
@@ -263,7 +266,7 @@ function validCoordinates(latitude, longitude) {
     );
 }
 
-export default function GISMapping() {
+export default function GISMapping({ onOpenLostFound }) {
     // GIS report state
     const [locations, setLocations] = useState([]);
     const [locationForm, setLocationForm] = useState({
@@ -1378,8 +1381,8 @@ export default function GISMapping() {
     // ---------------------------
     // Admin, staff and volunteers share the new map; manage-only controls check canManage
     if (canManage || userRole === "volunteer") {
-        // Volunteers can only pin stray sightings (lost/found go through Lost & Found)
-        const reportTypes = canManage ? ["stray", "lost", "found", "rescue", "intake"] : ["stray"];
+        // Lost and found reports are filed in Lost & Found and show on this map from there
+        const reportTypes = canManage ? ["stray", "rescue", "intake"] : ["stray"];
 
         return (
             <section className="gm-page">
@@ -1438,14 +1441,25 @@ export default function GISMapping() {
                                         icon={reportIcon(location)}
                                     >
                                         <Popup>
+                                            {isLostFoundPin(location) && location.photoUrl && (
+                                                <img className="gm-pop-photo" src={location.photoUrl} alt="" />
+                                            )}
                                             <strong>
                                                 {TYPE_LABEL[location.reportType] || "Report"} {SPECIES_LABEL[location.species] || "animal"}
+                                                {location.reportType === "lost" && location.petName && !location.petName.startsWith("Unknown") ? ` "${location.petName}"` : ""}
                                                 {location.locationName ? ` · ${location.locationName}` : ""}
                                             </strong>
                                             <br />
                                             {location.status === "open" ? "Open" : "Resolved"} · {timeAgo(location.createdAt)}
                                             {location.description && (<><br />{location.description}</>)}
-                                            {canManage && location.status === "open" && (
+                                            {isLostFoundPin(location) ? (
+                                                <>
+                                                    <br />
+                                                    <button type="button" className="gm-link" onClick={() => onOpenLostFound?.(location.lostFoundReportId)}>
+                                                        Open in Lost &amp; Found
+                                                    </button>
+                                                </>
+                                            ) : canManage && location.status === "open" && (
                                                 <>
                                                     <br />
                                                     <button type="button" className="gm-link" onClick={() => handleResolveLocation(location._id)}>
@@ -1783,6 +1797,7 @@ export default function GISMapping() {
                                                                     {TYPE_LABEL[location.reportType] || "Report"} {SPECIES_LABEL[location.species] || "animal"}
                                                                     {location.reportType === "lost" && location.petName && !location.petName.startsWith("Unknown") ? ` "${location.petName}"` : ""}
                                                                     {location.locationName ? ` · ${location.locationName.split(",")[0]}` : ""}
+                                                                    {isLostFoundPin(location) && <em className="gm-source-tag">Lost &amp; Found</em>}
                                                                 </b>
                                                                 <span>
                                                                     {location.description ? `${location.description} · ` : ""}
@@ -1791,69 +1806,77 @@ export default function GISMapping() {
                                                                 </span>
                                                             </button>
                                                             <div className="gm-row-actions">
-                                                                {location.status === "open" ? (
-                                                                    !canManage ? (
-                                                                        <span className="gm-mini">Open</span>
-                                                                    ) :
-                                                                    <button type="button" className="gm-mini" onClick={() => handleResolveLocation(location._id)}>
-                                                                        Resolve
+                                                                {isLostFoundPin(location) ? (
+                                                                    <button type="button" className="gm-mini gm-open-lf" onClick={() => onOpenLostFound?.(location.lostFoundReportId)}>
+                                                                        Open in Lost &amp; Found
                                                                     </button>
                                                                 ) : (
-                                                                    <span className="gm-mini is-done">Resolved</span>
-                                                                )}
-                                                                {canManage && (
-                                                                <span className="gm-row-menu-wrap">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="gm-row-menu-btn"
-                                                                        aria-label={`More actions for ${location.petName || location.locationName || "this report"}`}
-                                                                        aria-haspopup="menu"
-                                                                        aria-expanded={openRowMenuId === location._id}
-                                                                        disabled={deletingId === location._id}
-                                                                        onClick={(event) => {
-                                                                            event.stopPropagation();
-                                                                            const rect = event.currentTarget.getBoundingClientRect();
-                                                                            setOpenRowMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
-                                                                            setOpenRowMenuId(openRowMenuId === location._id ? null : location._id);
-                                                                        }}
-                                                                    >
-                                                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                                                            <circle cx="5" cy="12" r="2" />
-                                                                            <circle cx="12" cy="12" r="2" />
-                                                                            <circle cx="19" cy="12" r="2" />
-                                                                        </svg>
-                                                                    </button>
-                                                                    {openRowMenuId === location._id && (
-                                                                        <span
-                                                                            className="gm-row-menu"
-                                                                            role="menu"
-                                                                            style={{ top: openRowMenuPosition.top, right: openRowMenuPosition.right }}
-                                                                            onClick={(event) => event.stopPropagation()}
-                                                                        >
+                                                                    <>
+                                                                        {location.status === "open" ? (
+                                                                            !canManage ? (
+                                                                                <span className="gm-mini">Open</span>
+                                                                            ) :
+                                                                            <button type="button" className="gm-mini" onClick={() => handleResolveLocation(location._id)}>
+                                                                                Resolve
+                                                                            </button>
+                                                                        ) : (
+                                                                            <span className="gm-mini is-done">Resolved</span>
+                                                                        )}
+                                                                        {canManage && (
+                                                                        <span className="gm-row-menu-wrap">
                                                                             <button
                                                                                 type="button"
-                                                                                role="menuitem"
-                                                                                onClick={() => {
-                                                                                    setOpenRowMenuId(null);
-                                                                                    gmEditReport(location);
+                                                                                className="gm-row-menu-btn"
+                                                                                aria-label={`More actions for ${location.petName || location.locationName || "this report"}`}
+                                                                                aria-haspopup="menu"
+                                                                                aria-expanded={openRowMenuId === location._id}
+                                                                                disabled={deletingId === location._id}
+                                                                                onClick={(event) => {
+                                                                                    event.stopPropagation();
+                                                                                    const rect = event.currentTarget.getBoundingClientRect();
+                                                                                    setOpenRowMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                                                                                    setOpenRowMenuId(openRowMenuId === location._id ? null : location._id);
                                                                                 }}
                                                                             >
-                                                                                Edit
+                                                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                                                    <circle cx="5" cy="12" r="2" />
+                                                                                    <circle cx="12" cy="12" r="2" />
+                                                                                    <circle cx="19" cy="12" r="2" />
+                                                                                </svg>
                                                                             </button>
-                                                                            <button
-                                                                                type="button"
-                                                                                role="menuitem"
-                                                                                className="is-danger"
-                                                                                onClick={() => {
-                                                                                    setOpenRowMenuId(null);
-                                                                                    handleDeleteLocation(location);
-                                                                                }}
-                                                                            >
-                                                                                Delete
-                                                                            </button>
+                                                                            {openRowMenuId === location._id && (
+                                                                                <span
+                                                                                    className="gm-row-menu"
+                                                                                    role="menu"
+                                                                                    style={{ top: openRowMenuPosition.top, right: openRowMenuPosition.right }}
+                                                                                    onClick={(event) => event.stopPropagation()}
+                                                                                >
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        role="menuitem"
+                                                                                        onClick={() => {
+                                                                                            setOpenRowMenuId(null);
+                                                                                            gmEditReport(location);
+                                                                                        }}
+                                                                                    >
+                                                                                        Edit
+                                                                                    </button>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        role="menuitem"
+                                                                                        className="is-danger"
+                                                                                        onClick={() => {
+                                                                                            setOpenRowMenuId(null);
+                                                                                            handleDeleteLocation(location);
+                                                                                        }}
+                                                                                    >
+                                                                                        Delete
+                                                                                    </button>
+                                                                                </span>
+                                                                            )}
                                                                         </span>
-                                                                    )}
-                                                                </span>
+                                                                        )}
+                                                                    </>
                                                                 )}
                                                             </div>
                                                         </article>
@@ -1964,7 +1987,7 @@ export default function GISMapping() {
                                     <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
                                 </div>
 
-                                <div className="gm-seg gm-seg-5">
+                                <div className="gm-seg">
                                     {reportTypes.map((type) => (
                                         <button
                                             key={type}
@@ -1976,6 +1999,15 @@ export default function GISMapping() {
                                         </button>
                                     ))}
                                 </div>
+
+                                {!editingLocationId && (
+                                    <div className="gm-form-hint">
+                                        <span>Lost or found pet? File it in Lost &amp; Found and it shows on this map.</span>
+                                        <button type="button" className="gm-link" onClick={() => onOpenLostFound?.()}>
+                                            Go to Lost &amp; Found
+                                        </button>
+                                    </div>
+                                )}
 
                                 <span className="gm-label">Where?</span>
                                 <div className="gm-where">

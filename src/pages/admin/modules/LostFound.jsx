@@ -80,7 +80,7 @@ function MapFollow({ lat, lng }) {
     return null;
 }
 
-export default function LostFoundPage({ setPage }) {
+export default function LostFoundPage({ setPage, openReportId, onOpenReportHandled }) {
     const [user, setUser] = useState(null);
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -885,6 +885,14 @@ function describeReport(report) {
 
     return { isMine, isOpen, canClaimThis, canSayFound, speciesIcon, statusKey, statusLabel, dateText };
 }
+
+// Opened from a GIS map pin: show that report once the list has loaded
+useEffect(() => {
+    if (!openReportId || loading) return;
+    const reportFromMap = reports.find((report) => report._id === openReportId);
+    if (reportFromMap) openReportDetails(reportFromMap);
+    onOpenReportHandled?.();
+}, [openReportId, loading, reports]); // eslint-disable-line react-hooks/exhaustive-deps
 
 // claimType: open the "This is my pet" / "I found this pet" form straight away
 function openReportDetails(report, claimType = null) {

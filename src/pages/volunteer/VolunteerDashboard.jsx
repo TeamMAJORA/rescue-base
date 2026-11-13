@@ -351,7 +351,7 @@ export default function VolunteerDashboard({ setPage }) {
         }
 
         if (activeStaffPage === "gis") {
-            return <GISMapping />
+            return <GISMapping onOpenLostFound={() => openAdopterPage("lost-found")} />
         }
     }
 
