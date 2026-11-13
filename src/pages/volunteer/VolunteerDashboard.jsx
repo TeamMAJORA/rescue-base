@@ -45,31 +45,21 @@ const ICONS = {
     feedback: "/icons/sidebar/Feedback-brown.svg",
 };
 
+// Grouped like the Admin/Staff sidebars: a label shows where "group" changes
 const staffMenu = [
-    { key: "overview", label: "Dashboard" },
-    { key: "rescues", label: "My Rescues" },
-
+    { key: "overview", group: "", label: "Dashboard" },
+    { key: "rescues", group: "Field work", label: "My Rescues" },
+    { key: "gis", group: "Field work", label: "GIS Mapping" },
     {
         key: "animals",
+        group: "Field work",
         label: "Animals",
         children: [
-            { key: "animal-profiles", label: "Animal Profiles" }//removed the qr they cant access it
+            { key: "animal-profiles", label: "Animal Profiles" }, // no QR Tags: volunteers can't access it
         ],
     },
-
-   //removed bcs of the new animal intake form
-    {
-        key: "gis",
-        label: "GIS Mapping"
-    },
-    {
-        key: "activity-log",
-        label: "Activity Log",
-    },
-    {
-        key: "feedback",
-        label: "Feedback",
-    },
+    { key: "activity-log", group: "Other", label: "Activity Log" },
+    { key: "feedback", group: "Other", label: "Feedback" },
 ];
 
 function getStaffPageTitle(activeStaffPage) {
@@ -452,8 +442,9 @@ export default function VolunteerDashboard({ setPage }) {
                 </button>
 
                 <nav className="staff-menu">
-                    {staffMenu.map((item) => {
+                    {staffMenu.map((item, index) => {
                         const isOpen = openSidebarMenu === item.key;
+                        const isFirstInSection = index > 0 && item.group !== staffMenu[index - 1].group;
                         const isActive =
                             activeStaffPage === item.key ||
                             item.children?.some((child) => child.key === activeStaffPage);
@@ -461,6 +452,7 @@ export default function VolunteerDashboard({ setPage }) {
 
                         return (
                             <div className="staff-menu-group" key={item.key}>
+                                {isFirstInSection && <p className="menu-section-label">{item.group}</p>}
                                 <button
                                     type="button"
                                     title={item.label}
@@ -505,6 +497,7 @@ export default function VolunteerDashboard({ setPage }) {
                     })}
 
                     <div className="staff-menu-group">
+                        <hr className="menu-section-divider" />
                         <button
                             type="button"
                             title="Adopt a Pet"
