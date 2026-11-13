@@ -450,7 +450,7 @@ export default function StaffDashboard({ setPage }) {
             );
 
             // Saved notifications first, then the summary counts
-            const savedNotifications = fetchRecentNotifications().catch((error) => {
+            const savedNotifications = await fetchRecentNotifications().catch((error) => {
                 console.error("Load saved notifications error:", error);
                 return [];
             });
