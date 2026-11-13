@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PetTypeIcon from "../../../components/system/PetTypeIcon";
 function formatDate(dateValue, includeTime = false) {
     if (!dateValue) {
         return "Not Available";
@@ -263,7 +264,7 @@ export default function ApplicationStatus({
         return (
             <section className="application-status-loading">
                 <div className="application-status-loading-icon">
-                    🐾
+                    <PetTypeIcon />
                 </div>
 
                 <h2>Loading application status...</h2>

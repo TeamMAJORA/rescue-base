@@ -54,6 +54,7 @@ import AnimalTransfers from "./modules/animals/AnimalTransfers";
 import { SuppliesPage } from "./modules/FoodStorage";
 import { fetchRecentNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
+import SidebarUserCard from "../../components/system/SidebarUserCard";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -75,13 +76,14 @@ const ICONS = {
     "global-settings": "/icons/sidebar/settings-brown.svg",
 };
 
+// Sidebar sections: items with the same "group" sit under one small label; "" = after a divider
 const adminMenu = [
-    { key: "overview", label: "Dashboard" },
-
-    { key: "users", label: "User Management" },
-
+    { key: "overview", group: "Overview", label: "Dashboard" },
+    { key: "analytics", group: "Overview", label: "Analytics" },
+    { key: "intake-forecast", group: "Overview", label: "AI Intake Forecast" },
+    { key: "reports", group: "Overview", label: "Reports" },
     {
-        key: "animals",
+        key: "animals", group: "Animals",
         label: "Animals",
         children: [
             { key: "animal-profiles", label: "Animal Profiles" },
@@ -89,19 +91,16 @@ const adminMenu = [
             { key: "qr-tags", label: "QR Tags" },
         ],
     },
-
-    { key: "adoption-applications", label: "Adoptions" },//removed bcs of the new animal intake form
-    { key: "foster-care", label: "Foster Care" },
-    { key: "donations", label: "Donations" },
-    { key: "supplies", label: "Supplies" },
-    { key: "lost-found", label: "Lost & Found" },
-    { key: "rescue", label: "Rescue Assignments" },
-    { key: "gis-mapping", label: "GIS Mapping" },
-    { key: "feedback", label: "Feedback" },
-    { key: "analytics", label: "Analytics" },
-    { key: "intake-forecast", label: "AI Intake Forecast" },
-    { key: "reports", label: "Reports" },
-    { key: "global-settings", label: "Settings" }
+    { key: "adoption-applications", group: "Animals", label: "Adoptions" },
+    { key: "foster-care", group: "Animals", label: "Foster Care" },
+    { key: "lost-found", group: "Animals", label: "Lost & Found" },
+    { key: "rescue", group: "Animals", label: "Rescue Assignments" },
+    { key: "gis-mapping", group: "Animals", label: "GIS Mapping" },
+    { key: "donations", group: "Shelter", label: "Donations" },
+    { key: "supplies", group: "Shelter", label: "Supplies" },
+    { key: "users", group: "People", label: "User Management" },
+    { key: "feedback", group: "People", label: "Feedback" },
+    { key: "global-settings", group: "", label: "Settings" },
 ]
 
 
@@ -283,7 +282,7 @@ export default function AdminDashboard({ setPage }) {
     const [notifications, setNotification] = useState([]);
     const [notifOpen, setNotifOpen] = useState(false);
 
-    // ---- Shared states: signed out, confirm popup, toasts ----
+    // ---- Shared states: signed out (confirm popup + toasts live in AppDialogs) ----
     const savedRole = (() => {
         try {
             return String(
@@ -325,8 +324,6 @@ export default function AdminDashboard({ setPage }) {
         window.addEventListener("rb-settings-saved", handleSaved);
         return () => window.removeEventListener("rb-settings-saved", handleSaved);
     }, []);
-    const [confirmBox, setConfirmBox] = useState(null);
-    const [toasts, setToasts] = useState([]);
 
     useEffect(() => {
         // 401 for all API calls: sign out the user and show the signed out screen
@@ -361,31 +358,10 @@ export default function AdminDashboard({ setPage }) {
             return response;
         };
 
-        // Modules call these instead of window.confirm / alert
-        window.rbConfirm = (options) =>
-            new Promise((resolve) => {
-                setConfirmBox({ ...options, resolve });
-            });
-
-        window.rbToast = (text, tone = "success") => {
-            const id = `${Date.now()}-${Math.random()}`;
-            setToasts((current) => [...current, { id, text, tone }]);
-            setTimeout(() => {
-                setToasts((current) => current.filter((toast) => toast.id !== id));
-            }, 3200);
-        };
-
         return () => {
             window.fetch = originalFetch;
-            delete window.rbConfirm;
-            delete window.rbToast;
         };
     }, []);
-
-    function closeConfirm(answer) {
-        confirmBox?.resolve(answer);
-        setConfirmBox(null);
-    }
 
     // Name + photo for the sidebar card (re-read after Settings saves)
     const [, setUserVersion] = useState(0);
@@ -761,15 +737,19 @@ export default function AdminDashboard({ setPage }) {
                 </button>
 
                 <nav className="admin-menu">
-                    {adminMenu.map((item) => {
+                    {adminMenu.map((item, index) => {
                         const isOpen = openSidebarMenu === item.key;
                         const isActive =
                             activeAdminPage === item.key ||
                             item.children?.some((child) => child.key === activeAdminPage);
                         const icon = ICONS[item.key];
+                        const isFirstInSection = item.group !== adminMenu[index - 1]?.group;
 
                         return (
                             <div className="admin-menu-group" key={item.key}>
+                                {isFirstInSection && (item.group
+                                    ? <p className="menu-section-label">{item.group}</p>
+                                    : <hr className="menu-section-divider" />)}
                                 <button
                                     type="button"
                                     title={item.label}
@@ -820,11 +800,10 @@ export default function AdminDashboard({ setPage }) {
                     })}
                 </nav>
 
-                <button
-                    className="admin-user-card"
-                    type="button"
-                    title="Log out"
-                    onClick={() => signOut("home")}
+                <SidebarUserCard
+                    cardClassName="admin-user-card"
+                    onOpenAccount={() => { setOpenSidebarMenu(null); setSettingsTab("profile"); setActiveAdminPage("global-settings"); setIsMobileMenuOpen(false); }}
+                    onConfirmLogout={() => signOut("home")}
                 >
                     <span className="admin-user-avatar">
                         {sidebarUser.profileImage ? (
@@ -835,10 +814,9 @@ export default function AdminDashboard({ setPage }) {
                     </span>
                     <span className="admin-user-info">
                         <strong>{sidebarUser.name || sidebarUser.username || "Admin User"}</strong>
-                        <small>Admin · Log out</small>
+                        <small>Admin</small>
                     </span>
-                    <span className="admin-user-arrow" aria-hidden="true">→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="admin-main">
@@ -921,47 +899,6 @@ export default function AdminDashboard({ setPage }) {
                     )}
                 {renderAdminContent()}
             </section>
-            {confirmBox && (
-                <div
-                    className="ao-confirm-backdrop"
-                    onClick={() => closeConfirm(false)}
-                    onKeyDown={(event) => {
-                        if (event.key === "Escape") closeConfirm(false);
-                    }}
-                >
-                    <div
-                        className={`ao-confirm${confirmBox.danger ? " danger" : ""}`}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="ao-confirm-title"
-                        onClick={(event) => event.stopPropagation()}
-                    >
-                        <h3 id="ao-confirm-title">{confirmBox.title}</h3>
-                        {confirmBox.message && <p>{confirmBox.message}</p>}
-                        <div className="ao-confirm-actions">
-                            <button type="button" autoFocus onClick={() => closeConfirm(false)}>
-                                {confirmBox.cancelLabel || "Cancel"}
-                            </button>
-                            <button
-                                type="button"
-                                className="ao-confirm-ok"
-                                onClick={() => closeConfirm(true)}
-                            >
-                                {confirmBox.confirmLabel || "Confirm"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <div className="ao-toasts" aria-live="polite">
-                {toasts.map((toast) => (
-                    <div key={toast.id} className={`ao-toast ${toast.tone}`}>
-                        <i aria-hidden="true">{toast.tone === "error" ? "!" : "✓"}</i>
-                        {toast.text}
-                    </div>
-                ))}
-            </div>
         </main>
     );
-}
+}

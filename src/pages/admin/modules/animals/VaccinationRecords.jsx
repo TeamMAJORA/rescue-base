@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 
 
 // Styled confirm popup + toast from the dashboard (falls back to the browser box)
@@ -856,10 +857,8 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                             <div className="ao-avatar">
                                                 {animal.image ? (
                                                     <img src={animal.image} alt="" />
-                                                ) : animal.type === "Cat" ? (
-                                                    "🐱"
                                                 ) : (
-                                                    "🐶"
+                                                    <PetTypeIcon type={animal.type} />
                                                 )}
                                             </div>
                                             <div>

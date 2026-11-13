@@ -34,6 +34,8 @@ import { formatAge } from "../../utils/formatAge";
 import AccountSettings from "../AccountSettings";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
+import SidebarUserCard from "../../components/system/SidebarUserCard";
+import PetTypeIcon from "../../components/system/PetTypeIcon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -131,7 +133,7 @@ const emptyPet = {
     health: "Not available",
     story: "There are currently no available animals.",
     description: "",
-    icon: "🐾",
+    petType: "",
     image: "",
 };
 
@@ -258,7 +260,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
     }, [pets]);
 
     
-    const QUIZ_TOTAL_STEPS = 3;
+    const QUIZ_PART_COUNT = 3; // Your space, Your experience, Energy level
 
     const savedPetsCount = (() => {
         try {
@@ -391,7 +393,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
                 label: "Action Needed",
                 icon: "/icons/Action.svg",
                 title: "Finish your match quiz",
-                linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
+                linkText: `Short quiz, ${QUIZ_PART_COUNT} parts`,
                 page: "matchmaking-quiz",
             };
         }
@@ -587,12 +589,7 @@ async function fetchPets({ silent = false } = {}) {
                             animal.description ||
                             `${animal.name} is currently under the care of RescueBase.`,
 
-                        icon:
-                            animal.type === "Dog"
-                                ? "🐶"
-                                : animal.type === "Cat"
-                                    ? "🐱"
-                                    : "🐾",
+                        petType: animal.type,
                     };
                 }
             );
@@ -1027,7 +1024,7 @@ async function fetchPets({ silent = false } = {}) {
                             }
                         />
                     ) : (
-                        <span>🐾</span>
+                        <span><PetTypeIcon /></span>
                     )}
                 </div>
 
@@ -1133,8 +1130,8 @@ async function fetchPets({ silent = false } = {}) {
                             <h2>Let's find your perfect companion</h2>
 
                             <p>
-                                Answer {QUIZ_TOTAL_STEPS} quick steps about your home and
-                                we'll pair you with pets that fit your life.
+                                Take a short quiz in {QUIZ_PART_COUNT} parts about your home and
+                                lifestyle, and we'll pair you with pets that fit your life.
                             </p>
 
                             <ol className="adopter-hero-steps">
@@ -1143,7 +1140,7 @@ async function fetchPets({ silent = false } = {}) {
                                 <li><b>3</b> Energy level</li>
                                 <li className="adopter-hero-time">
                                     <img src="/icons/Clock.svg" alt="" />
-                                    ~2 min
+                                    ~3 min
                                 </li>
                             </ol>
 
@@ -1785,11 +1782,10 @@ async function fetchPets({ silent = false } = {}) {
                     )}
                 </nav>
 
-                <button
-                    className="adopter-user-card"
-                    type="button"
-                    title="Log out"
-                    onClick={handleLogout}
+                <SidebarUserCard
+                    cardClassName="adopter-user-card"
+                    onOpenAccount={() => setActiveAdopterPage("settings")}
+                    onConfirmLogout={handleLogout}
                 >
                     <div className="adopter-user-avatar">
                         {savedUser.profileImage ? (
@@ -1804,7 +1800,7 @@ async function fetchPets({ silent = false } = {}) {
                                 }
                             />
                         ) : (
-                            <span>👤</span>
+                            <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
                         )}
                     </div>
 
@@ -1815,11 +1811,9 @@ async function fetchPets({ silent = false } = {}) {
                                 "Adopter"}
                         </strong>
 
-                        <small>Adopter · Log out</small>
+                        <small>Adopter</small>
                     </div>
-
-                    <span>→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="adopter-main">
@@ -1902,4 +1896,4 @@ async function fetchPets({ silent = false } = {}) {
             </section>
         </main>
     );
-}
+}

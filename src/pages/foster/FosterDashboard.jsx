@@ -21,6 +21,7 @@ import "../../styles/foster/FosterNotifications.css";
 import "../../styles/admin/IntakeRecords.css"; // shared page styles (stats strip, cards, traits)
 
 import assets from "../../data/assets.json";
+import SidebarUserCard from "../../components/system/SidebarUserCard";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -248,7 +249,7 @@ function goToPage(page, petId = null) {
 
             // No longer a foster: the login token still says "foster", so log out
             if (data.roleChanged) {
-                alert(data.message);
+                window.rbToast(data.message);
                 signOut("auth");
                 return;
             }
@@ -621,11 +622,10 @@ function goToPage(page, petId = null) {
                     </button>
                 </nav>
 
-                <button
-                    type="button"
-                    className="foster-user-card"
-                    title="Log out"
-                    onClick={() => guardLeave(() => signOut("home"))}
+                <SidebarUserCard
+                    cardClassName="foster-user-card"
+                    onOpenAccount={() => openAdopterPage("settings")}
+                    onConfirmLogout={() => guardLeave(() => signOut("home"))}
                 >
                     <span className="foster-user-avatar">
                         {savedUser.profileImage ? (
@@ -636,10 +636,9 @@ function goToPage(page, petId = null) {
                     </span>
                     <span className="foster-user-info">
                         <strong>{fosterName}</strong>
-                        <small>Foster · Log out</small>
+                        <small>Foster</small>
                     </span>
-                    <span className="foster-user-arrow" aria-hidden="true">→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="foster-main">
@@ -869,4 +868,4 @@ function goToPage(page, petId = null) {
 
     );
 
-}
+}

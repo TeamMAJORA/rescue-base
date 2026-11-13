@@ -358,7 +358,7 @@ function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
                     disabled={disabled}
                     aria-expanded={open === "time"}
                 >
-                    <span className="aip-clock" aria-hidden="true">🕘</span>
+                    <img className="aip-clock inline-icon" src="/icons/Clock.svg" alt="" aria-hidden="true" />
                     <span>{hour}:{minute} {period}</span>
                     <i aria-hidden="true">▾</i>
                 </button>
@@ -2245,7 +2245,7 @@ export default function AdoptionApplications() {
                     </p>
                 ) : (
                     <div className="admin-adoption-table">
-                        <div className="admin-application-columns" aria-hidden="true">
+                        <div className="admin-application-columns">
                             <span>Applicant</span>
                             <span>Pet</span>
                             <button

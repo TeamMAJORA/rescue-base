@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { isAdmin, isStaff } from "../../../../utils/auth";
 import "../../../../styles/admin/QRTags.css";
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 
 // Styled confirm popup + toast from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -369,7 +370,7 @@ export default function QRTags() {
                 {loading ? (
                     <p className="qrt-empty">Loading QR tags...</p>
                 ) : filteredRecords.length === 0 ? (
-                    <p className="qrt-empty">🐾 No QR tags found. Generate one above.</p>
+                    <p className="qrt-empty"><PetTypeIcon /> No QR tags found. Generate one above.</p>
                 ) : (
                     <div className="qrt-grid">
                         {filteredRecords.map((record) => {
@@ -399,7 +400,7 @@ export default function QRTags() {
                                         <div>
                                             <h3>{getAnimalName(record)}</h3>
                                             <span className="qrt-meta">
-                                                {animal.type === "Cat" ? "🐱" : "🐶"} {animal.type || "Animal"} · {getCreatedDate(record)}
+                                                <PetTypeIcon type={animal.type} /> {animal.type || "Animal"} · {getCreatedDate(record)}
                                             </span>
                                         </div>
                                     </div>

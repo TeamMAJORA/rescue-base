@@ -972,7 +972,7 @@ export default function AdminOverview({ onNavigate }) {
                                                             </span>
                                                         </span>
                                                     </td>
-                                                    <td>{a.intakeSource === "field" ? "📱 Phone" : a.intakeSource === "desk" ? "Computer" : "—"}</td>
+                                                    <td>{a.intakeSource === "field" ? "Phone" : a.intakeSource === "desk" ? "Computer" : "—"}</td>
                                                     <td>
                                                         <span className={`db2-pill is-${health}`}>
                                                             {health === "sick" ? a.intakeCondition || "Sick" : health === "observation" ? "Observation" : health === "healthy" ? "Healthy" : "Unknown"}

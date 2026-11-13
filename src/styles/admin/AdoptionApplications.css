@@ -348,6 +348,7 @@
 }
 
 .admin-adoption-filters button {
+    flex-shrink: 0; /* scroll the row instead of squashing the pills */
     height: 34px;
     padding: 0 16px;
     border: 1.5px solid #5a1b00;
@@ -405,7 +406,9 @@
 
     .admin-adoption-filters {
         flex: 1;
+        min-width: 0;
         overflow-x: auto;
+        scrollbar-width: none;
     }
 
     .admin-status-pill {

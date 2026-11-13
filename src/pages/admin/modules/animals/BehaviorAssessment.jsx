@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import InfoTip from "../../../../components/system/InfoTip";
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -77,12 +78,6 @@ function needsExtraCare(animal) {
 // Tags come from the backend (personalityService.js), same as the Adopter Preview
 function getBehaviorTags(animal) {
     return animal?.personality?.tags || [];
-}
-
-function speciesEmoji(type) {
-    if (type === "Cat") return "🐱";
-    if (type === "Dog") return "🐶";
-    return "🐾";
 }
 
 function today() {
@@ -869,7 +864,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                                         {animal.image ? (
                                             <img src={animal.image} alt="" />
                                         ) : (
-                                            speciesEmoji(animal.type)
+                                            <PetTypeIcon type={animal.type} />
                                         )}
                                     </div>
 

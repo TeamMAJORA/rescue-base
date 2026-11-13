@@ -9,6 +9,7 @@ import StaffDashboard from "./pages/admin/StaffDashboard";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 import PublicPetProfile from "./pages/PublicPetProfile";
 import LandingPage from "./pages/LandingPage";
+import AppDialogs from "./components/system/AppDialogs";
 
 // After a browser refresh, reopen the logged-in user's dashboard instead of the landing page
 function getStartPage() {
@@ -94,7 +95,7 @@ function MaintenanceTicker() {
     );
 }
 
-export default function App() {
+function AppPages() {
     const [page, setPage] = useState(getStartPage);
     const petMatch = window.location.pathname.match(/^\/pet\/([^/]+)/);
     if (petMatch) return <PublicPetProfile tagCode={decodeURIComponent(petMatch[1])} />;
@@ -172,6 +173,16 @@ export default function App() {
                 onLogin={() => setPage("auth")}
                 onSignup={() => setPage("signup")}
             />
+        </>
+    );
+}
+
+// Themed confirm / prompt / toast live once here, so every page (and every role) gets them
+export default function App() {
+    return (
+        <>
+            <AppPages />
+            <AppDialogs />
         </>
     );
 }

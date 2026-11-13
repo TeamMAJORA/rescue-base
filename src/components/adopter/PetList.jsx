@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { formatPetStatus } from "../../utils/petStatus";
+import PetTypeIcon from "../system/PetTypeIcon";
 
 const STATUS_PILLS = [
     { key: "all", label: "All Pets" },
@@ -206,7 +207,7 @@ export default function PetList({
                                     {pet.image ? (
                                         <img src={pet.image} alt={pet.name} />
                                     ) : (
-                                        <span>{pet.icon || "🐾"}</span>
+                                        <span><PetTypeIcon type={pet.petType} /></span>
                                     )}
 
                                     <span className={`adopter-status ${pet.status || "not_available"}`}>

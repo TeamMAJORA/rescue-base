@@ -387,6 +387,8 @@ export default function PublicGISMap({
                                         Number(location.longitude),
                                     ]}
                                     icon={REPORT_ICONS[reportGroupOf(location)]}
+                                    title={`${location.petName || "Animal report"}${location.locationName ? `, ${location.locationName}` : ""}`}
+                                    alt={location.petName || "Animal report"}
                                 >
                                     <Popup>
                                         <strong>
@@ -422,6 +424,8 @@ export default function PublicGISMap({
                                         Number(shelter.longitude),
                                     ]}
                                     icon={shelter.category === "clinic" ? clinicIcon : shelterIcon}
+                                    title={shelter.name || "Animal Shelter"}
+                                    alt={shelter.name || "Animal Shelter"}
                                 >
                                     <Popup>
                                         <strong>

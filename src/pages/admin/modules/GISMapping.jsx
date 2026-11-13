@@ -273,6 +273,24 @@ export default function GISMapping() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
+    // Row "⋯" menu (Edit / Delete): which report it is for, and where it sits (fixed, so the list can't clip it)
+    const [openRowMenuId, setOpenRowMenuId] = useState(null);
+    const [openRowMenuPosition, setOpenRowMenuPosition] = useState({ top: 0, right: 0 });
+
+    // Close the row menu on any outside click, scroll or resize
+    useEffect(() => {
+        if (!openRowMenuId) return undefined;
+
+        const closeRowMenu = () => setOpenRowMenuId(null);
+        document.addEventListener("click", closeRowMenu);
+        window.addEventListener("scroll", closeRowMenu, true);
+        window.addEventListener("resize", closeRowMenu);
+        return () => {
+            document.removeEventListener("click", closeRowMenu);
+            window.removeEventListener("scroll", closeRowMenu, true);
+            window.removeEventListener("resize", closeRowMenu);
+        };
+    }, [openRowMenuId]);
 
     // Shared messages and role
     const [error, setError] = useState("");
@@ -314,6 +332,9 @@ export default function GISMapping() {
     const [gmStatus, setGmStatus] = useState("open");
     const [gmType, setGmType] = useState("all");
     const [gmSpecies, setGmSpecies] = useState({ dog: true, cat: true });
+    // Phones: the report filters open in a bottom sheet
+    const [isGmFilterSheetOpen, setIsGmFilterSheetOpen] = useState(false);
+    const gmChangedFilterCount = (gmStatus !== "open") + (gmType !== "all") + !gmSpecies.dog + !gmSpecies.cat;
     const [gmShowRescued, setGmShowRescued] = useState(false);
     const [gmAnimals, setGmAnimals] = useState([]);
     const [gmMyLoc, setGmMyLoc] = useState(null);
@@ -1678,7 +1699,32 @@ export default function GISMapping() {
 
                                     {gmTab === "reports" && (
                                         <>
-                                            <div className="gm-filters">
+                                            <button
+                                                type="button"
+                                                className="gm-filter-toggle"
+                                                aria-expanded={isGmFilterSheetOpen}
+                                                onClick={() => setIsGmFilterSheetOpen(true)}
+                                            >
+                                                <span>Filters</span>
+                                                {gmChangedFilterCount > 0 && <b>{gmChangedFilterCount} on</b>}
+                                            </button>
+                                            {isGmFilterSheetOpen && (
+                                                <div className="gm-sheet-backdrop" onClick={() => setIsGmFilterSheetOpen(false)} aria-hidden="true" />
+                                            )}
+                                            <div className={`gm-filters${isGmFilterSheetOpen ? " is-sheet-open" : ""}`}>
+                                                <div className="gm-sheet-head">
+                                                    <b>Filters</b>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setGmStatus("open");
+                                                            setGmType("all");
+                                                            setGmSpecies({ dog: true, cat: true });
+                                                        }}
+                                                    >
+                                                        Reset
+                                                    </button>
+                                                </div>
                                                 <label className="gm-select">
                                                     <span>Status</span>
                                                     <select value={gmStatus} onChange={(e) => setGmStatus(e.target.value)}>
@@ -1710,6 +1756,9 @@ export default function GISMapping() {
                                                         </button>
                                                     ))}
                                                 </div>
+                                                <button type="button" className="gm-sheet-done" onClick={() => setIsGmFilterSheetOpen(false)}>
+                                                    Show {gmFiltered.length} {gmFiltered.length === 1 ? "report" : "reports"}
+                                                </button>
                                             </div>
 
                                             <div className="gm-list">
@@ -1749,16 +1798,57 @@ export default function GISMapping() {
                                                                     <span className="gm-mini is-done">Resolved</span>
                                                                 )}
                                                                 {canManage && (
-                                                                <span className="gm-row-links">
-                                                                    <button type="button" className="gm-link" onClick={() => gmEditReport(location)}>Edit</button>
+                                                                <span className="gm-row-menu-wrap">
                                                                     <button
                                                                         type="button"
-                                                                        className="gm-link gm-link-danger"
-                                                                        onClick={() => handleDeleteLocation(location)}
+                                                                        className="gm-row-menu-btn"
+                                                                        aria-label={`More actions for ${location.petName || location.locationName || "this report"}`}
+                                                                        aria-haspopup="menu"
+                                                                        aria-expanded={openRowMenuId === location._id}
                                                                         disabled={deletingId === location._id}
+                                                                        onClick={(event) => {
+                                                                            event.stopPropagation();
+                                                                            const rect = event.currentTarget.getBoundingClientRect();
+                                                                            setOpenRowMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                                                                            setOpenRowMenuId(openRowMenuId === location._id ? null : location._id);
+                                                                        }}
                                                                     >
-                                                                        {deletingId === location._id ? "Deleting..." : "Delete"}
+                                                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                                            <circle cx="5" cy="12" r="2" />
+                                                                            <circle cx="12" cy="12" r="2" />
+                                                                            <circle cx="19" cy="12" r="2" />
+                                                                        </svg>
                                                                     </button>
+                                                                    {openRowMenuId === location._id && (
+                                                                        <span
+                                                                            className="gm-row-menu"
+                                                                            role="menu"
+                                                                            style={{ top: openRowMenuPosition.top, right: openRowMenuPosition.right }}
+                                                                            onClick={(event) => event.stopPropagation()}
+                                                                        >
+                                                                            <button
+                                                                                type="button"
+                                                                                role="menuitem"
+                                                                                onClick={() => {
+                                                                                    setOpenRowMenuId(null);
+                                                                                    gmEditReport(location);
+                                                                                }}
+                                                                            >
+                                                                                Edit
+                                                                            </button>
+                                                                            <button
+                                                                                type="button"
+                                                                                role="menuitem"
+                                                                                className="is-danger"
+                                                                                onClick={() => {
+                                                                                    setOpenRowMenuId(null);
+                                                                                    handleDeleteLocation(location);
+                                                                                }}
+                                                                            >
+                                                                                Delete
+                                                                            </button>
+                                                                        </span>
+                                                                    )}
                                                                 </span>
                                                                 )}
                                                             </div>
