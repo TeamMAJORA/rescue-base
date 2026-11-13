@@ -1569,14 +1569,6 @@ async function fetchPets({ silent = false } = {}) {
         // Older versions kept the quiz in the browser, shared by everyone on this computer
         localStorage.removeItem("rescuebase_matchmaking_quiz");
         localStorage.removeItem("rescuebase_matchmaking_results");
-
-        const interval = setInterval(() => {
-            fetchApplicationStatus();
-        }, 5000);
-
-        return () => {
-            clearInterval(interval);
-        };
     }, [savedEmail, signedOut]);
 
     // Keep pet availability fresh
@@ -1589,14 +1581,6 @@ async function fetchPets({ silent = false } = {}) {
     useEffect(() => {
         fetchPets({ silent: true });
     }, [activeAdopterPage]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            fetchPets({ silent: true });
-        }, 30000);
-
-        return () => clearInterval(interval);
-    }, []);
     
     // Account was deactivated by an admin
     if (signedOut === "disabled") {
