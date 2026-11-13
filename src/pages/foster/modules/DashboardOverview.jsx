@@ -274,7 +274,7 @@ export default function DashboardOverview({
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(`${API}/api/settings/contact`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
             setContact(response.ok && data.success ? data.contact : {});
@@ -293,7 +293,7 @@ export default function DashboardOverview({
                 const token = localStorage.getItem("token");
                 await fetch(`${API}/api/notifications/${notification._id}/read`, {
                     method: "PATCH",
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                 });
                 await onRefreshNotifications?.();
             } catch (error) {

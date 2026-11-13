@@ -82,6 +82,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         email: forgotPasswordEmail.trim(),
@@ -174,6 +175,7 @@ export default function AuthPage({ mode = "login", setPage }) {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + token,
+                "ngrok-skip-browser-warning": "true",
             },
             body: JSON.stringify({ token }),
         });
@@ -285,6 +287,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(body),
             });
@@ -341,6 +344,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     email: otpEmail.trim().toLowerCase(),
@@ -387,6 +391,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         email: loginOtpEmail.trim().toLowerCase(),
@@ -442,6 +447,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     email: otpEmail.trim().toLowerCase(),
@@ -498,6 +504,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         email: forgotPasswordEmail

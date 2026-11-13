@@ -112,8 +112,8 @@ export default function LandingPage({
                     animalsRes,
                     fosterRes,
                 ] = await Promise.all([
-                    fetch(API + "/api/animals"),
-                    fetch(API + "/api/foster/assignments"),
+                    fetch(API + "/api/animals", { headers: { "ngrok-skip-browser-warning": "true" } }),
+                    fetch(API + "/api/foster/assignments", { headers: { "ngrok-skip-browser-warning": "true" } }),
                 ]);
 
                 const animalsData =

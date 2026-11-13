@@ -189,6 +189,7 @@ export default function LostFoundPage({ setPage }) {
             const response = await fetch(`${API}/api/lost-found/reports`, {
             headers: {
             Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
                       },
               });
 
@@ -209,7 +210,7 @@ export default function LostFoundPage({ setPage }) {
     async function loadMySuggestions() {
         try {
             const response = await fetch(`${API}/api/lost-found/matches/me`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -227,7 +228,7 @@ export default function LostFoundPage({ setPage }) {
         try {
             const response = await fetch(`${API}/api/lost-found/matches/${matchId}/dismiss`, {
                 method: "PATCH",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -246,7 +247,7 @@ export default function LostFoundPage({ setPage }) {
 
         try {
             const response = await fetch(`${API}/api/lost-found/matches?limit=100`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -282,6 +283,7 @@ export default function LostFoundPage({ setPage }) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ decision }),
             });
@@ -355,6 +357,7 @@ export default function LostFoundPage({ setPage }) {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                           reportType,
@@ -448,7 +451,7 @@ async function uploadLostFoundImage(file) {
 
     const response = await fetch(`${API}/api/uploads/image`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` }, // no Content-Type: the browser sets it for files
+        headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" }, // no Content-Type: the browser sets it for files
         body: formData,
     });
 
@@ -502,6 +505,7 @@ async function uploadClaimProofPhoto(file) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     claimType: claimMode,
@@ -542,7 +546,7 @@ async function uploadClaimProofPhoto(file) {
         try {
             const response = await fetch(`${API}/api/lost-found/reports/${reportId}/claim/cancel`, {
                 method: "PATCH",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -577,6 +581,7 @@ async function uploadClaimProofPhoto(file) {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         claimId,
@@ -621,7 +626,7 @@ async function uploadClaimProofPhoto(file) {
         try {
             const response = await fetch(`${API}/api/lost-found/reports/${reportId}/claims/seen`, {
                 method: "PATCH",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
             if (!response.ok || !data.success) throw new Error(data.message || "Could not update the report.");
@@ -662,7 +667,7 @@ async function uploadClaimProofPhoto(file) {
             selectedReportIds.map((reportId) =>
                 fetch(`${API}/api/lost-found/reports/${reportId}`, {
                     method: "DELETE",
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                 }).then((response) => {
                     if (!response.ok) throw new Error(`Failed to delete report ${reportId}`);
                 })
@@ -700,6 +705,7 @@ async function uploadClaimProofPhoto(file) {
                     method: "DELETE",
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );

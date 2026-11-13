@@ -493,7 +493,7 @@ export default function IntakeRecords() {
     // --------------------------------------------------
 
     async function fetchList(url, key) {
-        const response = await fetch(url, { method: "GET", headers: getHeaders() });
+        const response = await fetch(url, { method: "GET", headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" } });
         const data = await parseResponse(response);
         return data[key] || [];
     }
@@ -565,7 +565,7 @@ export default function IntakeRecords() {
         formData.append("folder", "rescuebase/intakes");
         const response = await fetch(UPLOAD_URL, {
             method: "POST",
-            headers: getHeaders(),
+            headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
             body: formData,
         });
         const data = await response.json().catch(() => ({}));
@@ -735,7 +735,7 @@ export default function IntakeRecords() {
 
             const response = await fetch(endpoint, {
                 method,
-                headers: getHeaders(true),
+                headers: { ...(getHeaders(true)), "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify(payload),
             });
 
@@ -779,7 +779,7 @@ export default function IntakeRecords() {
 
             const response = await fetch(`${API_BASE_URL}/${id}/approve-intake`, {
                 method: "PATCH",
-                headers: getHeaders(true),
+                headers: { ...(getHeaders(true)), "ngrok-skip-browser-warning": "true" },
             });
 
             await parseResponse(response);
@@ -826,7 +826,7 @@ export default function IntakeRecords() {
 
             const response = await fetch(`${API_BASE_URL}/${id}/reject-intake`, {
                 method: "PATCH",
-                headers: getHeaders(true),
+                headers: { ...(getHeaders(true)), "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify({ reason: trimmedReason }),
             });
 
@@ -857,7 +857,7 @@ export default function IntakeRecords() {
 
             const response = await fetch(`${API_BASE_URL}/${id}`, {
                 method: "DELETE",
-                headers: getHeaders(),
+                headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
             });
 
             await parseResponse(response);

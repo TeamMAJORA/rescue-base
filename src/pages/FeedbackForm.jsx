@@ -82,6 +82,7 @@ export default function FeedbackForm({ onSubmitted }) {
                             "application/json",
                         Authorization:
                             `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         rating,
@@ -126,7 +127,7 @@ async function loadHistory() {
     try {
         setHistoryLoading(true);
         const response = await fetch(`${API}/api/feedback/me`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
         });
         const data = await response.json();
         if (response.ok && data.success) setHistory(data.feedback || []);

@@ -36,7 +36,7 @@ export default function NeedsSection({ onSignup }) {
     const [dropOff, setDropOff] = useState(null);
 
     useEffect(() => {
-        fetch(`${API}/api/supplies/public`)
+        fetch(`${API}/api/supplies/public`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => {
                 setSupplies(Array.isArray(data.supplies) ? data.supplies : []);
@@ -44,7 +44,7 @@ export default function NeedsSection({ onSignup }) {
             })
             .catch(() => setSupplies([]));
 
-        fetch(`${API}/api/settings/drop-off`)
+        fetch(`${API}/api/settings/drop-off`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => setDropOff(data.dropOff?.enabled && data.dropOff.address ? data.dropOff : null))
             .catch(() => setDropOff(null));

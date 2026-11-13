@@ -100,7 +100,7 @@ export default function FosterHistory() {
             setLoading(true);
 
             const response = await fetch(`${API}/api/foster/assignments/me/history`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 

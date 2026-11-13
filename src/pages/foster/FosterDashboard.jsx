@@ -203,6 +203,7 @@ function goToPage(page, petId = null) {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -235,6 +236,7 @@ function goToPage(page, petId = null) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({}),
             });
@@ -276,6 +278,7 @@ function goToPage(page, petId = null) {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -330,6 +333,7 @@ function goToPage(page, petId = null) {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );

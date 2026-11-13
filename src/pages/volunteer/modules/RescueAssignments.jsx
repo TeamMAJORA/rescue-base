@@ -64,7 +64,7 @@ function useMyRescues() {
     const [completingAssignment, setCompletingAssignment] = useState(null);
 
     const loadOpen = useCallback(() => {
-        return fetch(`${API}/api/rescue-assignments/open`, { headers: authHeaders() })
+        return fetch(`${API}/api/rescue-assignments/open`, { headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
             .then(({ ok, data }) => {
                 if (!ok || data.success === false) throw new Error(data.message || "Could not load open rescues.");
@@ -77,7 +77,7 @@ function useMyRescues() {
     }, []);
 
     const loadMine = useCallback(() => {
-        return fetch(`${API}/api/rescue-assignments/my`, { headers: authHeaders() })
+        return fetch(`${API}/api/rescue-assignments/my`, { headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
             .then(({ ok, data }) => {
                 if (!ok || data.success === false) throw new Error(data.message || "Could not load your rescues.");
@@ -159,7 +159,7 @@ function useMyRescues() {
             setNotice("");
             const response = await fetch(`${API}/api/rescue-assignments/${assignment._id}/${action}`, {
                 method: action === "claim" ? "POST" : "PATCH",
-                headers: authHeaders(true),
+                headers: { ...(authHeaders(true)), "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify(body),
             });
             const data = await response.json().catch(() => ({}));
@@ -358,7 +358,7 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
     const [activity, setActivity] = useState(null);
 
     useEffect(() => {
-        fetch(`${API}/api/activity-logs?limit=5`, { headers: authHeaders() })
+        fetch(`${API}/api/activity-logs?limit=5`, { headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => setActivity(Array.isArray(data.logs) ? data.logs : []))
             .catch(() => setActivity([]));

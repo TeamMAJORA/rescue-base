@@ -185,6 +185,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(body),
                 }

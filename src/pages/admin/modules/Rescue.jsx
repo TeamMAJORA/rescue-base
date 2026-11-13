@@ -111,7 +111,7 @@ export default function RescueAssignments() {
             const response = await fetch(
                 `${API}/api/rescue-assignments`,
                 {
-                    headers: getAuthHeaders(),
+                    headers: { ...(getAuthHeaders()), "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -153,7 +153,7 @@ export default function RescueAssignments() {
             const response = await fetch(
                 `${API}/api/users/volunteers?includeStaff=1`,
                 {
-                    headers: getAuthHeaders(),
+                    headers: { ...(getAuthHeaders()), "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -197,7 +197,7 @@ export default function RescueAssignments() {
             const response = await fetch(
                 `${API}/api/animals`,
                 {
-                    headers: getAuthHeaders(),
+                    headers: { ...(getAuthHeaders()), "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -372,7 +372,7 @@ export default function RescueAssignments() {
                                 : "POST",
 
                         headers:
-                            getJsonHeaders(),
+                            { ...(getJsonHeaders()), "ngrok-skip-browser-warning": "true" },
 
                         body:
                             JSON.stringify(
@@ -443,7 +443,7 @@ export default function RescueAssignments() {
                     {
                         method: "PATCH",
                         headers:
-                            getJsonHeaders(),
+                            { ...(getJsonHeaders()), "ngrok-skip-browser-warning": "true" },
                     }
                 );
 
@@ -504,7 +504,7 @@ export default function RescueAssignments() {
                     {
                         method: "DELETE",
                         headers:
-                            getAuthHeaders(),
+                            { ...(getAuthHeaders()), "ngrok-skip-browser-warning": "true" },
                     }
                 );
 
@@ -657,7 +657,7 @@ export default function RescueAssignments() {
     async function sendAssignmentAction(assignment, action, body) {
         const response = await fetch(`${API}/api/rescue-assignments/${assignment._id}/${action}`, {
             method: "PATCH",
-            headers: getJsonHeaders(),
+            headers: { ...(getJsonHeaders()), "ngrok-skip-browser-warning": "true" },
             body: JSON.stringify(body),
         });
         const data = await response.json().catch(() => ({}));

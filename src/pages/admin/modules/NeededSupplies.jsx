@@ -95,7 +95,7 @@ export default function NeededSupplies() {
     async function fetchSupplies() {
         try {
             const response = await fetch(`${API}/api/supplies`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -150,6 +150,7 @@ export default function NeededSupplies() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(payload),
             });
@@ -206,7 +207,7 @@ export default function NeededSupplies() {
             setMessage("");
             const response = await fetch(`${API}/api/supplies/${supply._id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -232,6 +233,7 @@ export default function NeededSupplies() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ status }),
             });
@@ -252,7 +254,7 @@ export default function NeededSupplies() {
 
     useEffect(() => {
         let alive = true;
-        fetch(`${API}/api/supplies`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+        fetch(`${API}/api/supplies`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json().then((data) => ({ response, data })))
             .then(({ response, data }) => {
                 if (!alive) return;

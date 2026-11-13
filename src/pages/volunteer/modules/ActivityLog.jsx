@@ -13,7 +13,7 @@ export default function ActivityLog() {
     function fetchPage(skip) {
         const token = localStorage.getItem("token");
         return fetch(`${API}/api/activity-logs?limit=${PAGE_SIZE}&skip=${skip}`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "ngrok-skip-browser-warning": "true" },
         })
             .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
             .then(({ ok, data }) => {

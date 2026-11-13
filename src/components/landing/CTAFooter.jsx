@@ -7,7 +7,7 @@ export default function CTAFooter() {
     const [facebookUrl, setFacebookUrl] = useState("");
 
     useEffect(() => {
-        fetch(`${API}/api/settings/social`)
+        fetch(`${API}/api/settings/social`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => (response.ok ? response.json() : null))
             .then((data) => setFacebookUrl(data?.facebook || ""))
             .catch(() => setFacebookUrl(""));

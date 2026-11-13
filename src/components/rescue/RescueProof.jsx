@@ -16,7 +16,7 @@ async function uploadProofPhoto(file) {
 
     const response = await fetch(`${API}/api/uploads/image`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, // the browser sets Content-Type for files
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "ngrok-skip-browser-warning": "true" }, // the browser sets Content-Type for files
         body: formData,
     });
     const data = await response.json().catch(() => ({}));

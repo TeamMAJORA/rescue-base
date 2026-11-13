@@ -40,7 +40,7 @@ function MaintenanceTicker() {
 
         async function check() {
             try {
-                const response = await fetch(`${API}/api/settings/status`);
+                const response = await fetch(`${API}/api/settings/status`, { headers: { "ngrok-skip-browser-warning": "true" } });
                 const data = await response.json();
 
                 if (active) {

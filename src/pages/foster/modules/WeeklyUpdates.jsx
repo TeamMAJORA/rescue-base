@@ -177,7 +177,7 @@ async function uploadPhoto(file, token) {
 
     const response = await fetch(`${API}/api/uploads/image`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
         body: formData,
     });
 
@@ -299,6 +299,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         healthStatus: pick(form.healthStatus, form.healthOther),

@@ -351,6 +351,7 @@ export default function FosterCare() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({ action, adminNote: earlyReturnNote }),
                 }
@@ -422,7 +423,7 @@ export default function FosterCare() {
 
     async function fetchAnimals() {
         try {
-            const response = await fetch(`${API}/api/animals`);
+            const response = await fetch(`${API}/api/animals`, { headers: { "ngrok-skip-browser-warning": "true" } });
             const data = await response.json();
 
             if (response.ok && data.success) {
@@ -471,7 +472,8 @@ export default function FosterCare() {
 
             const response = await fetch(`${API}/api/foster/assignments`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 }
             });
             const data = await response.json();
@@ -501,7 +503,8 @@ export default function FosterCare() {
         try {
             const response = await fetch(`${API}/api/foster/applications`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 }
             });
             const data = await response.json();
@@ -549,7 +552,8 @@ export default function FosterCare() {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true"
                     },
                     body: JSON.stringify({
                         status,
@@ -594,6 +598,7 @@ export default function FosterCare() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -636,6 +641,7 @@ export default function FosterCare() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({ reason: returnReason.trim() }),
                 }
@@ -736,7 +742,7 @@ export default function FosterCare() {
             setMessage("");
             const response = await fetch(`${API}/api/foster/assignments/${assignment._id}/complete`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -755,7 +761,7 @@ export default function FosterCare() {
 
             const response = await fetch(`${API}/api/foster/assignments/${assignment._id}/request-update`, {
                 method: "POST",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -789,7 +795,8 @@ export default function FosterCare() {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 },
                 body: JSON.stringify({
                     adminName: savedUser.name || savedUser.username || "Admin User",
@@ -840,7 +847,8 @@ export default function FosterCare() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true"
                     },
                     body: JSON.stringify({
                         ...assignmentForm,
@@ -897,7 +905,8 @@ export default function FosterCare() {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true"
                     },
                     body: JSON.stringify({
                         ...assignmentForm,
@@ -946,6 +955,7 @@ export default function FosterCare() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({ status }),
                 }
@@ -975,6 +985,7 @@ export default function FosterCare() {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -1082,7 +1093,7 @@ export default function FosterCare() {
     async function fetchAssignableAnimals() {
         try {
             setAnimalsLoading(true);
-            const response = await fetch(`${API}/api/animals`);
+            const response = await fetch(`${API}/api/animals`, { headers: { "ngrok-skip-browser-warning": "true" } });
             const data = await response.json();
             const list = Array.isArray(data.animals) ? data.animals : [];
 

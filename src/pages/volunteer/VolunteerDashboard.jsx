@@ -219,6 +219,7 @@ export default function VolunteerDashboard({ setPage }) {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -271,6 +272,7 @@ export default function VolunteerDashboard({ setPage }) {
                         method: "PATCH",
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            "ngrok-skip-browser-warning": "true",
                         },
                     }
                 );

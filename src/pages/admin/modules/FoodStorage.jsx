@@ -32,6 +32,7 @@ async function apiRequest(path = "", options = {}) {
                 ? { "Content-Type": "application/json" }
                 : {}),
             ...options.headers,
+            "ngrok-skip-browser-warning": "true",
         },
     });
 
@@ -163,6 +164,7 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
                 headers: {
                     "Content-Type": "application/json",
                     ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     name: item.name,
@@ -822,7 +824,7 @@ export default function FoodStorage() {
 
     // Animals still in the shelter's care eat the food (adopted ones don't)
     useEffect(() => {
-        fetch(`${API}/api/animals`)
+        fetch(`${API}/api/animals`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) =>
                 setAnimalsInCare(
@@ -839,7 +841,7 @@ export default function FoodStorage() {
         const token = localStorage.getItem("token");
 
         return fetch(`${API}/api/supplies`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "ngrok-skip-browser-warning": "true" },
         })
             .then((response) => response.json())
             .then((data) => {

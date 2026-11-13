@@ -378,7 +378,7 @@ export default function Donations() {
             setMessage("");
 
             const response = await fetch(`${API}/api/donations`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -499,6 +499,7 @@ export default function Donations() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(payload),
             });
@@ -544,6 +545,7 @@ export default function Donations() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(status === "cancelled" ? { status, notReceivedReason } : { status }),
             });
@@ -599,7 +601,7 @@ export default function Donations() {
 
             const response = await fetch(`${API}/api/donations/${donationId}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
 
             const data = await response.json();
@@ -623,7 +625,7 @@ export default function Donations() {
     async function fetchDropOff() {
         try {
             const response = await fetch(`${API}/api/settings/drop-off/manage`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
             if (response.ok && data.success) setDropOff(data.dropOff);
@@ -704,6 +706,7 @@ export default function Donations() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     enabled: dropOffForm.enabled,
@@ -739,7 +742,7 @@ export default function Donations() {
     async function fetchMethods() {
         try {
             const response = await fetch(`${API}/api/payment-methods/all`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -804,7 +807,7 @@ export default function Donations() {
 
             const response = await fetch(`${API}/api/uploads/image`, {
                 method: "POST",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                 body: formData,
             });
             const data = await response.json();
@@ -840,6 +843,7 @@ export default function Donations() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(methodForm),
             });
@@ -876,7 +880,7 @@ export default function Donations() {
         try {
             const response = await fetch(`${API}/api/payment-methods/${method._id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 

@@ -127,7 +127,7 @@ export default function DonationHistory({ onMakeDonation }) {
             setError("");
 
             const response = await fetch(`${API}/api/donations/my`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
 
             const data = await response.json();

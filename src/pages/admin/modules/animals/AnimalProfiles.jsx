@@ -251,7 +251,7 @@ function PersonContactCard({ title, url, responseKey, dateLabel, dateField, empt
     useEffect(() => {
         let cancelled = false;
 
-        fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+        fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
             .then(({ ok, data }) => {
                 if (!ok || !data.success) throw new Error(data.message || "Could not load contact details.");
@@ -613,7 +613,8 @@ function AnimalProfilesList({ onOpenRecords }) {
 
             const response = await fetch(`${API}/api/animals`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 }
             });
             const data = await response.json();
@@ -635,7 +636,7 @@ function AnimalProfilesList({ onOpenRecords }) {
         async function fetchQrCodes() {
         try {
             const response = await fetch(`${API}/api/qr-tags`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
 
             if (!response.ok) return;
@@ -670,6 +671,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ animalId: animal._id }),
             });
@@ -727,7 +729,8 @@ function AnimalProfilesList({ onOpenRecords }) {
                 method,
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 },
                 body: JSON.stringify(payload),
             });
@@ -792,7 +795,8 @@ function AnimalProfilesList({ onOpenRecords }) {
             const response = await fetch(`${API}/api/uploads/image`, {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 },
                 body: formData,
             });
@@ -910,7 +914,8 @@ function AnimalProfilesList({ onOpenRecords }) {
             const response = await fetch(`${API}/api/animals/${id}`, {
                 method: "DELETE",
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 }
             });
 

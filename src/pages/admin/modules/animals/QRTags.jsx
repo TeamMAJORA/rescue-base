@@ -75,7 +75,7 @@ export default function QRTags() {
         const response = await fetch(
             `${import.meta.env.VITE_BACKEND_URL}/api/animals`,
             {
-                headers: getHeaders(),
+                headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
             }
         );
 
@@ -90,7 +90,7 @@ export default function QRTags() {
 
     async function loadQRTags() {
         const response = await fetch(API_BASE_URL, {
-            headers: getHeaders(),
+            headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
         });
 
         const data = await parseResponse(response);
@@ -141,7 +141,7 @@ export default function QRTags() {
                 `${API_BASE_URL}/generate`,
                 {
                     method: "POST",
-                    headers: getHeaders(true),
+                    headers: { ...(getHeaders(true)), "ngrok-skip-browser-warning": "true" },
                     body: JSON.stringify({
                         animalId: form.animalId,
                     }),
@@ -186,7 +186,7 @@ export default function QRTags() {
                 `${API_BASE_URL}/${id}`,
                 {
                     method: "DELETE",
-                    headers: getHeaders(),
+                    headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -228,7 +228,7 @@ export default function QRTags() {
                 `${API_BASE_URL}/${id}/regenerate`,
                 {
                     method: "POST",
-                    headers: getHeaders(),
+                    headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
                 }
             );
 

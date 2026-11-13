@@ -43,6 +43,7 @@ async function apiRequest(url, options = {}) {
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "ngrok-skip-browser-warning": "true",
         },
     });
 
@@ -369,7 +370,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
     // Existing animals for the Animal dropdown
     useEffect(() => {
         if (lockedAnimal) return;
-        fetch(API_ANIMALS)
+        fetch(API_ANIMALS, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => {
                 const list = data.animals || [];

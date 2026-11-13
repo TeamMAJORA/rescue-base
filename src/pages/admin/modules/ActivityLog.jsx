@@ -30,7 +30,7 @@ function normalizeArray(value) {
 async function fetchJson(url) {
     const token = localStorage.getItem("token");
     const response = await fetch(url, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "ngrok-skip-browser-warning": "true" },
     });
     const data = await response.json().catch(() => ({}));
 

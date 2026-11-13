@@ -372,6 +372,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
             const response = await fetch(`${API}/api/animals`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
             });
 
@@ -395,7 +396,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
     async function fetchStaff() {
         try {
             const response = await fetch(`${API}/api/users/staff`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
             if (!response.ok || !data.success) return;
@@ -504,6 +505,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(payload),
             });

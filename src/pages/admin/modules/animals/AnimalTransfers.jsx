@@ -279,6 +279,7 @@ async function apiRequest(url, options = {}) {
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "ngrok-skip-browser-warning": "true",
         },
     });
 
@@ -394,7 +395,7 @@ export default function AnimalTransfers() {
 
     // Existing animals for the Animal field
     useEffect(() => {
-        fetch(API_ANIMALS)
+        fetch(API_ANIMALS, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => {
                 const list = data.animals || [];

@@ -18,7 +18,7 @@ function authHeaders() {
 
 // Newest 20 saved notifications (read and unread), shaped like the bell's other items
 export async function fetchRecentNotifications() {
-    const response = await fetch(`${API}/api/notifications`, { headers: authHeaders() });
+    const response = await fetch(`${API}/api/notifications`, { headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" } });
     const data = await response.json();
 
     if (!response.ok || !data.success) {
@@ -40,13 +40,13 @@ export async function fetchRecentNotifications() {
 export function markNotificationRead(notificationId) {
     return fetch(`${API}/api/notifications/${notificationId}/read`, {
         method: "PATCH",
-        headers: authHeaders(),
+        headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" },
     });
 }
 
 export function markAllNotificationsRead() {
     return fetch(`${API}/api/notifications/read-all`, {
         method: "PATCH",
-        headers: authHeaders(),
+        headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" },
     });
 }
