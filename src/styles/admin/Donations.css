@@ -1207,3 +1207,15 @@
 .dl-notreceived textarea { width: 100%; }
 .ao-confirm .dl-notreceived-error { margin: 0 0 10px; color: #c62828; font-weight: 600; }
 .dl-view-facts .dl-view-wide { grid-column: 1 / -1; }
+
+
+/* Phones: each table row becomes a labelled card (labels come from data-label on each cell) */
+@media (max-width: 640px) {
+    .dl-table-wrap { overflow: visible; }
+    .dl-table thead { display: none; }
+    .dl-table, .dl-table tbody, .dl-table tr, .dl-table td { display: block; width: 100%; min-width: 0; }
+    .dl-table tr { margin: 0 0 10px; padding: 10px 12px; border: 1px solid #e3d5b5; border-radius: 12px; background: #fffdf4; }
+    .dl-table td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px 0; border: 0; text-align: right; }
+    .dl-table td::before { content: attr(data-label); flex: none; color: #7a4a33; font-size: 13px; font-weight: 600; text-align: left; }
+    .dl-table td > * { max-width: 65%; }
+}

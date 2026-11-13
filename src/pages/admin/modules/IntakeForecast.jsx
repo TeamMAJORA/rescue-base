@@ -74,6 +74,7 @@ function ForecastChart({ history, target }) {
                         <div
                             key={col.key}
                             className={`if2-col${col.isForecast ? " is-forecast" : ""}`}
+                            role="img"
                             tabIndex={0}
                             onMouseEnter={() => setHover(index)}
                             onFocus={() => setHover(index)}

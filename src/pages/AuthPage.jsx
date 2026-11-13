@@ -69,7 +69,7 @@ export default function AuthPage({ mode = "login", setPage }) {
         e.preventDefault();
 
         if (!forgotPasswordEmail.trim()) {
-            alert("Please enter your email.");
+            window.rbToast("Please enter your email.", "error");
             return;
         }
 
@@ -98,7 +98,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                 );
             }
 
-            alert(
+            window.rbToast(
                 data.message ||
                 "If an account exists, password reset instructions have been sent."
             );
@@ -115,9 +115,10 @@ export default function AuthPage({ mode = "login", setPage }) {
                 error
             );
 
-            alert(
+            window.rbToast(
                 error.message ||
-                "Something went wrong."
+                "Something went wrong.",
+                "error"
             );
         } finally {
             setForgotPasswordLoading(false);
@@ -1087,4 +1088,4 @@ export default function AuthPage({ mode = "login", setPage }) {
             </section>
         </main>
     );
-}
+}

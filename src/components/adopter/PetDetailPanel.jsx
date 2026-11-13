@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { formatPetStatus } from "../../utils/petStatus";
+import PetTypeIcon from "../system/PetTypeIcon";
 
 export default function PetDetailPanel({
     className = "",
@@ -17,7 +18,7 @@ export default function PetDetailPanel({
         <aside className={className}>
             {!currentPet._id ? (
                 <div className="browse-pet-empty-details">
-                    <span>🐾</span>
+                    <span><PetTypeIcon /></span>
                     <h3>No animal selected</h3>
                     <p>Select an available animal from the list to view its profile.</p>
                 </div>
@@ -27,7 +28,7 @@ export default function PetDetailPanel({
                         {currentPet.image ? (
                             <img src={currentPet.image} alt={currentPet.name} />
                         ) : (
-                            <span>{currentPet.icon || "🐾"}</span>
+                            <span><PetTypeIcon type={currentPet.petType} /></span>
                         )}
                     </div>
 

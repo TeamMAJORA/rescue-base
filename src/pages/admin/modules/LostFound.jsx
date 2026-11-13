@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { searchCebuPlaces } from "../../../utils/cebuPlaces";
 import { DateField, startOfToday, toDayValue } from "../../../components/system/MonthCalendar";
+import PetTypeIcon from "../../../components/system/PetTypeIcon";
 
 
 // Lost/found dates: up to 5 years back, never in the future
@@ -851,7 +852,7 @@ function describeReport(report) {
         report.claimStatus !== "approved" && report.myClaimStatus !== "pending";
     const canSayFound = canClaimThis && report.reportType === "lost";
     const species = String(report.species || "").toLowerCase();
-    const emoji = species === "cat" ? "🐱" : species === "dog" ? "🐶" : "🐾";
+    const speciesIcon = <PetTypeIcon type={species} />;
 
     let statusKey = "open";
     let statusLabel = "Open";
@@ -876,7 +877,7 @@ function describeReport(report) {
         ? new Date(report.dateReported).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
         : "—";
 
-    return { isMine, isOpen, canClaimThis, canSayFound, emoji, statusKey, statusLabel, dateText };
+    return { isMine, isOpen, canClaimThis, canSayFound, speciesIcon, statusKey, statusLabel, dateText };
 }
 
 // claimType: open the "This is my pet" / "I found this pet" form straight away
@@ -1392,7 +1393,7 @@ if (showReportForm && canSubmitReport) {
                                         <span className="lf-match-photo">
                                             {matchedReport.photoUrl ? (
                                                 <img src={matchedReport.photoUrl} alt="" />
-                                            ) : matchedSpecies === "cat" ? "🐱" : matchedSpecies === "dog" ? "🐶" : "🐾"}
+                                            ) : <PetTypeIcon type={matchedSpecies} />}
                                         </span>
 
                                         <span className="lf-match-info">
@@ -1401,7 +1402,7 @@ if (showReportForm && canSubmitReport) {
                                                 {matchedReport.petName || "Unknown"}
                                             </b>
                                             <small>
-                                                {[matchedReport.breed, matchedReport.location && `📍 ${matchedReport.location}`]
+                                                {[matchedReport.breed, matchedReport.location]
                                                     .filter(Boolean)
                                                     .join(" · ")}
                                             </small>
@@ -1577,7 +1578,7 @@ if (showReportForm && canSubmitReport) {
                                                 <img src={report.photoUrl} alt="" />
                                             ) : (
                                                 <span className="lfm-thumb" aria-hidden="true">
-                                                    {s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾"}
+                                                    <PetTypeIcon type={s} />
                                                 </span>
                                             )}
                                             <span className="lfm-info">
@@ -1758,7 +1759,7 @@ if (showReportForm && canSubmitReport) {
                                                     {report.photoUrl ? (
                                                         <img src={report.photoUrl} alt="" />
                                                     ) : (
-                                                        <span className="lf2-thumb" aria-hidden="true">{details.emoji}</span>
+                                                        <span className="lf2-thumb" aria-hidden="true">{details.speciesIcon}</span>
                                                     )}
                                                     <div>
                                                         <b>{report.petName || "Unknown"}</b>
@@ -1808,7 +1809,7 @@ if (showReportForm && canSubmitReport) {
         })
         .filter(Boolean);
     const s = String(r.species || "").toLowerCase();
-    const emoji = s === "cat" ? "🐱" : s === "dog" ? "🐶" : "🐾";
+    const speciesIcon = <PetTypeIcon type={s} />;
     const badge = r.status === "reunited" ? "reunited" : r.reportType;
     const { canClaimThis: canClaimAny } = describeReport(r);
     // "This is my pet" on found reports, "I found this pet" on lost reports
@@ -1837,7 +1838,7 @@ if (showReportForm && canSubmitReport) {
                     {r.photoUrl ? (
                         <img src={r.photoUrl} alt={r.petName || "Pet"} />
                     ) : (
-                        <span className="lf-card-emoji">{emoji}</span>
+                        <span className="lf-card-emoji">{speciesIcon}</span>
                     )}
                     <span className={`lf-card-badge is-${badge}`}>{badge}</span>
                 </div>
@@ -1857,7 +1858,7 @@ if (showReportForm && canSubmitReport) {
                     <dl className="lf-modal-facts">
                         <div>
                             <dt>{r.reportType === "lost" ? "Last seen" : "Found at"}</dt>
-                            <dd>📍 {r.location}</dd>
+                            <dd><img className="inline-icon" src="/icons/strayMap-brown.svg" alt="" /> {r.location}</dd>
                         </div>
                         <div>
                             <dt>{r.reportType === "lost" ? "Date lost" : "Date found"}</dt>
@@ -1943,13 +1944,13 @@ if (showReportForm && canSubmitReport) {
                             }}
                         >
                             <span className="lf-match-photo">
-                                {matchedReport.photoUrl ? <img src={matchedReport.photoUrl} alt="" /> : emoji}
+                                {matchedReport.photoUrl ? <img src={matchedReport.photoUrl} alt="" /> : speciesIcon}
                             </span>
 
                             <span className="lf-match-info">
                                 <b>{matchedReport.petName || "Unknown"}</b>
                                 <small>
-                                    {[matchedReport.breed, matchedReport.location && `📍 ${matchedReport.location}`]
+                                    {[matchedReport.breed, matchedReport.location]
                                         .filter(Boolean)
                                         .join(" · ")}
                                 </small>
@@ -2050,7 +2051,7 @@ if (showReportForm && canSubmitReport) {
                                     <>
                                         <div>
                                             <dt>Found at</dt>
-                                            <dd>📍 {claim.foundLocation || "—"}</dd>
+                                            <dd><img className="inline-icon" src="/icons/strayMap-brown.svg" alt="" /> {claim.foundLocation || "—"}</dd>
                                         </div>
                                         <div>
                                             <dt>Date found</dt>

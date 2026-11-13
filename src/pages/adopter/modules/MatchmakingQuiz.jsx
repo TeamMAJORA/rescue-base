@@ -387,6 +387,10 @@ if (!started) {
                     <img src="/icons/sidebar/return-brown.svg" alt="" />
                 </button>
 
+                <p className="mq-count" aria-hidden="true">
+                    Question {questionIndex + 1} of {QUESTIONS.length}
+                </p>
+
                 <button
                     type="button"
                     className="mq-top-next"

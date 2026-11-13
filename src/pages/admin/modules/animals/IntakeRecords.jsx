@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { isAdmin } from "../../../../utils/auth";
 import { searchCebuPlaces } from "../../../../utils/cebuPlaces";
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -318,12 +319,6 @@ function conditionTone(condition) {
         default:
             return "";
     }
-}
-
-function speciesEmoji(type) {
-    if (type === "Cat") return "🐱";
-    if (type === "Dog") return "🐶";
-    return "🐾";
 }
 
 function isSameMonth(date, now = new Date()) {
@@ -803,7 +798,15 @@ export default function IntakeRecords() {
             return;
         }
 
-        const reason = window.prompt("Enter the reason for rejecting this intake:");
+        const reason = await window.rbPrompt({
+            title: "Reject this intake?",
+            message: "The person who submitted it will see your reason.",
+            label: "Reason",
+            placeholder: "e.g. Duplicate record, wrong animal details",
+            required: true,
+            confirmLabel: "Reject",
+            danger: true,
+        });
 
         if (reason === null) {
             return;
@@ -1349,7 +1352,7 @@ export default function IntakeRecords() {
                                             {record.image ? (
                                                 <img src={record.image} alt="" />
                                             ) : (
-                                                speciesEmoji(record.type)
+                                                <PetTypeIcon type={record.type} />
                                             )}
                                         </div>
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "../../../styles/adopter/AdoptionApplication.css";
 import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
 import InfoTip from "../../../components/system/InfoTip";
+import PetTypeIcon from "../../../components/system/PetTypeIcon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -426,7 +427,7 @@ function validateForm() {
         return (
             <section className="adoption-module-empty">
                 <div className="adoption-module-empty-icon">
-                    🐾
+                    <PetTypeIcon />
                 </div>
 
                 <h2>No animal selected</h2>

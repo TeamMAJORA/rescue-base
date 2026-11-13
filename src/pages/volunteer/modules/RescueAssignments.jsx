@@ -100,7 +100,11 @@ function useMyRescues() {
         let body = {};
 
         if (action === "decline") {
-            const reason = window.prompt(`Why can't you take "${assignment.title}"? (optional)`, "");
+            const reason = await window.rbPrompt({
+                title: `Decline "${assignment.title}"?`,
+                label: "Why can't you take it",
+                confirmLabel: "Decline",
+            });
             if (reason === null) return;
             body = { reason };
         }
@@ -121,7 +125,13 @@ function useMyRescues() {
         }
 
         if (action === "drop") {
-            const reason = window.prompt(`Why are you dropping "${assignment.title}"? It goes back to the open list. (optional)`, "");
+            const reason = await window.rbPrompt({
+                title: `Drop "${assignment.title}"?`,
+                message: "It goes back to the open list for other volunteers.",
+                label: "Why are you dropping it",
+                confirmLabel: "Drop",
+                danger: true,
+            });
             if (reason === null) return;
             body = { reason };
         }

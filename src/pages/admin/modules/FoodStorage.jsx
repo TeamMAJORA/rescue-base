@@ -1086,14 +1086,14 @@ export default function FoodStorage() {
                                                 if (event.key === "Enter") setItemModal(item);
                                             }}
                                         >
-                                            <td>
+                                            <td data-label="Food item">
                                                 <div className="fs-food-name">
                                                     <strong>{item.name}</strong>
                                                     <small>{eatersLabel(level)}</small>
                                                 </div>
                                             </td>
 
-                                            <td>
+                                            <td data-label="Stock">
                                                 <div className="fs-stock">
                                                     <strong>
                                                         {formatNumber(item.quantityInStock)} {item.unit || "kg"}
@@ -1114,11 +1114,11 @@ export default function FoodStorage() {
                                                 </div>
                                             </td>
 
-                                            <td>{formatNumber(item.foodRatePerAnimalPerDay ?? 0.5)} kg</td>
+                                            <td data-label="Per animal / day">{formatNumber(item.foodRatePerAnimalPerDay ?? 0.5)} kg</td>
 
-                                            <td>{item.forecastDays ?? 30} days</td>
+                                            <td data-label="Forecast goal">{item.forecastDays ?? 30} days</td>
 
-                                            <td>
+                                            <td data-label="Status">
                                                 <span className={`fs-status is-${level.status}`}>
                                                     {STATUS_TEXT[level.status]}
                                                 </span>
@@ -1130,7 +1130,7 @@ export default function FoodStorage() {
                                                 )}
                                             </td>
 
-                                            <td>
+                                            <td data-label="Actions">
                                                 <div
                                                     className="fs-row-actions"
                                                     onClick={(event) => event.stopPropagation()}
