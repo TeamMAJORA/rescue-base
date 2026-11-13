@@ -7,6 +7,7 @@ import IntakeRecords from "./IntakeRecords";
 import AnimalTransfers from "./AnimalTransfers";
 import InfoTip from "../../../../components/system/InfoTip";
 import { formatAge } from "../../../../utils/formatAge";
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
@@ -1699,7 +1700,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                                 {animal.image ? (
                                                                     <img src={animal.image} alt="" />
                                                                 ) : (
-                                                                    "🐾"
+                                                                    <PetTypeIcon type={animal.type} />
                                                                 )}
                                                             </span>
                                                             <strong>{animal.name}</strong>
@@ -2039,7 +2040,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                     <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", padding: 24, borderRadius: 12, textAlign: "center" }}>
                         <img src={qrOpen.image} alt="QR code" style={{ width: 320, height: 320 }} />
                         <p style={{ marginTop: 12, fontWeight: 600 }}>{qrOpen.name} · {qrOpen.code}</p>
-                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 8, fontSize: 25 }}>❌</button>
+                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 12, minHeight: 44, padding: "0 24px", border: "1px solid #e3d5b5", borderRadius: 8, background: "#fffdf4", color: "#5a1b00", font: "inherit", fontWeight: 600, cursor: "pointer" }}>Close</button>
                     </div>
                 </div>
             )}

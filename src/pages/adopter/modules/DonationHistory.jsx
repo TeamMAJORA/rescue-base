@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import PetTypeIcon from "../../../components/system/PetTypeIcon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -242,7 +243,7 @@ export default function DonationHistory({ onMakeDonation }) {
 
                 {hasNoDonations && (
                     <div className="dh-empty">
-                        <div className="dh-empty-icon" aria-hidden="true">🐾</div>
+                        <div className="dh-empty-icon" aria-hidden="true"><PetTypeIcon /></div>
                         <h3>No Donations Yet</h3>
                         <p>Your donations will appear here once you submit one.</p>
                         {onMakeDonation && (

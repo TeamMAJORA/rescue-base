@@ -1470,3 +1470,12 @@
 .rs2-status.is-open { background: #fde7d4; color: #b35c00; }
 .ns2-actions { display: grid; grid-template-columns: 52px 76px 32px; gap: 8px; justify-content: end; align-items: center; }
 .ns2-actions .rs2-mini { width: 100%; justify-content: center; text-align: center; }
+
+/* Phones: fade the right edge of the Settings tabs so it is clear they scroll */
+@media (max-width: 640px) {
+    .as2-nav {
+        padding-right: 48px;
+        -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+        mask-image: linear-gradient(90deg, #000 85%, transparent);
+    }
+}

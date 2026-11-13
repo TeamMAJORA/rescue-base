@@ -1311,3 +1311,40 @@ body {
         min-height: 44px !important;
     }
 }
+
+/* Keyboard focus ring (only shows when moving with Tab, not on mouse clicks) */
+:where(button, a[href], [role="button"], [role="tab"], [tabindex]):focus-visible {
+    outline: 3px solid #fb8500 !important;
+    outline-offset: 2px;
+}
+
+/* Small icons that replaced emoji (PetTypeIcon, pins, clock, heart): 1em so they scale with the text.
+   !important: photo slots style every img to fill the box, but these stay emoji-sized */
+img.pet-type-icon,
+img.inline-icon {
+    position: static !important;
+    display: inline-block;
+    width: 1em !important;
+    height: 1em !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    object-fit: contain !important;
+    border-radius: 0 !important;
+    vertical-align: -0.15em;
+}
+
+/* Grouped sidebar (admin + staff) */
+.menu-section-label {
+    margin: 14px 14px 4px;
+    color: #7a4a33;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.menu-section-divider {
+    margin: 10px 14px;
+    border: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.15);
+}

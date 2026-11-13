@@ -70,11 +70,14 @@ const ICONS = {
     settings: "/icons/sidebar/settings-brown.svg",
 };
 
+// Sidebar sections: items with the same "group" sit under one small label; "" = after a divider
 const staffMenu = [
-    { key: "overview", label: "Dashboard" },
-
+    { key: "overview", group: "Overview", label: "Dashboard" },
+    { key: "analytics", group: "Overview", label: "Analytics" },
+    { key: "intake-forecast", group: "Overview", label: "AI Intake Forecast" },
+    { key: "reports", group: "Overview", label: "Reports" },
     {
-        key: "animals",
+        key: "animals", group: "Animals",
         label: "Animals",
         children: [
             { key: "animal-profiles", label: "Animal Profiles" },
@@ -82,19 +85,15 @@ const staffMenu = [
             { key: "qr-tags", label: "QR Tags" },
         ],
     },
-
-    { key: "adoption-applications", label: "Adoptions" },
-    { key: "foster-care", label: "Foster Care" },
-    { key: "donations", label: "Donations" },
-    { key: "supplies", label: "Supplies" },
-    { key: "lost-found", label: "Lost & Found" },
-    { key: "rescue", label: "Rescue Assignments" },
-    { key: "gis-mapping", label: "GIS Mapping" },
-    { key: "feedback", label: "Feedback" },
-    { key: "analytics", label: "Analytics" },
-    { key: "intake-forecast", label: "AI Intake Forecast" },
-    { key: "reports", label: "Reports" },
-    { key: "settings", label: "Settings" },
+    { key: "adoption-applications", group: "Animals", label: "Adoptions" },
+    { key: "foster-care", group: "Animals", label: "Foster Care" },
+    { key: "lost-found", group: "Animals", label: "Lost & Found" },
+    { key: "rescue", group: "Animals", label: "Rescue Assignments" },
+    { key: "gis-mapping", group: "Animals", label: "GIS Mapping" },
+    { key: "donations", group: "Shelter", label: "Donations" },
+    { key: "supplies", group: "Shelter", label: "Supplies" },
+    { key: "feedback", group: "People", label: "Feedback" },
+    { key: "settings", group: "", label: "Settings" },
 ]
 
 //removed the mock data
@@ -685,15 +684,19 @@ export default function StaffDashboard({ setPage }) {
                 </button>
 
                 <nav className="staff-menu">
-                    {staffMenu.map((item) => {
+                    {staffMenu.map((item, index) => {
                         const isOpen = openSidebarMenu === item.key;
                         const isActive =
                             activeStaffPage === item.key ||
                             item.children?.some((child) => child.key === activeStaffPage);
                         const icon = ICONS[item.key];
+                        const isFirstInSection = item.group !== staffMenu[index - 1]?.group;
 
                         return (
                             <div className="staff-menu-group" key={item.key}>
+                                {isFirstInSection && (item.group
+                                    ? <p className="menu-section-label">{item.group}</p>
+                                    : <hr className="menu-section-divider" />)}
                                 <button
                                     type="button"
                                     title={item.label}

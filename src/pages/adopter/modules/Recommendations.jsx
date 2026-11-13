@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import {
     FACTORS,
     buildRecommendation,
@@ -357,7 +358,7 @@ export default function Recommendations({
 
             {loading && (
                 <div className="recommendations-message-state">
-                    <span>🐾</span>
+                    <span><PetTypeIcon /></span>
                     <h3>Calculating your matches...</h3>
                     <p>Please wait while RescueBase evaluates the animals.</p>
                 </div>
@@ -382,7 +383,7 @@ export default function Recommendations({
                 !error &&
                 recommendations.length === 0 && (
                     <div className="recommendations-message-state">
-                        <span>🐾</span>
+                        <span><PetTypeIcon /></span>
                         {scoresUnavailable ? (
                             <>
                                 <h3>Match scores are unavailable right now</h3>

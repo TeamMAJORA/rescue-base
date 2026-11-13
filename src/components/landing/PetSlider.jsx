@@ -99,6 +99,9 @@ export default function PetSlider({ pets }) {
             <div
                 className={`pet-track${dragging ? " dragging" : ""}`}
                 ref={trackRef}
+                tabIndex={0}
+                role="region"
+                aria-label="Rescued pets, scroll sideways to see more"
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}

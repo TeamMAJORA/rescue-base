@@ -35,6 +35,7 @@ import AccountSettings from "../AccountSettings";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
+import PetTypeIcon from "../../components/system/PetTypeIcon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -132,7 +133,7 @@ const emptyPet = {
     health: "Not available",
     story: "There are currently no available animals.",
     description: "",
-    icon: "🐾",
+    petType: "",
     image: "",
 };
 
@@ -588,12 +589,7 @@ async function fetchPets({ silent = false } = {}) {
                             animal.description ||
                             `${animal.name} is currently under the care of RescueBase.`,
 
-                        icon:
-                            animal.type === "Dog"
-                                ? "🐶"
-                                : animal.type === "Cat"
-                                    ? "🐱"
-                                    : "🐾",
+                        petType: animal.type,
                     };
                 }
             );
@@ -1028,7 +1024,7 @@ async function fetchPets({ silent = false } = {}) {
                             }
                         />
                     ) : (
-                        <span>🐾</span>
+                        <span><PetTypeIcon /></span>
                     )}
                 </div>
 

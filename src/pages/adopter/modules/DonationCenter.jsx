@@ -1034,7 +1034,7 @@ export default function DonationCenter() {
             <section className="adopter-panel donation-info-panel">
                 <div className="donation-note">
                     <h3>
-                        Thank you ❤️
+                        Thank you <img className="inline-icon" src="/icons/red heart.svg" alt="" />
                     </h3>
 
                     <p>

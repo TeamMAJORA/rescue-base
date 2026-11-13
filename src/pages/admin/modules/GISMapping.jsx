@@ -314,6 +314,9 @@ export default function GISMapping() {
     const [gmStatus, setGmStatus] = useState("open");
     const [gmType, setGmType] = useState("all");
     const [gmSpecies, setGmSpecies] = useState({ dog: true, cat: true });
+    // Phones: the report filters open in a bottom sheet
+    const [isGmFilterSheetOpen, setIsGmFilterSheetOpen] = useState(false);
+    const gmChangedFilterCount = (gmStatus !== "open") + (gmType !== "all") + !gmSpecies.dog + !gmSpecies.cat;
     const [gmShowRescued, setGmShowRescued] = useState(false);
     const [gmAnimals, setGmAnimals] = useState([]);
     const [gmMyLoc, setGmMyLoc] = useState(null);
@@ -1678,7 +1681,32 @@ export default function GISMapping() {
 
                                     {gmTab === "reports" && (
                                         <>
-                                            <div className="gm-filters">
+                                            <button
+                                                type="button"
+                                                className="gm-filter-toggle"
+                                                aria-expanded={isGmFilterSheetOpen}
+                                                onClick={() => setIsGmFilterSheetOpen(true)}
+                                            >
+                                                <span>Filters</span>
+                                                {gmChangedFilterCount > 0 && <b>{gmChangedFilterCount} on</b>}
+                                            </button>
+                                            {isGmFilterSheetOpen && (
+                                                <div className="gm-sheet-backdrop" onClick={() => setIsGmFilterSheetOpen(false)} aria-hidden="true" />
+                                            )}
+                                            <div className={`gm-filters${isGmFilterSheetOpen ? " is-sheet-open" : ""}`}>
+                                                <div className="gm-sheet-head">
+                                                    <b>Filters</b>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setGmStatus("open");
+                                                            setGmType("all");
+                                                            setGmSpecies({ dog: true, cat: true });
+                                                        }}
+                                                    >
+                                                        Reset
+                                                    </button>
+                                                </div>
                                                 <label className="gm-select">
                                                     <span>Status</span>
                                                     <select value={gmStatus} onChange={(e) => setGmStatus(e.target.value)}>
@@ -1710,6 +1738,9 @@ export default function GISMapping() {
                                                         </button>
                                                     ))}
                                                 </div>
+                                                <button type="button" className="gm-sheet-done" onClick={() => setIsGmFilterSheetOpen(false)}>
+                                                    Show {gmFiltered.length} {gmFiltered.length === 1 ? "report" : "reports"}
+                                                </button>
                                             </div>
 
                                             <div className="gm-list">

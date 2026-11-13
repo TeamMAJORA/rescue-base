@@ -76,13 +76,14 @@ const ICONS = {
     "global-settings": "/icons/sidebar/settings-brown.svg",
 };
 
+// Sidebar sections: items with the same "group" sit under one small label; "" = after a divider
 const adminMenu = [
-    { key: "overview", label: "Dashboard" },
-
-    { key: "users", label: "User Management" },
-
+    { key: "overview", group: "Overview", label: "Dashboard" },
+    { key: "analytics", group: "Overview", label: "Analytics" },
+    { key: "intake-forecast", group: "Overview", label: "AI Intake Forecast" },
+    { key: "reports", group: "Overview", label: "Reports" },
     {
-        key: "animals",
+        key: "animals", group: "Animals",
         label: "Animals",
         children: [
             { key: "animal-profiles", label: "Animal Profiles" },
@@ -90,19 +91,16 @@ const adminMenu = [
             { key: "qr-tags", label: "QR Tags" },
         ],
     },
-
-    { key: "adoption-applications", label: "Adoptions" },//removed bcs of the new animal intake form
-    { key: "foster-care", label: "Foster Care" },
-    { key: "donations", label: "Donations" },
-    { key: "supplies", label: "Supplies" },
-    { key: "lost-found", label: "Lost & Found" },
-    { key: "rescue", label: "Rescue Assignments" },
-    { key: "gis-mapping", label: "GIS Mapping" },
-    { key: "feedback", label: "Feedback" },
-    { key: "analytics", label: "Analytics" },
-    { key: "intake-forecast", label: "AI Intake Forecast" },
-    { key: "reports", label: "Reports" },
-    { key: "global-settings", label: "Settings" }
+    { key: "adoption-applications", group: "Animals", label: "Adoptions" },
+    { key: "foster-care", group: "Animals", label: "Foster Care" },
+    { key: "lost-found", group: "Animals", label: "Lost & Found" },
+    { key: "rescue", group: "Animals", label: "Rescue Assignments" },
+    { key: "gis-mapping", group: "Animals", label: "GIS Mapping" },
+    { key: "donations", group: "Shelter", label: "Donations" },
+    { key: "supplies", group: "Shelter", label: "Supplies" },
+    { key: "users", group: "People", label: "User Management" },
+    { key: "feedback", group: "People", label: "Feedback" },
+    { key: "global-settings", group: "", label: "Settings" },
 ]
 
 
@@ -739,15 +737,19 @@ export default function AdminDashboard({ setPage }) {
                 </button>
 
                 <nav className="admin-menu">
-                    {adminMenu.map((item) => {
+                    {adminMenu.map((item, index) => {
                         const isOpen = openSidebarMenu === item.key;
                         const isActive =
                             activeAdminPage === item.key ||
                             item.children?.some((child) => child.key === activeAdminPage);
                         const icon = ICONS[item.key];
+                        const isFirstInSection = item.group !== adminMenu[index - 1]?.group;
 
                         return (
                             <div className="admin-menu-group" key={item.key}>
+                                {isFirstInSection && (item.group
+                                    ? <p className="menu-section-label">{item.group}</p>
+                                    : <hr className="menu-section-divider" />)}
                                 <button
                                     type="button"
                                     title={item.label}

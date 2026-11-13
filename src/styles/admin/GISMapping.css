@@ -1243,3 +1243,99 @@
 .gm-list::-webkit-scrollbar { display: none; }
 .gm-row .gm-row-text { cursor: pointer; }
 .gm-row:hover { background: #fff7e0; }
+
+/* Report filters: inline on desktop, a bottom sheet on phones */
+.gm-filter-toggle,
+.gm-sheet-head,
+.gm-sheet-done {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .gm-filter-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 44px;
+        margin: 8px 0;
+        padding: 0 14px;
+        border: 1px solid #e3d5b5;
+        border-radius: 8px;
+        background: #fffdf4;
+        color: #5a1b00;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .gm-filter-toggle b {
+        padding: 2px 9px;
+        border-radius: 999px;
+        background: #5a1b00;
+        color: #fffdf4;
+        font-size: 12px;
+    }
+
+    .gm-filters:not(.is-sheet-open) {
+        display: none;
+    }
+
+    .gm-sheet-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 2400;
+        background: rgba(47, 47, 48, 0.45);
+    }
+
+    .gm-filters.is-sheet-open {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2500;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 18px 16px 20px;
+        border-radius: 16px 16px 0 0;
+        background: #fffdf4;
+        box-shadow: 0 -8px 30px rgba(90, 27, 0, 0.2);
+    }
+
+    .gm-filters.is-sheet-open .gm-sheet-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        color: #5a1b00;
+        font-size: 18px;
+    }
+
+    .gm-sheet-head button {
+        border: 0;
+        background: none;
+        color: #7a4a33;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .gm-filters.is-sheet-open .gm-sheet-done {
+        display: block;
+        width: 100%;
+        min-height: 48px;
+        margin-top: 6px;
+        border: 0;
+        border-radius: 8px;
+        background: #5a1b00;
+        color: #fffdf4;
+        font: inherit;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+}

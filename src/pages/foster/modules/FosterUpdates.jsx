@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PetTypeIcon from "../../../components/system/PetTypeIcon";
 
 // Behavior Evaluation — foster rates the pet, admin reviews and accepts
 
@@ -277,7 +278,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                 {hasAssignment && (
                 <div className="ao-petcard">
                     <div className="ao-avatar">
-                        {assignment.petImage ? <img src={assignment.petImage} alt="" /> : "🐾"}
+                        {assignment.petImage ? <img src={assignment.petImage} alt="" /> : <PetTypeIcon />}
                     </div>
                     <div>
                         <b>{name}</b>

@@ -806,3 +806,15 @@
 .fs-table tbody tr.fs-row:focus-visible td {
     background: #fff3dc;
 }
+
+
+/* Phones: each table row becomes a labelled card (labels come from data-label on each cell) */
+@media (max-width: 640px) {
+    .fs-table-wrap { overflow: visible; }
+    .fs-table thead { display: none; }
+    .fs-table, .fs-table tbody, .fs-table tr, .fs-table td { display: block; width: 100%; min-width: 0; }
+    .fs-table tr { margin: 0 0 10px; padding: 10px 12px; border: 1px solid #e3d5b5; border-radius: 12px; background: #fffdf4; }
+    .fs-table td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px 0; border: 0; text-align: right; }
+    .fs-table td::before { content: attr(data-label); flex: none; color: #7a4a33; font-size: 13px; font-weight: 600; text-align: left; }
+    .fs-table td > * { max-width: 65%; }
+}

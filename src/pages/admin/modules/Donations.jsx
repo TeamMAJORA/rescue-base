@@ -1216,30 +1216,30 @@ export default function Donations() {
 
                                     return (
                                         <tr key={donation._id} className={status === "cancelled" ? "is-off" : ""}>
-                                            <td>
+                                            <td data-label="Donor">
                                                 <div className="dl-donor">
                                                     <b>{donation.donorName || "Anonymous"}</b>
                                                     <span>{donation.donorEmail || "No email"}</span>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td data-label="Type">
                                                 <span className={`dl-type ${typeTone(donation.donationType)}`}>
                                                     {donation.donationType}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td data-label="Details">
                                                 <div className="dl-details">
                                                     <b>{details.main}</b>
                                                     {details.sub && <span>{details.sub}</span>}
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td data-label="Status">
                                                 <span className={`dl-status is-${status}`}>
                                                     {STATUS_LABEL[status] || status}
                                                 </span>
                                             </td>
-                                            <td className="dl-date">{formatDate(donation.createdAt)}</td>
-                                            <td>
+                                            <td data-label="Date" className="dl-date">{formatDate(donation.createdAt)}</td>
+                                            <td data-label="Actions">
                                                 <div className="dl-actions">
                                                     {status === "pending" ? (
                                                         <button
@@ -1932,7 +1932,7 @@ export default function Donations() {
                                                     disabled={used > 0}
                                                     onClick={() => current && deleteMethod(current)}
                                                 >
-                                                    🗑 Delete method
+                                                    Delete method
                                                     {used > 0 && ` (unavailable: used by ${used} donation${used === 1 ? "" : "s"})`}
                                                 </button>
                                             );

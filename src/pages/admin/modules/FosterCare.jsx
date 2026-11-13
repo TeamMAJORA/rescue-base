@@ -1345,6 +1345,8 @@ export default function FosterCare() {
                             <button
                                 key={filter.value}
                                 type="button"
+                                role="tab"
+                                aria-selected={listFilter === filter.value}
                                 className={listFilter === filter.value ? "is-active" : ""}
                                 onClick={() => setListFilter(filter.value)}
                             >
