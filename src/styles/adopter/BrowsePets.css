@@ -383,7 +383,7 @@
     padding: 8px 6px;
     border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 10px;
-    background: #fff4c4;
+    background: #faf6e2;
     text-align: center;
 }
 
@@ -414,7 +414,7 @@
     min-height: 38px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, #fb8500, #ffa53a);
+    background:#fb8500;
     color: #ffffff;
     font-family: inherit;
     font-size: 13px;

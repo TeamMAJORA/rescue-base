@@ -6,7 +6,7 @@ const STATUS_PILLS = [
     { key: "all", label: "All Pets" },
     { key: "available", label: "Available" },
     { key: "in_foster", label: "In Foster" },
-    { key: "saved", label: "♥ Saved" },
+    { key: "saved", label: "Saved" },
 ];
 
 const SAVED_KEY = "rescuebase_saved_pets";

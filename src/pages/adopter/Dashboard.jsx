@@ -34,8 +34,6 @@ import { formatAge } from "../../utils/formatAge";
 import AccountSettings from "../AccountSettings";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
-import SidebarUserCard from "../../components/system/SidebarUserCard";
-import PetTypeIcon from "../../components/system/PetTypeIcon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -133,7 +131,7 @@ const emptyPet = {
     health: "Not available",
     story: "There are currently no available animals.",
     description: "",
-    petType: "",
+    icon: "🐾",
     image: "",
 };
 
@@ -260,7 +258,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
     }, [pets]);
 
     
-    const QUIZ_PART_COUNT = 3; // Your space, Your experience, Energy level
+    const QUIZ_TOTAL_STEPS = 3;
 
     const savedPetsCount = (() => {
         try {
@@ -393,7 +391,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
                 label: "Action Needed",
                 icon: "/icons/Action.svg",
                 title: "Finish your match quiz",
-                linkText: `Short quiz, ${QUIZ_PART_COUNT} parts`,
+                linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
                 page: "matchmaking-quiz",
             };
         }
@@ -589,7 +587,12 @@ async function fetchPets({ silent = false } = {}) {
                             animal.description ||
                             `${animal.name} is currently under the care of RescueBase.`,
 
-                        petType: animal.type,
+                        icon:
+                            animal.type === "Dog"
+                                ? "🐶"
+                                : animal.type === "Cat"
+                                    ? "🐱"
+                                    : "🐾",
                     };
                 }
             );
@@ -1024,7 +1027,7 @@ async function fetchPets({ silent = false } = {}) {
                             }
                         />
                     ) : (
-                        <span><PetTypeIcon /></span>
+                        <span>🐾</span>
                     )}
                 </div>
 
@@ -1130,8 +1133,8 @@ async function fetchPets({ silent = false } = {}) {
                             <h2>Let's find your perfect companion</h2>
 
                             <p>
-                                Take a short quiz in {QUIZ_PART_COUNT} parts about your home and
-                                lifestyle, and we'll pair you with pets that fit your life.
+                                Answer {QUIZ_TOTAL_STEPS} quick steps about your home and
+                                we'll pair you with pets that fit your life.
                             </p>
 
                             <ol className="adopter-hero-steps">
@@ -1140,7 +1143,7 @@ async function fetchPets({ silent = false } = {}) {
                                 <li><b>3</b> Energy level</li>
                                 <li className="adopter-hero-time">
                                     <img src="/icons/Clock.svg" alt="" />
-                                    ~3 min
+                                    ~2 min
                                 </li>
                             </ol>
 
@@ -1566,14 +1569,6 @@ async function fetchPets({ silent = false } = {}) {
         // Older versions kept the quiz in the browser, shared by everyone on this computer
         localStorage.removeItem("rescuebase_matchmaking_quiz");
         localStorage.removeItem("rescuebase_matchmaking_results");
-
-        const interval = setInterval(() => {
-            fetchApplicationStatus();
-        }, 5000);
-
-        return () => {
-            clearInterval(interval);
-        };
     }, [savedEmail, signedOut]);
 
     // Keep pet availability fresh
@@ -1586,14 +1581,6 @@ async function fetchPets({ silent = false } = {}) {
     useEffect(() => {
         fetchPets({ silent: true });
     }, [activeAdopterPage]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            fetchPets({ silent: true });
-        }, 30000);
-
-        return () => clearInterval(interval);
-    }, []);
     
     // Account was deactivated by an admin
     if (signedOut === "disabled") {
@@ -1782,10 +1769,11 @@ async function fetchPets({ silent = false } = {}) {
                     )}
                 </nav>
 
-                <SidebarUserCard
-                    cardClassName="adopter-user-card"
-                    onOpenAccount={() => setActiveAdopterPage("settings")}
-                    onConfirmLogout={handleLogout}
+                <button
+                    className="adopter-user-card"
+                    type="button"
+                    title="Log out"
+                    onClick={handleLogout}
                 >
                     <div className="adopter-user-avatar">
                         {savedUser.profileImage ? (
@@ -1800,7 +1788,7 @@ async function fetchPets({ silent = false } = {}) {
                                 }
                             />
                         ) : (
-                            <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
+                            <span>👤</span>
                         )}
                     </div>
 
@@ -1811,9 +1799,11 @@ async function fetchPets({ silent = false } = {}) {
                                 "Adopter"}
                         </strong>
 
-                        <small>Adopter</small>
+                        <small>Adopter · Log out</small>
                     </div>
-                </SidebarUserCard>
+
+                    <span>→</span>
+                </button>
             </aside>
 
             <section className="adopter-main">
@@ -1896,4 +1886,4 @@ async function fetchPets({ silent = false } = {}) {
             </section>
         </main>
     );
-}
+}
