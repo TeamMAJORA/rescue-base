@@ -121,6 +121,7 @@ export default function Reports() {
                     : {}),
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 ...(options.headers || {}),
+                "ngrok-skip-browser-warning": "true",
             },
         });
 
@@ -213,6 +214,7 @@ export default function Reports() {
                     ...(token
                         ? { Authorization: `Bearer ${token}` }
                         : {}),
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(body),
             });
@@ -297,9 +299,9 @@ export default function Reports() {
             const response = await fetch(
                 `${API}/api/reports/${report._id}/download`,
                 {
-                    headers: token
+                    headers: { ...(token
                         ? { Authorization: `Bearer ${token}` }
-                        : {},
+                        : {}), "ngrok-skip-browser-warning": "true" },
                 }
             );
 

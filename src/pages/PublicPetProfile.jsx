@@ -58,7 +58,7 @@ export default function PublicPetProfile({ tagCode }) {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch(`${API}/api/qr-tags/lookup/${encodeURIComponent(tagCode)}`)
+        fetch(`${API}/api/qr-tags/lookup/${encodeURIComponent(tagCode)}`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((r) => r.json())
             .then((data) => (data.success ? setAnimal(data.animal) : setError(data.message || "Pet not found.")))
             .catch(() => setError("Could not load pet info."));

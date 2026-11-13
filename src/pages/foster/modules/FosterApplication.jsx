@@ -223,6 +223,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         applicantName: form.fullName,

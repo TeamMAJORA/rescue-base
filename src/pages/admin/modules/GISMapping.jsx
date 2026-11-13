@@ -424,9 +424,9 @@ export default function GISMapping() {
                     ? `${API}/api/gis/public`
                     : `${API}/api/gis`,
                 {
-                    headers: isVolunteer
+                    headers: { ...(isVolunteer
                         ? {}
-                        : { Authorization: `Bearer ${getToken()}` },
+                        : { Authorization: `Bearer ${getToken()}` }), "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -457,7 +457,7 @@ export default function GISMapping() {
             setHotspotError("");
 
             const response = await fetch(`${API}/api/gis/hotspots`, {
-                headers: { Authorization: `Bearer ${getToken()}` },
+                headers: { Authorization: `Bearer ${getToken()}`, "ngrok-skip-browser-warning": "true" },
             });
 
             const data = await readResponse(
@@ -489,9 +489,9 @@ export default function GISMapping() {
                 : `${API}/api/gis/shelters`;
 
             const response = await fetch(endpoint, {
-                headers: canManageShelters
+                headers: { ...(canManageShelters
                     ? { Authorization: `Bearer ${getToken()}` }
-                    : {},
+                    : {}), "ngrok-skip-browser-warning": "true" },
             });
 
             const data = await readResponse(
@@ -654,6 +654,7 @@ export default function GISMapping() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(body),
             });
@@ -706,7 +707,7 @@ export default function GISMapping() {
 
             const response = await fetch(`${API}/api/gis/${id}/resolve`, {
                 method: "PATCH",
-                headers: { Authorization: `Bearer ${getToken()}` },
+                headers: { Authorization: `Bearer ${getToken()}`, "ngrok-skip-browser-warning": "true" },
             });
 
             await readResponse(response, "Failed to resolve GIS location.");
@@ -747,7 +748,7 @@ export default function GISMapping() {
                 `${API}/api/gis/${location._id}`,
                 {
                     method: "DELETE",
-                    headers: { Authorization: `Bearer ${getToken()}` },
+                    headers: { Authorization: `Bearer ${getToken()}`, "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -879,6 +880,7 @@ export default function GISMapping() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(body),
             });
@@ -933,6 +935,7 @@ export default function GISMapping() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${getToken()}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({ status: nextStatus }),
                 }
@@ -1069,7 +1072,7 @@ export default function GISMapping() {
     async function loadGmAnimals() {
         try {
             const response = await fetch(`${API}/api/animals`, {
-                headers: { Authorization: `Bearer ${getToken()}` },
+                headers: { Authorization: `Bearer ${getToken()}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await readResponse(response, "Failed to load animals.");
             setGmAnimals(Array.isArray(data.animals) ? data.animals : []);
@@ -1277,6 +1280,7 @@ export default function GISMapping() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${getToken()}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(body),
                 }

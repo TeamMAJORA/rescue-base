@@ -1960,6 +1960,7 @@ export default function AdoptionApplications() {
             const response = await fetch(`${API}/api/adoptions`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
             });
 
@@ -1978,7 +1979,7 @@ export default function AdoptionApplications() {
             // Quiz match scores (a failure here just leaves the scores blank)
             try {
                 const quizResponse = await fetch(`${API}/api/matchmaking/responses`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                 });
                 const quizData = await quizResponse.json().catch(() => ({}));
                 const byEmail = {};
@@ -2023,6 +2024,7 @@ export default function AdoptionApplications() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(body),
                 }
@@ -2062,6 +2064,7 @@ export default function AdoptionApplications() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ reason }),
             });

@@ -140,7 +140,7 @@ function matchesFilters(location, filters, loadedAt) {
 }
 
 async function fetchJSON(url) {
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: { "ngrok-skip-browser-warning": "true" } });
     const data = await response.json();
 
     if (!response.ok) {

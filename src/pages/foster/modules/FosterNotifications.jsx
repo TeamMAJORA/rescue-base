@@ -43,6 +43,7 @@ export default function FosterNotifications({
                         method: "PATCH",
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            "ngrok-skip-browser-warning": "true",
                         },
                     }
                 );

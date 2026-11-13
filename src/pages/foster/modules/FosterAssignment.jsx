@@ -93,7 +93,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
        async function loadAdoptionApp() {
            try {
                const response = await fetch(`${API}/api/adoptions/user/latest`, {
-                   headers: { Authorization: `Bearer ${token}` },
+                   headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                });
                const data = await response.json();
                setAdoptApp(response.ok && data.success ? data.application : null);
@@ -150,6 +150,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(returnForm),
                 }
@@ -175,7 +176,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
     // Load the shelter's name and contacts once (name shows on the pet card)
     useEffect(() => {
         if (!token) return;
-        fetch(`${API}/api/settings/contact`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${API}/api/settings/contact`, { headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
             .then(({ ok, data }) => {
                 if (ok && data.success) setContact(data.contact);
@@ -191,7 +192,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
 
         try {
             const response = await fetch(`${API}/api/settings/contact`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
             setContact(response.ok && data.success ? data.contact : {});
@@ -224,6 +225,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );

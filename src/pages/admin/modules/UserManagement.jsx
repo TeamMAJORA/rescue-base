@@ -83,6 +83,7 @@ export default function UserManagement() {
             const response = await fetch(`${API}/api/users`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
             });
 
@@ -165,6 +166,7 @@ export default function UserManagement() {
                     method: "PATCH",
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -216,6 +218,7 @@ export default function UserManagement() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(addForm),
             });
@@ -259,6 +262,7 @@ export default function UserManagement() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(editForm),
                 }
@@ -317,6 +321,7 @@ export default function UserManagement() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         decision,
@@ -376,6 +381,7 @@ export default function UserManagement() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ status: "active" }),
             });

@@ -66,7 +66,7 @@ function authHeaders() {
 }
 
 async function getJson(path) {
-    const response = await fetch(`${API}${path}`, { headers: authHeaders() });
+    const response = await fetch(`${API}${path}`, { headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" } });
     if (!response.ok) throw new Error(`${path} ${response.status}`);
     return response.json();
 }

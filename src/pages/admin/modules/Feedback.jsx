@@ -100,7 +100,7 @@ export default function Feedback() {
             const results = await Promise.all(
                 ["active", "archived"].map(async (s) => {
                     const response = await fetch(`${BACKEND_URL}/api/feedback?status=${s}`, {
-                        headers: { Authorization: `Bearer ${token}` },
+                        headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                     });
                     const data = await response.json().catch(() => ({}));
 
@@ -132,7 +132,7 @@ export default function Feedback() {
             setBusyId(id);
             const response = await fetch(`${BACKEND_URL}/api/feedback/${id}/${action}`, {
                 method: "PATCH",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json().catch(() => ({}));
 
@@ -166,7 +166,7 @@ export default function Feedback() {
             setError("");
             const response = await fetch(`${BACKEND_URL}/api/feedback/${selectedFeedback._id}/reply`, {
                 method: "PATCH",
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify({ reply: text }),
             });
             const data = await response.json().catch(() => ({}));
@@ -211,7 +211,7 @@ export default function Feedback() {
             setBusyId(id);
             const response = await fetch(`${BACKEND_URL}/api/feedback/${id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json().catch(() => ({}));
 

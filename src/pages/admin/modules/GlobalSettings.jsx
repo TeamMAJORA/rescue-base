@@ -43,6 +43,7 @@ async function requestSettings(method = "GET", body) {
         headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...(body ? { "Content-Type": "application/json" } : {}),
+            "ngrok-skip-browser-warning": "true",
         },
         ...(body ? { body: JSON.stringify(body) } : {}),
     });

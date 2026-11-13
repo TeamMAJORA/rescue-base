@@ -76,7 +76,7 @@ async function readJson(response) {
 }
 
 async function fetchMe() {
-    const response = await fetch(`${API}/api/users/me`, { headers: authHeaders(false) });
+    const response = await fetch(`${API}/api/users/me`, { headers: { ...(authHeaders(false)), "ngrok-skip-browser-warning": "true" } });
     const data = await readJson(response);
     if (!response.ok || !data.user) throw new Error(data.message || "Could not load your account.");
     return data.user;
@@ -168,7 +168,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
             body.append("folder", "rescuebase/profiles");
             const response = await fetch(`${API}/api/uploads/image`, {
                 method: "POST",
-                headers: authHeaders(false),
+                headers: { ...(authHeaders(false)), "ngrok-skip-browser-warning": "true" },
                 body,
             });
             const data = await readJson(response);
@@ -196,7 +196,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
         try {
             const response = await fetch(`${API}/api/users/me`, {
                 method: "PATCH",
-                headers: authHeaders(),
+                headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify({
                     name: profile.name.trim(),
                     username: profile.username.trim(),
@@ -239,7 +239,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
         try {
             const response = await fetch(`${API}/api/users/me/password`, {
                 method: "PATCH",
-                headers: authHeaders(),
+                headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify({
                     currentPassword: passwords.currentPassword,
                     newPassword: passwords.newPassword,
@@ -275,7 +275,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
             emailKeys.forEach((key) => { emailPrefs[key] = prefs[key] !== false; });
             const response = await fetch(`${API}/api/users/me/notifications`, {
                 method: "PATCH",
-                headers: authHeaders(),
+                headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify({ emailPrefs }),
             });
             const data = await readJson(response);

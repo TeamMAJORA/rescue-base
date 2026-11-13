@@ -32,6 +32,7 @@ async function apiRequest(url, options = {}) {
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "ngrok-skip-browser-warning": "true",
         },
     });
 
@@ -391,7 +392,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     // Existing animals: used for the Animal dropdown and the "Not Vaccinated" tab
     useEffect(() => {
         if (lockedAnimal) return;
-        fetch(API_ANIMALS)
+        fetch(API_ANIMALS, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => setAnimals(data.animals || []))
             .catch(() => setAnimals([]));

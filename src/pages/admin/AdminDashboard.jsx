@@ -185,7 +185,7 @@ function useSidebarDots(activePage) {
 
             const results = await Promise.allSettled(
                 DOT_SOURCES.map((source) =>
-                    fetch(`${API}${source.url}`, { headers: { Authorization: `Bearer ${token}` } })
+                    fetch(`${API}${source.url}`, { headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" } })
                         .then((response) => (response.ok ? response.json() : {}))
                         .then((data) => {
                             const items = Array.isArray(data[source.key]) ? data[source.key] : [];
@@ -305,7 +305,7 @@ export default function AdminDashboard({ setPage }) {
         const token = localStorage.getItem("token");
 
         // /api/settings always works for admins, even during maintenance
-        fetch(`${API}/api/settings`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${API}/api/settings`, { headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" } })
             .then((response) => (response.ok ? response.json() : null))
             .then((data) => {
                 if (data?.settings?.maintenance) setMaintenanceInfo(data.settings.maintenance);
@@ -449,18 +449,21 @@ export default function AdminDashboard({ setPage }) {
                 fetch(`${API}/api/adoptions`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }),
 
                 fetch(`${API}/api/foster/assignments`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }),
 
                 fetch(`${API}/api/foster/applications`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }),
             ]);

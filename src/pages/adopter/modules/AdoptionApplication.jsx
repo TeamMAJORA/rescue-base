@@ -220,7 +220,8 @@ function validateForm() {
                 {
                     method: "POST",
                     headers : {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true"
                     },
                     body: uploadData,
                 }
@@ -337,6 +338,7 @@ function validateForm() {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
 
                     body: JSON.stringify(payload),

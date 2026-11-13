@@ -476,6 +476,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
                 `${API}/api/notifications`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
             }
             );
@@ -504,7 +505,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
 async function loadMyMatchmaking() {
     try {
         const response = await fetch(`${API}/api/matchmaking/quiz/me`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "ngrok-skip-browser-warning": "true" },
         });
         const data = await response.json();
 
@@ -526,7 +527,8 @@ async function fetchPets({ silent = false } = {}) {
             const response = await fetch(
                 `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 }
             }
             );
@@ -670,6 +672,7 @@ async function fetchPets({ silent = false } = {}) {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -785,7 +788,7 @@ async function fetchPets({ silent = false } = {}) {
 
         const uploadResponse = await fetch(`${API}/api/uploads/image`, {
             method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             body: uploadData,
         });
         const uploadResult = await uploadResponse.json();
@@ -801,6 +804,7 @@ async function fetchPets({ silent = false } = {}) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     documents: [
@@ -832,6 +836,7 @@ async function fetchPets({ silent = false } = {}) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ reason }),
             }
@@ -855,6 +860,7 @@ async function fetchPets({ silent = false } = {}) {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -1474,6 +1480,7 @@ async function fetchPets({ silent = false } = {}) {
                         method: "PATCH",
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            "ngrok-skip-browser-warning": "true",
                         },
                     }
                 );

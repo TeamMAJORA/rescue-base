@@ -36,7 +36,7 @@ function DonateOnlineCard() {
     const [activeId, setActiveId] = useState("");
 
     useEffect(() => {
-        fetch(`${API}/api/payment-methods/public`)
+        fetch(`${API}/api/payment-methods/public`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => setMethods(Array.isArray(data.methods) ? data.methods : []))
             .catch(() => setMethods([]));

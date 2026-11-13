@@ -27,6 +27,7 @@ export default function RoleApplication() {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -49,7 +50,7 @@ export default function RoleApplication() {
     async function fetchFosterApplication() {
         try {
             const response = await fetch(`${API}/api/foster/applications/me`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -76,6 +77,7 @@ export default function RoleApplication() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({}),
             });
@@ -118,6 +120,7 @@ export default function RoleApplication() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         targetRole,

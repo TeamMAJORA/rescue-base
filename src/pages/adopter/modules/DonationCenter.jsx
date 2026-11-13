@@ -163,6 +163,7 @@ export default function DonationCenter() {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: formData,
                 }
@@ -357,6 +358,7 @@ export default function DonationCenter() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(payload),
                 }
@@ -412,6 +414,7 @@ export default function DonationCenter() {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -458,6 +461,7 @@ export default function DonationCenter() {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -542,7 +546,7 @@ export default function DonationCenter() {
         fetchNeededSupplies();
         fetchPaymentMethods();
 
-        fetch(`${API}/api/settings/drop-off`)
+        fetch(`${API}/api/settings/drop-off`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => setDropOff(data.dropOff?.enabled && data.dropOff.address ? data.dropOff : null))
             .catch(() => setDropOff(null));
