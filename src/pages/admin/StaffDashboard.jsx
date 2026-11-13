@@ -250,6 +250,8 @@ function useSidebarDots(activePage) {
 export default function StaffDashboard({ setPage }) {
 
     const [activeStaffPage, setActiveStaffPage] = useState("overview");
+    // Lost & Found report to open after "Open in Lost & Found" on the GIS map
+    const [lostFoundReportIdToOpen, setLostFoundReportIdToOpen] = useState(null);
     const newDots = useSidebarDots(activeStaffPage);
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     // Phones: the sidebar slides in from the left behind a menu button
@@ -523,7 +525,7 @@ export default function StaffDashboard({ setPage }) {
         }
 
         if (activeStaffPage === "lost-found") {
-            return <LostFound />
+            return <LostFound openReportId={lostFoundReportIdToOpen} onOpenReportHandled={() => setLostFoundReportIdToOpen(null)} />
         }
 
         if (activeStaffPage === "rescue") {
@@ -531,7 +533,14 @@ export default function StaffDashboard({ setPage }) {
         }
 
         if (activeStaffPage === "gis-mapping") {
-            return <GISMapping />;
+            return (
+                <GISMapping
+                    onOpenLostFound={(reportId) => {
+                        setLostFoundReportIdToOpen(reportId || null);
+                        setActiveStaffPage("lost-found");
+                    }}
+                />
+            );
         }
 
         if (activeStaffPage === "feedback") {

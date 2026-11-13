@@ -254,6 +254,8 @@ function useSidebarDots(activePage) {
 export default function AdminDashboard({ setPage }) {
 
     const [activeAdminPage, setActiveAdminPage] = useState("overview");
+    // Lost & Found report to open after "Open in Lost & Found" on the GIS map
+    const [lostFoundReportIdToOpen, setLostFoundReportIdToOpen] = useState(null);
     // Which tab Settings opens on (the dashboard's "View log" opens Activity log)
     const [settingsTab, setSettingsTab] = useState("system");
     // Which tab Supplies opens on (dashboard food links open Food stock)
@@ -583,7 +585,7 @@ export default function AdminDashboard({ setPage }) {
         }
 
         if (activeAdminPage === "lost-found") {
-            return <LostFound />
+            return <LostFound openReportId={lostFoundReportIdToOpen} onOpenReportHandled={() => setLostFoundReportIdToOpen(null)} />
         }
 
         if (activeAdminPage === "rescue") {
@@ -591,7 +593,14 @@ export default function AdminDashboard({ setPage }) {
         }
 
         if (activeAdminPage === "gis-mapping") {
-            return <GISMapping />;
+            return (
+                <GISMapping
+                    onOpenLostFound={(reportId) => {
+                        setLostFoundReportIdToOpen(reportId || null);
+                        setActiveAdminPage("lost-found");
+                    }}
+                />
+            );
         }
 
         if (activeAdminPage === "feedback") {

@@ -34,84 +34,27 @@ import { formatAge } from "../../utils/formatAge";
 import AccountSettings from "../AccountSettings";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
+import SidebarUserCard from "../../components/system/SidebarUserCard";
+import PetTypeIcon from "../../components/system/PetTypeIcon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const ICON_PATH = "/icons/sidebar/";
 
+// Grouped like the Admin/Staff sidebars: a label shows where the group changes, "" after the first item = divider
 const adopterMenu = [
-    {
-        key: "overview",
-        label: "Dashboard",
-        icon: "dashboard-brown.svg",
-        activeIcon: "dashboard-light.svg",
-    },
-    {
-        key: "browse-pets",
-        label: "Browse Pets",
-        icon: "brown paw.svg",
-        activeIcon: "brown paw-light.svg",
-    },
-    {
-        key: "adoption-application",
-        label: "Adoption Application",
-        icon: "clipboard-brown.svg",
-        activeIcon: "clipboard-light.svg",
-    },
-    {
-        key: "application-status",
-        label: "Application Status",
-        icon: "Status.svg",
-        activeIcon: "Status-light.svg",
-    },
-    {
-        key: "matchmaking-quiz",
-        label: "Matchmaking Quiz",
-        icon: "quiz-brown.svg",
-        activeIcon: "quiz-light.svg",
-    },
-    {
-        key: "recommendations",
-        label: "Recommendations",
-        icon: "Recommend.svg",
-        activeIcon: "Recommend-light.svg",
-    },
-    {
-        key: "lost-found",
-        label: "Lost & Found",
-        icon: "LostnFound-brown.svg",
-        activeIcon: "LostnFound-light.svg",
-    },
-    {
-        key: "donation",
-        label: "Donation",
-        icon: "donation-brown.svg",
-        activeIcon: "donation-light.svg",
-    },
-    {
-        key: "donation-history",
-        label: "Donation History",
-        icon: "history.svg",
-        activeIcon: "history-light.svg",
-    },
-    {
-        key: "role-application",
-        label: "Role Application",
-        icon: "role-brown.svg",
-        activeIcon: "role-light.svg",
-    },
-    {
-        key: "feedback",
-        label: "Feedback",
-        icon: "Feedback-brown.svg",
-        activeIcon: "Feedback-light.svg",
-    },
-    {
-        key: "settings",
-        label: "Settings",
-        icon: "settings-brown.svg",
-        activeIcon: "settings-light.svg",
-    },
+    { key: "overview", group: "", label: "Dashboard", icon: "dashboard-brown.svg", activeIcon: "dashboard-light.svg" },
+    { key: "browse-pets", group: "Adopt", label: "Browse Pets", icon: "brown paw.svg", activeIcon: "brown paw-light.svg" },
+    { key: "matchmaking-quiz", group: "Adopt", label: "Matchmaking Quiz", icon: "quiz-brown.svg", activeIcon: "quiz-light.svg" },
+    { key: "recommendations", group: "Adopt", label: "Recommendations", icon: "Recommend.svg", activeIcon: "Recommend-light.svg" },
+    { key: "adoption-application", group: "Adopt", label: "Adoption Application", icon: "clipboard-brown.svg", activeIcon: "clipboard-light.svg" },
+    { key: "application-status", group: "Adopt", label: "Application Status", icon: "Status.svg", activeIcon: "Status-light.svg" },
+    { key: "lost-found", group: "Help animals", label: "Lost & Found", icon: "LostnFound-brown.svg", activeIcon: "LostnFound-light.svg" },
+    { key: "donation", group: "Help animals", label: "Donation", icon: "donation-brown.svg", activeIcon: "donation-light.svg" },
+    { key: "donation-history", group: "Help animals", label: "Donation History", icon: "history.svg", activeIcon: "history-light.svg" },
+    { key: "role-application", group: "Account", label: "Role Application", icon: "role-brown.svg", activeIcon: "role-light.svg" },
+    { key: "feedback", group: "Account", label: "Feedback", icon: "Feedback-brown.svg", activeIcon: "Feedback-light.svg" },
+    { key: "settings", group: "", label: "Settings", icon: "settings-brown.svg", activeIcon: "settings-light.svg" },
 ];
 
 const emptyPet = {
@@ -131,7 +74,7 @@ const emptyPet = {
     health: "Not available",
     story: "There are currently no available animals.",
     description: "",
-    icon: "🐾",
+    petType: "",
     image: "",
 };
 
@@ -258,7 +201,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
     }, [pets]);
 
     
-    const QUIZ_TOTAL_STEPS = 3;
+    const QUIZ_PART_COUNT = 3; // Your space, Your experience, Energy level
 
     const savedPetsCount = (() => {
         try {
@@ -391,7 +334,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
                 label: "Action Needed",
                 icon: "/icons/Action.svg",
                 title: "Finish your match quiz",
-                linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
+                linkText: `Short quiz, ${QUIZ_PART_COUNT} parts`,
                 page: "matchmaking-quiz",
             };
         }
@@ -589,12 +532,7 @@ async function fetchPets({ silent = false } = {}) {
                             animal.description ||
                             `${animal.name} is currently under the care of RescueBase.`,
 
-                        icon:
-                            animal.type === "Dog"
-                                ? "🐶"
-                                : animal.type === "Cat"
-                                    ? "🐱"
-                                    : "🐾",
+                        petType: animal.type,
                     };
                 }
             );
@@ -1033,7 +971,7 @@ async function fetchPets({ silent = false } = {}) {
                             }
                         />
                     ) : (
-                        <span>🐾</span>
+                        <span><PetTypeIcon /></span>
                     )}
                 </div>
 
@@ -1139,8 +1077,8 @@ async function fetchPets({ silent = false } = {}) {
                             <h2>Let's find your perfect companion</h2>
 
                             <p>
-                                Answer {QUIZ_TOTAL_STEPS} quick steps about your home and
-                                we'll pair you with pets that fit your life.
+                                Take a short quiz in {QUIZ_PART_COUNT} parts about your home and
+                                lifestyle, and we'll pair you with pets that fit your life.
                             </p>
 
                             <ol className="adopter-hero-steps">
@@ -1149,7 +1087,7 @@ async function fetchPets({ silent = false } = {}) {
                                 <li><b>3</b> Energy level</li>
                                 <li className="adopter-hero-time">
                                     <img src="/icons/Clock.svg" alt="" />
-                                    ~2 min
+                                    ~3 min
                                 </li>
                             </ol>
 
@@ -1688,7 +1626,8 @@ async function fetchPets({ silent = false } = {}) {
                 <nav className="adopter-menu">
                     {adopterMenu
                         .filter((item) => !(roleDashboardName && item.key === "role-application"))
-                        .map((item) => {
+                        .map((item, index, visibleMenu) => {
+                        const isFirstInSection = index > 0 && item.group !== visibleMenu[index - 1].group;
                         const isActive =
                             activeAdopterPage ===
                             item.key;
@@ -1704,6 +1643,9 @@ async function fetchPets({ silent = false } = {}) {
                                 className="adopter-menu-group"
                                 key={item.key}
                             >
+                                {isFirstInSection && (item.group
+                                    ? <p className="menu-section-label">{item.group}</p>
+                                    : <hr className="menu-section-divider" />)}
                                 <button
                                     type="button"
                                     title={item.label}
@@ -1776,11 +1718,10 @@ async function fetchPets({ silent = false } = {}) {
                     )}
                 </nav>
 
-                <button
-                    className="adopter-user-card"
-                    type="button"
-                    title="Log out"
-                    onClick={handleLogout}
+                <SidebarUserCard
+                    cardClassName="adopter-user-card"
+                    onOpenAccount={() => setActiveAdopterPage("settings")}
+                    onConfirmLogout={handleLogout}
                 >
                     <div className="adopter-user-avatar">
                         {savedUser.profileImage ? (
@@ -1795,7 +1736,7 @@ async function fetchPets({ silent = false } = {}) {
                                 }
                             />
                         ) : (
-                            <span>👤</span>
+                            <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
                         )}
                     </div>
 
@@ -1806,11 +1747,9 @@ async function fetchPets({ silent = false } = {}) {
                                 "Adopter"}
                         </strong>
 
-                        <small>Adopter · Log out</small>
+                        <small>Adopter</small>
                     </div>
-
-                    <span>→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="adopter-main">

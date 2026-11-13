@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, Fragment } from "react";
 
 import DashboardOverview from "./modules/DashboardOverview";
 import FosterApplication from "./modules/FosterApplication";
@@ -38,15 +38,15 @@ const PAGE_TITLES = {
     notifications: "Notifications",
 };
 
-// Sidebar items (same icon set as the Adopter sidebar)
+// Sidebar items (same icon set as the Adopter sidebar); a section label shows where "group" changes
 const FOSTER_MENU = [
-    { key: "dashboard", label: "Dashboard", icon: "/icons/sidebar/dashboard-brown.svg", activeIcon: "/icons/sidebar/dashboard-light.svg" },
-    { key: "assignment", label: "My Foster Pet", icon: "/icons/sidebar/brown paw.svg", activeIcon: "/icons/sidebar/brown paw-light.svg" },
-    { key: "updates", label: "Care Updates", icon: "/icons/sidebar/clipboard-brown.svg", activeIcon: "/icons/sidebar/clipboard-light.svg" },
-    { key: "behavior", label: "Behavior Evaluation", icon: "/icons/heart-brown.svg", activeIcon: "/icons/heart-light.svg", also: ["fosterUpdates"] },
-    { key: "medical", label: "Medical Assistance", icon: "/icons/sidebar/medical-brown.svg", activeIcon: "/icons/sidebar/medical-light.svg" },
-    { key: "history", label: "Foster History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
-    { key: "application", label: "My Application", icon: "/icons/sidebar/role-brown.svg", activeIcon: "/icons/sidebar/role-light.svg" },
+    { key: "dashboard", group: "", label: "Dashboard", icon: "/icons/sidebar/dashboard-brown.svg", activeIcon: "/icons/sidebar/dashboard-light.svg" },
+    { key: "assignment", group: "My foster pet", label: "My Foster Pet", icon: "/icons/sidebar/brown paw.svg", activeIcon: "/icons/sidebar/brown paw-light.svg" },
+    { key: "updates", group: "My foster pet", label: "Care Updates", icon: "/icons/sidebar/clipboard-brown.svg", activeIcon: "/icons/sidebar/clipboard-light.svg" },
+    { key: "behavior", group: "My foster pet", label: "Behavior Evaluation", icon: "/icons/heart-brown.svg", activeIcon: "/icons/heart-light.svg", also: ["fosterUpdates"] },
+    { key: "medical", group: "My foster pet", label: "Medical Assistance", icon: "/icons/sidebar/medical-brown.svg", activeIcon: "/icons/sidebar/medical-light.svg" },
+    { key: "history", group: "Records", label: "Foster History", icon: "/icons/sidebar/history.svg", activeIcon: "/icons/sidebar/history-light.svg" },
+    { key: "application", group: "Records", label: "My Application", icon: "/icons/sidebar/role-brown.svg", activeIcon: "/icons/sidebar/role-light.svg" },
 ];
 
 export default function FosterDashboard({ setPage }) {
@@ -595,13 +595,15 @@ function goToPage(page, petId = null) {
                 </button>
 
                 <nav className="foster-menu">
-                    {FOSTER_MENU.map((item) => {
+                    {FOSTER_MENU.map((item, index) => {
                         const isActive =
                             activePage === item.key || item.also?.includes(activePage);
+                        const isFirstInSection = index > 0 && item.group !== FOSTER_MENU[index - 1].group;
 
                         return (
+                            <Fragment key={item.key}>
+                            {isFirstInSection && <p className="menu-section-label">{item.group}</p>}
                             <button
-                                key={item.key}
                                 type="button"
                                 title={item.label}
                                 className={isActive ? "active" : ""}
@@ -611,6 +613,7 @@ function goToPage(page, petId = null) {
                                 <img className="foster-menu-icon icon-active" src={item.activeIcon} alt="" aria-hidden="true" />
                                 <strong>{item.label}</strong>
                             </button>
+                            </Fragment>
                         );
                     })}
 
