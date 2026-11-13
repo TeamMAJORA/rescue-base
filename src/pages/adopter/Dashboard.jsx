@@ -34,6 +34,7 @@ import { formatAge } from "../../utils/formatAge";
 import AccountSettings from "../AccountSettings";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
+import SidebarUserCard from "../../components/system/SidebarUserCard";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1785,11 +1786,10 @@ async function fetchPets({ silent = false } = {}) {
                     )}
                 </nav>
 
-                <button
-                    className="adopter-user-card"
-                    type="button"
-                    title="Log out"
-                    onClick={handleLogout}
+                <SidebarUserCard
+                    cardClassName="adopter-user-card"
+                    onOpenAccount={() => setActiveAdopterPage("settings")}
+                    onConfirmLogout={handleLogout}
                 >
                     <div className="adopter-user-avatar">
                         {savedUser.profileImage ? (
@@ -1804,7 +1804,7 @@ async function fetchPets({ silent = false } = {}) {
                                 }
                             />
                         ) : (
-                            <span>👤</span>
+                            <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
                         )}
                     </div>
 
@@ -1815,11 +1815,9 @@ async function fetchPets({ silent = false } = {}) {
                                 "Adopter"}
                         </strong>
 
-                        <small>Adopter · Log out</small>
+                        <small>Adopter</small>
                     </div>
-
-                    <span>→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="adopter-main">
@@ -1902,4 +1900,4 @@ async function fetchPets({ silent = false } = {}) {
             </section>
         </main>
     );
-}
+}

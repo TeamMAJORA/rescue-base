@@ -54,6 +54,7 @@ import AnimalTransfers from "./modules/animals/AnimalTransfers";
 import { SuppliesPage } from "./modules/FoodStorage";
 import { fetchRecentNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
+import SidebarUserCard from "../../components/system/SidebarUserCard";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -820,11 +821,10 @@ export default function AdminDashboard({ setPage }) {
                     })}
                 </nav>
 
-                <button
-                    className="admin-user-card"
-                    type="button"
-                    title="Log out"
-                    onClick={() => signOut("home")}
+                <SidebarUserCard
+                    cardClassName="admin-user-card"
+                    onOpenAccount={() => { setOpenSidebarMenu(null); setSettingsTab("profile"); setActiveAdminPage("global-settings"); setIsMobileMenuOpen(false); }}
+                    onConfirmLogout={() => signOut("home")}
                 >
                     <span className="admin-user-avatar">
                         {sidebarUser.profileImage ? (
@@ -835,10 +835,9 @@ export default function AdminDashboard({ setPage }) {
                     </span>
                     <span className="admin-user-info">
                         <strong>{sidebarUser.name || sidebarUser.username || "Admin User"}</strong>
-                        <small>Admin · Log out</small>
+                        <small>Admin</small>
                     </span>
-                    <span className="admin-user-arrow" aria-hidden="true">→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="admin-main">
@@ -964,4 +963,4 @@ export default function AdminDashboard({ setPage }) {
             </div>
         </main>
     );
-}
+}

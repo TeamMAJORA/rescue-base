@@ -32,6 +32,7 @@ import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import { openOnAdopterDashboard } from "../../utils/adopterStartPage";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
+import SidebarUserCard from "../../components/system/SidebarUserCard";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -542,21 +543,19 @@ export default function VolunteerDashboard({ setPage }) {
                     </div>
                 </nav>
 
-                <button
-                    className="staff-user-card"
-                    type="button"
-                    title="Log out"
-                    onClick={() => signOut("home")}
+                <SidebarUserCard
+                    cardClassName="staff-user-card"
+                    onOpenAccount={() => openAdopterPage("settings")}
+                    onConfirmLogout={() => signOut("home")}
                 >
                     <span className="staff-user-avatar">
                         <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
                     </span>
                     <span className="staff-user-info">
                         <strong>{volunteerName}</strong>
-                        <small>Volunteer · Log out</small>
+                        <small>Volunteer</small>
                     </span>
-                    <span className="staff-user-arrow" aria-hidden="true">→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="staff-main">
@@ -657,4 +656,4 @@ export default function VolunteerDashboard({ setPage }) {
             </div>
         </main>
     );
-}
+}

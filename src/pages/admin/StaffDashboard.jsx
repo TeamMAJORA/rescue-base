@@ -49,6 +49,7 @@ import { SuppliesPage } from "./modules/FoodStorage";
 import AccountSettings from "../AccountSettings";
 import { fetchRecentNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
+import SidebarUserCard from "../../components/system/SidebarUserCard";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -766,11 +767,10 @@ export default function StaffDashboard({ setPage }) {
                     })}
                 </nav>
 
-                <button
-                    className="staff-user-card"
-                    type="button"
-                    title="Log out"
-                    onClick={() => signOut("home")}
+                <SidebarUserCard
+                    cardClassName="staff-user-card"
+                    onOpenAccount={() => { setOpenSidebarMenu(null); setActiveStaffPage("settings"); setIsMobileMenuOpen(false); }}
+                    onConfirmLogout={() => signOut("home")}
                 >
                     <span className="staff-user-avatar">
                         {sidebarUser.profileImage ? (
@@ -781,10 +781,9 @@ export default function StaffDashboard({ setPage }) {
                     </span>
                     <span className="staff-user-info">
                         <strong>{sidebarUser.name || sidebarUser.username || "Staff User"}</strong>
-                        <small>Staff · Log out</small>
+                        <small>Staff</small>
                     </span>
-                    <span className="staff-user-arrow" aria-hidden="true">→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="staff-main">
@@ -883,4 +882,4 @@ export default function StaffDashboard({ setPage }) {
             </div>
         </main>
     );
-}
+}
