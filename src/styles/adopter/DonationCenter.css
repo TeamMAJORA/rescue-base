@@ -830,3 +830,184 @@
         font-size: 12px;
     }
 }
+
+/* ===== Donate page: jump link, supplies toggle, social proof, copy, thank-you ===== */
+.adopter-donation-hero .donation-jump {
+    margin-top: 16px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 999px;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.needed-supplies-more {
+    display: none;
+}
+
+.donation-social-proof {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #e8f5ec;
+    color: #1f7a45;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.donation-account-number {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.donation-form .donation-copy {
+    min-height: 32px;
+    padding: 4px 12px;
+    border: 1px solid #fb8500;
+    border-radius: 999px;
+    background: #fff;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.donation-copy-error {
+    color: #9a1b1b;
+    font-size: 12px;
+}
+
+.donation-thanks {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    padding: 32px 20px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+    color: #5a1b00;
+    text-align: center;
+}
+
+.donation-thanks h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+.donation-thanks p {
+    margin: 0;
+}
+
+.donation-thanks-check {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #1f7a45;
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.donation-thanks-steps {
+    display: grid;
+    gap: 8px;
+    margin: 8px 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.donation-thanks-steps li {
+    position: relative;
+    padding-left: 30px;
+    color: #8a6a55;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.donation-thanks-steps li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #e9dcc4;
+    border-radius: 50%;
+}
+
+.donation-thanks-steps li.is-done {
+    color: #1f7a45;
+}
+
+.donation-thanks-steps li.is-done::before {
+    content: "✓";
+    display: grid;
+    place-items: center;
+    border-color: #1f7a45;
+    background: #1f7a45;
+    color: #fff;
+    font-size: 11px;
+}
+
+.donation-thanks-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.donation-thanks-actions button {
+    min-height: 44px;
+    padding: 10px 20px;
+    border: 2px solid #fb8500;
+    border-radius: 999px;
+    background: #fff;
+    color: #5a1b00;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.donation-thanks-actions .donation-thanks-primary {
+    background: #fb8500;
+    color: #fff;
+}
+
+/* Phones: show 2 supplies so the donate form isn't buried (Serial Position / Fitts) */
+@media (max-width: 700px) {
+    .needed-supplies-grid:not(.is-expanded) .needed-supply-card:nth-child(n + 3) {
+        display: none;
+    }
+
+    .needed-supplies-more {
+        display: block;
+        width: 100%;
+        min-height: 44px;
+        margin-top: 12px;
+        border: 2px solid #fb8500;
+        border-radius: 999px;
+        background: #fff;
+        color: #5a1b00;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .adopter-donation-hero h2 {
+        font-size: 2rem;
+    }
+}

@@ -86,12 +86,19 @@ function formatPeso(amount) {
     return `₱${Number(amount).toLocaleString("en-PH", { maximumFractionDigits: 2 })}`;
 }
 
-export default function DonationCenter() {
+export default function DonationCenter({ onOpenDonationHistory }) {
     const [donation, setDonation] =
         useState(readDraft);
 
     // Donor said they've sent the money (step 2 of 3); uploading the receipt also counts
     const [hasSentPayment, setHasSentPayment] = useState(false);
+    // Peak-End: after submitting, the form is replaced by a thank-you card describing the gift
+    const [submittedGift, setSubmittedGift] = useState(null);
+    const [isAccountNumberCopied, setIsAccountNumberCopied] = useState(false);
+    const [copyErrorMessage, setCopyErrorMessage] = useState("");
+    const [areAllSuppliesShown, setAreAllSuppliesShown] = useState(false);
+    // Social proof: how many gifts reached the shelter in the last 30 days (counts only)
+    const [recentGiftCount, setRecentGiftCount] = useState(0);
     const [isCustomAmount, setIsCustomAmount] = useState(
         () => donation.quantity !== "" && !AMOUNT_PRESETS.includes(Number(donation.quantity))
     );
@@ -415,6 +422,13 @@ export default function DonationCenter() {
                 return;
             }
 
+            setSubmittedGift({
+                isMoney: isMoneyDonation,
+                description: isMoneyDonation
+                    ? `${formatPeso(Number(donation.quantity))} via ${donation.paymentMethod}`
+                    : `${Number(donation.quantity)} ${resolveUnit(donation.unit, donation.otherUnit).toLowerCase()} of ${itemName}`,
+                willBeThankedPublicly: donation.showNamePublicly,
+            });
             setDonation({
                 ...emptyDonation,
             });
@@ -426,9 +440,8 @@ export default function DonationCenter() {
                 // storage unavailable: nothing to clear
             }
 
-            setMessage(
-                "Thank you! Your donation request has been submitted."
-            );
+            setMessage("");
+            donationFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         } catch (error) {
             console.error(
                 "Submit donation error:",
@@ -596,6 +609,13 @@ export default function DonationCenter() {
     }, [isMoneyDonation, donation.paymentMethod, paymentMethods]);
 
     useEffect(() => {
+        fetch(`${API}/api/donations/supporters`, { headers: { "ngrok-skip-browser-warning": "true" } })
+            .then((response) => (response.ok ? response.json() : null))
+            .then((data) => setRecentGiftCount(Number(data?.summary?.donations) || 0))
+            .catch(() => setRecentGiftCount(0));
+    }, []);
+
+    useEffect(() => {
         fetchNeededSupplies();
         fetchPaymentMethods();
 
@@ -604,6 +624,21 @@ export default function DonationCenter() {
             .then((data) => setDropOff(data.dropOff?.enabled && data.dropOff.address ? data.dropOff : null))
             .catch(() => setDropOff(null));
     }, []);
+
+    async function copyAccountNumber(accountNumber) {
+        try {
+            await navigator.clipboard.writeText(accountNumber);
+            setCopyErrorMessage("");
+            setIsAccountNumberCopied(true);
+            setTimeout(() => setIsAccountNumberCopied(false), 2000);
+        } catch {
+            setCopyErrorMessage("Couldn't copy. Press and hold the number to copy it.");
+        }
+    }
+
+    function startAnotherDonation() {
+        setSubmittedGift(null);
+    }
 
     // Goal-Gradient: show where the donor is in the three steps
     const amountValue = Number(donation.quantity);
@@ -652,6 +687,15 @@ export default function DonationCenter() {
                    Your kindness keeps sweet souls safe, healthy, and
                    loved as they dream their forever home.
                 </p>
+
+                {/* The form sits below the supplies list, so give a one-tap way down to it */}
+                <button
+                    type="button"
+                    className="donation-jump"
+                    onClick={() => donationFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                >
+                    Donate now ↓
+                </button>
             </section>
 
             <section className="adopter-panel needed-supplies-panel">
@@ -683,7 +727,7 @@ export default function DonationCenter() {
                         currently listed.
                     </p>
                 ) : (
-                    <div className="needed-supplies-grid">
+                    <div className={`needed-supplies-grid${areAllSuppliesShown ? " is-expanded" : ""}`}>
                         {neededSupplies.map((supply) => {
                             const remaining = getRemaining(supply);
                             const needed = Number(supply.quantityNeeded) || 0;
@@ -738,6 +782,16 @@ export default function DonationCenter() {
                         })}
                     </div>
                 )}
+
+                {neededSupplies.length > 2 && (
+                    <button
+                        type="button"
+                        className="needed-supplies-more"
+                        onClick={() => setAreAllSuppliesShown((current) => !current)}
+                    >
+                        {areAllSuppliesShown ? "Show fewer" : `Show all ${neededSupplies.length} supplies`}
+                    </button>
+                )}
             </section>
 
             <section className="adopter-panel-form" ref={donationFormRef}>
@@ -747,9 +801,42 @@ export default function DonationCenter() {
                         <p>
                             Your kindness provides food, medical care, and a safe shelter.
                         </p>
+                        {recentGiftCount > 0 && (
+                            <p className="donation-social-proof">
+                                <span aria-hidden="true">♥</span>
+                                {recentGiftCount} {recentGiftCount === 1 ? "gift" : "gifts"} reached the shelter in the last 30 days
+                            </p>
+                        )}
                     </div>
                 </div>
 
+                {submittedGift ? (
+                    <div className="donation-thanks" role="status">
+                        <span className="donation-thanks-check" aria-hidden="true">✓</span>
+                        <h3>Thank you{savedUser.name ? `, ${savedUser.name.split(" ")[0]}` : ""}!</h3>
+                        <p>We got your {submittedGift.isMoney ? "gift" : "pledge"}: <strong>{submittedGift.description}</strong></p>
+
+                        <ol className="donation-thanks-steps">
+                            <li className="is-done">Sent to the shelter</li>
+                            <li>The shelter {submittedGift.isMoney ? "checks your receipt" : "receives your items"}</li>
+                            <li>
+                                Marked as Received
+                                {submittedGift.willBeThankedPublicly && " and you're thanked on the home page"}
+                            </li>
+                        </ol>
+
+                        <div className="donation-thanks-actions">
+                            {onOpenDonationHistory && (
+                                <button type="button" className="donation-thanks-primary" onClick={onOpenDonationHistory}>
+                                    See my donations
+                                </button>
+                            )}
+                            <button type="button" onClick={startAnotherDonation}>
+                                Give again
+                            </button>
+                        </div>
+                    </div>
+                ) : (
                 <form
                     className="donation-form"
                     onSubmit={handleSubmit}
@@ -1033,7 +1120,17 @@ export default function DonationCenter() {
                                                 <dt>Account Name</dt>
                                                 <dd>{selectedMethod.account_name}</dd>
                                                 <dt>Account Number</dt>
-                                                <dd>{selectedMethod.account_number}</dd>
+                                                <dd className="donation-account-number">
+                                                    {selectedMethod.account_number}
+                                                    <button
+                                                        type="button"
+                                                        className="donation-copy"
+                                                        onClick={() => copyAccountNumber(selectedMethod.account_number)}
+                                                    >
+                                                        {isAccountNumberCopied ? "Copied ✓" : "Copy"}
+                                                    </button>
+                                                </dd>
+                                                {copyErrorMessage && <dd className="donation-copy-error">{copyErrorMessage}</dd>}
                                                 {selectedMethod.instructions && (
                                                     <>
                                                         <dt>Note</dt>
@@ -1174,6 +1271,7 @@ export default function DonationCenter() {
                         Your donation shows as <strong>Pending</strong> until the shelter confirms it.
                     </p>
                 </form>
+                )}
             </section>
 
             <section className="adopter-panel donation-info-panel">

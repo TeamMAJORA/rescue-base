@@ -1332,7 +1332,7 @@ async function fetchPets({ silent = false } = {}) {
         }
 
         if (activeAdopterPage === "donation") {
-            return <DonationCenter />
+            return <DonationCenter onOpenDonationHistory={() => setActiveAdopterPage("donation-history")} />
         }
 
         if (activeAdopterPage === "donation-history") {
