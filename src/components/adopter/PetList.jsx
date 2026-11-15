@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { formatPetStatus } from "../../utils/petStatus";
-import PetTypeIcon from "../system/PetTypeIcon";
+import BrowsePetCard from "./BrowsePetCard";
 
 const STATUS_PILLS = [
     { key: "all", label: "All Pets" },
@@ -198,93 +197,38 @@ export default function PetList({
                         const isSaved = savedIds.includes(pet._id);
 
                         return (
-                            <article
+                            <BrowsePetCard
                                 key={pet._id}
-                                className={isSelected ? "browse-pet-card active" : "browse-pet-card"}
+                                pet={pet}
+                                className={isSelected ? "active" : ""}
+                                viewLabel={isSelected ? "Viewing Profile" : "View Full Profile"}
                                 onClick={() => setSelectedPet(pet)}
+                                onView={setSelectedPet}
                             >
-                                <div className="browse-pet-card-image">
-                                    {pet.image ? (
-                                        <img src={pet.image} alt={pet.name} />
-                                    ) : (
-                                        <span><PetTypeIcon type={pet.petType} /></span>
-                                    )}
-
-                                    <span className={`adopter-status ${pet.status || "not_available"}`}>
-                                        {formatPetStatus(pet.status)}
-                                    </span>
-
-                                    <button
-                                        type="button"
-                                        className={`pet-card-save${isSaved ? " saved" : ""}`}
-                                        aria-pressed={isSaved}
-                                        aria-label={isSaved ? `Remove ${pet.name} from saved` : `Save ${pet.name}`}
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            toggleSaved(pet._id);
-                                        }}
-                                    >
-                                        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path
-                                                d="M12 20.5s-7.5-4.6-7.5-10.1A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1z"
-                                                fill={isSaved ? "currentColor" : "none"}
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                <div className="browse-pet-card-content">
-                                    <h3>{pet.name}</h3>
-                                    <p>
-                                        {pet.type || "Pet"} · {pet.breed || "Unknown breed"}
-                                    </p>
-
-                                    <div className="browse-pet-card-stats">
-                                        <div>
-                                            <span>Age</span>
-                                            <strong>{pet.age || "Unknown"}</strong>
-                                        </div>
-                                        <div>
-                                            <span>Gender</span>
-                                            <strong>{pet.gender || "Unknown"}</strong>
-                                        </div>
-                                        <div>
-                                            <span>Size</span>
-                                            <strong>{pet.size || "Unknown"}</strong>
-                                        </div>
-                                    </div>
-
-                                    <small className="browse-pet-card-location">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path
-                                                d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11z"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                            />
-                                            <circle cx="12" cy="10" r="2.3" fill="none" stroke="currentColor" strokeWidth="2" />
-                                        </svg>
-                                        {pet.location || "RescueBase Shelter"}
-                                    </small>
-
-                                    <button
-                                        type="button"
-                                        className="browse-pet-card-view"
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            setSelectedPet(pet);
-                                        }}
-                                    >
-                                        {isSelected ? "Viewing Profile" : "View Full Profile"}
-                                    </button>
-                                </div>
-                            </article>
+                                <button
+                                    type="button"
+                                    className={`pet-card-save${isSaved ? " saved" : ""}`}
+                                    aria-pressed={isSaved}
+                                    aria-label={isSaved ? `Remove ${pet.name} from saved` : `Save ${pet.name}`}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        toggleSaved(pet._id);
+                                    }}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path
+                                            d="M12 20.5s-7.5-4.6-7.5-10.1A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1z"
+                                            fill={isSaved ? "currentColor" : "none"}
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </button>
+                            </BrowsePetCard>
                         );
                     })}
             </div>
         </section>
     );
-}
+}

@@ -7,7 +7,7 @@ export default function HeroSection({ spotlightPet, onOpenPet, onSignup }) {
             <div className="hero-content">
                 <div className="hero-text">
                     <h1>
-                        Find Your <br />
+                        Adopt Your <br />
                         Perfect <span>Match</span>.
                     </h1>
 

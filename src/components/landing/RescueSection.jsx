@@ -1,8 +1,8 @@
 import { useState } from "react";
-import PetSlider from "./PetSlider";
-import PetCard from "./PetCard";
+import PetCarousel from "./PetCarousel";
+import BrowsePetCard from "../adopter/BrowsePetCard";
 
-const SLIDER_PET_COUNT = 8;
+const CAROUSEL_PET_COUNT = 8;
 
 export default function RescueSection({ pets, onOpenPet }) {
     const [showAll, setShowAll] = useState(false);
@@ -20,7 +20,7 @@ export default function RescueSection({ pets, onOpenPet }) {
                 </p>
             ) : (
                 <>
-                    {pets.length > SLIDER_PET_COUNT && (
+                    {pets.length > CAROUSEL_PET_COUNT && (
                         <button
                             type="button"
                             className="see-all-pets"
@@ -33,11 +33,16 @@ export default function RescueSection({ pets, onOpenPet }) {
                     {showAll ? (
                         <div className="pet-grid">
                             {pets.map((pet) => (
-                                <PetCard key={pet.id} pet={pet} onOpen={onOpenPet} />
+                                <BrowsePetCard
+                                    key={pet.id}
+                                    pet={pet}
+                                    onClick={() => onOpenPet(pet)}
+                                    onView={onOpenPet}
+                                />
                             ))}
                         </div>
                     ) : (
-                        <PetSlider pets={pets.slice(0, SLIDER_PET_COUNT)} onOpenPet={onOpenPet} />
+                        <PetCarousel pets={pets.slice(0, CAROUSEL_PET_COUNT)} onOpenPet={onOpenPet} />
                     )}
 
                     <p className="pet-note">

@@ -1082,39 +1082,7 @@
     }
 }
 
-/* ===== Pet cards you can open ===== */
-.pet-card {
-    display: block;
-    width: 100%;
-    padding: 0;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.pet-card:hover,
-.pet-card:focus-visible {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.14);
-}
-
-.pet-image-placeholder {
-    display: grid;
-    place-items: center;
-    background: #f3e7c6;
-    font-size: 64px;
-}
-
-.pet-card-meet {
-    display: block;
-    margin-top: 10px;
-    font-family: "Itim", cursive;
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--red);
-}
-
+/* ===== Pets section: carousel and "see all" grid ===== */
 .see-all-pets {
     border: 0;
     background: none;
@@ -1164,11 +1132,27 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
     }
+
+    /* Two small cards per row, like the adopter's phone layout */
+    .pet-grid .browse-pet-card-content {
+        gap: 6px;
+        padding: 10px 10px 12px;
+    }
+
+    .pet-grid .browse-pet-card-content h3 {
+        font-size: 19px;
+    }
+
+    .pet-grid .browse-pet-card-stats,
+    .pet-grid .browse-pet-card-location,
+    .pet-grid .browse-pet-card-view {
+        display: none;
+    }
 }
 
-/* The pet profile pop-up comes from the adopter side; its status badge styles live in
-   the adopter dashboard CSS, which the landing page doesn't load */
-.pet-modal .adopter-status {
+/* The pet cards and profile pop-up come from the adopter side; their status badge base
+   styles live in the adopter dashboard CSS, which the landing page doesn't load */
+.app .adopter-status {
     display: inline-flex;
     width: fit-content;
     padding: 6px 11px;
@@ -1430,5 +1414,123 @@
     .footer-bottom div {
         flex-wrap: wrap;
         gap: 10px 18px;
+    }
+}
+
+/* ===== Pets carousel (works like the adopter's Recommendations carousel) ===== */
+.pet-carousel {
+    --pet-carousel-card-width: 260px;
+
+    position: relative;
+    z-index: 6;
+    width: min(1060px, 100%);
+    margin: 70px auto 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 10px;
+}
+
+.pet-carousel-track {
+    /* Positioned so each card's offsetLeft is measured from the track (used to centre it) */
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    /* Room on both ends so the first and last pets can sit in the centre too */
+    padding: 14px calc(50% - var(--pet-carousel-card-width) / 2) 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+}
+
+.pet-carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+.pet-carousel-track .browse-pet-card {
+    flex: 0 0 var(--pet-carousel-card-width);
+    opacity: 0.7;
+    transform: scale(0.94);
+}
+
+.pet-carousel-track .browse-pet-card:hover {
+    opacity: 1;
+}
+
+.pet-carousel-track .browse-pet-card.is-centred {
+    opacity: 1;
+    border-color: #fb8500;
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.18), 0 14px 28px rgba(251, 133, 0, 0.2);
+    transform: translateY(-4px);
+}
+
+.pet-carousel-arrow {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--brown);
+    color: var(--cream);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+.pet-carousel-arrow:hover:not(:disabled) {
+    background: var(--red-dark);
+    transform: scale(1.06);
+}
+
+.pet-carousel-arrow:disabled {
+    cursor: default;
+    opacity: 0.35;
+}
+
+.pet-carousel-dots {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    min-height: 10px;
+}
+
+.pet-carousel-dots button {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #d9c79a;
+    cursor: pointer;
+    transition: width 0.2s ease, background 0.2s ease;
+}
+
+.pet-carousel-dots button.is-active {
+    width: 22px;
+    background: #fb8500;
+}
+
+.pet-carousel-dots span {
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+@media (max-width: 760px) {
+    .pet-carousel {
+        --pet-carousel-card-width: min(270px, 76vw);
+
+        margin-top: 24px;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pet-carousel-arrow {
+        display: none;
     }
 }

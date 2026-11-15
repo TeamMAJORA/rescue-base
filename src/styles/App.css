@@ -339,121 +339,6 @@ img {
     color: var(--brown);
 }
 
-.pet-slider {
-    width: min(1000px, 100%);
-    margin: 85px auto 0;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.pet-track {
-    flex: 1;
-    display: flex;
-    gap: 32px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    padding: 6px 4px 16px;
-    /* Scrollbar hidden: slide by dragging with the mouse, the arrows, or swiping */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    cursor: grab;
-    user-select: none;
-}
-
-.pet-track::-webkit-scrollbar {
-    display: none;
-}
-
-/* While dragging: follow the mouse exactly, snap again on release */
-.pet-track.dragging {
-    cursor: grabbing;
-    scroll-snap-type: none;
-    scroll-behavior: auto;
-}
-
-.pet-track img {
-    -webkit-user-drag: none;
-    pointer-events: none;
-}
-
-.pet-slide {
-    flex: 0 0 261px;
-    scroll-snap-align: start;
-}
-
-.pet-slider-arrow {
-    flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: none;
-    background: var(--brown);
-    color: var(--cream);
-    font-size: 22px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.pet-slider-arrow:hover {
-    background: var(--red-dark);
-    transform: scale(1.06);
-}
-
-.pet-card {
-    height: 310px;
-    background: var(--cream-card);
-    border: 1px solid var(--brown);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow:
-        0 0 1px rgba(0, 0, 0, 0.08),
-        0 8px 16px rgba(0, 0, 0, 0.08);
-    position: relative;
-    z-index: 6;
-}
-
-.pet-image {
-    width: 100%;
-    height: 205px;
-    object-fit: cover;
-}
-
-.pet-details {
-    padding: 14px 16px;
-    color: var(--dark);
-}
-
-.pet-details h3 {
-    font-size: 20px;
-    line-height: 1;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-}
-
-.pet-details p {
-    margin-top: 5px;
-    font-size: 11px;
-}
-
-.pet-details span {
-    display: inline-flex;
-    align-items: center;
-    margin-top: 9px;
-    padding: 5px 8px;
-    border-radius: 999px;
-    background: var(--dark);
-    color: white;
-    font-size: 8px;
-    white-space: nowrap;
-}
-
 .pet-note {
     margin-top: 54px;
     text-align: center;
@@ -986,13 +871,6 @@ img {
         margin-left: auto;
     }
 
-    .pet-slide {
-        flex-basis: 220px;
-    }
-
-    .pet-track {
-        gap: 25px;
-    }
 }
 
 @media (max-width: 650px) {
@@ -1042,19 +920,6 @@ img {
         text-align: center;
     }
 
-    .pet-slider-arrow {
-        display: none;
-    }
-
-    .pet-slide {
-        flex-basis: 78vw;
-        max-width: 300px;
-    }
-
-    .pet-track {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
 }
 
 html,
