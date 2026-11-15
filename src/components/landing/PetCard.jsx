@@ -1,14 +1,25 @@
-export default function PetCard({ pet }) {
+import PetTypeIcon from "../system/PetTypeIcon";
+
+export default function PetCard({ pet, onOpen }) {
+    const tag = pet.personalityTags?.[0] || pet.type || "Pet";
+
     return (
-        <article className="pet-card">
-            <img className="pet-image" src={pet.image} alt={pet.name} />
+        <button type="button" className="pet-card" onClick={() => onOpen(pet)}>
+            {pet.image ? (
+                <img className="pet-image" src={pet.image} alt={pet.name} />
+            ) : (
+                <span className="pet-image pet-image-placeholder">
+                    <PetTypeIcon type={pet.petType} />
+                </span>
+            )}
 
             <div className="pet-details">
                 <h3>{pet.name}</h3>
-                <p>{pet.breed}</p>
+                <p>{pet.breed || pet.type || "Mixed"}</p>
                 <p>{pet.age}</p>
-                <span>{pet.tag}</span>
+                <span>{tag}</span>
+                <strong className="pet-card-meet">Meet {pet.name} →</strong>
             </div>
-        </article>
+        </button>
     );
 }

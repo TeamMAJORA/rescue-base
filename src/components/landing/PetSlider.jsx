@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import PetCard from "./PetCard";
 
-export default function PetSlider({ pets }) {
+export default function PetSlider({ pets, onOpenPet }) {
     const trackRef = useRef(null);
     const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
     const [dragging, setDragging] = useState(false);
@@ -38,7 +38,6 @@ export default function PetSlider({ pets }) {
             startScroll: track.scrollLeft,
             moved: false,
         };
-        track.setPointerCapture(e.pointerId);
     }
 
     function handlePointerMove(e) {
@@ -50,6 +49,9 @@ export default function PetSlider({ pets }) {
         if (!state.moved && Math.abs(distance) > 5) {
             state.moved = true;
             setDragging(true);
+            // Capture only once it's really a drag: capturing on press would
+            // swallow plain clicks on the pet cards
+            trackRef.current.setPointerCapture(e.pointerId);
         }
 
         if (state.moved) {
@@ -115,7 +117,7 @@ export default function PetSlider({ pets }) {
                         className="pet-slide"
                         key={pet.id || pet.name}
                     >
-                        <PetCard pet={pet} />
+                        <PetCard pet={pet} onOpen={onOpenPet} />
                     </div>
                 ))}
             </div>

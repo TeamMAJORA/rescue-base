@@ -30,7 +30,7 @@ import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
 import PetList from "../../components/adopter/PetList";
 import { PetDetailModal } from "../../components/adopter/PetDetailPanel";
-import { formatAge } from "../../utils/formatAge";
+import { toPetProfile } from "../../utils/petProfile";
 import AccountSettings from "../AccountSettings";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
@@ -494,48 +494,7 @@ async function fetchPets({ silent = false } = {}) {
                 ? data.animals
                 : [];
 
-            const normalizedPets = animals.map(
-                (animal) => {
-                    return {
-                        ...animal,
-
-                        id: animal._id,
-
-                        status:
-                            animal.availabilityStatus ===
-                                "available" &&
-                                animal.adoptionStatus ===
-                                "available"
-                                ? "available"
-                                : "not_available",
-
-                        age: formatAge(animal.age),
-
-                        personalityTags:
-                            animal.personality?.tags || [],
-
-                        personality:
-                            animal.personality?.summary ||
-                            animal.behaviorNotes ||
-                            "Behavior information has not been added yet.",
-
-                        idealHome:
-                            animal.description ||
-                            "Contact the shelter to learn about the ideal home.",
-
-                        health:
-                            animal.medicalStatus ||
-                            animal.intakeCondition ||
-                            "Health information is not available.",
-
-                        story:
-                            animal.description ||
-                            `${animal.name} is currently under the care of RescueBase.`,
-
-                        petType: animal.type,
-                    };
-                }
-            );
+            const normalizedPets = animals.map(toPetProfile);
 
             setPets(normalizedPets);
 
