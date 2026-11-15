@@ -10,7 +10,6 @@ import HeroSection from "../components/landing/HeroSection";
 import RescueSection from "../components/landing/RescueSection";
 import StatsBand from "../components/landing/StatsBand";
 import AdoptionSteps from "../components/landing/AdoptionSteps";
-import SpotlightSection from "../components/landing/SpotlightSection";
 import NeedsSection from "../components/landing/NeedsSection";
 import FeatureSection from "../components/landing/FeatureSection";
 import GISSection from "../components/landing/GISSection";
@@ -23,6 +22,25 @@ const API = import.meta.env.VITE_BACKEND_URL;
 
 // Only pets an adopter can actually apply for (same rule as the adopter's Browse Pets)
 const AVAILABLE_PETS_URL = "/api/animals?availabilityStatus=available&adoptionStatus=available";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// A different pet with a photo each day, the same one for everyone all day.
+// Sorted by id so a new arrival doesn't reshuffle today's pick.
+function pickTodaysSpotlightPet(pets) {
+    const petsWithPhotos = pets
+        .filter((pet) => pet.image)
+        .sort((a, b) => String(a._id).localeCompare(String(b._id)));
+
+    if (petsWithPhotos.length === 0) return null;
+
+    const now = new Date();
+    const todayNumber = Math.floor(
+        Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / DAY_MS
+    );
+
+    return petsWithPhotos[todayNumber % petsWithPhotos.length];
+}
 
 export default function LandingPage({
     onLogin,
@@ -87,7 +105,7 @@ export default function LandingPage({
             <img className="page-paws-footer-bottom1" src={assets.images.pawTrail} alt="" aria-hidden="true" />
 
             <HeroSection
-                featuredPet={pets[0]}
+                spotlightPet={pickTodaysSpotlightPet(pets)}
                 onOpenPet={setOpenPet}
                 onSignup={onSignup}
             />
@@ -97,14 +115,6 @@ export default function LandingPage({
             {stats.length > 0 && <StatsBand stats={stats} />}
 
             <AdoptionSteps />
-
-            {pets[1] && (
-                <SpotlightSection
-                    pet={pets[1]}
-                    onOpenPet={setOpenPet}
-                    onSignup={onSignup}
-                />
-            )}
 
             <NeedsSection onSignup={onSignup} />
 

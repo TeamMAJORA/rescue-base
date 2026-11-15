@@ -1,7 +1,7 @@
 import assets from "../../data/assets.json";
 import { goToSection } from "./goToSection";
 
-export default function HeroSection({ featuredPet, onOpenPet, onSignup }) {
+export default function HeroSection({ spotlightPet, onOpenPet, onSignup }) {
     return (
         <section className="hero">
             <div className="hero-content">
@@ -36,14 +36,19 @@ export default function HeroSection({ featuredPet, onOpenPet, onSignup }) {
                     </button>
                 </div>
 
-                {featuredPet?.image && (
+                {spotlightPet && (
                     <button
                         type="button"
                         className="hero-pet"
-                        onClick={() => onOpenPet(featuredPet)}
+                        onClick={() => onOpenPet(spotlightPet)}
+                        aria-label={`Today's Spotlight Star: ${spotlightPet.name}. Open profile`}
                     >
-                        <img src={featuredPet.image} alt={featuredPet.name} />
-                        <span>Meet {featuredPet.name} →</span>
+                        <img className="hero-pet-photo" src={spotlightPet.image} alt="" />
+                        <img className="hero-pet-star" src="/starOftheDay.svg" alt="" aria-hidden="true" />
+                        <span className="hero-pet-caption">
+                            <small>Today's Spotlight Star</small>
+                            Meet {spotlightPet.name} →
+                        </span>
                     </button>
                 )}
             </div>
