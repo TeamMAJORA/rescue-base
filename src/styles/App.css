@@ -4,6 +4,8 @@
     --cream: #eae2b7;
     --cream-card: #f9f5eb;
     --yellow: #fcbf49;
+    /* Landing page bands (header, hero top, stats, closing banner): same orange as the dashboards */
+    --landing-orange: #FCA227;
     --orange: #fb8500;
     --brown: #5a1b00;
     --brown-soft: #7a3e19;
@@ -61,7 +63,7 @@ img {
 
 .header {
     height: 119px;
-    background: var(--yellow);
+    background: var(--landing-orange);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -85,7 +87,7 @@ img {
     margin-left: 8px;
     font-family: "Itim", cursive;
     font-size: 48px;
-    color: var(--red);
+    color: var(--brown);
     line-height: 1;
 }
 
@@ -97,7 +99,7 @@ img {
     gap: 18px;
     font-family: "Itim", cursive;
     font-size: 16px;
-    color: var(--red);
+    color: var(--brown);
 }
 
 .nav img {
@@ -182,7 +184,7 @@ img {
     position: absolute;
     inset: 0 0 auto 0;
     height: 360px;
-    background: var(--yellow);
+    background: var(--landing-orange);
     z-index: 0;
 }
 
@@ -213,7 +215,7 @@ img {
     top: 300px;
     left: 50%;
 
-    opacity: 0.55;
+    opacity: 0.28;
     transform: translateX(-50%) rotate(23deg);
     transform-origin: center center;
 
@@ -221,7 +223,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 1;
+    z-index: 0;
 }
 
 
@@ -327,7 +329,7 @@ img {
     min-height: 760px;
     position: relative;
     padding: 35px 80px 95px;
-    background: var(--cream);
+    background: transparent;
 }
 
 .see-all-pets {
@@ -391,18 +393,6 @@ img {
    FOOTER
 ========================= */
 
-.stats-band {
-    min-height: 120px;
-    background: var(--yellow);
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    align-items: center;
-    text-align: center;
-    padding: 28px 80px;
-    color: var(--brown);
-    margin-top: 0;
-}
-
 
 
 .outline-btn {
@@ -425,7 +415,7 @@ img {
 .cta-footer {
     position: relative;
     min-height: 520px;
-    background: var(--yellow);
+    background: var(--landing-orange);
     overflow: hidden;
     padding: 58px 80px 26px;
 }
@@ -482,7 +472,7 @@ img {
     font-family: "Karma", serif;
     font-size: 17px;
     font-weight: 700;
-    color: var(--red);
+    color: var(--brown);
 }
 
 .cta-actions {
@@ -567,7 +557,7 @@ img {
 
 .stats-band {
     min-height: 120px;
-    background: var(--yellow);
+    background: var(--landing-orange);
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     align-items: center;
@@ -716,7 +706,7 @@ img {
     top: 1520px;
     left: 50%;
 
-    opacity: 0.48;
+    opacity: 0.28;
     transform: translateX(-50%) rotate(14deg) scale(-1);
     transform-origin: center center;
 
@@ -724,7 +714,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 3;
+    z-index: 0;
 }
 
 .page-paws-footer-bottom1 {
@@ -734,13 +724,13 @@ img {
     height: auto;
     top: 4500px;
     left: 50%;
-    opacity: 0.45;
+    opacity: 0.28;
     transform: translateX(-50%) rotate(-7deg) scaleY(-1);
     transform-origin: center center;
     filter: brightness(0.7) saturate(1.8);
     pointer-events: none;
     user-select: none;
-    z-index: 3;
+    z-index: 0;
 }
 
 .steps-section,
@@ -775,7 +765,7 @@ img {
     /* adjust this */
     left: 50%;
 
-    opacity: 0.45;
+    opacity: 0.28;
     transform: translateX(-50%) rotate(16deg);
     transform-origin: center center;
 
@@ -783,7 +773,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 2;
+    z-index: 0;
 }
 
 .features-section .section-heading,

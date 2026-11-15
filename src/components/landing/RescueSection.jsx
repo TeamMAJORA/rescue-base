@@ -4,7 +4,7 @@ import BrowsePetCard from "../adopter/BrowsePetCard";
 
 const CAROUSEL_PET_COUNT = 8;
 
-export default function RescueSection({ pets, onOpenPet }) {
+export default function RescueSection({ pets, isLoading, onOpenPet, onSignup }) {
     const [showAll, setShowAll] = useState(false);
 
     return (
@@ -14,10 +14,19 @@ export default function RescueSection({ pets, onOpenPet }) {
                 <p>Every one of them is waiting for you.</p>
             </div>
 
-            {pets.length === 0 ? (
-                <p className="pet-empty">
-                    Our adoptable pets will show here soon. Please check back in a little while.
+            {isLoading ? (
+                <p className="pet-empty pet-loading" role="status">
+                    <span className="pet-loading-spinner" aria-hidden="true" />
+                    Finding pets for you…
                 </p>
+            ) : pets.length === 0 ? (
+                <div className="pet-empty">
+                    <p>Our adoptable pets will show here soon.</p>
+                    {/* New sign-ups are adopter accounts, and adopters get a notification for every new pet */}
+                    <button type="button" className="pet-empty-action" onClick={onSignup}>
+                        Get notified when new pets arrive →
+                    </button>
+                </div>
             ) : (
                 <>
                     {pets.length > CAROUSEL_PET_COUNT && (

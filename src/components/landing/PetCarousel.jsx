@@ -119,7 +119,8 @@ export default function PetCarousel({ pets, onOpenPet }) {
             </button>
 
             <div className="pet-carousel-dots">
-                {pets.length <= 12 ? (
+                {/* Dots on desktop (12 or fewer pets); the count shows instead on phones, where swiping is the way to move */}
+                {pets.length <= 12 &&
                     pets.map((pet, index) => (
                         <button
                             key={pet.id}
@@ -128,10 +129,10 @@ export default function PetCarousel({ pets, onOpenPet }) {
                             onClick={() => setActiveIndex(index)}
                             aria-label={`Show ${pet.name}`}
                         />
-                    ))
-                ) : (
-                    <span>{safeIndex + 1} / {pets.length}</span>
-                )}
+                    ))}
+                <span className={pets.length <= 12 ? "pet-carousel-count is-phone-only" : "pet-carousel-count"}>
+                    {safeIndex + 1} / {pets.length}
+                </span>
             </div>
         </section>
     );

@@ -47,6 +47,8 @@ export default function LandingPage({
     onSignup,
 }) {
     const [pets, setPets] = useState([]);
+    // Without a backend URL there's nothing to wait for
+    const [arePetsLoaded, setArePetsLoaded] = useState(!API);
     const [stats, setStats] = useState([]);
     const [openPet, setOpenPet] = useState(null);
 
@@ -82,6 +84,8 @@ export default function LandingPage({
                 );
             } catch (error) {
                 console.error("Failed to load landing page data:", error);
+            } finally {
+                if (!cancelled) setArePetsLoaded(true);
             }
         }
 
@@ -110,7 +114,12 @@ export default function LandingPage({
                 onSignup={onSignup}
             />
 
-            <RescueSection pets={pets} onOpenPet={setOpenPet} />
+            <RescueSection
+                pets={pets}
+                isLoading={!arePetsLoaded}
+                onOpenPet={setOpenPet}
+                onSignup={onSignup}
+            />
 
             {stats.length > 0 && <StatsBand stats={stats} />}
 
