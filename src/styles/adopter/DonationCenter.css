@@ -450,38 +450,6 @@
     }
 }
 
-.donation-info-methods {
-    display: grid;
-    gap: 8px;
-}
-
-.donation-info-methods button {
-    display: grid;
-    gap: 2px;
-    padding: 10px 12px;
-    border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 10px;
-    background: #fffaf0;
-    color: #3a1400;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-}
-
-.donation-info-methods button:hover {
-    border-color: #fb8500;
-}
-
-.donation-info-methods b {
-    font-size: 13px;
-}
-
-.donation-info-methods span {
-    font-size: 12px;
-    color: #8a6a55;
-    word-break: break-word;
-}
-
 .donation-info-card small,
 .donation-info-empty,
 .donation-note {
@@ -711,4 +679,154 @@
     display: block;
     color: #5a1b00;
     font-size: 13px;
+}
+
+/* ===== Donate form: amount pills, payment tabs, steps, submit bar ===== */
+.donation-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.donation-steps li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 6px;
+    border-radius: 999px;
+    background: #f3eadb;
+    color: #8a6a55;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.donation-steps li span {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e9dcc4;
+    color: #5a1b00;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.donation-steps li.is-current {
+    background: #fff1dc;
+    color: #5a1b00;
+    box-shadow: inset 0 0 0 2px #fb8500;
+}
+
+.donation-steps li.is-current span {
+    background: #fb8500;
+    color: #fff;
+}
+
+.donation-steps li.is-done {
+    color: #1f7a45;
+}
+
+.donation-steps li.is-done span {
+    background: #1f7a45;
+    color: #fff;
+}
+
+.donation-choice {
+    display: grid;
+    gap: 8px;
+}
+
+/* Same look as the form's other field labels */
+.donation-choice > span {
+    font-size: .95rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.donation-choice > span b {
+    color: #d62828;
+}
+
+.donation-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.donation-form .donation-pills button {
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: #f3eadb;
+    color: #5a1b00;
+}
+
+.donation-form .donation-pills button:hover {
+    border-color: #fb8500;
+    opacity: 1;
+}
+
+.donation-form .donation-pills button.is-active {
+    border-color: #fb8500;
+    background: #fb8500;
+    color: #fff;
+}
+
+.donation-choice-note {
+    font-size: 12px;
+    color: #8a6a55;
+}
+
+.donation-form .donation-sent {
+    min-height: 44px;
+    border: 2px solid #fb8500;
+    border-radius: 999px;
+    background: #fff;
+    color: #5a1b00;
+}
+
+.donation-form .donation-sent.is-done {
+    border-color: #1f7a45;
+    background: #e8f5ec;
+    color: #1f7a45;
+}
+
+.donation-submit-bar {
+    display: grid;
+    gap: 6px;
+}
+
+.donation-form .donation-submit {
+    min-height: 48px;
+    font-size: 15px;
+}
+
+.donation-submit-hint {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #9a1b1b;
+    text-align: center;
+}
+
+/* Phones: the button stays in reach while scrolling the form (Fitts's Law) */
+@media (max-width: 700px) {
+    .donation-submit-bar {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        margin: 0 -12px;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        background: #fffaf0;
+        box-shadow: 0 -6px 16px rgba(90, 27, 0, 0.12);
+    }
+
+    .donation-steps li {
+        font-size: 12px;
+    }
 }

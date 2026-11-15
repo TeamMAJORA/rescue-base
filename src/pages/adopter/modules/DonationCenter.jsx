@@ -66,9 +66,35 @@ const emptyDonation = {
     showNamePublicly: false,
 };
 
+// One-tap amounts (Hick's Law: a few clear choices beat a blank box); 250 starts selected
+const AMOUNT_PRESETS = [100, 250, 500, 1000];
+const DEFAULT_AMOUNT = 250;
+
+// The form survives a trip to GCash and back (the page can reload while the donor is in another app)
+const DRAFT_KEY = "rescuebase_donation_draft";
+
+function readDraft() {
+    try {
+        const draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || "null");
+        return draft ? { ...emptyDonation, ...draft } : emptyDonation;
+    } catch {
+        return emptyDonation;
+    }
+}
+
+function formatPeso(amount) {
+    return `₱${Number(amount).toLocaleString("en-PH", { maximumFractionDigits: 2 })}`;
+}
+
 export default function DonationCenter() {
     const [donation, setDonation] =
-        useState(emptyDonation);
+        useState(readDraft);
+
+    // Donor said they've sent the money (step 2 of 3); uploading the receipt also counts
+    const [hasSentPayment, setHasSentPayment] = useState(false);
+    const [isCustomAmount, setIsCustomAmount] = useState(
+        () => donation.quantity !== "" && !AMOUNT_PRESETS.includes(Number(donation.quantity))
+    );
 
     const [selected, setSelected] = 
         useState("monetary");
@@ -122,7 +148,7 @@ export default function DonationCenter() {
             ...current,
             category,
             itemName: "",
-            quantity: "",
+            quantity: category === "Money" ? String(DEFAULT_AMOUNT) : "",
             unit: "Pieces",
             otherUnit: "",
             deliveryMethod:
@@ -138,6 +164,8 @@ export default function DonationCenter() {
             proofOfPayment: "",
         }));
 
+        setIsCustomAmount(false);
+        setHasSentPayment(false);
         setMessage("");
     }
 
@@ -390,6 +418,13 @@ export default function DonationCenter() {
             setDonation({
                 ...emptyDonation,
             });
+            setHasSentPayment(false);
+            setIsCustomAmount(false);
+            try {
+                sessionStorage.removeItem(DRAFT_KEY);
+            } catch {
+                // storage unavailable: nothing to clear
+            }
 
             setMessage(
                 "Thank you! Your donation request has been submitted."
@@ -546,6 +581,21 @@ export default function DonationCenter() {
     }
 
     useEffect(() => {
+        try {
+            sessionStorage.setItem(DRAFT_KEY, JSON.stringify(donation));
+        } catch {
+            // storage unavailable: the form still works, it just won't survive a reload
+        }
+    }, [donation]);
+
+    // Show an account straight away instead of an empty "pick one" step
+    useEffect(() => {
+        if (isMoneyDonation && !donation.paymentMethod && paymentMethods.length > 0) {
+            updateDonationField("paymentMethod", paymentMethods[0].method_type);
+        }
+    }, [isMoneyDonation, donation.paymentMethod, paymentMethods]);
+
+    useEffect(() => {
         fetchNeededSupplies();
         fetchPaymentMethods();
 
@@ -554,6 +604,40 @@ export default function DonationCenter() {
             .then((data) => setDropOff(data.dropOff?.enabled && data.dropOff.address ? data.dropOff : null))
             .catch(() => setDropOff(null));
     }, []);
+
+    // Goal-Gradient: show where the donor is in the three steps
+    const amountValue = Number(donation.quantity);
+    const hasAmount = donation.quantity !== "" && Number.isFinite(amountValue) && amountValue >= 1;
+    const itemUnit = resolveUnit(donation.unit, donation.otherUnit);
+    const itemLabel = donation.itemName.trim() || donation.category;
+
+    const steps = isMoneyDonation
+        ? [
+            { label: "Choose an amount", done: hasAmount },
+            { label: `Send it through ${donation.paymentMethod || "the shelter's account"}`, done: hasSentPayment || Boolean(donation.image) },
+            { label: "Upload your receipt", done: Boolean(donation.image) },
+        ]
+        : [
+            { label: "Choose what you're giving", done: hasAmount && Boolean(itemUnit) },
+            { label: "Add a photo of the items", done: Boolean(donation.image) },
+            { label: "Pledge it", done: false },
+        ];
+    const currentStepIndex = Math.max(0, steps.findIndex((step) => !step.done));
+
+    // Fitts / Von Restorff: one specific, always-reachable button that names the gift
+    const submitLabel = isMoneyDonation
+        ? hasAmount ? `Confirm my ${formatPeso(amountValue)} gift` : "Confirm my gift"
+        : hasAmount && itemUnit ? `Pledge ${amountValue} ${itemUnit.toLowerCase()} of ${itemLabel}` : "Pledge my items";
+
+    const missingHint = isMoneyDonation
+        ? !hasAmount ? "Choose an amount to continue."
+            : !donation.paymentMethod ? "Pick how you'll send it."
+                : !donation.image ? "Add your receipt to finish."
+                    : ""
+        : !hasAmount ? "Enter how many you're giving."
+            : !itemUnit ? "Type the unit (e.g. trays, dozens)."
+                : !donation.image ? "Add a photo of the items to finish."
+                    : "";
 
     return (
         <section className="adopter-donation-page">
@@ -688,6 +772,18 @@ export default function DonationCenter() {
                         </button>
                     </div>
 
+                    <ol className="donation-steps" aria-label={`Step ${currentStepIndex + 1} of ${steps.length}`}>
+                        {steps.map((step, index) => (
+                            <li
+                                key={step.label}
+                                className={step.done ? "is-done" : index === currentStepIndex ? "is-current" : ""}
+                            >
+                                <span aria-hidden="true">{step.done ? "✓" : index + 1}</span>
+                                {step.label}
+                            </li>
+                        ))}
+                    </ol>
+
                     <div className="donation-layout">
                         <div className="donation-fields">
                             {selectedSupply && !isMoneyDonation && (
@@ -706,52 +802,83 @@ export default function DonationCenter() {
 
                             {isMoneyDonation ? (
                                 <>
-                                    <label>
-                                        <span>Mode of Payment <b>*</b></span>
-                                        <select
-                                            value={donation.paymentMethod}
-                                            onChange={(event) =>
-                                                updateDonationField(
-                                                    "paymentMethod",
-                                                    event.target.value
-                                                )
-                                            }
-                                            required
-                                        >
-                                            <option value="">
-                                                {loadingPaymentMethods
-                                                    ? "Loading..."
-                                                    : "Select payment method"}
-                                            </option>
-                                            {paymentMethods.map((method) => (
-                                                <option
-                                                    key={method._id}
-                                                    value={method.method_type}
-                                                >
-                                                    {method.method_type}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </label>
+                                    <div className="donation-choice">
+                                        <span>How much? <b>*</b></span>
+                                        <div className="donation-pills" role="group" aria-label="Amount">
+                                            {AMOUNT_PRESETS.map((amount) => {
+                                                const isChosen = !isCustomAmount && amountValue === amount;
+                                                return (
+                                                    <button
+                                                        key={amount}
+                                                        type="button"
+                                                        className={isChosen ? "is-active" : ""}
+                                                        aria-pressed={isChosen}
+                                                        onClick={() => {
+                                                            setIsCustomAmount(false);
+                                                            updateDonationField("quantity", String(amount));
+                                                        }}
+                                                    >
+                                                        {formatPeso(amount)}
+                                                    </button>
+                                                );
+                                            })}
+                                            <button
+                                                type="button"
+                                                className={isCustomAmount ? "is-active" : ""}
+                                                aria-pressed={isCustomAmount}
+                                                onClick={() => {
+                                                    setIsCustomAmount(true);
+                                                    updateDonationField("quantity", "");
+                                                }}
+                                            >
+                                                Other
+                                            </button>
+                                        </div>
 
-                                    <label>
-                                        <span>Amount (₱) <b>*</b></span>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            max={isMoneyDonation ? 100000 : 1000}
-                                            step="0.01"
-                                            placeholder="Enter amount"
-                                            value={donation.quantity}
-                                            onChange={(event) =>
-                                                updateDonationField(
-                                                    "quantity",
-                                                    event.target.value
-                                                )
-                                            }
-                                            required
-                                        />
-                                    </label>
+                                        {isCustomAmount && (
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="100000"
+                                                step="0.01"
+                                                placeholder="Type an amount in pesos"
+                                                aria-label="Other amount in pesos"
+                                                value={donation.quantity}
+                                                onChange={(event) => updateDonationField("quantity", event.target.value)}
+                                                autoFocus
+                                                required
+                                            />
+                                        )}
+                                    </div>
+
+                                    <div className="donation-choice">
+                                        <span>Send it through <b>*</b></span>
+                                        {paymentMethods.length > 0 ? (
+                                            <div className="donation-pills" role="group" aria-label="Payment method">
+                                                {paymentMethods.map((method) => {
+                                                    const isChosen = donation.paymentMethod === method.method_type;
+                                                    return (
+                                                        <button
+                                                            key={method._id}
+                                                            type="button"
+                                                            className={isChosen ? "is-active" : ""}
+                                                            aria-pressed={isChosen}
+                                                            onClick={() => {
+                                                                setHasSentPayment(false);
+                                                                updateDonationField("paymentMethod", method.method_type);
+                                                            }}
+                                                        >
+                                                            {method.method_type}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <small className="donation-choice-note">
+                                                {loadingPaymentMethods ? "Loading the shelter's accounts..." : "No payment account has been added yet."}
+                                            </small>
+                                        )}
+                                    </div>
                                 </>
                             ) : (
                                 <>
@@ -921,25 +1048,17 @@ export default function DonationCenter() {
                                                 ? "Scan the QR code or send to this account number."
                                                 : "Send to this account number."}
                                         </small>
-                                    </>
-                                ) : paymentMethods.length > 0 ? (
-                                    <>
-                                        <h4>Shelter payment accounts</h4>
 
-                                        <div className="donation-info-methods">
-                                            {paymentMethods.map((method) => (
-                                                <button
-                                                    type="button"
-                                                    key={method._id}
-                                                    onClick={() => updateDonationField("paymentMethod", method.method_type)}
-                                                >
-                                                    <b>{method.method_type}</b>
-                                                    <span>{method.account_name} · {method.account_number}</span>
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <small>Pick one to see its QR code and details.</small>
+                                        <button
+                                            type="button"
+                                            className={`donation-sent${hasSentPayment || donation.image ? " is-done" : ""}`}
+                                            aria-pressed={hasSentPayment}
+                                            onClick={() => setHasSentPayment((current) => !current)}
+                                        >
+                                            {hasSentPayment || donation.image
+                                                ? `✓ Sent ${hasAmount ? formatPeso(amountValue) : ""} — now add your receipt`
+                                                : `I've sent ${hasAmount ? formatPeso(amountValue) : "it"}`}
+                                        </button>
                                     </>
                                 ) : (
                                     <>
@@ -1037,13 +1156,19 @@ export default function DonationCenter() {
                         <p className="donation-message">{message}</p>
                     )}
 
-                    <button
-                        type="submit"
-                        className="donation-submit"
-                        disabled={submitting || uploadingImage}
-                    >
-                        {submitting ? "Submitting..." : "Submit Donation"}
-                    </button>
+                    <div className="donation-submit-bar">
+                        <button
+                            type="submit"
+                            className="donation-submit"
+                            disabled={submitting || uploadingImage}
+                        >
+                            {submitting ? "Sending..." : submitLabel}
+                        </button>
+
+                        {missingHint && (
+                            <p className="donation-submit-hint" aria-live="polite">{missingHint}</p>
+                        )}
+                    </div>
 
                     <p className="donation-note">
                         Your donation shows as <strong>Pending</strong> until the shelter confirms it.
