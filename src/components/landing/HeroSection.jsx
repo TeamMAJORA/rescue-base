@@ -26,18 +26,18 @@ export default function HeroSection({ onSignup }) {
                         />
                     </button>
 
-                    <button
+                    <a
                         className="match-btn1"
-                        type="button"
+                        href="#lost-found-map"
                     >
                         Report a Stray
                         <img
                             src={assets.icons.redPaw}
                             alt=""
                         />
-                    </button>
+                    </a>
                 </div>
             </div>
         </section>
     );
-}
+}

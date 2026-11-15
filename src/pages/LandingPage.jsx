@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import assets from "../data/assets.json";
-import PublicGISMap from "../components/system/PublicGISMap";
 import { formatAge } from "../utils/formatAge";
 
 import "../styles/Landing.css"
@@ -235,8 +234,6 @@ export default function LandingPage({
 
             <RescueSection pets={pets} onSignup={onSignup} />
 
-            <GISSection />
-
             <DonorSection />
 
             <NeedsSection onSignup={onSignup} />
@@ -252,6 +249,8 @@ export default function LandingPage({
                 onSignup={onSignup}
             />
 
+            <GISSection onSignup={onSignup} />
+
             <HeartsCodeSection />
 
             <TailsSection onSignup={onSignup} />
@@ -259,4 +258,4 @@ export default function LandingPage({
             <CTAFooter />
         </main>
     );
-}
+}

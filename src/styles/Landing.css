@@ -22,6 +22,7 @@
     color: var(--brown);
     font-family: "Itim", cursive;
     font-size: 20px;
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1226,4 +1227,92 @@
     line-height: 30px;
     box-shadow: none;
     transform: none;
+}
+
+/* ===== Lost & Found map: report buttons and the "map unavailable" note ===== */
+.gis-report-actions {
+    position: relative;
+    z-index: 4;
+    margin-top: 26px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.gis-report-btn {
+    height: 42px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--cream);
+    font-family: "Karma", serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.gis-report-btn:hover {
+    transform: translateY(-1px);
+}
+
+.gis-report-note {
+    position: relative;
+    z-index: 4;
+    margin: 10px 0 0;
+    text-align: center;
+    font-family: "Karma", serif;
+    font-size: 13px;
+    color: var(--brown);
+    opacity: 0.8;
+}
+
+.gis-unavailable {
+    position: relative;
+    z-index: 4;
+    width: min(1010px, 100%);
+    margin: 28px auto 0;
+    padding: 18px 20px;
+    border: 1px dashed var(--brown);
+    border-radius: 18px;
+    background: var(--cream-card);
+    text-align: center;
+    font-family: "Karma", serif;
+    font-size: 15px;
+    color: var(--brown);
+}
+
+/* No empty space where the map would have been */
+.gis-section.is-map-unavailable {
+    min-height: 0;
+}
+
+@media (max-width: 700px) {
+    .gis-report-btn {
+        flex: 1 1 100%;
+    }
+
+    /* Let the type chips wrap instead of running off the screen */
+    .gis-filter-group {
+        flex-wrap: wrap;
+    }
+}
+
+/* Three nav links on a phone: keep each one on a single line */
+@media (max-width: 650px) {
+    .nav {
+        flex-wrap: wrap;
+        gap: 8px 12px;
+    }
+
+    .nav a {
+        white-space: nowrap;
+    }
+
+    /* The trailing paw would wrap onto a line by itself */
+    .nav img:last-child {
+        display: none;
+    }
 }
