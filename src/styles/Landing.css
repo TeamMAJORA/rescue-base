@@ -208,14 +208,6 @@
 
 
 
-.sponsor-label {
-    display: block;
-    font-family: "Karma", serif;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--yellow);
-}
-
 
 
 
@@ -447,23 +439,39 @@
 
 /* ===== Donate online card (in "Help without adopting") ===== */
 
-.donate-online-card {
+/* Shared shape for the "ways to give" cards: drop-off (orange) and online (brown) */
+.give-card {
     min-height: 213px;
     padding: 22px 24px;
     border-radius: 15px;
-    background: #513021;
-    color: var(--cream);
     position: relative;
     z-index: 2;
-    box-shadow: -10px 10px 0 #a77a50;
     font-family: "Karma", serif;
 }
 
-.donate-online-card h3 {
+.give-card h3 {
     margin: 5px 0 8px;
     font-family: "Karma", serif;
     font-size: 23px;
     font-weight: 500;
+}
+
+.give-card-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.donate-online-card {
+    background: #513021;
+    color: var(--cream);
+    box-shadow: -10px 10px 0 #a77a50;
+}
+
+.donate-online-card .give-card-label {
+    color: var(--yellow);
 }
 
 .donate-online-tabs {
@@ -1235,31 +1243,84 @@
     opacity: 0.8;
 }
 
-.needs-dropoff {
-    width: min(760px, 100%);
-    margin: 22px auto 0;
-    padding: 14px 18px;
+/* Drop-off and online cards side by side (stacked on phones) */
+.give-cards {
+    width: min(880px, 100%);
+    margin: 30px auto 0;
+    padding-left: 10px; /* room for the cards' offset shadow */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+}
+
+.dropoff-card {
+    background: var(--landing-orange);
+    color: var(--brown);
+    box-shadow: -10px 10px 0 #a34f00;
+}
+
+.dropoff-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+    margin: 0;
+    font-size: 14px;
+}
+
+.dropoff-details dt {
+    font-weight: 700;
+}
+
+.dropoff-details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.dropoff-note {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(90, 27, 0, 0.25);
+    font-size: 12.5px;
+}
+
+/* Special thanks: donors who opted in on the donation form */
+.supporters-wall {
+    position: relative;
+    z-index: 2;
+    width: min(880px, 100%);
+    margin: 40px auto 0;
+    text-align: center;
+    color: var(--brown);
+    font-family: "Karma", serif;
+}
+
+.supporters-wall h3 {
+    margin: 0 0 14px;
+    font-family: "Itim", cursive;
+    font-size: 26px;
+    font-weight: 400;
+}
+
+.supporters-empty {
+    margin: 0;
+    padding: 16px;
     border: 1px dashed var(--brown);
     border-radius: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px 16px;
-    font-family: "Karma", serif;
     font-size: 14px;
-    color: var(--brown);
-    text-align: center;
 }
 
-.needs-dropoff-note {
-    flex-basis: 100%;
-    font-size: 12.5px;
-    opacity: 0.85;
-}
-
-.needs-section .donate-online-card {
-    width: min(420px, 100%);
-    margin: 28px auto 0;
+.supporters-empty button {
+    display: block;
+    min-height: 44px;
+    margin: 10px auto 0;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--cream);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
 }
 
 /* ===== Footer links that open pop-ups or act like buttons ===== */
@@ -1647,5 +1708,193 @@
     /* Full size on phones so every card's button keeps a 44px tap area */
     .pet-carousel-track .browse-pet-card:not(.is-centred) {
         transform: none;
+    }
+}
+
+/* ===== Supporters as hanging pet ID tags =====
+   A distinct warm band (Von Restorff, Common Region) that ends the help section on a
+   thank-you (Peak-End); 6 tags at first, the rest behind "Show all" (Miller's Law) */
+.thanks-band {
+    position: relative;
+    z-index: 2;
+    width: min(980px, 100%);
+    margin: 48px auto 0;
+    padding: 30px 28px 26px;
+    border-radius: 24px;
+    background: #513021;
+    color: var(--cream);
+    text-align: center;
+    font-family: "Karma", serif;
+}
+
+.thanks-eyebrow {
+    display: block;
+    color: var(--yellow);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.thanks-band h3 {
+    margin: 4px 0 6px;
+    font-family: "Itim", cursive;
+    font-size: clamp(26px, 3.4vw, 34px);
+    font-weight: 400;
+}
+
+.thanks-summary {
+    margin: 0 auto;
+    max-width: 560px;
+    color: #f3e3c9;
+    font-size: 14px;
+}
+
+.thanks-tags {
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 34px 18px;
+}
+
+/* A tag on a string: the string comes down from the band, the ring sits at the top */
+.thanks-tag {
+    position: relative;
+    display: grid;
+    gap: 3px;
+    margin-top: 14px;
+    padding: 26px 14px 14px;
+    border-radius: 22px 22px 18px 18px;
+    background: var(--cream-card);
+    color: var(--brown);
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.18);
+    transform: rotate(-2deg);
+    transform-origin: 50% -14px;
+    transition: transform 0.25s ease;
+}
+
+.thanks-tag:nth-child(even) {
+    transform: rotate(2deg);
+    background: #fff1d6;
+}
+
+.thanks-tag:nth-child(3n) {
+    background: #ffe0b8;
+}
+
+.thanks-tag::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    width: 2px;
+    height: 22px;
+    background: rgba(255, 247, 203, 0.55);
+}
+
+.thanks-tag:hover {
+    transform: rotate(0deg) translateY(-2px);
+}
+
+.thanks-tag-ring {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    margin-left: -5px;
+    border: 3px solid var(--landing-orange);
+    border-radius: 50%;
+    background: #513021;
+}
+
+.thanks-tag b {
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.thanks-tag span:not(.thanks-tag-ring):not(.thanks-tag-new) {
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.thanks-tag small {
+    color: #7a3e19;
+    font-size: 11px;
+}
+
+.thanks-tag-new {
+    position: absolute;
+    top: -8px;
+    right: -6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--landing-orange);
+    color: var(--brown);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transform: rotate(8deg);
+}
+
+.thanks-more {
+    min-height: 44px;
+    margin-top: 22px;
+    padding: 0 20px;
+    border: 1px solid rgba(255, 247, 203, 0.6);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cream);
+    font-family: "Itim", cursive;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.thanks-footnote {
+    margin: 18px 0 0;
+    color: #f3e3c9;
+    font-size: 12.5px;
+}
+
+.thanks-footnote button {
+    min-height: 44px;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: var(--yellow);
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .thanks-tag {
+        transition: none;
+    }
+}
+
+@media (max-width: 700px) {
+    .thanks-band {
+        padding: 26px 16px 20px;
+        border-radius: 18px;
+    }
+
+    .thanks-tags {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 30px 12px;
+    }
+
+    .thanks-tag {
+        padding: 24px 10px 12px;
+    }
+
+    .thanks-tag b {
+        font-size: 17px;
     }
 }

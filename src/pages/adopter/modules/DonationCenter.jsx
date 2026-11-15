@@ -63,6 +63,7 @@ const emptyDonation = {
     paymentMethod: "",
     paymentReference: "",
     proofOfPayment: "",
+    showNamePublicly: false,
 };
 
 export default function DonationCenter() {
@@ -349,6 +350,8 @@ export default function DonationCenter() {
                         : "not_required",
 
                 status: "pending",
+
+                showNamePublicly: donation.showNamePublicly,
             };
 
             const response = await fetch(
@@ -1017,6 +1020,19 @@ export default function DonationCenter() {
                         </aside>
                     </div>
 
+                    <label className="donation-public-name">
+                        <input
+                            type="checkbox"
+                            checked={donation.showNamePublicly}
+                            onChange={(event) => updateDonationField("showNamePublicly", event.target.checked)}
+                        />
+                        <span>
+                            <b>Thank me by name on the RescueBase home page</b>
+                            Once the shelter receives it, we'll show your first name, last initial and what
+                            you gave, including the amount for money gifts.
+                        </span>
+                    </label>
+
                     {message && (
                         <p className="donation-message">{message}</p>
                     )}
@@ -1051,4 +1067,4 @@ export default function DonationCenter() {
             </section>
         </section>
     );
-}
+}

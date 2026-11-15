@@ -682,3 +682,33 @@
     font-weight: 700;
     cursor: pointer;
 }
+
+/* "Thank me by name on the home page" opt-in */
+.donation-public-name {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 4px 0 14px;
+    padding: 12px 14px;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+    background: #fff9f2;
+    color: #7b452d;
+    font-size: 12.5px;
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.donation-public-name input {
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    flex-shrink: 0;
+    accent-color: #fb8500;
+}
+
+.donation-public-name b {
+    display: block;
+    color: #5a1b00;
+    font-size: 13px;
+}

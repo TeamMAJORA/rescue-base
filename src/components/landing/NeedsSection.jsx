@@ -59,14 +59,45 @@ function SupplyCard({ supply, onSignup }) {
     );
 }
 
+// Where to bring item donations. Same card shape as the payment card, in orange.
+function DropOffCard({ dropOff }) {
+    const contact = [dropOff.contactPerson, dropOff.contactNumber].filter(Boolean).join(" · ");
+
+    return (
+        <div className="give-card dropoff-card">
+            <span className="give-card-label">Bringing items?</span>
+            <h3>Drop them off at the shelter</h3>
+
+            <dl className="dropoff-details">
+                <dt>Address</dt>
+                <dd>{dropOff.address}</dd>
+                {dropOff.operatingHours && (
+                    <>
+                        <dt>Hours</dt>
+                        <dd>{dropOff.operatingHours}</dd>
+                    </>
+                )}
+                {contact && (
+                    <>
+                        <dt>Contact</dt>
+                        <dd>{contact}</dd>
+                    </>
+                )}
+            </dl>
+
+            {dropOff.instructions && <p className="dropoff-note">{dropOff.instructions}</p>}
+        </div>
+    );
+}
+
 // The shelter's own payment accounts and QR codes
 function DonateOnlineCard({ methods }) {
     const [activeId, setActiveId] = useState("");
     const active = methods.find((method) => method._id === activeId) || methods[0];
 
     return (
-        <div className="donate-online-card">
-            <span className="sponsor-label">Prefer to give money?</span>
+        <div className="give-card donate-online-card">
+            <span className="give-card-label">Prefer to give money?</span>
             <h3>Send to the shelter's official account</h3>
 
             <div className="donate-online-tabs" role="tablist" aria-label="Payment method">
@@ -102,12 +133,96 @@ function DonateOnlineCard({ methods }) {
     );
 }
 
-// "Help without adopting": what the shelter needs, where to bring it, and how to give money
+const VISIBLE_TAGS = 6;
+const NEW_SUPPORTER_DAYS = 7;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function daysSince(date) {
+    return Math.floor((Date.now() - new Date(date).getTime()) / DAY_MS);
+}
+
+function whenLabel(date) {
+    const days = daysSince(date);
+    if (days <= 0) return "today";
+    if (days === 1) return "yesterday";
+    if (days <= 30) return `${days} days ago`;
+    return new Date(date).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+}
+
+function plural(count, word) {
+    return `${count} ${word}${count === 1 ? "" : "s"}`;
+}
+
+// "16 donations reached the shelter in the last 30 days: 12 item gifts and 4 cash gifts."
+function summaryLine({ summary, windowDays }) {
+    if (!summary?.donations) return "";
+    const parts = [
+        summary.itemGifts > 0 && plural(summary.itemGifts, "item gift"),
+        summary.cashGifts > 0 && plural(summary.cashGifts, "cash gift"),
+    ].filter(Boolean);
+    return `${plural(summary.donations, "donation")} reached the shelter in the last ${windowDays} days: ${parts.join(" and ")}.`;
+}
+
+// Donors who ticked "Thank me by name" on the donation form, shown as hanging pet ID tags
+function SupportersWall({ thanks, onSignup }) {
+    const [showAll, setShowAll] = useState(false);
+    const supporters = thanks.supporters;
+    const visible = showAll ? supporters : supporters.slice(0, VISIBLE_TAGS);
+    const summary = summaryLine(thanks);
+
+    if (supporters.length === 0) {
+        return (
+            <div className="supporters-wall">
+                <h3>Special thanks to our supporters</h3>
+                <p className="supporters-empty">
+                    When you donate, tick “Thank me by name” and you'll be thanked here once the shelter receives it.
+                    <button type="button" onClick={onSignup}>Donate and be thanked here →</button>
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="thanks-band">
+            <span className="thanks-eyebrow">With gratitude</span>
+            <h3>{thanks.period === "month" ? "This month's supporters" : "Our recent supporters"}</h3>
+            {summary && <p className="thanks-summary">{summary}</p>}
+
+            <ul className="thanks-tags">
+                {visible.map((supporter) => (
+                    <li key={supporter.id} className="thanks-tag">
+                        {daysSince(supporter.receivedAt) < NEW_SUPPORTER_DAYS && (
+                            <span className="thanks-tag-new">New</span>
+                        )}
+                        <span className="thanks-tag-ring" aria-hidden="true" />
+                        <b>{supporter.name}</b>
+                        <span>gave {supporter.gift}</span>
+                        <small>{whenLabel(supporter.receivedAt)}</small>
+                    </li>
+                ))}
+            </ul>
+
+            {supporters.length > VISIBLE_TAGS && (
+                <button type="button" className="thanks-more" onClick={() => setShowAll((current) => !current)}>
+                    {showAll ? "Show fewer" : `Show all ${supporters.length} supporters`}
+                </button>
+            )}
+
+            <p className="thanks-footnote">
+                Donors choose to be thanked here.{" "}
+                <button type="button" onClick={onSignup}>Donate and join them →</button>
+            </p>
+        </div>
+    );
+}
+
+// "Help without adopting": what the shelter needs, where to bring it, how to give money, and who has helped
 export default function NeedsSection({ onSignup }) {
     const [supplies, setSupplies] = useState([]);
     const [totalSupplies, setTotalSupplies] = useState(0);
     const [dropOff, setDropOff] = useState(null);
     const [paymentMethods, setPaymentMethods] = useState([]);
+    const [thanks, setThanks] = useState({ period: "month", windowDays: 30, summary: null, supporters: [] });
 
     useEffect(() => {
         fetchPublicJSON("/api/supplies/public")
@@ -124,14 +239,14 @@ export default function NeedsSection({ onSignup }) {
         fetchPublicJSON("/api/payment-methods/public")
             .then((data) => setPaymentMethods(Array.isArray(data.methods) ? data.methods : []))
             .catch(() => setPaymentMethods([]));
+
+        fetchPublicJSON("/api/donations/supporters")
+            .then((data) => Array.isArray(data.supporters) && setThanks(data))
+            .catch(() => {});
     }, []);
 
-    // Nothing to ask for: leave the section out
-    if (supplies.length === 0 && paymentMethods.length === 0) return null;
-
-    const dropOffContact = dropOff
-        ? [dropOff.contactPerson, dropOff.contactNumber].filter(Boolean).join(" · ")
-        : "";
+    // Nothing to ask for and nobody to thank: leave the section out
+    if (supplies.length === 0 && paymentMethods.length === 0 && !dropOff && thanks.supporters.length === 0) return null;
 
     return (
         <section className="needs-section" id="help">
@@ -163,17 +278,14 @@ export default function NeedsSection({ onSignup }) {
                 </>
             )}
 
-            {dropOff && (
-                <div className="needs-dropoff">
-                    <b>Drop-off point</b>
-                    <span>{dropOff.address}</span>
-                    {dropOff.operatingHours && <span>{dropOff.operatingHours}</span>}
-                    {dropOffContact && <span>{dropOffContact}</span>}
-                    {dropOff.instructions && <span className="needs-dropoff-note">{dropOff.instructions}</span>}
+            {(dropOff || paymentMethods.length > 0) && (
+                <div className="give-cards">
+                    {dropOff && <DropOffCard dropOff={dropOff} />}
+                    {paymentMethods.length > 0 && <DonateOnlineCard methods={paymentMethods} />}
                 </div>
             )}
 
-            {paymentMethods.length > 0 && <DonateOnlineCard methods={paymentMethods} />}
+            <SupportersWall thanks={thanks} onSignup={onSignup} />
         </section>
     );
 }
