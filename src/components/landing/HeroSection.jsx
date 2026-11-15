@@ -7,14 +7,12 @@ export default function HeroSection({ featuredPet, onOpenPet, onSignup }) {
             <div className="hero-content">
                 <div className="hero-text">
                     <h1>
-                        Rescued in Cebu. <br />
-                        Ready for a <span>Home</span>.
+                        Find Your <br />
+                        Perfect <span>Match</span>.
                     </h1>
 
                     <p>
-                        Meet dogs and cats cared for by our partner shelter in Guadalupe, Cebu City.
-                        Browse for free. When you find the one, apply online and the shelter team
-                        will guide you from there.
+                        Helping every rescued pet find a loving family faster.
                     </p>
 
                     <div className="hero-actions">
