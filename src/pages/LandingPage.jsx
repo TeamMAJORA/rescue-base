@@ -14,7 +14,6 @@ import NeedsSection from "../components/landing/NeedsSection";
 import FeatureSection from "../components/landing/FeatureSection";
 import GISSection from "../components/landing/GISSection";
 import HeartsCodeSection from "../components/landing/HeartsCodeSection";
-import TailsSection from "../components/landing/TailsSection";
 import CTAFooter from "../components/landing/CTAFooter";
 import { PetDetailModal } from "../components/adopter/PetDetailPanel";
 
@@ -132,8 +131,6 @@ export default function LandingPage({
             <GISSection onSignup={onSignup} />
 
             <HeartsCodeSection />
-
-            <TailsSection />
 
             <CTAFooter onLogin={onLogin} onSignup={onSignup} />
 

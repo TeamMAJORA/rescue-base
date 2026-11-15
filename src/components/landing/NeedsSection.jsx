@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const HEADERS = { "ngrok-skip-browser-warning": "true" };
 const CARDS_SHOWN = 4;
+const CARDS_SHOWN_ON_PHONE = 2;
 
 const PRIORITY_CLASS = {
     Urgent: "is-urgent",
@@ -270,8 +271,13 @@ export default function NeedsSection({ onSignup }) {
                         A free account lets you pledge an item so the shelter knows it's coming.
                     </p>
 
-                    {totalSupplies > CARDS_SHOWN && (
-                        <button type="button" className="needs-more" onClick={onSignup}>
+                    {totalSupplies > CARDS_SHOWN_ON_PHONE && (
+                        <button
+                            type="button"
+                            // Desktop shows 4 cards, so with 3-4 items the button is only needed on phones
+                            className={totalSupplies > CARDS_SHOWN ? "needs-more" : "needs-more is-phone-only"}
+                            onClick={onSignup}
+                        >
                             See all {totalSupplies} needed items after you sign in
                         </button>
                     )}
