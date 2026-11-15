@@ -25,6 +25,8 @@ function askConfirm(options) {
 }
 
 const API = import.meta.env.VITE_BACKEND_URL;
+
+const COMMUNITY_REPORTER_ROLES = ["volunteer", "adopter"];
 const cebuCenter = [10.3157, 123.8854];
 
 const createMarkerIcon = (image, alt) =>
@@ -326,6 +328,8 @@ export default function GISMapping({ onOpenLostFound }) {
     const [manualLongitude, setManualLongitude] = useState("");
 
     const canManage = ["admin", "staff"].includes(userRole);
+    // Volunteers and adopters see the public map and can pin stray sightings
+    const isCommunityReporter = COMMUNITY_REPORTER_ROLES.includes(userRole);
 
     // ---------------------------
     // Staff/Admin redesigned view state
@@ -421,13 +425,13 @@ export default function GISMapping({ onOpenLostFound }) {
             setLoading(true);
             setError("");
 
-            const isVolunteer = role === "volunteer";
+            const usesPublicMap = COMMUNITY_REPORTER_ROLES.includes(role);
             const response = await fetch(
-                isVolunteer
+                usesPublicMap
                     ? `${API}/api/gis/public`
                     : `${API}/api/gis`,
                 {
-                    headers: { ...(isVolunteer
+                    headers: { ...(usesPublicMap
                         ? {}
                         : { Authorization: `Bearer ${getToken()}` }), "ngrok-skip-browser-warning": "true" },
                 }
@@ -534,7 +538,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
         loadLocations(userRole);
 
-        if (["admin", "staff", "volunteer"].includes(userRole)) {
+        if (canManage || isCommunityReporter) {
             loadHotspots();
         } else {
             setHotspots([]);
@@ -1379,8 +1383,8 @@ export default function GISMapping({ onOpenLostFound }) {
     // ---------------------------
     // Staff/Admin redesigned view (volunteers keep the view below)
     // ---------------------------
-    // Admin, staff and volunteers share the new map; manage-only controls check canManage
-    if (canManage || userRole === "volunteer") {
+    // Admin, staff, volunteers and adopters share the new map; manage-only controls check canManage
+    if (canManage || isCommunityReporter) {
         // Lost and found reports are filed in Lost & Found and show on this map from there
         const reportTypes = canManage ? ["stray", "rescue", "intake"] : ["stray"];
 
@@ -3121,4 +3125,4 @@ export default function GISMapping({ onOpenLostFound }) {
             )}
         </section>
     );
-}
+}

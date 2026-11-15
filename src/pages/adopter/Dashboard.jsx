@@ -16,6 +16,8 @@ import "../../styles/adopter/MatchmakingQuiz.css";
 import "../../styles/adopter/Recommendations.css";
 import "../../styles/adopter/DonationCenter.css";
 import "../../styles/adopter/DonationHistory.css";
+import "../../styles/admin/IntakeRecords.css"; // stats strip on the Stray Map (shared with staff pages)
+import "../../styles/admin/GISMapping.css"; // Stray Map (same map as staff and volunteers)
 
 // Module
 import AdoptionApplication from "./modules/AdoptionApplication";
@@ -26,6 +28,7 @@ import Recommendations from "./modules/Recommendations";
 import DonationCenter from "./modules/DonationCenter";
 import DonationHistory from "./modules/DonationHistory";
 import LostFound from "../admin/modules/LostFound";
+import GISMapping from "../admin/modules/GISMapping";
 import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
 import PetList from "../../components/adopter/PetList";
@@ -50,6 +53,7 @@ const adopterMenu = [
     { key: "adoption-application", group: "Adopt", label: "Adoption Application", icon: "clipboard-brown.svg", activeIcon: "clipboard-light.svg" },
     { key: "application-status", group: "Adopt", label: "Application Status", icon: "Status.svg", activeIcon: "Status-light.svg" },
     { key: "lost-found", group: "Help animals", label: "Lost & Found", icon: "LostnFound-brown.svg", activeIcon: "LostnFound-light.svg" },
+    { key: "stray-map", group: "Help animals", label: "Stray Map", icon: "strayMap-brown.svg", activeIcon: "strayMap-light.svg" },
     { key: "donation", group: "Help animals", label: "Donation", icon: "donation-brown.svg", activeIcon: "donation-light.svg" },
     { key: "donation-history", group: "Help animals", label: "Donation History", icon: "history.svg", activeIcon: "history-light.svg" },
     { key: "role-application", group: "Account", label: "Role Application", icon: "role-brown.svg", activeIcon: "role-light.svg" },
@@ -1337,6 +1341,10 @@ async function fetchPets({ silent = false } = {}) {
 
         if (activeAdopterPage === "lost-found") {
             return <LostFound />
+        }
+
+        if (activeAdopterPage === "stray-map") {
+            return <GISMapping onOpenLostFound={() => setActiveAdopterPage("lost-found")} />
         }
 
         if (activeAdopterPage === "feedback") {
