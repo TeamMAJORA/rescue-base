@@ -624,33 +624,6 @@
     box-shadow: none;
 }
 
-/* "Donating for ..." chip above the In-Kind fields */
-.donation-selected-supply {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 12px;
-    border: 1px solid rgba(251, 133, 0, 0.35);
-    border-radius: 12px;
-    background: #fff7cb;
-    color: #5a1b00;
-    font-size: 13px;
-}
-
-.donation-selected-supply button {
-    flex-shrink: 0;
-    padding: 6px 12px;
-    border: 1px solid rgba(90, 27, 0, 0.25);
-    border-radius: 10px;
-    background: #ffffff;
-    color: #5a1b00;
-    font: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
 /* "Thank me by name on the home page" opt-in */
 .donation-public-name {
     display: flex;
@@ -1010,4 +983,85 @@
     .adopter-donation-hero h2 {
         font-size: 2rem;
     }
+}
+
+/* ===== In-Kind: needed-supply suggestions, type pills, next steps ===== */
+.donation-form .donation-supply-pills button {
+    display: grid;
+    gap: 2px;
+    text-align: left;
+    border-radius: 14px;
+}
+
+.donation-supply-pills small {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+.donation-form .donation-supply-pills button.is-urgent:not(.is-active) {
+    border-color: #d62828;
+    background: #fff1f1;
+    color: #9a1b1b;
+}
+
+.donation-form .donation-type-pills button {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 12.5px;
+}
+
+.donation-next {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+    max-width: 460px;
+    padding: 16px;
+    border-radius: 14px;
+    background: #fff9f2;
+    border: 1px solid #fed7aa;
+    text-align: left;
+}
+
+.donation-next h4 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.donation-next ol {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding-left: 22px;
+}
+
+.donation-next li {
+    font-size: 14px;
+}
+
+.donation-next li b,
+.donation-next li span {
+    display: block;
+}
+
+.donation-next li::marker {
+    color: #fb8500;
+    font-weight: 800;
+}
+
+.donation-next span {
+    color: #7b452d;
+    font-size: 13px;
+}
+
+.donation-next a {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #fb8500;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
 }

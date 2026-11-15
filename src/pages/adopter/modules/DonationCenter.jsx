@@ -41,6 +41,28 @@ function donationCategoryForSupply(supply) {
     return inKindCategories.includes(category) ? category : "Other";
 }
 
+// Typing "dog food" picks Pet Food for the donor (Tesler's Law: the form does the sorting).
+// Staff can't change a donation's type later, so the donor still sees and can fix the pick.
+const CATEGORY_KEYWORDS = [
+    ["Pet Food", ["food", "kibble", "canned", "treat", "rice", "dog chow", "cat chow", "pellet"]],
+    ["Medical Supplies", ["medicine", "vitamin", "spray", "deworm", "bandage", "vaccine", "syringe", "ointment", "shampoo"]],
+    ["Blankets & Bedding", ["blanket", "towel", "bed", "pillow", "mat", "cushion", "sheet"]],
+    ["Cleaning Supplies", ["litter", "soap", "detergent", "bleach", "disinfect", "mop", "trash bag", "wipes"]],
+    ["Pet Toys", ["toy", "ball", "chew", "squeak"]],
+    ["Feeding Bowls", ["bowl", "feeder", "water dispenser"]],
+    ["Leashes & Collars", ["leash", "collar", "harness"]],
+    ["Pet Accessories", ["carrier", "cage", "crate", "kennel", "brush", "comb"]],
+];
+
+function guessCategory(itemName) {
+    const text = itemName.toLowerCase();
+    const match = CATEGORY_KEYWORDS.find(([, keywords]) => keywords.some((keyword) => text.includes(keyword)));
+    return match ? match[0] : "";
+}
+
+const PRIORITY_ORDER = ["Urgent", "High", "Medium", "Low"];
+const MAX_SUPPLY_SUGGESTIONS = 4;
+
 // Coloured strip on each needed-supply card
 const PRIORITY_TONE = {
     Urgent: "is-urgent",
@@ -49,8 +71,9 @@ const PRIORITY_TONE = {
     Low: "is-low",
 };
 
+// In-kind starts with no type picked; the donor (or the keyword guess) picks one
 const emptyDonation = {
-    category: "Pet Food",
+    category: "",
     itemName: "",
     quantity: "",
     unit: "Pieces",
@@ -97,6 +120,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
     const [isAccountNumberCopied, setIsAccountNumberCopied] = useState(false);
     const [copyErrorMessage, setCopyErrorMessage] = useState("");
     const [areAllSuppliesShown, setAreAllSuppliesShown] = useState(false);
+    const [isCategoryPickedByDonor, setIsCategoryPickedByDonor] = useState(false);
     // Social proof: how many gifts reached the shelter in the last 30 days (counts only)
     const [recentGiftCount, setRecentGiftCount] = useState(0);
     const [isCustomAmount, setIsCustomAmount] = useState(
@@ -173,6 +197,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
         setIsCustomAmount(false);
         setHasSentPayment(false);
+        setIsCategoryPickedByDonor(false);
         setMessage("");
     }
 
@@ -265,8 +290,13 @@ export default function DonationCenter({ onOpenDonationHistory }) {
             return;
         }
 
-        if (!isMoneyDonation && donation.category === "Other" && !donation.itemName.trim()) {
-            setMessage("Please say what item you're donating.");
+        if (!isMoneyDonation && !donation.itemName.trim()) {
+            setMessage("Please say what you're giving.");
+            return;
+        }
+
+        if (!isMoneyDonation && !donation.category) {
+            setMessage("Please pick a type for your items.");
             return;
         }
 
@@ -428,12 +458,14 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                     ? `${formatPeso(Number(donation.quantity))} via ${donation.paymentMethod}`
                     : `${Number(donation.quantity)} ${resolveUnit(donation.unit, donation.otherUnit).toLowerCase()} of ${itemName}`,
                 willBeThankedPublicly: donation.showNamePublicly,
+                submittedOn: new Date().toLocaleDateString("en-PH", { month: "short", day: "numeric" }),
             });
             setDonation({
                 ...emptyDonation,
             });
             setHasSentPayment(false);
             setIsCustomAmount(false);
+            setIsCategoryPickedByDonor(false);
             try {
                 sessionStorage.removeItem(DRAFT_KEY);
             } catch {
@@ -557,7 +589,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
     }
 
     // "Donate" on a needed-supply card: fill the In-Kind form for that item and jump to it
-    function handleSelectNeededSupply(supply) {
+    function handleSelectNeededSupply(supply, { shouldScrollToForm = true } = {}) {
         const remaining = getRemaining(supply);
 
         setDonation((current) => ({
@@ -579,11 +611,26 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
         setMessage("");
 
-        donationFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (shouldScrollToForm) {
+            donationFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }
+
+    // Typing replaces any linked supply unless the text still names it; the type is guessed until the donor picks one
+    function handleItemNameChange(itemName) {
+        setDonation((current) => {
+            const linkedSupply = neededSupplies.find((supply) => supply._id === current.neededSupplyId);
+            const stillNamesLinkedSupply = linkedSupply && linkedSupply.name === itemName;
+            return {
+                ...current,
+                itemName,
+                neededSupplyId: stillNamesLinkedSupply ? current.neededSupplyId : "",
+                category: isCategoryPickedByDonor ? current.category : guessCategory(itemName) || current.category,
+            };
+        });
     }
 
     const donationFormRef = useRef(null);
-    const selectedSupply = neededSupplies.find((supply) => supply._id === donation.neededSupplyId);
 
     function getRemaining(supply) {
         return Math.max(
@@ -653,11 +700,23 @@ export default function DonationCenter({ onOpenDonationHistory }) {
             { label: "Upload your receipt", done: Boolean(donation.image) },
         ]
         : [
-            { label: "Choose what you're giving", done: hasAmount && Boolean(itemUnit) },
+            { label: "Say what you're giving", done: Boolean(donation.itemName.trim() && donation.category) && hasAmount && Boolean(itemUnit) },
             { label: "Add a photo of the items", done: Boolean(donation.image) },
             { label: "Pledge it", done: false },
         ];
     const currentStepIndex = Math.max(0, steps.findIndex((step) => !step.done));
+
+    // Von Restorff: most urgent needs first, and the urgent one looks different
+    const supplySuggestions = neededSupplies
+        .filter((supply) => getRemaining(supply) > 0)
+        .sort((a, b) => PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority))
+        .slice(0, MAX_SUPPLY_SUGGESTIONS);
+
+    const dropOffDirectionsUrl = dropOff
+        ? dropOff.latitude != null && dropOff.longitude != null
+            ? `https://www.google.com/maps/search/?api=1&query=${dropOff.latitude},${dropOff.longitude}`
+            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dropOff.address)}`
+        : "";
 
     // Fitts / Von Restorff: one specific, always-reachable button that names the gift
     const submitLabel = isMoneyDonation
@@ -669,7 +728,9 @@ export default function DonationCenter({ onOpenDonationHistory }) {
             : !donation.paymentMethod ? "Pick how you'll send it."
                 : !donation.image ? "Add your receipt to finish."
                     : ""
-        : !hasAmount ? "Enter how many you're giving."
+        : !donation.itemName.trim() ? "Type what you're giving, or tap something the shelter needs."
+            : !donation.category ? "Pick a type for your items."
+            : !hasAmount ? "Enter how many you're giving."
             : !itemUnit ? "Type the unit (e.g. trays, dozens)."
                 : !donation.image ? "Add a photo of the items to finish."
                     : "";
@@ -816,14 +877,47 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                         <h3>Thank you{savedUser.name ? `, ${savedUser.name.split(" ")[0]}` : ""}!</h3>
                         <p>We got your {submittedGift.isMoney ? "gift" : "pledge"}: <strong>{submittedGift.description}</strong></p>
 
-                        <ol className="donation-thanks-steps">
-                            <li className="is-done">Sent to the shelter</li>
-                            <li>The shelter {submittedGift.isMoney ? "checks your receipt" : "receives your items"}</li>
-                            <li>
-                                Marked as Received
-                                {submittedGift.willBeThankedPublicly && " and you're thanked on the home page"}
-                            </li>
-                        </ol>
+                        {submittedGift.isMoney ? (
+                            <ol className="donation-thanks-steps">
+                                <li className="is-done">Sent to the shelter</li>
+                                <li>The shelter checks your receipt</li>
+                                <li>
+                                    Marked as Received
+                                    {submittedGift.willBeThankedPublicly && " and you're thanked on the home page"}
+                                </li>
+                            </ol>
+                        ) : (
+                            // Zeigarnik: in-kind isn't finished until the items arrive, so spell out the next move
+                            <div className="donation-next">
+                                <h4>What to do next</h4>
+                                <ol>
+                                    <li>
+                                        {dropOff ? (
+                                            <>
+                                                <b>Bring your items to {dropOff.address}</b>
+                                                {dropOff.operatingHours && <span>{dropOff.operatingHours}</span>}
+                                                <a href={dropOffDirectionsUrl} target="_blank" rel="noopener noreferrer">
+                                                    Get directions
+                                                </a>
+                                            </>
+                                        ) : (
+                                            <b>The shelter will message you about where to bring your items.</b>
+                                        )}
+                                    </li>
+                                    <li>
+                                        <b>Tell the staff your name, or show this screen</b>
+                                        <span>Pledge: {submittedGift.description} · {submittedGift.submittedOn}</span>
+                                    </li>
+                                    <li>
+                                        <b>The staff marks it Received</b>
+                                        <span>
+                                            It then shows as Received in Donation History
+                                            {submittedGift.willBeThankedPublicly && ", and you're thanked on the home page"}.
+                                        </span>
+                                    </li>
+                                </ol>
+                            </div>
+                        )}
 
                         <div className="donation-thanks-actions">
                             {onOpenDonationHistory && (
@@ -853,7 +947,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                         <button
                             type="button"
                             className={!isMoneyDonation ? "active" : ""}
-                            onClick={() => handleCategoryChange("Pet Food")}
+                            onClick={() => handleCategoryChange("")}
                         >
                             In-Kind
                         </button>
@@ -873,20 +967,6 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
                     <div className="donation-layout">
                         <div className="donation-fields">
-                            {selectedSupply && !isMoneyDonation && (
-                                <div className="donation-selected-supply">
-                                    <span>
-                                        Donating for <b>{selectedSupply.name}</b> · {getRemaining(selectedSupply)} more needed
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setDonation((current) => ({ ...current, neededSupplyId: "", itemName: "" }))}
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-                            )}
-
                             {isMoneyDonation ? (
                                 <>
                                     <div className="donation-choice">
@@ -969,40 +1049,72 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                 </>
                             ) : (
                                 <>
+                                    {/* Postel's Law: donors type it their way; suggestions fill the rest */}
                                     <label>
-                                        <span>What are you donating? <b>*</b></span>
-                                        <select
-                                            value={donation.category}
-                                            onChange={(event) =>
-                                                handleCategoryChange(
-                                                    event.target.value
-                                                )
-                                            }
-                                        >
-                                            {inKindCategories.map((category) => (
-                                                <option
-                                                    key={category}
-                                                    value={category}
-                                                >
-                                                    {category}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <span>What are you giving? <b>*</b></span>
+                                        <input
+                                            type="text"
+                                            maxLength={80}
+                                            placeholder="e.g. dry dog food, old towels"
+                                            value={donation.itemName}
+                                            onChange={(event) => handleItemNameChange(event.target.value)}
+                                            required
+                                        />
                                     </label>
 
-                                    {donation.category === "Other" && (
-                                        <label>
-                                            <span>Please specify the item <b>*</b></span>
-                                            <input
-                                                type="text"
-                                                maxLength={80}
-                                                placeholder="e.g. Pet carrier, grooming brush"
-                                                value={donation.itemName}
-                                                onChange={(event) => updateDonationField("itemName", event.target.value)}
-                                                required
-                                            />
-                                        </label>
+                                    {supplySuggestions.length > 0 && (
+                                        <div className="donation-choice">
+                                            <span>The shelter needs</span>
+                                            <div className="donation-pills donation-supply-pills" role="group" aria-label="Needed supplies">
+                                                {supplySuggestions.map((supply) => {
+                                                    const isChosen = supply._id === donation.neededSupplyId;
+                                                    const isUrgent = supply.priority === "Urgent";
+                                                    return (
+                                                        <button
+                                                            key={supply._id}
+                                                            type="button"
+                                                            className={`${isChosen ? "is-active" : ""}${isUrgent ? " is-urgent" : ""}`}
+                                                            aria-pressed={isChosen}
+                                                            onClick={() => {
+                                                                if (isChosen) {
+                                                                    setDonation((current) => ({ ...current, neededSupplyId: "", itemName: "" }));
+                                                                    return;
+                                                                }
+                                                                setIsCategoryPickedByDonor(true);
+                                                                handleSelectNeededSupply(supply, { shouldScrollToForm: false });
+                                                            }}
+                                                        >
+                                                            {supply.name}
+                                                            <small>{isUrgent ? "Urgent · " : ""}{getRemaining(supply)} needed</small>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
                                     )}
+
+                                    <div className="donation-choice">
+                                        <span>Type <b>*</b></span>
+                                        <div className="donation-pills donation-type-pills" role="group" aria-label="Type of items">
+                                            {inKindCategories.map((category) => {
+                                                const isChosen = donation.category === category;
+                                                return (
+                                                    <button
+                                                        key={category}
+                                                        type="button"
+                                                        className={isChosen ? "is-active" : ""}
+                                                        aria-pressed={isChosen}
+                                                        onClick={() => {
+                                                            setIsCategoryPickedByDonor(true);
+                                                            updateDonationField("category", category);
+                                                        }}
+                                                    >
+                                                        {category}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
 
                                     <div className="donation-row">
                                         <label>
