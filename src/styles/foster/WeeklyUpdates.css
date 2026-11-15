@@ -18,7 +18,7 @@
 .foster-update-form label {
     display: grid;
     gap: 8px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 14px;
     font-weight: 700;
 }
@@ -31,8 +31,8 @@
     border: 1px solid rgba(90, 27, 0, .12);
     border-radius: 14px;
     padding: 12px 14px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-size: 14px;
     transition: .2s;
     outline: none;
@@ -42,7 +42,7 @@
 .update-grid select:focus,
 .foster-update-form input:focus,
 .foster-update-form textarea:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251,133,0,.15);
 }
 
@@ -56,8 +56,8 @@
     border: none;
     border-radius: 14px;
     padding: 13px 24px;
-    background: linear-gradient(135deg,#fb8500,#ffb703);
-    color: white;
+    background: linear-gradient(135deg,var(--orange),var(--yellow));
+    color: var(--white);
     font-weight: 800;
     cursor: pointer;
     transition: .25s;
@@ -84,12 +84,12 @@
     gap: 14px;
     padding: 18px;
     border-radius: 18px;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90,27,0,.08);
 }
 
 .foster-update-card strong {
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 14px;
 }
 
@@ -114,14 +114,14 @@
 }
 
 .foster-alert.success {
-    background: #e9f8e4;
-    color: #2f6b1f;
+    background: var(--green-soft);
+    color: var(--green-dark);
     border: 1px solid #b7ddb0;
 }
 
 .foster-alert.error {
-    background: #ffe5e5;
-    color: #c62828;
+    background: var(--red-soft);
+    color: var(--red-dark);
     border: 1px solid #efb0b0;
 }
 

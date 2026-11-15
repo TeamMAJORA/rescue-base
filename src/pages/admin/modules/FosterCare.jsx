@@ -2,6 +2,8 @@ import {
     useEffect, useRef, useState
 } from "react"
 import InfoTip from "../../../components/system/InfoTip";
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDate, formatDateTime, toDayValue } from "../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -33,13 +35,6 @@ function askedInLastDay(assignment) {
     );
 }
 
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 // An edited application counts as unseen again until the admin opens it
 function seenKey(application) {
@@ -78,15 +73,11 @@ const FOSTER_LENGTHS = [
     { label: "3 months", days: 90 },
 ];
 
-function toDateInputValue(date) {
-    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-    return local.toISOString().slice(0, 10);
-}
 
 function addDays(dateText, days) {
     const date = new Date(`${dateText}T00:00:00`);
     date.setDate(date.getDate() + days);
-    return toDateInputValue(date);
+    return toDayValue(date);
 }
 
 
@@ -1121,7 +1112,7 @@ export default function FosterCare() {
             fosterApplicationId: application._id,
             fosterName: application.applicantName,
             fosterEmail: application.applicantEmail,
-            startDate: toDateInputValue(new Date()),
+            startDate: toDayValue(new Date()),
         });
         setPetSearch("");
         setPetScope("match");
@@ -1188,7 +1179,7 @@ export default function FosterCare() {
 
     function formatShortDate(value) {
         if (!value) return "—";
-        return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        return formatDate(value, { withYear: false });
     }
 
     // ----- Stats strip numbers -----
@@ -1559,7 +1550,7 @@ export default function FosterCare() {
                                             {assignment.behaviorEvaluation.submittedAt && (
                                                 <span>
                                                     Submitted:{" "}
-                                                    {new Date(assignment.behaviorEvaluation.submittedAt).toLocaleDateString()}
+                                                    {formatDate(assignment.behaviorEvaluation.submittedAt)}
                                                 </span>
                                             )}
                                         </div>
@@ -1812,11 +1803,7 @@ export default function FosterCare() {
                                     <StatIcon name="info" size={16} />
                                     <span>
                                         Updated by the applicant on{" "}
-                                        {new Date(reviewingApplication.lastEditedAt).toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                            year: "numeric",
-                                        })}
+                                        {formatDate(reviewingApplication.lastEditedAt)}
                                         : <b>{reviewingApplication.editedFields.join(", ")}</b>
                                     </span>
                                 </p>
@@ -1840,11 +1827,7 @@ export default function FosterCare() {
                                         <small>Applied on</small>
                                         <b>
                                             {reviewingApplication.createdAt
-                                                ? new Date(reviewingApplication.createdAt).toLocaleDateString("en-US", {
-                                                    month: "short",
-                                                    day: "numeric",
-                                                    year: "numeric",
-                                                })
+                                                ? formatDate(reviewingApplication.createdAt)
                                                 : "—"}
                                         </b>
                                     </div>
@@ -2527,7 +2510,7 @@ export default function FosterCare() {
                 const pet = animals.find((animal) => String(animal._id) === String(earlyReturn.animalId));
                 const longDate = (value) =>
                     value
-                        ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                        ? formatDate(value, { withYear: false })
                         : "—";
 
                 return (
@@ -2725,7 +2708,7 @@ export default function FosterCare() {
                             <p>
                                 <span>Sent</span>
                                 {reviewingRequest.createdAt
-                                    ? new Date(reviewingRequest.createdAt).toLocaleString()
+                                    ? formatDateTime(reviewingRequest.createdAt)
                                     : "—"}
                             </p>
                             <p><span>Breed</span>{reviewingRequest.petBreed || "—"}</p>

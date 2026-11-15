@@ -70,7 +70,7 @@
 
 .admin-feedback-row p {
     margin-top: 4px;
-    color: #6f4a35;
+    color: var(--brown-soft);
     font-size: 13px;
     font-weight: 700;
 }
@@ -114,7 +114,7 @@
 
 .admin-feedback-actions button.danger {
     background: var(--red);
-    color: white;
+    color: var(--white);
 }
 
 .admin-status-pill.new {
@@ -124,7 +124,7 @@
 
 .admin-status-pill.reviewed {
     background: rgba(32, 178, 99, 0.18);
-    color: #16834a;
+    color: var(--green-dark);
 }
 
 @media (max-width: 950px) {
@@ -153,15 +153,15 @@
     box-sizing: border-box;
     padding: 20px 20px 24px;
     border-radius: 12px;
-    background: linear-gradient(90deg, #ff8a65, #ffb26b);
-    color: #fff;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    color: var(--white);
 }
 
 .fb-hero-badge {
     padding: 4px 12px;
     border-radius: 999px;
-    background: #ffe2b8;
-    color: #8a2a00;
+    background: var(--peach);
+    color: var(--red-dark);
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -205,7 +205,7 @@
 .fb-card {
     padding: 16px 16px 18px;
     border-radius: 12px;
-    background: #fffaeb;
+    background: var(--paper);
 }
 
 .fb-card.is-outline {
@@ -215,7 +215,7 @@
 
 .fb-card h3 {
     margin: 0 0 12px;
-    color: #3a1200;
+    color: var(--brown-strong);
     font-family: "YourTitleFont", "Trebuchet MS", sans-serif;
     font-size: 17px;
     font-weight: 700;
@@ -246,8 +246,8 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #ffc58a;
-    color: #c25a00;
+    background: var(--gold);
+    color: var(--orange-dark);
     font-size: 11px;
     font-weight: 800;
 }
@@ -277,12 +277,12 @@
     gap: 16px;
     padding: 18px 16px 18px;
     border-radius: 12px;
-    background: #fffaeb;
+    background: var(--paper);
 }
 
 .fbf-header h2 {
     margin: 0;
-    color: #3a1200;
+    color: var(--brown-strong);
     font-family: "YourTitleFont", "Trebuchet MS", sans-serif;
     font-size: 20px;
     font-weight: 700;
@@ -290,7 +290,7 @@
 
 .fbf-header p {
     margin: 2px 0 0;
-    color: #8a2a00;
+    color: var(--red-dark);
     font-size: 11px;
     font-weight: 700;
 }
@@ -301,13 +301,13 @@
 }
 
 .fbf-label {
-    color: #3a1200;
+    color: var(--brown-strong);
     font-size: 10px;
     font-weight: 800;
 }
 
 .fbf-label em {
-    color: #d62828;
+    color: var(--red);
     font-style: normal;
 }
 
@@ -366,8 +366,8 @@
 }
 
 .fbf-star.is-on svg {
-    fill: #ffc400;
-    stroke: #ffb800;
+    fill: var(--yellow);
+    stroke: var(--yellow);
 }
 
 .fbf-input {
@@ -376,8 +376,8 @@
     padding: 0 12px;
     border: 1px solid rgba(90, 27, 0, 0.45);
     border-radius: 8px;
-    background: #fff;
-    color: #3a1200;
+    background: var(--white);
+    color: var(--brown-strong);
     font-family: inherit;
     font-size: 12px;
     outline: none;
@@ -395,7 +395,7 @@ textarea.fbf-input {
 }
 
 .fbf-input:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
@@ -409,8 +409,8 @@ textarea.fbf-input {
     height: 38px;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(180deg, #ffa53a, #fb8500);
-    color: #fff;
+    background: linear-gradient(180deg, var(--orange-light), var(--orange));
+    color: var(--white);
     font-size: 13px;
     font-weight: 800;
     cursor: pointer;
@@ -433,7 +433,7 @@ textarea.fbf-input {
 .feedback-management {
     display: grid;
     gap: 14px;
-    color: #3a1200;
+    color: var(--brown-strong);
 }
 
 .feedback-management-header {
@@ -444,7 +444,7 @@ textarea.fbf-input {
 
 .feedback-management-header h2 {
     margin: 0;
-    color: #2f2a24;
+    color: var(--dark);
     font-size: 22px;
     font-weight: 800;
 }
@@ -452,7 +452,7 @@ textarea.fbf-input {
 .feedback-management-header p {
     margin: 0;
     font-size: 12px;
-    color: #3a2a1a;
+    color: var(--dark);
 }
 
 .feedback-management-header select {
@@ -462,8 +462,8 @@ textarea.fbf-input {
     padding: 0 8px;
     border: none;
     border-radius: 6px;
-    background: #fff;
-    color: #3a1200;
+    background: var(--white);
+    color: var(--brown-strong);
     font-size: 11px;
     cursor: pointer;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -472,7 +472,7 @@ textarea.fbf-input {
 .feedback-loading,
 .feedback-empty {
     font-size: 12px;
-    color: #3a2a1a;
+    color: var(--dark);
 }
 
 .feedback-message {
@@ -484,14 +484,14 @@ textarea.fbf-input {
 
 .feedback-error {
     background: rgba(214, 40, 40, 0.1);
-    color: #d62828;
+    color: var(--red);
 }
 
 /* Table */
 .feedback-table-wrapper {
     overflow-x: auto;
     border-radius: 12px;
-    background: #fffaeb;
+    background: var(--paper);
     box-shadow: 0 1px 3px rgba(90, 27, 0, 0.08);
 }
 
@@ -524,7 +524,7 @@ textarea.fbf-input {
 }
 
 .feedback-table tbody tr:hover {
-    background: #fff4dc;
+    background: var(--peach-soft);
 }
 
 .feedback-table td strong {
@@ -541,7 +541,7 @@ textarea.fbf-input {
 .feedback-role {
     padding: 3px 9px;
     border-radius: 999px;
-    background: #e9dcc4;
+    background: var(--line-soft);
     font-size: 10px;
     font-weight: 800;
     text-transform: capitalize;
@@ -553,7 +553,7 @@ textarea.fbf-input {
 }
 
 .feedback-table-stars span.filled {
-    color: #ffc400;
+    color: var(--yellow);
 }
 
 .feedback-status {
@@ -566,12 +566,12 @@ textarea.fbf-input {
 
 .feedback-status.active {
     background: rgba(46, 158, 91, 0.14);
-    color: #16834a;
+    color: var(--green-dark);
 }
 
 .feedback-status.archived {
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
 }
 
 .feedback-actions {
@@ -583,26 +583,26 @@ textarea.fbf-input {
     padding: 6px 10px;
     border: 1px solid rgba(90, 27, 0, 0.3);
     border-radius: 6px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
 }
 
 .feedback-actions button:hover {
-    border-color: #fb8500;
-    color: #fb8500;
+    border-color: var(--orange);
+    color: var(--orange);
 }
 
 .feedback-actions button.danger {
     border-color: rgba(214, 40, 40, 0.4);
-    color: #d62828;
+    color: var(--red);
 }
 
 .feedback-actions button.danger:hover {
-    background: #d62828;
-    color: #fff;
+    background: var(--red);
+    color: var(--white);
 }
 
 /* Details pop-up */
@@ -624,7 +624,7 @@ textarea.fbf-input {
     overflow-y: auto;
     padding: 20px;
     border-radius: 14px;
-    background: #fffaeb;
+    background: var(--paper);
 }
 
 .feedback-modal-header {
@@ -644,8 +644,8 @@ textarea.fbf-input {
     height: 30px;
     border: none;
     border-radius: 50%;
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
     cursor: pointer;
 }
 
@@ -681,9 +681,9 @@ textarea.fbf-input {
     display: grid;
     gap: 6px;
     padding: 10px 12px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 10px;
-    background: #fff;
+    background: var(--white);
 }
 
 .fb-history-top {
@@ -703,7 +703,7 @@ textarea.fbf-input {
 }
 
 .fb-history-stars span.is-on {
-    color: #ffc400;
+    color: var(--yellow);
 }
 
 .fb-history-meta {
@@ -720,18 +720,18 @@ textarea.fbf-input {
 }
 
 .fb-history-cat {
-    background: #fdefb8;
-    color: #5a1b00;
+    background: var(--amber-soft);
+    color: var(--brown);
 }
 
 .fb-history-status.is-active {
-    background: #fff1c2;
-    color: #a15c00;
+    background: var(--amber-soft);
+    color: var(--amber);
 }
 
 .fb-history-status.is-archived {
     background: rgba(46, 158, 91, 0.14);
-    color: #16834a;
+    color: var(--green-dark);
 }
 
 .fb-history li p {
@@ -740,7 +740,7 @@ textarea.fbf-input {
     -webkit-box-orient: vertical;
     margin: 0;
     overflow: hidden;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 12px;
     line-height: 1.45;
 }
@@ -758,7 +758,7 @@ textarea.fbf-input {
 
 .fb-history-item:hover,
 .fb-history-item:focus-visible {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
     outline: none;
 }
@@ -788,8 +788,8 @@ textarea.fbf-input {
     overflow-y: auto;
     padding: 20px;
     border-radius: 14px;
-    background: #fffaeb;
-    color: #3a1200;
+    background: var(--paper);
+    color: var(--brown-strong);
 }
 
 .fb-modal-head {
@@ -810,8 +810,8 @@ textarea.fbf-input {
     height: 30px;
     border: none;
     border-radius: 50%;
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
     font-size: 18px;
     cursor: pointer;
 }
@@ -828,7 +828,7 @@ textarea.fbf-input {
 }
 
 .fb-modal-stars span.is-on {
-    color: #ffc400;
+    color: var(--yellow);
 }
 
 .fb-modal-stars b {
@@ -843,7 +843,7 @@ textarea.fbf-input {
     margin: 0;
     padding: 12px;
     border-radius: 10px;
-    background: #fdefb8;
+    background: var(--amber-soft);
 }
 
 .fb-modal-facts dt {
@@ -868,9 +868,9 @@ textarea.fbf-input {
 .fb-modal-message {
     margin: 0;
     padding: 12px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 10px;
-    background: #fff;
+    background: var(--white);
     font-size: 13px;
     line-height: 1.55;
     white-space: pre-wrap;
@@ -884,10 +884,10 @@ textarea.fbf-input {
 .fb-modal-btn {
     min-width: 92px;
     height: 34px;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
     border-radius: 8px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
     cursor: pointer;
@@ -907,10 +907,10 @@ textarea.fbf-input {
 
 .feedback-filter-chips button {
     padding: 6px 14px;
-    border: 1.5px solid #8a2a00;
+    border: 1.5px solid var(--red-dark);
     border-radius: 999px;
-    background: #fffaf0;
-    color: #8a2a00;
+    background: var(--paper);
+    color: var(--red-dark);
     font-size: 12px;
     font-weight: 800;
     cursor: pointer;
@@ -918,13 +918,13 @@ textarea.fbf-input {
 }
 
 .feedback-filter-chips button:hover {
-    background: #fff1dc;
+    background: var(--peach-soft);
 }
 
 .feedback-filter-chips button.is-active {
-    border-color: #5a1b00;
-    background: #5a1b00;
-    color: #fff;
+    border-color: var(--brown);
+    background: var(--brown);
+    color: var(--white);
 }
 .lfr-map {
     position: relative;
@@ -956,14 +956,14 @@ textarea.fbf-input {
 .fb2-stars {
     display: inline-flex;
     gap: 1px;
-    color: #e3d5b5;
+    color: var(--line);
     font-size: 14px;
     line-height: 1;
     white-space: nowrap;
 }
 
 .fb2-stars .on {
-    color: #f5a400;
+    color: var(--orange-light);
 }
 
 .fb2-stars.is-small {
@@ -973,14 +973,14 @@ textarea.fbf-input {
 .fb2-error {
     margin: 0;
     padding: 10px 14px;
-    border: 1px solid #f0c9c9;
-    background: #fdecec;
-    color: #a12020;
+    border: 1px solid var(--red-soft);
+    background: var(--red-soft);
+    color: var(--red-dark);
     font-size: 13px;
 }
 
 .fb2-card {
-    background: #fffdf4;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 14px;
     padding: 18px 20px;
@@ -1000,7 +1000,7 @@ textarea.fbf-input {
     font-family: "Itim", cursive;
     font-size: 22px;
     font-weight: 400;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .fb2-chips {
@@ -1011,10 +1011,10 @@ textarea.fbf-input {
 
 .fb2-chips button {
     padding: 6px 14px;
-    border: 1px solid #8a5a44;
+    border: 1px solid var(--brown-soft);
     border-radius: 999px;
-    background: #fffdf0;
-    color: #7b452d;
+    background: var(--paper);
+    color: var(--brown-soft);
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -1022,9 +1022,9 @@ textarea.fbf-input {
 }
 
 .fb2-chips button.on {
-    border-color: #5a1b00;
-    background: #5a1b00;
-    color: #fff;
+    border-color: var(--brown);
+    background: var(--brown);
+    color: var(--white);
 }
 
 .fb2-chips em {
@@ -1048,13 +1048,13 @@ textarea.fbf-input {
     align-items: center;
     gap: 8px;
     padding: 0 12px;
-    border: 1px solid #e3d5b5;
-    background: #fff;
-    color: #b8a890;
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--line);
 }
 
 .fb2-search:focus-within {
-    border-color: #fb8500;
+    border-color: var(--orange);
 }
 
 .fb2-search input {
@@ -1066,28 +1066,28 @@ textarea.fbf-input {
     background: transparent;
     font: inherit;
     font-size: 13px;
-    color: #3d2410;
+    color: var(--brown-strong);
 }
 
 .fb2-select {
     min-width: 150px;
     padding: 9px 34px 9px 12px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 0;
     appearance: none;
-    background: #fff
+    background: var(--white)
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
         no-repeat right 12px center;
     font: inherit;
     font-size: 13px;
     font-weight: 600;
-    color: #3d2410;
+    color: var(--brown-strong);
     cursor: pointer;
     outline: none;
 }
 
 .fb2-select:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
 }
 
 .fb2-table-wrap {
@@ -1099,19 +1099,19 @@ textarea.fbf-input {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
-    color: #3d2410;
+    color: var(--brown-strong);
 }
 
 .fb2-table th {
     padding: 10px;
-    background: #faf3df;
+    background: var(--peach-soft);
     border-bottom: 1px solid rgba(90, 27, 0, 0.15);
     text-align: left;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #7a3e19;
+    color: var(--brown-soft);
     white-space: nowrap;
 }
 
@@ -1127,13 +1127,13 @@ textarea.fbf-input {
 
 .fb2-table td b {
     display: block;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .fb2-muted {
     display: block;
     font-size: 12px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .fb2-right {
@@ -1147,8 +1147,8 @@ textarea.fbf-input {
 .fb2-role {
     display: inline-block;
     padding: 3px 9px;
-    background: #efe8d4;
-    color: #7b6658;
+    background: var(--line-soft);
+    color: var(--brown-muted);
     font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
@@ -1162,7 +1162,7 @@ textarea.fbf-input {
     background: none;
     font: inherit;
     font-size: 12.5px;
-    color: #5b3a26;
+    color: var(--brown-soft);
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
@@ -1171,7 +1171,7 @@ textarea.fbf-input {
 }
 
 .fb2-msg:hover {
-    color: #5a1b00;
+    color: var(--brown);
     text-decoration: underline;
 }
 
@@ -1184,13 +1184,13 @@ textarea.fbf-input {
 }
 
 .fb2-pill.active {
-    background: #d9f0e3;
-    color: #2f8f5b;
+    background: var(--green-soft);
+    color: var(--green);
 }
 
 .fb2-pill.archived {
-    background: #ece6da;
-    color: #7b6658;
+    background: var(--cream-card);
+    color: var(--brown-muted);
 }
 
 .fb2-actions {
@@ -1204,7 +1204,7 @@ textarea.fbf-input {
     padding: 0;
     border: 0;
     background: none;
-    color: #5a1b00;
+    color: var(--brown);
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -1214,10 +1214,10 @@ textarea.fbf-input {
 
 .fb2-mini {
     padding: 6px 10px;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -1226,8 +1226,8 @@ textarea.fbf-input {
 }
 
 .fb2-mini:hover:not(:disabled) {
-    background: #5a1b00;
-    color: #fff;
+    background: var(--brown);
+    color: var(--white);
 }
 
 .fb2-icon {
@@ -1235,15 +1235,15 @@ textarea.fbf-input {
     height: 30px;
     display: grid;
     place-items: center;
-    border: 1px solid #f0c9c9;
+    border: 1px solid var(--red-soft);
     border-radius: 0;
-    background: #fff;
-    color: #d62828;
+    background: var(--white);
+    color: var(--red);
     cursor: pointer;
 }
 
 .fb2-icon:hover:not(:disabled) {
-    border-color: #d62828;
+    border-color: var(--red);
 }
 
 .fb2-actions button:disabled {
@@ -1256,13 +1256,13 @@ textarea.fbf-input {
     padding: 28px 0;
     text-align: center;
     font-size: 13px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .fb2-foot {
     margin: 12px 0 0;
     font-size: 12px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .fb2-foot button {
@@ -1270,7 +1270,7 @@ textarea.fbf-input {
     padding: 0;
     border: 0;
     background: none;
-    color: #c2410c;
+    color: var(--red-dark);
     font: inherit;
     font-weight: 700;
     text-decoration: underline;
@@ -1282,7 +1282,7 @@ textarea.fbf-input {
     width: min(520px, calc(100vw - 32px));
     padding: 20px 22px;
     border-radius: 14px;
-    background: #fffdf4;
+    background: var(--paper);
 }
 
 .fb2-modal-head {
@@ -1297,21 +1297,21 @@ textarea.fbf-input {
     font-family: "Itim", cursive;
     font-size: 22px;
     font-weight: 400;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .fb2-modal-head small {
-    color: #7a3e19;
+    color: var(--brown-soft);
     font-size: 12px;
 }
 
 .fb2-close {
     width: 30px;
     height: 30px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     cursor: pointer;
 }
 
@@ -1322,17 +1322,17 @@ textarea.fbf-input {
     gap: 10px;
     margin: 14px 0;
     font-size: 13px;
-    color: #3d2410;
+    color: var(--brown-strong);
 }
 
 .fb2-modal-msg {
     margin: 0 0 10px;
     padding: 12px 14px;
-    border: 1px solid #e3d5b5;
-    background: #fff;
+    border: 1px solid var(--line);
+    background: var(--white);
     font-size: 14px;
     line-height: 1.55;
-    color: #3d2410;
+    color: var(--brown-strong);
     white-space: pre-wrap;
 }
 
@@ -1358,7 +1358,7 @@ textarea.fbf-input {
     margin-top: 4px;
     font-size: 11px;
     font-weight: 700;
-    color: #1c5cab;
+    color: var(--blue);
 }
 
 .fb2-reply {
@@ -1372,21 +1372,21 @@ textarea.fbf-input {
 .fb2-reply label {
     font-size: 12px;
     font-weight: 700;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .fb2-reply label small {
     font-weight: 500;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .fb2-reply textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 0;
-    background: #fff;
-    color: #3d2410;
+    background: var(--white);
+    color: var(--brown-strong);
     font: inherit;
     font-size: 13px;
     resize: vertical;
@@ -1394,7 +1394,7 @@ textarea.fbf-input {
 }
 
 .fb2-reply textarea:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
 }
 
 .fb2-reply-foot {
@@ -1407,15 +1407,15 @@ textarea.fbf-input {
 
 .fb2-reply-foot small {
     font-size: 11.5px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .fb2-send {
     padding: 8px 14px;
-    border: 1px solid #fb8500;
+    border: 1px solid var(--orange);
     border-radius: 0;
-    background: #fb8500;
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
     font: inherit;
     font-size: 12.5px;
     font-weight: 700;
@@ -1430,9 +1430,9 @@ textarea.fbf-input {
 .fb2-notice {
     margin: 0;
     padding: 8px 10px;
-    border: 1px solid #cfe8d9;
-    background: #eef8f1;
-    color: #2f6b47;
+    border: 1px solid var(--green-soft);
+    background: var(--cream-card);
+    color: var(--green-dark);
     font-size: 12.5px;
 }
 
@@ -1442,19 +1442,19 @@ textarea.fbf-input {
 }
 
 .fb2-row:hover td {
-    background: #fffaf0;
+    background: var(--paper);
 }
 
 .fb2-reply-btn {
-    border-color: #fb8500;
-    background: #fb8500;
-    color: #fff;
+    border-color: var(--orange);
+    background: var(--orange);
+    color: var(--white);
 }
 
 .fb2-reply-btn:hover:not(:disabled) {
-    border-color: #e97800;
-    background: #e97800;
-    color: #fff;
+    border-color: var(--orange-dark);
+    background: var(--orange-dark);
+    color: var(--white);
 }
 
 .fb2-reply-foot {
@@ -1487,19 +1487,19 @@ textarea.fbf-input {
 /* Sender photo */
 .fb2-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .fb2-who > div { display: flex; flex-direction: column; min-width: 0; }
-.fb2-avatar { width: 34px; height: 34px; flex: none; display: grid; place-items: center; overflow: hidden; background: #fff3d6; border: 1px solid #e3d5b5; color: #5a1b00; font-size: 12px; font-weight: 800; }
+.fb2-avatar { width: 34px; height: 34px; flex: none; display: grid; place-items: center; overflow: hidden; background: var(--peach-soft); border: 1px solid var(--line); color: var(--brown); font-size: 12px; font-weight: 800; }
 .fb2-avatar.is-big { width: 46px; height: 46px; font-size: 15px; }
 .fb2-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 /* Feedback history: show the shelter's reply */
 .fb-history-item { cursor: pointer; }
-.fb-history-item:hover { border-color: #fb8500; }
-.fb-history-status.is-replied { background: #e3effd; color: #1c5cab; }
-.fb-history-reply { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; padding: 8px 10px; border-left: 3px solid #fb8500; background: #fff7e6; font-size: 12.5px; color: #5a1b00; }
-.fb-history-reply b { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #a15c00; }
+.fb-history-item:hover { border-color: var(--orange); }
+.fb-history-status.is-replied { background: var(--blue-soft); color: var(--blue); }
+.fb-history-reply { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--orange); background: var(--paper); font-size: 12.5px; color: var(--brown); }
+.fb-history-reply b { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--amber); }
 .fb-history-reply span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-.fb-history-open { display: block; margin-top: 8px; font-size: 12px; font-weight: 700; color: #d96f00; }
-.fb-modal-reply { padding: 12px; border-left: 3px solid #fb8500; background: #fff7e6; color: #5a1b00; }
+.fb-history-open { display: block; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--orange-dark); }
+.fb-modal-reply { padding: 12px; border-left: 3px solid var(--orange); background: var(--paper); color: var(--brown); }
 .fb-modal-reply p { margin: 0 0 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.fb-modal-reply small { color: #8a6a4a; font-size: 12px; }
-.fb-modal-noreply { margin: 0; padding: 12px; background: #f6f0e1; color: #8a6a4a; font-size: 13px; }
+.fb-modal-reply small { color: var(--brown-muted); font-size: 12px; }
+.fb-modal-noreply { margin: 0; padding: 12px; background: var(--cream-card); color: var(--brown-muted); font-size: 13px; }

@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
 import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import "leaflet/dist/leaflet.css";
+import { formatDate } from "../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -470,7 +471,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                     ? `${formatPeso(Number(donation.quantity))} via ${donation.paymentMethod}`
                     : `${Number(donation.quantity)} ${resolveUnit(donation.unit, donation.otherUnit).toLowerCase()} of ${itemName}`,
                 willBeThankedPublicly: donation.showNamePublicly,
-                submittedOn: new Date().toLocaleDateString("en-PH", { month: "short", day: "numeric" }),
+                submittedOn: formatDate(new Date(), { withYear: false }),
             });
             setDonation({
                 ...emptyDonation,

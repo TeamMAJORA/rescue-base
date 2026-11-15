@@ -4,14 +4,8 @@ import {
     useRef,
     useState
 } from "react";
+import { askConfirm } from "../../../utils/dialogs";
 
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 const API = import.meta.env.VITE_BACKEND_URL;
 

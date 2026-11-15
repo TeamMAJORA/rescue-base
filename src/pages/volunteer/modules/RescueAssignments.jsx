@@ -1,14 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { CompleteWithProofModal } from "../../../components/rescue/RescueProof";
+import { askConfirm, askPrompt } from "../../../utils/dialogs";
+import { formatDate, formatDateTime } from "../../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
-
-// Styled pop-ups from the dashboard (fall back to the browser boxes)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 const STATUS_TABS = [
     { key: "open", label: "Open to claim" },
@@ -48,7 +43,7 @@ function authHeaders(withJson = false) {
 function formatWhen(assignment) {
     const date = assignment.scheduledDate ? new Date(assignment.scheduledDate) : null;
     const day = date && !Number.isNaN(date.getTime())
-        ? date.toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })
+        ? formatDate(date)
         : "No date";
     return assignment.scheduledTime ? `${day} · ${assignment.scheduledTime}` : day;
 }
@@ -100,7 +95,7 @@ function useMyRescues() {
         let body = {};
 
         if (action === "decline") {
-            const reason = await window.rbPrompt({
+            const reason = await askPrompt({
                 title: `Decline "${assignment.title}"?`,
                 label: "Why can't you take it",
                 confirmLabel: "Decline",
@@ -125,7 +120,7 @@ function useMyRescues() {
         }
 
         if (action === "drop") {
-            const reason = await window.rbPrompt({
+            const reason = await askPrompt({
                 title: `Drop "${assignment.title}"?`,
                 message: "It goes back to the open list for other volunteers.",
                 label: "Why are you dropping it",
@@ -474,12 +469,7 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
                                     <li key={log._id}>
                                         {log.activity}
                                         <small>
-                                            {new Date(log.activityDate || log.createdAt).toLocaleString("en-PH", {
-                                                month: "short",
-                                                day: "numeric",
-                                                hour: "numeric",
-                                                minute: "2-digit",
-                                            })}
+                                            {formatDateTime(log.activityDate || log.createdAt)}
                                         </small>
                                     </li>
                                 ))}

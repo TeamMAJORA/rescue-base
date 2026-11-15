@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import InfoTip from "../../../components/system/InfoTip";
+import { formatDate } from "../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -289,7 +290,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
     function shortDate(value) {
         return value
-            ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+            ? formatDate(value)
             : "—";
     }
 

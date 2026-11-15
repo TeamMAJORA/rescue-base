@@ -8,14 +8,9 @@ import AnimalTransfers from "./AnimalTransfers";
 import InfoTip from "../../../../components/system/InfoTip";
 import { formatAge } from "../../../../utils/formatAge";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
+import { askConfirm } from "../../../../utils/dialogs";
+import { formatDate } from "../../../../utils/formatDate";
 
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -298,7 +293,7 @@ function PersonContactCard({ title, url, responseKey, dateLabel, dateField, empt
                         </div>
                         <div>
                             <span>{dateLabel}</span>
-                            <b>{formatIntakeDate(person[dateField])}</b>
+                            <b>{formatDate(person[dateField])}</b>
                         </div>
                     </div>
                     <p className="apm-person-address">
@@ -330,18 +325,6 @@ function StatusPill({ status }) {
     return <span className={`admin-animal-status ${status}`}>{label}</span>;
 }
 
-function formatIntakeDate(value) {
-    if (!value) return "—";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "—";
-
-    return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-    });
-}
 
 function QrIcon() {
     return (
@@ -1620,7 +1603,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                     </div>
 
                                     <div className="agc-footer">
-                                        <span>Intake {formatIntakeDate(animal.intakeDate)}</span>
+                                        <span>Intake {formatDate(animal.intakeDate)}</span>
                                         <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                                             {canManage && (
                                                 <button
@@ -1731,7 +1714,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                     <td>
                                                         <StatusPill key={status} status={status} />
                                                     </td>
-                                                    <td>{formatIntakeDate(animal.intakeDate)}</td>
+                                                    <td>{formatDate(animal.intakeDate)}</td>
                                                     <td>
                                                         {qrCodes[animal._id] ? (
                                                             <span
@@ -1925,7 +1908,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 <section className="apm-card">
                                     <h4>Intake</h4>
                                     <div className="apm-facts is-3">
-                                        <div><span>Intake date</span><b>{formatIntakeDate(viewedAnimal.intakeDate)}</b></div>
+                                        <div><span>Intake date</span><b>{formatDate(viewedAnimal.intakeDate)}</b></div>
                                         <div><span>Location</span><b>{viewedAnimal.location || "RescueBase Shelter"}</b></div>
                                         <div><span>Medical status</span><b>{viewedAnimal.medicalStatus || "—"}</b></div>
                                     </div>

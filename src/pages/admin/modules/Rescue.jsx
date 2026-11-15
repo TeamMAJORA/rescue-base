@@ -4,14 +4,9 @@ import {
     useState
 } from "react";
 import { CompleteWithProofModal, RescueProofModal } from "../../../components/rescue/RescueProof";
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDate, formatTime, toDayValue } from "../../../utils/formatDate";
 
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -36,12 +31,12 @@ const STATUS_LABELS = {
 };
 
 // "14:30" -> "2:30 PM"
-function formatTime(value) {
+function formatClockTime(value) {
     const [h, m] = String(value || "").split(":").map(Number);
     if (!Number.isFinite(h) || !Number.isFinite(m)) return "";
     const date = new Date();
     date.setHours(h, m, 0, 0);
-    return date.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+    return formatTime(date);
 }
 
 function currentUserId() {
@@ -273,10 +268,7 @@ export default function RescueAssignments() {
                     date.getTime()
                 )
             ) {
-                scheduledDate =
-                    date
-                        .toISOString()
-                        .split("T")[0];
+                scheduledDate = toDayValue(date);
             }
         }
 
@@ -548,33 +540,6 @@ export default function RescueAssignments() {
 
 
 
-    function formatDate(
-        dateValue
-    ) {
-        if (!dateValue) {
-            return "Not scheduled";
-        }
-
-        const date =
-            new Date(dateValue);
-
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-            return "Invalid date";
-        }
-
-        return date.toLocaleDateString(
-            undefined,
-            {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-            }
-        );
-    }
 
 
     useEffect(() => {
@@ -909,7 +874,7 @@ export default function RescueAssignments() {
                                         const status = assignment.status || "pending";
                                         const canEdit = !["completed", "cancelled"].includes(status);
                                         const canDelete = !["accepted", "active", "completed"].includes(status);
-                                        const time = formatTime(assignment.scheduledTime);
+                                        const time = formatClockTime(assignment.scheduledTime);
 
                                         return (
                                             <tr key={assignment._id} className={editingId === assignment._id ? "is-editing" : ""}>
@@ -933,7 +898,7 @@ export default function RescueAssignments() {
                                                 </td>
                                                 <td>{assignment.location || "—"}</td>
                                                 <td className="rs2-nowrap">
-                                                    {formatDate(assignment.scheduledDate)}
+                                                    {assignment.scheduledDate ? formatDate(assignment.scheduledDate) : "Not scheduled"}
                                                     {time && <small>{time}</small>}
                                                 </td>
                                                 <td>

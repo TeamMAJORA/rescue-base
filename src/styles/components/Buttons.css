@@ -1,0 +1,170 @@
+/* =====================================================================
+   One button look for the whole app (audit B1–B5).
+   Each module keeps its own class names; this file gives them the same
+   size, shape, colours and states. It is imported last (App.jsx) and
+   scoped to #root so it wins over the older module rules.
+   Primary  = solid orange · Secondary = white with orange border
+   Danger   = solid red (always confirmed) · Ghost = text only
+   The landing page CTAs, icon buttons, filters and toggles are not buttons
+   in this sense and keep their own styles.
+   ===================================================================== */
+
+#root :is(
+    /* primary */
+    .admin-add-animal-btn, .admin-edit-button, .admin-page-header-btn, .admin-vaccination-edit-button,
+    .adopter-apply-button, .adoption-dropzone-button, .adoption-submit-button, .afl-ask-btn.is-complete,
+    .afr-btn.is-assign, .afr-btn.is-approve, .ao-btn.primary, .as2-btn.is-primary, .dl-btn.primary,
+    .fah-btn.is-primary, .fb2-reply-btn, .ffc-btn-submit, .foster-submit-button, .gm-btn-orange,
+    .gm-btn-primary, .gs-btn.primary, .gs-btn.rp-download, .lf-card-btn, .lf2-btn.is-primary,
+    .lfm-btn.is-primary, .lfr-drop-btn, .lfr2-btn.is-primary, .matchmaking-next-button,
+    .matchmaking-submit-button, .pp-btn.primary, .qrt-btn.primary, .recommendation-apply-button,
+    .recommendations-refresh-button, .vr-btn.is-primary, .vr-btn.is-dark,
+    /* secondary */
+    .admin-secondary-button, .admin-vaccination-secondary-button, .adoption-cancel-button, .afl-ask-btn,
+    .afr-btn, .afr-btn.is-ghost, .ao-btn, .as2-btn, .dl-btn, .edit-btn, .fah-btn, .fah-btn.is-ghost,
+    .fah-btn.is-adopt, .fah-btn.is-return, .fb-modal-btn, .ffc-btn, .ffc-btn-clear, .ffc-btn-draft,
+    .ffc-btn-edit, .foster-refresh-button, .foster-secondary-button, .fs-btn, .gm-btn, .gm-btn-ghost,
+    .gs-btn, .if-refresh-button, .lf-select-btn, .lf2-btn, .lfm-btn, .lfr2-btn, .lfr2-photo-btn,
+    .matchmaking-back-button, .mq-intro-button.is-secondary, .pp-btn.secondary, .qrt-btn,
+    .recommendations-retake-button, .vr-btn,
+    /* danger */
+    .admin-delete-button, .admin-vaccination-delete-button, .afl-return-btn, .afr-btn.is-reject,
+    .ao-btn.danger, .application-withdraw-button, .as2-btn.is-danger, .deactivate-btn, .dl-btn.danger,
+    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger, .vr-btn.is-danger,
+    /* ghost */
+    .as2-btn.is-ghost, .qrt-btn.ghost
+) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1.5px solid var(--orange);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--brown);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-decoration: none;
+    box-shadow: none;
+    transform: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* Secondary hover */
+#root :is(
+    .admin-secondary-button, .admin-vaccination-secondary-button, .adoption-cancel-button, .afl-ask-btn,
+    .afr-btn, .ao-btn, .as2-btn, .dl-btn, .edit-btn, .fah-btn, .fb-modal-btn, .ffc-btn, .foster-refresh-button,
+    .foster-secondary-button, .fs-btn, .gm-btn, .gm-btn-ghost, .gs-btn, .if-refresh-button, .lf-select-btn,
+    .lf2-btn, .lfm-btn, .lfr2-btn, .lfr2-photo-btn, .matchmaking-back-button, .mq-intro-button.is-secondary,
+    .pp-btn, .qrt-btn, .recommendations-retake-button, .vr-btn
+):hover:not(:disabled) {
+    background: var(--peach-soft);
+    transform: none;
+}
+
+/* Primary */
+#root :is(
+    .admin-add-animal-btn, .admin-edit-button, .admin-page-header-btn, .admin-vaccination-edit-button,
+    .adopter-apply-button, .adoption-dropzone-button, .adoption-submit-button, .afl-ask-btn.is-complete,
+    .afr-btn.is-assign, .afr-btn.is-approve, .ao-btn.primary, .as2-btn.is-primary, .dl-btn.primary,
+    .fah-btn.is-primary, .fb2-reply-btn, .ffc-btn-submit, .foster-submit-button, .gm-btn-orange,
+    .gm-btn-primary, .gs-btn.primary, .gs-btn.rp-download, .lf-card-btn, .lf2-btn.is-primary,
+    .lfm-btn.is-primary, .lfr-drop-btn, .lfr2-btn.is-primary, .matchmaking-next-button,
+    .matchmaking-submit-button, .pp-btn.primary, .qrt-btn.primary, .recommendation-apply-button,
+    .recommendations-refresh-button, .vr-btn.is-primary, .vr-btn.is-dark
+) {
+    border-color: var(--orange);
+    background: var(--orange);
+    color: var(--white);
+}
+
+#root :is(
+    .admin-add-animal-btn, .admin-edit-button, .admin-page-header-btn, .admin-vaccination-edit-button,
+    .adopter-apply-button, .adoption-dropzone-button, .adoption-submit-button, .afl-ask-btn.is-complete,
+    .afr-btn.is-assign, .afr-btn.is-approve, .ao-btn.primary, .as2-btn.is-primary, .dl-btn.primary,
+    .fah-btn.is-primary, .fb2-reply-btn, .ffc-btn-submit, .foster-submit-button, .gm-btn-orange,
+    .gm-btn-primary, .gs-btn.primary, .gs-btn.rp-download, .lf-card-btn, .lf2-btn.is-primary,
+    .lfm-btn.is-primary, .lfr-drop-btn, .lfr2-btn.is-primary, .matchmaking-next-button,
+    .matchmaking-submit-button, .pp-btn.primary, .qrt-btn.primary, .recommendation-apply-button,
+    .recommendations-refresh-button, .vr-btn.is-primary, .vr-btn.is-dark
+):hover:not(:disabled) {
+    border-color: var(--orange-dark);
+    background: var(--orange-dark);
+    color: var(--white);
+}
+
+/* Danger (destructive) */
+#root :is(
+    .admin-delete-button, .admin-vaccination-delete-button, .afl-return-btn, .afr-btn.is-reject,
+    .ao-btn.danger, .application-withdraw-button, .as2-btn.is-danger, .deactivate-btn, .dl-btn.danger,
+    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger, .vr-btn.is-danger
+) {
+    border-color: var(--red);
+    background: var(--red);
+    color: var(--white);
+}
+
+#root :is(
+    .admin-delete-button, .admin-vaccination-delete-button, .afl-return-btn, .afr-btn.is-reject,
+    .ao-btn.danger, .application-withdraw-button, .as2-btn.is-danger, .deactivate-btn, .dl-btn.danger,
+    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger, .vr-btn.is-danger
+):hover:not(:disabled) {
+    border-color: var(--red-dark);
+    background: var(--red-dark);
+    color: var(--white);
+}
+
+/* Ghost (text only) */
+#root :is(.as2-btn.is-ghost, .qrt-btn.ghost) {
+    border-color: transparent;
+    background: transparent;
+    color: var(--brown);
+}
+
+/* Small: compact rows and cards on desktop (touch screens still get 44px from App.css) */
+#root :is(.ao-btn.sm, .dl-btn.small, .qrt-btn.small, .vr-btn, .lf-card-btn, .afl-ask-btn, .afl-return-btn, .lf-select-btn, .lfr2-photo-btn, .edit-btn, .deactivate-btn) {
+    min-height: 40px;
+    padding: 0 14px;
+    font-size: 13px;
+}
+
+/* Pressed */
+#root :is(
+    .admin-add-animal-btn, .admin-edit-button, .admin-page-header-btn, .admin-vaccination-edit-button,
+    .adopter-apply-button, .adoption-dropzone-button, .adoption-submit-button, .afl-ask-btn, .afr-btn,
+    .ao-btn, .as2-btn, .dl-btn, .edit-btn, .fah-btn, .fb2-reply-btn, .fb-modal-btn, .ffc-btn, .ffc-btn-submit,
+    .ffc-btn-clear, .ffc-btn-draft, .ffc-btn-edit, .foster-submit-button, .foster-refresh-button,
+    .foster-secondary-button, .fs-btn, .gm-btn, .gm-btn-orange, .gm-btn-primary, .gm-btn-ghost, .gs-btn,
+    .if-refresh-button, .lf-card-btn, .lf-select-btn, .lf2-btn, .lfm-btn, .lfr-drop-btn, .lfr2-btn,
+    .lfr2-photo-btn, .matchmaking-next-button, .matchmaking-submit-button, .matchmaking-back-button,
+    .mq-intro-button.is-secondary, .pp-btn, .qrt-btn, .recommendation-apply-button,
+    .recommendations-refresh-button, .recommendations-retake-button, .vr-btn, .admin-secondary-button,
+    .admin-vaccination-secondary-button, .adoption-cancel-button, .admin-delete-button,
+    .admin-vaccination-delete-button, .afl-return-btn, .application-withdraw-button, .deactivate-btn
+):active:not(:disabled) {
+    filter: brightness(0.92);
+}
+
+/* Disabled (a busy button shows "Saving…" instead) */
+#root :is(
+    .admin-add-animal-btn, .admin-edit-button, .admin-page-header-btn, .admin-vaccination-edit-button,
+    .adopter-apply-button, .adoption-dropzone-button, .adoption-submit-button, .afl-ask-btn, .afr-btn,
+    .ao-btn, .as2-btn, .dl-btn, .edit-btn, .fah-btn, .fb2-reply-btn, .fb-modal-btn, .ffc-btn, .ffc-btn-submit,
+    .ffc-btn-clear, .ffc-btn-draft, .ffc-btn-edit, .foster-submit-button, .foster-refresh-button,
+    .foster-secondary-button, .fs-btn, .gm-btn, .gm-btn-orange, .gm-btn-primary, .gm-btn-ghost, .gs-btn,
+    .if-refresh-button, .lf-card-btn, .lf-select-btn, .lf2-btn, .lfm-btn, .lfr-drop-btn, .lfr2-btn,
+    .lfr2-photo-btn, .matchmaking-next-button, .matchmaking-submit-button, .matchmaking-back-button,
+    .mq-intro-button.is-secondary, .pp-btn, .qrt-btn, .recommendation-apply-button,
+    .recommendations-refresh-button, .recommendations-retake-button, .vr-btn, .admin-secondary-button,
+    .admin-vaccination-secondary-button, .adoption-cancel-button, .admin-delete-button,
+    .admin-vaccination-delete-button, .afl-return-btn, .application-withdraw-button, .deactivate-btn
+):disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: none;
+}

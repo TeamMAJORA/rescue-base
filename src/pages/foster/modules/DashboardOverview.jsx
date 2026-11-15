@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getNextReportDue } from "../utils/reportDue";
+import { formatDate } from "../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -52,7 +53,7 @@ function FdoIcon({ name, size = 16 }) {
 }
 
 function shortDate(date) {
-    return new Date(date).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+    return formatDate(date, { withYear: false });
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;

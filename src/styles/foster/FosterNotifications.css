@@ -13,7 +13,7 @@
     width: 360px;
     max-height: 70vh;
     overflow-y: auto;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 18px;
     box-shadow: 0 16px 34px rgba(90, 27, 0, 0.14);
@@ -44,7 +44,7 @@
     margin: 0;
     font-size: 15px;
     font-weight: 700;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .notification-header button {
@@ -53,19 +53,19 @@
     border: none;
     border-radius: 8px;
     background: transparent;
-    color: #7b452d;
+    color: var(--brown-soft);
     cursor: pointer;
     transition: .2s;
 }
 
 .notification-header button:hover {
-    background: #f4ecd7;
+    background: var(--line-soft);
 }
 
 .notification-empty {
     padding: 32px 18px;
     text-align: center;
-    color: #7b452d;
+    color: var(--brown-soft);
     font-size: 13px;
 }
 
@@ -88,16 +88,16 @@
 }
 
 .notification-item:hover {
-    background: #fff3d4;
+    background: var(--peach-soft);
 }
 
 .notification-item.unread {
-    border-left: 4px solid #fb8500;
-    background: #fff8e7;
+    border-left: 4px solid var(--orange);
+    background: var(--paper);
 }
 
 .notification-item.unread:hover {
-    background: #fff2cb;
+    background: var(--white-yellow);
 }
 
 .notification-icon {
@@ -120,7 +120,7 @@
 
 .notification-content strong {
     display: block;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 13px;
     font-weight: 700;
     margin-bottom: 4px;
@@ -128,7 +128,7 @@
 
 .notification-content p {
     margin: 0;
-    color: #7b452d;
+    color: var(--brown-soft);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -136,7 +136,7 @@
 .notification-content small {
     display: block;
     margin-top: 6px;
-    color: #9b7b69;
+    color: var(--brown-muted);
     font-size: 11px;
 }
 
@@ -146,16 +146,16 @@
     height: 44px;
     border: 1px solid rgba(90, 27, 0, 0.15);
     border-radius: 12px;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     cursor: pointer;
     transition: .2s ease;
     box-shadow: none;
 }
 
 .foster-notification-button:hover {
-    background: #ffffff;
-    border-color: #fb8500;
+    background: var(--white);
+    border-color: var(--orange);
 }
 
 .notification-badge {
@@ -166,9 +166,9 @@
     height: 20px;
     padding: 0 5px;
     border-radius: 999px;
-    border: 2px solid #fffaf0;
-    background: #d62828;
-    color: #ffffff;
+    border: 2px solid var(--paper);
+    background: var(--red);
+    color: var(--white);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -204,8 +204,8 @@
     padding: 4px 10px;
     border: 1px solid rgba(90, 27, 0, 0.2);
     border-radius: 8px;
-    background: #fffdf5;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font: inherit;
     font-size: 11px;
     font-weight: 700;
@@ -213,5 +213,5 @@
 }
 
 .foster-notification-readall:hover {
-    background: #fff7cb;
+    background: var(--white-yellow);
 }

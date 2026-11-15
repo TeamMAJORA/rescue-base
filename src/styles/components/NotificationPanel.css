@@ -9,7 +9,7 @@
     overflow: hidden;
     border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 16px;
-    background: #fffdf5;
+    background: var(--paper);
     box-shadow: 0 16px 36px rgba(90, 27, 0, 0.16);
     text-align: left;
 }
@@ -29,7 +29,7 @@
 }
 
 .np-head span {
-    color: #7b452d;
+    color: var(--brown-soft);
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -40,7 +40,7 @@
     padding: 0;
     border: 0;
     background: none;
-    color: #b45f06;
+    color: var(--orange-dark);
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -68,8 +68,8 @@
     padding: 12px 28px 12px 12px;
     border: 0;
     border-radius: 12px;
-    background: #fffdf5;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font: inherit;
     text-align: left;
     cursor: pointer;
@@ -77,21 +77,21 @@
 }
 
 .np-item:hover {
-    background: #fff7e6;
+    background: var(--paper);
 }
 
 /* New / unread: highlighted */
 .np-item.is-unread {
-    background: #fdecd0;
+    background: var(--peach-soft);
 }
 
 .np-item.is-unread:hover {
-    background: #fbe2bb;
+    background: var(--peach);
 }
 
 .np-item:focus-visible,
 .np-readall:focus-visible {
-    outline: 3px solid #fb8500;
+    outline: 3px solid var(--orange);
     outline-offset: 2px;
 }
 
@@ -101,20 +101,20 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: #fde3bf;
+    background: var(--peach);
 }
 
 .np-icon::before {
     content: "";
     position: absolute;
     inset: 9px;
-    background-color: #7b452d;
+    background-color: var(--brown-soft);
     -webkit-mask: var(--icon) center / contain no-repeat;
     mask: var(--icon) center / contain no-repeat;
 }
 
 .np-item.is-unread .np-icon {
-    background: #fffdf5;
+    background: var(--paper);
 }
 
 .np-body {
@@ -124,18 +124,18 @@
 }
 
 .np-text {
-    color: #6b4a38;
+    color: var(--brown-soft);
     font-size: 13px;
     line-height: 1.4;
 }
 
 .np-text b {
-    color: #5a1b00;
+    color: var(--brown);
     font-weight: 800;
 }
 
 .np-body small {
-    color: #a08a74;
+    color: var(--brown-muted);
     font-size: 11px;
 }
 
@@ -146,14 +146,14 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #fb8500;
+    background: var(--orange);
     transform: translateY(-50%);
 }
 
 .np-empty {
     margin: 0;
     padding: 24px 12px;
-    color: #a08a74;
+    color: var(--brown-muted);
     font-size: 13px;
     text-align: center;
 }

@@ -1,26 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
+import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
+import { formatDate, formatMonth } from "../../../../utils/formatDate";
 
-
-// Styled confirm popup + toast from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
-
-function notify(text, tone = "success") {
-    if (window.rbToast) {
-        window.rbToast(text, tone);
-    } else {
-        window.alert(text);
-    }
-}
-
-function notifyErr(text) {
-    notify(text, "error");
-}
 
 const API_ANIMALS = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
 
@@ -120,11 +103,7 @@ function formatRecordDate(value) {
     const date = parseLocal(value);
     if (Number.isNaN(date.getTime())) return value;
 
-    return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
+    return formatDate(date);
 }
 
 function daysAgo(value) {
@@ -166,7 +145,7 @@ function groupLabel(value) {
     if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
         return "Earlier this month";
     }
-    return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    return formatMonth(d);
 }
 
 // ---------- Shared UI pieces (stats strip, tabs, search bar) ----------
@@ -389,7 +368,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
             const data = await apiRequest(API_MEDICAL);
             setRecords((data.records || []).map(fromApi));
         } catch (error) {
-            notifyErr(error.message || "Couldn't load medical records.");
+            notifyError(error.message || "Couldn't load medical records.");
         }
     }
 
@@ -422,7 +401,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
         const animalId = findAnimalId(recordForm.animalName);
 
         if (!animalId) {
-            notifyErr("Pick an animal from Animal Profiles.");
+            notifyError("Pick an animal from Animal Profiles.");
             return;
         }
 
@@ -444,7 +423,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
             resetForm();
             await loadRecords();
         } catch (error) {
-            notifyErr(error.message || "Couldn't save the medical record.");
+            notifyError(error.message || "Couldn't save the medical record.");
         }
     }
 
@@ -464,7 +443,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
 
     async function handleDeleteRecord(id) {
         if (!isAdmin()) {
-            notifyErr("Only administrators can delete medical records.");
+            notifyError("Only administrators can delete medical records.");
             return;
         }
 
@@ -477,7 +456,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
 
             if (editingId === id) resetForm();
         } catch (error) {
-            notifyErr(error.message || "Couldn't delete the medical record.");
+            notifyError(error.message || "Couldn't delete the medical record.");
         }
     }
 

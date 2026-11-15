@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import InfoTip from "../../../components/system/InfoTip";
 import FosterApplication from "../../foster/modules/FosterApplication";
 import "../../../styles/foster/FosterApplication.css";
+import { formatDate } from "../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -172,10 +173,6 @@ export default function RoleApplication() {
     const ROLE_LABELS = { volunteer: "Volunteer", foster: "Foster Caregiver" };
     const STATUS_LABELS = { none: "None", pending: "Pending", approved: "Approved", rejected: "Declined", withdrawn: "Revoked" };
 
-    function formatDate(value) {
-        if (!value) return "";
-        return new Date(value).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
-    }
 
     const raSteps = [
         {

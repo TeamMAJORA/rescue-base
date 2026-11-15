@@ -1,18 +1,45 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Itim&family=Karma:wght@400;500;700&display=swap");
 
 :root {
-    --cream: #eae2b7;
-    --cream-card: #f9f5eb;
-    --yellow: #fcbf49;
-    /* Landing page bands (header, hero top, stats, closing banner): same orange as the dashboards */
-    --landing-orange: #FCA227;
+    /* The only colour palette. Module CSS uses var(--name), never hex codes. */
+    /* Brand */
     --orange: #fb8500;
+    --orange-dark: #d96f00;      /* hover / pressed */
+    --orange-light: #ffa53a;     /* gradient end */
+    --peach: #fde3bf;
+    --peach-soft: #fff3d6;
+    --yellow: #fcbf49;
+    --gold: #f3d98a;
+    /* Landing page bands (header, hero top, stats, closing banner) */
+    --landing-orange: #FCA227;
+
+    /* Text (darkest to lightest) */
+    --brown-strong: #3a1200;
     --brown: #5a1b00;
-    --brown-soft: #7a3e19;
-    --red: #d62828;
-    --red-dark: #aa2020;
-    --dark: #2f2f30;
+    --brown-soft: #7b452d;
+    --brown-muted: #8a6a4a;
+
+    /* Surfaces and lines */
+    --cream: #eae2b7;            /* page background */
+    --cream-card: #f9f5eb;
+    --white: #ffffff;
+    --paper: #fffaf0;
     --white-yellow: #fff7cb;
+    --line: #e3d5b5;
+    --line-soft: #efe4cb;
+
+    /* Status: strong colour for text/icons, soft for backgrounds */
+    --green: #2f8f5b;
+    --green-dark: #1f7a45;
+    --green-soft: #dff5e8;
+    --red: #d62828;
+    --red-dark: #b42318;
+    --red-soft: #fdeaea;
+    --amber: #8a5a00;
+    --amber-soft: #fff4c4;
+    --blue: #1c5cab;
+    --blue-soft: #e3effd;
+    --dark: #2f2f30;
 }
 
 * {
@@ -255,20 +282,20 @@ img {
     right: -2%;
     bottom: -8px;
     height: 6px;
-    background: #0d0d0d;
+    background: var(--dark);
     border-radius: 2px 4px 3px 1px;
     transform: rotate(0.8deg);
     mask-image: repeating-linear-gradient(90deg,
-            #000 0px,
-            #000 4px,
+            var(--dark) 0px,
+            var(--dark) 4px,
             rgba(0, 0, 0, 0.85) 5px,
-            #000 7px,
+            var(--dark) 7px,
             rgba(0, 0, 0, 0.9) 9px);
     -webkit-mask-image: repeating-linear-gradient(90deg,
-            #000 0px,
-            #000 4px,
+            var(--dark) 0px,
+            var(--dark) 4px,
             rgba(0, 0, 0, 0.85) 5px,
-            #000 7px,
+            var(--dark) 7px,
             rgba(0, 0, 0, 0.9) 9px);
 }
 
@@ -946,8 +973,8 @@ body {
     align-items: stretch;
     height: 36px;
     overflow: hidden;
-    background: #5a1b00;
-    color: #ffffff;
+    background: var(--brown);
+    color: var(--white);
     font-size: 13px;
 }
 
@@ -957,7 +984,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 0 14px;
-    background: #fb8500;
+    background: var(--orange);
     font-size: 11.5px;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -968,7 +995,7 @@ body {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--white);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
@@ -996,7 +1023,7 @@ body {
 
 .rb-ticker-move b {
     margin: 0 18px;
-    color: #ffb703;
+    color: var(--yellow);
 }
 
 @keyframes rb-ticker-scroll {
@@ -1014,13 +1041,13 @@ body {
     width: 36px;
     border: none;
     background: transparent;
-    color: #f5d9c4;
+    color: var(--line-soft);
     font-size: 18px;
     cursor: pointer;
 }
 
 .rb-ticker-close:hover {
-    color: #ffffff;
+    color: var(--white);
 }
 
 /* Facebook link in the landing footer */
@@ -1047,8 +1074,8 @@ body {
 .adopter-menu,
 .foster-menu {
     padding-bottom: 18px;
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, var(--dark) calc(100% - 22px), transparent);
+    mask-image: linear-gradient(to bottom, var(--dark) calc(100% - 22px), transparent);
 }
 
 @media (max-width: 900px) {
@@ -1059,10 +1086,10 @@ body {
         width: 44px;
         height: 44px;
         padding: 0;
-        border: 1px solid #e3d5b5;
+        border: 1px solid var(--line);
         border-radius: var(--radius-inner);
-        background: #fffdf4;
-        color: #5a1b00;
+        background: var(--paper);
+        color: var(--brown);
         cursor: pointer;
     }
 
@@ -1169,7 +1196,7 @@ body {
 
 /* Keyboard focus ring (only shows when moving with Tab, not on mouse clicks) */
 :where(button, a[href], [role="button"], [role="tab"], [tabindex]):focus-visible {
-    outline: 3px solid #fb8500 !important;
+    outline: 3px solid var(--orange) !important;
     outline-offset: 2px;
 }
 
@@ -1191,7 +1218,7 @@ img.inline-icon {
 /* Grouped sidebar (admin + staff) */
 .menu-section-label {
     margin: 14px 14px 4px;
-    color: #7a4a33;
+    color: var(--brown-soft);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.08em;

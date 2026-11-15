@@ -2,26 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
+import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
+import { formatDate, toDayValue } from "../../../../utils/formatDate";
 
-
-// Styled confirm popup + toast from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
-
-function notify(text, tone = "success") {
-    if (window.rbToast) {
-        window.rbToast(text, tone);
-    } else {
-        window.alert(text);
-    }
-}
-
-function notifyErr(text) {
-    notify(text, "error");
-}
 
 const API_VACCINATIONS = `${import.meta.env.VITE_BACKEND_URL}/api/vaccinations`;
 
@@ -108,11 +91,6 @@ const DEFAULT_FILTERS = {
 
 // ---------- Date helpers ----------
 
-function todayISO() {
-    const now = new Date();
-    const offset = now.getTimezoneOffset() * 60000;
-    return new Date(now - offset).toISOString().slice(0, 10);
-}
 
 function parseLocal(value) {
     return value ? new Date(`${value}T00:00:00`) : null;
@@ -125,17 +103,13 @@ function formatVaccineDate(value) {
     const date = parseLocal(value);
     if (Number.isNaN(date.getTime())) return value;
 
-    return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
+    return formatDate(date);
 }
 
 function daysUntil(value) {
     const date = parseLocal(value);
     if (!date) return null;
-    return Math.round((date - parseLocal(todayISO())) / 86400000);
+    return Math.round((date - parseLocal(toDayValue())) / 86400000);
 }
 
 // overdue | soon | ok | none — what the list should warn about
@@ -404,7 +378,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
             const data = await apiRequest(API_VACCINATIONS);
             setVaccinations((data.vaccinations || []).map(fromApi));
         } catch (error) {
-            notifyErr(error.message || "Couldn't load vaccination records.");
+            notifyError(error.message || "Couldn't load vaccination records.");
         }
     }
 
@@ -438,7 +412,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
         const animalId = findAnimalId(vaccinationForm.animalName);
 
         if (!animalId) {
-            notifyErr("Pick an animal from Animal Profiles.");
+            notifyError("Pick an animal from Animal Profiles.");
             return;
         }
 
@@ -460,7 +434,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
             resetForm();
             await loadVaccinations();
         } catch (error) {
-            notifyErr(error.message || "Couldn't save the vaccination record.");
+            notifyError(error.message || "Couldn't save the vaccination record.");
         }
     }
 
@@ -482,15 +456,14 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
         // Records that the dose was given today and keeps the same booster interval.
     async function handleMarkGiven(vaccination) {
-        const today = todayISO();
+        const today = toDayValue();
         let nextDueDate = "";
 
         if (vaccination.vaccinationDate && vaccination.nextDueDate) {
             const gap = parseLocal(vaccination.nextDueDate) - parseLocal(vaccination.vaccinationDate);
             if (gap > 0) {
                 const next = new Date(parseLocal(today).getTime() + gap);
-                const offset = next.getTimezoneOffset() * 60000;
-                nextDueDate = new Date(next - offset).toISOString().slice(0, 10);
+                nextDueDate = toDayValue(next);
             }
         }
 
@@ -506,13 +479,13 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
             notify(`${vaccination.animalName} marked as vaccinated`);
             await loadVaccinations();
         } catch (error) {
-            notifyErr(error.message || "Couldn't update the vaccination record.");
+            notifyError(error.message || "Couldn't update the vaccination record.");
         }
     }
 
     async function handleDeleteVaccination(id) {
         if (!isAdmin()) {
-            notifyErr("Only administrators can delete vaccination records.");
+            notifyError("Only administrators can delete vaccination records.");
             return;
         }
 
@@ -525,7 +498,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
             if (editingId === id) resetForm();
         } catch (error) {
-            notifyErr(error.message || "Couldn't delete the vaccination record.");
+            notifyError(error.message || "Couldn't delete the vaccination record.");
         }
     }
 
@@ -550,7 +523,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     }, [scoped]);
 
     const stats = useMemo(() => {
-        const now = parseLocal(todayISO());
+        const now = parseLocal(toDayValue());
         const vaccineCounts = {};
         let top = null;
 

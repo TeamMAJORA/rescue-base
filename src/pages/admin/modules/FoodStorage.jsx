@@ -1,15 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/FoodStorage.css";
 import NeededSupplies from "./NeededSupplies";
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDate, formatTime } from "../../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 const URL = `${API}/api/food-inventory`;
 
 const EMPTY_FORM = {
@@ -1243,7 +1239,7 @@ function SuppliesHistory() {
     let lastDay = "";
     shown.forEach((entry) => {
         const date = new Date(entry.date);
-        const day = date.toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+        const day = formatDate(date, { withWeekday: true });
         if (day !== lastDay) {
             rows.push({ key: `day-${day}`, heading: day });
             lastDay = day;
@@ -1311,7 +1307,7 @@ function SuppliesHistory() {
                                 ) : (
                                     <tr key={row.key}>
                                         <td className="al2-time">
-                                            {row.date.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" })}
+                                            {formatTime(row.date)}
                                         </td>
                                         <td><b>{row.entry.item}</b></td>
                                         <td>

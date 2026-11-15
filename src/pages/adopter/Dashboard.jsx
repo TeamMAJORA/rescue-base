@@ -39,6 +39,7 @@ import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
 import PetTypeIcon from "../../components/system/PetTypeIcon";
+import { formatDate, formatDateTime } from "../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -304,12 +305,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
                 icon: "/icons/Clock.svg",
                 title: `Interview for ${petName}`,
                 linkText: applicationStatus.interviewSchedule
-                    ? new Date(applicationStatus.interviewSchedule).toLocaleString("en-PH", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                    })
+                    ? formatDateTime(applicationStatus.interviewSchedule)
                     : "See your schedule",
                 page: "application-status",
             };
@@ -900,14 +896,7 @@ async function fetchPets({ silent = false } = {}) {
             return "Date not available";
         }
 
-        return parsedDate.toLocaleDateString(
-            "en-PH",
-            {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            }
-        );
+        return formatDate(parsedDate);
     }
 
     function renderApplicationBanner() {

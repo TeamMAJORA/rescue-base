@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import InfoTip from "../../../../components/system/InfoTip";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
+import { toDayValue } from "../../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -80,15 +81,12 @@ function getBehaviorTags(animal) {
     return animal?.personality?.tags || [];
 }
 
-function today() {
-    return new Date().toISOString().split("T")[0];
-}
 
 function buildFormFromAnimal(animal) {
     return {
         ...emptyForm,
         animalId: animal._id,
-        assessmentDate: today(),
+        assessmentDate: toDayValue(),
         energyLevel: animal.energyLevel ?? null,
         friendliness: animal.friendliness ?? null,
         humanSociability: animal.humanSociability ?? null,

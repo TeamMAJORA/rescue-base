@@ -5,6 +5,8 @@ import "leaflet/dist/leaflet.css";
 import { isAdmin } from "../../../../utils/auth";
 import { searchCebuPlaces } from "../../../../utils/cebuPlaces";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
+import { askConfirm, askPrompt } from "../../../../utils/dialogs";
+import { formatDate, toDayValue } from "../../../../utils/formatDate";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -65,10 +67,6 @@ function isPhoneDevice() {
     return Boolean(small || mobileAgent);
 }
 
-function todayISO() {
-    const now = new Date();
-    return new Date(now - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-}
 
 function currentUserName() {
     try {
@@ -79,13 +77,6 @@ function currentUserName() {
     }
 }
 
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 // ---------- Shared UI pieces (stats strip, tabs, search bar, chips) ----------
 
@@ -351,7 +342,7 @@ const initialForm = {
 
 // New form: today's date and the signed-in person filled in
 function freshForm() {
-    return { ...initialForm, intakeDate: todayISO(), rescuedBy: currentUserName() };
+    return { ...initialForm, intakeDate: toDayValue(), rescuedBy: currentUserName() };
 }
 
 const SPECIES_OPTIONS = [
@@ -433,17 +424,6 @@ async function parseResponse(response) {
     return data;
 }
 
-function formatDate(date) {
-    if (!date) {
-        return "Unknown date";
-    }
-
-    return new Date(date).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
-}
 
 // The database stores "pending_review"; older records may have no status.
 function getStatus(record) {
@@ -798,7 +778,7 @@ export default function IntakeRecords() {
             return;
         }
 
-        const reason = await window.rbPrompt({
+        const reason = await askPrompt({
             title: "Reject this intake?",
             message: "The person who submitted it will see your reason.",
             label: "Reason",

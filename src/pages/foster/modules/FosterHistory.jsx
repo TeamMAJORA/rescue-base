@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatDate } from "../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -74,13 +75,13 @@ function daysOfCare(item) {
 
 function shortDate(value) {
     return value
-        ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        ? formatDate(value)
         : "—";
 }
 
 function longDate(value) {
     return value
-        ? new Date(value).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+        ? formatDate(value)
         : "—";
 }
 

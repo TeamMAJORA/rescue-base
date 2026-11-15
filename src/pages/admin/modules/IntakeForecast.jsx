@@ -1,6 +1,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/IntakeForecast.css";
+import { formatDateTime, formatMonth } from "../../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -16,10 +17,9 @@ function formatNumber(value, digits = 0) {
 // From training_metadata.json (test set): mean absolute error in animals per month
 const MODEL_TEST_MAE = 2.56;
 
-function monthLabel(key, opts = { month: "short", year: "2-digit" }) {
-    if (!key) return "—";
-    const date = new Date(`${key}-01T00:00:00`);
-    return Number.isNaN(date.getTime()) ? key : date.toLocaleDateString("en-US", opts);
+// "2026-11" -> chart / table month labels
+function monthLabel(key, options = { short: true }) {
+    return key ? formatMonth(`${key}-01T00:00:00`, options) : "—";
 }
 
 // Top of the y-axis: 4 whole-number steps (3 -> 4, 7 -> 8, 13 -> 16)
@@ -36,7 +36,7 @@ function ForecastChart({ history, target }) {
         ...history.map((month) => ({
             key: month.month,
             label: monthLabel(month.month),
-            full: monthLabel(month.month, { month: "long", year: "numeric" }),
+            full: monthLabel(month.month, { short: false }),
             intake: Number(month.intake) || 0,
             adoptions: Number(month.adoptions) || 0,
         })),
@@ -197,7 +197,7 @@ export default function IntakeForecast() {
         return {
             total,
             average: history.length ? total / history.length : 0,
-            busiest: busiest ? monthLabel(busiest.month, { month: "short" }) : "—",
+            busiest: busiest ? monthLabel(busiest.month, { short: true, withYear: false }) : "—",
             busiestCount: max,
         };
     }, [history]);
@@ -212,12 +212,7 @@ export default function IntakeForecast() {
                         {forecast.generatedAt && (
                             <span>
                                 · updated{" "}
-                                {new Date(forecast.generatedAt).toLocaleString("en-PH", {
-                                    month: "short",
-                                    day: "numeric",
-                                    hour: "numeric",
-                                    minute: "2-digit",
-                                })}
+                                {formatDateTime(forecast.generatedAt)}
                             </span>
                         )}
                     </div>
@@ -332,7 +327,7 @@ export default function IntakeForecast() {
                                         <tbody>
                                             {history.map((month) => (
                                                 <tr key={month.month}>
-                                                    <td>{monthLabel(month.month, { month: "long", year: "numeric" })}</td>
+                                                    <td>{monthLabel(month.month, { short: false })}</td>
                                                     <td>{formatNumber(month.intake)}</td>
                                                     <td>{formatNumber(month.adoptions)}</td>
                                                     <td>{formatNumber(month.releases)}</td>

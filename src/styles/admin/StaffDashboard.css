@@ -2,8 +2,8 @@
     min-height: 100vh;
     display: grid;
     grid-template-columns: 245px 1fr;
-    background: #ebe3af;
-    color: #2f2f30;
+    background: var(--cream);
+    color: var(--dark);
 }
 
 /* MAIN AREA */
@@ -29,7 +29,7 @@
 /* REUSABLE staff COMPONENTS */
 
 .staff-panel {
-    background: #fffdf4;
+    background: var(--paper);
     border-radius: 14px;
     padding: 20px;
     border: 1px solid rgba(90, 27, 0, 0.12);
@@ -69,7 +69,7 @@
     min-height: 250px;
     display: grid;
     place-items: center;
-    color: #999;
+    color: var(--brown-muted);
     font-size: 12px;
 }
 
@@ -104,7 +104,7 @@
     width: 42px;
     height: 42px;
     border-radius: 9px;
-    background: #f6a623;
+    background: var(--orange-light);
     display: grid;
     place-items: center;
 }
@@ -131,7 +131,7 @@
 .staff-status-pill.available,
 .staff-status-pill.approved {
     background: rgba(32, 178, 99, 0.18);
-    color: #16834a;
+    color: var(--green-dark);
 }
 
 .staff-status-pill.pending {
@@ -155,8 +155,8 @@
     height: 44px;
     border: none;
     border-radius: 14px;
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
     font-size: 20px;
     cursor: pointer;
     box-shadow: 0 8px 20px rgba(90, 27, 0, 0.12);
@@ -170,8 +170,8 @@
     height: 20px;
     padding: 0 6px;
     border-radius: 999px;
-    background: #d62828;
-    color: white;
+    background: var(--red);
+    color: var(--white);
     font-size: 11px;
     font-weight: 800;
     display: flex;
@@ -187,7 +187,7 @@
     width: 320px;
     padding: 14px;
     border-radius: 18px;
-    background: white;
+    background: var(--white);
     box-shadow: 0 18px 40px rgba(90, 27, 0, 0.18);
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
@@ -197,7 +197,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .staff-notification-header small {
@@ -209,8 +209,8 @@
     margin: 0;
     padding: 14px;
     border-radius: 14px;
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
     font-size: 13px;
 }
 
@@ -220,8 +220,8 @@
     text-align: left;
     padding: 12px;
     border-radius: 14px;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     cursor: pointer;
     margin-bottom: 8px;
 }
@@ -243,7 +243,7 @@
 }
 
 .staff-notification-item:hover {
-    background: #fff1b8;
+    background: var(--amber-soft);
 }
 
 /* RESPONSIVE */
@@ -269,7 +269,7 @@
     place-items: center;
     padding: 0;
     border: 1px solid rgba(90, 27, 0, 0.15);
-    background: #fffaf0;
+    background: var(--paper);
     cursor: pointer;
     transition:
         background 0.2s ease,
@@ -277,8 +277,8 @@
 }
 
 .staff-notification-btn:hover {
-    border-color: #fb8500;
-    background: #ffffff;
+    border-color: var(--orange);
+    background: var(--white);
 }
 
 .staff-notification-btn .rb-notif-icon {
@@ -292,8 +292,8 @@
 }
 
 .staff-notification-btn.open {
-    background: linear-gradient(135deg, #fb8500, #fca62c);
-    border-color: #fb8500;
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    border-color: var(--orange);
 }
 
 .staff-notification-btn.open .rb-notif-icon.icon-default {
@@ -306,7 +306,7 @@
 
 /* Hovering while open flips back to the light look with the brown bell */
 .staff-notification-btn.open:hover {
-    background: #fff7cb;
+    background: var(--white-yellow);
 }
 
 .staff-notification-btn.open:hover .rb-notif-icon.icon-default {
@@ -331,7 +331,7 @@
     overflow: hidden;
     background:
         radial-gradient(circle at top left, rgba(255, 250, 240, 0.7), transparent 45%),
-        #fde3bf;
+        var(--peach);
     border-right: 1px solid rgba(90, 27, 0, 0.14);
     box-shadow: 8px 0 25px rgba(90, 27, 0, 0.08);
     z-index: 20;
@@ -354,14 +354,14 @@
 .staff-logo img { width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
 .staff-logo span {
     display: grid;
-    color: #5a1b00;
+    color: var(--brown);
     font-family: "Itim", cursive;
     font-size: 28px;
     line-height: 1;
 }
 .staff-logo small {
     margin-top: 4px;
-    color: #7b452d;
+    color: var(--brown-soft);
     font-family: "Inter", sans-serif;
     font-size: 10px;
     font-weight: 800;
@@ -396,7 +396,7 @@
     border: 1px solid transparent;
     border-radius: 14px;
     background: transparent;
-    color: #5a1b00;
+    color: var(--brown);
     font-family: inherit;
     text-align: left;
     cursor: pointer;
@@ -405,16 +405,16 @@
 .staff-menu-group > button:hover {
     background: rgba(255, 250, 240, 0.55);
     border-color: rgba(90, 27, 0, 0.15);
-    color: #5a1b00;
+    color: var(--brown);
     transform: translateX(3px);
 }
 .staff-menu-group > button.active {
-    background: #5a1b00;
-    border-color: #5a1b00;
-    color: #fff7cb;
+    background: var(--brown);
+    border-color: var(--brown);
+    color: var(--white-yellow);
     box-shadow: 0 8px 18px rgba(90, 27, 0, 0.25);
 }
-.staff-menu-group > button.active:hover { background: #6b2400; color: #fff7cb; }
+.staff-menu-group > button.active:hover { background: var(--brown); color: var(--white-yellow); }
 
 .staff-menu-text { display: flex; align-items: center; gap: 10px; }
 .staff-menu-text strong { font-size: 14px; font-weight: 700; }
@@ -446,7 +446,7 @@
     border: 0;
     border-radius: 10px;
     background: transparent;
-    color: #5a1b00;
+    color: var(--brown);
     font-family: inherit;
     font-size: 13px;
     font-weight: 600;
@@ -454,13 +454,13 @@
     cursor: pointer;
     transition: background 0.2s ease;
 }
-.staff-submenu button:hover { background: rgba(255, 250, 240, 0.55); color: #5a1b00; }
+.staff-submenu button:hover { background: rgba(255, 250, 240, 0.55); color: var(--brown); }
 .staff-submenu button.active,
 .staff-submenu button.active:hover {
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font-weight: 800;
-    box-shadow: inset 3px 0 0 #fb8500;
+    box-shadow: inset 3px 0 0 var(--orange);
 }
 
 /* User card */
@@ -476,8 +476,8 @@
     padding: 12px;
     border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 16px;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font-family: inherit;
     text-align: left;
     cursor: pointer;
@@ -494,13 +494,13 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--white);
 }
 .staff-user-avatar img { width: 22px; height: 22px; }
 .staff-user-info { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .staff-user-info strong { overflow: hidden; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
-.staff-user-info small { color: #7b452d; font-size: 11px; }
-.staff-user-arrow { color: #d96f00; font-weight: 800; }
+.staff-user-info small { color: var(--brown-soft); font-size: 11px; }
+.staff-user-arrow { color: var(--orange-dark); font-weight: 800; }
 
 @media (max-width: 900px) {
     .staff-page { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
@@ -520,7 +520,7 @@
 .staff-submenu button:focus-visible,
 .staff-user-card:focus-visible,
 .staff-logo:focus-visible {
-    outline: 2px solid #5a1b00;
+    outline: 2px solid var(--brown);
     outline-offset: 2px;
 }
 
@@ -528,40 +528,40 @@
 .staff-sidebar.is-volunteer {
     background:
         radial-gradient(circle at top left, rgba(47, 143, 91, 0.12), transparent 45%),
-        #fffaf0;
+        var(--paper);
 }
 
-.staff-sidebar.is-volunteer .staff-logo small { color: #256f47; }
+.staff-sidebar.is-volunteer .staff-logo small { color: var(--green-dark); }
 
 .staff-sidebar.is-volunteer .staff-menu-group > button:hover,
 .staff-sidebar.is-volunteer .staff-submenu button:hover {
-    background: #eef8f1;
+    background: var(--cream-card);
     border-color: rgba(37, 111, 71, 0.2);
 }
 
 .staff-sidebar.is-volunteer .staff-menu-group > button.active {
-    background: #256f47;
-    border-color: #256f47;
-    color: #fff7cb;
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: var(--white-yellow);
     box-shadow: 0 8px 18px rgba(37, 111, 71, 0.25);
 }
 
-.staff-sidebar.is-volunteer .staff-menu-group > button.active:hover { background: #1f5f3c; }
+.staff-sidebar.is-volunteer .staff-menu-group > button.active:hover { background: var(--green-dark); }
 
 .staff-sidebar.is-volunteer .staff-submenu { border-left-color: rgba(37, 111, 71, 0.25); }
 
 .staff-sidebar.is-volunteer .staff-submenu button.active,
 .staff-sidebar.is-volunteer .staff-submenu button.active:hover {
-    background: #eef8f1;
-    box-shadow: inset 3px 0 0 #256f47;
+    background: var(--cream-card);
+    box-shadow: inset 3px 0 0 var(--green-dark);
 }
 
 .staff-sidebar.is-volunteer .staff-user-card {
-    background: #eef8f1;
+    background: var(--cream-card);
     border-color: rgba(37, 111, 71, 0.2);
 }
 
-.staff-sidebar.is-volunteer .staff-user-arrow { color: #256f47; }
+.staff-sidebar.is-volunteer .staff-user-arrow { color: var(--green-dark); }
 /* Tighter gap between the page title and the page content (matches admin) */
 .staff-topbar {
     margin-bottom: 18px;
@@ -576,11 +576,11 @@
 .staff-sidebar:not(.is-volunteer) {
     background:
         radial-gradient(circle at top left, rgba(255, 247, 203, 0.55), transparent 45%),
-        linear-gradient(180deg, #fcbf49 0%, #fbb13c 100%);
+        linear-gradient(180deg, var(--yellow) 0%, var(--yellow) 100%);
 }
 
 .staff-sidebar:not(.is-volunteer) .staff-user-card {
-    background: #fff7cb;
+    background: var(--white-yellow);
 }
 
 /* Sidebar card: profile photo fills the circle */
@@ -588,7 +588,7 @@
 .staff-user-avatar img.is-photo { width: 100%; height: 100%; object-fit: cover; }
 
 /* Red "new updates" dot on sidebar tabs */
-.sb-dot { flex: none; width: 5px; height: 5px; margin-left: auto; border-radius: 50%; background: #d70000; box-shadow: 0 0 0 2px #d70000, 0 0 0 3px rgba(90, 27, 0, 0.25);}
+.sb-dot { flex: none; width: 5px; height: 5px; margin-left: auto; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 2px var(--red), 0 0 0 3px rgba(90, 27, 0, 0.25);}
 .admin-menu-text, .staff-menu-text { flex: 1; min-width: 0; }
 .admin-submenu button, .staff-submenu button { display: flex; align-items: center; gap: 8px; }
 
@@ -596,8 +596,8 @@
     padding: 4px 10px;
     border: 1px solid rgba(90, 27, 0, 0.2);
     border-radius: 8px;
-    background: #fffdf5;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font: inherit;
     font-size: 11px;
     font-weight: 700;
@@ -605,5 +605,5 @@
 }
 
 .staff-notification-readall:hover {
-    background: #fff7cb;
+    background: var(--white-yellow);
 }

@@ -5,19 +5,14 @@ import "leaflet/dist/leaflet.css";
 import { searchCebuPlaces } from "../../../utils/cebuPlaces";
 import { DateField, startOfToday, toDayValue } from "../../../components/system/MonthCalendar";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDate, formatDateTime } from "../../../utils/formatDate";
 
 
 // Lost/found dates: up to 5 years back, never in the future
 function earliestReportDay() {
     const today = startOfToday();
     return new Date(today.getFullYear() - 5, 0, 1);
-}
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
 }
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -846,7 +841,7 @@ function timeAgo(value) {
     if (days <= 0) return "Today";
     if (days === 1) return "1 day ago";
     if (days < 7) return `${days} days ago`;
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return formatDate(date, { withYear: false });
 }
 
 // Shared by the grid and list views
@@ -880,7 +875,7 @@ function describeReport(report) {
     }
 
     const dateText = report.dateReported
-        ? new Date(report.dateReported).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        ? formatDate(report.dateReported)
         : "—";
 
     return { isMine, isOpen, canClaimThis, canSayFound, speciesIcon, statusKey, statusLabel, dateText };
@@ -1609,7 +1604,7 @@ if (showReportForm && canSubmitReport) {
                                                     {[
                                                         report.location,
                                                         date &&
-                                                            new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+                                                            formatDate(date, { withYear: false }),
                                                     ]
                                                         .filter(Boolean)
                                                         .join(" · ")}
@@ -1878,11 +1873,7 @@ if (showReportForm && canSubmitReport) {
                             <dt>{r.reportType === "lost" ? "Date lost" : "Date found"}</dt>
                             <dd>
                                 {r.dateReported
-                                    ? new Date(r.dateReported).toLocaleDateString("en-US", {
-                                        month: "short",
-                                        day: "numeric",
-                                        year: "numeric",
-                                    })
+                                    ? formatDate(r.dateReported)
                                     : "—"}
                             </dd>
                         </div>
@@ -1971,11 +1962,7 @@ if (showReportForm && canSubmitReport) {
                                 <small>
                                     {matchedReport.reportType === "found" ? "Found " : "Lost "}
                                     {matchedReport.dateReported
-                                        ? new Date(matchedReport.dateReported).toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                            year: "numeric",
-                                        })
+                                        ? formatDate(matchedReport.dateReported)
                                         : "—"}
                                 </small>
                             </span>
@@ -2042,7 +2029,7 @@ if (showReportForm && canSubmitReport) {
                 {claims.map((claim) => {
                     const isNew = r.canReviewClaims && claim.status === "pending" && !claim.seenByReviewerAt;
                     const formatDay = (value) =>
-                        value ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+                        value ? formatDate(value) : "—";
 
                     return (
                         <div className={`lf-claim-review${isNew ? " is-new" : ""}`} key={claim._id}>
@@ -2077,13 +2064,7 @@ if (showReportForm && canSubmitReport) {
                                     <dt>Submitted</dt>
                                     <dd>
                                         {claim.claimedAt
-                                            ? new Date(claim.claimedAt).toLocaleString("en-US", {
-                                                month: "short",
-                                                day: "numeric",
-                                                year: "numeric",
-                                                hour: "numeric",
-                                                minute: "2-digit",
-                                            })
+                                            ? formatDateTime(claim.claimedAt)
                                             : "—"}
                                     </dd>
                                 </div>

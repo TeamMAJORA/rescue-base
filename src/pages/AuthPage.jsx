@@ -5,6 +5,7 @@ import { auth, googleProvider } from "../firebase";
 import assets from "../data/assets.json";
 import "../styles/AuthPage.css";
 import { useEffect, useState } from "react";
+import { notify, notifyError } from "../utils/dialogs";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -69,7 +70,7 @@ export default function AuthPage({ mode = "login", setPage }) {
         e.preventDefault();
 
         if (!forgotPasswordEmail.trim()) {
-            window.rbToast("Please enter your email.", "error");
+            notifyError("Please enter your email.");
             return;
         }
 
@@ -99,7 +100,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                 );
             }
 
-            window.rbToast(
+            notify(
                 data.message ||
                 "If an account exists, password reset instructions have been sent."
             );
@@ -116,10 +117,9 @@ export default function AuthPage({ mode = "login", setPage }) {
                 error
             );
 
-            window.rbToast(
+            notifyError(
                 error.message ||
-                "Something went wrong.",
-                "error"
+                "Something went wrong."
             );
         } finally {
             setForgotPasswordLoading(false);

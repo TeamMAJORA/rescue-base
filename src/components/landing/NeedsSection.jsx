@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatDate } from "../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const HEADERS = { "ngrok-skip-browser-warning": "true" };
@@ -147,7 +148,7 @@ function whenLabel(date) {
     if (days <= 0) return "today";
     if (days === 1) return "yesterday";
     if (days <= 30) return `${days} days ago`;
-    return new Date(date).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+    return formatDate(date, { withYear: false });
 }
 
 function plural(count, word) {

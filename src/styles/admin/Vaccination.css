@@ -31,7 +31,7 @@
 .admin-vaccination-form-panel .admin-panel-heading h2,
 .admin-vaccination-list-panel .admin-panel-heading h2 {
     margin: 0;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .admin-vaccination-form-panel .admin-panel-heading p,
@@ -68,9 +68,9 @@
     min-height: 40px;
     box-sizing: border-box;
     padding: 8px 14px;
-    border: 1px solid #e8cf8a;
+    border: 1px solid var(--gold);
     border-radius: 8px;
-    background: #fff4c4;
+    background: var(--amber-soft);
     color: var(--brown);
     font: inherit;
     font-size: 13px;
@@ -81,19 +81,19 @@
 
 .admin-vaccination-form input::placeholder,
 .admin-vaccination-form textarea::placeholder {
-    color: #b08f7a;
+    color: var(--brown-muted);
 }
 
 /* Empty date fields show grey "mm/dd/yyyy" like the placeholders */
 .admin-vaccination-form input[type="date"]:invalid,
 .admin-vaccination-form input[type="date"]:not(:focus):placeholder-shown {
-    color: #b08f7a;
+    color: var(--brown-muted);
 }
 
 /* Locked Animal Name */
 .admin-vaccination-form input[readonly] {
-    background: #f3ecd6;
-    border-color: #ddd0ae;
+    background: var(--line-soft);
+    border-color: var(--line);
     color: var(--brown);
     cursor: default;
 }
@@ -111,7 +111,7 @@
 }
 
 .admin-vaccination-form input[readonly]:focus {
-    border-color: #ddd0ae;
+    border-color: var(--line);
     box-shadow: none;
 }
 
@@ -148,8 +148,8 @@
 
     border-radius: 14px;
 
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
 
     font-size: 14px;
     font-weight: 800;
@@ -158,15 +158,15 @@
 }
 
 .admin-vaccination-message.success {
-    background: #edf7ed;
-    color: #3e6b3e;
-    border-color: #c9e2c9;
+    background: var(--green-soft);
+    color: var(--green-dark);
+    border-color: var(--green-soft);
 }
 
 .admin-vaccination-message.error {
-    background: #fff0ee;
-    color: #9a3f35;
-    border-color: #edc7c2;
+    background: var(--red-soft);
+    color: var(--brown-soft);
+    border-color: var(--red-soft);
 }
 
 
@@ -188,8 +188,8 @@
 
 .admin-vaccination-save {
     border: 0;
-    background: linear-gradient(90deg, #fb8500, #fca63a);
-    color: #ffffff;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    color: var(--white);
     box-shadow: 0 6px 14px rgba(251, 133, 0, 0.22);
 }
 
@@ -199,8 +199,8 @@
 }
 
 .admin-vaccination-form > .admin-secondary-button {
-    border: 1px solid #8a5a44;
-    background: #fffdf0;
+    border: 1px solid var(--brown-soft);
+    background: var(--paper);
     color: var(--brown);
 }
 
@@ -215,8 +215,8 @@
 ========================= */
 
 .admin-vaccination-secondary-button {
-    background: #fff7cb !important;
-    color: #5a1b00 !important;
+    background: var(--white-yellow) !important;
+    color: var(--brown) !important;
 
     border: 1px solid rgba(251, 133, 0, 0.18) !important;
 }
@@ -237,8 +237,8 @@
 
     padding: 10px 12px;
 
-    background: white;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
 
     font-family: inherit;
     font-size: 14px;
@@ -260,7 +260,7 @@
 
 .admin-vaccination-list-panel > input:focus,
 .admin-vaccination-list-panel > select:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
 
     box-shadow:
         0 0 0 3px rgba(251, 133, 0, 0.12);
@@ -289,7 +289,7 @@
 
     border-radius: 20px;
 
-    background: #fffaf0;
+    background: var(--paper);
 
     border: 1px solid rgba(90, 27, 0, 0.08);
 
@@ -316,7 +316,7 @@
 .admin-vaccination-row h3 {
     margin: 0 0 8px;
 
-    color: #5a1b00;
+    color: var(--brown);
 
     font-size: 18px;
 }
@@ -336,7 +336,7 @@
 }
 
 .admin-vaccination-row p strong {
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 
@@ -354,9 +354,9 @@
 
     border-radius: 999px;
 
-    background: #fff7cb;
+    background: var(--white-yellow);
 
-    color: #5a1b00;
+    color: var(--brown);
 
     font-size: 12px;
     font-weight: 900;
@@ -379,7 +379,7 @@
 
     border-radius: 14px;
 
-    background: #fff7cb;
+    background: var(--white-yellow);
 
     color: rgba(90, 27, 0, 0.72);
 
@@ -431,8 +431,8 @@
 ========================= */
 
 .admin-vaccination-edit-button {
-    background: #fb8500;
-    color: white;
+    background: var(--orange);
+    color: var(--white);
 }
 
 
@@ -441,8 +441,8 @@
 ========================= */
 
 .admin-vaccination-delete-button {
-    background: #d62828;
-    color: white;
+    background: var(--red);
+    color: var(--white);
 }
 
 
@@ -462,7 +462,7 @@
     border: 1px dashed rgba(90, 27, 0, 0.18);
     border-radius: 16px;
 
-    background: #fffaf0;
+    background: var(--paper);
 }
 
 
@@ -554,9 +554,9 @@
     width: 220px;
     height: 38px;
     padding: 0 14px;
-    border: 1px solid #e8cf8a;
+    border: 1px solid var(--gold);
     border-radius: 8px;
-    background: #fff4c4;
+    background: var(--amber-soft);
     color: var(--brown);
     font: inherit;
     font-size: 13px;
@@ -564,16 +564,16 @@
 }
 
 .admin-vacc-search::placeholder {
-    color: #b08f7a;
+    color: var(--brown-muted);
 }
 
 .admin-vacc-status-filter {
     height: 38px;
     padding: 0 14px;
-    border: 1px solid #8a5a44;
+    border: 1px solid var(--brown-soft);
     border-radius: 10px;
-    background: #fffdf0;
-    color: #7b452d;
+    background: var(--paper);
+    color: var(--brown-soft);
     font: inherit;
     font-size: 13px;
     font-weight: 700;
@@ -601,8 +601,8 @@
 
 .admin-vacc-table th {
     padding: 12px 14px;
-    background: #fff4c4;
-    color: #7b452d;
+    background: var(--amber-soft);
+    color: var(--brown-soft);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -618,7 +618,7 @@
 }
 
 .admin-vacc-table tbody tr:hover {
-    background: #fffaf0;
+    background: var(--paper);
 }
 
 .admin-vacc-name {
@@ -627,12 +627,12 @@
 
 .admin-vacc-notes {
     max-width: 220px;
-    color: #7b452d;
+    color: var(--brown-soft);
 }
 
 .admin-vacc-empty {
     padding: 24px 14px !important;
-    color: #b08f7a;
+    color: var(--brown-muted);
     text-align: center;
 }
 
@@ -647,17 +647,17 @@
 }
 
 .admin-vacc-status.completed {
-    background: #dcf0dc;
-    color: #2f6b3a;
+    background: var(--green-soft);
+    color: var(--green-dark);
 }
 
 .admin-vacc-status.pending {
-    background: #fff1b8;
-    color: #9a6b00;
+    background: var(--amber-soft);
+    color: var(--amber);
 }
 
 .admin-vacc-status.overdue {
-    background: #fde8e8;
+    background: var(--red-soft);
     color: var(--red);
 }
 
@@ -678,23 +678,23 @@
 }
 
 .admin-vacc-actions .edit {
-    border: 1px solid #8a5a44;
-    background: #fffdf0;
+    border: 1px solid var(--brown-soft);
+    background: var(--paper);
     color: var(--brown);
 }
 
 .admin-vacc-actions .edit:hover {
-    background: #fff7cb;
+    background: var(--white-yellow);
 }
 
 .admin-vacc-actions .delete {
     border: 1px solid var(--red);
-    background: #fffdf0;
+    background: var(--paper);
     color: var(--red);
 }
 
 .admin-vacc-actions .delete:hover {
-    background: #fde8e8;
+    background: var(--red-soft);
 }
 
 @media (max-width: 780px) {

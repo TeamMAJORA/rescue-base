@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatDate, formatDateTime } from "../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -281,11 +282,7 @@ useEffect(() => {
                 ))}
             </span>
             <small>
-                {new Date(item.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                })}
+                {formatDate(item.createdAt)}
             </small>
         </div>
 
@@ -368,24 +365,14 @@ useEffect(() => {
                 <div>
                     <dt>Submitted</dt>
                     <dd>
-                        {new Date(viewingFeedback.createdAt).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                        })}
+                        {formatDateTime(viewingFeedback.createdAt)}
                     </dd>
                 </div>
                 {viewingFeedback.archivedAt && (
                     <div>
                         <dt>Reviewed</dt>
                         <dd>
-                            {new Date(viewingFeedback.archivedAt).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                            })}
+                            {formatDate(viewingFeedback.archivedAt)}
                         </dd>
                     </div>
                 )}
@@ -401,13 +388,7 @@ useEffect(() => {
                     <small>
                         {viewingFeedback.repliedByName ? `${viewingFeedback.repliedByName} · ` : ""}
                         {viewingFeedback.repliedAt &&
-                            new Date(viewingFeedback.repliedAt).toLocaleString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                                hour: "numeric",
-                                minute: "2-digit",
-                            })}
+                            formatDateTime(viewingFeedback.repliedAt)}
                     </small>
                 </div>
             ) : (

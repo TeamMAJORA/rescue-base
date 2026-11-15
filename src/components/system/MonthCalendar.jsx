@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import "../../styles/components/MonthCalendar.css";
+import { formatDate, formatMonth, toDayValue } from "../../utils/formatDate";
 
 // Month calendar shared by the interview picker (no past days) and the
 // lost & found report form (no future days). Days outside [minDate, maxDate] can't be picked.
 
 const WEEK_DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 const MONTH_NAMES = Array.from({ length: 12 }, (_, index) =>
-    new Date(2000, index, 1).toLocaleString("en-PH", { month: "long" })
+    formatMonth(new Date(2000, index, 1), { withYear: false })
 );
 
 export function isSameDay(a, b) {
@@ -20,9 +21,7 @@ export function isSameDay(a, b) {
 }
 
 // Date -> "YYYY-MM-DD" (local day, not UTC)
-export function toDayValue(date) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
+export { toDayValue };
 
 export function startOfToday() {
     const now = new Date();
@@ -180,7 +179,7 @@ export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pi
                 </svg>
                 <span>
                     {selected
-                        ? selected.toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+                        ? formatDate(selected, { withWeekday: true })
                         : placeholder}
                 </span>
                 <i aria-hidden="true">▾</i>
