@@ -78,6 +78,8 @@ const emptyDonation = {
     quantity: "",
     unit: "Pieces",
     otherUnit: "",
+    // Typed by the donor when the type is "Other"; saved in the notes as "Type: ..." (the server only accepts its fixed types)
+    otherCategory: "",
     deliveryMethod: "Drop-off",
     preferredDate: "",
     description: "",
@@ -182,6 +184,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
             quantity: category === "Money" ? String(DEFAULT_AMOUNT) : "",
             unit: "Pieces",
             otherUnit: "",
+            otherCategory: "",
             deliveryMethod:
                 category === "Money"
                     ? "Online Payment"
@@ -300,6 +303,11 @@ export default function DonationCenter({ onOpenDonationHistory }) {
             return;
         }
 
+        if (!isMoneyDonation && donation.category === "Other" && !donation.otherCategory.trim()) {
+            setMessage("Please type what kind of items they are.");
+            return;
+        }
+
         const unit = resolveUnit(donation.unit, donation.otherUnit);
 
         if (!isMoneyDonation && !unit) {
@@ -339,6 +347,10 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                 !isMoneyDonation
                     ? `Unit: ${unit}`
                     : "Donation Type: Monetary Donation",
+
+                !isMoneyDonation && donation.category === "Other"
+                    ? `Type: ${donation.otherCategory.trim()}`
+                    : "",
 
                 !isMoneyDonation
                     ? `Delivery Method: ${donation.deliveryMethod}`
@@ -693,6 +705,8 @@ export default function DonationCenter({ onOpenDonationHistory }) {
     const itemUnit = resolveUnit(donation.unit, donation.otherUnit);
     const itemLabel = donation.itemName.trim() || donation.category;
 
+    const isOtherCategoryMissing = donation.category === "Other" && !donation.otherCategory.trim();
+
     const steps = isMoneyDonation
         ? [
             { label: "Choose an amount", done: hasAmount },
@@ -700,7 +714,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
             { label: "Upload your receipt", done: Boolean(donation.image) },
         ]
         : [
-            { label: "Say what you're giving", done: Boolean(donation.itemName.trim() && donation.category) && hasAmount && Boolean(itemUnit) },
+            { label: "Say what you're giving", done: Boolean(donation.itemName.trim() && donation.category) && !isOtherCategoryMissing && hasAmount && Boolean(itemUnit) },
             { label: "Add a photo of the items", done: Boolean(donation.image) },
             { label: "Pledge it", done: false },
         ];
@@ -730,6 +744,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                     : ""
         : !donation.itemName.trim() ? "Type what you're giving, or tap something the shelter needs."
             : !donation.category ? "Pick a type for your items."
+            : isOtherCategoryMissing ? "Type what kind of items they are."
             : !hasAmount ? "Enter how many you're giving."
             : !itemUnit ? "Type the unit (e.g. trays, dozens)."
                 : !donation.image ? "Add a photo of the items to finish."
@@ -1114,6 +1129,19 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                 );
                                             })}
                                         </div>
+
+                                        {donation.category === "Other" && (
+                                            <input
+                                                type="text"
+                                                maxLength={40}
+                                                placeholder="What kind of items? e.g. Grooming tools"
+                                                aria-label="Type of items"
+                                                value={donation.otherCategory}
+                                                onChange={(event) => updateDonationField("otherCategory", event.target.value)}
+                                                autoFocus
+                                                required
+                                            />
+                                        )}
                                     </div>
 
                                     <div className="donation-row">
