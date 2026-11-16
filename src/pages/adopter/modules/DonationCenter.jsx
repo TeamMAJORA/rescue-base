@@ -4,6 +4,7 @@ import L from "leaflet";
 import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import "leaflet/dist/leaflet.css";
 import { formatDate } from "../../../utils/formatDate";
+import { formatPeso } from "../../../utils/formatMoney";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -108,9 +109,6 @@ function readDraft() {
     }
 }
 
-function formatPeso(amount) {
-    return `₱${Number(amount).toLocaleString("en-PH", { maximumFractionDigits: 2 })}`;
-}
 
 export default function DonationCenter({ onOpenDonationHistory }) {
     const [donation, setDonation] =

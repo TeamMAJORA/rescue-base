@@ -10,9 +10,10 @@ import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 import PublicPetProfile from "./pages/PublicPetProfile";
 import LandingPage from "./pages/LandingPage";
 import AppDialogs from "./components/system/AppDialogs";
-// Last on purpose: the shared button and form looks override the older per-module styles
+// Last on purpose: the shared button, form and sidebar looks override the older per-module styles
 import "./styles/components/Buttons.css";
 import "./styles/components/Forms.css";
+import "./styles/components/Sidebar.css";
 
 // After a browser refresh, reopen the logged-in user's dashboard instead of the landing page
 function getStartPage() {

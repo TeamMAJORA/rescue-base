@@ -7,6 +7,7 @@ import { searchCebuPlaces } from "../../../utils/cebuPlaces";
 import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
+import { formatPeso } from "../../../utils/formatMoney";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -205,9 +206,6 @@ function moneyValue(donation) {
     return Number(donation.amount) || Number(donation.quantity) || 0;
 }
 
-function peso(value) {
-    return `₱${Number(value || 0).toLocaleString("en-PH")}`;
-}
 
 
 // Pull "Label: value" lines out of the notes the adopter form writes
@@ -230,7 +228,7 @@ function detailsFor(donation) {
         const reference = noteValue(donation.notes, "Payment Reference");
 
         return {
-            main: peso(moneyValue(donation)),
+            main: formatPeso(moneyValue(donation)),
             sub: [donation.paymentMethod, reference && `ref ${reference}`]
                 .filter(Boolean)
                 .join(" · "),
@@ -1129,7 +1127,7 @@ export default function Donations() {
                 </div>
                 <div>
                     <small>Money received</small>
-                    <b>{peso(totalMoney)}</b>
+                    <b>{formatPeso(totalMoney)}</b>
                 </div>
             </div>
 
@@ -1397,7 +1395,7 @@ export default function Donations() {
                                         <>
                                             <div>
                                                 <dt>Amount</dt>
-                                                <dd>{peso(moneyValue(donation))}</dd>
+                                                <dd>{formatPeso(moneyValue(donation))}</dd>
                                             </div>
                                             <div>
                                                 <dt>Payment method</dt>
