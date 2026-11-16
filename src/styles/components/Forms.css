@@ -14,7 +14,7 @@
     select,
     textarea
 ):not(:is(
-    .auth-field, .admin-adoption-search, .admin-table-footer, .dl-select, .feedback-management-header,
+    .auth-field, .otp-input, .admin-adoption-search, .admin-table-footer, .dl-select, .feedback-management-header,
     .fb2-search, .fs-search, .afl-search, .acl-row, .gm-address, .ao-searchbox, .lfr-phone, .rp2-search,
     .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .aip-month-selects, .ffc-phone
 ) *) {
@@ -32,7 +32,7 @@
     input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"], [type="submit"], [type="button"], [type="reset"]),
     select:not([multiple])
 ):not(:is(
-    .auth-field, .admin-adoption-search, .admin-table-footer, .dl-select, .feedback-management-header,
+    .auth-field, .otp-input, .admin-adoption-search, .admin-table-footer, .dl-select, .feedback-management-header,
     .fb2-search, .fs-search, .afl-search, .acl-row, .gm-address, .ao-searchbox, .lfr-phone, .rp2-search,
     .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .aip-month-selects, .ffc-phone
 ) *) {
