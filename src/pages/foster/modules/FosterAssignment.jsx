@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatDate, toDayValue } from "../../../utils/formatDate";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -263,18 +264,6 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
         }
     }, []);
 
-    function formatDate(date) {
-        if (!date) return "N/A";
-
-        return new Date(date).toLocaleDateString(
-            "en-PH",
-            {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            }
-        );
-    }
 
     // Weekly report: "sent" if one went in during the last 7 days, otherwise when it's due
     function reportStatus(item) {
@@ -299,7 +288,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
         }
 
         return {
-            label: `Report due ${due.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+            label: `Report due ${formatDate(due, { withYear: false })}`,
             tone: "is-due",
         };
     }
@@ -717,7 +706,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                                     <input
                                         type="date"
                                         value={returnForm.preferredDate}
-                                        min={new Date().toISOString().slice(0, 10)}
+                                        min={toDayValue()}
                                         onChange={(e) => setReturnForm({ ...returnForm, preferredDate: e.target.value })}
                                     />
                                 </label>

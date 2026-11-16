@@ -1,27 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FACTORS, topScoredMatches } from "../../../../utils/matchScore";
 import { MonthCalendar, isSameDay, startOfToday } from "../../../../components/system/MonthCalendar";
+import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
+import { formatDate, formatDateTime, formatMonth } from "../../../../utils/formatDate";
 
 
-
-// Styled confirm popup + toast from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
-
-function notify(text, tone = "success") {
-    if (window.rbToast) {
-        window.rbToast(text, tone);
-    } else {
-        window.alert(text);
-    }
-}
-
-function notifyErr(text) {
-    notify(text, "error");
-}
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -45,15 +28,6 @@ const FILTER_OPTIONS = {
     ],
 };
 
-function formatDate(date) {
-    if (!date) return "Not scheduled";
-
-    const parsed = new Date(date);
-
-    return Number.isNaN(parsed.getTime())
-        ? "Invalid date"
-        : parsed.toLocaleString();
-}
 
 const REJECT_REASON_LIMIT = 500;
 const QUICK_REJECT_REASONS = [
@@ -345,7 +319,7 @@ function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
                     <ReviewIcon name="calendar" />
                     <span>
                         {selected
-                            ? selected.toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+                            ? formatDate(selected, { withWeekday: true })
                             : "Pick a date"}
                     </span>
                     <i aria-hidden="true">▾</i>
@@ -540,7 +514,7 @@ function InterviewModal({
                                 </button>
 
                                 <strong>
-                                    {viewMonth.toLocaleString("en-PH", { month: "long", year: "numeric" })}
+                                    {formatMonth(viewMonth)}
                                 </strong>
 
                                 <button
@@ -614,12 +588,7 @@ function InterviewModal({
                         <small>{timeError || "Interview will be set for"}</small>
                         <strong>
                             {finalDate
-                                ? `${finalDate.toLocaleDateString("en-PH", {
-                                    weekday: "long",
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                })} · ${hour}:${minute} ${period}`
+                                ? `${formatDate(finalDate, { withWeekday: true })} · ${hour}:${minute} ${period}`
                                 : "Pick a date first"}
                         </strong>
                     </div>
@@ -667,29 +636,12 @@ function getInitials(name) {
 
 // "Oct 26" this year, "Oct 26, 2025" for older years (Date column)
 function formatDayLabel(date) {
-    if (!date) return "—";
-    const parsed = new Date(date);
-    if (Number.isNaN(parsed.getTime())) return "—";
-    const sameYear = parsed.getFullYear() === new Date().getFullYear();
-    return parsed.toLocaleDateString(
-        "en-PH",
-        sameYear ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" }
-    );
+    const isThisYear = new Date(date).getFullYear() === new Date().getFullYear();
+    return formatDate(date, { withYear: !isThisYear });
 }
 
 function formatShortDate(date, withTime = false) {
-    if (!date) return "";
-
-    const parsed = new Date(date);
-
-    if (Number.isNaN(parsed.getTime())) return "";
-
-    return parsed.toLocaleString(
-        "en-PH",
-        withTime
-            ? { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }
-            : { month: "short", day: "numeric", year: "numeric" }
-    );
+    return withTime ? formatDateTime(date) : formatDate(date);
 }
 
 // Quiz match score for this application (from /api/matchmaking/responses).
@@ -1047,7 +999,7 @@ function QuizAnswersTab({ quiz }) {
 
             <p className="art-note">
                 Answered {quiz.completedAt || quiz.createdAt
-                    ? new Date(quiz.completedAt || quiz.createdAt).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })
+                    ? formatDate(quiz.completedAt || quiz.createdAt)
                     : "—"}.
             </p>
         </div>
@@ -1992,7 +1944,7 @@ export default function AdoptionApplications() {
             }
         } catch (error) {
             console.error("Fetch applications error:", error);
-            notifyErr(error.message || "Unable to load adoption applications.");
+            notifyError(error.message || "Unable to load adoption applications.");
         } finally {
             setLoading(false);
         }
@@ -2047,7 +1999,7 @@ export default function AdoptionApplications() {
             return true;
         } catch (error) {
             console.error("Update status error:", error);
-            notifyErr(error.message || "Server error while updating application.");
+            notifyError(error.message || "Server error while updating application.");
             return false;
         } finally {
             setSaving(false);
@@ -2092,7 +2044,7 @@ export default function AdoptionApplications() {
             return true;
         } catch (error) {
             console.error("Request documents error:", error);
-            notifyErr(error.message || "Server error while sending the request.");
+            notifyError(error.message || "Server error while sending the request.");
             return false;
         } finally {
             setSaving(false);

@@ -1,5 +1,6 @@
 // One notification dropdown for every role (Admin, Staff, Volunteer, Foster, Adopter)
 import "../../styles/components/NotificationPanel.css";
+import { formatDate } from "../../utils/formatDate";
 
 // Icon per notification type (reuses the sidebar icons; shown in one brown shade)
 const ICON_BY_TYPE = {
@@ -33,7 +34,7 @@ function timeAgo(value) {
     const days = Math.floor(hours / 24);
     if (days < 7) return days === 1 ? "a day ago" : `${days} days ago`;
 
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return formatDate(date, { withYear: false });
 }
 
 // items: [{ id, title, message, read, type, createdAt }]

@@ -14,25 +14,25 @@
 .rp-field > span {
     font-size: 12px;
     font-weight: 700;
-    color: #3d2410;
+    color: var(--brown-strong);
 }
 
 .rp-field em {
     font-style: normal;
-    color: #d62828;
+    color: var(--red);
 }
 
 .rp-field small {
     font-weight: 500;
-    color: #a08670;
+    color: var(--brown-muted);
 }
 
 .rp-field textarea {
     width: 100%;
     padding: 9px 11px;
-    border: 1px solid #e3d5b5;
-    background: #fff;
-    color: #3d2410;
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--brown-strong);
     font: inherit;
     font-size: 13px;
     resize: vertical;
@@ -40,15 +40,15 @@
 }
 
 .rp-field textarea:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
 }
 
 .ao-confirm .rp-notes {
     margin: 0;
     padding: 9px 11px;
-    background: #fff;
-    border: 1px solid #efe4cb;
-    color: #3d2410;
+    background: var(--white);
+    border: 1px solid var(--line-soft);
+    color: var(--brown-strong);
     white-space: pre-wrap;
 }
 
@@ -63,10 +63,10 @@
     position: relative;
     width: 76px;
     height: 76px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 10px;
     overflow: hidden;
-    background: #fff7e6;
+    background: var(--paper);
 }
 
 .rp-photos.is-large .rp-photo {
@@ -90,7 +90,7 @@
     border: 0;
     border-radius: 50%;
     background: rgba(40, 20, 5, 0.7);
-    color: #fff;
+    color: var(--white);
     font-size: 15px;
     line-height: 1;
     cursor: pointer;
@@ -100,7 +100,7 @@
     display: grid;
     place-items: center;
     border-style: dashed;
-    color: #b35c00;
+    color: var(--orange-dark);
     font-size: 12px;
     font-weight: 700;
     text-align: center;
@@ -121,7 +121,7 @@
 
 .ao-confirm .rp-error {
     margin: 0 0 12px;
-    color: #c62828;
+    color: var(--red-dark);
     font-weight: 600;
 }
 

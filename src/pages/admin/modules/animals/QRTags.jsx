@@ -3,25 +3,8 @@ import { useEffect, useState } from "react";
 import { isAdmin, isStaff } from "../../../../utils/auth";
 import "../../../../styles/admin/QRTags.css";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
-
-// Styled confirm popup + toast from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
-
-function notify(text, tone = "success") {
-    if (window.rbToast) {
-        window.rbToast(text, tone);
-    } else {
-        window.alert(text);
-    }
-}
-
-function notifyErr(text) {
-    notify(text, "error");
-}
+import { askConfirm, notifyError } from "../../../../utils/dialogs";
+import { formatDate } from "../../../../utils/formatDate";
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/qr-tags`;
 
@@ -168,7 +151,7 @@ export default function QRTags() {
 
     async function handleDelete(id) {
         if (!(isAdmin() || isStaff())) {
-            notifyErr("Only administrators and staff members can delete QR tags.");
+            notifyError("Only administrators and staff members can delete QR tags.");
             return;
         }
 
@@ -208,7 +191,7 @@ export default function QRTags() {
 
     async function handleRegenerate(id) {
         if (!(isAdmin() || isStaff())) {
-            notifyErr(
+            notifyError(
                 "Only administrators and staff members can regenerate QR tags."
             );
             return;
@@ -269,9 +252,7 @@ export default function QRTags() {
             return "N/A";
         }
 
-        return new Date(date)
-            .toISOString()
-            .split("T")[0];
+        return formatDate(date);
     }
 
     function getQRImage(record) {

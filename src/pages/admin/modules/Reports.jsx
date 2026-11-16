@@ -1,5 +1,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDateTime, toDayValue } from "../../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -323,14 +325,12 @@ export default function Reports() {
             return;
         }
 
-        const ok = window.rbConfirm
-            ? await window.rbConfirm({
+        const ok = await askConfirm({
                 title: "Delete this report?",
                 message: "It will be removed from the list. This can't be undone.",
                 confirmLabel: "Delete",
                 danger: true,
-            })
-            : window.confirm("Delete this report permanently?");
+            });
 
         if (!ok) return;
 
@@ -386,7 +386,7 @@ export default function Reports() {
     const reportSpecies = (report) =>
         report.species || report.datasets?.species || "all";
 
-    const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local
+    const today = toDayValue();
 
     const DATASETS = [
         { key: "includeAnimals", label: "Animals" },
@@ -691,13 +691,7 @@ export default function Reports() {
                                         const createdAt = report.createdAt ? new Date(report.createdAt) : null;
                                         const createdLabel =
                                             createdAt && !Number.isNaN(createdAt.getTime())
-                                                ? createdAt.toLocaleString("en-PH", {
-                                                    month: "short",
-                                                    day: "numeric",
-                                                    year: "numeric",
-                                                    hour: "numeric",
-                                                    minute: "2-digit",
-                                                })
+                                                ? formatDateTime(createdAt)
                                                 : "";
 
                                         return (

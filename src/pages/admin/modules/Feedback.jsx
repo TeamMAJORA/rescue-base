@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { isAdmin } from "../../../utils/auth";
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
+import { askConfirm, notify } from "../../../utils/dialogs";
+import { formatDate, formatDateTime } from "../../../utils/formatDate";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -31,17 +26,6 @@ const ROLE_LABELS = {
     donor: "Donor",
 };
 
-function formatDate(value, withTime = false) {
-    const date = value ? new Date(value) : null;
-    if (!date || Number.isNaN(date.getTime())) return "";
-
-    return date.toLocaleString("en-PH", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        ...(withTime ? { hour: "numeric", minute: "2-digit" } : {}),
-    });
-}
 
 function Stars({ rating, size }) {
     return (
@@ -185,7 +169,7 @@ export default function Feedback() {
             setSelectedFeedback(null);
             setReplyText("");
             setNotice(successText);
-            if (window.rbToast) window.rbToast(successText, "success");
+            notify(successText);
         } catch (err) {
             console.error("Feedback reply error:", err);
             setError(err.message || "Failed to send reply.");
@@ -543,14 +527,14 @@ export default function Feedback() {
 
                         <p className="fb2-modal-msg">{selectedFeedback.message}</p>
 
-                        <small className="fb2-muted">Submitted {formatDate(selectedFeedback.createdAt, true)}</small>
+                        <small className="fb2-muted">Submitted {formatDateTime(selectedFeedback.createdAt)}</small>
 
                         <div className="fb2-reply">
                             <label htmlFor="fb2-reply-text">
                                 {selectedFeedback.repliedAt ? "Your reply" : "Reply"}
                                 {selectedFeedback.repliedAt && (
                                     <small>
-                                        {" "}· sent {formatDate(selectedFeedback.repliedAt, true)}
+                                        {" "}· sent {formatDateTime(selectedFeedback.repliedAt)}
                                         {selectedFeedback.repliedByName ? ` by ${selectedFeedback.repliedByName}` : ""}
                                     </small>
                                 )}

@@ -17,11 +17,11 @@
 
     border-radius: 12px;
 
-    background: white;
+    background: var(--white);
 
     box-shadow: 0 8px 20px rgba(0,0,0,.12);
 
-    border-left: 6px solid #777;
+    border-left: 6px solid var(--brown-muted);
 }
 
 .notification.success {
@@ -29,15 +29,15 @@
 }
 
 .notification.error {
-    border-left-color: #e74c3c;
+    border-left-color: var(--red);
 }
 
 .notification.warning {
-    border-left-color: #f39c12;
+    border-left-color: var(--orange-light);
 }
 
 .notification.info {
-    border-left-color: #3498db;
+    border-left-color: var(--blue);
 }
 
 .notification-content {

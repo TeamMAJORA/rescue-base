@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
+import { formatDate } from "../../../utils/formatDate";
 
 // Behavior Evaluation — foster rates the pet, admin reviews and accepts
 
@@ -48,10 +49,6 @@ function isRated(value) {
     return value !== null && value !== "" && value !== undefined && n >= 1 && n <= 5;
 }
 
-function formatDate(value) {
-    if (!value) return "—";
-    return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
 
 function TraitScale({ trait, value, name, disabled, onChange }) {
     const score = Number(value);

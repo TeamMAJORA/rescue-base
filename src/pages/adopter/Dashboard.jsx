@@ -16,6 +16,8 @@ import "../../styles/adopter/MatchmakingQuiz.css";
 import "../../styles/adopter/Recommendations.css";
 import "../../styles/adopter/DonationCenter.css";
 import "../../styles/adopter/DonationHistory.css";
+import "../../styles/admin/IntakeRecords.css"; // stats strip on the Stray Map (shared with staff pages)
+import "../../styles/admin/GISMapping.css"; // Stray Map (same map as staff and volunteers)
 
 // Module
 import AdoptionApplication from "./modules/AdoptionApplication";
@@ -26,16 +28,18 @@ import Recommendations from "./modules/Recommendations";
 import DonationCenter from "./modules/DonationCenter";
 import DonationHistory from "./modules/DonationHistory";
 import LostFound from "../admin/modules/LostFound";
+import GISMapping from "../admin/modules/GISMapping";
 import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
 import PetList from "../../components/adopter/PetList";
 import { PetDetailModal } from "../../components/adopter/PetDetailPanel";
-import { formatAge } from "../../utils/formatAge";
+import { toPetProfile } from "../../utils/petProfile";
 import AccountSettings from "../AccountSettings";
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
 import PetTypeIcon from "../../components/system/PetTypeIcon";
+import { formatDate, formatDateTime } from "../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -50,6 +54,7 @@ const adopterMenu = [
     { key: "adoption-application", group: "Adopt", label: "Adoption Application", icon: "clipboard-brown.svg", activeIcon: "clipboard-light.svg" },
     { key: "application-status", group: "Adopt", label: "Application Status", icon: "Status.svg", activeIcon: "Status-light.svg" },
     { key: "lost-found", group: "Help animals", label: "Lost & Found", icon: "LostnFound-brown.svg", activeIcon: "LostnFound-light.svg" },
+    { key: "stray-map", group: "Help animals", label: "Stray Map", icon: "strayMap-brown.svg", activeIcon: "strayMap-light.svg" },
     { key: "donation", group: "Help animals", label: "Donation", icon: "donation-brown.svg", activeIcon: "donation-light.svg" },
     { key: "donation-history", group: "Help animals", label: "Donation History", icon: "history.svg", activeIcon: "history-light.svg" },
     { key: "role-application", group: "Account", label: "Role Application", icon: "role-brown.svg", activeIcon: "role-light.svg" },
@@ -300,12 +305,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
                 icon: "/icons/Clock.svg",
                 title: `Interview for ${petName}`,
                 linkText: applicationStatus.interviewSchedule
-                    ? new Date(applicationStatus.interviewSchedule).toLocaleString("en-PH", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                    })
+                    ? formatDateTime(applicationStatus.interviewSchedule)
                     : "See your schedule",
                 page: "application-status",
             };
@@ -494,48 +494,7 @@ async function fetchPets({ silent = false } = {}) {
                 ? data.animals
                 : [];
 
-            const normalizedPets = animals.map(
-                (animal) => {
-                    return {
-                        ...animal,
-
-                        id: animal._id,
-
-                        status:
-                            animal.availabilityStatus ===
-                                "available" &&
-                                animal.adoptionStatus ===
-                                "available"
-                                ? "available"
-                                : "not_available",
-
-                        age: formatAge(animal.age),
-
-                        personalityTags:
-                            animal.personality?.tags || [],
-
-                        personality:
-                            animal.personality?.summary ||
-                            animal.behaviorNotes ||
-                            "Behavior information has not been added yet.",
-
-                        idealHome:
-                            animal.description ||
-                            "Contact the shelter to learn about the ideal home.",
-
-                        health:
-                            animal.medicalStatus ||
-                            animal.intakeCondition ||
-                            "Health information is not available.",
-
-                        story:
-                            animal.description ||
-                            `${animal.name} is currently under the care of RescueBase.`,
-
-                        petType: animal.type,
-                    };
-                }
-            );
+            const normalizedPets = animals.map(toPetProfile);
 
             setPets(normalizedPets);
 
@@ -937,14 +896,7 @@ async function fetchPets({ silent = false } = {}) {
             return "Date not available";
         }
 
-        return parsedDate.toLocaleDateString(
-            "en-PH",
-            {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            }
-        );
+        return formatDate(parsedDate);
     }
 
     function renderApplicationBanner() {
@@ -1369,7 +1321,7 @@ async function fetchPets({ silent = false } = {}) {
         }
 
         if (activeAdopterPage === "donation") {
-            return <DonationCenter />
+            return <DonationCenter onOpenDonationHistory={() => setActiveAdopterPage("donation-history")} />
         }
 
         if (activeAdopterPage === "donation-history") {
@@ -1378,6 +1330,10 @@ async function fetchPets({ silent = false } = {}) {
 
         if (activeAdopterPage === "lost-found") {
             return <LostFound />
+        }
+
+        if (activeAdopterPage === "stray-map") {
+            return <GISMapping onOpenLostFound={() => setActiveAdopterPage("lost-found")} />
         }
 
         if (activeAdopterPage === "feedback") {

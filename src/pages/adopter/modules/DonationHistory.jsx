@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
+import { formatDate } from "../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -24,15 +25,6 @@ function peso(value) {
     return `₱${Number(value || 0).toLocaleString("en-PH")}`;
 }
 
-function formatDate(date) {
-    if (!date) return "--";
-
-    return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
-}
 
 function formatStatus(status) {
     if (!status) return "Pending";

@@ -1,22 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Itim&display=swap");
 
 .adopter-dashboard-page {
-    --adopter-cream: #eae2b7;
-    --adopter-light-cream: #fffaf0;
-    --adopter-yellow: #fcbf49;
-    --adopter-light-yellow: #fff7cb;
-    --adopter-orange: #fb8500;
-    --adopter-orange-dark: #d96f00;
-    --adopter-brown: #5a1b00;
-    --adopter-light-brown: #7b452d;
-    --adopter-red: #d62828;
-    --adopter-green: #2f8f5b;
-    --adopter-border: rgba(90, 27, 0, 0.14);
-    --adopter-shadow: 0 14px 34px rgba(90, 27, 0, 0.12);
 
     min-height: 100vh;
-    background: var(--adopter-cream);
-    color: var(--adopter-brown);
+    background: var(--cream);
+    color: var(--brown);
     font-family: "Inter", sans-serif;
 }
 
@@ -35,8 +23,8 @@
         radial-gradient(circle at top left,
             rgba(252, 191, 73, 0.32),
             transparent 42%),
-        var(--adopter-light-cream);
-    border-right: 1px solid var(--adopter-border);
+        var(--paper);
+    border-right: 1px solid rgba(90, 27, 0, 0.14);
     box-shadow: 8px 0 25px rgba(90, 27, 0, 0.06);
     overflow: hidden;
     z-index: 20;
@@ -50,9 +38,9 @@
     gap: 13px;
     padding: 4px 10px 18px;
     border: 0;
-    border-bottom: 1px solid var(--adopter-border);
+    border-bottom: 1px solid rgba(90, 27, 0, 0.14);
     background: transparent;
-    color: var(--adopter-brown);
+    color: var(--brown);
     cursor: pointer;
     text-align: left;
 }
@@ -95,7 +83,7 @@
     border: 1px solid transparent;
     border-radius: 14px;
     background: transparent;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     cursor: pointer;
     transition:
         background 0.2s ease,
@@ -105,18 +93,18 @@
 }
 
 .adopter-menu-group>button:hover:not(:disabled) {
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
     border-color: rgba(251, 133, 0, 0.2);
-    color: var(--adopter-brown);
+    color: var(--brown);
     transform: translateX(3px);
 }
 
 .adopter-menu-group>button.active {
     background: linear-gradient(135deg,
-            var(--adopter-orange),
-            #fca62c);
-    color: #ffffff;
-    border-color: var(--adopter-orange);
+            var(--orange),
+            var(--orange-light));
+    color: var(--white);
+    border-color: var(--orange);
     box-shadow: 0 8px 20px rgba(251, 133, 0, 0.24);
 }
 
@@ -172,10 +160,10 @@
     flex-shrink: 0;
     margin-top: 16px;
     padding: 12px;
-    border: 1px solid var(--adopter-border);
+    border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 16px;
-    background: var(--adopter-light-yellow);
-    color: var(--adopter-brown);
+    background: var(--white-yellow);
+    color: var(--brown);
     cursor: pointer;
     text-align: left;
 }
@@ -192,7 +180,7 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--white);
     overflow: hidden;
     font-size: 20px;
 }
@@ -218,7 +206,7 @@
 }
 
 .adopter-user-card small {
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 11px;
 }
 
@@ -250,11 +238,11 @@
     font-family: "Itim", cursive;
     font-size: clamp(28px, 3vw, 38px);
     line-height: 1;
-    color: var(--adopter-brown);
+    color: var(--brown);
 }
 
 .adopter-dashboard-eyebrow {
-    color: var(--adopter-red);
+    color: var(--red);
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -280,7 +268,7 @@
     padding: 0;
     border: 1px solid rgba(90, 27, 0, 0.15);
     border-radius: 13px;
-    background: var(--adopter-light-cream);
+    background: var(--paper);
     cursor: pointer;
     transition:
         background 0.2s ease,
@@ -288,19 +276,19 @@
 }
 
 .adopter-notification-btn:hover {
-    border-color: var(--adopter-orange);
-    background: #ffffff;
+    border-color: var(--orange);
+    background: var(--white);
 }
 /*Notificationzz forda button */
 .adopter-notification-btn.open {
     background: linear-gradient(135deg,
-            var(--adopter-orange),
-            #fca62c);
-    border-color: var(--adopter-orange);
+            var(--orange),
+            var(--orange-light));
+    border-color: var(--orange);
 }
 
 .adopter-notification-btn.open:hover {
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
 }
 
 .adopter-notification-icon {
@@ -338,10 +326,10 @@
     display: grid;
     place-items: center;
     padding: 0 6px;
-    border: 3px solid var(--adopter-cream);
+    border: 3px solid var(--cream);
     border-radius: 999px;
-    background: var(--adopter-red);
-    color: #ffffff;
+    background: var(--red);
+    color: var(--white);
     font-size: 10px;
 }
 
@@ -351,9 +339,9 @@
     right: 0;
     width: min(360px, calc(100vw - 40px));
     padding: 12px;
-    border: 1px solid var(--adopter-border);
+    border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 18px;
-    background: var(--adopter-light-cream);
+    background: var(--paper);
     box-shadow: 0 20px 45px rgba(90, 27, 0, 0.18);
     z-index: 50;
 }
@@ -364,7 +352,7 @@
     justify-content: space-between;
     gap: 15px;
     padding: 8px 8px 13px;
-    border-bottom: 1px solid var(--adopter-border);
+    border-bottom: 1px solid rgba(90, 27, 0, 0.14);
 }
 
 .adopter-notification-header strong {
@@ -372,7 +360,7 @@
 }
 
 .adopter-notification-header small {
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
 }
 
 .adopter-notification-item {
@@ -384,14 +372,14 @@
     padding: 12px;
     border: 0;
     border-radius: 12px;
-    background: var(--adopter-light-yellow);
-    color: var(--adopter-brown);
+    background: var(--white-yellow);
+    color: var(--brown);
     cursor: pointer;
     text-align: left;
 }
 
 .adopter-notification-item:hover {
-    background: #ffef9c;
+    background: var(--gold);
 }
 
 .adopter-notification-item strong {
@@ -399,7 +387,7 @@
 }
 
 .adopter-notification-item span {
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -407,7 +395,7 @@
 .adopter-notification-empty {
     margin: 0;
     padding: 22px 12px;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 13px;
     text-align: center;
 }
@@ -424,7 +412,7 @@
     border-radius: 24px;
         background:
         url("/icons/heroPaw.svg") no-repeat right -30px bottom -150px / auto 135%,
-        linear-gradient(90deg, var(--adopter-orange) 0%, #ff9d2e 55%, #ffad42 100%);
+        linear-gradient(90deg, var(--orange) 0%, var(--orange-light) 55%, var(--orange-light) 100%);
     box-shadow: 0 18px 36px rgba(251, 133, 0, 0.28);
     overflow: hidden;
     isolation: isolate;
@@ -439,8 +427,8 @@
 .adopter-hero-chip {
     padding: 6px 14px;
     border-radius: 999px;
-    background: #ffffff;
-    color: var(--adopter-red);
+    background: var(--white);
+    color: var(--red);
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -450,7 +438,7 @@
 .adopter-hero-content h2 {
     max-width: 520px;
     margin: 14px 0 0;
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-family: "Itim", cursive;
     font-size: clamp(32px, 3.4vw, 46px);
     line-height: 1.05;
@@ -459,7 +447,7 @@
 .adopter-hero-content p {
     max-width: 480px;
     margin: 10px 0 0;
-    color: #4a1a05;
+    color: var(--brown-strong);
     font-size: 14px;
     line-height: 1.55;
 }
@@ -478,7 +466,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-size: 13px;
     font-weight: 700;
 }
@@ -489,8 +477,8 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: var(--adopter-brown);
-    color: #ffffff;
+    background: var(--brown);
+    color: var(--white);
     font-size: 12px;
 }
 
@@ -541,20 +529,20 @@
 }
 
 .adopter-hero-actions button:first-child {
-    background: var(--adopter-brown);
-    color: #ffffff;
+    background: var(--brown);
+    color: var(--white);
     box-shadow: 0 8px 18px rgba(90, 27, 0, 0.3);
 }
 
 .adopter-hero-actions button:first-child:hover {
-    background: #3f1300;
+    background: var(--brown-strong);
     transform: translateY(-1px);
 }
 
 .adopter-hero-actions button:last-child {
-    border-color: var(--adopter-brown);
+    border-color: var(--brown);
     background: transparent;
-    color: var(--adopter-brown);
+    color: var(--brown);
 }
 
 .adopter-hero-actions button:last-child:hover {
@@ -563,7 +551,7 @@
 
 .adopter-hero-note {
     margin-top: 12px;
-    color: #4a1a05;
+    color: var(--brown-strong);
     font-size: 12px;
 }
 
@@ -575,7 +563,7 @@
 }
 
 .adopter-hero-side-label {
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -593,7 +581,7 @@
     border: 2px dashed rgba(255, 255, 255, 0.85);
     border-radius: 20px;
     background: rgba(255, 250, 240, 0.18);
-    color: var(--adopter-brown);
+    color: var(--brown);
     text-align: center;
 }
 
@@ -618,7 +606,7 @@
     gap: 16px;
     padding: 14px;
     border-radius: 20px;
-    background: var(--adopter-light-cream);
+    background: var(--paper);
     box-shadow: 0 16px 32px rgba(90, 27, 0, 0.18);
 }
 
@@ -626,7 +614,7 @@
     position: relative;
     min-height: 190px;
     border-radius: 14px;
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
     overflow: hidden;
 }
 
@@ -642,8 +630,8 @@
     left: 8px;
     padding: 3px 9px;
     border-radius: 999px;
-    background: #e3f6ea;
-    color: var(--adopter-green);
+    background: var(--green-soft);
+    color: var(--green);
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -658,7 +646,7 @@
 
 .adopter-match-info h3 {
     margin: 2px 0 0;
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-family: "Itim", cursive;
     font-size: 28px;
     line-height: 1.1;
@@ -666,7 +654,7 @@
 
 .adopter-match-info p {
     margin: 2px 0 0;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 12px;
 }
 
@@ -681,8 +669,8 @@
     padding: 3px 10px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 999px;
-    background: var(--adopter-light-yellow);
-    color: var(--adopter-brown);
+    background: var(--white-yellow);
+    color: var(--brown);
     font-size: 11px;
     font-weight: 700;
 }
@@ -692,7 +680,7 @@
     justify-content: space-between;
     margin-top: auto;
     padding-top: 12px;
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-size: 11px;
     font-weight: 700;
 }
@@ -709,7 +697,7 @@
     display: block;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, var(--adopter-orange), #ffb347);
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
 }
 
 .adopter-match-info button {
@@ -717,15 +705,15 @@
     padding: 10px;
     border: 0;
     border-radius: 10px;
-    background: linear-gradient(115deg, var(--adopter-orange), #ffab40);
-    color: #ffffff;
+    background: linear-gradient(115deg, var(--orange), var(--orange-light));
+    color: var(--white);
     font-size: 13px;
     font-weight: 800;
     cursor: pointer;
 }
 
 .adopter-match-info button:hover {
-    background: var(--adopter-orange-dark);
+    background: var(--orange-dark);
 }
 
 
@@ -744,19 +732,19 @@
 
 .adopter-status.available,
 .adopter-status.approved {
-    background: #dff5e8;
-    color: var(--adopter-green);
+    background: var(--green-soft);
+    color: var(--green);
 }
 
 .adopter-status.pending {
-    background: #fff0bf;
-    color: #9a6400;
+    background: var(--amber-soft);
+    color: var(--amber);
 }
 
 .adopter-status.rejected,
 .adopter-status.not_available {
-    background: #f9dddd;
-    color: var(--adopter-red);
+    background: var(--red-soft);
+    color: var(--red);
 }
 
 
@@ -776,7 +764,7 @@
     min-height: 100px;
     padding: 14px 18px;
     border-radius: 14px;
-    background: var(--adopter-light-cream);
+    background: var(--paper);
     box-shadow: 0 6px 16px rgba(90, 27, 0, 0.06);
     overflow: hidden;
 }
@@ -785,7 +773,7 @@
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -798,7 +786,7 @@
 }
 
 .adopter-stats article > strong {
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-family: "Itim", cursive;
     font-size: 30px;
     line-height: 1;
@@ -815,14 +803,14 @@
     padding: 0;
     border: none;
     background: none;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 11px;
     text-decoration: underline;
     cursor: pointer;
 }
 
 .adopter-stat-link:hover {
-    color: var(--adopter-orange-dark);
+    color: var(--orange-dark);
 }
 
 /* Next Step card: coloured bar when the adopter must act */
@@ -835,21 +823,21 @@
     width: 5px;
 }
 
-.adopter-next-step.is-action::before  { background: var(--adopter-orange); }
-.adopter-next-step.is-success::before { background: var(--adopter-green); }
-.adopter-next-step.is-danger::before  { background: var(--adopter-red); }
+.adopter-next-step.is-action::before  { background: var(--orange); }
+.adopter-next-step.is-success::before { background: var(--green); }
+.adopter-next-step.is-danger::before  { background: var(--red); }
 
-.adopter-next-step.is-action .adopter-stat-label  { color: var(--adopter-orange-dark); }
-.adopter-next-step.is-success .adopter-stat-label { color: var(--adopter-green); }
-.adopter-next-step.is-danger .adopter-stat-label  { color: var(--adopter-red); }
+.adopter-next-step.is-action .adopter-stat-label  { color: var(--orange-dark); }
+.adopter-next-step.is-success .adopter-stat-label { color: var(--green); }
+.adopter-next-step.is-danger .adopter-stat-label  { color: var(--red); }
 
 /* calm states: no bar */
 .adopter-next-step.is-info {
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
 }
 
 .adopter-next-step.is-neutral .adopter-stat-label {
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
 }
 
 
@@ -860,22 +848,22 @@
     gap: 22px;
     margin-top: 22px;
     padding: 22px;
-    border: 1px solid var(--adopter-border);
+    border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 20px;
-    background: var(--adopter-light-cream);
-    box-shadow: var(--adopter-shadow);
+    background: var(--paper);
+    box-shadow: 0 14px 34px rgba(90, 27, 0, 0.12);
 }
 
 .adopter-application-banner.pending {
-    border-left: 7px solid var(--adopter-yellow);
+    border-left: 7px solid var(--yellow);
 }
 
 .adopter-application-banner.approved {
-    border-left: 7px solid var(--adopter-green);
+    border-left: 7px solid var(--green);
 }
 
 .adopter-application-banner.rejected {
-    border-left: 7px solid var(--adopter-red);
+    border-left: 7px solid var(--red);
 }
 
 .adopter-application-banner-image {
@@ -884,7 +872,7 @@
     display: grid;
     place-items: center;
     border-radius: 16px;
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
     overflow: hidden;
     font-size: 45px;
 }
@@ -903,14 +891,14 @@
 
 .adopter-application-banner-content>p {
     margin: 5px 0;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     line-height: 1.55;
 }
 
 .adopter-application-banner-content small {
     display: block;
     margin: 5px 0 9px;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
 }
 
 
@@ -939,10 +927,10 @@
 .adopter-panel {
     min-width: 0;
     padding: 22px;
-    border: 1px solid var(--adopter-border);
+    border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 20px;
-    background: var(--adopter-light-cream);
-    box-shadow: var(--adopter-shadow);
+    background: var(--paper);
+    box-shadow: 0 14px 34px rgba(90, 27, 0, 0.12);
 }
 
 .adopter-panel-heading {
@@ -961,7 +949,7 @@
 
 .adopter-panel-heading p {
     margin: 5px 0 0;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 13px;
 }
 
@@ -970,14 +958,14 @@
     padding: 9px 14px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 11px;
-    background: var(--adopter-light-yellow);
-    color: var(--adopter-brown);
+    background: var(--white-yellow);
+    color: var(--brown);
     font-weight: 700;
     cursor: pointer;
 }
 
 .adopter-panel-heading>button:hover:not(:disabled) {
-    background: var(--adopter-yellow);
+    background: var(--yellow);
 }
 
 .adopter-panel-heading>button:disabled {
@@ -1000,15 +988,15 @@
     border: 1px solid rgba(90, 27, 0, 0.18);
     border-radius: 12px;
     outline: none;
-    background: #ffffff;
-    color: var(--adopter-brown);
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-size: 13px;
 }
 
 .adopter-filters input:focus,
 .adopter-filters select:focus {
-    border-color: var(--adopter-orange);
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
@@ -1026,7 +1014,7 @@
     padding: 32px 16px;
     border: 1px dashed rgba(90, 27, 0, 0.2);
     border-radius: 14px;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     text-align: center;
 }
 
@@ -1038,7 +1026,7 @@
     padding: 12px;
     border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 15px;
-    background: #ffffff;
+    background: var(--white);
     cursor: pointer;
     transition:
         transform 0.2s ease,
@@ -1053,8 +1041,8 @@
 }
 
 .adopter-pet-card.active {
-    border-color: var(--adopter-orange);
-    background: var(--adopter-light-yellow);
+    border-color: var(--orange);
+    background: var(--white-yellow);
     box-shadow: 0 8px 18px rgba(251, 133, 0, 0.15);
 }
 
@@ -1064,7 +1052,7 @@
     display: grid;
     place-items: center;
     border-radius: 12px;
-    background: var(--adopter-cream);
+    background: var(--cream);
     overflow: hidden;
     font-size: 28px;
 }
@@ -1085,7 +1073,7 @@
 .adopter-pet-card small {
     display: block;
     margin: 0;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -1102,7 +1090,7 @@
     align-items: center;
     gap: 17px;
     padding-bottom: 18px;
-    border-bottom: 1px solid var(--adopter-border);
+    border-bottom: 1px solid rgba(90, 27, 0, 0.14);
 }
 
 .adopter-detail-icon {
@@ -1111,7 +1099,7 @@
     display: grid;
     place-items: center;
     border-radius: 16px;
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
     overflow: hidden;
     font-size: 42px;
 }
@@ -1130,7 +1118,7 @@
 
 .adopter-detail-header p {
     margin: 0;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 13px;
 }
 
@@ -1145,13 +1133,13 @@
     min-width: 0;
     padding: 12px;
     border-radius: 12px;
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
 }
 
 .adopter-detail-grid span {
     display: block;
     margin-bottom: 5px;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
@@ -1169,13 +1157,13 @@
 
 .adopter-detail-section h3 {
     margin: 0 0 6px;
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-size: 13px;
 }
 
 .adopter-detail-section p {
     margin: 0;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 13px;
     line-height: 1.6;
 }
@@ -1188,9 +1176,9 @@
     border: 0;
     border-radius: 13px;
     background: linear-gradient(135deg,
-            var(--adopter-orange),
-            #f5a623);
-    color: #ffffff;
+            var(--orange),
+            var(--orange-light));
+    color: var(--white);
     font-weight: 800;
     cursor: pointer;
     box-shadow: 0 9px 20px rgba(251, 133, 0, 0.22);
@@ -1198,14 +1186,14 @@
 
 .adopter-apply-button:hover:not(:disabled) {
     background: linear-gradient(135deg,
-            var(--adopter-orange-dark),
-            var(--adopter-orange));
+            var(--orange-dark),
+            var(--orange));
     transform: translateY(-1px);
 }
 
 .adopter-apply-button:disabled {
     cursor: not-allowed;
-    background: #b8aa9f;
+    background: var(--line);
     box-shadow: none;
     opacity: 0.72;
 }
@@ -1259,7 +1247,7 @@
         padding: 14px;
         overflow: visible;
         border-right: 0;
-        border-bottom: 1px solid var(--adopter-border);
+        border-bottom: 1px solid rgba(90, 27, 0, 0.14);
     }
 
     .adopter-logo {
@@ -1439,7 +1427,7 @@
 
 /* Loading: placeholder pet cards */
 .adopter-skeleton {
-    background: linear-gradient(90deg, #f6edd2 0%, #fdf7e6 50%, #f6edd2 100%);
+    background: linear-gradient(90deg, var(--peach-soft) 0%, var(--cream-card) 50%, var(--peach-soft) 100%);
     background-size: 200% 100%;
     animation: adopter-shimmer 1.4s ease-in-out infinite;
     border-radius: 8px;
@@ -1450,7 +1438,7 @@
 }
 
 .adopter-skeleton-card .browse-pet-card-image.adopter-skeleton {
-    background: linear-gradient(90deg, #f6edd2 0%, #fdf7e6 50%, #f6edd2 100%);
+    background: linear-gradient(90deg, var(--peach-soft) 0%, var(--cream-card) 50%, var(--peach-soft) 100%);
     background-size: 200% 100%;
     border-radius: 12px;
 }
@@ -1479,7 +1467,7 @@
     gap: 8px;
     grid-column: 1 / -1;
     font-size: 13px;
-    color: #8a7a6a;
+    color: var(--brown-muted);
     padding: 4px 2px;
 }
 
@@ -1487,8 +1475,8 @@
     width: 14px;
     height: 14px;
     flex-shrink: 0;
-    border: 2px solid #fde1b0;
-    border-top-color: #fb8500;
+    border: 2px solid var(--peach);
+    border-top-color: var(--orange);
     border-radius: 50%;
     animation: adopter-spin 0.8s linear infinite;
 }
@@ -1508,8 +1496,8 @@
     margin: 24px auto;
     padding: 34px 24px;
     text-align: center;
-    background: #fffaf0;
-    border: 1px dashed #efcfa8;
+    background: var(--paper);
+    border: 1px dashed var(--peach);
     border-radius: 18px;
 }
 
@@ -1521,20 +1509,20 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #fbe1e1;
-    color: #b42318;
+    background: var(--red-soft);
+    color: var(--red-dark);
 }
 
 .adopter-state-error h2 {
     margin: 0 0 6px;
     font-size: 18px;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .adopter-state-error p {
     margin: 0 0 18px;
     font-size: 14px;
-    color: #7a6a5a;
+    color: var(--brown-muted);
 }
 
 /* Shared icon + button look */
@@ -1553,7 +1541,7 @@
 .adopter-state-error button,
 .adopter-signed-out-card button,
 .adopter-confirm-actions button {
-    border: 1px solid #ecd9a8;
+    border: 1px solid var(--cream);
     border-radius: 999px;
     padding: 10px 20px;
     font: inherit;
@@ -1564,9 +1552,9 @@
 
 .adopter-state-error button,
 .adopter-signed-out-card button {
-    background: linear-gradient(135deg, #fb8500, #f5a623);
-    border-color: #fb8500;
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    border-color: var(--orange);
+    color: var(--white);
 }
 
 .adopter-state-error button:disabled {
@@ -1590,7 +1578,7 @@
     width: 100%;
     max-width: 380px;
     padding: 22px;
-    background: #fffaf0;
+    background: var(--paper);
     border-radius: 16px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
 }
@@ -1603,21 +1591,21 @@
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    background: #fff1d6;
-    color: #b45309;
+    background: var(--peach-soft);
+    color: var(--orange-dark);
 }
 
 .adopter-confirm h3 {
     margin: 0 0 6px;
     font-size: 17px;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .adopter-confirm p {
     margin: 0 0 18px;
     font-size: 14px;
     line-height: 1.45;
-    color: #6b5a4a;
+    color: var(--brown-muted);
 }
 
 .adopter-confirm-actions {
@@ -1628,22 +1616,22 @@
 }
 
 .adopter-confirm-keep {
-    background: #ffffff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
 }
 
 .adopter-confirm-keep:hover {
-    background: #fff7cb;
+    background: var(--white-yellow);
 }
 
 .adopter-confirm-leave {
-    background: #c62828;
-    border-color: #c62828 !important;
-    color: #ffffff;
+    background: var(--red-dark);
+    border-color: var(--red-dark) !important;
+    color: var(--white);
 }
 
 .adopter-confirm-leave:hover {
-    background: #a51f1f;
+    background: var(--red-dark);
 }
 
 /* Signed out (login expired or not an adopter account) */
@@ -1653,7 +1641,7 @@
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: #f4edce;
+    background: var(--peach-soft);
 }
 
 .adopter-signed-out-card {
@@ -1661,8 +1649,8 @@
     max-width: 380px;
     padding: 36px 24px;
     text-align: center;
-    background: #fffaf0;
-    border: 1px solid #f0e2b8;
+    background: var(--paper);
+    border: 1px solid var(--cream);
     border-radius: 18px;
 }
 
@@ -1674,20 +1662,20 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #fff1d6;
-    color: #b45309;
+    background: var(--peach-soft);
+    color: var(--orange-dark);
 }
 
 .adopter-signed-out-card h2 {
     margin: 0 0 6px;
     font-size: 20px;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .adopter-signed-out-card p {
     margin: 0 0 20px;
     font-size: 14px;
-    color: #7a6a5a;
+    color: var(--brown-muted);
 }
 
 
@@ -1708,10 +1696,10 @@
 
 .ra-card {
     padding: 20px;
-    border: 1px solid var(--adopter-border);
+    border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 20px;
-    background: var(--adopter-light-cream);
-    box-shadow: var(--adopter-shadow);
+    background: var(--paper);
+    box-shadow: 0 14px 34px rgba(90, 27, 0, 0.12);
 }
 
 .ra-card-head {
@@ -1735,23 +1723,23 @@
     font-size: 11px;
     font-weight: 800;
     background: rgba(90, 27, 0, 0.08);
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
 }
 
-.ra-badge-pending { background: var(--adopter-light-yellow); color: var(--adopter-orange-dark); }
-.ra-badge-approved { background: rgba(47, 143, 91, 0.14); color: var(--adopter-green); }
-.ra-badge-rejected { background: rgba(214, 40, 40, 0.1); color: var(--adopter-red); }
+.ra-badge-pending { background: var(--white-yellow); color: var(--orange-dark); }
+.ra-badge-approved { background: rgba(47, 143, 91, 0.14); color: var(--green); }
+.ra-badge-rejected { background: rgba(214, 40, 40, 0.1); color: var(--red); }
 
 .ra-row {
     display: flex;
     justify-content: space-between;
     gap: 10px;
     padding: 9px 0;
-    border-bottom: 1px dashed var(--adopter-border);
+    border-bottom: 1px dashed rgba(90, 27, 0, 0.14);
     font-size: 13px;
 }
 
-.ra-row span { color: var(--adopter-light-brown); }
+.ra-row span { color: var(--brown-soft); }
 .ra-row strong { text-align: right; }
 
 .ra-steps {
@@ -1777,10 +1765,10 @@
     top: 26px;
     bottom: 2px;
     width: 2px;
-    background: var(--adopter-border);
+    background: rgba(90, 27, 0, 0.14);
 }
 
-.ra-step.is-done:not(:last-child)::before { background: var(--adopter-yellow); }
+.ra-step.is-done:not(:last-child)::before { background: var(--yellow); }
 
 .ra-step-dot {
     flex: 0 0 26px;
@@ -1789,26 +1777,26 @@
     place-items: center;
     border-radius: 50%;
     background: rgba(90, 27, 0, 0.08);
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 12px;
     font-weight: 800;
 }
 
 .ra-step b { display: block; font-size: 13px; }
-.ra-step small { display: block; margin-top: 2px; color: var(--adopter-light-brown); font-size: 12px; }
+.ra-step small { display: block; margin-top: 2px; color: var(--brown-soft); font-size: 12px; }
 
-.ra-step.is-upcoming b { color: var(--adopter-light-brown); }
-.ra-step.is-done .ra-step-dot { background: var(--adopter-yellow); color: var(--adopter-brown); }
-.ra-step.is-active .ra-step-dot { background: var(--adopter-orange); color: #fff; box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18); }
-.ra-step.is-declined .ra-step-dot { background: var(--adopter-red); color: #fff; }
-.ra-step.is-declined small { color: var(--adopter-red); }
+.ra-step.is-upcoming b { color: var(--brown-soft); }
+.ra-step.is-done .ra-step-dot { background: var(--yellow); color: var(--brown); }
+.ra-step.is-active .ra-step-dot { background: var(--orange); color: var(--white); box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18); }
+.ra-step.is-declined .ra-step-dot { background: var(--red); color: var(--white); }
+.ra-step.is-declined small { color: var(--red); }
 
 .ra-reason {
     margin: 14px 0 0;
     padding: 10px 12px;
     border-radius: 12px;
     background: rgba(214, 40, 40, 0.07);
-    color: var(--adopter-red);
+    color: var(--red);
     font-size: 12px;
 }
 
@@ -1818,7 +1806,7 @@
     padding: 14px 16px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 16px;
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
 }
 
 .ra-note-dot {
@@ -1826,12 +1814,12 @@
     height: 8px;
     margin-top: 5px;
     border-radius: 50%;
-    background: var(--adopter-orange);
+    background: var(--orange);
 }
 
 .ra-note p {
     margin: 0;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -1847,7 +1835,7 @@
 
 .ra-loading {
     margin: 16px 0 0;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 13px;
 }
 
@@ -1860,8 +1848,8 @@
     font-weight: 600;
 }
 
-.role-application-error { background: rgba(214, 40, 40, 0.08); color: var(--adopter-red); }
-.role-application-success { background: rgba(47, 143, 91, 0.12); color: var(--adopter-green); }
+.role-application-error { background: rgba(214, 40, 40, 0.08); color: var(--red); }
+.role-application-success { background: rgba(47, 143, 91, 0.12); color: var(--green); }
 
 .role-application-form {
     display: grid;
@@ -1875,12 +1863,12 @@
     display: inline-flex;
     align-items: center;
     gap: 3px;
-    color: var(--adopter-brown);
+    color: var(--brown);
     font-size: 13px;
     font-weight: 700;
 }
 
-.ra-label em { color: var(--adopter-red); font-style: normal; }
+.ra-label em { color: var(--red); font-style: normal; }
 
 /* role cards */
 .ra-role-grid {
@@ -1894,9 +1882,9 @@
     display: flex;
     gap: 14px;
     padding: 18px 44px 18px 18px;
-    border: 1.5px solid var(--adopter-border);
+    border: 1.5px solid rgba(90, 27, 0, 0.14);
     border-radius: 16px;
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
@@ -1907,8 +1895,8 @@
 }
 
 .ra-role-card.is-selected {
-    border-color: var(--adopter-orange);
-    background: #fff;
+    border-color: var(--orange);
+    background: var(--white);
     box-shadow: 0 10px 24px rgba(251, 133, 0, 0.16);
 }
 
@@ -1922,10 +1910,10 @@
     place-items: center;
     border-radius: 14px;
     background: rgba(252, 191, 73, 0.35);
-    color: var(--adopter-orange-dark);
+    color: var(--orange-dark);
 }
 
-.ra-role-card.is-selected .ra-role-icon { background: var(--adopter-orange); color: #fff; }
+.ra-role-card.is-selected .ra-role-icon { background: var(--orange); color: var(--white); }
 
 .ra-role-icon svg,
 .ra-role-check svg,
@@ -1950,7 +1938,7 @@
 .ra-role-text small {
     display: block;
     margin-top: 4px;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -1959,10 +1947,10 @@
 
 .ra-role-tags span {
     padding: 3px 9px;
-    border: 1px solid var(--adopter-border);
+    border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 999px;
-    background: var(--adopter-light-cream);
-    color: var(--adopter-brown);
+    background: var(--paper);
+    color: var(--brown);
     font-size: 11px;
     font-weight: 700;
 }
@@ -1977,16 +1965,16 @@
     place-items: center;
     border: 2px solid rgba(90, 27, 0, 0.2);
     border-radius: 50%;
-    background: #fff;
+    background: var(--white);
     color: transparent;
 }
 
 .ra-role-check svg { width: 13px; height: 13px; stroke-width: 3; }
 
 .ra-role-card.is-selected .ra-role-check {
-    border-color: var(--adopter-orange);
-    background: var(--adopter-orange);
-    color: #fff;
+    border-color: var(--orange);
+    background: var(--orange);
+    color: var(--white);
 }
 
 /* textarea */
@@ -1997,10 +1985,10 @@
     min-height: 150px;
     box-sizing: border-box;
     padding: 14px 16px 30px;
-    border: 1.5px solid var(--adopter-border);
+    border: 1.5px solid rgba(90, 27, 0, 0.14);
     border-radius: 14px;
-    background: var(--adopter-light-yellow);
-    color: var(--adopter-brown);
+    background: var(--white-yellow);
+    color: var(--brown);
     font: inherit;
     font-size: 13px;
     resize: vertical;
@@ -2011,8 +1999,8 @@
 .ra-textarea-wrap textarea::placeholder { color: rgba(123, 69, 45, 0.55); }
 
 .ra-textarea-wrap textarea:focus {
-    border-color: var(--adopter-orange);
-    background: #fff;
+    border-color: var(--orange);
+    background: var(--white);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.18);
 }
 
@@ -2020,11 +2008,11 @@
     position: absolute;
     right: 14px;
     bottom: 10px;
-    color: var(--adopter-light-brown);
+    color: var(--brown-soft);
     font-size: 11px;
 }
 
-.ra-hint { color: var(--adopter-light-brown); font-size: 12px; }
+.ra-hint { color: var(--brown-soft); font-size: 12px; }
 
 /* footer */
 .ra-form-footer {
@@ -2033,10 +2021,10 @@
     justify-content: space-between;
     gap: 16px;
     padding-top: 18px;
-    border-top: 1px solid var(--adopter-border);
+    border-top: 1px solid rgba(90, 27, 0, 0.14);
 }
 
-.ra-form-footer p { margin: 0; color: var(--adopter-light-brown); font-size: 12px; }
+.ra-form-footer p { margin: 0; color: var(--brown-soft); font-size: 12px; }
 
 .ra-submit {
     flex-shrink: 0;
@@ -2047,8 +2035,8 @@
     padding: 0 22px;
     border: none;
     border-radius: 12px;
-    background: var(--adopter-orange);
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
     font-weight: 800;
     cursor: pointer;
     box-shadow: 0 8px 18px rgba(251, 133, 0, 0.25);
@@ -2056,7 +2044,7 @@
 }
 
 .ra-submit svg { width: 16px; height: 16px; }
-.ra-submit:hover:not(:disabled) { background: var(--adopter-orange-dark); transform: translateY(-1px); }
+.ra-submit:hover:not(:disabled) { background: var(--orange-dark); transform: translateY(-1px); }
 .ra-submit:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
 /* pending message */
@@ -2067,7 +2055,7 @@
     padding: 18px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 16px;
-    background: var(--adopter-light-yellow);
+    background: var(--white-yellow);
 }
 
 .ra-pending-icon {
@@ -2076,13 +2064,13 @@
     display: grid;
     place-items: center;
     border-radius: 12px;
-    background: var(--adopter-orange);
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
 }
 
 .ra-pending-icon svg { width: 22px; height: 22px; }
 .ra-pending b { font-size: 14px; }
-.ra-pending p { margin: 4px 0 0; color: var(--adopter-light-brown); font-size: 13px; }
+.ra-pending p { margin: 4px 0 0; color: var(--brown-soft); font-size: 13px; }
 
 /* "?" info tip (same look as the adoption form) */
 .role-application-module .admin-info-tip {
@@ -2093,8 +2081,8 @@
     place-items: center;
     margin-left: 4px;
     border-radius: 50%;
-    background: var(--adopter-orange);
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
     font-size: 11px;
     font-weight: 800;
     cursor: help;
@@ -2109,8 +2097,8 @@
     width: 240px;
     padding: 12px 14px;
     border-radius: 8px;
-    background: #4a1a00;
-    color: #fff;
+    background: var(--brown);
+    color: var(--white);
     font-size: 12px;
     font-weight: 500;
     line-height: 1.55;
@@ -2129,7 +2117,7 @@
     left: 15px;
     border-width: 0 6px 6px;
     border-style: solid;
-    border-color: transparent transparent #4a1a00;
+    border-color: transparent transparent var(--brown);
 }
 
 .role-application-module .admin-info-tip:hover .admin-info-tip-bubble,
@@ -2151,7 +2139,7 @@
 }
 
 .ra-role-card.is-selected .ra-role-icon {
-    background: var(--adopter-orange);
+    background: var(--orange);
 }
 
 .ra-role-icon img {
@@ -2172,8 +2160,8 @@
 
 /* Status card: done steps use checkmark.svg */
 .ra-step.is-done .ra-step-dot {
-    background: var(--adopter-orange);
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
 }
 
 .ra-step-dot img {
@@ -2185,14 +2173,14 @@
 .adopter-panel-heading > .application-status-refresh {
     min-height: 44px;
     padding: 10px 18px;
-    border: 1.5px solid #5a1b00;
-    background: #ffffff;
+    border: 1.5px solid var(--brown);
+    background: var(--white);
     font-weight: 800;
 }
 
 .adopter-panel-heading > .application-status-refresh:hover:not(:disabled) {
-    border-color: #fb8500;
-    background: #fff7cb;
+    border-color: var(--orange);
+    background: var(--white-yellow);
 }
 
 /* Role Application: role cards sit outside the form now */
@@ -2216,19 +2204,19 @@
 .ra-withdraw {
     margin-top: 10px;
     border: 1px solid rgba(214, 40, 40, 0.35);
-    background: #fff;
-    color: #b42318;
+    background: var(--white);
+    color: var(--red-dark);
 }
 
 .ra-withdraw:hover:not(:disabled) {
-    border-color: #d62828;
-    background: #fdeaea;
+    border-color: var(--red);
+    background: var(--red-soft);
 }
 
 .ra-withdraw-keep {
     border: 1px solid rgba(90, 27, 0, 0.2);
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
 }
 
 .ra-withdraw-confirm {
@@ -2237,7 +2225,7 @@
     align-items: center;
     gap: 8px;
     margin-top: 10px;
-    color: #75432f;
+    color: var(--brown-soft);
     font-size: 12px;
     font-weight: 600;
 }
@@ -2258,7 +2246,7 @@
     padding: 4px 8px;
     border: none;
     background: transparent;
-    color: #7a6a5a;
+    color: var(--brown-muted);
     font-size: 13px;
     text-decoration: underline;
 }
@@ -2266,15 +2254,15 @@
 
 /* Deactivated account screen */
 .adopter-signed-out-icon.is-blocked {
-    background: #ffe1e1;
-    color: #b42318;
+    background: var(--red-soft);
+    color: var(--red-dark);
 }
 
 .adopter-signed-out-card p.adopter-signed-out-note {
     margin: 0 0 18px;
     padding: 10px 12px;
-    background: #fff8dc;
-    color: #5a1b00;
+    background: var(--peach-soft);
+    color: var(--brown);
     font-size: 13px;
 }
 
@@ -2282,7 +2270,7 @@
    (same treatment as "Adopt a Pet" in the foster sidebar) */
 .adopter-menu-group > button.adopter-menu-switch {
     margin-top: 8px;
-    border-top: 1px dashed var(--adopter-border);
+    border-top: 1px dashed rgba(90, 27, 0, 0.14);
     border-radius: 0 0 14px 14px;
     padding-top: 16px;
 }
@@ -2301,8 +2289,8 @@
     padding: 4px 10px;
     border: 1px solid rgba(90, 27, 0, 0.2);
     border-radius: 8px;
-    background: #fffdf5;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font: inherit;
     font-size: 11px;
     font-weight: 700;
@@ -2310,7 +2298,7 @@
 }
 
 .adopter-notification-readall:hover {
-    background: #fff7cb;
+    background: var(--white-yellow);
 }
 
 /* ============================================================

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/AdminDashboardOverview.css";
+import { formatDate, formatMonth, formatTime } from "../../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const REFRESH_MS = 60000;
@@ -112,15 +113,15 @@ function lastMonths(count, now = new Date()) {
         const d = new Date(now.getFullYear(), now.getMonth() - (count - 1 - i), 1);
         return {
             key: monthKey(d),
-            short: d.toLocaleDateString("en-US", { month: "short" }),
-            long: d.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+            short: formatMonth(d, { withYear: false, short: true }),
+            long: formatMonth(d),
         };
     });
 }
 
 function shortDate(date) {
     if (!date) return "";
-    return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return formatDate(date, { withYear: false });
 }
 
 function timeAgo(date, nowMs) {
@@ -738,11 +739,10 @@ export default function AdminOverview({ onNavigate }) {
 
     const foodLevels = buildFoodLevels(data?.foodInventory || [], view?.inCare || []);
 
-    const [clockTime, clockPeriod] = now
-        .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+    const [clockTime, clockPeriod] = formatTime(now)
         .split(" ");
-    const dateLong = now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
-    const dateShort = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    const dateLong = formatDate(now, { withWeekday: true, withYear: false });
+    const dateShort = formatDate(now, { withWeekday: true, withYear: false });
 
     const header = (
         <div className="db2-top">
@@ -796,7 +796,7 @@ export default function AdminOverview({ onNavigate }) {
         const tomorrow = new Date(nowMs + 86400000);
         if (d.toDateString() === today.toDateString()) return "Today";
         if (d.toDateString() === tomorrow.toDateString()) return "Tomorrow";
-        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        return formatDate(d, { withYear: false });
     };
     const healthKey = (a) => healthGroup(a);
     const intakeRows = view.recentIntakes
@@ -888,7 +888,7 @@ export default function AdminOverview({ onNavigate }) {
                                                 <small>Adopting {app.petName || "a pet"}</small>
                                                 <em>
                                                     <img src="/icons/Clock.svg" alt="" aria-hidden="true" />
-                                                    {when.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} · {dayLabel(when)}
+                                                    {formatTime(when)} · {dayLabel(when)}
                                                 </em>
                                             </span>
                                         </button>

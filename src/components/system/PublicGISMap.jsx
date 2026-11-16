@@ -155,6 +155,7 @@ async function fetchJSON(url) {
 export default function PublicGISMap({
     landingMode = false,
     filters = null,
+    onUnavailable = null,
 }) {
     const [locations, setLocations] = useState([]);
     const [loadedAt, setLoadedAt] = useState(0);
@@ -193,6 +194,7 @@ export default function PublicGISMap({
                     locationsResult.reason?.message ||
                     "Unable to load animal reports."
                 );
+                onUnavailable?.();
             }
 
             if (sheltersResult.status === "fulfilled") {
@@ -346,7 +348,7 @@ export default function PublicGISMap({
                 </div>
             )}
 
-            {shelterError && !loading && (
+            {shelterError && !loading && !landingMode && (
                 <div className="public-gis-message warning">
                     {shelterError}
                 </div>

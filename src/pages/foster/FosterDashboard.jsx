@@ -22,6 +22,7 @@ import "../../styles/admin/IntakeRecords.css"; // shared page styles (stats stri
 
 import assets from "../../data/assets.json";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
+import { notify } from "../../utils/dialogs";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -251,7 +252,7 @@ function goToPage(page, petId = null) {
 
             // No longer a foster: the login token still says "foster", so log out
             if (data.roleChanged) {
-                window.rbToast(data.message);
+                notify(data.message);
                 signOut("auth");
                 return;
             }

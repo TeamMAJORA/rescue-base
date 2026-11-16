@@ -15,16 +15,13 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 import assets from "../../../data/assets.json";
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDate } from "../../../utils/formatDate";
 
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 const API = import.meta.env.VITE_BACKEND_URL;
+
+const COMMUNITY_REPORTER_ROLES = ["volunteer", "adopter"];
 const cebuCenter = [10.3157, 123.8854];
 
 const createMarkerIcon = (image, alt) =>
@@ -115,7 +112,7 @@ function timeAgo(dateValue) {
     const days = Math.round(hours / 24);
     if (days === 1) return "yesterday";
     if (days < 7) return `${days} days ago`;
-    return date.toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+    return formatDate(date, { withYear: false });
 }
 
 // Turns coordinates into a short place name (OpenStreetMap Nominatim)
@@ -326,6 +323,8 @@ export default function GISMapping({ onOpenLostFound }) {
     const [manualLongitude, setManualLongitude] = useState("");
 
     const canManage = ["admin", "staff"].includes(userRole);
+    // Volunteers and adopters see the public map and can pin stray sightings
+    const isCommunityReporter = COMMUNITY_REPORTER_ROLES.includes(userRole);
 
     // ---------------------------
     // Staff/Admin redesigned view state
@@ -421,13 +420,13 @@ export default function GISMapping({ onOpenLostFound }) {
             setLoading(true);
             setError("");
 
-            const isVolunteer = role === "volunteer";
+            const usesPublicMap = COMMUNITY_REPORTER_ROLES.includes(role);
             const response = await fetch(
-                isVolunteer
+                usesPublicMap
                     ? `${API}/api/gis/public`
                     : `${API}/api/gis`,
                 {
-                    headers: { ...(isVolunteer
+                    headers: { ...(usesPublicMap
                         ? {}
                         : { Authorization: `Bearer ${getToken()}` }), "ngrok-skip-browser-warning": "true" },
                 }
@@ -534,7 +533,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
         loadLocations(userRole);
 
-        if (["admin", "staff", "volunteer"].includes(userRole)) {
+        if (canManage || isCommunityReporter) {
             loadHotspots();
         } else {
             setHotspots([]);
@@ -1379,8 +1378,8 @@ export default function GISMapping({ onOpenLostFound }) {
     // ---------------------------
     // Staff/Admin redesigned view (volunteers keep the view below)
     // ---------------------------
-    // Admin, staff and volunteers share the new map; manage-only controls check canManage
-    if (canManage || userRole === "volunteer") {
+    // Admin, staff, volunteers and adopters share the new map; manage-only controls check canManage
+    if (canManage || isCommunityReporter) {
         // Lost and found reports are filed in Lost & Found and show on this map from there
         const reportTypes = canManage ? ["stray", "rescue", "intake"] : ["stray"];
 
@@ -1516,7 +1515,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                         <strong>{animal.name}</strong>
                                         <br />
                                         Rescued from here
-                                        {animal.intakeDate ? ` · ${new Date(animal.intakeDate).toLocaleDateString("en-PH")}` : ""}
+                                        {animal.intakeDate ? ` · ${formatDate(animal.intakeDate)}` : ""}
                                     </Popup>
                                 </Marker>
                             ))}
@@ -3121,4 +3120,4 @@ export default function GISMapping({ onOpenLostFound }) {
             )}
         </section>
     );
-}
+}

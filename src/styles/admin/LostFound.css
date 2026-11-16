@@ -13,7 +13,7 @@
 
 .lost-found-header h1 {
     margin: 0;
-    color: #f3f1f1;
+    color: var(--white);
     font-size: 28px;
     font-weight: 900;
 }
@@ -29,8 +29,8 @@
     border: none;
     border-radius: 12px;
     padding: 10px 14px;
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
     font-weight: 800;
     cursor: pointer;
 }
@@ -43,8 +43,8 @@
     margin: 0;
     padding: 12px 16px;
     border-radius: 14px;
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
     font-size: 14px;
     font-weight: 800;
     border: 1px solid rgba(251, 133, 0, 0.22);
@@ -52,13 +52,13 @@
 
 .lost-found-message.error {
     background: rgba(214, 40, 40, 0.1);
-    color: #d62828;
+    color: var(--red);
     border-color: rgba(214, 40, 40, 0.2);
 }
 
 .lost-found-message.success {
     background: rgba(32, 178, 99, 0.1);
-    color: #16834a;
+    color: var(--green-dark);
     border-color: rgba(32, 178, 99, 0.2);
 }
 
@@ -72,7 +72,7 @@
     gap: 20px;
     padding: 26px 20px;
     border-radius: 20px;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
@@ -85,7 +85,7 @@
 
 .lost-found-card-header h2 {
     margin: 0;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 18px;
     font-weight: 900;
 }
@@ -102,8 +102,8 @@
     border: none;
     border-radius: 12px;
     padding: 9px 13px;
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
     font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
@@ -119,7 +119,7 @@
     gap: 14px;
     padding: 18px;
     border-radius: 20px;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
@@ -132,16 +132,16 @@
     border: none;
     border-radius: 12px;
     padding: 9px 14px;
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
     font-size: 13px;
     font-weight: 800;
     cursor: pointer;
 }
 
 .lost-found-type button.active {
-    background: #fb8500;
-    color: white;
+    background: var(--orange);
+    color: var(--white);
 }
 
 .lost-found-type button:hover {
@@ -157,7 +157,7 @@
 .lost-found-field {
     display: grid;
     gap: 7px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 13px;
     font-weight: 800;
 }
@@ -174,8 +174,8 @@
     border: 1px solid rgba(90, 27, 0, 0.16);
     border-radius: 14px;
     padding: 10px 12px;
-    background: white;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-family: "Inter", sans-serif;
     font-size: 14px;
     outline: none;
@@ -188,7 +188,7 @@
 
 .lost-found-field input:focus,
 .lost-found-field textarea:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
@@ -198,8 +198,8 @@
     border: none;
     border-radius: 14px;
     padding: 12px 18px;
-    background: #fb8500;
-    color: white;
+    background: var(--orange);
+    color: var(--white);
     font-weight: 900;
     cursor: pointer;
 }
@@ -218,13 +218,13 @@
     gap: 5px;
     padding: 30px 20px;
     border-radius: 16px;
-    background: #fff7cb;
+    background: var(--white-yellow);
     text-align: center;
 }
 
 .lost-found-empty h3 {
     margin: 0;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 18px;
     font-weight: 900;
 }
@@ -248,7 +248,7 @@
     gap: 18px;
     padding: 18px 20px;
     border-radius: 20px;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
@@ -262,7 +262,7 @@
     height: 150px;
     overflow: hidden;
     border-radius: 16px;
-    background: #fff7cb;
+    background: var(--white-yellow);
 }
 
 .lost-found-report-image img {
@@ -304,39 +304,39 @@
 }
 
 .lost-found-type-badge {
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
     border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
 .lost-found-type-badge.lost {
     background: rgba(214, 40, 40, 0.12);
-    color: #d62828;
+    color: var(--red);
 }
 
 .lost-found-type-badge.found {
     background: rgba(32, 178, 99, 0.14);
-    color: #16834a;
+    color: var(--green-dark);
 }
 
 .lost-found-status {
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
 }
 
 .lost-found-status.reunited {
     background: rgba(32, 178, 99, 0.14);
-    color: #16834a;
+    color: var(--green-dark);
 }
 
 .lost-found-status.rejected {
     background: rgba(214, 40, 40, 0.12);
-    color: #d62828;
+    color: var(--red);
 }
 
 .lost-found-report-content h3 {
     margin: 0 0 5px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 17px;
     font-weight: 900;
 }
@@ -351,7 +351,7 @@
 }
 
 .lost-found-report-location {
-    color: #5a1b00;
+    color: var(--brown);
     font-weight: 800;
 }
 
@@ -377,12 +377,12 @@
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 10px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 12px;
 }
 
 .lost-found-claim-status span {
-    color: #fb8500;
+    color: var(--orange);
     font-weight: 900;
     text-transform: capitalize;
 }
@@ -398,8 +398,8 @@
     border: none;
     border-radius: 12px;
     padding: 9px 12px;
-    background: #fb8500;
-    color: white;
+    background: var(--orange);
+    color: var(--white);
     font-size: 12px;
     font-weight: 900;
     cursor: pointer;
@@ -411,7 +411,7 @@
 }
 
 .lost-found-actions button.danger {
-    background: #d62828;
+    background: var(--red);
 }
 
 .lost-found-stats {
@@ -430,7 +430,7 @@
     min-height: 86px;
     padding: 20px 22px;
     border-radius: 14px;
-    background: #fff7cb;
+    background: var(--white-yellow);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -438,14 +438,14 @@
 }
 
 .lost-found-stat-card span {
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 15px;
     font-weight: 800;
     white-space: nowrap;
 }
 
 .lost-found-stat-card strong {
-    color: #3a1200;
+    color: var(--brown-strong);
     font-size: 22px;
     font-weight: 900;
     white-space: nowrap;
@@ -544,8 +544,8 @@
     gap: 24px;
     padding: 20px 24px;
     border-radius: 14px;
-    background: linear-gradient(90deg, #ff8a65, #ffb26b);
-    color: #fff;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    color: var(--white);
     width: 100%;
     box-sizing: border-box;
     flex: 1 1 100%;
@@ -556,7 +556,7 @@
     display: inline-block;
     padding: 3px 10px;
     border-radius: 999px;
-    background: #fff4e6;
+    background: var(--cream-card);
     color: #b5562b;
     font-size: 10px;
     font-weight: 700;
@@ -583,14 +583,14 @@
     padding: 10px 18px;
     border: none;
     border-radius: 8px;
-    background: #fffaf2;
-    color: #814b1c;
+    background: var(--paper);
+    color: var(--brown-soft);
     font-weight: 700;
     cursor: pointer;
 }
 
 .lf-hero-btn:hover {
-    background: #fff;
+    background: var(--white);
 }
 
 /* Phone: stack the button under the text */
@@ -621,14 +621,14 @@
     padding: 0 12px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 8px;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font-size: 13px;
     outline: none;
 }
 
 .lf-search:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
@@ -637,8 +637,8 @@
     padding: 0 12px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 8px;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -661,8 +661,8 @@
     padding: 5px 12px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 999px;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -674,9 +674,9 @@
 }
 
 .lf-chip.is-active {
-    background: #5a1b00;
-    border-color: #5a1b00;
-    color: #fff;
+    background: var(--brown);
+    border-color: var(--brown);
+    color: var(--white);
 }
 
 .lf-chip.is-active span {
@@ -699,14 +699,14 @@
 
 .lfr-header h1 {
     margin: 0;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 26px;
     font-weight: 900;
 }
 
 .lfr-header p {
     margin: 2px 0 0;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 12px;
 }
 
@@ -715,7 +715,7 @@
     gap: 18px;
     padding: 14px 20px 18px;
     border-radius: 14px;
-    background: #fffaeb;
+    background: var(--paper);
 }
 
 .lfr-tabs {
@@ -736,8 +736,8 @@
 }
 
 .lfr-tabs button.is-active {
-    color: #5a1b00;
-    border-bottom-color: #fb8500;
+    color: var(--brown);
+    border-bottom-color: var(--orange);
 }
 
 .lfr-section + .lfr-section {
@@ -747,7 +747,7 @@
 
 .lfr-section h2 {
     margin: 0;
-    color: #5a1b00;
+    color: var(--brown);
     font-family: Georgia, "Times New Roman", serif;
     font-size: 22px;
     font-weight: 400;
@@ -755,7 +755,7 @@
 
 .lfr-section > p {
     margin: 2px 0 14px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 11px;
 }
 
@@ -772,13 +772,13 @@
 .lfr-field {
     display: grid;
     gap: 6px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 11px;
     font-weight: 700;
 }
 
 .lfr-field em {
-    color: #fb8500;
+    color: var(--orange);
     font-style: normal;
 }
 
@@ -788,8 +788,8 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #fb8500;
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
     font-size: 9px;
     font-style: normal;
     cursor: help;
@@ -801,22 +801,22 @@
     height: 34px;
     box-sizing: border-box;
     padding: 0 10px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 8px;
-    background: #fdefb8;
-    color: #5a1b00;
+    background: var(--amber-soft);
+    color: var(--brown);
     font-size: 12px;
     outline: none;
 }
 
 .lfr-field input:read-only {
-    background: #f8f1d8;
+    background: var(--peach-soft);
     cursor: not-allowed;
 }
 
 .lfr-field input:focus,
 .lfr-field select:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
@@ -834,7 +834,7 @@
 }
 
 .lfr-foot small {
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 11px;
 }
 
@@ -855,19 +855,19 @@
 }
 
 .lfr-cancel {
-    border: 1px solid #5a1b00;
-    background: #fff;
-    color: #5a1b00;
+    border: 1px solid var(--brown);
+    background: var(--white);
+    color: var(--brown);
 }
 
 .lfr-submit {
     border: none;
-    background: #fb8500;
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
 }
 
 .lfr-submit:disabled {
-    background: #ffc27a;
+    background: var(--gold);
     cursor: not-allowed;
 }
 
@@ -903,7 +903,7 @@
     position: relative;
     height: 280px;
     overflow: hidden;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 10px;
 }
 
@@ -915,10 +915,10 @@
     width: min(240px, calc(100% - 70px));
     height: 30px;
     padding: 0 10px;
-    border: 1px solid #8a4a1f;
+    border: 1px solid var(--brown-soft);
     border-radius: 6px;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font-size: 11px;
     outline: none;
 }
@@ -928,7 +928,7 @@
     width: 26px;
     height: 26px;
     border-radius: 50% 50% 50% 0;
-    background: #b3261e;
+    background: var(--red-dark);
     transform: rotate(-45deg);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -941,7 +941,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #fff;
+    background: var(--white);
 }
 .lf-grid {
     display: grid;
@@ -955,11 +955,11 @@
     overflow: hidden;
     border: 1.5px solid rgba(90, 27, 0, 0.45);
     border-radius: 12px;
-    background: #fffaeb;
+    background: var(--paper);
 }
 
 .lf-card.is-mine {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 2px rgba(251, 133, 0, 0.18);
 }
 
@@ -976,10 +976,10 @@
     object-fit: cover;
 }
 
-.tint-0 { background: #f3d9a6; }
-.tint-1 { background: #f6c6b8; }
-.tint-2 { background: #cfe0dd; }
-.tint-3 { background: #e3dfc2; }
+.tint-0 { background: var(--peach); }
+.tint-1 { background: var(--line-soft); }
+.tint-2 { background: var(--cream-card); }
+.tint-3 { background: var(--line-soft); }
 
 .lf-card-emoji {
     font-size: 44px;
@@ -992,15 +992,15 @@
     left: 8px;
     padding: 3px 9px;
     border-radius: 999px;
-    color: #fff;
+    color: var(--white);
     font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
 }
 
-.lf-card-badge.is-lost { background: #b3261e; }
-.lf-card-badge.is-found { background: #2e9e5b; }
-.lf-card-badge.is-reunited { background: #fb8500; }
+.lf-card-badge.is-lost { background: var(--red-dark); }
+.lf-card-badge.is-found { background: var(--green); }
+.lf-card-badge.is-reunited { background: var(--orange); }
 
 .lf-card-date {
     position: absolute;
@@ -1008,8 +1008,8 @@
     right: 8px;
     padding: 3px 9px;
     border-radius: 999px;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font-size: 10px;
     font-weight: 700;
 }
@@ -1020,8 +1020,8 @@
     left: 8px;
     padding: 2px 8px;
     border-radius: 999px;
-    background: #fb8500;
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
     font-size: 9px;
     font-weight: 800;
 }
@@ -1032,7 +1032,7 @@
     flex-direction: column;
     gap: 3px;
     padding: 12px 12px 14px;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .lf-card-body h3 {
@@ -1073,8 +1073,8 @@
     height: 30px;
     border: none;
     border-radius: 6px;
-    background: linear-gradient(90deg, #fb8500, #ffa53a);
-    color: #fff;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    color: var(--white);
     font-size: 11px;
     font-weight: 800;
     text-decoration: none;
@@ -1084,20 +1084,20 @@
 .lf-card-actions button.is-ghost {
     flex: 0 0 auto;
     padding: 0 12px;
-    border: 1px solid #5a1b00;
-    background: #fff;
-    color: #5a1b00;
+    border: 1px solid var(--brown);
+    background: var(--white);
+    color: var(--brown);
 }
 
 .lf-card-actions .lf-card-icon {
     flex: 0 0 30px;
-    border: 1px solid #5a1b00;
-    background: #fff;
-    color: #5a1b00;
+    border: 1px solid var(--brown);
+    background: var(--white);
+    color: var(--brown);
 }
 
 .lf-card-actions .lf-card-icon.is-danger {
-    border-color: #d62828;
+    border-color: var(--red);
 }
 .lf-card {
     cursor: pointer;
@@ -1128,7 +1128,7 @@
     grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
     overflow: hidden;
     border-radius: 16px;
-    background: #fffaeb;
+    background: var(--paper);
     box-shadow: 0 24px 60px rgba(40, 20, 5, 0.3);
 }
 
@@ -1159,18 +1159,18 @@
     z-index: 2;
     width: 34px;
     height: 34px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 50%;
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
     font-size: 20px;
     line-height: 1;
     cursor: pointer;
 }
 
 .lf-modal-close:hover {
-    border-color: #fb8500;
-    color: #fb8500;
+    border-color: var(--orange);
+    color: var(--orange);
 }
 
 .lf-modal-body {
@@ -1180,7 +1180,7 @@
     gap: 6px;
     overflow-y: auto;
     padding: 24px 26px 0;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .lf-modal-body h2 {
@@ -1215,7 +1215,7 @@
     margin: 14px 0 0;
     padding: 14px 16px;
     border-radius: 12px;
-    background: #fdefb8;
+    background: var(--amber-soft);
 }
 
 .lf-modal-facts dt {
@@ -1250,8 +1250,8 @@
     gap: 10px;
     margin: auto -26px 0;
     padding: 14px 26px;
-    border-top: 1px solid #f3d98a;
-    background: #fffaeb;
+    border-top: 1px solid var(--gold);
+    background: var(--paper);
 }
 
 /* Phones and narrow windows: photo on top, details scroll below it */
@@ -1289,9 +1289,9 @@
     gap: 6px;
     margin-top: 14px;
     padding: 12px;
-    border: 1px dashed #fb8500;
+    border: 1px dashed var(--orange);
     border-radius: 10px;
-    background: #fff4e0;
+    background: var(--peach-soft);
 }
 
 .lf-claim h3 {
@@ -1307,10 +1307,10 @@
     width: 100%;
     box-sizing: border-box;
     padding: 10px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 8px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-family: inherit;
     font-size: 12px;
     resize: vertical;
@@ -1318,12 +1318,12 @@
 }
 
 .lf-claim textarea:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
 .lf-claim-error {
-    color: #d62828;
+    color: var(--red);
     font-size: 11px;
     font-weight: 700;
 }
@@ -1332,9 +1332,9 @@
     gap: 6px;
     margin-top: 14px;
     padding: 12px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 10px;
-    background: #fff;
+    background: var(--white);
 }
 
 .lf-claim-review h3 {
@@ -1351,17 +1351,17 @@
 .lf-claim-pill {
     padding: 2px 8px;
     border-radius: 999px;
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
     font-size: 10px;
     font-weight: 800;
     text-transform: capitalize;
 }
 
-.lf-claim-pill.is-pending { background: #fff1c2; color: #a15c00; }
-.lf-claim-pill.is-approved { background: rgba(46, 158, 91, 0.15); color: #16834a; }
+.lf-claim-pill.is-pending { background: var(--amber-soft); color: var(--amber); }
+.lf-claim-pill.is-approved { background: rgba(46, 158, 91, 0.15); color: var(--green-dark); }
 .lf-claim-pill.is-rejected,
-.lf-claim-pill.is-revoked { background: rgba(214, 40, 40, 0.12); color: #d62828; }
+.lf-claim-pill.is-revoked { background: rgba(214, 40, 40, 0.12); color: var(--red); }
 
 .lf-claims {
     display: grid;
@@ -1379,23 +1379,23 @@
 .lf-claim-indicator {
     margin-top: 12px !important;
     padding: 10px 12px;
-    border-left: 3px solid #fb8500;
+    border-left: 3px solid var(--orange);
     border-radius: 8px;
-    background: #fff4e0;
+    background: var(--peach-soft);
 }
 
-.lf-claim-pill.is-cancelled { background: #eee3d0; color: rgba(90, 27, 0, 0.7); }
+.lf-claim-pill.is-cancelled { background: var(--line-soft); color: rgba(90, 27, 0, 0.7); }
 
 .lf-claim-proof {
     padding: 10px;
     border-radius: 8px;
-    background: #fff4e0;
+    background: var(--peach-soft);
     white-space: pre-wrap;
 }
 /* ===== Lost & Found list: aligned with Donations / User Management (lf2-*) ===== */
 .lost-found-page {
     gap: 14px;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .lf2-actions {
@@ -1408,10 +1408,10 @@
 .lf2-btn {
     min-height: 40px;
     padding: 0 16px;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
     border-radius: 999px;
     background: transparent;
-    color: #5a1b00;
+    color: var(--brown);
     font: inherit;
     font-size: 14px;
     font-weight: 600;
@@ -1424,14 +1424,14 @@
 }
 
 .lf2-btn.is-on {
-    background: #5a1b00;
-    color: #eae2b7;
+    background: var(--brown);
+    color: var(--cream);
 }
 
 .lf2-btn.is-primary {
-    border-color: #fb8500;
-    background: #fb8500;
-    color: #ffffff;
+    border-color: var(--orange);
+    background: var(--orange);
+    color: var(--white);
 }
 
 /* Strip (same look as IntakeRecords.css, repeated so it works on every dashboard) */
@@ -1440,7 +1440,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     overflow: hidden;
     border-radius: 16px;
-    background: #fffdf3;
+    background: var(--paper);
 }
 
 .lost-found-page .um-strip > div {
@@ -1450,7 +1450,7 @@
 
 .lost-found-page .um-strip small {
     display: block;
-    color: #75432f;
+    color: var(--brown-soft);
     font-size: 12px;
     font-weight: 600;
 }
@@ -1464,18 +1464,18 @@
     flex-direction: column;
     justify-content: center;
     border-left: none;
-    background: #5a1b00;
+    background: var(--brown);
 }
 
 .lost-found-page .um-strip > .um-strip-total b {
-    color: #fcbf49;
+    color: var(--yellow);
     font-size: 30px;
     line-height: 1;
 }
 
 .lost-found-page .um-strip > .um-strip-total small {
     margin-top: 4px;
-    color: #f3dcc0;
+    color: var(--peach);
     font-weight: 500;
 }
 
@@ -1485,7 +1485,7 @@
     padding: 16px 18px;
     border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 14px;
-    background: #fffdf4;
+    background: var(--paper);
 }
 
 /* Toolbar matches the adopter Browse Pets toolbar (pet-list-search / pet-list-select from BrowsePets.css) */
@@ -1513,7 +1513,7 @@
     display: flex;
     flex-wrap: wrap;
     column-gap: 22px;
-    border-bottom: 1px solid #e3d5b5;
+    border-bottom: 1px solid var(--line);
 }
 
 .lf2-tabs button:focus:not(:focus-visible) {
@@ -1526,7 +1526,7 @@
     border: 0;
     border-bottom: 3px solid transparent;
     background: transparent;
-    color: #8a6a4a;
+    color: var(--brown-muted);
     font: inherit;
     font-size: 14px;
     font-weight: 700;
@@ -1538,18 +1538,18 @@
     margin-left: 5px;
     padding: 1px 7px;
     border-radius: 999px;
-    background: #f1ece2;
+    background: var(--cream-card);
     font-size: 11px;
 }
 
 .lf2-tabs button.is-active {
-    border-bottom-color: #fb8500;
-    color: #5a1b00;
+    border-bottom-color: var(--orange);
+    color: var(--brown);
 }
 
 .lf2-tabs button.is-active span {
-    background: #fb8500;
-    color: #fff;
+    background: var(--orange);
+    color: var(--white);
 }
 
 /* Possible matches tab */
@@ -1562,15 +1562,15 @@
 
 .lfm-intro {
     margin: 0 0 4px;
-    color: #8a6a4a;
+    color: var(--brown-muted);
     font-size: 13px;
 }
 
 .lfm-card {
     padding: 16px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 14px;
-    background: #fffdf4;
+    background: var(--paper);
 }
 
 .lfm-pair {
@@ -1588,18 +1588,18 @@
     border: 0;
     border-radius: 10px;
     background: transparent;
-    color: #5a1b00;
+    color: var(--brown);
     font: inherit;
     text-align: left;
     cursor: pointer;
 }
 
 .lfm-side:hover {
-    background: #f6f1e4;
+    background: var(--cream-card);
 }
 
 .lfm-side.is-missing {
-    color: #8a6a4a;
+    color: var(--brown-muted);
     font-style: italic;
     cursor: default;
 }
@@ -1611,7 +1611,7 @@
     flex-shrink: 0;
     border-radius: 10px;
     object-fit: cover;
-    background: #e8dcc2;
+    background: var(--line-soft);
 }
 
 .lfm-thumb {
@@ -1632,7 +1632,7 @@
 }
 
 .lfm-info small {
-    color: #75432f;
+    color: var(--brown-soft);
     font-size: 12.5px;
 }
 
@@ -1643,13 +1643,13 @@
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
-    background: #fde2e2;
-    color: #a12020;
+    background: var(--red-soft);
+    color: var(--red-dark);
 }
 
 .lfm-type.is-found {
-    background: #e3effd;
-    color: #1c5cab;
+    background: var(--blue-soft);
+    color: var(--blue);
 }
 
 .lfm-score {
@@ -1661,12 +1661,12 @@
 }
 
 .lfm-score strong {
-    color: #fb8500;
+    color: var(--orange);
     font-size: 30px;
 }
 
 .lfm-score small {
-    color: #8a6a4a;
+    color: var(--brown-muted);
     font-size: 11px;
 }
 
@@ -1689,18 +1689,18 @@
     padding: 3px 9px;
     border-radius: 999px;
     font-size: 11.5px;
-    background: #f1ece2;
-    color: #8a6a4a;
+    background: var(--cream-card);
+    color: var(--brown-muted);
 }
 
 .lfm-factor.is-good {
-    background: #e6f2e6;
-    color: #2d6a2d;
+    background: var(--green-soft);
+    color: var(--green-dark);
 }
 
 .lfm-factor.is-mid {
-    background: #fff3cd;
-    color: #8a5a00;
+    background: var(--white-yellow);
+    color: var(--amber);
 }
 
 .lfm-actions {
@@ -1710,10 +1710,10 @@
 
 .lfm-btn {
     padding: 8px 14px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 10px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-size: 13px;
     font-weight: 700;
@@ -1721,9 +1721,9 @@
 }
 
 .lfm-btn.is-primary {
-    border-color: #5a1b00;
-    background: #5a1b00;
-    color: #fffdf4;
+    border-color: var(--brown);
+    background: var(--brown);
+    color: var(--paper);
 }
 
 .lfm-btn:disabled {
@@ -1739,7 +1739,7 @@
 
 .lf2-empty {
     margin: 24px 0;
-    color: #7a3e19;
+    color: var(--brown-soft);
     text-align: center;
 }
 
@@ -1756,7 +1756,7 @@
 .lf2-table th {
     padding: 10px 8px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.15);
-    color: #7a3e19;
+    color: var(--brown-soft);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -1795,7 +1795,7 @@
     height: 40px;
     border-radius: 8px;
     object-fit: cover;
-    background: #eadcc4;
+    background: var(--line-soft);
 }
 
 .lf2-pet b {
@@ -1803,7 +1803,7 @@
 }
 
 .lf2-pet small {
-    color: #7a3e19;
+    color: var(--brown-soft);
     font-size: 12px;
 }
 
@@ -1817,34 +1817,34 @@
 }
 
 .lf2-pill.is-lost {
-    background: #ede4ff;
+    background: var(--white);
     color: #6d28d9;
 }
 
 .lf2-pill.is-found {
-    background: #d9f0e3;
-    color: #2f8f5b;
+    background: var(--green-soft);
+    color: var(--green);
 }
 
 .lf2-pill.is-open {
-    background: #fff3cd;
-    color: #8a5a00;
+    background: var(--white-yellow);
+    color: var(--amber);
 }
 
 .lf2-pill.is-claim-pending {
-    background: #e8efff;
-    color: #1d4ed8;
+    background: var(--blue-soft);
+    color: var(--blue);
 }
 
 .lf2-pill.is-claim-approved {
-    background: #d9f0e3;
-    color: #2f8f5b;
+    background: var(--green-soft);
+    color: var(--green);
 }
 
 .lf2-pill.is-reunited,
 .lf2-pill.is-rejected {
-    background: #e5e7eb;
-    color: #4b5563;
+    background: var(--white);
+    color: var(--dark);
 }
 
 .lf2-date {
@@ -1861,10 +1861,10 @@
 
 .lf2-mini {
     padding: 6px 12px;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
     border-radius: 999px;
-    background: #5a1b00;
-    color: #eae2b7;
+    background: var(--brown);
+    color: var(--cream);
     font: inherit;
     font-size: 12px;
     font-weight: 600;
@@ -1876,7 +1876,7 @@
     padding: 0;
     border: none;
     background: none;
-    color: #5a1b00;
+    color: var(--brown);
     font: inherit;
     font-size: 12px;
     font-weight: 600;
@@ -1886,7 +1886,7 @@
 }
 
 .lf2-link.is-danger {
-    color: #d62828;
+    color: var(--red);
 }
 
 @media (max-width: 900px) {
@@ -1910,8 +1910,8 @@
     max-width: 240px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: #4a1a00;
-    color: #fff4e6;
+    background: var(--brown);
+    color: var(--cream-card);
     font-size: 12px;
     font-weight: 600;
     line-height: 1.45;
@@ -1933,7 +1933,7 @@
     left: 50%;
     z-index: 50;
     border: 6px solid transparent;
-    border-top-color: #4a1a00;
+    border-top-color: var(--brown);
     border-bottom: 0;
     opacity: 0;
     visibility: hidden;
@@ -1955,15 +1955,15 @@
     align-items: center;
     gap: 14px;
     padding: 16px 18px;
-    border: 1.5px dashed #f0b860;
+    border: 1.5px dashed var(--yellow);
     border-radius: 12px;
-    background: #fff4dc;
+    background: var(--peach-soft);
     transition: border-color 0.15s, background 0.15s;
 }
 
 .lfr-drop.is-over {
-    border-color: #fb8500;
-    background: #ffe9c2;
+    border-color: var(--orange);
+    background: var(--peach);
 }
 
 .lfr-drop-icon {
@@ -1973,14 +1973,14 @@
     width: 44px;
     height: 44px;
     border-radius: 10px;
-    background: #ffd59a;
+    background: var(--gold);
 }
 
 .lfr-drop-icon svg {
     width: 22px;
     height: 22px;
     fill: none;
-    stroke: #c25a00;
+    stroke: var(--orange-dark);
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -1994,7 +1994,7 @@
 }
 
 .lfr-drop-text b {
-    color: #3a1200;
+    color: var(--brown-strong);
     font-size: 14px;
 }
 
@@ -2015,8 +2015,8 @@
     padding: 2px 9px;
     border: 1px solid rgba(90, 27, 0, 0.2);
     border-radius: 999px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-size: 10px;
     font-weight: 700;
 }
@@ -2025,15 +2025,15 @@
     flex-shrink: 0;
     padding: 10px 18px;
     border-radius: 8px;
-    background: #4a1a00;
-    color: #fff;
+    background: var(--brown);
+    color: var(--white);
     font-size: 12px;
     font-weight: 800;
     cursor: pointer;
 }
 
 .lfr-drop-btn:hover {
-    background: #5e2400;
+    background: var(--brown);
 }
 
 .lfr-drop-btn.is-disabled {
@@ -2046,9 +2046,9 @@
     align-items: center;
     gap: 12px;
     padding: 10px 12px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 12px;
-    background: #fff;
+    background: var(--white);
 }
 
 .lfr-photo-done img {
@@ -2066,14 +2066,14 @@
 
 .lfr-photo-done b {
     overflow: hidden;
-    color: #3a1200;
+    color: var(--brown-strong);
     font-size: 13px;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
 .lfr-photo-done small {
-    color: #16834a;
+    color: var(--green-dark);
     font-size: 11px;
     font-weight: 700;
 }
@@ -2082,15 +2082,15 @@
     padding: 7px 12px;
     border: 1px solid rgba(214, 40, 40, 0.4);
     border-radius: 8px;
-    background: #fff;
-    color: #d62828;
+    background: var(--white);
+    color: var(--red);
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
 }
 
 .lfr-photo-error {
-    color: #d62828;
+    color: var(--red);
     font-size: 11px;
     font-weight: 700;
 }
@@ -2109,18 +2109,18 @@
     align-items: stretch;
     height: 34px;
     overflow: hidden;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 8px;
-    background: #fdefb8;
+    background: var(--amber-soft);
 }
 
 .lfr-phone-code {
     display: grid;
     place-items: center;
     padding: 0 12px;
-    border-right: 1px solid #f3d98a;
-    background: #fbe29c;
-    color: #5a1b00;
+    border-right: 1px solid var(--gold);
+    background: var(--gold);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
 }
@@ -2140,12 +2140,12 @@
 }
 
 .lfr-phone:focus-within {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
 .lfr-phone.is-invalid {
-    border-color: #d62828;
+    border-color: var(--red);
 }
 
 .lfr-phone.is-invalid:focus-within {
@@ -2153,7 +2153,7 @@
 }
 
 .lfr-field-error {
-    color: #d62828;
+    color: var(--red);
     font-size: 11px;
     font-weight: 700;
 }
@@ -2170,7 +2170,7 @@
     border: 1.5px solid rgba(255, 255, 255, 0.85);
     border-radius: 8px;
     background: transparent;
-    color: #fff;
+    color: var(--white);
     font-weight: 700;
     cursor: pointer;
 }
@@ -2185,23 +2185,23 @@
 }
 
 .lf-hero-ghost.is-on {
-    border-color: #fffaf2;
-    background: #fffaf2;
-    color: #814b1c;
+    border-color: var(--paper);
+    background: var(--paper);
+    color: var(--brown-soft);
 }
 /* ===== Lost & Found: match Reports / Feedback (square controls, row buttons) ===== */
 .lf2-mini {
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-weight: 700;
     text-decoration: none;
 }
 
 .lf2-mini.is-dark,
 .lf2-mini:hover {
-    background: #5a1b00;
-    color: #fff;
+    background: var(--brown);
+    color: var(--white);
 }
 
 .lf2-icon {
@@ -2209,33 +2209,33 @@
     height: 30px;
     display: grid;
     place-items: center;
-    border: 1px solid #f0c9c9;
+    border: 1px solid var(--red-soft);
     border-radius: 0;
-    background: #fff;
-    color: #d62828;
+    background: var(--white);
+    color: var(--red);
     cursor: pointer;
 }
 
 .lf2-icon:hover {
-    border-color: #d62828;
+    border-color: var(--red);
 }
 
 .lf2-name {
     font-weight: 600;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .lf2-thumb {
     display: grid;
     place-items: center;
     font-size: 20px;
-    background: #f6edd6;
+    background: var(--line-soft);
 }
 
 .lf2-foot {
     margin: 0;
     font-size: 12px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 /* ===== Report-a-pet form (lfr2) — clean, square, matches other pages ===== */
@@ -2249,8 +2249,8 @@
     padding: 20px 22px;
     border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 14px;
-    background: #fffdf4;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
 }
 
 .lfr2-head {
@@ -2271,25 +2271,25 @@
 .lfr2-head p {
     margin: 2px 0 0;
     font-size: 12.5px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .lfr2 em {
     font-style: normal;
-    color: #d62828;
+    color: var(--red);
 }
 
 .lfr2-seg {
     display: flex;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
 }
 
 .lfr2-seg button {
     padding: 8px 18px;
     border: 0;
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-size: 13px;
     font-weight: 700;
@@ -2297,12 +2297,12 @@
 }
 
 .lfr2-seg button + button {
-    border-left: 1px solid #5a1b00;
+    border-left: 1px solid var(--brown);
 }
 
 .lfr2-seg button.on {
-    background: #5a1b00;
-    color: #fff;
+    background: var(--brown);
+    color: var(--white);
 }
 
 .lfr2-sec {
@@ -2320,7 +2320,7 @@
 .lfr2-sec > p {
     margin: 0 0 12px;
     font-size: 12px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .lfr2-grid {
@@ -2358,12 +2358,12 @@
 .lfr2-field > span {
     font-size: 12px;
     font-weight: 700;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .lfr2-field > span small {
     font-weight: 500;
-    color: #a08670;
+    color: var(--brown-muted);
 }
 
 .lfr2-field input,
@@ -2371,10 +2371,10 @@
 .lfr2-field textarea {
     width: 100%;
     padding: 9px 11px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 0;
-    background: #fff;
-    color: #3d2410;
+    background: var(--white);
+    color: var(--brown-strong);
     font: inherit;
     font-size: 13px;
     outline: none;
@@ -2387,7 +2387,7 @@
 .lfr2-field select {
     padding-right: 32px;
     appearance: none;
-    background: #fff
+    background: var(--white)
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
         no-repeat right 11px center;
     cursor: pointer;
@@ -2396,11 +2396,11 @@
 .lfr2-field input:focus,
 .lfr2-field select:focus,
 .lfr2-field textarea:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
 }
 
 .lfr2-field input.is-readonly {
-    background: #faf3df;
+    background: var(--peach-soft);
 }
 
 .lfr2-age {
@@ -2429,27 +2429,27 @@
     width: 38px;
     height: 38px;
     object-fit: cover;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
 }
 
 .lfr2-photo small {
     font-size: 12px;
-    color: #a08670;
+    color: var(--brown-muted);
 }
 
 .lfr2-photo-btn {
     padding: 8px 12px;
-    border: 1px solid #5a1b00;
-    background: #fff;
-    color: #5a1b00;
+    border: 1px solid var(--brown);
+    background: var(--white);
+    color: var(--brown);
     font-size: 12.5px;
     font-weight: 700;
     cursor: pointer;
 }
 
 .lfr2-photo-btn:hover {
-    background: #5a1b00;
-    color: #fff;
+    background: var(--brown);
+    color: var(--white);
 }
 
 .lfr2-photo-btn.is-disabled {
@@ -2461,7 +2461,7 @@
     padding: 0;
     border: 0;
     background: none;
-    color: #5a1b00;
+    color: var(--brown);
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -2471,19 +2471,19 @@
 
 .lfr2-error {
     font-size: 12px;
-    color: #d62828;
+    color: var(--red);
 }
 
 .lfr2-map {
     position: relative;
     height: 230px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
 }
 
 
 .lfr2-coord {
     font-size: 11.5px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .lfr2-phone {
@@ -2492,9 +2492,9 @@
 
 .lfr2-phone b {
     padding: 9px 11px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-right: 0;
-    background: #faf3df;
+    background: var(--peach-soft);
     font-size: 13px;
 }
 
@@ -2504,7 +2504,7 @@
 }
 
 .lfr2-phone.is-invalid input {
-    border-color: #d62828;
+    border-color: var(--red);
 }
 
 /* Stays pinned to the bottom of the screen so Submit is always visible */
@@ -2521,12 +2521,12 @@
     padding: 12px 22px;
     border-top: 1px solid rgba(90, 27, 0, 0.1);
     border-radius: 0 0 14px 14px;
-    background: #fffdf4;
+    background: var(--paper);
 }
 
 .lfr2-foot small {
     font-size: 12px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .lfr2-foot > div {
@@ -2536,10 +2536,10 @@
 
 .lfr2-btn {
     padding: 10px 18px;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-size: 13px;
     font-weight: 700;
@@ -2547,9 +2547,9 @@
 }
 
 .lfr2-btn.is-primary {
-    border-color: #fb8500;
-    background: #fb8500;
-    color: #fff;
+    border-color: var(--orange);
+    background: var(--orange);
+    color: var(--white);
 }
 
 .lfr2-btn:disabled {
@@ -2582,10 +2582,10 @@
     width: 100%;
     box-sizing: border-box;
     padding: 8px 10px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 0;
-    background: #fff;
-    color: #3d2410;
+    background: var(--white);
+    color: var(--brown-strong);
     font: inherit;
     font-size: 13px;
     box-shadow: 0 4px 12px rgba(90, 27, 0, 0.18);
@@ -2594,7 +2594,7 @@
 
 .gm-map-search input:focus,
 .lfr2-map-search input:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
 }
 
 .gm-map-results {
@@ -2603,9 +2603,9 @@
     list-style: none;
     max-height: 260px;
     overflow-y: auto;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-top: 0;
-    background: #fff;
+    background: var(--white);
     box-shadow: 0 8px 18px rgba(90, 27, 0, 0.18);
 }
 
@@ -2620,8 +2620,8 @@
     padding: 8px 10px;
     border: 0;
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     text-align: left;
     cursor: pointer;
@@ -2629,7 +2629,7 @@
 
 .gm-map-results button:hover,
 .gm-map-results button:focus-visible {
-    background: #fff4d6;
+    background: var(--peach-soft);
     outline: none;
 }
 
@@ -2639,13 +2639,13 @@
 
 .gm-map-results small {
     font-size: 11.5px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .gm-map-results .is-note {
     padding: 8px 10px;
     font-size: 12px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 /* "My location" button on the report map (under the zoom buttons) */
@@ -2661,7 +2661,7 @@
     padding: 0;
     border: 2px solid rgba(0, 0, 0, 0.2);
     border-radius: 4px;
-    background: #fff;
+    background: var(--white);
     cursor: pointer;
 }
 
@@ -2671,7 +2671,7 @@
 }
 
 .lfr2-locate:hover {
-    background: #fff4d6;
+    background: var(--peach-soft);
 }
 
 .lfr2-locate.is-busy {
@@ -2694,13 +2694,13 @@
     align-items: center;
     gap: 8px;
     padding: 8px 10px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 10px;
-    background: #fff;
+    background: var(--white);
 }
 
 .lf-match:hover {
-    border-color: #fb8500;
+    border-color: var(--orange);
 }
 
 .lf-match-open {
@@ -2712,7 +2712,7 @@
     padding: 0;
     border: none;
     background: none;
-    color: #5a1b00;
+    color: var(--brown);
     text-align: left;
     cursor: pointer;
 }
@@ -2725,7 +2725,7 @@
     place-items: center;
     overflow: hidden;
     border-radius: 8px;
-    background: #fdefb8;
+    background: var(--amber-soft);
     font-size: 24px;
 }
 
@@ -2758,8 +2758,8 @@
     flex-shrink: 0;
     padding: 3px 8px;
     border-radius: 999px;
-    background: #2e9e5b;
-    color: #fff;
+    background: var(--green);
+    color: var(--white);
     font-size: 9px;
     font-weight: 800;
     text-transform: uppercase;
@@ -2770,16 +2770,16 @@
     padding: 6px 10px;
     border: 1px solid rgba(90, 27, 0, 0.3);
     border-radius: 8px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
 }
 
 .lf-match-dismiss:hover {
-    border-color: #d62828;
-    color: #d62828;
+    border-color: var(--red);
+    color: var(--red);
 }
 
 .lf-match-note {
@@ -2791,7 +2791,7 @@
     margin: 0 !important;
     padding: 10px;
     border-radius: 8px;
-    background: #fff4e0;
+    background: var(--peach-soft);
     color: rgba(90, 27, 0, 0.75);
     font-size: 12px !important;
 }
@@ -2800,12 +2800,12 @@
 .lf-suggest-panel {
     gap: 8px;
     margin-bottom: 14px;
-    border-left: 4px solid #fb8500;
+    border-left: 4px solid var(--orange);
 }
 
 .lf-suggest-panel h3 {
     margin: 0;
-    color: #5a1b00;
+    color: var(--brown);
     font-family: "Itim", cursive;
     font-size: 18px;
     font-weight: 400;
@@ -2820,7 +2820,7 @@
 .lf-claim-proof-photo {
     max-width: 220px;
     margin-top: 6px;
-    border: 1px solid #f3d98a;
+    border: 1px solid var(--gold);
     border-radius: 8px;
 }
 
@@ -2848,7 +2848,7 @@
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
-    border-bottom: 1px solid #e3d5b5;
+    border-bottom: 1px solid var(--line);
 }
 
 .lf-tabs-row .lf2-tabs {
@@ -2862,14 +2862,14 @@
     align-items: center;
     gap: 10px;
     padding-bottom: 4px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 13px;
 }
 
 .lf-select-link {
     border: 0;
     background: none;
-    color: #d96f00;
+    color: var(--orange-dark);
     font: inherit;
     font-weight: 700;
     cursor: pointer;
@@ -2878,10 +2878,10 @@
 .lf-select-btn {
     margin-bottom: 4px;
     padding: 6px 14px;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
     border-radius: 9px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-size: 12.5px;
     font-weight: 700;
@@ -2889,9 +2889,9 @@
 }
 
 .lf-select-btn.is-danger {
-    border-color: #b42318;
-    background: #b42318;
-    color: #fff;
+    border-color: var(--red-dark);
+    background: var(--red-dark);
+    color: var(--white);
 }
 
 .lf-select-btn:disabled {
@@ -2912,29 +2912,29 @@
     gap: 12px;
     padding: 12px;
     overflow: visible;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 14px;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     outline: none;
 }
 
 .lf-grid .lf-card:hover,
 .lf-grid .lf-card:focus-visible {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 6px 16px rgba(90, 27, 0, 0.1);
     transform: translateY(-1px);
 }
 
 .lf-grid .lf-card.is-mine {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: none;
 }
 
 .lf-grid .lf-card.is-selected {
-    border-color: #b42318;
-    background: #fff8f6;
-    box-shadow: 0 0 0 1px #b42318 inset;
+    border-color: var(--red-dark);
+    background: var(--white);
+    box-shadow: 0 0 0 1px var(--red-dark) inset;
 }
 
 .lf-card-thumb {
@@ -2994,7 +2994,7 @@
 
 .lf-card-sub {
     overflow: hidden;
-    color: #75432f;
+    color: var(--brown-soft);
     font-size: 12.5px;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -3005,7 +3005,7 @@
     gap: 12px;
     min-width: 0;
     overflow: hidden;
-    color: #8a6a4a;
+    color: var(--brown-muted);
     font-size: 11.5px;
     white-space: nowrap;
 }
@@ -3041,14 +3041,14 @@
     height: 20px;
     display: grid;
     place-items: center;
-    border: 1.5px solid #c9b896;
+    border: 1.5px solid var(--line);
     border-radius: 6px;
-    background: #fff;
+    background: var(--white);
 }
 
 .lf-card-check.is-on {
-    border-color: #b42318;
-    background: #b42318;
+    border-color: var(--red-dark);
+    background: var(--red-dark);
 }
 
 .lf-card-flag {
@@ -3060,26 +3060,26 @@
     font-weight: 700;
 }
 
-.lf-card-flag.is-match { background: #fde8d4; color: #b45309; }
-.lf-card-flag.is-claim { background: #e3effd; color: #1c5cab; }
-.lf-card-flag.is-mine { background: #fb8500; color: #fff; }
+.lf-card-flag.is-match { background: var(--line-soft); color: var(--orange-dark); }
+.lf-card-flag.is-claim { background: var(--blue-soft); color: var(--blue); }
+.lf-card-flag.is-mine { background: var(--orange); color: var(--white); }
 
 /* Delete one report from its details popup (admin only) */
 .lf-modal-foot .lfr-delete {
     margin-right: auto;
     height: 34px;
     padding: 0 18px;
-    border: 1px solid #b42318;
+    border: 1px solid var(--red-dark);
     border-radius: 8px;
-    background: #fff;
-    color: #b42318;
+    background: var(--white);
+    color: var(--red-dark);
     font-size: 12px;
     font-weight: 800;
     cursor: pointer;
 }
 
 .lf-modal-foot .lfr-delete:hover {
-    background: #fdeaea;
+    background: var(--red-soft);
 }
 
 /* ===== Claims: "New" markers, found-claim form, staff read-only note ===== */
@@ -3087,8 +3087,8 @@
     margin-left: 6px;
     padding: 1px 7px;
     border-radius: 999px;
-    background: #d62828;
-    color: #fff;
+    background: var(--red);
+    color: var(--white);
     font-size: 10.5px;
     font-style: normal;
     font-weight: 800;
@@ -3099,18 +3099,18 @@
     50% { box-shadow: 0 0 0 4px rgba(214, 40, 40, 0.2); }
 }
 
-.lf-card-flag.is-new { background: #d62828; color: #fff; }
-.lf-claim-pill.is-new { background: #d62828; color: #fff; }
+.lf-card-flag.is-new { background: var(--red); color: var(--white); }
+.lf-claim-pill.is-new { background: var(--red); color: var(--white); }
 
 .lf-claim-review.is-new {
-    border-left: 4px solid #d62828;
-    background: #fff6f4;
+    border-left: 4px solid var(--red);
+    background: var(--white);
 }
 
 .lf-claim-readonly {
     padding: 8px 10px;
     border-radius: 8px;
-    background: #f1ece2;
-    color: #6b5a4a;
+    background: var(--cream-card);
+    color: var(--brown-muted);
     font-size: 12.5px;
 }

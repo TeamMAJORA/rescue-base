@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { formatDate } from "../../../utils/formatDate";
 
 // Medical Assistance — foster asks for help, Admin & Staff resolve it in Foster Care.
 // Sends to /api/foster/assignments/:id/medical-requests (the route Admin & Staff read).
@@ -155,14 +156,6 @@ function daysBetween(from, to = new Date()) {
     return Math.round((b - a) / 86400000);
 }
 
-function formatDate(value) {
-    if (!value) return "—";
-    return new Date(value).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
-}
 
 function relativeDay(value) {
     const days = daysBetween(value);
@@ -350,7 +343,7 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                         icon: "calendar",
                         label: "Last request",
                         value: last
-                            ? new Date(last.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            ? formatDate(last.createdAt, { withYear: false })
                             : "—",
                         note: last ? relativeDay(last.createdAt) : "",
                     },

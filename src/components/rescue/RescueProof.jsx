@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "../../styles/components/RescueProof.css";
+import { formatDateTime } from "../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const MAX_PROOF_PHOTOS = 5;
@@ -149,7 +150,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
 // Staff view of what the volunteer submitted
 export function RescueProofModal({ assignment, onClose }) {
     const completedAt = assignment.completedAt
-        ? new Date(assignment.completedAt).toLocaleString("en-PH", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
+        ? formatDateTime(assignment.completedAt)
         : "";
     const photos = assignment.completionPhotos || [];
 

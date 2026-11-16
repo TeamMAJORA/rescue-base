@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { formatDate } from "../../../utils/formatDate";
 
 // Care Updates — weekly care report for the foster's active pet
 // (replaces the old "Weekly Updates" + "Foster Updates" pages)
@@ -155,14 +156,6 @@ function daysBetween(from, to = new Date()) {
     return Math.round((b - a) / 86400000);
 }
 
-function formatDate(value) {
-    if (!value) return "—";
-    return new Date(value).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
-}
 
 function relativeDay(value) {
     const days = daysBetween(value);
@@ -400,7 +393,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                         icon: "bell",
                         label: "Next update due",
                         value: hasAssignment
-                            ? dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            ? formatDate(dueDate, { withYear: false })
                             : "—",
                         note: hasAssignment ? dueNote : "",
                     },

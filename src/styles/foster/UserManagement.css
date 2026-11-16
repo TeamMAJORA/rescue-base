@@ -20,8 +20,8 @@
     margin: 0;
     padding: 12px 16px;
     border-radius: 14px;
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
     font-size: 14px;
     font-weight: 700;
     border: 1px solid rgba(251, 133, 0, 0.22);
@@ -34,21 +34,21 @@
     gap: 14px;
     padding: 18px;
     border-radius: 20px;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
 .admin-user-edit-form h3 {
     grid-column: 1 / -1;
     margin: 0 0 4px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 18px;
 }
 
 .admin-user-edit-form label {
     display: grid;
     gap: 7px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 13px;
     font-weight: 800;
 }
@@ -60,15 +60,15 @@
     border: 1px solid rgba(90, 27, 0, 0.16);
     border-radius: 14px;
     padding: 10px 12px;
-    background: white;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font-size: 14px;
     outline: none;
 }
 
 .admin-user-edit-form input:focus,
 .admin-user-edit-form select:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
@@ -88,13 +88,13 @@
 }
 
 .admin-user-form-actions button[type="submit"] {
-    background: #fb8500;
-    color: white;
+    background: var(--orange);
+    color: var(--white);
 }
 
 .admin-user-form-actions button[type="button"] {
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
 }
 
 /* User list */
@@ -110,7 +110,7 @@
     gap: 18px;
     padding: 16px 18px;
     border-radius: 20px;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
@@ -121,7 +121,7 @@
 
 .admin-user-row h3 {
     margin: 0 0 5px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 17px;
 }
 
@@ -149,8 +149,8 @@
 .admin-user-badges span {
     padding: 7px 11px;
     border-radius: 999px;
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
     text-transform: capitalize;
@@ -162,8 +162,8 @@
     border: none;
     border-radius: 14px;
     padding: 10px 16px;
-    background: #fb8500;
-    color: white;
+    background: var(--orange);
+    color: var(--white);
     font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
@@ -220,23 +220,23 @@
 }
 
 .deactivate-btn {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: var(--red-soft);
+    color: var(--red-dark);
 }
 
 .deactivate-btn:hover {
-    background: #fecaca;
+    background: var(--red-soft);
 }
 
 .deactivate-btn:disabled {
-    background: #e5e7eb;
-    color: #6b7280;
+    background: var(--white);
+    color: var(--brown-muted);
     cursor: not-allowed;
 }
 
 .edit-btn {
-    background: #e0e7ff;
-    color: #3730a3;
+    background: var(--blue-soft);
+    color: var(--blue);
 }
 
 .edit-btn:hover {
@@ -274,7 +274,7 @@
 /* ===================== User Management redesign (Nov 9) ===================== */
 /* Plain headings (no highlight), flat cards, 12/8/6px corners, shadow only on the floating menu */
 .um-page .gs-card { border-radius: var(--radius-card, 12px); box-shadow: none; }
-.um-page .gs-card h3 { margin: 0; font-size: 16px; font-weight: 800; color: #5a1b00; }
+.um-page .gs-card h3 { margin: 0; font-size: 16px; font-weight: 800; color: var(--brown); }
 .um-apps-head p { margin: 2px 0 0; }
 .um-count { border-radius: var(--radius-chip, 6px); }
 .um-role { border-radius: var(--radius-chip, 6px); padding: 3px 8px; }
@@ -287,28 +287,28 @@
     gap: 4px;
     padding: 3px;
     border-radius: var(--radius-inner, 8px);
-    background: #f6f1e4;
+    background: var(--cream-card);
 }
 .um-role-tabs button {
     padding: 6px 11px;
     border: 0;
     border-radius: var(--radius-chip, 6px);
     background: transparent;
-    color: #8a6a4a;
+    color: var(--brown-muted);
     font: inherit;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
 }
 .um-role-tabs button span { margin-left: 3px; opacity: 0.75; }
-.um-role-tabs button.is-on { background: #fff; color: #5a1b00; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+.um-role-tabs button.is-on { background: var(--white); color: var(--brown); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
 .um-tools .um-search, .um-tools select { border-radius: var(--radius-inner, 8px); }
 
 /* Rows: tap to edit */
 .um-table tr.um-row { cursor: pointer; }
 .um-table tr.um-row:hover td,
-.um-table tr.um-row:focus-visible td { background: #fffaf0; }
-.um-table tr.um-row:focus-visible { outline: 2px solid #fb8500; outline-offset: -2px; }
+.um-table tr.um-row:focus-visible td { background: var(--paper); }
+.um-table tr.um-row:focus-visible { outline: 2px solid var(--orange); outline-offset: -2px; }
 .um-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* "⋯" button + floating menu */
@@ -318,22 +318,22 @@
     display: inline-grid;
     place-items: center;
     padding: 0;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: var(--radius-inner, 8px);
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     cursor: pointer;
 }
-.um-more:hover { border-color: #fb8500; }
+.um-more:hover { border-color: var(--orange); }
 .um-menu {
     position: fixed;
     z-index: 1200;
     display: grid;
     min-width: 180px;
     padding: 4px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: var(--radius-inner, 8px);
-    background: #fff;
+    background: var(--white);
     box-shadow: var(--shadow-float, 0 12px 28px rgba(90, 27, 0, 0.18));
 }
 .um-menu button {
@@ -341,23 +341,23 @@
     border: 0;
     border-radius: var(--radius-chip, 6px);
     background: transparent;
-    color: #5a1b00;
+    color: var(--brown);
     font: inherit;
     font-size: 13px;
     font-weight: 600;
     text-align: left;
     cursor: pointer;
 }
-.um-menu button:hover { background: #f6f1e4; }
-.um-menu button.is-danger { color: #a12020; }
-.um-menu button.is-ok { color: #2d6a2d; }
+.um-menu button:hover { background: var(--cream-card); }
+.um-menu button.is-danger { color: var(--red-dark); }
+.um-menu button.is-ok { color: var(--green-dark); }
 
 /* Edit popup */
 .um-modal { border-radius: var(--radius-card, 12px); }
-.um-modal h3 { margin: 0; font-size: 18px; font-weight: 800; color: #5a1b00; }
+.um-modal h3 { margin: 0; font-size: 18px; font-weight: 800; color: var(--brown); }
 .um-modal .gs-field input, .um-modal .gs-field select { border-radius: var(--radius-inner, 8px); }
 .um-modal .gs-field select:disabled { opacity: 0.6; cursor: not-allowed; }
-.um-self-note { margin-top: -6px; color: #8a6a4a; font-size: 12px; }
+.um-self-note { margin-top: -6px; color: var(--brown-muted); font-size: 12px; }
 
 /* Phones: rows become tappable cards */
 @media (max-width: 640px) {
@@ -378,9 +378,9 @@
         gap: 4px 10px;
         min-height: 56px;
         padding: 10px 12px;
-        border: 1px solid #efe4cb;
+        border: 1px solid var(--line-soft);
         border-radius: var(--radius-inner, 8px);
-        background: #fbf6e8;
+        background: var(--cream-card);
     }
     .um-table tr.um-row td { display: block; padding: 0; border: 0; background: transparent !important; }
     .um-table tr.um-row td:nth-child(1) { grid-column: 1; grid-row: span 2; min-width: 0; }

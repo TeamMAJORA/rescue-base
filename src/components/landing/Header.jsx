@@ -13,6 +13,8 @@ function Header({ onLogin, onSignup }) {
                 <img src={assets.icons.redPaw} alt="" />
                 <a href="#pets">Browse Pets</a>
                 <img src={assets.icons.redPaw} alt="" />
+                <a href="#lost-found-map">Lost &amp; Found Map</a>
+                <img src={assets.icons.redPaw} alt="" />
             </nav>
 
             <div className="header-actions">
@@ -30,4 +32,4 @@ function Header({ onLogin, onSignup }) {
     );
 }
 
-export default Header;
+export default Header;

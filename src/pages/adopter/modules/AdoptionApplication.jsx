@@ -3,6 +3,7 @@ import "../../../styles/adopter/AdoptionApplication.css";
 import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
 import InfoTip from "../../../components/system/InfoTip";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
+import { formatTime } from "../../../utils/formatDate";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -917,10 +918,7 @@ function validateForm() {
                      {hasProgress && draftSavedAt && (
                         <small className="adoption-draft-note">
                             ✓ Draft saved at{" "}
-                            {new Date(draftSavedAt).toLocaleTimeString([], {
-                                hour: "numeric",
-                                minute: "2-digit",
-                            })}
+                            {formatTime(draftSavedAt)}
                         </small>
                     )}
                 </form>

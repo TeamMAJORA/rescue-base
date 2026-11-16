@@ -14,26 +14,26 @@
     width: 100%;
     max-width: 380px;
     padding: 22px;
-    background: #fffdf5;
-    border-top: 6px solid var(--orange, #fb8500);
+    background: var(--paper);
+    border-top: 6px solid var(--orange);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
 }
 
 .ao-confirm.danger {
-    border-top-color: #c62828;
+    border-top-color: var(--red-dark);
 }
 
 .ao-confirm h3 {
     margin: 0 0 6px;
     font-size: 17px;
-    color: var(--brown, #5a1b00);
+    color: var(--brown);
 }
 
 .ao-confirm p {
     margin: 0 0 18px;
     font-size: 14px;
     line-height: 1.45;
-    color: #6b5a4a;
+    color: var(--brown-muted);
 }
 
 .ao-confirm-actions {
@@ -45,10 +45,10 @@
 
 .ao-confirm-actions button {
     padding: 9px 18px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: #ffffff;
-    color: #3d2410;
+    background: var(--white);
+    color: var(--brown-strong);
     font: inherit;
     font-size: 13px;
     font-weight: 600;
@@ -56,18 +56,18 @@
 }
 
 .ao-confirm-actions button:hover {
-    background: #fff7e6;
+    background: var(--paper);
 }
 
 .ao-confirm-actions .ao-confirm-ok {
-    background: var(--orange, #fb8500);
-    border-color: var(--orange, #fb8500);
-    color: #ffffff;
+    background: var(--orange);
+    border-color: var(--orange);
+    color: var(--white);
 }
 
 .ao-confirm.danger .ao-confirm-ok {
-    background: #c62828;
-    border-color: #c62828;
+    background: var(--red-dark);
+    border-color: var(--red-dark);
 }
 
 .ao-confirm-actions .ao-confirm-ok:hover {
@@ -91,8 +91,8 @@
     gap: 10px;
     max-width: 360px;
     padding: 10px 14px;
-    background: var(--brown, #5a1b00);
-    color: #ffffff;
+    background: var(--brown);
+    color: var(--white);
     font-size: 13px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     animation: ao-toast-in 0.2s ease-out;
@@ -113,7 +113,7 @@
 }
 
 .ao-toast.error i {
-    background: #e5484d;
+    background: var(--red);
 }
 
 @keyframes ao-toast-in {
@@ -126,7 +126,7 @@
     display: grid;
     gap: 6px;
     margin: 0 0 16px;
-    color: var(--brown, #5a1b00);
+    color: var(--brown);
     font-size: 13px;
     font-weight: 600;
 }
@@ -135,10 +135,10 @@
     width: 100%;
     min-height: 80px;
     padding: 10px 12px;
-    border: 1px solid #e3d5b5;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
-    color: #3d2410;
+    background: var(--white);
+    color: var(--brown-strong);
     font: inherit;
     font-size: 14px;
     font-weight: 400;
@@ -146,11 +146,11 @@
 }
 
 .ao-prompt-field textarea:focus-visible {
-    outline: 3px solid #fb8500;
+    outline: 3px solid var(--orange);
     outline-offset: 1px;
 }
 
 .ao-prompt-error {
-    color: #c62828;
+    color: var(--red-dark);
     font-size: 13px;
 }

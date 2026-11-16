@@ -208,7 +208,7 @@
 
 .admin-analytics-insight-row p {
     margin-top: 4px;
-    color: #6f4a35;
+    color: var(--brown-soft);
     font-size: 13px;
     line-height: 1.5;
     font-weight: 700;
@@ -245,11 +245,11 @@
     margin-top: 2px;
     font-size: 11.5px;
     font-style: normal;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .an2-strip .um-strip-total em {
-    color: #f3dcc0;
+    color: var(--peach);
 }
 
 .an2-grid {
@@ -264,8 +264,8 @@
     padding: 18px 20px;
     border: 1px solid rgba(90, 27, 0, 0.12);
     border-radius: 14px;
-    background: #fffdf4;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
 }
 
 .an2-card h3 {
@@ -273,27 +273,27 @@
     font-family: "Itim", cursive;
     font-size: 22px;
     font-weight: 400;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .an2-muted {
     margin: 0;
     font-size: 13px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .an2-error p {
     margin: 6px 0 12px;
     font-size: 13px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .an2-retry {
     padding: 8px 14px;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-weight: 700;
     cursor: pointer;
@@ -309,15 +309,15 @@
 
 .an2-seg {
     display: flex;
-    border: 1px solid #5a1b00;
+    border: 1px solid var(--brown);
 }
 
 .an2-seg button {
     padding: 7px 14px;
     border: 0;
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-size: 12.5px;
     font-weight: 700;
@@ -326,12 +326,12 @@
 }
 
 .an2-seg button + button {
-    border-left: 1px solid #5a1b00;
+    border-left: 1px solid var(--brown);
 }
 
 .an2-seg button.on {
-    background: #5a1b00;
-    color: #fff;
+    background: var(--brown);
+    color: var(--white);
 }
 
 .an2-sum {
@@ -340,13 +340,13 @@
     gap: 22px;
     margin-top: 10px;
     font-size: 12.5px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .an2-sum b {
     margin-right: 2px;
     font-size: 15px;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 /* Bar chart */
@@ -374,7 +374,7 @@
     width: 24px;
     text-align: right;
     font-size: 11px;
-    color: #a08670;
+    color: var(--brown-muted);
 }
 
 .an2-cols,
@@ -398,7 +398,7 @@
 }
 
 .an2-col:focus-visible .an2-bar {
-    outline: 2px solid #fb8500;
+    outline: 2px solid var(--orange);
     outline-offset: 2px;
 }
 
@@ -415,20 +415,20 @@
     width: min(46px, 70%);
     min-height: 2px;
     border-radius: 4px 4px 0 0;
-    background: #7a3e19;
+    background: var(--brown-soft);
     transition: background 0.15s ease;
 }
 
 .an2-bar.is-current {
-    background: #fb8500;
+    background: var(--orange);
 }
 
 .an2-bar.is-hover {
-    background: #5a1b00;
+    background: var(--brown);
 }
 
 .an2-bar.is-current.is-hover {
-    background: #d96f00;
+    background: var(--orange-dark);
 }
 
 .an2-val {
@@ -439,7 +439,7 @@
     text-align: center;
     font-size: 13px;
     font-weight: 700;
-    color: #5a1b00;
+    color: var(--brown);
     transform: translateY(-2px);
 }
 
@@ -449,22 +449,22 @@
     text-align: center;
     font-size: 12px;
     font-weight: 600;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .an2-months small {
     display: block;
     font-size: 10px;
     font-weight: 500;
-    color: #a08670;
+    color: var(--brown-muted);
 }
 
 .an2-tip {
     position: absolute;
     z-index: 5;
     padding: 8px 10px;
-    background: #3d2410;
-    color: #fff;
+    background: var(--brown-strong);
+    color: var(--white);
     font-size: 12px;
     white-space: nowrap;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
@@ -513,7 +513,7 @@
 }
 
 .an2-slice {
-    stroke: #fffdf4;
+    stroke: var(--paper);
     stroke-width: 2;
     cursor: pointer;
     transition: transform 0.18s ease, opacity 0.18s ease;
@@ -547,7 +547,7 @@
 
 .an2-center small {
     font-size: 11px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .an2-donut-tip {
@@ -569,7 +569,7 @@
     border: 0;
     border-radius: 0;
     background: transparent;
-    color: #5a1b00;
+    color: var(--brown);
     font: inherit;
     font-size: 13px;
     text-align: left;
@@ -578,7 +578,7 @@
 
 .an2-legend-row:hover,
 .an2-legend-row.is-on {
-    background: #fff4d6;
+    background: var(--peach-soft);
 }
 
 .an2-legend-row i {
@@ -602,7 +602,7 @@
     font-size: 12px;
     font-style: normal;
     text-align: right;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 /* Insights */
@@ -617,8 +617,8 @@
     align-items: flex-start;
     gap: 12px;
     padding: 12px 14px;
-    border: 1px solid #e3d5b5;
-    background: #fff;
+    border: 1px solid var(--line);
+    background: var(--white);
 }
 
 .an2-insight b {
@@ -629,7 +629,7 @@
 .an2-insight p {
     margin: 2px 0 0;
     font-size: 12.5px;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .an2-insight-icon {
@@ -638,8 +638,8 @@
     flex-shrink: 0;
     display: grid;
     place-items: center;
-    background: #efe8d4;
-    color: #7b6658;
+    background: var(--line-soft);
+    color: var(--brown-muted);
     font-size: 13px;
     font-weight: 800;
 }
@@ -649,25 +649,25 @@
     font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
-    color: #7b6658;
+    color: var(--brown-muted);
 }
 
 .an2-insight.is-positive .an2-insight-icon {
-    background: #d9f0e3;
-    color: #2f8f5b;
+    background: var(--green-soft);
+    color: var(--green);
 }
 
 .an2-insight.is-positive .an2-insight-tag {
-    color: #2f8f5b;
+    color: var(--green);
 }
 
 .an2-insight.is-warning .an2-insight-icon {
-    background: #fff3cd;
-    color: #8a5a00;
+    background: var(--white-yellow);
+    color: var(--amber);
 }
 
 .an2-insight.is-warning .an2-insight-tag {
-    color: #8a5a00;
+    color: var(--amber);
 }
 
 @media (max-width: 1100px) {
@@ -701,7 +701,7 @@
 .an2-strip > div:not(.um-strip-total) em {
     display: inline;
     margin: 0 0 0 6px;
-    color: #8a6a55;
+    color: var(--brown-muted);
     font-size: 12px;
 }
 
@@ -709,5 +709,5 @@
     display: block;
     margin: 2px 0 0;
     font-size: 11.5px;
-    color: #f3dcc0;
+    color: var(--peach);
 }
