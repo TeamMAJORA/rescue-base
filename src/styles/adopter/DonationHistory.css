@@ -113,7 +113,6 @@
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 10px;
     background: var(--white);
-    outline: none;
 }
 
 .dh-search:focus {

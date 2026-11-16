@@ -34,7 +34,6 @@
     padding: 11px 13px;
     font-family: "Inter", sans-serif;
     font-size: 13px;
-    outline: none;
 }
 
 .admin-intake-form input,
@@ -294,7 +293,6 @@
     font-size: 14px;
     font-weight: 400;
     color: var(--brown-strong);
-    outline: none;
 }
 
 .ao-field textarea {
@@ -509,7 +507,6 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--brown);
-    outline: none;
     cursor: pointer;
 }
 
@@ -526,7 +523,6 @@
     flex: 1;
     min-width: 0;
     border: none;
-    outline: none;
     padding: 9px 0;
     background: transparent;
     font: inherit;
@@ -547,7 +543,6 @@
     color: var(--brown-strong);
     appearance: none;
     cursor: pointer;
-    outline: none;
 }
 
 .ao-dropdown:focus {
@@ -1171,11 +1166,6 @@
 }
 
 /* Required-field asterisk */
-.ao-req {
-    margin-left: 2px;
-    color: var(--red);
-    font-weight: 700;
-}
 
 /* ---------- Medical records ---------- */
 .ao-day {
@@ -1760,7 +1750,6 @@ a.ao-tag {
     font: inherit;
     font-size: 13px;
     font-weight: 500;
-    outline: none;
 }
 
 .gs-field input:focus,
@@ -2568,7 +2557,6 @@ a.ao-tag {
     color: var(--brown);
     font: inherit;
     font-size: 13px;
-    outline: none;
 }
 
 .um-search {

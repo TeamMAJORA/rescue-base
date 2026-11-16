@@ -918,7 +918,7 @@ export default function Donations() {
 
                     <div className="dl-grid">
                         <label className="dl-field">
-                            <span>Donor Name <b>*</b></span>
+                            <span>Donor Name <span className="required-mark">*</span></span>
                             <input
                                 value={donationForm.donorName}
                                 placeholder="e.g. Juan Dela Cruz"
@@ -938,7 +938,7 @@ export default function Donations() {
                         </label>
 
                         <div className="dl-field dl-span-2">
-                            <span>Donation Type <b>*</b></span>
+                            <span>Donation Type <span className="required-mark">*</span></span>
                             <div className="dl-seg">
                                 {typeButtons.map((item) => (
                                     <button
@@ -955,7 +955,7 @@ export default function Donations() {
 
                         <label className="dl-field">
                             <span>
-                                Item Name {!money && <b>*</b>}{" "}
+                                Item Name {!money && <span className="required-mark">*</span>}{" "}
                                 <Help text="What was donated, e.g. the brand or item. Optional for money." />
                             </span>
                             <input
@@ -967,7 +967,7 @@ export default function Donations() {
                         </label>
 
                         <label className="dl-field">
-                            <span>Quantity {!money && <b>*</b>}</span>
+                            <span>Quantity {!money && <span className="required-mark">*</span>}</span>
                             <input
                                 type="number"
                                 min="1"
@@ -981,7 +981,7 @@ export default function Donations() {
 
                         <label className="dl-field">
                             <span>
-                                Amount (₱) {money && <b>*</b>}{" "}
+                                Amount (₱) {money && <span className="required-mark">*</span>}{" "}
                                 <Help text="Only used for Money donations." />
                             </span>
                             <input
@@ -1000,7 +1000,7 @@ export default function Donations() {
                         {money && (
                             <label className="dl-field">
                                 <span>
-                                    Receipt / Ref. no. <b>*</b>{" "}
+                                    Receipt / Ref. no. <span className="required-mark">*</span>{" "}
                                     <Help text="Required for cash recorded by staff, since there is no proof-of-payment photo." />
                                 </span>
                                 <input
@@ -1595,7 +1595,7 @@ export default function Donations() {
                                 </p>
 
                                 <div className="dl-field">
-                                    <span>Address {dropOffForm.enabled && <b>*</b>}</span>
+                                    <span>Address {dropOffForm.enabled && <span className="required-mark">*</span>}</span>
                                     <div className="ao-where-search">
                                         <input
                                             type="search"
@@ -1819,7 +1819,7 @@ export default function Donations() {
 
                                 <div className="dl-grid">
                                     <label className="dl-field">
-                                        <span>Method Name <b>*</b></span>
+                                        <span>Method Name <span className="required-mark">*</span></span>
                                         <select
                                             value={methodForm.method_type}
                                             onChange={(e) => setMethodForm({ ...methodForm, method_type: e.target.value })}
@@ -1836,7 +1836,7 @@ export default function Donations() {
                                     </label>
 
                                     <label className="dl-field">
-                                        <span>Account Name <b>*</b></span>
+                                        <span>Account Name <span className="required-mark">*</span></span>
                                         <input
                                             value={methodForm.account_name}
                                             placeholder="e.g. RescueBase Shelter"
@@ -1847,7 +1847,7 @@ export default function Donations() {
 
                                     <label className="dl-field">
                                         <span>
-                                            Account Number <b>*</b> <Help text="The mobile or bank account number donors send to." />
+                                            Account Number <span className="required-mark">*</span> <Help text="The mobile or bank account number donors send to." />
                                         </span>
                                         <input
                                             value={methodForm.account_number}

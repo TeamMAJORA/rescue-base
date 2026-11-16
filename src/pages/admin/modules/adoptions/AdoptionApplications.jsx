@@ -499,7 +499,7 @@ function InterviewModal({
                 <div className="admin-schedule-body">
                     <div className="admin-schedule-section">
                         <span className="admin-schedule-label">
-                            Select date <em>*</em>
+                            Select date <span className="required-mark">*</span>
                         </span>
 
                         <div className="admin-schedule-calendar">
@@ -563,7 +563,7 @@ function InterviewModal({
                     <div className="admin-schedule-section">
                         <div className="admin-schedule-label-row">
                             <span className="admin-schedule-label">
-                                Select time <em>*</em>
+                                Select time <span className="required-mark">*</span>
                             </span>
                             <small>8:00 AM – 5:00 PM</small>
                         </div>

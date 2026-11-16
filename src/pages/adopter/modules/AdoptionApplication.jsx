@@ -545,7 +545,7 @@ function validateForm() {
                         <div className="adoption-form-grid">
                             <label>
                                 <span className="adoption-label-text">
-                                    Full Name <em>*</em>
+                                    Full Name <span className="required-mark">*</span>
                                 </span>
                                 <input
                                     type="text"
@@ -578,7 +578,7 @@ function validateForm() {
 
                             <label>
                                 <span className="adoption-label-text">
-                                    Phone Number <em>*</em>
+                                    Phone Number <span className="required-mark">*</span>
                                 </span>
                                 <span className={`adoption-phone-field ${errors.phone ? "has-error" : ""}`}>
                                     <span className="adoption-phone-prefix">+63</span>
@@ -598,7 +598,7 @@ function validateForm() {
 
                             <div className="adoption-choice-field">
                                 <span className="adoption-label-text">
-                                    Home Type <em>*</em>
+                                    Home Type <span className="required-mark">*</span>
                                     <InfoTip text="Where the pet will live. This helps shelter staff check that the animal suits your home." />
                                 </span>
 
@@ -651,7 +651,7 @@ function validateForm() {
 
                             <label className="adoption-form-wide">
                                 <span className="adoption-label-text">
-                                    Complete Address <em>*</em>
+                                    Complete Address <span className="required-mark">*</span>
                                 </span>
                             <textarea
                                 name="address"
@@ -691,7 +691,7 @@ function validateForm() {
                             ].map((question) => (
                                 <div className="adoption-choice-field" key={question.name}>
                                     <span className="adoption-label-text">
-                                        {question.label} <em>*</em>
+                                        {question.label} <span className="required-mark">*</span>
                                         <InfoTip text={question.tip} />
                                     </span>
 
@@ -723,7 +723,7 @@ function validateForm() {
 
                             <label className="adoption-form-wide">
                                 <span className="adoption-label-text">
-                                    Why do you want to adopt {pet.name}? <em>*</em>
+                                    Why do you want to adopt {pet.name}? <span className="required-mark">*</span>
                                     <InfoTip text="Share what draws you to this pet and how they will fit into your daily life. Honest answers help staff during your interview." />
                                 </span>
                                 <span className="adoption-textarea-wrap">
@@ -744,7 +744,7 @@ function validateForm() {
 
                             <label className="adoption-form-wide">
                                 <span className="adoption-label-text">
-                                    Previous pet-care experience <em>*</em>
+                                    Previous pet-care experience <span className="required-mark">*</span>
                                     <InfoTip text="Mention pets you have owned or cared for, how long, and any training or vet care you handled. No experience is okay, just write None." />
                                 </span>
                                 <span className="adoption-textarea-wrap">
@@ -776,7 +776,7 @@ function validateForm() {
 
                         <div className="adoption-id-field">
                             <span className="adoption-label-text">
-                                Upload identification image <em>*</em>
+                                Upload identification image <span className="required-mark">*</span>
                                 <InfoTip text="A clear photo of any valid ID, such as a National ID, driver's license, passport, or school ID. Make sure your name and photo are readable." />
                             </span>
 

@@ -42,7 +42,6 @@
     border-radius:12px;
     padding:14px 16px;
     font-size:15px;
-    outline:none;
     transition:.25s;
     background:var(--white);
 }
@@ -227,10 +226,6 @@
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
-.ffc-required {
-    color: var(--red);
-    font-style: normal;
-}
 
 /* locked (account) fields */
 .ffc-locked {
@@ -351,7 +346,6 @@
 }
 
 .ffc-choices button:focus-visible {
-    outline: none;
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
 }
 
@@ -375,7 +369,6 @@
     font-size: 11px;
     font-weight: 800;
     cursor: help;
-    outline: none;
 }
 
 .ffc-card .admin-info-tip-bubble {
@@ -458,7 +451,6 @@
 }
 
 .ffc-stepper button:focus-visible {
-    outline: none;
     box-shadow: inset 0 0 0 2px var(--orange);
 }
 
@@ -668,7 +660,6 @@
 }
 
 .ffc-btn:focus-visible {
-    outline: none;
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
 }
 

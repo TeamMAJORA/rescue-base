@@ -62,7 +62,6 @@
     padding: 11px 13px;
     font-family: "Inter", sans-serif;
     font-size: 13px;
-    outline: none;
 }
 
 .admin-reports-form input,
@@ -252,7 +251,6 @@
     font: inherit;
     font-size: 13px;
     color: var(--brown-strong);
-    outline: none;
 }
 
 .rp2-select {
@@ -469,7 +467,6 @@
     min-width: 0;
     padding: 9px 0;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
     font-size: 13px;
@@ -782,7 +779,6 @@
     min-width: 0;
     padding: 9px 0;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
     font-size: 13px;
@@ -804,7 +800,6 @@
     font-weight: 600;
     color: var(--brown-strong);
     cursor: pointer;
-    outline: none;
 }
 
 .al2-select:focus {
@@ -828,7 +823,6 @@
 .al2-dates input {
     padding: 8px 2px;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
     font-size: 13px;
@@ -1083,7 +1077,6 @@
     color: var(--brown-strong);
     font: inherit;
     font-size: 13px;
-    outline: none;
 }
 
 .rs2-field select,
@@ -1221,7 +1214,6 @@
     min-width: 0;
     padding: 9px 0;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
     font-size: 13px;
@@ -1429,7 +1421,7 @@
 .as2-field.is-wide { grid-column: 1 / -1; }
 .as2-field > span { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--brown-muted); }
 .as2-field input { padding: 10px 12px; border: 1px solid var(--line); border-radius: 0; background: var(--white); color: var(--brown); font: inherit; font-size: 14px; }
-.as2-field input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 2px rgba(251, 133, 0, .18); }
+.as2-field input:focus { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(251, 133, 0, .18); }
 .as2-field input:disabled { background: var(--cream-card); color: var(--brown-muted); }
 .as2-field small { font-size: 12px; color: var(--brown-muted); }
 .as2-switch { position: relative; flex-shrink: 0; width: 44px; height: 24px; padding: 0; border: 0; border-radius: 999px; background: var(--line); cursor: pointer; transition: background .15s; }

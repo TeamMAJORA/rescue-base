@@ -63,7 +63,6 @@
     padding: 11px 13px;
     font-family: "Inter", sans-serif;
     font-size: 13px;
-    outline: none;
 }
 
 .admin-gis-form input,
@@ -1106,7 +1105,6 @@
     font: inherit;
     font-size: 13px;
     box-shadow: 0 4px 12px rgba(90, 27, 0, 0.18);
-    outline: none;
 }
 
 .gm-map-search input:focus,
@@ -1147,7 +1145,6 @@
 .gm-map-results button:hover,
 .gm-map-results button:focus-visible {
     background: var(--peach-soft);
-    outline: none;
 }
 
 .gm-map-results b {

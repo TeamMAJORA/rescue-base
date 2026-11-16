@@ -48,7 +48,6 @@
     padding: 0 14px;
     font-family: "Inter", sans-serif;
     font-size: 13px;
-    outline: none;
     cursor: pointer;
 }
 
@@ -393,7 +392,6 @@
     flex: 1;
     display: flex;
     justify-content: center;
-    outline: none;
     cursor: default;
 }
 

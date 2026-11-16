@@ -187,7 +187,7 @@ async function uploadPhoto(file, token) {
 function SelectWithOther({ label, options, value, other, onChange, onOtherChange }) {
     return (
         <label className="ao-field">
-            <span>{label} <span className="ao-req">*</span></span>
+            <span>{label} <span className="required-mark">*</span></span>
             <select value={value} onChange={(e) => onChange(e.target.value)} required>
                 <option value="">Select {label.toLowerCase()}</option>
                 {options.map((option) => (
@@ -436,7 +436,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                         />
 
                         <label className="ao-field">
-                            <span>Weight (kg) <span className="ao-req">*</span></span>
+                            <span>Weight (kg) <span className="required-mark">*</span></span>
                             <input
                                 type="number"
                                 step="0.1"
@@ -491,7 +491,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                         </label>
 
                         <label className="ao-field">
-                            <span>Progress Notes <span className="ao-req">*</span></span>
+                            <span>Progress Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.note}
                                 onChange={(e) => updateField("note", e.target.value)}

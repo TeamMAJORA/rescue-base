@@ -664,7 +664,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                 <form className="ao-form" onSubmit={handleSubmit}>
                     <div className="ao-assess-top">
                         <label className="ao-field">
-                            <span>Animal <span className="ao-req">*</span></span>
+                            <span>Animal <span className="required-mark">*</span></span>
                             {lockedAnimal ? (
                                 <input value={lockedAnimal.name} readOnly />
                             ) : (
@@ -695,7 +695,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         </label>
 
                         <label className="ao-field">
-                            <span>Assessed By <span className="ao-req">*</span></span>
+                            <span>Assessed By <span className="required-mark">*</span></span>
                             <select
                                 value={form.assessor}
                                 onChange={(e) => updateField("assessor", e.target.value)}
@@ -723,7 +723,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         </label>
 
                         <label className="ao-field">
-                            <span>Assessment Date <span className="ao-req">*</span></span>
+                            <span>Assessment Date <span className="required-mark">*</span></span>
                             <input
                                 type="date"
                                 value={form.assessmentDate}
@@ -778,7 +778,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
 
                     <div className="ao-assess-foot">
                         <label className="ao-field">
-                            <span>Observation Notes <span className="ao-req">*</span></span>
+                            <span>Observation Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}

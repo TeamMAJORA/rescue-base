@@ -663,7 +663,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                     <form className="ao-form" onSubmit={handleAddVaccination}>
                         <label className="ao-field">
-                            <span>Animal <span className="ao-req">*</span></span>
+                            <span>Animal <span className="required-mark">*</span></span>
                             {lockedAnimal ? (
                                 <input type="text" value={vaccinationForm.animalName} readOnly />
                             ) : (
@@ -690,7 +690,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         </label>
 
                         <div className="ao-field">
-                            <span>Vaccine <span className="ao-req">*</span></span>
+                            <span>Vaccine <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={COMMON_VACCINES.map((name) => ({ value: name, label: name }))}
                                 value={vaccinationForm.vaccineName}
@@ -706,7 +706,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         </div>
 
                         <label className="ao-field">
-                            <span>Veterinarian <span className="ao-req">*</span></span>
+                            <span>Veterinarian <span className="required-mark">*</span></span>
                             <input
                                 type="text"
                                 value={vaccinationForm.veterinarian}
@@ -718,7 +718,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                <span>Date Given <span className="ao-req">*</span></span>
+                                <span>Date Given <span className="required-mark">*</span></span>
                                 <input
                                     type="date"
                                     value={vaccinationForm.vaccinationDate}
@@ -729,7 +729,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                             <label className="ao-field">
                                 <span className="ao-label-tip">
-                                    <span>Next Due <span className="ao-req">*</span></span>
+                                    <span>Next Due <span className="required-mark">*</span></span>
                                     <InfoTip text="When the next dose or booster is due. It can't be earlier than the date given." />
                                 </span>
                                 <input
@@ -744,7 +744,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                         <div className="ao-field">
                             <span className="ao-label-tip">
-                                <span>Status <span className="ao-req">*</span></span>
+                                <span>Status <span className="required-mark">*</span></span>
                                 <InfoTip text="Completed: the vaccine was given. Pending: scheduled but not given yet. Overdue: the due date passed and it wasn't given." />
                             </span>
                             <ChipGroup
@@ -756,7 +756,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         </div>
 
                         <label className="ao-field">
-                            <span>Notes <span className="ao-req">*</span></span>
+                            <span>Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={vaccinationForm.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}

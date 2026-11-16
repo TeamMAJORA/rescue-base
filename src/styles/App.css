@@ -1176,7 +1176,7 @@ body {
 }
 
 @media (pointer: coarse) {
-    button,
+    button:not([role="switch"]),
     select,
     [role="button"],
     input[type="submit"],
@@ -1194,10 +1194,30 @@ body {
     }
 }
 
-/* Keyboard focus ring (only shows when moving with Tab, not on mouse clicks) */
-:where(button, a[href], [role="button"], [role="tab"], [tabindex]):focus-visible {
+/* One focus ring for every control (audit S1). Buttons and links show it only when moving with Tab;
+   text fields show it whenever they are focused. Inputs inside search/phone wrappers use the wrapper's ring (Forms.css). */
+:where(button, a[href], [role="button"], [role="tab"], [tabindex], input, select, textarea):focus-visible {
     outline: 3px solid var(--orange) !important;
     outline-offset: 2px;
+}
+
+:where(input, select, textarea):focus-visible {
+    border-color: var(--orange) !important;
+    box-shadow: none !important;
+}
+
+/* Inputs inside a search box or phone field: the wrapper shows the ring instead */
+:where(.admin-adoption-search, .fb2-search, .fs-search, .afl-search, .ao-searchbox, .lfr-phone, .rp2-search,
+    .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .ffc-phone) :where(input, select):focus-visible {
+    outline: none !important;
+}
+
+/* Login and sign-up fields sit on the orange panel (Figma design): an orange ring would not show there,
+   so focus thickens the underline in brown instead */
+:where(.auth-field) :where(input):focus-visible {
+    outline: none !important;
+    border-color: var(--brown) !important;
+    box-shadow: 0 1px 0 0 var(--brown) !important;
 }
 
 /* Small icons that replaced emoji (PetTypeIcon, pins, clock, heart): 1em so they scale with the text.

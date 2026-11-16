@@ -247,7 +247,7 @@ export default function RoleApplication() {
                 {!loading && (
                     <div className="ra-field ra-role-field">
                         <span className="ra-label">
-                            Apply for <em>*</em>
+                            Apply for <span className="required-mark">*</span>
                             <InfoTip text="Volunteers help at the shelter. Fosters care for a pet at home until it gets adopted." />
                         </span>
 
@@ -345,7 +345,7 @@ export default function RoleApplication() {
                     <form className="role-application-form" onSubmit={handleSubmit}>
                         <div className="ra-field">
                             <label className="ra-label" htmlFor="reason">
-                                Why do you want to apply? <em>*</em>
+                                Why do you want to apply? <span className="required-mark">*</span>
                             </label>
 
                             <div className="ra-textarea-wrap">

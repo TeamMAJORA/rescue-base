@@ -40,7 +40,6 @@
     padding: 0 14px;
     font-family: "Inter", sans-serif;
     font-size: 13px;
-    outline: none;
     cursor: pointer;
 }
 
@@ -380,7 +379,6 @@
     color: var(--brown-strong);
     font-family: inherit;
     font-size: 12px;
-    outline: none;
 }
 
 select.fbf-input {
@@ -760,7 +758,6 @@ textarea.fbf-input {
 .fb-history-item:focus-visible {
     border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
-    outline: none;
 }
 
 /* Long words without spaces won't overflow the card */
@@ -1062,7 +1059,6 @@ textarea.fbf-input {
     min-width: 0;
     padding: 9px 0;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
     font-size: 13px;
@@ -1083,7 +1079,6 @@ textarea.fbf-input {
     font-weight: 600;
     color: var(--brown-strong);
     cursor: pointer;
-    outline: none;
 }
 
 .fb2-select:focus {
@@ -1390,7 +1385,6 @@ textarea.fbf-input {
     font: inherit;
     font-size: 13px;
     resize: vertical;
-    outline: none;
 }
 
 .fb2-reply textarea:focus {

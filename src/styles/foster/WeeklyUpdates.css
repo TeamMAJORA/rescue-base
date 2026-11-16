@@ -35,7 +35,6 @@
     color: var(--brown);
     font-size: 14px;
     transition: .2s;
-    outline: none;
 }
 
 .update-grid input:focus,

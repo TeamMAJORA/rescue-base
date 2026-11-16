@@ -1021,7 +1021,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         {/* ===== Row 1 ===== */}
                         <label>
                             <span className="admin-field-label">
-                                Animal Name <span className="admin-required">*</span>
+                                Animal Name <span className="required-mark">*</span>
                             </span>
                             <input
                                 value={animalForm.name}
@@ -1033,7 +1033,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Species <span className="admin-required">*</span>
+                                Species <span className="required-mark">*</span>
                             </span>
                             <select
                                 value={animalForm.type}
@@ -1094,7 +1094,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Gender <span className="admin-required">*</span>
+                                Gender <span className="required-mark">*</span>
                             </span>
                             <select
                                 value={animalForm.gender}
@@ -1110,7 +1110,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Size <span className="admin-required">*</span>
+                                Size <span className="required-mark">*</span>
                             </span>
                             <select
                                 value={animalForm.size}
@@ -1127,7 +1127,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Status <span className="admin-required">*</span>
+                                Status <span className="required-mark">*</span>
                                 <InfoTip text="Current shelter status: Available, Pending Adoption, Fostered, Adopted or Unavailable. Changing it updates what adopters see." />
                             </span>
                             <select
@@ -1148,7 +1148,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         {/* ===== Row 3 ===== */}
                         <label>
                             <span className="admin-field-label">
-                                Intake Date <span className="admin-required">*</span>
+                                Intake Date <span className="required-mark">*</span>
                             </span>
                             <input
                                 type="date"
@@ -1249,7 +1249,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         <div className="admin-intake-grid admin-animal-full">
                             <label>
                                 <span className="admin-field-label">
-                                    Intake Type <span className="admin-required">*</span>
+                                    Intake Type <span className="required-mark">*</span>
                                 </span>
                                 <select
                                     value={animalForm.intakeType}
@@ -1265,7 +1265,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                             <label>
                                 <span className="admin-field-label">
-                                    Source Location <span className="admin-required">*</span>
+                                    Source Location <span className="required-mark">*</span>
                                     <InfoTip text="Where the animal was found or came from. This is not shown to adopters." />
                                 </span>
                                 <input
@@ -1287,7 +1287,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                             <label>
                                 <span className="admin-field-label">
-                                    Condition <span className="admin-required">*</span>
+                                    Condition <span className="required-mark">*</span>
                                     <InfoTip text="The animal's condition on arrival. Medical Status above is its current condition." />
                                 </span>
                                 <select

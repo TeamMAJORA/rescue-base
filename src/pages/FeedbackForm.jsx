@@ -165,7 +165,7 @@ useEffect(() => {
 
                     <div className="fbf-field">
                         <span className="fbf-label">
-                            Rating <em>*</em>
+                            Rating <span className="required-mark">*</span>
                         </span>
 
                         <div className="fbf-stars">
@@ -190,7 +190,7 @@ useEffect(() => {
 
                     <div className="fbf-field">
                         <label className="fbf-label" htmlFor="feedback-category">
-                            Category <em>*</em>
+                            Category <span className="required-mark">*</span>
                         </label>
 
                         <select

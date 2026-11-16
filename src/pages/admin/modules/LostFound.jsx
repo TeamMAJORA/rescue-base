@@ -1036,7 +1036,7 @@ if (showReportForm && canSubmitReport) {
                     <div>
                         <h3>Report a pet</h3>
                         <p>
-                            Fields marked <em>*</em> are required.
+                            Fields marked <span className="required-mark">*</span> are required.
                         </p>
                     </div>
 
@@ -1066,7 +1066,7 @@ if (showReportForm && canSubmitReport) {
 
                         <label className="lfr2-field">
                             <span>
-                                Species <em>*</em>
+                                Species <span className="required-mark">*</span>
                             </span>
                             <select value={species} onChange={(e) => setSpecies(e.target.value)} required>
                                 <option value="">Select</option>
@@ -1126,7 +1126,7 @@ if (showReportForm && canSubmitReport) {
 
                         <div className="lfr2-field">
                             <span>
-                                {isLost ? "Date lost" : "Date found"} <em>*</em>
+                                {isLost ? "Date lost" : "Date found"} <span className="required-mark">*</span>
                             </span>
                             <DateField
                                 value={dateReported}
@@ -1138,7 +1138,7 @@ if (showReportForm && canSubmitReport) {
                         </div>
 
                         <div className="lfr2-field lfr2-span-4">
-                            <span>Photo {!isLost && <em>*</em>}</span>
+                            <span>Photo {!isLost && <span className="required-mark">*</span>}</span>
                             <div className="lfr2-photo">
                                 {photoUrl && <img src={photoUrl} alt="Pet preview" />}
                                 <label htmlFor="lfr-photo-input" className={`lfr2-photo-btn${photoUploading ? " is-disabled" : ""}`}>
@@ -1174,7 +1174,7 @@ if (showReportForm && canSubmitReport) {
 
                         <label className="lfr2-field lfr2-span-4">
                             <span>
-                                Description <em>*</em>
+                                Description <span className="required-mark">*</span>
                             </span>
                             <textarea
                                 rows={2}
@@ -1197,7 +1197,7 @@ if (showReportForm && canSubmitReport) {
                         <div className="lfr2-col">
                             <label className="lfr2-field">
                                 <span>
-                                    {isLost ? "Last seen location" : "Location name"} <em>*</em>
+                                    {isLost ? "Last seen location" : "Location name"} <span className="required-mark">*</span>
                                 </span>
                                 <input
                                     value={location}
@@ -1296,7 +1296,7 @@ if (showReportForm && canSubmitReport) {
                         <div className="lfr2-col">
                             <label className="lfr2-field">
                                 <span>
-                                    Phone number <em>*</em>
+                                    Phone number <span className="required-mark">*</span>
                                 </span>
                                 <div className={`lfr2-phone ${phoneInvalid ? "is-invalid" : ""}`}>
                                     <b>+63</b>
@@ -2138,7 +2138,7 @@ if (showReportForm && canSubmitReport) {
         {claimMode === "found" && (
             <>
                 <label className="lfr2-field">
-                    <span>Where did you find it? <em>*</em></span>
+                    <span>Where did you find it? <span className="required-mark">*</span></span>
                     <input
                         value={foundLocation}
                         maxLength={200}
@@ -2150,7 +2150,7 @@ if (showReportForm && canSubmitReport) {
                     />
                 </label>
                 <div className="lfr2-field">
-                    <span>Date found <em>*</em></span>
+                    <span>Date found <span className="required-mark">*</span></span>
                     <DateField
                         value={foundDate}
                         onChange={(day) => {
@@ -2167,7 +2167,7 @@ if (showReportForm && canSubmitReport) {
         )}
 
         <label className="lfr2-field">
-            <span>{claimMode === "found" ? "Describe the pet and how you found it" : "Proof of ownership"} <em>*</em></span>
+            <span>{claimMode === "found" ? "Describe the pet and how you found it" : "Proof of ownership"} <span className="required-mark">*</span></span>
             <textarea
                 rows={4}
                 maxLength={500}
@@ -2186,7 +2186,7 @@ if (showReportForm && canSubmitReport) {
         </label>
 
         <label className="lfr2-field">
-            <span>Mobile number <em>*</em></span>
+            <span>Mobile number <span className="required-mark">*</span></span>
             <div className="lfr2-phone">
                 <b>+63</b>
                 <input
@@ -2208,7 +2208,7 @@ if (showReportForm && canSubmitReport) {
         <div className="lfr2-field">
             <span>
                 {claimMode === "found" ? (
-                    <>Photo of the pet <em>*</em></>
+                    <>Photo of the pet <span className="required-mark">*</span></>
                 ) : (
                     <>Proof photo <small>(optional: you with the pet, or its vet card)</small></>
                 )}

@@ -225,7 +225,6 @@
     background: var(--white);
     color: var(--brown);
     font-size: 14px;
-    outline: none;
 }
 
 .foster-application-form textarea,

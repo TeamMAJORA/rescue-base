@@ -599,7 +599,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <label>
                             <span>
-                                Phone Number <em className="ffc-required">*</em>
+                                Phone Number <span className="required-mark">*</span>
                             </span>
                             <span className="ffc-phone">
                                 <span className="ffc-phone-prefix">+63</span>
@@ -618,7 +618,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <label>
                             <span>
-                                Address <em className="ffc-required">*</em>
+                                Address <span className="required-mark">*</span>
                             </span>
                             <FieldError message={errors.address} />
                             <input
@@ -645,7 +645,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     <div className="foster-form-grid">
                         <div className="ffc-field foster-full-field">
                             <span className="ffc-label">
-                                Home Type <em className="ffc-required">*</em>
+                                Home Type <span className="required-mark">*</span>
                                 <InfoTip text="Where the foster animal will stay. This helps staff match an animal that suits your space." />
                             </span>
                             <ChoiceGroup
@@ -659,7 +659,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Children at home? <em className="ffc-required">*</em>
+                                Children at home? <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="hasChildren"
@@ -672,7 +672,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Existing pets? <em className="ffc-required">*</em>
+                                Existing pets? <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="hasPets"
@@ -685,7 +685,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Is your home pet friendly? <em className="ffc-required">*</em>
+                                Is your home pet friendly? <span className="required-mark">*</span>
                                 <InfoTip text="Choose Yes only if your landlord, condo or building rules allow keeping animals." />
                             </span>
                             <ChoiceGroup
@@ -712,7 +712,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     <div className="foster-form-grid">
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Preferred Animal <em className="ffc-required">*</em>
+                                Preferred Animal <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="preferredAnimal"
@@ -725,7 +725,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Preferred Size <em className="ffc-required">*</em>
+                                Preferred Size <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="preferredSize"
@@ -738,7 +738,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Maximum Animals <em className="ffc-required">*</em>
+                                Maximum Animals <span className="required-mark">*</span>
                                 <InfoTip text="The most animals you can foster at the same time. Staff will not assign more than this number to you." />
                             </span>
                             <div className="ffc-stepper">
@@ -765,7 +765,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field ffc-duration">
                             <span className="ffc-label">
-                                Foster Duration <em className="ffc-required">*</em>
+                                Foster Duration <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="fosterDuration"
@@ -790,7 +790,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     <div className="foster-form-grid">
                         <label className="foster-full-field">
                             <span>
-                                Foster or pet-care experience <em className="ffc-required">*</em>
+                                Foster or pet-care experience <span className="required-mark">*</span>
                             </span>
                             <span className="ffc-textarea">
                                 <textarea
@@ -809,7 +809,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <label>
                             <span>
-                                Emergency Contact Name <em className="ffc-required">*</em>
+                                Emergency Contact Name <span className="required-mark">*</span>
                             </span>
                             <FieldError message={errors.emergencyName} />
                             <input
@@ -824,7 +824,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <label>
                             <span>
-                                Relationship <em className="ffc-required">*</em>
+                                Relationship <span className="required-mark">*</span>
                             </span>
                             <FieldError message={errors.emergencyRelationship} />
                             <input
@@ -839,7 +839,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <label>
                             <span>
-                                Emergency Contact Phone <em className="ffc-required">*</em>
+                                Emergency Contact Phone <span className="required-mark">*</span>
                             </span>
                             <FieldError message={errors.emergencyPhone} />
                             <span className="ffc-phone">
@@ -889,7 +889,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                         </span>
                         <span className="ffc-agree-text">
                             <strong>
-                                I agree to follow the RescueBase Foster Guidelines. <em className="ffc-required">*</em>
+                                I agree to follow the RescueBase Foster Guidelines. <span className="required-mark">*</span>
                             </strong>
                             <small>Includes regular updates on the pet, vet visits through the shelter, and returning the pet when requested.</small>
                         </span>
@@ -909,7 +909,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             {!locked && (
                 <div className="ffc-actions">
                     <p className="ffc-actions-note">
-                        Staff review every application. Fields marked <em className="ffc-required">*</em> are required.                    </p>
+                        Staff review every application. Fields marked <span className="required-mark">*</span> are required.                    </p>
 
                     <div className="ffc-actions-buttons">
                         <button

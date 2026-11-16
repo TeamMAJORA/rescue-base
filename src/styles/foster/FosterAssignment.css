@@ -292,7 +292,6 @@
 }
 
 .fat-tab:focus-visible {
-    outline: none;
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
 }
 
@@ -620,7 +619,6 @@
 }
 
 .fah-btn:focus-visible {
-    outline: none;
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
 }
 
@@ -1085,7 +1083,6 @@
     font: inherit;
     font-size: 13px;
     resize: vertical;
-    outline: none;
 }
 
 .fah-return-grid input:focus,

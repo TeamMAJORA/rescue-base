@@ -730,14 +730,14 @@ export default function RescueAssignments() {
 
                     <label className="rs2-field">
                         <span>
-                            Title <em>*</em>
+                            Title <span className="required-mark">*</span>
                         </span>
                         <input name="title" value={form.title} onChange={handleChange} placeholder="e.g. Rescue injured dog" maxLength={120} required />
                     </label>
 
                     <label className="rs2-field">
                         <span>
-                            Location <em>*</em>
+                            Location <span className="required-mark">*</span>
                         </span>
                         <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Gorordo Ave, Lahug" required />
                     </label>
@@ -745,7 +745,7 @@ export default function RescueAssignments() {
                     <div className="rs2-two">
                         <label className="rs2-field">
                             <span>
-                                Date <em>*</em>
+                                Date <span className="required-mark">*</span>
                             </span>
                             <input type="date" name="scheduledDate" value={form.scheduledDate} onChange={handleChange} required />
                         </label>
@@ -773,7 +773,7 @@ export default function RescueAssignments() {
 
                     <label className="rs2-field">
                         <span>
-                            Description <em>*</em>
+                            Description <span className="required-mark">*</span>
                         </span>
                         <textarea name="description" rows={3} value={form.description} onChange={handleChange} placeholder="What the volunteer needs to do..." required />
                     </label>

@@ -553,7 +553,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
 
                     <form className="ao-form" onSubmit={handleAddRecord}>
                         <label className="ao-field">
-                            <span>Animal <span className="ao-req">*</span></span>
+                            <span>Animal <span className="required-mark">*</span></span>
                             {lockedAnimal ? (
                                 <input type="text" value={recordForm.animalName} readOnly />
                             ) : (
@@ -580,7 +580,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
 
                         <label className="ao-field">
                             <span className="ao-label-tip">
-                                <span>Record Type <span className="ao-req">*</span></span>
+                                <span>Record Type <span className="required-mark">*</span></span>
                                 <InfoTip text="Checkup: routine exam. Treatment: medicine or care for an illness or injury. Surgery: any operation, including spay/neuter. Deworming: parasite treatment. Vaccines go in Vaccination Records." />
                             </span>
                             <select
@@ -602,7 +602,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                <span>Veterinarian <span className="ao-req">*</span></span>
+                                <span>Veterinarian <span className="required-mark">*</span></span>
                                 <input
                                     type="text"
                                     value={recordForm.vetName}
@@ -613,7 +613,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                             </label>
 
                             <label className="ao-field">
-                                <span>Date <span className="ao-req">*</span></span>
+                                <span>Date <span className="required-mark">*</span></span>
                                 <input
                                     type="date"
                                     value={recordForm.recordDate}
@@ -625,7 +625,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                         </div>
 
                         <label className="ao-field">
-                            <span>Notes <span className="ao-req">*</span></span>
+                            <span>Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={recordForm.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}

@@ -75,7 +75,6 @@
     font: inherit;
     font-size: 13px;
     font-weight: 500;
-    outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -243,7 +242,6 @@
     font-family: inherit;
     font-size: 14px;
 
-    outline: none;
 
     transition:
         border-color 0.2s ease,
@@ -560,7 +558,6 @@
     color: var(--brown);
     font: inherit;
     font-size: 13px;
-    outline: none;
 }
 
 .admin-vacc-search::placeholder {
@@ -584,7 +581,6 @@
 .admin-vacc-status-filter:focus {
     border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
-    outline: none;
 }
 
 .admin-vacc-table-wrap {

@@ -36,7 +36,6 @@
     font: inherit;
     font-size: 13px;
     resize: vertical;
-    outline: none;
 }
 
 .rp-field textarea:focus {

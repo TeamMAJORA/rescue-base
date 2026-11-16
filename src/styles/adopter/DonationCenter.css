@@ -98,7 +98,6 @@
     padding: 12px 14px;
     border: 1px solid var(--blue-soft);
     border-radius: 12px;
-    outline: none;
     font-size: .95rem;
     transition: .2s;
     background: var(--white);

@@ -326,7 +326,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
 
                     <div className="ao-assess-foot">
                         <label className="ao-field">
-                            <span>Behavior Notes <span className="ao-req">*</span></span>
+                            <span>Behavior Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={evaluation.notes}
                                 onChange={(e) => setEvaluation((c) => ({ ...c, notes: e.target.value }))}

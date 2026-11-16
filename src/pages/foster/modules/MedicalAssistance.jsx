@@ -366,7 +366,7 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                         </label>
 
                         <label className="ao-field">
-                            <span>What's wrong? <span className="ao-req">*</span></span>
+                            <span>What's wrong? <span className="required-mark">*</span></span>
                             <select value={issueType} onChange={(e) => setIssueType(e.target.value)} required>
                                 <option value="">Select a problem</option>
                                 {ISSUE_TYPES.map((t) => (
@@ -387,7 +387,7 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                         </label>
 
                         <div className="ao-field">
-                            <span>How urgent? <span className="ao-req">*</span></span>
+                            <span>How urgent? <span className="required-mark">*</span></span>
                             <div className="ao-urgency">
                                 {URGENCY.map((u) => (
                                     <button
@@ -405,7 +405,7 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                         </div>
 
                         <label className="ao-field">
-                            <span>Describe the Problem <span className="ao-req">*</span></span>
+                            <span>Describe the Problem <span className="required-mark">*</span></span>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}

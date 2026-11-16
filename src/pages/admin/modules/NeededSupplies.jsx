@@ -327,7 +327,7 @@ export default function NeededSupplies() {
 
                     <label className="rs2-field">
                         <span>
-                            Item name <em>*</em>
+                            Item name <span className="required-mark">*</span>
                         </span>
                         <input
                             value={form.name}
@@ -365,7 +365,7 @@ export default function NeededSupplies() {
                     <div className="rs2-two">
                         <label className="rs2-field">
                             <span>
-                                Needed <em>*</em>
+                                Needed <span className="required-mark">*</span>
                             </span>
                             <input
                                 type="number"

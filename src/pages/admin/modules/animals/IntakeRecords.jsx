@@ -983,7 +983,7 @@ export default function IntakeRecords() {
                         </label>
 
                         <label className="ao-field">
-                            <span>Name or Nickname <span className="ao-req">*</span></span>
+                            <span>Name or Nickname <span className="required-mark">*</span></span>
                             <input
                                 value={form.animalName}
                                 onChange={(e) => updateForm("animalName", e.target.value)}
@@ -993,7 +993,7 @@ export default function IntakeRecords() {
                         </label>
 
                         <div className="ao-field">
-                            <span>Species <span className="ao-req">*</span></span>
+                            <span>Species <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={SPECIES_OPTIONS}
                                 value={form.animalType}
@@ -1045,7 +1045,7 @@ export default function IntakeRecords() {
                         <small className="ao-hint">Fill in at least two of breed, colour, sex or size so lost-pet owners can be matched.</small>
 
                         <div className="ao-field">
-                            <span>How did they arrive? <span className="ao-req">*</span></span>
+                            <span>How did they arrive? <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={INTAKE_TYPE_OPTIONS}
                                 value={form.intakeType}
@@ -1076,7 +1076,7 @@ export default function IntakeRecords() {
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                <span>Date <span className="ao-req">*</span></span>
+                                <span>Date <span className="required-mark">*</span></span>
                                 <input
                                     type="date"
                                     value={form.intakeDate}
@@ -1086,7 +1086,7 @@ export default function IntakeRecords() {
                             </label>
 
                             <label className="ao-field">
-                                <span>Rescued By <span className="ao-req">*</span></span>
+                                <span>Rescued By <span className="required-mark">*</span></span>
                                 <input
                                     value={form.rescuedBy}
                                     onChange={(e) => updateForm("rescuedBy", e.target.value)}
@@ -1097,7 +1097,7 @@ export default function IntakeRecords() {
                         </div>
 
                         <div className="ao-field">
-                            <span>Where? <span className="ao-req">*</span></span>
+                            <span>Where? <span className="required-mark">*</span></span>
                             <div className="ao-where-search">
                                 <input
                                     type="search"
@@ -1198,7 +1198,7 @@ export default function IntakeRecords() {
                         </div>
 
                         <div className="ao-field">
-                            <span>Condition <span className="ao-req">*</span></span>
+                            <span>Condition <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={CONDITION_OPTIONS}
                                 value={form.condition}
@@ -1208,7 +1208,7 @@ export default function IntakeRecords() {
                         </div>
 
                         <label className="ao-field">
-                            <span>Notes <span className="ao-req">*</span></span>
+                            <span>Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateForm("notes", e.target.value)}

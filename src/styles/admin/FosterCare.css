@@ -44,7 +44,6 @@
     background: var(--white);
     color: var(--brown);
     font-size: 14px;
-    outline: none;
 }
 
 .admin-foster-application-form textarea,
@@ -419,7 +418,6 @@
     flex: 1;
     min-width: 0;
     border: none;
-    outline: none;
     background: transparent;
     color: var(--brown);
     font: inherit;
@@ -1771,7 +1769,6 @@
     font: inherit;
     font-size: 13px;
     font-weight: 500;
-    outline: none;
     resize: vertical;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
@@ -1845,7 +1842,6 @@
     color: var(--brown);
     font-family: inherit;
     font-size: 13px;
-    outline: none;
 }
 
 .afr-reason textarea:focus {
@@ -2018,7 +2014,6 @@
     font: inherit;
     font-size: 13px;
     font-weight: 600;
-    outline: none;
     cursor: pointer;
     appearance: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -2401,7 +2396,6 @@
     font-size: 11px;
     font-weight: 800;
     cursor: help;
-    outline: none;
 }
 
 .acl-label .admin-info-tip-bubble {
@@ -2445,7 +2439,7 @@
 /* ===== Assign pop-up: pet cards + dates ===== */
 .afr-picker { display: grid; gap: 8px; }
 .afr-picker-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.afr-picker-tools input { flex: 1; min-width: 200px; height: 38px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); color: var(--brown); font: inherit; font-size: 13px; outline: none; }
+.afr-picker-tools input { flex: 1; min-width: 200px; height: 38px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); color: var(--brown); font: inherit; font-size: 13px;}
 .afr-picker-tools input:focus { border-color: var(--orange); }
 .afr-picker-chips { display: flex; gap: 6px; }
 .afr-picker-chips button { padding: 7px 12px; border: 1px solid var(--brown); border-radius: 999px; background: var(--paper); color: var(--brown); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
@@ -2466,7 +2460,7 @@
 .afr-form .afr-dates label { width: 100%; }
 .afr-dates label, .afr-lengths { display: grid; gap: 5px; }
 .afr-dates label span, .afr-lengths > span { color: var(--brown-soft); font-size: 12px; font-weight: 800; }
-.afr-dates input { width: 100%; box-sizing: border-box; height: 38px; padding: 0 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); color: var(--brown); font: inherit; font-size: 13px; outline: none; }
+.afr-dates input { width: 100%; box-sizing: border-box; height: 38px; padding: 0 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); color: var(--brown); font: inherit; font-size: 13px;}
 .afr-dates input:focus { border-color: var(--orange); }
 .afr-lengths { grid-column: 1 / -1; }
 .afr-lengths > div { display: flex; flex-wrap: wrap; gap: 6px; }

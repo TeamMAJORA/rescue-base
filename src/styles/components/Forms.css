@@ -1,0 +1,166 @@
+/* =====================================================================
+   One form look for the whole app (audit P1–P5, S1).
+   Like Buttons.css: module class names stay, this file (imported last in
+   App.jsx, scoped to #root) gives every field the same size, border,
+   corners and states.
+   Not touched: the login/sign-up underline fields (Figma design) and
+   inputs that sit inside a bordered wrapper (search boxes, phone fields,
+   unit pickers) — the wrapper is the visible field there.
+   ===================================================================== */
+
+/* Fields: 44px high, 1px line border, 8px corners, white, 14px text */
+#root :is(
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"], [type="submit"], [type="button"], [type="reset"]),
+    select,
+    textarea
+):not(:is(
+    .auth-field, .admin-adoption-search, .admin-table-footer, .dl-select, .feedback-management-header,
+    .fb2-search, .fs-search, .afl-search, .acl-row, .gm-address, .ao-searchbox, .lfr-phone, .rp2-search,
+    .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .aip-month-selects, .ffc-phone
+) *) {
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background-color: var(--white);
+    color: var(--brown);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+/* Single-line fields and dropdowns: exactly 44px, text centred by the height */
+#root :is(
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"], [type="submit"], [type="button"], [type="reset"]),
+    select:not([multiple])
+):not(:is(
+    .auth-field, .admin-adoption-search, .admin-table-footer, .dl-select, .feedback-management-header,
+    .fb2-search, .fs-search, .afl-search, .acl-row, .gm-address, .ao-searchbox, .lfr-phone, .rp2-search,
+    .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .aip-month-selects, .ffc-phone
+) *) {
+    height: 44px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#root textarea:not(:is(.auth-field) *) {
+    min-height: 96px;
+    line-height: 1.5;
+}
+
+#root :is(input, select, textarea)::placeholder {
+    color: var(--brown-muted);
+    opacity: 1;
+}
+
+#root :is(input, select, textarea):disabled,
+#root input[readonly] {
+    background-color: var(--cream-card);
+    color: var(--brown-muted);
+    cursor: not-allowed;
+}
+
+/* Error state: any field the page marks invalid */
+#root :is(input, select, textarea):is([aria-invalid="true"], .has-error, .is-invalid, .input-error) {
+    border-color: var(--red);
+}
+
+/* Required fields: one red * after the label */
+.required-mark {
+    margin-left: 2px;
+    color: var(--red);
+    font-style: normal;
+    font-weight: 800;
+}
+
+/* Checkboxes and radios: brand orange */
+#root input:is([type="checkbox"], [type="radio"]) {
+    accent-color: var(--orange);
+}
+
+/* On/off switch: one size, off = line colour, on = green */
+#root :is(.gs-switch, .as2-switch, .gm-switch i) {
+    position: relative;
+    flex-shrink: 0;
+    width: 44px;
+    height: 24px;
+    min-width: 44px;
+    min-height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--line);
+    transition: background-color 0.15s ease;
+}
+
+#root :is(.gs-switch::after, .gm-switch i::after, .as2-switch span) {
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--white);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transform: none;
+    transition: left 0.15s ease;
+}
+
+#root :is(.gs-switch.on, .as2-switch.is-on, .gm-switch input:checked + i) {
+    background: var(--green);
+}
+
+#root :is(.gs-switch.on::after, .gm-switch input:checked + i::after, .as2-switch.is-on span) {
+    left: 23px;
+    background: var(--white);
+}
+
+/* Segmented control (2–4 views): cream track, active option orange */
+#root :is(.gm-seg, .dl-seg, .lfr2-seg, .admin-view-toggle, .donation-form .donation-toggle) {
+    gap: 4px;
+    padding: 4px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--line-soft);
+}
+
+#root :is(.gm-seg, .dl-seg, .lfr2-seg, .admin-view-toggle, .donation-form .donation-toggle) > button {
+    min-height: 36px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--brown-soft);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+#root :is(.gm-seg, .dl-seg, .lfr2-seg, .admin-view-toggle, .donation-form .donation-toggle) > button:hover:not(:disabled) {
+    background: var(--white);
+    color: var(--brown);
+}
+
+#root :is(.gm-seg, .dl-seg, .lfr2-seg, .admin-view-toggle, .donation-form .donation-toggle) > button:is(.is-active, .on, .active) {
+    background: var(--orange);
+    color: var(--white);
+}
+
+/* Search boxes and phone fields: the wrapper is the visible field, so it gets the field look */
+#root :is(
+    .admin-adoption-search, .fb2-search, .fs-search, .afl-search, .ao-searchbox, .lfr-phone, .rp2-search,
+    .al2-search, .rs2-search, .adoption-phone-field, .ffc-phone
+) {
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background-color: var(--white);
+}
+
+/* ...and the same focus ring as every field */
+#root :is(
+    .admin-adoption-search, .fb2-search, .fs-search, .afl-search, .ao-searchbox, .lfr-phone, .rp2-search,
+    .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .ffc-phone
+):focus-within {
+    outline: 3px solid var(--orange);
+    outline-offset: 2px;
+}

@@ -258,9 +258,6 @@
     color: var(--brown-soft);
 }
 
-.admin-required {
-    color: var(--red);
-}
 
 /* Make sure hidden tab panels stay hidden even if a class sets display */
 .admin-animal-form-panel [hidden] {

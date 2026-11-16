@@ -89,7 +89,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
 
                 <label className="rp-field">
                     <span>
-                        What was done? <em>*</em>
+                        What was done? <span className="required-mark">*</span>
                     </span>
                     <textarea
                         rows={3}
@@ -102,7 +102,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
 
                 <div className="rp-field">
                     <span>
-                        Proof photos <em>*</em> <small>(1–{MAX_PROOF_PHOTOS})</small>
+                        Proof photos <span className="required-mark">*</span> <small>(1–{MAX_PROOF_PHOTOS})</small>
                     </span>
                     <div className="rp-photos">
                         {completionPhotos.map((url) => (

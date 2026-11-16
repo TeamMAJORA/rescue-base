@@ -732,7 +732,6 @@
 
 .if2-col {
     flex: 1;
-    outline: none;
 }
 
 .if2-col.is-forecast {

@@ -986,7 +986,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                             {isMoneyDonation ? (
                                 <>
                                     <div className="donation-choice">
-                                        <span>How much? <b>*</b></span>
+                                        <span>How much? <span className="required-mark">*</span></span>
                                         <div className="donation-pills" role="group" aria-label="Amount">
                                             {AMOUNT_PRESETS.map((amount) => {
                                                 const isChosen = !isCustomAmount && amountValue === amount;
@@ -1035,7 +1035,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     </div>
 
                                     <div className="donation-choice">
-                                        <span>Send it through <b>*</b></span>
+                                        <span>Send it through <span className="required-mark">*</span></span>
                                         {paymentMethods.length > 0 ? (
                                             <div className="donation-pills" role="group" aria-label="Payment method">
                                                 {paymentMethods.map((method) => {
@@ -1067,7 +1067,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                 <>
                                     {/* Postel's Law: donors type it their way; suggestions fill the rest */}
                                     <label>
-                                        <span>What are you giving? <b>*</b></span>
+                                        <span>What are you giving? <span className="required-mark">*</span></span>
                                         <input
                                             type="text"
                                             maxLength={80}
@@ -1110,7 +1110,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     )}
 
                                     <div className="donation-choice">
-                                        <span>Type <b>*</b></span>
+                                        <span>Type <span className="required-mark">*</span></span>
                                         <div className="donation-pills donation-type-pills" role="group" aria-label="Type of items">
                                             {inKindCategories.map((category) => {
                                                 const isChosen = donation.category === category;
@@ -1147,7 +1147,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
                                     <div className="donation-row">
                                         <label>
-                                            <span>Quantity <b>*</b></span>
+                                            <span>Quantity <span className="required-mark">*</span></span>
                                             <input
                                                 type="number"
                                                 min="1"
@@ -1187,7 +1187,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
                                     {donation.unit === "Other" && (
                                         <label>
-                                            <span>Type the unit <b>*</b></span>
+                                            <span>Type the unit <span className="required-mark">*</span></span>
                                             <input
                                                 type="text"
                                                 maxLength={30}
@@ -1206,7 +1206,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     {isMoneyDonation
                                         ? "Proof of Payment"
                                         : "Proof of Item"}{" "}
-                                    <b>*</b>
+                                    <span className="required-mark">*</span>
                                 </span>
 
                                 <input

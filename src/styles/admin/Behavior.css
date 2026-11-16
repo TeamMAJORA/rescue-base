@@ -63,7 +63,6 @@
     font: inherit;
     font-size: 13px;
     font-weight: 500;
-    outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -685,7 +684,6 @@
     background: var(--white);
     color: var(--brown);
     font-family: inherit;
-    outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 

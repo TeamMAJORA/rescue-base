@@ -63,7 +63,6 @@
     background: var(--white);
     color: var(--brown);
     font-size: 14px;
-    outline: none;
 }
 
 .admin-user-edit-form input:focus,

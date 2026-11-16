@@ -584,7 +584,7 @@ export default function AnimalTransfers() {
 
                     <form className="ao-form" onSubmit={handleSubmit}>
                         <label className="ao-field">
-                            <span>Animal <span className="ao-req">*</span></span>
+                            <span>Animal <span className="required-mark">*</span></span>
                             <select
                                 value={form.animalName}
                                 onChange={(e) => updateField("animalName", e.target.value)}
@@ -605,7 +605,7 @@ export default function AnimalTransfers() {
 
                         <div className="ao-route">
                             <label className="ao-field">
-                                <span>From <span className="ao-req">*</span></span>
+                                <span>From <span className="required-mark">*</span></span>
                                 <input
                                     value={form.fromLocation}
                                     onChange={(e) => updateField("fromLocation", e.target.value)}
@@ -615,7 +615,7 @@ export default function AnimalTransfers() {
                             </label>
                             <Icon name="arrow" size={20} />
                             <label className="ao-field">
-                                <span>To <span className="ao-req">*</span></span>
+                                <span>To <span className="required-mark">*</span></span>
                                 <input
                                     value={form.toLocation}
                                     onChange={(e) => updateField("toLocation", e.target.value)}
@@ -626,7 +626,7 @@ export default function AnimalTransfers() {
                         </div>
 
                         <label className="ao-field">
-                            <span>Transfer Date <span className="ao-req">*</span></span>
+                            <span>Transfer Date <span className="required-mark">*</span></span>
                             <input
                                 type="date"
                                 value={form.transferDate}
@@ -636,7 +636,7 @@ export default function AnimalTransfers() {
                         </label>
 
                         <label className="ao-field">
-                            <span>Reason <span className="ao-req">*</span></span>
+                            <span>Reason <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.reason}
                                 onChange={(e) => updateField("reason", e.target.value)}
@@ -646,7 +646,7 @@ export default function AnimalTransfers() {
                         </label>
 
                         <div className="ao-field">
-                            <span>Status <span className="ao-req">*</span></span>
+                            <span>Status <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={STATUS_OPTIONS}
                                 value={form.status}

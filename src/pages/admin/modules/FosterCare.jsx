@@ -2078,7 +2078,7 @@ export default function FosterCare() {
                                     return (
                                         <div className="is-wide afr-picker">
                                             <span className="acl-label">
-                                                Pick a pet <em>*</em>
+                                                Pick a pet <span className="required-mark">*</span>
                                             </span>
 
                                             <div className="afr-picker-tools">
@@ -2336,7 +2336,7 @@ export default function FosterCare() {
                             <div className="afr-body">
                                 <div className="afr-form">
                                     <label className="is-wide">
-                                        <span>Animal <em>*</em></span>
+                                        <span>Animal <span className="required-mark">*</span></span>
                                         <select
                                             value={assignmentForm.animalId}
                                             onChange={(e) => pickAnimal(e.target.value)}
