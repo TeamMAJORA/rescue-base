@@ -393,20 +393,13 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* STEP TRANSITIONS: drill forward (next step comes in from the right), back (from the left) */
-.auth-step.drill-forward { animation: auth-drill-forward 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.auth-step.drill-back { animation: auth-drill-back 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-
-@keyframes auth-drill-forward { from { opacity: 0; transform: translateX(40px); } }
-@keyframes auth-drill-back { from { opacity: 0; transform: translateX(-40px); } }
+/* STEP TRANSITIONS: rb-drill-forward / rb-drill-back (App.css) */
 @keyframes auth-shake {
     25% { transform: translateX(-4px); }
     75% { transform: translateX(4px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .auth-step.drill-forward,
-    .auth-step.drill-back { animation-name: rb-fade-in; }
     .otp-input.is-invalid input { animation: none; }
 }
 

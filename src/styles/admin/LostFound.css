@@ -2093,53 +2093,6 @@
         text-align: center;
     }
 }
-.lfr-phone {
-    display: flex;
-    align-items: stretch;
-    height: 34px;
-    overflow: hidden;
-    border: 1px solid var(--gold);
-    border-radius: 8px;
-    background: var(--amber-soft);
-}
-
-.lfr-phone-code {
-    display: grid;
-    place-items: center;
-    padding: 0 12px;
-    border-right: 1px solid var(--gold);
-    background: var(--gold);
-    color: var(--brown);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.lfr-phone input {
-    flex: 1;
-    height: 100%;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-}
-
-.lfr-phone input:focus {
-    border: none;
-    box-shadow: none;
-}
-
-.lfr-phone:focus-within {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
-}
-
-.lfr-phone.is-invalid {
-    border-color: var(--red);
-}
-
-.lfr-phone.is-invalid:focus-within {
-    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.12);
-}
 
 .lfr-field-error {
     color: var(--red);
@@ -2462,37 +2415,17 @@
     color: var(--red);
 }
 
+/* z-index 0 keeps Leaflet's own layers (400–1000) inside the map, so the date calendar opens over it */
 .lfr2-map {
     position: relative;
+    z-index: 0;
     height: 230px;
     border: 1px solid var(--line);
 }
 
-
 .lfr2-coord {
     font-size: 12px;
     color: var(--brown-soft);
-}
-
-.lfr2-phone {
-    display: flex;
-}
-
-.lfr2-phone b {
-    padding: 8px 12px;
-    border: 1px solid var(--line);
-    border-right: 0;
-    background: var(--peach-soft);
-    font-size: 14px;
-}
-
-.lfr2-phone input {
-    flex: 1;
-    min-width: 0;
-}
-
-.lfr2-phone.is-invalid input {
-    border-color: var(--red);
 }
 
 /* Stays pinned to the bottom of the screen so Submit is always visible */
@@ -3098,4 +3031,52 @@
     background: var(--cream-card);
     color: var(--brown-muted);
     font-size: 12px;
+}
+
+/* Report steps: "Lost / Found" and the date side by side, then the place and map */
+.lfr2-what {
+    display: grid;
+    grid-template-columns: max-content minmax(220px, 280px);
+    justify-content: start;
+    align-items: end;
+    gap: 24px;
+    margin-bottom: 12px;
+}
+
+.lfr2-what .lfr2-seg {
+    align-self: end;
+    min-height: 44px;
+}
+
+.lfr2-contact {
+    max-width: 480px;
+}
+
+/* The step heading takes focus when the step changes (for keyboard and screen reader users) */
+.lfr2-sec h4:focus {
+    outline: none;
+}
+
+.lfr2-card > .form-tracker {
+    margin: 16px 0 0;
+}
+
+.lfr2-foot {
+    justify-content: space-between;
+}
+
+.lfr2-foot > div {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.lfr2-foot .form-draft-note {
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .lfr2-what {
+        grid-template-columns: 1fr;
+    }
 }

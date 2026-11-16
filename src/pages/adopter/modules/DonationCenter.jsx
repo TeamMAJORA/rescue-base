@@ -8,6 +8,7 @@ import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
 import NumberInput from "../../../components/system/NumberInput";
+import RequiredValue from "../../../components/system/RequiredValue";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -282,61 +283,16 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                 ? "Monetary Donation"
                 : donation.category);
 
-        if (
-            !donation.quantity ||
-            !Number.isFinite(Number(donation.quantity)) ||
-            Number(donation.quantity) < 1
-        ) {
-            setMessage(
-                isMoneyDonation
-                    ? "Donation amount must be at least ₱1."
-                    : "Quantity must be at least 1."
-            );
-            return;
-        }
-
-        if (!isMoneyDonation && !donation.itemName.trim()) {
-            setMessage("Please say what you're giving.");
-            return;
-        }
-
-        if (!isMoneyDonation && !donation.category) {
-            setMessage("Please pick a type for your items.");
-            return;
-        }
-
-        if (!isMoneyDonation && donation.category === "Other" && !donation.otherCategory.trim()) {
-            setMessage("Please type what kind of items they are.");
-            return;
-        }
-
+        // Required fields, amounts and choices were checked by the browser (errors show under each field)
         const unit = resolveUnit(donation.unit, donation.otherUnit);
 
-        if (!isMoneyDonation && !unit) {
-            setMessage("Please type the unit (e.g. trays, dozens).");
-            return;
-        }
-
-        if (isMoneyDonation && Number(donation.quantity) > 100000) {
-            setMessage("Donation amount can't be more than ₱100,000.");
-            return;
-        }
-
+        // No payment account set up yet: there are no buttons to choose from
         if (
             isMoneyDonation &&
             !donation.paymentMethod
         ) {
             setMessage(
                 "Please select a payment method."
-            );
-            return;
-        }
-
-        if (!donation.image) {
-            setMessage(
-                isMoneyDonation
-                    ? "Please upload your proof of payment."
-                    : "Please upload a photo of the item."
             );
             return;
         }
@@ -1016,6 +972,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                 Other
                                             </button>
                                         </div>
+                                        {!isCustomAmount && <RequiredValue value={donation.quantity} message="Choose an amount, or press Other to type one." />}
 
                                         {isCustomAmount && (
                                             <NumberInput
@@ -1035,6 +992,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     <div className="donation-choice">
                                         <span>Send it through <span className="required-mark">*</span></span>
                                         {paymentMethods.length > 0 ? (
+                                            <>
                                             <div className="donation-pills" role="group" aria-label="Payment method">
                                                 {paymentMethods.map((method) => {
                                                     const isChosen = donation.paymentMethod === method.method_type;
@@ -1054,6 +1012,8 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                     );
                                                 })}
                                             </div>
+                                            <RequiredValue value={donation.paymentMethod} message="Choose how you'll send it." />
+                                            </>
                                         ) : (
                                             <small className="donation-choice-note">
                                                 {loadingPaymentMethods ? "Loading the shelter's accounts…" : "No payment account has been added yet."}
@@ -1072,6 +1032,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                             placeholder="e.g. dry dog food, old towels"
                                             value={donation.itemName}
                                             onChange={(event) => handleItemNameChange(event.target.value)}
+                                            data-required-message="Say what you're giving."
                                             required
                                         />
                                     </label>
@@ -1128,6 +1089,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                 );
                                             })}
                                         </div>
+                                        <RequiredValue value={donation.category} message="Pick a type for your items." />
 
                                         {donation.category === "Other" && (
                                             <input
@@ -1212,6 +1174,10 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     disabled={uploadingImage}
                                     onChange={handleUploadImage}
                                     hidden
+                                />
+                                <RequiredValue
+                                    value={donation.image}
+                                    message={isMoneyDonation ? "Upload your proof of payment." : "Upload a photo of the item."}
                                 />
 
                                 <div className="donation-upload-box">

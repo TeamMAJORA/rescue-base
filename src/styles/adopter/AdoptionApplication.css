@@ -621,139 +621,6 @@
     }
 }
 
-.adoption-draft-note {
-    display: block;
-    margin-top: 8px;
-    color: var(--brown-soft);
-    font-size: 12px;
-    text-align: right;
-}
-
-.adoption-tracker {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin: -8px 0 24px;
-    padding: 12px 20px;
-    border: 1px solid rgba(90, 27, 0, 0.13);
-    border-radius: 20px;
-    background: var(--paper);
-}
-
-.adoption-tracker ol {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.adoption-tracker li {
-    display: flex;
-    align-items: center;
-    flex: 1;
-}
-
-.adoption-tracker li:last-child {
-    flex: 0 0 auto;
-}
-
-/* connector line between steps */
-.adoption-tracker li:not(:last-child)::after {
-    content: "";
-    flex: 1;
-    height: 2px;
-    margin: 0 16px;
-    border-radius: 999px;
-    background: rgba(90, 27, 0, 0.12);
-}
-
-.adoption-tracker li.is-done:not(:last-child)::after {
-    background: var(--orange);
-}
-
-.adoption-tracker button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--brown-muted);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 800;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.adoption-tracker button b {
-    width: 22px;
-    height: 22px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--line-soft);
-    color: var(--brown-muted);
-    font-size: 12px;
-}
-
-.adoption-tracker li.is-current button {
-    color: var(--brown);
-}
-
-.adoption-tracker li.is-current button b {
-    background: var(--orange);
-    color: var(--white);
-    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
-}
-
-.adoption-tracker li.is-done button {
-    color: var(--brown);
-}
-
-.adoption-tracker li.is-done button b {
-    background: var(--green);
-    color: var(--white);
-}
-
-.adoption-tracker-pill {
-    flex-shrink: 0;
-    padding: 4px 16px;
-    border-radius: 999px;
-    background: var(--amber-soft);
-    color: var(--brown);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.adoption-tracker-pill.is-ready {
-    background: var(--green-soft);
-    color: var(--green);
-}
-
-@media (max-width: 640px) {
-    .adoption-tracker {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-    }
-
-    .adoption-tracker li:not(:last-child)::after {
-        margin: 0 8px;
-    }
-
-    .adoption-tracker-pill {
-        align-self: flex-start;
-    }
-}
-
-.adoption-tracker li.is-done.is-current button b {
-    background: var(--orange);
-    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
-}
-
 /* ===== Step heading with number badge ===== */
 .adoption-form-heading--numbered {
     display: flex;
@@ -832,40 +699,6 @@
     stroke-width: 2;
     stroke-linecap: round;
     pointer-events: none;
-}
-
-/* ===== +63 phone field ===== */
-.adoption-phone-field {
-    display: flex;
-    align-items: stretch;
-    border: 1px solid rgba(251, 133, 0, 0.28);
-    border-radius: 12px;
-    background: var(--peach-soft);
-    overflow: hidden;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.adoption-phone-field:focus-within {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
-}
-
-.adoption-phone-prefix {
-    display: grid;
-    place-items: center;
-    padding: 0 16px;
-    border-right: 1px solid rgba(251, 133, 0, 0.28);
-    background: var(--amber-soft);
-    color: var(--brown);
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.adoption-form-grid .adoption-phone-field input {
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
 }
 
 /* ===== Home type choice buttons ===== */
@@ -1019,50 +852,6 @@
     }
 }
 
-.adoption-form-grid input.has-error,
-.adoption-form-grid textarea.has-error,
-.adoption-choice-field > input.has-error,
-.adoption-phone-field.has-error {
-    border-color: var(--red);
-    background: var(--red-soft);
-}
-
-.adoption-form-grid input.has-error:focus,
-.adoption-form-grid textarea.has-error:focus,
-.adoption-phone-field.has-error:focus-within {
-    border-color: var(--red);
-    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.14);
-}
-
-.adoption-phone-field.has-error .adoption-phone-prefix {
-    border-right-color: rgba(214, 40, 40, 0.35);
-    background: var(--red-soft);
-}
-
-.adoption-form-grid .adoption-field-error,
-.adoption-choice-field .adoption-field-error {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--red-dark);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.adoption-field-error::before {
-    content: "!";
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--red);
-    color: var(--white);
-    font-size: 12px;
-    font-weight: 800;
-}
-
 /* ===== Step 2: Yes / No buttons ===== */
 .adoption-choice-group.adoption-choice-group--yesno {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1148,11 +937,6 @@
     opacity: 0.7;
 }
 
-.adoption-dropzone.has-error {
-    border-color: var(--red);
-    background: var(--red-soft);
-}
-
 /* hidden but still focusable for the error scroll */
 .adoption-dropzone-input {
     position: absolute;
@@ -1234,15 +1018,6 @@
     background: var(--orange);
 }
 
-.adoption-id-field .adoption-field-error {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--red-dark);
-    font-size: 12px;
-    font-weight: 800;
-}
-
 @media (max-width: 640px) {
     .adoption-dropzone {
         flex-direction: column;
@@ -1317,31 +1092,6 @@
     color: var(--brown-muted);
 }
 
-/* +63 phone */
-.adoption-module-form .adoption-phone-field {
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--white);
-}
-
-.adoption-module-form .adoption-phone-field:focus-within {
-    border-color: var(--orange);
-    box-shadow: none;
-}
-
-.adoption-module-form .adoption-phone-prefix {
-    padding: 0 12px;
-    border-right: 1px solid var(--line);
-    background: var(--peach-soft);
-    font-weight: 800;
-}
-
-.adoption-module-form .adoption-phone-field input {
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-}
-
 /* Choice buttons (home type, yes / no) */
 .adoption-module-form .adoption-choice-group button {
     min-height: 0;
@@ -1365,20 +1115,14 @@
     box-shadow: var(--shadow-dropdown);
 }
 
-/* Errors stay red */
-.adoption-module-form .adoption-form-grid input.has-error,
-.adoption-module-form .adoption-form-grid textarea.has-error,
-.adoption-module-form .adoption-phone-field.has-error {
-    border-color: var(--red);
-    background: var(--red-soft);
+
+/* Tracker sits closer to the header here */
+.adoption-module > .form-tracker {
+    margin-top: -8px;
 }
 
-.adoption-module-form .adoption-phone-field.has-error input {
-    border: 0;
-    background: transparent;
-}
-
-.adoption-module-form .adoption-phone-field.has-error .adoption-phone-prefix {
-    border-right-color: rgba(214, 40, 40, 0.35);
+/* ID not uploaded on submit: the drop zone turns red (message comes from RequiredValue) */
+.adoption-id-field:has(> .rb-required-value[aria-invalid="true"]) .adoption-dropzone {
+    border-color: var(--red-dark);
     background: var(--red-soft);
 }

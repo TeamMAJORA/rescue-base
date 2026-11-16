@@ -1989,11 +1989,12 @@ export default function GISMapping({ onOpenLostFound }) {
                                     <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
                                 </div>
 
-                                <div className="gm-seg">
+                                <div className="gm-seg" role="group" aria-label="Report type">
                                     {reportTypes.map((type) => (
                                         <button
                                             key={type}
                                             type="button"
+                                            aria-pressed={gmReport.reportType === type}
                                             className={gmReport.reportType === type ? "is-active" : ""}
                                             onClick={() => setGmReport((current) => ({ ...current, reportType: type }))}
                                         >
@@ -2011,8 +2012,8 @@ export default function GISMapping({ onOpenLostFound }) {
                                     </div>
                                 )}
 
-                                <span className="gm-label">Where?</span>
-                                <div className="gm-where">
+                                <span className="gm-label" id="gm-report-where">Where?</span>
+                                <div className="gm-where" role="group" aria-labelledby="gm-report-where">
                                     <button
                                         type="button"
                                         className={gmReport.where === "me" ? "is-me" : ""}
@@ -2051,12 +2052,13 @@ export default function GISMapping({ onOpenLostFound }) {
                                     </p>
                                 )}
 
-                                <span className="gm-label">Animal</span>
-                                <div className="gm-seg">
+                                <span className="gm-label" id="gm-report-animal">Animal</span>
+                                <div className="gm-seg" role="group" aria-labelledby="gm-report-animal">
                                     {[["dog", "Dog"], ["cat", "Cat"], ["unknown", "Not sure"]].map(([value, label]) => (
                                         <button
                                             key={value}
                                             type="button"
+                                            aria-pressed={gmReport.species === value}
                                             className={gmReport.species === value ? "is-active" : ""}
                                             onClick={() => setGmReport((current) => ({ ...current, species: value }))}
                                         >
@@ -2067,8 +2069,9 @@ export default function GISMapping({ onOpenLostFound }) {
 
                                 {(gmReport.reportType === "lost" || gmReport.reportType === "found") && (
                                     <>
-                                        <span className="gm-label">Pet name (optional)</span>
+                                        <label className="gm-label" htmlFor="gm-report-pet-name">Pet name (optional)</label>
                                         <input
+                                            id="gm-report-pet-name"
                                             className="gm-input"
                                             value={gmReport.petName}
                                             onChange={(e) => setGmReport((current) => ({ ...current, petName: e.target.value }))}
@@ -2077,8 +2080,9 @@ export default function GISMapping({ onOpenLostFound }) {
                                     </>
                                 )}
 
-                                <span className="gm-label">What did you see?</span>
+                                <label className="gm-label" htmlFor="gm-report-description">What did you see?</label>
                                 <textarea
+                                    id="gm-report-description"
                                     className="gm-input"
                                     rows={3}
                                     value={gmReport.description}
@@ -2086,12 +2090,13 @@ export default function GISMapping({ onOpenLostFound }) {
                                     placeholder="Color, size, condition, landmarks…"
                                 />
 
-                                <span className="gm-label">Status</span>
-                                <div className="gm-seg">
+                                <span className="gm-label" id="gm-report-status">Status</span>
+                                <div className="gm-seg" role="group" aria-labelledby="gm-report-status">
                                     {[["open", "Open"], ["resolved", "Rescued now"]].map(([value, label]) => (
                                         <button
                                             key={value}
                                             type="button"
+                                            aria-pressed={gmReport.status === value}
                                             className={gmReport.status === value ? "is-active" : ""}
                                             onClick={() => setGmReport((current) => ({ ...current, status: value }))}
                                         >

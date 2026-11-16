@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "../../styles/components/MonthCalendar.css";
 import { formatDate, formatMonth, toDayValue } from "../../utils/formatDate";
 import Icon from "./Icon";
+import RequiredValue from "./RequiredValue";
 
 // Month calendar shared by the interview picker (no past days) and the
 // lost & found report form (no future days). Days outside [minDate, maxDate] can't be picked.
@@ -138,7 +139,8 @@ export function MonthCalendar({ selected, onPick, minDate, maxDate }) {
 
 // A field that opens the calendar below it. value / onChange use "YYYY-MM-DD".
 // floating: the calendar overlays the page; turn it off inside scrolling pop-ups, where it would be cut off.
-export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pick a date", ariaLabel, floating = true }) {
+// required: the form won't submit without a date; requiredMessage shows under the field (utils/formValidation.js)
+export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pick a date", ariaLabel, floating = true, required = false, requiredMessage = "Pick a date." }) {
     const [open, setOpen] = useState(false);
     const boxRef = useRef(null);
     const selected = value ? new Date(`${value}T00:00`) : null;
@@ -185,6 +187,8 @@ export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pi
                 </span>
                 <i aria-hidden="true"><Icon name="chevron-down" /></i>
             </button>
+
+            {required && <RequiredValue value={value} message={requiredMessage} />}
 
             {open && (
                 <MonthCalendar

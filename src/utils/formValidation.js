@@ -9,7 +9,8 @@ import { formatDate } from "./formatDate";
 // - when leaving a field: only if something was typed (never for a field just tabbed past)
 // - while typing: the message disappears as soon as the value is valid
 //
-// Forms with their own inline validation use noValidate (log in, adoption application) and are untouched.
+// Forms with their own inline validation use noValidate (log in) and are untouched.
+// A field can give its own "required" message with data-required-message="Add a photo of the pet.".
 // No nodes are added to React's tree: the message lives in a data attribute shown by CSS (Forms.css),
 // and in aria-description so screen readers read it with the field.
 
@@ -37,7 +38,8 @@ function messageFor(field) {
 
     if (validity.customError) return field.validationMessage;
     if (validity.valueMissing) {
-        if (field.type === "checkbox" && !field.name) return "Tick this box to continue.";
+        if (field.dataset.requiredMessage) return field.dataset.requiredMessage;
+        if (field.type === "checkbox") return "Tick this box to continue.";
         return label ? `${choose ? "Choose" : "Enter"} ${label}.` : "This field is required.";
     }
     if (validity.typeMismatch) {
@@ -107,16 +109,54 @@ function handleInput(event) {
     else if (field.type !== "radio") showError(field); // keep the message accurate (e.g. "3 so far")
 }
 
+// Values set by a click (date picker, map pin, choice buttons) don't fire input events,
+// so after every click the fields still marked invalid are checked again.
+function clearResolvedErrors() {
+    setTimeout(() => {
+        document.querySelectorAll("[aria-invalid='true']").forEach((field) => {
+            if (isField(field) && field.form && !field.form.noValidate && field.validity.valid) clearError(field);
+        });
+    }, 0);
+}
+
+function showErrorIfTyped(field) {
+    const hasValue = field.type === "radio" || field.type === "checkbox" ? false : String(field.value).trim() !== "";
+    if (field.isConnected && hasValue && !field.validity.valid) showError(field);
+}
+
+// Leaving a field by clicking (often the Save button): the message waits until the click is done,
+// otherwise it pushes the button down mid-click and the click misses
+let pointerIsDown = false;
+const fieldsLeftDuringClick = new Set();
+
 function handleBlur(event) {
     const field = event.target;
     if (!isField(field) || !field.form || field.form.noValidate || !field.willValidate) return;
-    const hasValue = field.type === "radio" || field.type === "checkbox" ? false : String(field.value).trim() !== "";
-    if (hasValue && !field.validity.valid) showError(field);
+    if (pointerIsDown) fieldsLeftDuringClick.add(field);
+    else showErrorIfTyped(field);
+}
+
+function handlePointerDown() {
+    pointerIsDown = true;
+}
+
+function handlePointerUp() {
+    pointerIsDown = false;
+    setTimeout(() => {
+        fieldsLeftDuringClick.forEach(showErrorIfTyped);
+        fieldsLeftDuringClick.clear();
+    }, 0);
 }
 
 export function installFormValidation() {
     document.addEventListener("invalid", handleInvalid, true);
-    document.addEventListener("input", handleInput, true);
-    document.addEventListener("change", handleInput, true);
+    // Bubble phase (not capture): React's own handlers and effects (custom rules, number cleaning) run first,
+    // so the check sees the value and rule that are now on screen
+    document.addEventListener("input", handleInput);
+    document.addEventListener("change", handleInput);
     document.addEventListener("focusout", handleBlur, true);
+    document.addEventListener("click", clearResolvedErrors, true);
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("pointerup", handlePointerUp, true);
+    document.addEventListener("pointercancel", handlePointerUp, true);
 }

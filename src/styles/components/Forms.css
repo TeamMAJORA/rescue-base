@@ -15,8 +15,8 @@
     textarea
 ):not(:is(
     .auth-field, .otp-input, .admin-adoption-search, .admin-table-footer, .dl-select, .feedback-management-header,
-    .fb2-search, .fs-search, .afl-search, .acl-row, .gm-address, .ao-searchbox, .lfr-phone, .rp2-search,
-    .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .aip-month-selects, .ffc-phone
+    .fb2-search, .fs-search, .afl-search, .acl-row, .gm-address, .ao-searchbox, .phone-input, .rp2-search,
+    .al2-search, .al2-dates, .rs2-search, .aip-month-selects
 ) *) {
     min-height: 44px;
     border: 1px solid var(--line);
@@ -33,8 +33,8 @@
     select:not([multiple])
 ):not(:is(
     .auth-field, .otp-input, .admin-adoption-search, .admin-table-footer, .dl-select, .feedback-management-header,
-    .fb2-search, .fs-search, .afl-search, .acl-row, .gm-address, .ao-searchbox, .lfr-phone, .rp2-search,
-    .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .aip-month-selects, .ffc-phone
+    .fb2-search, .fs-search, .afl-search, .acl-row, .gm-address, .ao-searchbox, .phone-input, .rp2-search,
+    .al2-search, .al2-dates, .rs2-search, .aip-month-selects
 ) *) {
     height: 44px;
     padding-top: 0;
@@ -147,8 +147,8 @@
 
 /* Search boxes and phone fields: the wrapper is the visible field, so it gets the field look */
 #root :is(
-    .admin-adoption-search, .fb2-search, .fs-search, .afl-search, .ao-searchbox, .lfr-phone, .rp2-search,
-    .al2-search, .rs2-search, .adoption-phone-field, .ffc-phone
+    .admin-adoption-search, .fb2-search, .fs-search, .afl-search, .ao-searchbox, .phone-input, .rp2-search,
+    .al2-search, .rs2-search
 ) {
     min-height: 44px;
     border: 1px solid var(--line);
@@ -158,8 +158,8 @@
 
 /* ...and the same focus ring as every field */
 #root :is(
-    .admin-adoption-search, .fb2-search, .fs-search, .afl-search, .ao-searchbox, .lfr-phone, .rp2-search,
-    .al2-search, .al2-dates, .rs2-search, .adoption-phone-field, .ffc-phone
+    .admin-adoption-search, .fb2-search, .fs-search, .afl-search, .ao-searchbox, .phone-input, .rp2-search,
+    .al2-search, .al2-dates, .rs2-search
 ):focus-within {
     outline: 3px solid var(--orange);
     outline-offset: 2px;
@@ -173,6 +173,9 @@
     flex-basis: 100%;
     grid-column: 1 / -1;
     margin-top: 4px;
+    padding-left: 20px;
+    /* red "!" circle, same mark as the adoption form had */
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23b42318'/%3E%3Cpath d='M8 4v5' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='12' r='1.1' fill='white'/%3E%3C/svg%3E") no-repeat 0 2px / 14px 14px;
     color: var(--red-dark);
     font-size: 13px;
     font-weight: 600;
@@ -197,4 +200,241 @@
         margin: 0;
         transform: rotate(90deg);
     }
+}
+
+/* ---------- Shared form parts ---------- */
+
+/* +63 phone field (components/system/PhoneInput.jsx): the wrapper is the visible field */
+#root .phone-input {
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+}
+
+#root .phone-input-prefix {
+    display: grid;
+    place-items: center;
+    padding: 0 12px;
+    border-right: 1px solid var(--line);
+    background: var(--peach-soft);
+    color: var(--brown-strong);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#root .phone-input input {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    padding: 0 12px;
+    border: 0;
+    background: transparent;
+    color: var(--brown);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+#root .phone-input:has(input[aria-invalid="true"]) {
+    border-color: var(--red-dark);
+}
+
+/* Password with show/hide (components/system/PasswordInput.jsx) */
+#root .password-input {
+    position: relative;
+    display: block;
+}
+
+#root .password-input > input {
+    width: 100%;
+    padding-right: 44px;
+}
+
+#root .password-input-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--brown-muted);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#root .password-input-toggle:hover {
+    color: var(--brown-strong);
+}
+
+/* Custom controls (date picker, stars, pill choices) join the required check through a hidden input
+   (components/system/RequiredValue.jsx); it takes no space and is never seen */
+#root input.rb-required-value {
+    position: absolute;
+    width: 1px !important;
+    height: 1px !important;
+    min-height: 0 !important;
+    margin: 0;
+    padding: 0 !important;
+    border: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+    clip-path: inset(50%);
+}
+
+#root .aip-datefield:has(> .rb-required-value[aria-invalid="true"]) .aip-field {
+    border-color: var(--red-dark);
+}
+
+/* Step tracker for long forms (components/system/FormTracker.jsx): adoption, foster, lost & found */
+.form-tracker {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 0 24px;
+    padding: 12px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 20px;
+    background: var(--paper);
+}
+
+.form-tracker ol {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.form-tracker li {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.form-tracker li:last-child {
+    flex: 0 0 auto;
+}
+
+/* connector line between steps */
+.form-tracker li:not(:last-child)::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    margin: 0 16px;
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.12);
+}
+
+.form-tracker li.is-done:not(:last-child)::after {
+    background: var(--orange);
+}
+
+#root .form-tracker button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--brown-muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+#root .form-tracker button:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.form-tracker button b {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--line-soft);
+    color: var(--brown-muted);
+    font-size: 12px;
+}
+
+#root .form-tracker li:is(.is-current, .is-done) button {
+    color: var(--brown);
+}
+
+.form-tracker li.is-done button b {
+    background: var(--green);
+    color: var(--white);
+}
+
+.form-tracker li.is-current button b,
+.form-tracker li.is-done.is-current button b {
+    background: var(--orange);
+    color: var(--white);
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.form-tracker-pill {
+    flex-shrink: 0;
+    padding: 4px 16px;
+    border-radius: 999px;
+    background: var(--amber-soft);
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.form-tracker-pill.is-ready {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+/* "Draft saved at 3:41 PM" under a form (utils/useFormDraft.js) */
+.form-draft-note {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 8px;
+    color: var(--brown-soft);
+    font-size: 12px;
+}
+
+.form-draft-note .rb-icon {
+    color: var(--green);
+}
+
+@media (max-width: 640px) {
+    .form-tracker {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+    }
+
+    .form-tracker li:not(:last-child)::after {
+        margin: 0 8px;
+    }
+
+    .form-tracker-pill {
+        align-self: flex-start;
+    }
+}
+
+/* Phones: step names don't fit next to each other, so only the current one keeps its name */
+@media (max-width: 480px) {
+    .form-tracker li:not(.is-current) button span {
+        display: none;
+    }
+}
+
+/* Read-only/disabled phone field (e.g. a sent foster application) looks like any disabled field */
+#root .phone-input:has(input:disabled) {
+    background-color: var(--cream-card);
 }

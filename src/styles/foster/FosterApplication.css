@@ -226,7 +226,6 @@
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
-
 /* locked (account) fields */
 .ffc-locked {
     position: relative;
@@ -258,41 +257,6 @@
     stroke-width: 2;
     stroke-linecap: round;
     pointer-events: none;
-}
-
-/* +63 phone field */
-.ffc-phone {
-    display: flex;
-    align-items: stretch;
-    border: 1px solid rgba(251, 133, 0, 0.28);
-    border-radius: 12px;
-    background: var(--peach-soft);
-    overflow: hidden;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.ffc-phone:focus-within {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
-}
-
-.ffc-phone-prefix {
-    display: grid;
-    place-items: center;
-    padding: 0 16px;
-    border-right: 1px solid rgba(251, 133, 0, 0.28);
-    background: var(--amber-soft);
-    color: var(--brown);
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.ffc-card .ffc-phone input,
-.ffc-card .ffc-phone input:focus {
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
 }
 
 /* ===== Household card: choice buttons + info tip ===== */
@@ -631,16 +595,6 @@
     background: var(--peach-soft);
 }
 
-.ffc-btn-draft {
-    border: 1.5px solid var(--orange);
-    background: var(--white-yellow);
-    color: var(--brown);
-}
-
-.ffc-btn-draft:hover {
-    background: var(--yellow);
-}
-
 .ffc-btn-submit {
     border: 1.5px solid var(--orange);
     background: var(--orange);
@@ -676,37 +630,6 @@
     .ffc-btn {
         width: 100%;
     }
-}
-
-/* ===== Field errors ===== */
-.ffc-error {
-    color: var(--red);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.ffc-card label:has(> .ffc-error) input,
-.ffc-card label:has(> .ffc-error) textarea,
-.ffc-card label:has(> .ffc-error) .ffc-phone {
-    border-color: var(--red);
-    background: var(--red-soft);
-}
-
-.ffc-card label:has(> .ffc-error) .ffc-phone input {
-    background: transparent;
-}
-
-.ffc-agree-card .ffc-error {
-    display: block;
-    margin: 8px 0 0 40px;
-}
-
-.foster-form-card.ffc-agree-card:has(.ffc-error) {
-    border-color: var(--red);
-}
-
-.foster-form-card.ffc-agree-card:has(.ffc-error) .ffc-agree-box {
-    border-color: var(--red);
 }
 
 /* Editing a pending/approved application */
@@ -793,8 +716,6 @@
 .ffa-layout .ffc-label { gap: 8px; font-size: 12px; }
 
 .ffa-layout .ffc-card .foster-form-grid input { padding: 8px 12px; border-radius: 12px; font-size: 14px; }
-.ffa-layout .ffc-phone { border-radius: 12px; }
-.ffa-layout .ffc-phone-prefix { padding: 0 8px; font-size: 12px; }
 .ffa-layout .ffc-choices button { min-height: 34px; padding: 8px 8px; font-size: 12px; }
 .ffa-layout .ffc-stepper button { width: 36px; min-height: 34px; font-size: 16px; }
 .ffa-layout .ffc-stepper output { min-width: 44px; font-size: 14px; }
@@ -820,11 +741,6 @@
 .ffa-form.is-locked .ffa-fields textarea::placeholder {
     color: transparent;
     -webkit-text-fill-color: transparent;
-}
-
-.ffa-form.is-locked .ffc-phone {
-    border-color: rgba(90, 27, 0, 0.1);
-    background: var(--paper);
 }
 
 .ffa-form.is-locked .ffc-choices button:disabled {
@@ -1175,4 +1091,26 @@
     .ffs-tile.is-wide {
         grid-column: auto;
     }
+}
+/* Agreement not ticked on submit: the card and box turn red; the message wraps under the text */
+.foster-form-card .ffc-agree[data-rb-error] {
+    flex-wrap: wrap;
+}
+
+.foster-form-card.ffc-agree-card:has([aria-invalid="true"]) {
+    border-color: var(--red-dark);
+}
+
+.ffc-agree:has(input[aria-invalid="true"]) .ffc-agree-box {
+    border-color: var(--red-dark);
+}
+
+/* "Draft saved at …" sits on its own line under the buttons */
+.ffc-actions {
+    flex-wrap: wrap;
+}
+
+.ffc-actions .form-draft-note {
+    flex-basis: 100%;
+    margin-top: 0;
 }

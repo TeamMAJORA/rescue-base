@@ -5,6 +5,7 @@ import "../styles/AuthPage.css";
 import { useEffect, useId, useRef, useState } from "react";
 import Icon from "../components/system/Icon";
 import OtpInput from "../components/system/OtpInput";
+import PasswordInput from "../components/system/PasswordInput";
 import Header from "../components/landing/Header";
 import { openLandingSection } from "../components/landing/goToSection";
 
@@ -80,34 +81,6 @@ function AuthField({ id, label, action, error, hint, hintMet, children }) {
                 </p>
             )}
         </div>
-    );
-}
-
-function PasswordInput({ id, value, onChange, onBlur, autoComplete, invalid, hasMessage }) {
-    const [visible, setVisible] = useState(false);
-    return (
-        <>
-            <input
-                id={id}
-                type={visible ? "text" : "password"}
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-                autoComplete={autoComplete}
-                aria-invalid={invalid || undefined}
-                aria-describedby={hasMessage ? `${id}-msg` : undefined}
-            />
-            <button
-                type="button"
-                className="auth-eye"
-                onClick={() => setVisible((current) => !current)}
-                aria-label="Show password"
-                aria-pressed={visible}
-                aria-controls={id}
-            >
-                <Icon name={visible ? "eye-off" : "eye"} />
-            </button>
-        </>
     );
 }
 
@@ -494,6 +467,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                     hintMet={firstMet}
                 >
                     <PasswordInput
+                        toggleClassName="auth-eye"
                         id={`${fieldId}-${first}`}
                         value={values[0]}
                         onChange={(event) => setters[0](event.target.value)}
@@ -511,6 +485,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                     hintMet={pairMet}
                 >
                     <PasswordInput
+                        toggleClassName="auth-eye"
                         id={`${fieldId}-${second}`}
                         value={values[1]}
                         onChange={(event) => setters[1](event.target.value)}
@@ -585,6 +560,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                             }
                         >
                             <PasswordInput
+                                toggleClassName="auth-eye"
                                 id={passwordId}
                                 value={password}
                                 onChange={(event) => setPassword(event.target.value)}
@@ -719,7 +695,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                             <Icon name="arrow-left" /> Back
                         </button>
 
-                        <div key={`${mode}-${step}`} ref={stepRef} className={`auth-step drill-${direction}`}>
+                        <div key={`${mode}-${step}`} ref={stepRef} className={`auth-step rb-drill-${direction}`}>
                             {screens[step]()}
                         </div>
                     </div>

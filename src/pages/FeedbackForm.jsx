@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { formatDate, formatDateTime } from "../utils/formatDate";
 import LoadingState from "../components/system/LoadingState";
 import Icon from "../components/system/Icon";
+import RequiredValue from "../components/system/RequiredValue";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -63,15 +64,7 @@ export default function FeedbackForm({ onSubmitted }) {
             return;
         }
 
-        if (rating < 1) {
-            setError("Please select a rating.");
-            return;
-        }
-
-        if (!message.trim()) {
-            setError("Please enter your feedback.");
-            return;
-        }
+        // Rating and message were checked by the browser (errors show under each field)
 
         setLoading(true);
 
@@ -170,11 +163,13 @@ useEffect(() => {
                             Rating <span className="required-mark">*</span>
                         </span>
 
-                        <div className="fbf-stars">
+                        <div className="fbf-stars" role="radiogroup" aria-label="Rating">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <div className="fbf-star-cell" key={star}>
                                     <button
                                         type="button"
+                                        role="radio"
+                                        aria-checked={star === rating}
                                         className={`fbf-star ${star <= rating ? "is-on" : ""}`}
                                         onClick={() => setRating(star)}
                                         aria-label={`Rate ${star} out of 5`}
@@ -188,6 +183,7 @@ useEffect(() => {
                                 </div>
                             ))}
                         </div>
+                        <RequiredValue value={rating || ""} message="Choose a rating from 1 to 5 stars." />
                     </div>
 
                     <div className="fbf-field">
@@ -212,9 +208,8 @@ useEffect(() => {
                     <div className="fbf-field">
                         <div className="fbf-label-row">
                             <label className="fbf-label" htmlFor="feedback-message">
-                                Your feedback
+                                Your feedback <span className="required-mark">*</span>
                             </label>
-                            <small>Optional</small>
                         </div>
 
                         <textarea
@@ -225,6 +220,8 @@ useEffect(() => {
                             maxLength={2000}
                             rows={6}
                             placeholder="Tell us about your experience or suggestions…"
+                            data-required-message="Write a few words about your experience."
+                            required
                         />
 
                         <span className="fbf-count">{message.length} / 2000</span>

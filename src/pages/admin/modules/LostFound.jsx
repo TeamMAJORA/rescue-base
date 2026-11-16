@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -10,6 +10,11 @@ import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
 import NumberInput from "../../../components/system/NumberInput";
+import PhoneInput from "../../../components/system/PhoneInput";
+import RequiredValue from "../../../components/system/RequiredValue";
+import FormTracker from "../../../components/system/FormTracker";
+import { readFormDraft, useFormDraft } from "../../../utils/useFormDraft";
+import { formatTime } from "../../../utils/formatDate";
 
 
 // Lost/found dates: up to 5 years back, never in the future
@@ -19,6 +24,42 @@ function earliestReportDay() {
 }
 
 const API = import.meta.env.VITE_BACKEND_URL;
+
+// A new report, step by step: what happened, then the pet, then how to reach the reporter
+const REPORT_STEPS = [
+    { key: "what", label: "What happened" },
+    { key: "pet", label: "The pet" },
+    { key: "contact", label: "Contact" },
+];
+
+const EMPTY_REPORT = {
+    reportType: "lost",
+    petName: "",
+    species: "",
+    breed: "",
+    description: "",
+    location: "",
+    dateReported: "",
+    photoUrl: "",
+    photoName: "",
+    color: "",
+    age: "",
+    ageUnit: "Years",
+    gender: "",
+    size: "",
+    contactNumber: "",
+    notes: "",
+    lat: "",
+    lng: "",
+};
+
+function storedUserEmail() {
+    try {
+        return JSON.parse(localStorage.getItem("rescuebase_user") || "{}").email || "guest";
+    } catch {
+        return "guest";
+    }
+}
 
 const MATCH_FACTOR_LABELS = {
     species: "Species",
@@ -84,14 +125,6 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-    const [reportType, setReportType] = useState("lost");
-    const [petName, setPetName] = useState("");
-    const [species, setSpecies] = useState("");
-    const [breed, setBreed] = useState("");
-    const [description, setDescription] = useState("");
-    const [location, setLocation] = useState("");
-    const [dateReported, setDateReported] = useState("");
-    const [photoUrl, setPhotoUrl] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [search, setSearch] = useState("");
     const [speciesFilter, setSpeciesFilter] = useState("all");
@@ -106,16 +139,7 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
     const [possibleMatches, setPossibleMatches] = useState(null);
     const [possibleMatchesTotal, setPossibleMatchesTotal] = useState(0);
     const [decidingMatchId, setDecidingMatchId] = useState("");
-    const [color, setColor] = useState("");
-    const [age, setAge] = useState("");
-    const [ageUnit, setAgeUnit] = useState("Years");
-    const [gender, setGender] = useState("");
-    const [size, setSize] = useState("");
-    const [contactNumber, setContactNumber] = useState("");
-    const [notes, setNotes] = useState("");
     const [showReportForm, setShowReportForm] = useState(false);
-    const [lat, setLat] = useState("");
-    const [lng, setLng] = useState("");
     const [mapSearch, setMapSearch] = useState(""); 
     const [mapResults, setMapResults] = useState([]);
     const [mapSearchOpen, setMapSearchOpen] = useState(false);
@@ -133,10 +157,53 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
     const [claimProofUploading, setClaimProofUploading] = useState(false);
     const [claimError, setClaimError] = useState("");
     const [mySuggestions, setMySuggestions] = useState([]);
-    const [photoName, setPhotoName] = useState("");
     const [photoUploading, setPhotoUploading] = useState(false);
     const [photoError, setPhotoError] = useState("");
-    const phoneInvalid = contactNumber.length > 0 && !/^9\d{9}$/.test(contactNumber);
+
+    // The report being written: one object, saved on this device as a draft while typing
+    const reportDraftKey = `rescuebase_lostfound_draft_${storedUserEmail()}`;
+    const [reportForm, setReportForm] = useState(() => ({ ...EMPTY_REPORT, ...readFormDraft(reportDraftKey) }));
+    const {
+        reportType, petName, species, breed, description, location, dateReported, photoUrl, photoName,
+        color, age, ageUnit, gender, size, contactNumber, notes, lat, lng,
+    } = reportForm;
+    const hasReportProgress = Object.keys(EMPTY_REPORT).some(
+        (name) => name !== "reportType" && name !== "ageUnit" && reportForm[name] !== EMPTY_REPORT[name]
+    );
+    const { draftSavedAt: reportDraftSavedAt, clearDraft: clearReportDraft } =
+        useFormDraft(reportDraftKey, reportForm, hasReportProgress);
+    const [reportStep, setReportStep] = useState(0);
+    const [reportStepDirection, setReportStepDirection] = useState("forward");
+    const reportStepHeading = useRef(null);
+
+    // value can be a function of the current value, like a useState setter
+    function updateReport(name, value) {
+        setReportForm((current) => ({
+            ...current,
+            [name]: typeof value === "function" ? value(current[name]) : value,
+        }));
+    }
+
+    function goToReportStep(index) {
+        setReportStepDirection(index > reportStep ? "forward" : "back");
+        setReportStep(index);
+    }
+
+    // A new step: bring the card's top into view and move focus to the step's heading
+    useEffect(() => {
+        const heading = reportStepHeading.current;
+        if (!heading) return;
+        heading.focus({ preventScroll: true });
+        heading.closest(".lfr2-card")?.scrollIntoView({ block: "start", behavior: "smooth" });
+    }, [reportStep]);
+
+    function discardReportDraft() {
+        setReportForm(EMPTY_REPORT);
+        clearReportDraft();
+        setPhotoError("");
+        setMapSearch("");
+        goToReportStep(0);
+    }
     useEffect(() => {
         try {
             const savedUser = localStorage.getItem("rescuebase_user");
@@ -306,37 +373,9 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
         setError("");
         setSuccess("");
 
-        if (!species.trim()) {
-            setError("Please enter the pet species.");
-            return;
-        }
-
-        if (!description.trim()) {
-            setError("Please provide a description of the pet.");
-            return;
-        }
-
-        if (!location.trim()) {
-            setError("Please provide the location.");
-            return;
-        }
-
-        if (!dateReported) {
-            setError(`Please pick the date the pet was ${reportType === "lost" ? "lost" : "found"}.`);
-            return;
-        }
-
-        if (dateReported > toDayValue(startOfToday())) {
-            setError("The date can't be in the future.");
-            return;
-        }
-        if (!/^9\d{9}$/.test(contactNumber)) {
-             setError("Please enter a valid phone number: 10 digits starting with 9, e.g. 917 123 4567.");
-             return;
-        }
-        
-        if (reportType === "found" && !photoUrl) {
-            setError("Please add a photo so the owner can recognize the pet.");
+        // Steps 1–2: the browser has checked this step's fields; move on
+        if (reportStep < REPORT_STEPS.length - 1) {
+            goToReportStep(reportStep + 1);
             return;
         }
 
@@ -397,24 +436,10 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
                 "Lost and found report submitted successfully."
             );
 
-            setReportType("lost");
-            setPetName("");
-            setSpecies("");
-            setBreed("");
-            setDescription("");
-            setLocation("");
-            setDateReported("");
-            setPhotoName("");
+            setReportForm(EMPTY_REPORT);
+            clearReportDraft();
+            setReportStep(0);
             setPhotoError("");
-            setColor("");
-            setAge("");
-            setAgeUnit("Years");
-            setGender("");
-            setSize("");
-            setContactNumber("");
-            setNotes("");
-            setLat("");
-            setLng("");
             setMapSearch("");
             await loadReports();
             setShowReportForm(false);
@@ -468,8 +493,8 @@ async function uploadPhoto(file) {
 
     try {
         setPhotoUploading(true);
-        setPhotoUrl(await uploadLostFoundImage(file));
-        setPhotoName(file.name);
+        updateReport("photoUrl", await uploadLostFoundImage(file));
+        updateReport("photoName", file.name);
     } catch (err) {
         setPhotoError(err.message || "Upload failed. Please try again.");
     } finally {
@@ -984,7 +1009,7 @@ async function fillLocationFromPin(la, ln) {
             .filter(Boolean)
             .filter((part, i, list) => list.indexOf(part) === i)
             .join(", ");
-        if (place) setLocation((current) => (current.trim() ? current : place));
+        if (place) updateReport("location", (current) => (current.trim() ? current : place));
     } catch {
         // Address lookup is a nice-to-have; the pin is already saved
     }
@@ -999,12 +1024,12 @@ function pickMapResult(place) {
     pickPoint(place.latitude, place.longitude);
     setMapSearch(place.name);
     setMapSearchOpen(false);
-    if (!location.trim()) setLocation([place.name, place.area].filter(Boolean).join(", "));
+    if (!location.trim()) updateReport("location", [place.name, place.area].filter(Boolean).join(", "));
 }
 
 function pickPoint(la, ln) {
-    setLat(la.toFixed(6));
-    setLng(ln.toFixed(6));
+    updateReport("lat", la.toFixed(6));
+    updateReport("lng", ln.toFixed(6));
 }
 
 
@@ -1042,21 +1067,157 @@ if (showReportForm && canSubmitReport) {
                             Fields marked <span className="required-mark">*</span> are required.
                         </p>
                     </div>
-
-                    <div className="lfr2-seg" role="radiogroup" aria-label="Report type">
-                        <button type="button" role="radio" aria-checked={isLost} className={isLost ? "on" : ""} onClick={() => setReportType("lost")}>
-                            Lost pet
-                        </button>
-                        <button type="button" role="radio" aria-checked={!isLost} className={!isLost ? "on" : ""} onClick={() => setReportType("found")}>
-                            Found pet
-                        </button>
-                    </div>
                 </div>
+
+                <FormTracker
+                    steps={REPORT_STEPS.map((step, index) => ({ ...step, done: index < reportStep }))}
+                    currentIndex={reportStep}
+                    onSelect={goToReportStep}
+                    canSelect={(index) => index < reportStep}
+                    label="Report progress"
+                />
 
                 {error && <div className="lost-found-message error">{error}</div>}
 
+                <div key={reportStep} className={`lfr2-step rb-drill-${reportStepDirection}`}>
+                {reportStep === 0 && (
                 <section className="lfr2-sec">
-                    <h4>The pet</h4>
+                    <h4 ref={reportStepHeading} tabIndex={-1}>What happened?</h4>
+                    <p>
+                        {isLost ? "When and where your pet was last seen." : "When and where you found the pet."} Tap the map to drop a pin. It shows on the GIS map.
+                    </p>
+
+                    <div className="lfr2-what">
+                        <div className="lfr2-seg" role="radiogroup" aria-label="Report type">
+                            <button type="button" role="radio" aria-checked={isLost} className={isLost ? "on" : ""} onClick={() => updateReport("reportType", "lost")}>
+                                Lost pet
+                            </button>
+                            <button type="button" role="radio" aria-checked={!isLost} className={!isLost ? "on" : ""} onClick={() => updateReport("reportType", "found")}>
+                                Found pet
+                            </button>
+                        </div>
+
+                        <div className="lfr2-field">
+                            <span>
+                                {isLost ? "Date lost" : "Date found"} <span className="required-mark">*</span>
+                            </span>
+                            <DateField
+                                value={dateReported}
+                                onChange={(day) => updateReport("dateReported", day)}
+                                minDate={earliestReportDay()}
+                                maxDate={startOfToday()}
+                                ariaLabel={isLost ? "Date lost" : "Date found"}
+                                required
+                                requiredMessage={`Pick the date the pet was ${isLost ? "lost" : "found"}.`}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="lfr2-col">
+                        <label className="lfr2-field">
+                            <span>
+                                {isLost ? "Last seen location" : "Location name"} <span className="required-mark">*</span>
+                            </span>
+                            <input
+                                value={location}
+                                onChange={(e) => updateReport("location", e.target.value)}
+                                placeholder={isLost ? "e.g. Brgy. Lahug, Cebu City" : "e.g. Near Ayala Center, Cebu City"}
+                                data-required-message={isLost ? "Enter where the pet was last seen." : "Enter where you found the pet."}
+                                required
+                            />
+                        </label>
+
+                        <div className="lfr2-map">
+                            <MapContainer
+                                center={lat && lng ? [Number(lat), Number(lng)] : CEBU_CENTER}
+                                zoom={14}
+                                scrollWheelZoom={false}
+                                style={{ height: "100%", width: "100%" }}
+                            >
+                                <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                <MapClick onPick={pickOnMap} />
+                                <MapFollow lat={Number(lat)} lng={Number(lng)} />
+                                {lat && lng && <Marker position={[Number(lat), Number(lng)]} icon={PIN_ICON} />}
+                            </MapContainer>
+
+                            <button
+                                type="button"
+                                className={`lfr2-locate${locating ? " is-busy" : ""}`}
+                                onClick={pinMyLocation}
+                                disabled={locating}
+                                title="Pin my current location"
+                                aria-label="Pin my current location"
+                            >
+                                <img src="/gis/icon-find-nearest.svg" alt="" />
+                            </button>
+
+                            <div className="lfr2-map-search">
+                                <input
+                                    type="search"
+                                    value={mapSearch}
+                                    aria-label="Search a place"
+                                    onChange={(e) => {
+                                        setMapSearch(e.target.value);
+                                        setMapSearchOpen(true);
+                                        if (e.target.value.trim().length < 3) setMapResults([]);
+                                    }}
+                                    onFocus={() => setMapSearchOpen(true)}
+                                    onBlur={() => setTimeout(() => setMapSearchOpen(false), 150)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault(); // stops the form from submitting
+                                            if (mapResults[0]) pickMapResult(mapResults[0]);
+                                        }
+                                        if (e.key === "Escape") setMapSearchOpen(false);
+                                    }}
+                                    placeholder="Search a place in Cebu…"
+                                />
+                                {mapSearchOpen && mapSearch.trim().length >= 3 && (
+                                    <ul className="gm-map-results">
+                                        {mapSearching && mapResults.length === 0 && <li className="is-note">Searching…</li>}
+                                        {!mapSearching && mapResults.length === 0 && <li className="is-note">No places found in Cebu.</li>}
+                                        {mapResults.map((place) => (
+                                            <li key={place.id}>
+                                                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pickMapResult(place)}>
+                                                    <b>{place.name}</b>
+                                                    {place.area && <small>{place.area}</small>}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        </div>
+
+                        <small className="lfr2-coord">
+                            {lat && lng ? `Pinned at ${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)}` : "No pin yet"}
+                            {" · "}
+                            <button type="button" className="lfr2-link" onClick={pinMyLocation} disabled={locating}>
+                                {locating ? "Getting your location…" : "Use my location"}
+                            </button>
+                            {lat && lng && (
+                                <>
+                                    {" · "}
+                                    <button
+                                        type="button"
+                                        className="lfr2-link"
+                                        onClick={() => {
+                                            updateReport("lat", "");
+                                            updateReport("lng", "");
+                                        }}
+                                    >
+                                        Clear pin
+                                    </button>
+                                </>
+                            )}
+                        </small>
+                    </div>
+                </section>
+                )}
+
+                {reportStep === 1 && (
+                <section className="lfr2-sec">
+                    <h4 ref={reportStepHeading} tabIndex={-1}>The pet</h4>
                     <p>{isLost ? "What your pet looks like, so people can recognize it." : "What it looks like, so the owner can recognize it."}</p>
 
                     <div className="lfr2-grid">
@@ -1064,14 +1225,14 @@ if (showReportForm && canSubmitReport) {
                             <span>
                                 Pet name {!isLost && <small>(if known)</small>}
                             </span>
-                            <input value={petName} onChange={(e) => setPetName(e.target.value)} placeholder={isLost ? "e.g. Brownie" : "Leave blank if unknown"} />
+                            <input value={petName} onChange={(e) => updateReport("petName", e.target.value)} placeholder={isLost ? "e.g. Brownie" : "Leave blank if unknown"} />
                         </label>
 
                         <label className="lfr2-field">
                             <span>
                                 Species <span className="required-mark">*</span>
                             </span>
-                            <select value={species} onChange={(e) => setSpecies(e.target.value)} required>
+                            <select value={species} onChange={(e) => updateReport("species", e.target.value)} required>
                                 <option value="">Select</option>
                                 <option value="Dog">Dog</option>
                                 <option value="Cat">Cat</option>
@@ -1080,12 +1241,12 @@ if (showReportForm && canSubmitReport) {
 
                         <label className="lfr2-field">
                             <span>Breed</span>
-                            <input value={breed} onChange={(e) => setBreed(e.target.value)} placeholder="e.g. Aspin" />
+                            <input value={breed} onChange={(e) => updateReport("breed", e.target.value)} placeholder="e.g. Aspin" />
                         </label>
 
                         <label className="lfr2-field">
                             <span>Color</span>
-                            <select value={color} onChange={(e) => setColor(e.target.value)}>
+                            <select value={color} onChange={(e) => updateReport("color", e.target.value)}>
                                   <option value="">Select</option>
                                   {["Black", "White", "Brown", "Tan", "Gray", "Cream", "Golden", "Orange", "Red", "Mixed", "Other"].map((colourOption) => (
                                       <option key={colourOption} value={colourOption}>{colourOption}</option>
@@ -1098,8 +1259,8 @@ if (showReportForm && canSubmitReport) {
                                 <label className="lfr2-field">
                                     <span>Age</span>
                                     <div className="lfr2-age">
-                                        <NumberInput min="0" max={ageUnit === "Months" ? 1200 : 100} value={age} onChange={(e) => setAge(e.target.value)} placeholder="e.g. 2" />
-                                        <select value={ageUnit} onChange={(e) => setAgeUnit(e.target.value)} aria-label="Age unit">
+                                        <NumberInput min="0" max={ageUnit === "Months" ? 1200 : 100} value={age} onChange={(e) => updateReport("age", e.target.value)} placeholder="e.g. 2" />
+                                        <select value={ageUnit} onChange={(e) => updateReport("ageUnit", e.target.value)} aria-label="Age unit">
                                             <option value="Years">Years</option>
                                             <option value="Months">Months</option>
                                         </select>
@@ -1109,7 +1270,7 @@ if (showReportForm && canSubmitReport) {
                         )}
                         <label className="lfr2-field">
                             <span>Sex</span>
-                            <select value={gender} onChange={(e) => setGender(e.target.value)}>
+                            <select value={gender} onChange={(e) => updateReport("gender", e.target.value)}>
                                 <option value="">Select</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
@@ -1119,26 +1280,13 @@ if (showReportForm && canSubmitReport) {
 
                         <label className="lfr2-field">
                             <span>Size</span>
-                            <select value={size} onChange={(e) => setSize(e.target.value)}>
+                            <select value={size} onChange={(e) => updateReport("size", e.target.value)}>
                                 <option value="">Select</option>
                                 <option value="Small">Small</option>
                                 <option value="Medium">Medium</option>
                                 <option value="Large">Large</option>
                             </select>
                         </label>
-
-                        <div className="lfr2-field">
-                            <span>
-                                {isLost ? "Date lost" : "Date found"} <span className="required-mark">*</span>
-                            </span>
-                            <DateField
-                                value={dateReported}
-                                onChange={setDateReported}
-                                minDate={earliestReportDay()}
-                                maxDate={startOfToday()}
-                                ariaLabel={isLost ? "Date lost" : "Date found"}
-                            />
-                        </div>
 
                         <div className="lfr2-field lfr2-span-4">
                             <span>Photo {!isLost && <span className="required-mark">*</span>}</span>
@@ -1164,14 +1312,15 @@ if (showReportForm && canSubmitReport) {
                                         type="button"
                                         className="lfr2-link"
                                         onClick={() => {
-                                            setPhotoUrl("");
-                                            setPhotoName("");
+                                            updateReport("photoUrl", "");
+                                            updateReport("photoName", "");
                                         }}
                                     >
                                         Remove
                                     </button>
                                 )}
                             </div>
+                            {!isLost && <RequiredValue value={photoUrl} message="Add a photo so the owner can recognize the pet." />}
                             {photoError && <small className="lfr2-error">{photoError}</small>}
                         </div>
 
@@ -1182,165 +1331,77 @@ if (showReportForm && canSubmitReport) {
                             <textarea
                                 rows={2}
                                 value={description}
-                                onChange={(e) => setDescription(e.target.value)}
+                                onChange={(e) => updateReport("description", e.target.value)}
+                                data-required-message="Describe the pet so people can recognize it."
                                 placeholder={isLost ? "Markings, collar, behavior or other identifying details…" : "Markings, collar, condition, and where the pet is now…"}
                                 required
                             />
                         </label>
                     </div>
                 </section>
+                )}
 
+                {reportStep === 2 && (
                 <section className="lfr2-sec">
-                    <h4>Where &amp; contact</h4>
-                    <p>
-                        {isLost ? "Where your pet was last seen." : "Where you found the pet."} Tap the map to drop a pin. It shows on the GIS map.
-                    </p>
+                    <h4 ref={reportStepHeading} tabIndex={-1}>Contact</h4>
+                    <p>How people can reach you about this {isLost ? "lost" : "found"} pet.</p>
 
-                    <div className="lfr2-two">
-                        <div className="lfr2-col">
-                            <label className="lfr2-field">
-                                <span>
-                                    {isLost ? "Last seen location" : "Location name"} <span className="required-mark">*</span>
-                                </span>
-                                <input
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
-                                    placeholder={isLost ? "e.g. Brgy. Lahug, Cebu City" : "e.g. Near Ayala Center, Cebu City"}
-                                    required
-                                />
-                            </label>
+                    <div className="lfr2-col lfr2-contact">
+                        <label className="lfr2-field">
+                            <span>
+                                Phone number <span className="required-mark">*</span>
+                            </span>
+                            <PhoneInput
+                                value={contactNumber}
+                                onDigitsChange={(digits) => updateReport("contactNumber", digits)}
+                                data-required-message="Enter a phone number people can call or text."
+                                required
+                            />
+                        </label>
 
-                            <div className="lfr2-map">
-                                <MapContainer
-                                    center={lat && lng ? [Number(lat), Number(lng)] : CEBU_CENTER}
-                                    zoom={14}
-                                    scrollWheelZoom={false}
-                                    style={{ height: "100%", width: "100%" }}
-                                >
-                                    <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                                    <MapClick onPick={pickOnMap} />
-                                    <MapFollow lat={Number(lat)} lng={Number(lng)} />
-                                    {lat && lng && <Marker position={[Number(lat), Number(lng)]} icon={PIN_ICON} />}
-                                </MapContainer>
+                        <label className="lfr2-field">
+                            <span>Reported by</span>
+                            <input className="is-readonly" value={user?.name || user?.username || ""} readOnly />
+                        </label>
 
-                                <button
-                                    type="button"
-                                    className={`lfr2-locate${locating ? " is-busy" : ""}`}
-                                    onClick={pinMyLocation}
-                                    disabled={locating}
-                                    title="Pin my current location"
-                                    aria-label="Pin my current location"
-                                >
-                                    <img src="/gis/icon-find-nearest.svg" alt="" />
-                                </button>
-
-                                <div className="lfr2-map-search">
-                                    <input
-                                        type="search"
-                                        value={mapSearch}
-                                        aria-label="Search a place"
-                                        onChange={(e) => {
-                                            setMapSearch(e.target.value);
-                                            setMapSearchOpen(true);
-                                            if (e.target.value.trim().length < 3) setMapResults([]);
-                                        }}
-                                        onFocus={() => setMapSearchOpen(true)}
-                                        onBlur={() => setTimeout(() => setMapSearchOpen(false), 150)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                                e.preventDefault(); // stops the form from submitting
-                                                if (mapResults[0]) pickMapResult(mapResults[0]);
-                                            }
-                                            if (e.key === "Escape") setMapSearchOpen(false);
-                                        }}
-                                        placeholder="Search a place in Cebu…"
-                                    />
-                                    {mapSearchOpen && mapSearch.trim().length >= 3 && (
-                                        <ul className="gm-map-results">
-                                            {mapSearching && mapResults.length === 0 && <li className="is-note">Searching…</li>}
-                                            {!mapSearching && mapResults.length === 0 && <li className="is-note">No places found in Cebu.</li>}
-                                            {mapResults.map((place) => (
-                                                <li key={place.id}>
-                                                    <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pickMapResult(place)}>
-                                                        <b>{place.name}</b>
-                                                        {place.area && <small>{place.area}</small>}
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                            </div>
-
-                            <small className="lfr2-coord">
-                                {lat && lng ? `Pinned at ${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)}` : "No pin yet"}
-                                {" · "}
-                                <button type="button" className="lfr2-link" onClick={pinMyLocation} disabled={locating}>
-                                    {locating ? "Getting your location…" : "Use my location"}
-                                </button>
-                                {lat && lng && (
-                                    <>
-                                        {" · "}
-                                        <button
-                                            type="button"
-                                            className="lfr2-link"
-                                            onClick={() => {
-                                                setLat("");
-                                                setLng("");
-                                            }}
-                                        >
-                                            Clear pin
-                                        </button>
-                                    </>
-                                )}
-                            </small>
-                        </div>
-
-                        <div className="lfr2-col">
-                            <label className="lfr2-field">
-                                <span>
-                                    Phone number <span className="required-mark">*</span>
-                                </span>
-                                <div className={`lfr2-phone ${phoneInvalid ? "is-invalid" : ""}`}>
-                                    <b>+63</b>
-                                    <input
-                                        type="tel"
-                                        inputMode="numeric"
-                                        value={contactNumber}
-                                        onChange={(e) => {
-                                            let digits = e.target.value.replace(/\D/g, "");
-                                            if (digits.startsWith("63")) digits = digits.slice(2);
-                                            if (digits.startsWith("0")) digits = digits.slice(1);
-                                            setContactNumber(digits.slice(0, 10));
-                                        }}
-                                        placeholder="9XX XXX XXXX"
-                                        required
-                                    />
-                                </div>
-                                {phoneInvalid && <small className="lfr2-error">Enter a 10-digit mobile number starting with 9 (e.g. 917 123 4567).</small>}
-                            </label>
-
-                            <label className="lfr2-field">
-                                <span>Reported by</span>
-                                <input className="is-readonly" value={user?.name || user?.username || ""} readOnly />
-                            </label>
-
-                            <label className="lfr2-field">
-                                <span>Notes</span>
-                                <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" />
-                            </label>
-                        </div>
+                        <label className="lfr2-field">
+                            <span>Notes</span>
+                            <textarea rows={3} value={notes} onChange={(e) => updateReport("notes", e.target.value)} placeholder="Optional" />
+                        </label>
                     </div>
                 </section>
+                )}
+                </div>
 
                 <footer className="lfr2-foot">
+                    {hasReportProgress && reportDraftSavedAt && (
+                        <small className="form-draft-note">
+                            <Icon name="check" /> Draft saved at {formatTime(reportDraftSavedAt)}
+                            {" · "}
+                            <button type="button" className="lfr2-link" onClick={discardReportDraft}>
+                                Start over
+                            </button>
+                        </small>
+                    )}
                     <div>
-                        <button type="button" className="lfr2-btn" onClick={() => setShowReportForm(false)}>
-                            Cancel
-                        </button>
-                        <button type="submit" className="lfr2-btn is-primary" disabled={submitting || photoUploading}>
-                            {submitting ? "Submitting…" : "Submit report"}
-                        </button>
+                        {reportStep === 0 ? (
+                            <button type="button" className="lfr2-btn" onClick={() => setShowReportForm(false)}>
+                                Cancel
+                            </button>
+                        ) : (
+                            <button type="button" className="lfr2-btn" onClick={() => goToReportStep(reportStep - 1)}>
+                                <Icon name="arrow-left" /> Back
+                            </button>
+                        )}
+                        {reportStep < REPORT_STEPS.length - 1 ? (
+                            <button type="submit" className="lfr2-btn is-primary" disabled={photoUploading}>
+                                Next <Icon name="arrow-right" />
+                            </button>
+                        ) : (
+                            <button type="submit" className="lfr2-btn is-primary" disabled={submitting || photoUploading}>
+                                {submitting ? "Submitting…" : "Submit report"}
+                            </button>
+                        )}
                     </div>
                 </footer>
             </form>
@@ -2128,7 +2189,15 @@ if (showReportForm && canSubmitReport) {
         )
     )}
     {claimOpen && (canClaimThis || canSayFoundForThis) && (
-    <div className="lf-claim">
+    <form
+        id="lf-claim-form"
+        className="lf-claim"
+        onSubmit={async (event) => {
+            event.preventDefault();
+            const done = await handleClaim(r._id);
+            if (done) setViewingReport(null);
+        }}
+    >
         <h3>{claimMode === "found" ? "I found this pet" : "Submit an ownership claim"}</h3>
         <p>
             {claimMode === "found"
@@ -2150,6 +2219,8 @@ if (showReportForm && canSubmitReport) {
                             setClaimError("");
                         }}
                         placeholder="e.g. Near Ayala Center, Cebu City"
+                        data-required-message="Enter where you found the pet."
+                        required
                     />
                 </label>
                 <div className="lfr2-field">
@@ -2164,6 +2235,8 @@ if (showReportForm && canSubmitReport) {
                         maxDate={startOfToday()}
                         ariaLabel="Date found"
                         floating={false}
+                        required
+                        requiredMessage="Pick the date you found the pet."
                     />
                 </div>
             </>
@@ -2184,28 +2257,24 @@ if (showReportForm && canSubmitReport) {
                         ? "Collar, markings, how it behaves, where it is now…"
                         : "Marks or scars, collar, the name it answers to, when and where it was lost…"
                 }
+                minLength={20}
+                data-required-message={claimMode === "found" ? "Describe the pet and how you found it." : "Describe your proof of ownership."}
+                required
             />
             <small>At least 20 characters ({claimText.trim().length} so far)</small>
         </label>
 
         <label className="lfr2-field">
             <span>Mobile number <span className="required-mark">*</span></span>
-            <div className="lfr2-phone">
-                <b>+63</b>
-                <input
-                    type="tel"
-                    inputMode="numeric"
-                    value={claimContactNumber}
-                    onChange={(e) => {
-                        let digits = e.target.value.replace(/\D/g, "");
-                        if (digits.startsWith("63")) digits = digits.slice(2);
-                        if (digits.startsWith("0")) digits = digits.slice(1);
-                        setClaimContactNumber(digits.slice(0, 10));
-                        setClaimError("");
-                    }}
-                    placeholder="9XX XXX XXXX"
-                />
-            </div>
+            <PhoneInput
+                value={claimContactNumber}
+                onDigitsChange={(digits) => {
+                    setClaimContactNumber(digits);
+                    setClaimError("");
+                }}
+                data-required-message="Enter a mobile number the other person can reach."
+                required
+            />
         </label>
 
         <div className="lfr2-field">
@@ -2233,10 +2302,13 @@ if (showReportForm && canSubmitReport) {
                     }}
                 />
             </div>
+            {claimMode === "found" && (
+                <RequiredValue value={claimProofPhotoUrl} message="Add a photo so the owner can recognize their pet." />
+            )}
         </div>
 
         {claimError && <small className="lf-claim-error">{claimError}</small>}
-    </div>
+    </form>
 )}
                     {error && <div className="lost-found-message error">{error}</div>}
 
@@ -2291,30 +2363,10 @@ if (showReportForm && canSubmitReport) {
     )}
     {claimOpen && (canClaimThis || canSayFoundForThis) && (
         <button
-            type="button"
+            type="submit"
+            form="lf-claim-form"
             className="lfr-submit"
             disabled={claimProofUploading}
-            onClick={async () => {
-                if (claimMode === "found") {
-                    if (!foundLocation.trim()) return setClaimError("Please say where you found the pet.");
-                    if (!foundDate) return setClaimError("Please pick the date you found the pet.");
-                    if (!claimProofPhotoUrl) return setClaimError("Please add a photo so the owner can recognise their pet.");
-                }
-                if (claimText.trim().length < 20) {
-                    setClaimError(
-                        claimMode === "found"
-                            ? "Please describe the pet and how you found it in at least 20 characters."
-                            : "Please describe your proof of ownership in at least 20 characters."
-                    );
-                    return;
-                }
-                if (!/^9\d{9}$/.test(claimContactNumber)) {
-                    setClaimError("Enter a 10-digit mobile number starting with 9 (e.g. 917 123 4567).");
-                    return;
-                }
-                const done = await handleClaim(r._id);
-                if (done) setViewingReport(null);
-            }}
         >
             {claimMode === "found" ? "Send to owner" : "Submit claim"}
         </button>
