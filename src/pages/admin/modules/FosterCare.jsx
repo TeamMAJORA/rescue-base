@@ -1336,7 +1336,7 @@ export default function FosterCare() {
                 <div className="afl-toolbar">
                     <label className="afl-search">
                         <StatIcon name="search" />
-                        <input
+                        <input aria-label="Search pet or foster"
                             type="search"
                             value={listSearch}
                             onChange={(event) => setListSearch(event.target.value)}
@@ -2084,7 +2084,7 @@ export default function FosterCare() {
                                             </span>
 
                                             <div className="afr-picker-tools">
-                                                <input
+                                                <input aria-label="Search name or breed"
                                                     type="search"
                                                     value={petSearch}
                                                     placeholder="Search name or breed…"

@@ -5,6 +5,7 @@ import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -213,8 +214,7 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
                 <form className="fs-form" onSubmit={submit}>
                     <label>
                         Amount needed (kg)
-                        <input
-                            type="number"
+                        <NumberInput
                             min="1"
                             max={MAX_SUPPLY_QUANTITY}
                             step="1"
@@ -449,8 +449,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                     <label>
                         Current quantity (kg)
 
-                        <input
-                            type="number"
+                        <NumberInput
                             min="0"
                             max="100000"
                             step="any"
@@ -481,8 +480,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                     <label>
                         Consumption per animal/day (kg)
 
-                        <input
-                            type="number"
+                        <NumberInput
                             min="0"
                             max="50"
                             step="0.01"
@@ -504,8 +502,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                     <label>
                         Forecast period (days)
 
-                        <input
-                            type="number"
+                        <NumberInput
                             min="1"
                             max="365"
                             step="1"
@@ -701,8 +698,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                     <label className="fs-wide">
                         Quantity ({item.unit || "kg"})
 
-                        <input
-                            type="number"
+                        <NumberInput
                             min="0.01"
                             max="100000"
                             step="any"

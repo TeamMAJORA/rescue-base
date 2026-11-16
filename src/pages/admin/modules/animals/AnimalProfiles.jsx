@@ -12,6 +12,7 @@ import { askConfirm } from "../../../../utils/dialogs";
 import { formatDate } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
 import Icon from "../../../../components/system/Icon";
+import NumberInput from "../../../../components/system/NumberInput";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -1070,8 +1071,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         <label>
                             <span className="admin-field-label">Age</span>
                             <div className="admin-age-input">
-                                <input
-                                    type="number"
+                                <NumberInput
                                     min="0"
                                     max={ageUnit === "months" ? 1200 : 100}
                                     step={ageUnit === "months" ? "1" : "0.5"}

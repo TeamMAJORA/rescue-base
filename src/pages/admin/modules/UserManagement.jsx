@@ -610,7 +610,7 @@ export default function UserManagement() {
                 </div>
 
                 <div className="um-tools">
-                    <input
+                    <input aria-label="Search name or email"
                         type="search"
                         className="um-search"
                         placeholder="Search name or email"
@@ -768,12 +768,12 @@ export default function UserManagement() {
 
                         <label className="gs-field">
                             Username
-                            <input name="username" value={addForm.username} onChange={handleAddFormChange} required />
+                            <input name="username" value={addForm.username} autoComplete="off" onChange={handleAddFormChange} required />
                         </label>
 
                         <label className="gs-field">
                             Email
-                            <input type="email" name="email" value={addForm.email} onChange={handleAddFormChange} required />
+                            <input type="email" name="email" value={addForm.email} autoComplete="off" onChange={handleAddFormChange} required />
                         </label>
 
                         <label className="gs-field">
@@ -815,7 +815,7 @@ export default function UserManagement() {
 
                         <label className="gs-field">
                             Username
-                            <input name="username" value={editForm.username} onChange={handleEditFormChange} required />
+                            <input name="username" value={editForm.username} autoComplete="off" onChange={handleEditFormChange} required />
                         </label>
 
                         <label className="gs-field">

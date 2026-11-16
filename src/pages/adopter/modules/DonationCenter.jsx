@@ -7,6 +7,7 @@ import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1017,8 +1018,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                         </div>
 
                                         {isCustomAmount && (
-                                            <input
-                                                type="number"
+                                            <NumberInput
                                                 min="1"
                                                 max="100000"
                                                 step="0.01"
@@ -1146,8 +1146,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     <div className="donation-row">
                                         <label>
                                             <span>Quantity <span className="required-mark">*</span></span>
-                                            <input
-                                                type="number"
+                                            <NumberInput
                                                 min="1"
                                                 max={isMoneyDonation ? 100000 : 1000}
                                                 step="1"

@@ -369,6 +369,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                     <span>Full name</span>
                                     <input
                                         value={profile.name}
+                                        autoComplete="name"
                                         maxLength={80}
                                         onChange={(event) => setProfile((current) => ({ ...current, name: event.target.value }))}
                                     />
@@ -377,6 +378,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                     <span>Username</span>
                                     <input
                                         value={profile.username}
+                                        autoComplete="username"
                                         maxLength={30}
                                         placeholder="e.g. juan.dc"
                                         onChange={(event) => setProfile((current) => ({ ...current, username: event.target.value }))}
@@ -384,7 +386,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                 </label>
                                 <label className="as2-field is-wide">
                                     <span>Email</span>
-                                    <input value={user.email || ""} disabled />
+                                    <input type="email" value={user.email || ""} autoComplete="email" disabled />
                                     <small>Email can't be changed here.</small>
                                 </label>
                             </div>

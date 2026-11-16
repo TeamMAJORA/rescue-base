@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatDate } from "../../../utils/formatDate";
+import NumberInput from "../../../components/system/NumberInput";
 
 // Care Updates — weekly care report for the foster's active pet
 // (replaces the old "Weekly Updates" + "Foster Updates" pages)
@@ -437,8 +438,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
 
                         <label className="ao-field">
                             <span>Weight (kg) <span className="required-mark">*</span></span>
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="0.1"
                                 min="0"
                                 max="150"
@@ -517,7 +517,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                         <div className="ao-searchbox">
                             <label className="ao-searchbox-input">
                                 <Icon name="search" />
-                                <input
+                                <input aria-label="Search notes"
                                     type="search"
                                     value={search}
                                     placeholder="Search notes…"

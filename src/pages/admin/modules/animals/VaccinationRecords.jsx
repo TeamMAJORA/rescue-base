@@ -277,6 +277,7 @@ function SearchToolbar({
                             type="search"
                             value={search}
                             placeholder={placeholder}
+                            aria-label={String(placeholder || "Search").replace("…", "")}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </label>
@@ -702,6 +703,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                 value={isCustomVaccine ? vaccinationForm.vaccineName : ""}
                                 onChange={(e) => updateField("vaccineName", e.target.value)}
                                 placeholder="Other vaccine? Type it here"
+                                aria-label="Vaccine name"
                                 required={!vaccinationForm.vaccineName}
                             />
                         </div>

@@ -10,6 +10,7 @@ import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
 import UiIcon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -968,8 +969,7 @@ export default function Donations() {
 
                         <label className="dl-field">
                             <span>Quantity {!money && <span className="required-mark">*</span>}</span>
-                            <input
-                                type="number"
+                            <NumberInput
                                 min="1"
                                 max="1000"
                                 value={money ? 1 : donationForm.quantity}
@@ -984,8 +984,7 @@ export default function Donations() {
                                 Amount (₱) {money && <span className="required-mark">*</span>}{" "}
                                 <Help text="Only used for Money donations." />
                             </span>
-                            <input
-                                type="number"
+                            <NumberInput
                                 min="1"
                                 max="100000"
                                 step="any"
@@ -1138,7 +1137,7 @@ export default function Donations() {
             <div className="dl-layout">
             <div className="dl-card">
             <div className="dl-toolbar">
-                <input
+                <input aria-label="Search donor, email or item"
                     type="search"
                     className="dl-search"
                     placeholder="Search donor, email or item…"

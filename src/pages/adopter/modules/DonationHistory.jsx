@@ -221,7 +221,7 @@ export default function DonationHistory({ onMakeDonation }) {
                         ))}
                     </div>
 
-                    <input
+                    <input aria-label="Search donation"
                         className="dh-search"
                         placeholder="Search donation…"
                         value={search}

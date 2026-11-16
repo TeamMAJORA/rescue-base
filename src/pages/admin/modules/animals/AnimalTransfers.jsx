@@ -157,6 +157,7 @@ function SearchToolbar({
                             type="search"
                             value={search}
                             placeholder={placeholder}
+                            aria-label={String(placeholder || "Search").replace("…", "")}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </label>

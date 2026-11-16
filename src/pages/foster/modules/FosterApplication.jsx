@@ -576,6 +576,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                                     type="text"
                                     name="fullName"
                                     value={form.fullName}
+                                    autoComplete="name"
                                     onChange={handleChange}
                                     placeholder="First and last name"
                                     maxLength={80}
@@ -591,6 +592,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                                     type="email"
                                     name="email"
                                     value={form.email}
+                                    autoComplete="email"
                                     readOnly
                                     required
                                 />
@@ -609,6 +611,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                                     name="phone"
                                     inputMode="numeric"
                                     value={form.phone}
+                                    autoComplete="tel-national"
                                     onChange={handleChange}
                                     placeholder="9XX XXX XXXX"
                                     required
@@ -626,6 +629,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                                 type="text"
                                 name="address"
                                 value={form.address}
+                                autoComplete="street-address"
                                 onChange={handleChange}
                                 placeholder="House no., street, barangay, city"
                                 required
@@ -817,6 +821,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                                 type="text"
                                 name="emergencyName"
                                 value={form.emergencyName}
+                                autoComplete="off"
                                 onChange={handleChange}
                                 placeholder="Full name"
                                 required
@@ -850,6 +855,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                                     name="emergencyPhone"
                                     inputMode="numeric"
                                     value={form.emergencyPhone}
+                                    autoComplete="off"
                                     onChange={handleChange}
                                     placeholder="9XX XXX XXXX"
                                     required

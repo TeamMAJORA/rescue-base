@@ -370,7 +370,7 @@ export default function Feedback() {
                             <circle cx="11" cy="11" r="7" />
                             <path d="m21 21-4.3-4.3" />
                         </svg>
-                        <input
+                        <input aria-label="Search name, email or message"
                             type="search"
                             value={search}
                             placeholder="Search name, email or message…"

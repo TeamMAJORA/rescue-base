@@ -164,3 +164,37 @@
     outline: 3px solid var(--orange);
     outline-offset: 2px;
 }
+
+/* ---------- Field errors (utils/formValidation.js) ----------
+   The message is set on the field's label/box as data-rb-error; the field gets aria-invalid. */
+#root [data-rb-error]::after {
+    content: attr(data-rb-error);
+    display: block;
+    flex-basis: 100%;
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    color: var(--red-dark);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+#root :is(input, select, textarea)[aria-invalid="true"]:not([type="checkbox"], [type="radio"]) {
+    border-color: var(--red-dark) !important;
+}
+
+/* Paired fields (dates, vet + date, from → to) stack on phones: one column, one thing at a time */
+@media (max-width: 640px) {
+    #root :is(.ao-row2, .rs2-two, .ao-route) {
+        grid-template-columns: 1fr;
+    }
+
+    #root .ao-route > .ao-icon {
+        justify-self: center;
+        margin: 0;
+        transform: rotate(90deg);
+    }
+}

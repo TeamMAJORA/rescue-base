@@ -235,6 +235,7 @@ function SearchToolbar({
                             type="search"
                             value={search}
                             placeholder={placeholder}
+                            aria-label={String(placeholder || "Search").replace("…", "")}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </label>
@@ -1103,6 +1104,7 @@ export default function IntakeRecords() {
                             <div className="ao-where-search">
                                 <input
                                     type="search"
+                                    aria-label="Where the animal was found"
                                     value={form.rescueLocation}
                                     onChange={(e) => {
                                         updateForm("rescueLocation", e.target.value);

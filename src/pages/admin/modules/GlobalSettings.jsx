@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { askConfirm, notify } from "../../../utils/dialogs";
 import { formatDateTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import NumberInput from "../../../components/system/NumberInput";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -153,8 +154,7 @@ function NumberField({ label, unit, hint, value, min, max, onChange }) {
         <label className="gs-field">
             {label}
             <span className="gs-unit">
-                <input
-                    type="number"
+                <NumberInput
                     min={min}
                     max={max}
                     step={1}
@@ -357,6 +357,7 @@ export default function GlobalSettings() {
                             <input
                                 type="email"
                                 value={general.contactEmail}
+                                autoComplete="off"
                                 maxLength={254}
                                 placeholder="shelter@example.com"
                                 onChange={(event) => updateSetting("general", "contactEmail", event.target.value)}
@@ -368,6 +369,7 @@ export default function GlobalSettings() {
                             <input
                                 type="tel"
                                 value={general.contactPhone}
+                                autoComplete="off"
                                 maxLength={30}
                                 placeholder="+63 9XX XXX XXXX"
                                 onChange={(event) => updateSetting("general", "contactPhone", event.target.value)}

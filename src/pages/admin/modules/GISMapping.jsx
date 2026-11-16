@@ -19,6 +19,7 @@ import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -2349,8 +2350,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Latitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-90"
                                 max="90"
@@ -2364,8 +2364,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Longitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-180"
                                 max="180"
@@ -2705,8 +2704,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Latitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-90"
                                 max="90"
@@ -2723,8 +2721,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Longitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-180"
                                 max="180"
@@ -2918,8 +2915,7 @@ export default function GISMapping({ onOpenLostFound }) {
                     >
                         <label>
                             Latitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-90"
                                 max="90"
@@ -2933,8 +2929,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Longitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-180"
                                 max="180"

@@ -305,6 +305,7 @@ export default function QRTags() {
                 </div>
                 <form className="qrt-generate-form" onSubmit={handleSubmit}>
                     <select
+                        aria-label="Animal"
                         value={form.animalId}
                         onChange={(e) => setForm({ animalId: e.target.value })}
                         required
@@ -336,7 +337,7 @@ export default function QRTags() {
                         </span>
                     </div>
                     <div className="qrt-tools">
-                        <input
+                        <input aria-label="Search by animal name"
                             className="qrt-search"
                             type="search"
                             placeholder="Search by animal name…"

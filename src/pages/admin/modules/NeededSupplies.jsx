@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { askConfirm } from "../../../utils/dialogs";
 import LoadingState from "../../../components/system/LoadingState";
+import NumberInput from "../../../components/system/NumberInput";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -368,8 +369,7 @@ export default function NeededSupplies() {
                             <span>
                                 Needed <span className="required-mark">*</span>
                             </span>
-                            <input
-                                type="number"
+                            <NumberInput
                                 min="1"
                                 max="10000"
                                 value={form.quantityNeeded}
@@ -381,8 +381,7 @@ export default function NeededSupplies() {
 
                         <label className="rs2-field">
                             <span>Received</span>
-                            <input
-                                type="number"
+                            <NumberInput
                                 min="0"
                                 max="10000"
                                 value={form.quantityReceived}
@@ -456,7 +455,7 @@ export default function NeededSupplies() {
                                 <circle cx="11" cy="11" r="7" />
                                 <path d="m21 21-4.3-4.3" />
                             </svg>
-                            <input
+                            <input aria-label="Search item or description"
                                 type="search"
                                 value={search}
                                 placeholder="Search item or description…"

@@ -822,7 +822,7 @@ export default function RescueAssignments() {
                                 <circle cx="11" cy="11" r="7" />
                                 <path d="m21 21-4.3-4.3" />
                             </svg>
-                            <input
+                            <input aria-label="Search title, person or location"
                                 type="search"
                                 value={search}
                                 placeholder="Search title, person or location…"

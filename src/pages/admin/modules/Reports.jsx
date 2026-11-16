@@ -624,7 +624,7 @@ export default function Reports() {
                                 <circle cx="11" cy="11" r="7" />
                                 <path d="m21 21-4.3-4.3" />
                             </svg>
-                            <input
+                            <input aria-label="Search report name or author"
                                 type="search"
                                 value={listSearch}
                                 placeholder="Search report name or author…"

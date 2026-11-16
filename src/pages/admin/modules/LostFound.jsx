@@ -9,6 +9,7 @@ import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
 
 
 // Lost/found dates: up to 5 years back, never in the future
@@ -1097,7 +1098,7 @@ if (showReportForm && canSubmitReport) {
                                 <label className="lfr2-field">
                                     <span>Age</span>
                                     <div className="lfr2-age">
-                                        <input type="number" min="0" max={ageUnit === "Months" ? 1200 : 100} value={age} onChange={(e) => setAge(e.target.value)} placeholder="e.g. 2" />
+                                        <NumberInput min="0" max={ageUnit === "Months" ? 1200 : 100} value={age} onChange={(e) => setAge(e.target.value)} placeholder="e.g. 2" />
                                         <select value={ageUnit} onChange={(e) => setAgeUnit(e.target.value)} aria-label="Age unit">
                                             <option value="Years">Years</option>
                                             <option value="Months">Months</option>

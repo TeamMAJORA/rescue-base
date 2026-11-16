@@ -568,6 +568,7 @@ function validateForm() {
                                         type="email"
                                         name="email"
                                         value={form.email}
+                                        autoComplete="email"
                                         readOnly
                                         required
                                     />
@@ -587,6 +588,7 @@ function validateForm() {
                                         name="phone"
                                         inputMode="numeric"
                                         value={form.phone}
+                                        autoComplete="tel-national"
                                         onChange={handlePhoneChange}
                                         placeholder="9XX XXX XXXX"
                                         required
@@ -656,6 +658,7 @@ function validateForm() {
                             <textarea
                                 name="address"
                                 value={form.address}
+                                autoComplete="street-address"
                                 onChange={handleChange}
                                 placeholder="House number, street, barangay, and city"
                                 className={errors.address ? "has-error" : ""}
