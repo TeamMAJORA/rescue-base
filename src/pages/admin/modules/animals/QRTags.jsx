@@ -5,6 +5,7 @@ import "../../../../styles/admin/QRTags.css";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm, notifyError } from "../../../../utils/dialogs";
 import { formatDate } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/qr-tags`;
 
@@ -349,7 +350,7 @@ export default function QRTags() {
                 </div>
 
                 {loading ? (
-                    <p className="qrt-empty">Loading QR tags...</p>
+                    <LoadingState label="Loading QR tags…" />
                 ) : filteredRecords.length === 0 ? (
                     <p className="qrt-empty"><PetTypeIcon /> No QR tags found. Generate one above.</p>
                 ) : (

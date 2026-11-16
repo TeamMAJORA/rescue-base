@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -227,7 +228,7 @@ export default function DonationHistory({ onMakeDonation }) {
                     />
                 </div>
 
-                {loading && <p className="dh-message">Loading donation history...</p>}
+                {loading && <LoadingState label="Loading donation history…" />}
 
                 {!loading && error && <p className="dh-message">{error}</p>}
 

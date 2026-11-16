@@ -4,6 +4,7 @@ import {
 import InfoTip from "../../../components/system/InfoTip";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatDateTime, toDayValue } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1359,7 +1360,7 @@ export default function FosterCare() {
                 </div>
 
                 {loading && assignments.length === 0 ? (
-                    <p className="admin-empty">Loading assignments...</p>
+                    <LoadingState label="Loading assignments…" />
                 ) : visibleAssignments.length === 0 ? (
                     <p className="admin-empty">
                         {assignments.length === 0
@@ -2108,7 +2109,7 @@ export default function FosterCare() {
                                             </div>
 
                                             {animalsLoading ? (
-                                                <p className="afr-picker-empty">Loading pets...</p>
+                                                <LoadingState label="Loading pets…" />
                                             ) : shown.length === 0 ? (
                                                 <p className="afr-picker-empty">
                                                     {animals.length ? "No pets match your search." : "No pets available for foster."}

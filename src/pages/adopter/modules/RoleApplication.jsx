@@ -3,6 +3,7 @@ import InfoTip from "../../../components/system/InfoTip";
 import FosterApplication from "../../foster/modules/FosterApplication";
 import "../../../styles/foster/FosterApplication.css";
 import { formatDate } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -238,7 +239,7 @@ export default function RoleApplication() {
                     </button>
                 </div>
 
-                {loading && <p className="ra-loading">Loading application...</p>}
+                {loading && <LoadingState label="Loading application…" />}
 
                 {error && <p className="role-application-error">{error}</p>}
 

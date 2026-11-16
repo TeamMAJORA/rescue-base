@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatDate, formatDateTime } from "../utils/formatDate";
+import LoadingState from "../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -256,7 +257,7 @@ useEffect(() => {
         <h3>Your feedback history</h3>
 
         {historyLoading ? (
-            <p className="fb-history-empty">Loading...</p>
+            <LoadingState label="Loading…" />
         ) : history.length === 0 ? (
             <p className="fb-history-empty">You haven't sent any feedback yet.</p>
         ) : (
@@ -406,4 +407,3 @@ useEffect(() => {
         </>
     );
 }
-

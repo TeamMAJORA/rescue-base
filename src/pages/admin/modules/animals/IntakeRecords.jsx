@@ -7,6 +7,7 @@ import { searchCebuPlaces } from "../../../../utils/cebuPlaces";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm, askPrompt } from "../../../../utils/dialogs";
 import { formatDate, toDayValue } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -1303,7 +1304,7 @@ export default function IntakeRecords() {
                     />
 
                     {loading ? (
-                        <p className="ao-empty">Loading intake records...</p>
+                        <LoadingState label="Loading intake records…" />
                     ) : filteredRecords.length === 0 ? (
                         <p className="ao-empty">
                             {tab === "pending" && tabRecords.length === 0

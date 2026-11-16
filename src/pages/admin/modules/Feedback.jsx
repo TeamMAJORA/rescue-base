@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isAdmin } from "../../../utils/auth";
 import { askConfirm, notify } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -412,7 +413,7 @@ export default function Feedback() {
                 </div>
 
                 {loading ? (
-                    <p className="fb2-empty">Loading feedback...</p>
+                    <LoadingState label="Loading feedback…" />
                 ) : shown.length === 0 ? (
                     <p className="fb2-empty">
                         {feedback.length === 0 ? "No feedback yet." : "No feedback matches your search or filters."}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { getNextReportDue } from "../utils/reportDue";
 import { formatDate } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -410,7 +411,7 @@ export default function DashboardOverview({
                     {contactOpen && (
                         <div className="fah-contact fdo-contact" role="region" aria-label="Shelter contacts">
                             {!contact ? (
-                                <p className="fah-contact-empty">Loading contacts...</p>
+                                <LoadingState label="Loading contacts…" />
                             ) : !contact.email && !contact.phone && !contact.facebook ? (
                                 <p className="fah-contact-empty">The shelter hasn't added contact details yet.</p>
                             ) : (

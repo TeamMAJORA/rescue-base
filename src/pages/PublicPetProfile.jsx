@@ -68,7 +68,7 @@ export default function PublicPetProfile({ tagCode }) {
         return (
             <div className="pp-page">
                 <div className="pp-card" style={{ maxWidth: 400, margin: "0 auto", textAlign: "center" }}>
-                    {error || "Loading..."}
+                    {error || "Loading…"}
                 </div>
             </div>
         );

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatDate, formatTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const PAGE_SIZE = 50;
@@ -284,7 +285,7 @@ export default function ActivityLog() {
                 )}
 
                 {loading ? (
-                    <p className="al2-empty">Loading activity...</p>
+                    <LoadingState label="Loading activity…" />
                 ) : logs.length === 0 ? (
                     <p className="al2-empty">
                         {hasFilters ? "No activity matches your filters." : "No activity yet. Actions like adding animals or approving adoptions will show up here."}
@@ -338,7 +339,7 @@ export default function ActivityLog() {
                         </span>
                         {hasMore && (
                             <button type="button" className="al2-more" onClick={() => fetchLogs(logs.length)} disabled={loadingMore}>
-                                {loadingMore ? "Loading..." : "Load more"}
+                                {loadingMore ? "Loading…" : "Load more"}
                             </button>
                         )}
                     </div>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import "../styles/admin/Reports.css";
+import LoadingState from "../components/system/LoadingState";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -319,7 +320,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                 )}
 
                 {onOwnTab && loading && (
-                    <div className="as2-card as2-state">Loading your account…</div>
+                    <LoadingState label="Loading your account…" />
                 )}
 
                 {onOwnTab && !loading && !ready && (

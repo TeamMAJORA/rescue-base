@@ -235,7 +235,7 @@ export default function ApplicationStatus({
                     <PetTypeIcon />
                 </div>
 
-                <h2>Loading application status...</h2>
+                <h2>Loading application status…</h2>
 
                 <p>
                     RescueBase is checking your latest adoption

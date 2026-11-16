@@ -15,6 +15,7 @@ import "leaflet/dist/leaflet.css";
 import "../../styles/components/PublicGIS.css";
 
 import assets from "../../data/assets.json";
+import LoadingState from "./LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 const cebuCenter = [10.3157, 123.8854];
@@ -337,9 +338,7 @@ export default function PublicGISMap({
             )}
 
             {loading && (
-                <div className="public-gis-message">
-                    Loading map data...
-                </div>
+                <div className="public-gis-message"><LoadingState label="Loading map data…" inline /></div>
             )}
 
             {error && (

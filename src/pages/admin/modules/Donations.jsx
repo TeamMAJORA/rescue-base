@@ -8,6 +8,7 @@ import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
+import LoadingState from "../../../components/system/LoadingState";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -1179,7 +1180,7 @@ export default function Donations() {
 
             <div className="dl-table-card">
                 {loading ? (
-                    <p className="dl-empty">Loading donations...</p>
+                    <LoadingState label="Loading donations…" />
                 ) : visibleDonations.length === 0 ? (
                     <p className="dl-empty">
                         {donations.length === 0 ? "No donations recorded yet." : "No donations match your filters."}

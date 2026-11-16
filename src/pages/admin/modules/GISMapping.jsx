@@ -17,6 +17,7 @@ import "leaflet/dist/leaflet.css";
 import assets from "../../../data/assets.json";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -1693,7 +1694,7 @@ export default function GISMapping({ onOpenLostFound }) {
                             <div><span className="gm-hot-dot" /> Hotspot (500 m)</div>
                         </div>
 
-                        {loading && <div className="admin-gis-map-loading">Loading map reports...</div>}
+                        {loading && <div className="admin-gis-map-loading"><LoadingState label="Loading map reports…" inline /></div>}
                     </div>
 
                     {/* Side panel */}
@@ -1780,7 +1781,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                                             <div className="gm-list">
                                                 {loading ? (
-                                                    <p className="gm-empty">Loading reports...</p>
+                                                    <LoadingState label="Loading reports…" />
                                                 ) : gmFiltered.length === 0 ? (
                                                     <p className="gm-empty">No reports match these filters.</p>
                                                 ) : (
@@ -1889,7 +1890,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                         <div className="gm-list">
                                             {hotspotError && <div className="admin-gis-error">{hotspotError}</div>}
                                             {hotspotLoading ? (
-                                                <p className="gm-empty">Loading hotspots...</p>
+                                                <LoadingState label="Loading hotspots…" />
                                             ) : hotspots.length === 0 ? (
                                                 <p className="gm-empty">No hotspots yet. Hotspots need 2 or more open reports within 500 m.</p>
                                             ) : (
@@ -1921,7 +1922,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                             {shelterError && <div className="admin-gis-error">{shelterError}</div>}
                                             {shelterSuccess && <div className="admin-gis-success">{shelterSuccess}</div>}
                                             {shelterLoading ? (
-                                                <p className="gm-empty">Loading shelters...</p>
+                                                <LoadingState label="Loading shelters…" />
                                             ) : shelters.length === 0 ? (
                                                 <p className="gm-empty">No shelters yet. Use Add shelter to place one.</p>
                                             ) : (
@@ -2558,9 +2559,7 @@ export default function GISMapping({ onOpenLostFound }) {
                         </MapContainer>
 
                         {loading && (
-                            <div className="admin-gis-map-loading">
-                                Loading GIS locations...
-                            </div>
+                            <div className="admin-gis-map-loading"><LoadingState label="Loading GIS locations…" inline /></div>
                         )}
                     </div>
                 </section>
@@ -2574,7 +2573,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                 <div className="admin-gis-list">
                     {loading ? (
-                        <div>Loading reports...</div>
+                        <LoadingState label="Loading reports…" />
                     ) : locations.length === 0 ? (
                         <div>No mapped reports found.</div>
                     ) : (
@@ -2818,7 +2817,7 @@ export default function GISMapping({ onOpenLostFound }) {
                     </div>
 
                     {shelterLoading ? (
-                        <div>Loading shelters...</div>
+                        <LoadingState label="Loading shelters…" />
                     ) : shelters.length === 0 ? (
                         <div>No shelters registered yet.</div>
                     ) : (
@@ -2956,7 +2955,7 @@ export default function GISMapping({ onOpenLostFound }) {
                 </div>
 
                 {shelterLoading ? (
-                    <div className="admin-gis-list">Loading shelters...</div>
+                    <LoadingState label="Loading shelters…" />
                 ) : selectedShelter ? (
                     <div className="admin-nearest-shelter-details">
                         <button
@@ -3077,7 +3076,7 @@ export default function GISMapping({ onOpenLostFound }) {
                     )}
 
                     {hotspotLoading ? (
-                        <div>Loading hotspot analysis...</div>
+                        <LoadingState label="Loading hotspot analysis…" />
                     ) : hotspots.length === 0 ? (
                         <div>
                             No open GIS reports available for hotspot analysis.

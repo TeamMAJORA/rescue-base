@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import BrowsePetCard from "./BrowsePetCard";
+import LoadingState from "../system/LoadingState";
 
 const STATUS_PILLS = [
     { key: "all", label: "All Pets" },
@@ -160,10 +161,7 @@ export default function PetList({
                             </article>
                         ))}
 
-                        <div className="adopter-loading-note">
-                            <span className="adopter-spinner" />
-                            Finding pets for you...
-                        </div>
+                        <LoadingState label="Finding pets for you…" />
                     </>
                 )}
 

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import InfoTip from "../../../../components/system/InfoTip";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { toDayValue } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -853,7 +854,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                     />
 
                     {loading ? (
-                        <p className="ao-empty">Loading behavioral profiles...</p>
+                        <LoadingState label="Loading behavioral profiles…" />
                     ) : filteredAnimals.length === 0 ? (
                         <p className="ao-empty">No assessed animals match your search.</p>
                     ) : (

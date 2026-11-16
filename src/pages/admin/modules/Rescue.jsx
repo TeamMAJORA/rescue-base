@@ -6,6 +6,7 @@ import {
 import { CompleteWithProofModal, RescueProofModal } from "../../../components/rescue/RescueProof";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatTime, toDayValue } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -682,7 +683,7 @@ export default function RescueAssignments() {
                             onChange={handleChange}
                             disabled={loadingVolunteers || ["accepted", "active"].includes(editingAssignmentStatus)}
                         >
-                            <option value="">{loadingVolunteers ? "Loading..." : "Open to all volunteers"}</option>
+                            <option value="">{loadingVolunteers ? "Loading…" : "Open to all volunteers"}</option>
                             {volunteerOptions.volunteers.length > 0 && (
                                 <optgroup label="Volunteers">
                                     {volunteerOptions.volunteers.map((person) => (
@@ -761,7 +762,7 @@ export default function RescueAssignments() {
                             Animal <small>(optional)</small>
                         </span>
                         <select name="animalId" value={form.animalId} onChange={handleChange} disabled={loadingAnimals}>
-                            <option value="">{loadingAnimals ? "Loading animals..." : "None"}</option>
+                            <option value="">{loadingAnimals ? "Loading animals…" : "None"}</option>
                             {animals.map((animal) => (
                                 <option key={animal._id} value={animal._id}>
                                     {animal.name}
@@ -850,7 +851,7 @@ export default function RescueAssignments() {
                     </div>
 
                     {loading ? (
-                        <p className="rs2-empty">Loading assignments...</p>
+                        <LoadingState label="Loading assignments…" />
                     ) : shown.length === 0 ? (
                         <p className="rs2-empty">
                             {assignments.length === 0 ? "No rescue assignments yet. Create one on the left." : "No assignments match your search or filters."}

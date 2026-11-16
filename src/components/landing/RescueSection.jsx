@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PetCarousel from "./PetCarousel";
 import BrowsePetCard from "../adopter/BrowsePetCard";
+import LoadingState from "../system/LoadingState";
 
 const CAROUSEL_PET_COUNT = 8;
 
@@ -15,10 +16,7 @@ export default function RescueSection({ pets, isLoading, onOpenPet, onSignup }) 
             </div>
 
             {isLoading ? (
-                <p className="pet-empty pet-loading" role="status">
-                    <span className="pet-loading-spinner" aria-hidden="true" />
-                    Finding pets for you…
-                </p>
+                <LoadingState label="Finding pets for you…" />
             ) : pets.length === 0 ? (
                 <div className="pet-empty">
                     <p>Our adoptable pets will show here soon.</p>

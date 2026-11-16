@@ -1539,32 +1539,9 @@ a.ao-tag {
     height: 260px;
 }
 
-.ao-loading-note {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    font-size: 13px;
-    color: var(--brown-muted);
-}
-
-.ao-spinner {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    border: 2px solid var(--peach);
-    border-top-color: var(--orange);
-    border-radius: 50%;
-    animation: ao-spin 0.8s linear infinite;
-}
-
 @keyframes ao-shimmer {
     0% { background-position: 100% 0; }
     100% { background-position: -100% 0; }
-}
-
-@keyframes ao-spin {
-    to { transform: rotate(360deg); }
 }
 
 .ao-state-error {
@@ -1653,13 +1630,6 @@ a.ao-tag {
     padding: 20px 22px;
     border-radius: 16px;
     background: var(--paper);
-}
-
-.gs-loading {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
 }
 
 .gs-top {
@@ -2849,4 +2819,3 @@ a.ao-tag {
 .ao-list-lostfound span { display: grid; gap: 2px; color: var(--brown); }
 .ao-list-lostfound b { font-size: 13px; }
 .ao-list-lostfound small { color: var(--brown-muted); font-size: 12px; }
-

@@ -5,6 +5,7 @@ import {
     useState
 } from "react";
 import { askConfirm } from "../../../utils/dialogs";
+import LoadingState from "../../../components/system/LoadingState";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -644,9 +645,7 @@ export default function UserManagement() {
                 </p>
 
                 {loading ? (
-                    <p className="rp-empty">
-                        <span className="ao-spinner" /> Loading users...
-                    </p>
+                    <LoadingState label="Loading users…" />
                 ) : visibleUsers.length === 0 ? (
                     <p className="rp-empty">No users match your search.</p>
                 ) : (

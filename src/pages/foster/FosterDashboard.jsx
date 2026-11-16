@@ -23,6 +23,7 @@ import "../../styles/admin/IntakeRecords.css"; // shared page styles (stats stri
 import assets from "../../data/assets.json";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
 import { notify } from "../../utils/dialogs";
+import LoadingState from "../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -810,10 +811,7 @@ function goToPage(page, petId = null) {
                             <div className="ao-skeleton ao-skeleton-card" />
                             <div className="ao-skeleton ao-skeleton-card" />
                         </div>
-                        <div className="ao-loading-note">
-                            <span className="ao-spinner" />
-                            Loading your foster dashboard...
-                        </div>
+                        <LoadingState label="Loading your foster dashboard…" />
                     </section>
 
                 ) : loadError ? (

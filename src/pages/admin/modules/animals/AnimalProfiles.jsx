@@ -10,6 +10,7 @@ import { formatAge } from "../../../../utils/formatAge";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm } from "../../../../utils/dialogs";
 import { formatDate } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -267,7 +268,7 @@ function PersonContactCard({ title, url, responseKey, dateLabel, dateField, empt
         <section className="apm-card apm-person">
             <h4>{title}</h4>
             {loading ? (
-                <p className="apm-muted">Loading...</p>
+                <LoadingState label="Loading…" />
             ) : error ? (
                 <p className="apm-muted is-error">{error}</p>
             ) : !person ? (
@@ -1544,7 +1545,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 </div>
 
                 {loading ? (
-                    <p className="admin-empty">Loading animal profiles...</p>
+                    <LoadingState label="Loading animal profiles…" />
                 ) : animals.length === 0 ? (
                     <p className="admin-empty">No animal profiles found.</p>
                 ) : filteredAnimals.length === 0 ? (

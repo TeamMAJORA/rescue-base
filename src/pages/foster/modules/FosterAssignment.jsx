@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatDate, toDayValue } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -389,9 +390,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
     if (loading) {
         return (
             <section className="foster-panel">
-                <div className="foster-loading">
-                    Loading assignment...
-                </div>
+                <LoadingState label="Loading assignment…" />
             </section>
         );
     }
@@ -476,7 +475,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                         {contactOpen && (
                             <div className="fah-contact" role="region" aria-label="Shelter contacts">
                                 {!contact ? (
-                                    <p className="fah-contact-empty">Loading contacts...</p>
+                                    <LoadingState label="Loading contacts…" />
                                 ) : !contact.email && !contact.phone && !contact.facebook ? (
                                     <p className="fah-contact-empty">The shelter hasn't added contact details yet.</p>
                                 ) : (
@@ -764,7 +763,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                     {contactOpen && (
                         <div className="fah-contact" role="region" aria-label="Shelter contacts">
                             {!contact ? (
-                                <p className="fah-contact-empty">Loading contacts...</p>
+                                <LoadingState label="Loading contacts…" />
                             ) : !contact.email && !contact.phone && !contact.facebook ? (
                                 <p className="fah-contact-empty">
                                     The shelter hasn't added contact details yet.

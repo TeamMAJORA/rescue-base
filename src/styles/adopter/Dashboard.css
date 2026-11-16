@@ -1460,33 +1460,9 @@
     border-radius: 999px;
 }
 
-.adopter-loading-note {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    grid-column: 1 / -1;
-    font-size: 13px;
-    color: var(--brown-muted);
-    padding: 4px 2px;
-}
-
-.adopter-spinner {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    border: 2px solid var(--peach);
-    border-top-color: var(--orange);
-    border-radius: 50%;
-    animation: adopter-spin 0.8s linear infinite;
-}
-
 @keyframes adopter-shimmer {
     0% { background-position: 100% 0; }
     100% { background-position: -100% 0; }
-}
-
-@keyframes adopter-spin {
-    to { transform: rotate(360deg); }
 }
 
 /* Error card (Application Status) */
@@ -1831,12 +1807,6 @@
 
 /* ---------- Role Application: left form panel ---------- */
 .ra-form-panel .adopter-panel-heading { align-items: flex-start; }
-
-.ra-loading {
-    margin: 16px 0 0;
-    color: var(--brown-soft);
-    font-size: 13px;
-}
 
 .role-application-error,
 .role-application-success {

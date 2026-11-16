@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { askConfirm, notify } from "../../../utils/dialogs";
 import { formatDateTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -278,10 +279,7 @@ export default function GlobalSettings() {
     if (loading) {
         return (
             <section className="gs-page">
-                <div className="gs-card gs-loading">
-                    <span className="ao-spinner" />
-                    Loading global settings...
-                </div>
+                <LoadingState label="Loading global settings…" />
             </section>
         );
     }

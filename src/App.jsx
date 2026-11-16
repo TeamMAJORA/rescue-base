@@ -14,6 +14,7 @@ import AppDialogs from "./components/system/AppDialogs";
 import "./styles/components/Buttons.css";
 import "./styles/components/Forms.css";
 import "./styles/components/Sidebar.css";
+import "./styles/components/Feedback.css";
 
 // After a browser refresh, reopen the logged-in user's dashboard instead of the landing page
 function getStartPage() {

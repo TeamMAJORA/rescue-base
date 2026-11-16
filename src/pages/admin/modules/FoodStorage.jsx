@@ -3,6 +3,7 @@ import "../../../styles/admin/FoodStorage.css";
 import NeededSupplies from "./NeededSupplies";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -1035,10 +1036,7 @@ export default function FoodStorage() {
                 )}
 
                 {loading ? (
-                    <div className="fs-empty">
-                        <span className="fs-spinner" />
-                        Loading food inventory...
-                    </div>
+                    <LoadingState label="Loading food inventory…" />
                 ) : isEmpty ? (
                     <div className="fs-empty">
                         <span className="fs-empty-icon">
@@ -1153,7 +1151,7 @@ export default function FoodStorage() {
                 {!isEmpty && (
                     <footer className="fs-panel-foot">
                         <span>
-                            {loading ? "Loading..." : `Showing ${filteredItems.length} of ${items.length}`}
+                            {loading ? "Loading…" : `Showing ${filteredItems.length} of ${items.length}`}
                         </span>
 
                         <button type="button" onClick={loadInventory} disabled={loading}>
@@ -1281,7 +1279,7 @@ function SuppliesHistory() {
             {error ? (
                 <p className="al2-error" role="alert">{error}</p>
             ) : history === null ? (
-                <p className="al2-empty">Loading history...</p>
+                <LoadingState label="Loading history…" />
             ) : shown.length === 0 ? (
                 <p className="al2-empty">
                     {history.length === 0 ? "No changes yet. Stock updates and requests will show up here." : "Nothing matches your search."}

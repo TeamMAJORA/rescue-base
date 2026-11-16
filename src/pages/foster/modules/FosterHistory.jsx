@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatDate } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -130,7 +131,7 @@ export default function FosterHistory() {
     if (loading) {
         return (
             <section className="foster-panel">
-                <div className="foster-loading">Loading foster history...</div>
+                <LoadingState label="Loading foster history…" />
             </section>
         );
     }

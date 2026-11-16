@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import LoadingState from "../system/LoadingState";
 
 // Leaflet is heavy, so the map code only downloads once the section is near the screen
 const PublicGISMap = lazy(() =>
@@ -123,7 +124,7 @@ export default function GISSection({ onSignup }) {
 
                     <div className="gis-map-container">
                         {isNearScreen && (
-                            <Suspense fallback={<div className="public-gis-message">Loading map...</div>}>
+                            <Suspense fallback={<div className="public-gis-message"><LoadingState label="Loading map…" inline /></div>}>
                                 <PublicGISMap
                                     landingMode
                                     filters={{ types, dogs, cats, days }}

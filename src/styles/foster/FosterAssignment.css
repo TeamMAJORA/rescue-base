@@ -208,9 +208,7 @@
     background: var(--blue-soft);
     color: #175cd3;
 }
-
-.foster-loading,
-.foster-empty-state {
+.foster-empty-state  {
     padding: 90px 20px;
     text-align: center;
 }

@@ -3,6 +3,7 @@ import { FACTORS, topScoredMatches } from "../../../../utils/matchScore";
 import { MonthCalendar, isSameDay, startOfToday } from "../../../../components/system/MonthCalendar";
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
 import { formatDate, formatDateTime, formatMonth } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
 
 
 
@@ -2187,7 +2188,7 @@ export default function AdoptionApplications() {
                 </div>
 
                 {loading ? (
-                    <p className="admin-empty">Loading applications...</p>
+                    <LoadingState label="Loading applications…" />
                 ) : visibleApplications.length === 0 ? (
                     <p className="admin-empty ad-empty">
                         {sortOrder === "no-quiz" && !searchTerm && statusFilter === "all"

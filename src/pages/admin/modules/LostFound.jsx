@@ -7,6 +7,7 @@ import { DateField, startOfToday, toDayValue } from "../../../components/system/
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 
 // Lost/found dates: up to 5 years back, never in the future
@@ -1553,7 +1554,7 @@ if (showReportForm && canSubmitReport) {
                             Suggested by the system from species, breed, colour, size, sex, distance and dates. Check both reports before confirming.
                         </p>
                         {possibleMatches === null ? (
-                            <p className="lf2-empty">Loading possible matches...</p>
+                            <LoadingState label="Loading possible matches…" />
                         ) : possibleMatches.length === 0 ? (
                             <p className="lf2-empty">No possible matches right now.</p>
                         ) : (
@@ -1670,7 +1671,7 @@ if (showReportForm && canSubmitReport) {
                         )}
                     </div>
                 ) : loading ? (
-                    <p className="lf2-empty">Loading reports...</p>
+                    <LoadingState label="Loading reports…" />
                 ) : visibleReports.length === 0 ? (
                     <p className="lf2-empty">
                         {reports.length === 0 ? "No lost or found reports yet." : "No reports match your filters."}

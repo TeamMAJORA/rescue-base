@@ -5,6 +5,7 @@ import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import "leaflet/dist/leaflet.css";
 import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -793,9 +794,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                 </div>
 
                 {loadingSupplies ? (
-                    <p>
-                        Loading needed supplies...
-                    </p>
+                    <LoadingState label="Loading needed supplies…" />
                 ) : neededSupplies.length === 0 ? (
                     <p>
                         No active supplies are
@@ -1056,7 +1055,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                             </div>
                                         ) : (
                                             <small className="donation-choice-note">
-                                                {loadingPaymentMethods ? "Loading the shelter's accounts..." : "No payment account has been added yet."}
+                                                {loadingPaymentMethods ? "Loading the shelter's accounts…" : "No payment account has been added yet."}
                                             </small>
                                         )}
                                     </div>
@@ -1301,7 +1300,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                         <h4>Send your donation</h4>
                                         <p className="donation-info-empty">
                                             {loadingPaymentMethods
-                                                ? "Loading the shelter's payment accounts..."
+                                                ? "Loading the shelter's payment accounts…"
                                                 : "The shelter hasn't added a payment account yet. You can donate items with In-Kind instead."}
                                         </p>
                                     </>

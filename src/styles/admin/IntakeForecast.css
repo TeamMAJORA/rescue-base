@@ -634,9 +634,7 @@
     border-radius: 14px;
     background: var(--paper);
 }
-
-.if2-loading,
-.if2-muted {
+.if2-muted  {
     font-size: 13px;
     color: var(--brown-soft);
 }

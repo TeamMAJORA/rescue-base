@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDateTime, toDayValue } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -658,9 +659,7 @@ export default function Reports() {
                     </div>
 
                     {loading ? (
-                        <p className="rp-empty">
-                            <span className="ao-spinner" /> Loading reports...
-                        </p>
+                        <LoadingState label="Loading reports…" />
                     ) : shownReports.length === 0 ? (
                         <p className="rp-empty">
                             {generatedReports.length === 0

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { askConfirm } from "../../../utils/dialogs";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -483,7 +484,7 @@ export default function NeededSupplies() {
                     </div>
 
                     {loading ? (
-                        <p className="rs2-empty">Loading supplies...</p>
+                        <LoadingState label="Loading supplies…" />
                     ) : shown.length === 0 ? (
                         <p className="rs2-empty">
                             {supplies.length === 0 ? "No supplies yet. Add the first one on the left." : "No supplies match these filters."}
