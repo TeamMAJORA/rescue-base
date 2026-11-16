@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import InfoTip from "../../../components/system/InfoTip";
 import { formatDate } from "../../../utils/formatDate";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -361,7 +362,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                             <span className="ffa-step-dot">
                                 {step.state === "done"
                                     ? <img src="/icons/checkmark.svg" alt="" />
-                                    : step.state === "declined" ? "✕" : index + 1}
+                                    : step.state === "declined" ? <Icon name="close" /> : index + 1}
                             </span>
                             <div>
                                 <b>{step.title}</b>

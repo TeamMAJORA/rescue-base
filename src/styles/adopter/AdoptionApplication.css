@@ -9,7 +9,7 @@
     justify-content: space-between;
     gap: 24px;
     margin-bottom: 24px;
-    padding: 24px 26px;
+    padding: 24px 24px;
     border: 1px solid rgba(90, 27, 0, 0.13);
     border-radius: 20px;
     background:
@@ -19,7 +19,7 @@
             transparent 40%
         ),
         var(--paper);
-    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .adoption-module-header > div {
@@ -28,9 +28,9 @@
 
 .adoption-module-header > div > span {
     display: inline-block;
-    margin-bottom: 7px;
+    margin-bottom: 8px;
     color: var(--red);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -46,7 +46,7 @@
 
 .adoption-module-header p {
     max-width: 720px;
-    margin: 9px 0 0;
+    margin: 8px 0 0;
     color: var(--brown-soft);
     font-size: 14px;
     line-height: 1.65;
@@ -55,7 +55,7 @@
 .adoption-module-back {
     flex-shrink: 0;
     min-height: 43px;
-    padding: 10px 15px;
+    padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.17);
     border-radius: 12px;
     background: var(--white-yellow);
@@ -86,11 +86,11 @@
 .adoption-selected-pet {
     position: sticky;
     top: 115px;
-    padding: 22px;
+    padding: 24px;
     border: 1px solid rgba(90, 27, 0, 0.13);
     border-radius: 20px;
     background: var(--paper);
-    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .adoption-selected-pet-image {
@@ -98,8 +98,8 @@
     height: 245px;
     display: grid;
     place-items: center;
-    margin-bottom: 17px;
-    border-radius: 17px;
+    margin-bottom: 16px;
+    border-radius: 20px;
     background: var(--white-yellow);
     overflow: hidden;
     font-size: 72px;
@@ -112,24 +112,24 @@
 }
 
 .adoption-selected-pet > h2 {
-    margin: 10px 0 4px;
+    margin: 8px 0 4px;
     font-family: "Itim", cursive;
-    font-size: 31px;
+    font-size: 32px;
     color: var(--brown);
 }
 
 .adoption-selected-pet > p {
     margin: 0;
     color: var(--brown-soft);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
 }
 
 .adoption-selected-pet-details {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    margin-top: 18px;
+    gap: 8px;
+    margin-top: 16px;
 }
 
 .adoption-selected-pet-details article {
@@ -141,9 +141,9 @@
 
 .adoption-selected-pet-details span {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     color: var(--brown-soft);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -158,17 +158,17 @@
 }
 
 .adoption-selected-pet-note {
-    margin-top: 18px;
-    padding: 15px;
+    margin-top: 16px;
+    padding: 16px;
     border-left: 4px solid var(--orange);
     border-radius: 12px;
     background: var(--peach-soft);
 }
 
 .adoption-selected-pet-note h3 {
-    margin: 0 0 6px;
+    margin: 0 0 8px;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .adoption-selected-pet-note p {
@@ -186,27 +186,27 @@
 }
 
 .adoption-form-group {
-    padding: 23px;
+    padding: 24px;
     border: 1px solid rgba(90, 27, 0, 0.13);
     border-radius: 20px;
     background: var(--paper);
-    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .adoption-form-heading {
-    margin-bottom: 19px;
-    padding-bottom: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.12);
 }
 
 .adoption-form-heading > span {
     display: inline-flex;
-    margin-bottom: 6px;
-    padding: 5px 9px;
+    margin-bottom: 8px;
+    padding: 4px 8px;
     border-radius: 999px;
     background: var(--white-yellow);
     color: var(--orange-dark);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -215,14 +215,14 @@
 .adoption-form-heading h3 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 25px;
+    font-size: 24px;
     color: var(--brown);
 }
 
 .adoption-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 17px;
+    gap: 16px;
 }
 
 .adoption-form-grid label,
@@ -246,8 +246,8 @@
     background: var(--white);
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease,
@@ -257,12 +257,12 @@
 .adoption-form-grid input,
 .adoption-form-grid select {
     min-height: 46px;
-    padding: 10px 13px;
+    padding: 8px 12px;
 }
 
 .adoption-form-grid textarea {
     min-height: 115px;
-    padding: 12px 13px;
+    padding: 12px 12px;
     line-height: 1.55;
     resize: vertical;
 }
@@ -284,8 +284,8 @@
 .adoption-form-grid small,
 .adoption-document-upload small {
     color: var(--brown-muted);
-    font-size: 10px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 400;
     line-height: 1.5;
 }
 
@@ -294,27 +294,27 @@
 }
 
 .adoption-document-upload {
-    padding: 18px;
+    padding: 16px;
     border: 2px dashed rgba(251, 133, 0, 0.38);
-    border-radius: 15px;
+    border-radius: 12px;
     background: var(--peach-soft);
 }
 
 .adoption-document-upload input {
     min-height: 48px;
-    padding: 10px;
+    padding: 8px;
     cursor: pointer;
 }
 
 .adoption-document-upload input::file-selector-button {
     margin-right: 12px;
-    padding: 9px 13px;
+    padding: 8px 12px;
     border: 0;
-    border-radius: 9px;
+    border-radius: 8px;
     background: var(--orange);
     color: var(--white);
     font-family: inherit;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -327,18 +327,18 @@
     display: grid;
     grid-template-columns: 145px minmax(0, 1fr);
     align-items: center;
-    gap: 17px;
-    margin-top: 17px;
-    padding: 14px;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 16px;
     border: 1px solid rgba(90, 27, 0, 0.13);
-    border-radius: 15px;
+    border-radius: 12px;
     background: var(--white-yellow);
 }
 
 .adoption-document-preview img {
     width: 145px;
     height: 105px;
-    border-radius: 11px;
+    border-radius: 12px;
     object-fit: cover;
 }
 
@@ -347,32 +347,32 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
+    gap: 8px;
 }
 
 .adoption-document-preview strong {
     max-width: 100%;
     overflow: hidden;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .adoption-document-preview span {
     color: var(--amber);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .adoption-document-preview button {
     margin-top: 4px;
-    padding: 8px 11px;
+    padding: 8px 12px;
     border: 1px solid rgba(214, 40, 40, 0.25);
-    border-radius: 9px;
+    border-radius: 8px;
     background: var(--white);
     color: var(--red);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -388,11 +388,11 @@
 }
 
 .adoption-module-message {
-    padding: 14px 16px;
+    padding: 16px 16px;
     border: 1px solid transparent;
-    border-radius: 13px;
+    border-radius: 12px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.5;
 }
 
@@ -413,13 +413,13 @@
     align-items: center;
     justify-content: flex-end;
     gap: 12px;
-    padding: 18px 0 4px;
+    padding: 16px 0 4px;
 }
 
 .adoption-cancel-button,
 .adoption-submit-button {
     min-height: 48px;
-    padding: 11px 18px;
+    padding: 12px 16px;
     border-radius: 12px;
     font-family: inherit;
     font-size: 12px;
@@ -448,13 +448,13 @@
     border: 0;
     background: linear-gradient(135deg, var(--orange), var(--orange-light));
     color: var(--white);
-    box-shadow: 0 9px 20px rgba(251, 133, 0, 0.23);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .adoption-submit-button:hover:not(:disabled) {
     transform: translateY(-1px);
     background: linear-gradient(135deg, var(--orange-dark), var(--orange));
-    box-shadow: 0 12px 24px rgba(251, 133, 0, 0.28);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .adoption-cancel-button:disabled,
@@ -468,13 +468,13 @@
 .adoption-module-empty {
     max-width: 620px;
     margin: 40px auto;
-    padding: 42px 30px;
+    padding: 40px 32px;
     border: 1px solid rgba(90, 27, 0, 0.13);
-    border-radius: 22px;
+    border-radius: 20px;
     background: var(--paper);
     color: var(--brown);
     text-align: center;
-    box-shadow: 0 14px 32px rgba(90, 27, 0, 0.1);
+    box-shadow: var(--shadow-modal);
 }
 
 .adoption-module-empty-icon {
@@ -482,29 +482,29 @@
     height: 84px;
     display: grid;
     place-items: center;
-    margin: 0 auto 17px;
+    margin: 0 auto 16px;
     border-radius: 50%;
     background: var(--white-yellow);
-    font-size: 39px;
+    font-size: 40px;
 }
 
 .adoption-module-empty h2 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 31px;
+    font-size: 32px;
 }
 
 .adoption-module-empty p {
     max-width: 470px;
-    margin: 12px auto 22px;
+    margin: 12px auto 24px;
     color: var(--brown-soft);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.65;
 }
 
 .adoption-module-empty button {
     min-height: 45px;
-    padding: 10px 17px;
+    padding: 8px 16px;
     border: 0;
     border-radius: 12px;
     background: var(--orange);
@@ -520,7 +520,7 @@
     transform: translateY(-1px);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
     .adoption-module-layout {
         grid-template-columns: 1fr;
     }
@@ -529,7 +529,7 @@
         position: static;
         display: grid;
         grid-template-columns: 230px minmax(0, 1fr);
-        column-gap: 22px;
+        column-gap: 24px;
     }
 
     .adoption-selected-pet-image {
@@ -548,7 +548,7 @@
     }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 640px) {
     .adoption-module-header {
         flex-direction: column;
         padding: 20px;
@@ -564,7 +564,7 @@
 
     .adoption-selected-pet-image {
         height: 235px;
-        margin-bottom: 17px;
+        margin-bottom: 16px;
     }
 
     .adoption-form-grid {
@@ -585,13 +585,13 @@
     }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 480px) {
     .adoption-form-group {
-        padding: 17px;
+        padding: 16px;
     }
 
     .adoption-module-header h2 {
-        font-size: 30px;
+        font-size: 32px;
     }
 
     .adoption-selected-pet-image {
@@ -623,20 +623,20 @@
 
 .adoption-draft-note {
     display: block;
-    margin-top: 10px;
+    margin-top: 8px;
     color: var(--brown-soft);
-    font-size: 11px;
+    font-size: 12px;
     text-align: right;
 }
 
 .adoption-tracker {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
     margin: -8px 0 24px;
     padding: 12px 20px;
     border: 1px solid rgba(90, 27, 0, 0.13);
-    border-radius: 16px;
+    border-radius: 20px;
     background: var(--paper);
 }
 
@@ -664,7 +664,7 @@
     content: "";
     flex: 1;
     height: 2px;
-    margin: 0 14px;
+    margin: 0 16px;
     border-radius: 999px;
     background: rgba(90, 27, 0, 0.12);
 }
@@ -683,7 +683,7 @@
     color: var(--brown-muted);
     font-family: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     white-space: nowrap;
     cursor: pointer;
 }
@@ -696,7 +696,7 @@
     border-radius: 50%;
     background: var(--line-soft);
     color: var(--brown-muted);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .adoption-tracker li.is-current button {
@@ -720,11 +720,11 @@
 
 .adoption-tracker-pill {
     flex-shrink: 0;
-    padding: 5px 14px;
+    padding: 4px 16px;
     border-radius: 999px;
     background: var(--amber-soft);
     color: var(--brown);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
 }
 
@@ -733,11 +733,11 @@
     color: var(--green);
 }
 
-@media (max-width: 650px) {
+@media (max-width: 640px) {
     .adoption-tracker {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
+        gap: 8px;
     }
 
     .adoption-tracker li:not(:last-child)::after {
@@ -785,7 +785,7 @@
     margin: 4px 0 0;
     color: var(--brown-soft);
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* ===== Softer yellow inputs ===== */
@@ -814,7 +814,7 @@
 }
 
 .adoption-locked-field input[readonly] {
-    padding-right: 38px;
+    padding-right: 40px;
     border-color: rgba(90, 27, 0, 0.12);
     background: var(--peach-soft);
     color: var(--brown-muted);
@@ -853,11 +853,11 @@
 .adoption-phone-prefix {
     display: grid;
     place-items: center;
-    padding: 0 14px;
+    padding: 0 16px;
     border-right: 1px solid rgba(251, 133, 0, 0.28);
     background: var(--amber-soft);
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
 }
 
@@ -893,7 +893,7 @@
 
 .adoption-choice-group button {
     min-height: 46px;
-    padding: 8px 6px;
+    padding: 8px 8px;
     border: 1px solid rgba(251, 133, 0, 0.28);
     border-radius: 12px;
     background: var(--peach-soft);
@@ -913,10 +913,10 @@
     border-color: transparent;
     background: linear-gradient(115deg, var(--orange), var(--orange-light));
     color: var(--white);
-    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.3);
+    box-shadow: var(--shadow-dropdown);
 }
 
-@media (max-width: 650px) {
+@media (max-width: 640px) {
     .adoption-choice-group {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -933,7 +933,7 @@
     border-radius: 50%;
     background: var(--orange);
     color: var(--white);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     cursor: help;
 }
@@ -949,17 +949,17 @@
     right: auto;
     z-index: 20;
     width: 260px;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border-radius: 8px;
     background: var(--brown);
     color: var(--white);
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.55;
     text-align: left;
     text-transform: none;
     letter-spacing: normal;
-    box-shadow: 0 10px 24px rgba(58, 18, 0, 0.25);
+    box-shadow: var(--shadow-dropdown);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
@@ -1001,10 +1001,10 @@
 .adoption-choice-field > input {
     min-height: 46px;
     margin-top: 2px;
-    padding: 10px 13px;
+    padding: 8px 12px;
 }
 
-@media (max-width: 650px) {
+@media (max-width: 640px) {
     .adoption-choice-group {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1043,10 +1043,10 @@
 .adoption-choice-field .adoption-field-error {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     color: var(--red-dark);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .adoption-field-error::before {
@@ -1059,7 +1059,7 @@
     border-radius: 50%;
     background: var(--red);
     color: var(--white);
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 800;
 }
 
@@ -1080,7 +1080,7 @@
 
 .adoption-textarea-wrap textarea {
     display: block;
-    padding-bottom: 30px;
+    padding-bottom: 32px;
 }
 
 .adoption-char-count {
@@ -1088,13 +1088,13 @@
     right: 14px;
     bottom: 10px;
     color: var(--brown-muted);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     pointer-events: none;
 }
 
 /* ===== Info tip: keep the popup on screen on phones ===== */
-@media (max-width: 650px) {
+@media (max-width: 640px) {
     .adoption-module .adoption-label-text {
         position: relative;
     }
@@ -1127,10 +1127,10 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 18px;
-    padding: 22px 24px;
+    gap: 16px;
+    padding: 24px 24px;
     border: 2px dashed rgba(251, 133, 0, 0.45);
-    border-radius: 15px;
+    border-radius: 12px;
     background: var(--peach-soft);
     cursor: pointer;
     transition: border-color 0.2s ease, background 0.2s ease;
@@ -1198,31 +1198,31 @@
 
 .adoption-dropzone-text small {
     color: var(--brown-muted);
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 .adoption-dropzone-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 6px;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .adoption-dropzone-tags span {
-    padding: 3px 10px;
+    padding: 3px 8px;
     border: 1px solid rgba(251, 133, 0, 0.35);
     border-radius: 999px;
     background: var(--paper);
     color: var(--brown);
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .adoption-dropzone-button {
     flex-shrink: 0;
-    padding: 11px 20px;
-    border-radius: 10px;
+    padding: 12px 20px;
+    border-radius: 12px;
     background: var(--brown);
     color: var(--white);
     font-size: 12px;
@@ -1237,13 +1237,13 @@
 .adoption-id-field .adoption-field-error {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     color: var(--red-dark);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
-@media (max-width: 650px) {
+@media (max-width: 640px) {
     .adoption-dropzone {
         flex-direction: column;
         text-align: center;
@@ -1262,22 +1262,22 @@
 /* ===== Fields: same look as the Lost & Found report form (lfr2-field), rounded corners kept ===== */
 .adoption-module-form .adoption-form-grid label,
 .adoption-module-form .adoption-choice-field {
-    gap: 5px;
+    gap: 4px;
     color: var(--brown);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .adoption-module-form .adoption-form-grid input,
 .adoption-module-form .adoption-form-grid select,
 .adoption-module-form .adoption-form-grid textarea,
 .adoption-module-form .adoption-document-upload input {
-    padding: 9px 11px;
+    padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--white);
     color: var(--brown-strong);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 400;
     box-shadow: none;
 }
@@ -1298,7 +1298,7 @@
 }
 
 .adoption-module-form .adoption-textarea-wrap textarea {
-    padding-bottom: 30px;
+    padding-bottom: 32px;
 }
 
 .adoption-module-form .adoption-form-grid input:focus,
@@ -1311,7 +1311,7 @@
 
 /* Locked account fields */
 .adoption-module-form .adoption-locked-field input[readonly] {
-    padding-right: 38px;
+    padding-right: 40px;
     border-color: var(--line);
     background: var(--peach-soft);
     color: var(--brown-muted);
@@ -1330,10 +1330,10 @@
 }
 
 .adoption-module-form .adoption-phone-prefix {
-    padding: 0 11px;
+    padding: 0 12px;
     border-right: 1px solid var(--line);
     background: var(--peach-soft);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .adoption-module-form .adoption-phone-field input {
@@ -1345,12 +1345,12 @@
 /* Choice buttons (home type, yes / no) */
 .adoption-module-form .adoption-choice-group button {
     min-height: 0;
-    padding: 9px 6px;
+    padding: 8px 8px;
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--white);
     color: var(--brown-strong);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -1362,7 +1362,7 @@
     border-color: transparent;
     background: linear-gradient(115deg, var(--orange), var(--orange-light));
     color: var(--white);
-    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.3);
+    box-shadow: var(--shadow-dropdown);
 }
 
 /* Errors stay red */
@@ -1382,4 +1382,3 @@
     border-right-color: rgba(214, 40, 40, 0.35);
     background: var(--red-soft);
 }
-

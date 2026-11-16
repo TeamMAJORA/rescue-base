@@ -4,6 +4,7 @@ import { MonthCalendar, isSameDay, startOfToday } from "../../../../components/s
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
 import { formatDate, formatDateTime, formatMonth } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
+import Icon from "../../../../components/system/Icon";
 
 
 
@@ -323,7 +324,7 @@ function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
                             ? formatDate(selected, { withWeekday: true })
                             : "Pick a date"}
                     </span>
-                    <i aria-hidden="true">▾</i>
+                    <i aria-hidden="true"><Icon name="chevron-down" /></i>
                 </button>
 
                 <button
@@ -335,7 +336,7 @@ function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
                 >
                     <img className="aip-clock inline-icon" src="/icons/Clock.svg" alt="" aria-hidden="true" />
                     <span>{hour}:{minute} {period}</span>
-                    <i aria-hidden="true">▾</i>
+                    <i aria-hidden="true"><Icon name="chevron-down" /></i>
                 </button>
             </div>
 

@@ -6,6 +6,7 @@ import {
     isPetAvailable,
     topScoredMatches,
 } from "../../../utils/matchScore";
+import Icon from "../../../components/system/Icon";
 
 function formatStatus(value) {
     return String(value || "available").replaceAll("_", " ");
@@ -152,7 +153,7 @@ export default function Recommendations({
                         type="button"
                         onClick={() => onTakeQuiz?.()}
                     >
-                        Take Matchmaking Quiz <span aria-hidden="true">→</span>
+                        Take Matchmaking Quiz <Icon name="arrow-right" />
                     </button>
                 </div>
             </section>

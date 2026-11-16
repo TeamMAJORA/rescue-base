@@ -6,6 +6,7 @@ import assets from "../data/assets.json";
 import "../styles/AuthPage.css";
 import { useEffect, useState } from "react";
 import { notify, notifyError } from "../utils/dialogs";
+import Icon from "../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -596,7 +597,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                                 setSuccess("");
                             }}
                         >
-                            ← Back
+                            <Icon name="arrow-left" /> Back
                         </button>
 
                         <div className="auth-card">
@@ -699,7 +700,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                                 setSuccess("");
                             }}
                         >
-                            ← Back
+                            <Icon name="arrow-left" /> Back
                         </button>
 
                         <div className="auth-card">
@@ -832,7 +833,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                                 setSuccess("");
                             }}
                         >
-                            ← Back
+                            <Icon name="arrow-left" /> Back
                         </button>
 
                         <div className="auth-card">
@@ -922,7 +923,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                                 setSuccess("");
                             }}
                         >
-                            ← Back
+                            <Icon name="arrow-left" /> Back
                         </button>
 
                         <div className="auth-card">
@@ -994,7 +995,7 @@ export default function AuthPage({ mode = "login", setPage }) {
 
                 <div className="auth-panel">
                     <button className="auth-back" type="button" onClick={() => setPage("home")}>
-                        ← Back
+                        <Icon name="arrow-left" /> Back
                     </button>
 
                     <div className="auth-card">

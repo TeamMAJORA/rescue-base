@@ -8,6 +8,7 @@ import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm, askPrompt } from "../../../../utils/dialogs";
 import { formatDate, toDayValue } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
+import UiIcon from "../../../../components/system/Icon";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -63,7 +64,7 @@ function MapFollow({ latitude, longitude }) {
 
 // Saved from a phone? (small screen or a mobile browser)
 function isPhoneDevice() {
-    const small = typeof window !== "undefined" && window.matchMedia?.("(max-width: 820px)").matches;
+    const small = typeof window !== "undefined" && window.matchMedia?.("(max-width: 900px)").matches;
     const mobileAgent = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
     return Boolean(small || mobileAgent);
 }
@@ -155,7 +156,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>

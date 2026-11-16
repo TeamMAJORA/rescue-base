@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatDate, toDayValue } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -863,7 +864,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                                     className="acard-link"
                                     onClick={() => onNavigate?.("updates", assignment._id)}
                                 >
-                                    View all {recentUpdates.length} updates →
+                                    View all {recentUpdates.length} updates <Icon name="arrow-right" />
                                 </button>
                             )}
                         </div>

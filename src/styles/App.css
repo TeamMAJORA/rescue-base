@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Itim&family=Karma:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Itim&family=Karma:wght@400;500;700&display=swap");
 
 :root {
     /* The only colour palette. Module CSS uses var(--name), never hex codes. */
@@ -1058,10 +1058,15 @@ body {
    Corners: cards 12px, things inside a card (inputs, buttons, menus) 8px, chips/tags 6px.
    Shadow only on what floats (dropdowns, popups, tooltips, the phone menu). */
 :root {
+    /* Scales (audit F5-F8). Type: 12/14/16/20/24/32 (+40/48 display). Spacing: 4px grid.
+       Radius: 4 (tiny bars), 8 (fields, small controls), 12 (buttons, cards), 20 (modals, heroes), 999 (pills).
+       The landing section above "Shared style rules" keeps its Figma values. */
     --radius-card: 12px;
     --radius-inner: 8px;
-    --radius-chip: 6px;
-    --shadow-float: 0 12px 28px rgba(90, 27, 0, 0.18);
+    --radius-chip: 8px;
+    --shadow-card: 0 2px 8px rgba(90, 27, 0, 0.08);
+    --shadow-dropdown: 0 12px 28px rgba(90, 27, 0, 0.18);
+    --shadow-modal: 0 24px 60px rgba(40, 20, 5, 0.28);
 }
 
 /* Phone menu button + slide-in sidebar (admin, staff, volunteer, adopter and foster dashboards) */
@@ -1073,7 +1078,7 @@ body {
 .staff-menu,
 .adopter-menu,
 .foster-menu {
-    padding-bottom: 18px;
+    padding-bottom: 16px;
     -webkit-mask-image: linear-gradient(to bottom, var(--dark) calc(100% - 22px), transparent);
     mask-image: linear-gradient(to bottom, var(--dark) calc(100% - 22px), transparent);
 }
@@ -1121,7 +1126,7 @@ body {
         z-index: 1500;
         width: min(290px, 85vw);
         height: 100dvh;
-        padding: 22px 16px 18px;
+        padding: 24px 16px 16px;
         display: flex;
         flex-direction: column;
         /* The tab list scrolls; the user card stays pinned at the bottom */
@@ -1155,7 +1160,7 @@ body {
     .adopter-dashboard-page > .adopter-sidebar.is-open,
     .foster-page > .foster-sidebar.is-open {
         transform: none;
-        box-shadow: var(--shadow-float);
+        box-shadow: var(--shadow-dropdown);
     }
 
     .dash-menu-backdrop {
@@ -1237,16 +1242,16 @@ img.inline-icon {
 
 /* Grouped sidebar (admin + staff) */
 .menu-section-label {
-    margin: 14px 14px 4px;
+    margin: 16px 16px 4px;
     color: var(--brown-soft);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
 .menu-section-divider {
-    margin: 10px 14px;
+    margin: 8px 16px;
     border: 0;
     border-top: 1px solid rgba(90, 27, 0, 0.15);
 }

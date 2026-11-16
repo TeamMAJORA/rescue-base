@@ -20,9 +20,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 10px 14px;
+    padding: 8px 16px;
     border-radius: 12px;
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -39,9 +39,9 @@
 }
 
 .fs-error-banner button {
-    padding: 6px 12px;
+    padding: 8px 12px;
     border: 1.5px solid var(--red-dark);
-    border-radius: 9px;
+    border-radius: 8px;
     background: var(--white);
     color: var(--red-dark);
     font: inherit;
@@ -54,13 +54,13 @@
 .fs-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
+    gap: 16px;
 }
 
 .fs-stats article {
-    padding: 14px 16px;
+    padding: 16px 16px;
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--paper);
 }
 
@@ -74,13 +74,13 @@
 .fs-stats strong {
     display: block;
     margin: 4px 0 1px;
-    font-size: 28px;
+    font-size: 32px;
     line-height: 1.15;
 }
 
 .fs-stats span {
     color: var(--brown-muted);
-    font-size: 11.5px;
+    font-size: 12px;
 }
 
 .fs-stats .is-hero {
@@ -106,7 +106,7 @@
 .fs-panel {
     overflow: hidden;
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 20px;
     background: var(--paper);
 }
 
@@ -114,8 +114,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
-    padding: 14px 16px;
+    gap: 8px;
+    padding: 16px 16px;
     border-bottom: 1px solid var(--line-soft);
 }
 
@@ -128,7 +128,7 @@
     height: 38px;
     padding: 0 12px;
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--white);
 }
 
@@ -154,23 +154,23 @@
     background: transparent;
     color: var(--brown);
     font: inherit;
-    font-size: 13.5px;
+    font-size: 14px;
 }
 
 .fs-chips {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .fs-chips button {
-    padding: 7px 13px;
+    padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--white);
     color: var(--brown);
     font: inherit;
-    font-size: 12.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -189,9 +189,9 @@
     height: 38px;
     padding: 0 16px;
     border: 1.5px solid transparent;
-    border-radius: 10px;
+    border-radius: 12px;
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
     transition: background 0.15s, transform 0.15s;
@@ -239,14 +239,14 @@
     width: 100%;
     min-width: 820px;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .fs-table th {
-    padding: 10px 16px;
+    padding: 8px 16px;
     background: var(--peach-soft);
     color: var(--brown-soft);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-align: left;
@@ -278,18 +278,18 @@
     display: block;
     margin-top: 2px;
     color: var(--brown-muted);
-    font-size: 11.5px;
+    font-size: 12px;
 }
 
 .fs-stock strong {
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .fs-meter {
     width: 170px;
     max-width: 100%;
     height: 7px;
-    margin-top: 6px;
+    margin-top: 8px;
     overflow: hidden;
     border-radius: 999px;
     background: var(--line-soft);
@@ -309,9 +309,9 @@
 
 .fs-status {
     display: inline-block;
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     white-space: nowrap;
 }
@@ -334,19 +334,19 @@
 .fs-row-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 6px;
+    gap: 8px;
 }
 
 .fs-row-actions button {
     height: 32px;
     padding: 0 12px;
     border: 1.5px solid var(--line);
-    border-radius: 9px;
+    border-radius: 8px;
     background: var(--white);
     color: var(--brown);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     white-space: nowrap;
     cursor: pointer;
 }
@@ -370,7 +370,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
+    padding: 8px 16px;
     border-top: 1px solid var(--line-soft);
     color: var(--brown-muted);
     font-size: 12px;
@@ -382,7 +382,7 @@
     color: var(--brown-soft);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -395,16 +395,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 40px 20px;
     color: var(--brown-muted);
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
 }
 
 .fs-empty strong {
     color: var(--brown);
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .fs-empty p {
@@ -454,9 +454,9 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid rgba(90, 27, 0, 0.18);
-    border-radius: 22px;
+    border-radius: 20px;
     background: var(--paper);
-    box-shadow: 0 24px 60px rgba(58, 18, 0, 0.3);
+    box-shadow: var(--shadow-modal);
     color: var(--brown);
 }
 
@@ -469,7 +469,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
     padding: 20px 24px;
     background:
         radial-gradient(circle at right top, rgba(252, 191, 73, 0.35), transparent 50%),
@@ -478,7 +478,7 @@
 
 .fs-eyebrow {
     color: var(--red);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -488,7 +488,7 @@
     margin: 2px 0 4px;
     color: var(--brown-strong);
     font-family: "Itim", cursive;
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 400;
     line-height: 1.15;
 }
@@ -496,7 +496,7 @@
 .fs-modal-head p {
     margin: 0;
     color: var(--brown-soft);
-    font-size: 12.5px;
+    font-size: 12px;
 }
 
 .fs-close {
@@ -510,7 +510,7 @@
     border-radius: 50%;
     background: var(--white);
     color: var(--brown);
-    box-shadow: 0 4px 12px rgba(90, 27, 0, 0.15);
+    box-shadow: var(--shadow-card);
     font-size: 20px;
     line-height: 1;
     cursor: pointer;
@@ -519,7 +519,7 @@
 .fs-form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    gap: 16px;
     padding: 20px 24px;
     overflow-y: auto;
 }
@@ -528,7 +528,7 @@
 .fs-label {
     display: grid;
     align-content: start;
-    gap: 6px;
+    gap: 8px;
     color: var(--brown-soft);
     font-size: 12px;
     font-weight: 800;
@@ -543,14 +543,14 @@
 .fs-form textarea {
     width: 100%;
     min-height: 40px;
-    padding: 9px 12px;
+    padding: 8px 12px;
     border: 1.5px solid var(--line);
     border-radius: 12px;
     background: var(--white);
     color: var(--brown);
     font: inherit;
-    font-size: 13.5px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
 }
 
 .fs-form input,
@@ -571,15 +571,15 @@
 
 .fs-form small {
     color: var(--brown-muted);
-    font-size: 11.5px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 .fs-toggle {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 .fs-toggle button {
@@ -589,7 +589,7 @@
     background: var(--white);
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -608,19 +608,19 @@
 
 .fs-error {
     margin: 0;
-    padding: 9px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--red-soft);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--red-soft);
     color: var(--red-dark);
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 600;
 }
 
 .fs-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 8px;
     padding-top: 4px;
 }
 
@@ -643,7 +643,7 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--line-soft);
     border-radius: 12px;
     background: var(--white);
@@ -651,14 +651,14 @@
 
 .fs-history li b {
     display: block;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .fs-history li small {
     display: block;
     margin-top: 2px;
     color: var(--brown-muted);
-    font-size: 11.5px;
+    font-size: 12px;
 }
 
 .fs-history-amount {
@@ -685,24 +685,24 @@
     margin: 0;
     padding: 20px 0;
     color: var(--brown-muted);
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
 }
 
 .fs-history-foot {
-    padding: 14px 24px;
+    padding: 16px 24px;
     border-top: 1px solid rgba(251, 133, 0, 0.2);
     background: var(--paper);
 }
 
 /* ---------- small screens ---------- */
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
     .fs-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
     .fs-stats,
     .fs-form {
         grid-template-columns: 1fr;
@@ -729,14 +729,14 @@
     display: block;
     margin-top: 4px;
     color: var(--brown-muted);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .fs-request-info {
     margin: 0;
-    padding: 9px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--cream);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--peach-soft);
     color: var(--brown-soft);
     font-size: 12px;
@@ -766,7 +766,7 @@
     display: block;
     margin-top: 2px;
     color: var(--brown-muted);
-    font-size: 11.5px;
+    font-size: 12px;
 }
 
 /* Whole row opens the edit popup */
@@ -784,8 +784,8 @@
     .fs-table-wrap { overflow: visible; }
     .fs-table thead { display: none; }
     .fs-table, .fs-table tbody, .fs-table tr, .fs-table td { display: block; width: 100%; min-width: 0; }
-    .fs-table tr { margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
-    .fs-table td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px 0; border: 0; text-align: right; }
-    .fs-table td::before { content: attr(data-label); flex: none; color: var(--brown-soft); font-size: 13px; font-weight: 600; text-align: left; }
+    .fs-table tr { margin: 0 0 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+    .fs-table td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; border: 0; text-align: right; }
+    .fs-table td::before { content: attr(data-label); flex: none; color: var(--brown-soft); font-size: 14px; font-weight: 600; text-align: left; }
     .fs-table td > * { max-width: 65%; }
 }

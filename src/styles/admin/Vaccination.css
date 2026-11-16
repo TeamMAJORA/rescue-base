@@ -1,6 +1,6 @@
 .admin-vaccination-page {
     display: grid;
-    gap: 22px;
+    gap: 24px;
 }
 
 
@@ -12,7 +12,7 @@
 .admin-vaccination-list-panel {
     display: grid;
     gap: 20px;
-    padding: 26px 20px;
+    padding: 24px 20px;
 }
 
 
@@ -36,7 +36,7 @@
 
 .admin-vaccination-form-panel .admin-panel-heading p,
 .admin-vaccination-list-panel .admin-panel-heading p {
-    margin: 6px 0 0;
+    margin: 8px 0 0;
     color: rgba(90, 27, 0, 0.62);
     font-size: 14px;
 }
@@ -49,16 +49,16 @@
 .admin-vaccination-form {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px 18px;
+    gap: 16px 16px;
 }
 
 .admin-vaccination-form label {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
     color: var(--brown);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .admin-vaccination-form input,
@@ -67,14 +67,14 @@
     width: 100%;
     min-height: 40px;
     box-sizing: border-box;
-    padding: 8px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--gold);
     border-radius: 8px;
     background: var(--amber-soft);
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -145,7 +145,7 @@
     margin: 0;
     padding: 12px 16px;
 
-    border-radius: 14px;
+    border-radius: 12px;
 
     background: var(--white-yellow);
     color: var(--brown);
@@ -180,7 +180,7 @@
     border-radius: 8px;
     font: inherit;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
     transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
@@ -189,11 +189,11 @@
     border: 0;
     background: linear-gradient(90deg, var(--orange), var(--orange-light));
     color: var(--white);
-    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.22);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .admin-vaccination-save:hover {
-    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.32);
+    box-shadow: var(--shadow-dropdown);
     transform: translateY(-1px);
 }
 
@@ -232,9 +232,9 @@
     min-height: 42px;
 
     border: 1px solid rgba(90, 27, 0, 0.16);
-    border-radius: 14px;
+    border-radius: 12px;
 
-    padding: 10px 12px;
+    padding: 8px 12px;
 
     background: var(--white);
     color: var(--brown);
@@ -271,7 +271,7 @@
 
 .admin-vaccination-list {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 
@@ -283,7 +283,7 @@
     width: 100%;
     box-sizing: border-box;
 
-    padding: 18px 20px;
+    padding: 16px 20px;
 
     border-radius: 20px;
 
@@ -300,8 +300,7 @@
 .admin-vaccination-row:hover {
     border-color: rgba(251, 133, 0, 0.28);
 
-    box-shadow:
-        0 10px 24px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
 
     transform: translateY(-1px);
 }
@@ -316,7 +315,7 @@
 
     color: var(--brown);
 
-    font-size: 18px;
+    font-size: 20px;
 }
 
 
@@ -325,7 +324,7 @@
 ========================= */
 
 .admin-vaccination-row p {
-    margin: 5px 0;
+    margin: 4px 0;
 
     color: rgba(90, 27, 0, 0.72);
 
@@ -347,8 +346,8 @@
 
     align-items: center;
 
-    margin-top: 10px;
-    padding: 7px 11px;
+    margin-top: 8px;
+    padding: 8px 12px;
 
     border-radius: 999px;
 
@@ -357,7 +356,7 @@
     color: var(--brown);
 
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
 
     text-transform: capitalize;
 
@@ -373,15 +372,15 @@
     display: block;
 
     margin-top: 12px;
-    padding: 11px 13px;
+    padding: 12px 12px;
 
-    border-radius: 14px;
+    border-radius: 12px;
 
     background: var(--white-yellow);
 
     color: rgba(90, 27, 0, 0.72);
 
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
 
     border: 1px solid rgba(251, 133, 0, 0.12);
@@ -402,14 +401,14 @@
 .admin-vaccination-actions button {
     min-height: 38px;
 
-    padding: 9px 13px;
+    padding: 8px 12px;
 
     border: none;
     border-radius: 12px;
 
     font-family: inherit;
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
 
     cursor: pointer;
 
@@ -451,14 +450,14 @@
 .admin-vaccination-empty {
     margin: 0;
 
-    padding: 30px;
+    padding: 32px;
 
     text-align: center;
 
     color: rgba(90, 27, 0, 0.62);
 
     border: 1px dashed rgba(90, 27, 0, 0.18);
-    border-radius: 16px;
+    border-radius: 20px;
 
     background: var(--paper);
 }
@@ -487,7 +486,7 @@
 }
 
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
     .admin-vaccination-form {
         grid-template-columns: 1fr;
     }
@@ -545,19 +544,19 @@
 .admin-vacc-list-controls {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .admin-vacc-search {
     width: 220px;
     height: 38px;
-    padding: 0 14px;
+    padding: 0 16px;
     border: 1px solid var(--gold);
     border-radius: 8px;
     background: var(--amber-soft);
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .admin-vacc-search::placeholder {
@@ -566,14 +565,14 @@
 
 .admin-vacc-status-filter {
     height: 38px;
-    padding: 0 14px;
+    padding: 0 16px;
     border: 1px solid var(--brown-soft);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--paper);
     color: var(--brown-soft);
     font: inherit;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -591,16 +590,16 @@
     width: 100%;
     min-width: 760px;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown);
 }
 
 .admin-vacc-table th {
-    padding: 12px 14px;
+    padding: 12px 16px;
     background: var(--amber-soft);
     color: var(--brown-soft);
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.03em;
     text-align: left;
     text-transform: uppercase;
@@ -608,7 +607,7 @@
 }
 
 .admin-vacc-table td {
-    padding: 12px 14px;
+    padding: 12px 16px;
     border-bottom: 1px solid rgba(232, 207, 138, 0.6);
     vertical-align: middle;
 }
@@ -618,7 +617,7 @@
 }
 
 .admin-vacc-name {
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .admin-vacc-notes {
@@ -627,7 +626,7 @@
 }
 
 .admin-vacc-empty {
-    padding: 24px 14px !important;
+    padding: 24px 16px !important;
     color: var(--brown-muted);
     text-align: center;
 }
@@ -637,8 +636,8 @@
     display: inline-block;
     padding: 3px 12px;
     border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -661,15 +660,15 @@
 .admin-vacc-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 6px;
+    gap: 8px;
 }
 
 .admin-vacc-actions button {
-    padding: 5px 12px;
-    border-radius: 6px;
+    padding: 4px 12px;
+    border-radius: 8px;
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -693,7 +692,7 @@
     background: var(--red-soft);
 }
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
     .admin-vacc-list-heading {
         flex-direction: column;
         align-items: stretch;

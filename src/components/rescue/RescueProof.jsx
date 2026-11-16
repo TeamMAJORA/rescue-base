@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../../styles/components/RescueProof.css";
 import { formatDateTime } from "../../utils/formatDate";
+import Icon from "../system/Icon";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const MAX_PROOF_PHOTOS = 5;
@@ -113,7 +114,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
                                     aria-label="Remove photo"
                                     onClick={() => setCompletionPhotos((current) => current.filter((item) => item !== url))}
                                 >
-                                    ×
+                                    <Icon name="close" />
                                 </button>
                             </span>
                         ))}

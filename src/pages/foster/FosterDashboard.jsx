@@ -24,6 +24,7 @@ import assets from "../../data/assets.json";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
 import { notify } from "../../utils/dialogs";
 import LoadingState from "../../components/system/LoadingState";
+import Icon from "../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -752,7 +753,7 @@ function goToPage(page, petId = null) {
                                         className="fdb-action"
                                         onClick={() => goToPage("application")}
                                     >
-                                        {applicationStatus === "none" ? "Start application →" : "Apply again →"}
+                                        {applicationStatus === "none" ? "Start application" : "Apply again"} <Icon name="arrow-right" />
                                     </button>
                                 )}
                             </div>

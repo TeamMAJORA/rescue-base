@@ -18,6 +18,7 @@ import assets from "../../../data/assets.json";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -2962,7 +2963,7 @@ export default function GISMapping({ onOpenLostFound }) {
                             type="button"
                             onClick={() => setSelectedShelter(null)}
                         >
-                            ← Back to Shelters
+                            <Icon name="arrow-left" /> Back to Shelters
                         </button>
 
                         <div className="admin-gis-row">

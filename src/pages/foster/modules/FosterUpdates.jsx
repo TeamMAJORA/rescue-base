@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate } from "../../../utils/formatDate";
+import Icon from "../../../components/system/Icon";
 
 // Behavior Evaluation — foster rates the pet, admin reviews and accepts
 
@@ -254,11 +255,11 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                 </p>
 
                 <div className="ao-steps">
-                    <div className={`ao-step ${step1}`}><b>{step1 === "done" ? "✓" : 1}</b>Fill in ratings</div>
+                    <div className={`ao-step ${step1}`}><b>{step1 === "done" ? <Icon name="check" /> : 1}</b>Fill in ratings</div>
                     <span className={`ao-step-line ${step1 === "done" ? "done" : ""}`} />
-                    <div className={`ao-step ${step2}`}><b>{step2 === "done" ? "✓" : 2}</b>Submit for review</div>
+                    <div className={`ao-step ${step2}`}><b>{step2 === "done" ? <Icon name="check" /> : 2}</b>Submit for review</div>
                     <span className={`ao-step-line ${step2 === "done" ? "done" : ""}`} />
-                    <div className={`ao-step ${step3}`}><b>{step3 === "done" ? "✓" : 3}</b>Admin accepts</div>
+                    <div className={`ao-step ${step3}`}><b>{step3 === "done" ? <Icon name="check" /> : 3}</b>Admin accepts</div>
                 </div>
 
                 {banner && (

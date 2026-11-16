@@ -28,7 +28,7 @@
     border-color: var(--orange);
     background: var(--orange);
     color: var(--white);
-    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.24);
+    box-shadow: var(--shadow-dropdown);
 }
 
 /* The active item keeps its light icon on hover (it used to flip back to the brown one) */
@@ -43,7 +43,7 @@
 /* Sub-menus (admin and staff) */
 #root :is(.admin-submenu, .staff-submenu) button {
     min-height: 36px;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
 #root :is(.admin-submenu, .staff-submenu) button:hover:not(.active) {

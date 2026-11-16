@@ -2,6 +2,7 @@ import { useState } from "react";
 import { getNextReportDue } from "../utils/reportDue";
 import { formatDate } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -508,7 +509,7 @@ export default function DashboardOverview({
                             className="fdo-link"
                             onClick={() => onNavigate?.("assignment")}
                         >
-                            View details →
+                            View details <Icon name="arrow-right" />
                         </button>
                     </header>
 
@@ -563,7 +564,7 @@ export default function DashboardOverview({
                         <h3>Recent activity</h3>
                         {notifications.length > 0 && (
                             <button type="button" className="fdo-link" onClick={onOpenNotifications}>
-                                View all →
+                                View all <Icon name="arrow-right" />
                             </button>
                         )}
                     </header>

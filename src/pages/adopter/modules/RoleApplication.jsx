@@ -4,6 +4,7 @@ import FosterApplication from "../../foster/modules/FosterApplication";
 import "../../../styles/foster/FosterApplication.css";
 import { formatDate } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -410,7 +411,7 @@ export default function RoleApplication() {
                                 <span className="ra-step-dot">
                                     {step.state === "done"
                                         ? <img src="/icons/checkmark.svg" alt="" />
-                                        : step.state === "declined" ? "✕" : index + 1}
+                                        : step.state === "declined" ? <Icon name="close" /> : index + 1}
                                 </span>
                                 <div>
                                     <b>{step.title}</b>

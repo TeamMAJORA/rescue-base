@@ -2,6 +2,7 @@ import {
     useRef, useState
 } from "react";
 import { fireSideCannons } from "../../../utils/confetti";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -358,7 +359,7 @@ if (!started) {
                     className="mq-intro-button"
                     onClick={() => setStarted(true)}
                 >
-                    {hasTakenQuiz ? "Retake quiz" : "Take the quiz"} <span aria-hidden="true">→</span>
+                    {hasTakenQuiz ? "Retake quiz" : "Take the quiz"} <Icon name="arrow-right" />
                 </button>
 
                 {hasTakenQuiz && (

@@ -11,6 +11,7 @@ import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm } from "../../../../utils/dialogs";
 import { formatDate } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
+import Icon from "../../../../components/system/Icon";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -424,7 +425,7 @@ function AnimalProfilesList({ onOpenRecords }) {
             aria-live="polite"
         >
             <span className="admin-toast-icon">
-                {toast.type === "success" ? "✓" : "!"}
+                {toast.type === "success" ? <Icon name="check" /> : "!"}
             </span>
             <p>{toast.text}</p>
             <button
@@ -432,7 +433,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 aria-label="Close"
                 onClick={() => setToast(null)}
             >
-                ×
+                <Icon name="close" />
             </button>
         </div>
     );
@@ -981,7 +982,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         className="admin-page-header-back"
                         onClick={handleBackToList}
                     >
-                        ← Back to list
+                        <Icon name="arrow-left" /> Back to list
                     </button>
                 </div>
 
@@ -1579,7 +1580,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                             <StatusPill key={status} status={status} />
                                         </span>
                                         {qrCodes[animal._id] && (
-                                            <span className="agc-qr" title="Has a QR tag">QR ✓</span>
+                                            <span className="agc-qr" title="Has a QR tag">QR <Icon name="check" /></span>
                                         )}
                                     </div>
 

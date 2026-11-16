@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
+import Icon from "../../../components/system/Icon";
 
 // Pet card helpers (status pill on the photo + short dates)
 const PET_CARD_STATUS = {
@@ -266,7 +267,7 @@ export default function ApplicationStatus({
                         type="button"
                         onClick={() => onBrowsePets?.()}
                     >
-                        Browse available pets <span aria-hidden="true">→</span>
+                        Browse available pets <Icon name="arrow-right" />
                     </button>
 
                     <button

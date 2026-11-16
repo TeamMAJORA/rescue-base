@@ -55,6 +55,7 @@ import { SuppliesPage } from "./modules/FoodStorage";
 import { fetchRecentNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
+import Icon from "../../components/system/Icon";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -782,7 +783,7 @@ export default function AdminDashboard({ setPage }) {
 
                                     {item.children && (
                                         <span className={`admin-menu-arrow ${isOpen ? "open" : ""}`}>
-                                            ▾
+                                            <Icon name="chevron-down" />
                                         </span>
                                     )}
                                 </button>

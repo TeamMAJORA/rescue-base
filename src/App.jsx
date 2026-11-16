@@ -15,6 +15,7 @@ import "./styles/components/Buttons.css";
 import "./styles/components/Forms.css";
 import "./styles/components/Sidebar.css";
 import "./styles/components/Feedback.css";
+import Icon from "./components/system/Icon";
 
 // After a browser refresh, reopen the logged-in user's dashboard instead of the landing page
 function getStartPage() {
@@ -94,7 +95,7 @@ function MaintenanceTicker() {
                 aria-label="Hide maintenance notice"
                 onClick={() => setClosed(true)}
             >
-                ×
+                <Icon name="close" />
             </button>
         </div>
     );

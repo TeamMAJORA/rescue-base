@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatDate, formatDateTime } from "../utils/formatDate";
 import LoadingState from "../components/system/LoadingState";
+import Icon from "../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -309,7 +310,7 @@ useEffect(() => {
             </div>
         )}
 
-        <span className="fb-history-open">{item.reply ? "Read full reply →" : "View details →"}</span>
+        <span className="fb-history-open">{item.reply ? "Read full reply" : "View details"} <Icon name="arrow-right" /></span>
     </li>
 ))}
             </ul>
@@ -336,7 +337,7 @@ useEffect(() => {
                     onClick={() => setViewingFeedback(null)}
                     aria-label="Close"
                 >
-                    ×
+                    <Icon name="close" />
                 </button>
             </header>
 

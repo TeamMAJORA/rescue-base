@@ -7,7 +7,7 @@
 .sidebar-user > .sidebar-user-card {
     width: 100%;
     margin-top: 0;
-    padding-right: 58px;
+    padding-right: 56px;
 }
 
 .sidebar-user-logout {
@@ -57,7 +57,7 @@
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--paper);
-    box-shadow: 0 16px 40px rgba(90, 27, 0, 0.18);
+    box-shadow: var(--shadow-modal);
     color: var(--brown);
     text-align: left;
 }
@@ -70,7 +70,7 @@
 .sidebar-logout-dialog p {
     margin-bottom: 20px;
     color: var(--brown-soft);
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.5;
 }
 
@@ -82,7 +82,7 @@
 
 .sidebar-logout-actions button {
     min-height: 44px;
-    padding: 0 18px;
+    padding: 0 16px;
     border-radius: 8px;
     font: inherit;
     font-weight: 600;

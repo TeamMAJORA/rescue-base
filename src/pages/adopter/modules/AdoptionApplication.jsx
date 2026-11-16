@@ -4,6 +4,7 @@ import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
 import InfoTip from "../../../components/system/InfoTip";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatTime } from "../../../utils/formatDate";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -479,7 +480,7 @@ function validateForm() {
                         documentUploading
                     }
                 >
-                    ← Back to Pets
+                    <Icon name="arrow-left" /> Back to Pets
                 </button>
             </header>
 
@@ -493,7 +494,7 @@ function validateForm() {
                             }`}
                         >
                             <button type="button" onClick={() => scrollToStep(index)}>
-                                <b>{step.done ? "✓" : index + 1}</b>
+                                <b>{step.done ? <Icon name="check" /> : index + 1}</b>
                                 {step.label}
                             </button>
                         </li>
@@ -917,7 +918,7 @@ function validateForm() {
 
                      {hasProgress && draftSavedAt && (
                         <small className="adoption-draft-note">
-                            ✓ Draft saved at{" "}
+                            <Icon name="check" /> Draft saved at{" "}
                             {formatTime(draftSavedAt)}
                         </small>
                     )}

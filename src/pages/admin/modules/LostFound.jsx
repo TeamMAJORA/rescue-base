@@ -8,6 +8,7 @@ import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 
 // Lost/found dates: up to 5 years back, never in the future
@@ -1858,7 +1859,7 @@ if (showReportForm && canSubmitReport) {
                     onClick={() => setViewingReport(null)}
                     aria-label="Close"
                 >
-                    ×
+                    <Icon name="close" />
                 </button>
 
                 <div className="lf-modal-body">

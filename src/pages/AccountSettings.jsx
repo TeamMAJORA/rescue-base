@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import "../styles/admin/Reports.css";
 import LoadingState from "../components/system/LoadingState";
+import Icon from "../components/system/Icon";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -315,7 +316,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                 {notice && (
                     <div className={`as2-notice is-${notice.type}`} role="status">
                         <span>{notice.text}</span>
-                        <button type="button" aria-label="Dismiss" onClick={() => setNotice(null)}>×</button>
+                        <button type="button" aria-label="Dismiss" onClick={() => setNotice(null)}><Icon name="close" /></button>
                     </div>
                 )}
 

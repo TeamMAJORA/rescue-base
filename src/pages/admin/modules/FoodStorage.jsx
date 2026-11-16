@@ -4,6 +4,7 @@ import NeededSupplies from "./NeededSupplies";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -205,7 +206,7 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
                     </div>
 
                     <button className="fs-close" type="button" onClick={onClose} disabled={saving} aria-label="Close">
-                        ×
+                        <Icon name="close" />
                     </button>
                 </header>
 
@@ -426,7 +427,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                         disabled={saving}
                         aria-label="Close"
                     >
-                        ×
+                        <Icon name="close" />
                     </button>
                 </header>
 
@@ -660,7 +661,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                         disabled={saving}
                         aria-label="Close"
                     >
-                        ×
+                        <Icon name="close" />
                     </button>
                 </header>
 

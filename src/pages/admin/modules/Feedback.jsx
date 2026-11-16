@@ -3,6 +3,7 @@ import { isAdmin } from "../../../utils/auth";
 import { askConfirm, notify } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -512,7 +513,7 @@ export default function Feedback() {
                             <div className="fb2-modal-top">
                                 {renderActions(selectedFeedback, true)}
                                 <button type="button" className="fb2-close" onClick={() => setSelectedFeedback(null)} aria-label="Close">
-                                ✕
+                                <Icon name="close" />
                             </button>
                             </div>
                         </div>

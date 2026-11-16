@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { formatPetStatus } from "../../utils/petStatus";
 import PetTypeIcon from "../system/PetTypeIcon";
+import Icon from "../system/Icon";
 
 export default function PetDetailPanel({
     className = "",
@@ -143,7 +144,7 @@ export function PetDetailModal({ onClose, ...panelProps }) {
                 onClick={(event) => event.stopPropagation()}
             >
                 <button type="button" className="pet-modal-close" onClick={onClose} aria-label="Close">
-                    ×
+                    <Icon name="close" />
                 </button>
                 <PetDetailPanel className="browse-pet-details-panel" {...panelProps} />
             </div>

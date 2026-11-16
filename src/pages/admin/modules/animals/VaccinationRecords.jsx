@@ -4,6 +4,7 @@ import InfoTip from "../../../../components/system/InfoTip";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
 import { formatDate, toDayValue } from "../../../../utils/formatDate";
+import UiIcon from "../../../../components/system/Icon";
 
 
 const API_VACCINATIONS = `${import.meta.env.VITE_BACKEND_URL}/api/vaccinations`;
@@ -197,7 +198,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>
@@ -785,7 +786,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         {filterAnimal && !lockedAnimal && (
                             <span className="ap-filter-chip">
                                 Showing: {filterAnimal.name}
-                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}>✕</button>
+                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}><UiIcon name="close" /></button>
                             </span>
                         )}
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />

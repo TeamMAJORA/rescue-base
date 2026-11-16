@@ -9,6 +9,7 @@ import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
+import UiIcon from "../../../components/system/Icon";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -905,7 +906,7 @@ export default function Donations() {
                     </div>
 
                     <button type="button" className="dl-btn" onClick={closeDonationForm}>
-                        ← Back to Donations
+                        <UiIcon name="arrow-left" /> Back to Donations
                     </button>
                 </header>
 
@@ -1382,7 +1383,7 @@ export default function Donations() {
                                 </div>
                                 <span className={`dl-status is-${status}`}>{STATUS_LABEL[status] || status}</span>
                                 <button type="button" className="dl-view-close" onClick={() => setViewingDonation(null)} aria-label="Close">
-                                    ×
+                                    <UiIcon name="close" />
                                 </button>
                             </header>
 
@@ -1588,7 +1589,7 @@ export default function Donations() {
                                 <h3>Drop-off point</h3>
                                 <p className="dl-pm-sub">
                                     <button type="button" className="dl-link" onClick={backToMethodList}>
-                                        ← Back to list
+                                        <UiIcon name="arrow-left" /> Back to list
                                     </button>{" "}
                                     · Donors see this on the donation page and when they hover the (i) on needed items.
                                 </p>
@@ -1811,7 +1812,7 @@ export default function Donations() {
                                 <h3>{editingMethodId ? "Edit method" : "Add method"}</h3>
                                 <p className="dl-pm-sub">
                                     <button type="button" className="dl-link" onClick={backToMethodList}>
-                                        ← Back to list
+                                        <UiIcon name="arrow-left" /> Back to list
                                     </button>{" "}
                                     · Changes show on the donor's Donation page right away.
                                 </p>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "../../styles/components/MonthCalendar.css";
 import { formatDate, formatMonth, toDayValue } from "../../utils/formatDate";
+import Icon from "./Icon";
 
 // Month calendar shared by the interview picker (no past days) and the
 // lost & found report form (no future days). Days outside [minDate, maxDate] can't be picked.
@@ -182,7 +183,7 @@ export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pi
                         ? formatDate(selected, { withWeekday: true })
                         : placeholder}
                 </span>
-                <i aria-hidden="true">▾</i>
+                <i aria-hidden="true"><Icon name="chevron-down" /></i>
             </button>
 
             {open && (

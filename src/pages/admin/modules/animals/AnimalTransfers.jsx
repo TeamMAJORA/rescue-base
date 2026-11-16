@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";   
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
 import { formatDate } from "../../../../utils/formatDate";
+import UiIcon from "../../../../components/system/Icon";
 
 const ICONS = {
     search: (
@@ -77,7 +78,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>

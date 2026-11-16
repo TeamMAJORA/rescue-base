@@ -3,6 +3,7 @@ import { CompleteWithProofModal } from "../../../components/rescue/RescueProof";
 import { askConfirm, askPrompt } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -410,7 +411,7 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
                     <h3>
                         Next rescues
                         <button type="button" className="db2-link" onClick={() => go("rescues")}>
-                            My Rescues →
+                            My Rescues <Icon name="arrow-right" />
                         </button>
                     </h3>
                     <p className="db2-sub">Jobs assigned to you, soonest first.</p>
@@ -431,7 +432,7 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
                         <p className="vr-open-note">
                             {openAssignments.length} open rescue{openAssignments.length === 1 ? "" : "s"} any volunteer can claim.{" "}
                             <button type="button" className="db2-link" onClick={() => go("rescues")}>
-                                Claim one in My Rescues →
+                                Claim one in My Rescues <Icon name="arrow-right" />
                             </button>
                         </p>
                     )}

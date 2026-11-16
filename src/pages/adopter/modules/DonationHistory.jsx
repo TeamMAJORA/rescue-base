@@ -3,6 +3,7 @@ import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -291,7 +292,7 @@ export default function DonationHistory({ onMakeDonation }) {
                         <div className="dh-modal-header">
                             <h2>{rowTitle(selected)}</h2>
                             <button type="button" onClick={() => setSelected(null)}>
-                                ✕
+                                <Icon name="close" />
                             </button>
                         </div>
 

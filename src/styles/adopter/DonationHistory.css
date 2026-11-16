@@ -10,17 +10,17 @@
     border-radius: 20px;
     background: linear-gradient(135deg, var(--orange), var(--orange-light));
     color: var(--white);
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-modal);
 }
 
 .dh-hero span {
     display: inline-flex;
-    margin-bottom: 10px;
-    padding: 6px 12px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.55);
     color: var(--red);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -30,7 +30,7 @@
     font-family: "Itim", cursive;
     margin: 0 0 8px;
     font-size: 2.6rem;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .dh-hero p {
@@ -48,9 +48,9 @@
 
 .dh-stat {
     display: grid;
-    padding: 14px 18px;
+    padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.15);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--paper);
 }
 
@@ -69,9 +69,9 @@
 .dh-panel {
     display: grid;
     gap: 16px;
-    padding: 18px;
+    padding: 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
-    border-radius: 18px;
+    border-radius: 20px;
     background: var(--paper);
 }
 
@@ -90,13 +90,13 @@
 }
 
 .dh-filters button {
-    padding: 7px 16px;
+    padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.3);
     border-radius: 999px;
     background: var(--white);
     color: var(--brown);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -109,9 +109,9 @@
 .dh-search {
     width: 300px;
     max-width: 100%;
-    padding: 10px 14px;
+    padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--white);
 }
 
@@ -123,16 +123,16 @@
 /* List rows */
 .dh-list {
     display: grid;
-    gap: 10px;
+    gap: 8px;
 }
 
 .dh-row {
     display: grid;
     grid-template-columns: 40px 1fr 110px 120px 100px;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     width: 100%;
-    padding: 14px 16px;
+    padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.18);
     border-radius: 12px;
     background: var(--white);
@@ -144,7 +144,7 @@
 
 .dh-row:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .dh-row-icon {
@@ -153,7 +153,7 @@
     width: 36px;
     height: 36px;
     color: var(--orange-dark);
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 800;
 }
 
@@ -178,9 +178,9 @@
 .dh-type,
 .dh-status {
     justify-self: center;
-    padding: 4px 14px;
+    padding: 4px 16px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
 }
@@ -198,7 +198,7 @@
 .dh-date {
     justify-self: center;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .dh-status {
@@ -231,15 +231,15 @@
 .dh-empty {
     display: grid;
     justify-items: center;
-    gap: 6px;
-    padding: 70px 20px;
+    gap: 8px;
+    padding: 72px 20px;
     border: 1.5px dashed rgba(90, 27, 0, 0.35);
     border-radius: 12px;
     text-align: center;
 }
 
 .dh-empty-icon {
-    font-size: 34px;
+    font-size: 32px;
 }
 
 .dh-empty h3 {
@@ -250,16 +250,16 @@
 .dh-empty p {
     margin: 0 0 8px;
     color: var(--brown-soft);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .dh-empty button {
-    padding: 10px 26px;
+    padding: 8px 24px;
     border: none;
     border-radius: 8px;
     background: var(--orange);
     color: var(--white);
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -280,7 +280,7 @@
     max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
-    border-radius: 18px;
+    border-radius: 20px;
     background: var(--white);
 }
 
@@ -288,7 +288,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 22px;
+    padding: 16px 24px;
     border-bottom: 1px solid var(--line-soft);
 }
 
@@ -301,16 +301,16 @@
     width: 36px;
     height: 36px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     background: transparent;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
 }
 
 .dh-modal-body {
     display: grid;
-    gap: 14px;
-    padding: 22px;
+    gap: 16px;
+    padding: 24px;
 }
 
 .dh-modal-body img {
@@ -330,7 +330,7 @@
 
 .dh-modal-body dt {
     color: var(--brown-muted);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .dh-modal-body dd {
@@ -339,7 +339,7 @@
 }
 
 .dh-notes {
-    padding: 14px;
+    padding: 16px;
     border: 1px solid var(--cream-card);
     border-radius: 12px;
     background: var(--white);
@@ -366,7 +366,7 @@
 .dh-stat {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 
 .dh-stat-icon {

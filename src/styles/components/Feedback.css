@@ -6,7 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     padding: 32px 16px;
     color: var(--brown-muted);
     font-size: 14px;
@@ -43,11 +43,11 @@
     .admin-animal-message, .foster-message, .assignment-message
 ) {
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 10px 14px;
+    border-radius: 12px;
+    padding: 8px 16px;
     background: var(--white-yellow);
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1.45;
 }
@@ -58,11 +58,11 @@
     .fs-success, .role-application-success, .admin-gis-success, .fb2-notice
 ) {
     border: 1px solid color-mix(in srgb, var(--green) 35%, transparent);
-    border-radius: 10px;
-    padding: 10px 14px;
+    border-radius: 12px;
+    padding: 8px 16px;
     background: var(--green-soft);
     color: var(--green-dark);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1.45;
 }
@@ -75,11 +75,11 @@
     .fah-return-error, .role-application-error, .admin-gis-error, .an2-error
 ) {
     border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
-    border-radius: 10px;
-    padding: 10px 14px;
+    border-radius: 12px;
+    padding: 8px 16px;
     background: var(--red-soft);
     color: var(--red-dark);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1.45;
 }
@@ -95,7 +95,7 @@
     border: 0;
     background: none;
     color: var(--red-dark);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -109,7 +109,7 @@
     padding: 32px 16px;
     color: var(--brown-muted);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     text-align: center;
 }
 
@@ -119,5 +119,12 @@
 ) {
     color: var(--brown-muted);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
+}
+
+/* F9 icons: components/system/Icon.jsx */
+.rb-icon {
+    display: inline-block;
+    flex: 0 0 auto;
+    vertical-align: -0.125em;
 }

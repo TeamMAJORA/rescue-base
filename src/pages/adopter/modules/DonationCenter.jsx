@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -770,7 +771,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                     className="donation-jump"
                     onClick={() => donationFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                 >
-                    Donate now ↓
+                    Donate now <Icon name="arrow-down" />
                 </button>
             </section>
 
@@ -848,7 +849,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                             aria-label={`Donate ${supply.name}`}
                                             title={isFullyStocked ? "Fully stocked" : `Donate ${supply.name}`}
                                         >
-                                            <span aria-hidden="true">→</span>
+                                            <Icon name="arrow-right" />
                                         </button>
                                     </div>
                                 </article>
@@ -886,7 +887,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
                 {submittedGift ? (
                     <div className="donation-thanks" role="status">
-                        <span className="donation-thanks-check" aria-hidden="true">✓</span>
+                        <span className="donation-thanks-check" aria-hidden="true"><Icon name="check" /></span>
                         <h3>Thank you{savedUser.name ? `, ${savedUser.name.split(" ")[0]}` : ""}!</h3>
                         <p>We got your {submittedGift.isMoney ? "gift" : "pledge"}: <strong>{submittedGift.description}</strong></p>
 
@@ -972,7 +973,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                 key={step.label}
                                 className={step.done ? "is-done" : index === currentStepIndex ? "is-current" : ""}
                             >
-                                <span aria-hidden="true">{step.done ? "✓" : index + 1}</span>
+                                <span aria-hidden="true">{step.done ? <Icon name="check" /> : index + 1}</span>
                                 {step.label}
                             </li>
                         ))}
@@ -1265,7 +1266,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                         className="donation-copy"
                                                         onClick={() => copyAccountNumber(selectedMethod.account_number)}
                                                     >
-                                                        {isAccountNumberCopied ? "Copied ✓" : "Copy"}
+                                                        {isAccountNumberCopied ? <>Copied <Icon name="check" /></> : "Copy"}
                                                     </button>
                                                 </dd>
                                                 {copyErrorMessage && <dd className="donation-copy-error">{copyErrorMessage}</dd>}

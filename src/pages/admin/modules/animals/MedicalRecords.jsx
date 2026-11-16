@@ -3,6 +3,7 @@ import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
 import { formatDate, formatMonth } from "../../../../utils/formatDate";
+import UiIcon from "../../../../components/system/Icon";
 
 
 const API_ANIMALS = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
@@ -199,7 +200,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>
@@ -654,7 +655,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                         {filterAnimal && !lockedAnimal && (
                             <span className="ap-filter-chip">
                                 Showing: {filterAnimal.name}
-                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}>✕</button>
+                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}><UiIcon name="close" /></button>
                             </span>
                         )}
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />

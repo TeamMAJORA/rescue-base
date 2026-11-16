@@ -40,6 +40,7 @@ import NotificationPanel from "../../components/notifications/NotificationPanel"
 import SidebarUserCard from "../../components/system/SidebarUserCard";
 import PetTypeIcon from "../../components/system/PetTypeIcon";
 import { formatDate, formatDateTime } from "../../utils/formatDate";
+import Icon from "../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1061,7 +1062,7 @@ async function fetchPets({ silent = false } = {}) {
                             </div>
 
                             <small className="adopter-hero-note">
-                                ✓ Free · no account changes needed
+                                <Icon name="check" /> Free · no account changes needed
                             </small>
                         </div>
 
@@ -1111,7 +1112,7 @@ async function fetchPets({ silent = false } = {}) {
                                             type="button"
                                             onClick={() => openPet(featuredMatch.pet)}
                                         >
-                                            Meet {featuredMatch.pet.name} →
+                                            Meet {featuredMatch.pet.name} <Icon name="arrow-right" />
                                         </button>
                                     </div>
                                 </article>

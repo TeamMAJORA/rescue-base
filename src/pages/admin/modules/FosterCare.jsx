@@ -5,6 +5,7 @@ import InfoTip from "../../../components/system/InfoTip";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatDateTime, toDayValue } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1268,7 +1269,7 @@ export default function FosterCare() {
 
                         {pendingApplications > 0 && (
                             <button type="button" onClick={scrollToApplications}>
-                                Review →
+                                Review <Icon name="arrow-right" />
                             </button>
                         )}
                     </div>
@@ -2675,7 +2676,7 @@ export default function FosterCare() {
                             onClick={() => setReviewingRequest(null)}
                             aria-label="Close"
                         >
-                            ×
+                            <Icon name="close" />
                         </button>
 
                         <div className="afa-modal-head">

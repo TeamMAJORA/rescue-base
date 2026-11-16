@@ -3,6 +3,7 @@ import InfoTip from "../../../../components/system/InfoTip";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { toDayValue } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
+import UiIcon from "../../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -196,7 +197,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>

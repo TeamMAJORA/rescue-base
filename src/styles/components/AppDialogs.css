@@ -13,10 +13,10 @@
 .ao-confirm {
     width: 100%;
     max-width: 380px;
-    padding: 22px;
+    padding: 24px;
     background: var(--paper);
     border-top: 6px solid var(--orange);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-modal);
 }
 
 .ao-confirm.danger {
@@ -24,13 +24,13 @@
 }
 
 .ao-confirm h3 {
-    margin: 0 0 6px;
-    font-size: 17px;
+    margin: 0 0 8px;
+    font-size: 16px;
     color: var(--brown);
 }
 
 .ao-confirm p {
-    margin: 0 0 18px;
+    margin: 0 0 16px;
     font-size: 14px;
     line-height: 1.45;
     color: var(--brown-muted);
@@ -44,13 +44,13 @@
 }
 
 .ao-confirm-actions button {
-    padding: 9px 18px;
+    padding: 8px 16px;
     border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--white);
     color: var(--brown-strong);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
 }
@@ -88,13 +88,13 @@
 .ao-toast {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     max-width: 360px;
-    padding: 10px 14px;
+    padding: 8px 16px;
     background: var(--brown);
     color: var(--white);
-    font-size: 13px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    box-shadow: var(--shadow-dropdown);
     animation: ao-toast-in 0.2s ease-out;
 }
 
@@ -108,8 +108,8 @@
     border-radius: 50%;
     background: #2fbf71;
     font-style: normal;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .ao-toast.error i {
@@ -124,17 +124,17 @@
 /* Text box for window.rbPrompt */
 .ao-prompt-field {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     margin: 0 0 16px;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
 }
 
 .ao-prompt-field textarea {
     width: 100%;
     min-height: 80px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--white);
@@ -152,5 +152,5 @@
 
 .ao-prompt-error {
     color: var(--red-dark);
-    font-size: 13px;
+    font-size: 14px;
 }
