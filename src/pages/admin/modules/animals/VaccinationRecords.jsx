@@ -363,7 +363,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     const formRef = useRef(null);
     const listRef = useRef(null);
 
-    // Existing animals: used for the Animal dropdown and the "Not Vaccinated" tab
+    // Existing animals: used for the Animal dropdown and the "Not vaccinated" tab
     useEffect(() => {
         if (lockedAnimal) return;
         fetch(API_ANIMALS, { headers: { "ngrok-skip-browser-warning": "true" } })
@@ -626,10 +626,10 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     const tabs = [
         ...(lockedAnimal || filterAnimal
             ? []
-            : [{ value: "unvaccinated", label: "Not Vaccinated", count: unvaccinated.length }]),
+            : [{ value: "unvaccinated", label: "Not vaccinated", count: unvaccinated.length }]),
         { value: "all", label: "All" },
         { value: "overdue", label: "Overdue", count: counts.overdue },
-        { value: "soon", label: "Due Soon", count: counts.soon },
+        { value: "soon", label: "Due soon", count: counts.soon },
         { value: "completed", label: "Completed" },
     ];
 
@@ -658,7 +658,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit Vaccination" : "Record Vaccination"}</h2>
+                    <h2>{editingId ? "Edit vaccination" : "Add vaccination"}</h2>
                     <p className="ao-hint">Log a vaccine given, and set when the next dose is due.</p>
 
                     <form className="ao-form" onSubmit={handleAddVaccination}>
@@ -718,7 +718,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                <span>Date Given <span className="required-mark">*</span></span>
+                                <span>Date given <span className="required-mark">*</span></span>
                                 <input
                                     type="date"
                                     value={vaccinationForm.vaccinationDate}
@@ -729,7 +729,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                             <label className="ao-field">
                                 <span className="ao-label-tip">
-                                    <span>Next Due <span className="required-mark">*</span></span>
+                                    <span>Next due <span className="required-mark">*</span></span>
                                     <InfoTip text="When the next dose or booster is due. It can't be earlier than the date given." />
                                 </span>
                                 <input
@@ -760,14 +760,14 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                             <textarea
                                 value={vaccinationForm.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}
-                                placeholder="Reactions, batch number, reminders..."
+                                placeholder="Reactions, batch number, reminders…"
                                 required
                             />
                         </label>
 
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary">
-                                {editingId ? "Update Vaccination" : "Save Vaccination"}
+                                {editingId ? "Save changes" : "Add vaccination"}
                             </button>
                             {editingId && (
                                 <button type="button" className="ao-btn" onClick={resetForm}>
@@ -799,7 +799,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                 searchByOptions={[{ value: "all", label: "Animal name" }]}
                                 search={filters.search}
                                 onSearchChange={(value) => setFilter("search", value)}
-                                placeholder="Search animal..."
+                                placeholder="Search animal…"
                                 filters={[
                                     {
                                         label: "Species",
@@ -858,7 +858,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search animal, vaccine, or vet..."
+                        placeholder="Search animal, vaccine, or vet…"
                         filters={[
                             {
                                 label: "Vaccine",
@@ -941,7 +941,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                                     className="ao-btn sm ok"
                                                     onClick={() => handleMarkGiven(vaccination)}
                                                 >
-                                                    Mark Given
+                                                    Mark given
                                                 </button>
                                             )}
                                             <button

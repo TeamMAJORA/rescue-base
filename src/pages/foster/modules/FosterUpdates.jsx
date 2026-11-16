@@ -20,7 +20,7 @@ const TRAIT_GROUPS = [
         ],
     },
     {
-        title: "Social & Learning",
+        title: "Social & learning",
         traits: [
             { key: "friendliness", label: "Friendliness", question: "How warm is {name} toward people?", low: "Reserved", high: "Very friendly", tone: "good" },
             { key: "humanSociability", label: "Human Sociability", question: "How comfortable is {name} with strangers and kids?", low: "Shy", high: "Loves people", tone: "good" },
@@ -330,7 +330,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                             <textarea
                                 value={evaluation.notes}
                                 onChange={(e) => setEvaluation((c) => ({ ...c, notes: e.target.value }))}
-                                placeholder="Habits, triggers, how they act with people and other pets..."
+                                placeholder="Habits, triggers, how they act with people and other pets…"
                                 disabled={locked}
                                 required
                             />
@@ -339,7 +339,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                         <div className="ao-form-actions">
                             {!locked && (
                                 <button type="submit" className="ao-btn primary" disabled={loading}>
-                                    {loading ? "Sending..." : status === "revision" ? "Resubmit for Review" : "Submit for Review"}
+                                    {loading ? "Sending…" : status === "revision" ? "Resubmit for review" : "Submit for review"}
                                 </button>
                             )}
                         </div>

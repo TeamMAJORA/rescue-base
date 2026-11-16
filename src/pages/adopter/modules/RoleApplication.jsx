@@ -171,7 +171,7 @@ export default function RoleApplication() {
     const hasPendingApplication = Boolean(pendingRole);
 
         // Labels + step states for the right-side status card
-    const ROLE_LABELS = { volunteer: "Volunteer", foster: "Foster Caregiver" };
+    const ROLE_LABELS = { volunteer: "Volunteer", foster: "Foster caregiver" };
     const STATUS_LABELS = { none: "None", pending: "Pending", approved: "Approved", rejected: "Declined", withdrawn: "Revoked" };
 
 
@@ -235,7 +235,7 @@ export default function RoleApplication() {
                         disabled={loading}
                     >
                         <img src="/icons/Refresh cw.svg" alt="" />
-                        {loading ? "Refreshing..." : "Refresh"}
+                        {loading ? "Refreshing…" : "Refresh"}
                     </button>
                 </div>
 
@@ -330,7 +330,7 @@ export default function RoleApplication() {
                                         onClick={withdrawFosterApplication}
                                         disabled={withdrawing}
                                     >
-                                        {withdrawing ? "Revoking..." : "Yes, revoke"}
+                                        {withdrawing ? "Revoking…" : "Yes, revoke"}
                                     </button>
                                 </div>
                             )}
@@ -354,7 +354,7 @@ export default function RoleApplication() {
                                     id="reason"
                                     value={reason}
                                     onChange={(event) => setReason(event.target.value)}
-                                    placeholder="Explain why you want to join the RescueBase team..."
+                                    placeholder="Explain why you want to join the RescueBase team…"
                                     rows={6}
                                     maxLength={500}
                                     disabled={submitting}
@@ -379,7 +379,7 @@ export default function RoleApplication() {
                                 className="ra-submit"
                                 disabled={submitting || !reason.trim()}
                             >
-                                {submitting ? "Submitting..." : "Submit Application"}
+                                {submitting ? "Submitting…" : "Submit application"}
                             </button>
                         </div>
                     </form>

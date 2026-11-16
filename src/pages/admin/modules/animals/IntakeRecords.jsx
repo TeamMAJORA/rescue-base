@@ -950,7 +950,7 @@ export default function IntakeRecords() {
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit Intake" : "Log New Intake"}</h2>
+                    <h2>{editingId ? "Edit intake" : "Add intake"}</h2>
                     <p className="ao-hint">
                         {editingId
                             ? "Update the arrival details, then save."
@@ -984,7 +984,7 @@ export default function IntakeRecords() {
                         </label>
 
                         <label className="ao-field">
-                            <span>Name or Nickname <span className="required-mark">*</span></span>
+                            <span>Name or nickname <span className="required-mark">*</span></span>
                             <input
                                 value={form.animalName}
                                 onChange={(e) => updateForm("animalName", e.target.value)}
@@ -1123,7 +1123,7 @@ export default function IntakeRecords() {
                                 />
                                 {addressListOpen && typedAddress.trim().length >= 3 && (
                                     <ul className="gm-map-results">
-                                        {addressSearching && addressResults.length === 0 && <li className="is-note">Searching...</li>}
+                                        {addressSearching && addressResults.length === 0 && <li className="is-note">Searching…</li>}
                                         {!addressSearching && addressResults.length === 0 && <li className="is-note">No places found in Cebu. Tap the map instead.</li>}
                                         {addressResults.map((place) => (
                                             <li key={place.id}>
@@ -1185,7 +1185,7 @@ export default function IntakeRecords() {
                                     : "No pin yet. Type an address or tap the map."}
                                 {" · "}
                                 <button type="button" className="lfr2-link" onClick={locateMe} disabled={locating}>
-                                    {locating ? "Getting your location..." : "Use my location"}
+                                    {locating ? "Getting your location…" : "Use my location"}
                                 </button>
                                 {form.latitude && (
                                     <>
@@ -1213,7 +1213,7 @@ export default function IntakeRecords() {
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateForm("notes", e.target.value)}
-                                placeholder="Anything staff should know..."
+                                placeholder="Anything staff should know…"
                                 required
                             />
                         </label>
@@ -1221,10 +1221,10 @@ export default function IntakeRecords() {
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary" disabled={submitting}>
                                 {submitting
-                                    ? "Saving..."
+                                    ? "Saving…"
                                     : editingId
-                                      ? "Update Intake"
-                                      : "Save Intake"}
+                                      ? "Save changes"
+                                      : "Add intake"}
                             </button>
 
                             {editingId && (
@@ -1253,7 +1253,7 @@ export default function IntakeRecords() {
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search name, location, or person..."
+                        placeholder="Search name, location, or person…"
                         filters={[
                             {
                                 label: "Arrival type",
@@ -1397,7 +1397,7 @@ export default function IntakeRecords() {
                                                         onClick={() => handleApprove(record._id)}
                                                         disabled={isProcessing}
                                                     >
-                                                        {isProcessing ? "Processing..." : "Approve"}
+                                                        {isProcessing ? "Processing…" : "Approve"}
                                                     </button>
                                                     <button
                                                         type="button"

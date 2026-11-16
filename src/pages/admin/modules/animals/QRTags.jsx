@@ -300,7 +300,7 @@ export default function QRTags() {
         <section className="qrt-page">
             <div className="qrt-generate">
                 <div className="qrt-generate-text">
-                    <h2>Generate a QR Tag</h2>
+                    <h2>Generate a QR tag</h2>
                     <p>Pick an animal to create a printable tag for their collar or kennel.</p>
                 </div>
                 <form className="qrt-generate-form" onSubmit={handleSubmit}>
@@ -319,7 +319,7 @@ export default function QRTags() {
                         ))}
                     </select>
                     <button type="submit" className="qrt-btn primary" disabled={submitting || !form.animalId}>
-                        {submitting ? "Generating..." : "Generate"}
+                        {submitting ? "Generating…" : "Generate"}
                     </button>
                 </form>
             </div>
@@ -330,7 +330,7 @@ export default function QRTags() {
             <div className="qrt-list-panel">
                 <div className="qrt-list-head">
                     <div>
-                        <h2>QR Tag Records</h2>
+                        <h2>QR tag records</h2>
                         <span className="qrt-count">
                             {filteredRecords.length} tag{filteredRecords.length === 1 ? "" : "s"}
                         </span>
@@ -339,7 +339,7 @@ export default function QRTags() {
                         <input
                             className="qrt-search"
                             type="search"
-                            placeholder="Search by animal name..."
+                            placeholder="Search by animal name…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />

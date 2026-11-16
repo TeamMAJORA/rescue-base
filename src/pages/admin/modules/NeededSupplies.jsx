@@ -416,7 +416,7 @@ export default function NeededSupplies() {
                     </label>
 
                     <button type="submit" className="rs2-submit" disabled={submitting}>
-                        {submitting ? "Saving..." : editingId ? "Save changes" : "Add supply"}
+                        {submitting ? "Saving…" : editingId ? "Save changes" : "Add supply"}
                     </button>
 
                     {editingId && (
@@ -459,7 +459,7 @@ export default function NeededSupplies() {
                             <input
                                 type="search"
                                 value={search}
-                                placeholder="Search item or description..."
+                                placeholder="Search item or description…"
                                 onChange={(event) => setSearch(event.target.value)}
                             />
                         </label>
@@ -487,7 +487,7 @@ export default function NeededSupplies() {
                         <LoadingState label="Loading supplies…" />
                     ) : shown.length === 0 ? (
                         <p className="rs2-empty">
-                            {supplies.length === 0 ? "No supplies yet. Add the first one on the left." : "No supplies match these filters."}
+                            {supplies.length === 0 ? "No supplies yet. Add the first one on the left." : "No supplies match your filters."}
                         </p>
                     ) : (
                         <div className="rs2-table-wrap">

@@ -590,7 +590,7 @@ export default function Reports() {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                             <path d="M12 3v12M6 11l6 6 6-6M4 21h16" />
                         </svg>
-                        {generating ? "Generating..." : "Generate report"}
+                        {generating ? "Generating…" : "Generate report"}
                     </button>
                 </form>
 
@@ -627,7 +627,7 @@ export default function Reports() {
                             <input
                                 type="search"
                                 value={listSearch}
-                                placeholder="Search report name or author..."
+                                placeholder="Search report name or author…"
                                 onChange={(event) => setListSearch(event.target.value)}
                             />
                         </label>

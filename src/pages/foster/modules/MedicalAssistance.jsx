@@ -355,7 +355,7 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card">
-                    <h2>Request Medical Help</h2>
+                    <h2>Request medical help</h2>
                     <p className="ao-hint">Tell the shelter what's wrong. Staff will reply here.</p>
 
                     <form className="ao-form" onSubmit={handleSubmit}>
@@ -380,7 +380,7 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                                 <input
                                     value={issueOther}
                                     onChange={(e) => setIssueOther(e.target.value)}
-                                    placeholder="Describe the problem in a few words..."
+                                    placeholder="Describe the problem in a few words…"
                                     required
                                 />
                             )}
@@ -405,11 +405,11 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                         </div>
 
                         <label className="ao-field">
-                            <span>Describe the Problem <span className="required-mark">*</span></span>
+                            <span>Describe the problem <span className="required-mark">*</span></span>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder="What happened, since when, any other symptoms..."
+                                placeholder="What happened, since when, any other symptoms…"
                                 required
                             />
                         </label>
@@ -431,7 +431,7 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                         </label>
 
                         <button type="submit" className="ao-btn primary block" disabled={loading}>
-                            {loading ? "Sending..." : "Send Request"}
+                            {loading ? "Sending…" : "Send request"}
                         </button>
                     </fieldset>
                     </form>

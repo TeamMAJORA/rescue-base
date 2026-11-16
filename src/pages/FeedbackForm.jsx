@@ -157,7 +157,7 @@ useEffect(() => {
             <div className="fb-layout">
                 <form className="fbf-form" onSubmit={handleSubmit}>
                     <div className="fbf-header">
-                        <h2>Share your Feedback</h2>
+                        <h2>Share your feedback</h2>
                         <p>Rate your experience and leave a comment for us!</p>
                     </div>
 
@@ -211,7 +211,7 @@ useEffect(() => {
                     <div className="fbf-field">
                         <div className="fbf-label-row">
                             <label className="fbf-label" htmlFor="feedback-message">
-                                Your Feedback
+                                Your feedback
                             </label>
                             <small>Optional</small>
                         </div>
@@ -223,14 +223,14 @@ useEffect(() => {
                             onChange={(e) => setMessage(e.target.value)}
                             maxLength={2000}
                             rows={6}
-                            placeholder="Tell us about your experience or suggestions..."
+                            placeholder="Tell us about your experience or suggestions…"
                         />
 
                         <span className="fbf-count">{message.length} / 2000</span>
                     </div>
 
                     <button type="submit" className="fbf-submit" disabled={loading}>
-                        {loading ? "Submitting..." : "Submit Feedback"}
+                        {loading ? "Submitting…" : "Submit feedback"}
                     </button>
                 </form>
 

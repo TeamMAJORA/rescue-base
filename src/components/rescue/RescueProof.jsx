@@ -119,7 +119,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
                         ))}
                         {completionPhotos.length < MAX_PROOF_PHOTOS && (
                             <label className={`rp-add${uploading ? " is-busy" : ""}`}>
-                                {uploading ? "Uploading..." : "+ Add photo"}
+                                {uploading ? "Uploading…" : "+ Add photo"}
                                 <input
                                     type="file"
                                     accept={ALLOWED_PHOTO_TYPES.join(",")}
@@ -139,7 +139,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
                         Cancel
                     </button>
                     <button type="submit" className="ao-confirm-ok" disabled={uploading || submitting}>
-                        {submitting ? "Submitting..." : "Complete rescue"}
+                        {submitting ? "Submitting…" : "Complete rescue"}
                     </button>
                 </div>
             </form>

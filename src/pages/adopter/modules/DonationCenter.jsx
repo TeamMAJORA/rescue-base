@@ -871,7 +871,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
             <section className="adopter-panel-form" ref={donationFormRef}>
                 <div className="adopter-panel-heading">
                     <div>
-                        <h2>Donate to Shelter Care</h2>
+                        <h2>Donate to shelter care</h2>
                         <p>
                             Your kindness provides food, medical care, and a safe shelter.
                         </p>
@@ -1201,8 +1201,8 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                             <label className="donation-upload">
                                 <span>
                                     {isMoneyDonation
-                                        ? "Proof of Payment"
-                                        : "Proof of Item"}{" "}
+                                        ? "Proof of payment"
+                                        : "Proof of item"}{" "}
                                     <span className="required-mark">*</span>
                                 </span>
 
@@ -1228,8 +1228,8 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                         <>
                                             <strong>
                                                 {uploadingImage
-                                                    ? "Uploading..."
-                                                    : "Click to Upload"}
+                                                    ? "Uploading…"
+                                                    : "Click to upload"}
                                             </strong>
                                             <small>PNG or JPG</small>
                                         </>
@@ -1255,9 +1255,9 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                             )}
 
                                             <dl>
-                                                <dt>Account Name</dt>
+                                                <dt>Account name</dt>
                                                 <dd>{selectedMethod.account_name}</dd>
-                                                <dt>Account Number</dt>
+                                                <dt>Account number</dt>
                                                 <dd className="donation-account-number">
                                                     {selectedMethod.account_number}
                                                     <button
@@ -1397,7 +1397,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                             className="donation-submit"
                             disabled={submitting || uploadingImage}
                         >
-                            {submitting ? "Sending..." : submitLabel}
+                            {submitting ? "Sending…" : submitLabel}
                         </button>
 
                         {missingHint && (

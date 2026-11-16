@@ -763,7 +763,7 @@ const LF_CHIPS = [
     { value: "all", label: "All", count: reports.length },
     { value: "lost", label: "Lost", count: countLost },
     { value: "found", label: "Found", count: countFound },
-    ...(canManageReports ? [] : [{ value: "mine", label: "My Reports", count: countMine, newCount: countNewClaims }]),
+    ...(canManageReports ? [] : [{ value: "mine", label: "My reports", count: countMine, newCount: countNewClaims }]),
     ...(canManageReports
         ? [
               { value: "claims", label: "To review", count: countClaims, newCount: countNewClaims },
@@ -1143,7 +1143,7 @@ if (showReportForm && canSubmitReport) {
                             <div className="lfr2-photo">
                                 {photoUrl && <img src={photoUrl} alt="Pet preview" />}
                                 <label htmlFor="lfr-photo-input" className={`lfr2-photo-btn${photoUploading ? " is-disabled" : ""}`}>
-                                    {photoUploading ? "Uploading..." : photoUrl ? "Change photo" : "Choose photo"}
+                                    {photoUploading ? "Uploading…" : photoUrl ? "Change photo" : "Choose photo"}
                                 </label>
                                 <input
                                     id="lfr-photo-input"
@@ -1181,7 +1181,7 @@ if (showReportForm && canSubmitReport) {
                                 rows={2}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder={isLost ? "Markings, collar, behavior or other identifying details..." : "Markings, collar, condition, and where the pet is now..."}
+                                placeholder={isLost ? "Markings, collar, behavior or other identifying details…" : "Markings, collar, condition, and where the pet is now…"}
                                 required
                             />
                         </label>
@@ -1251,11 +1251,11 @@ if (showReportForm && canSubmitReport) {
                                             }
                                             if (e.key === "Escape") setMapSearchOpen(false);
                                         }}
-                                        placeholder="Search a place in Cebu..."
+                                        placeholder="Search a place in Cebu…"
                                     />
                                     {mapSearchOpen && mapSearch.trim().length >= 3 && (
                                         <ul className="gm-map-results">
-                                            {mapSearching && mapResults.length === 0 && <li className="is-note">Searching...</li>}
+                                            {mapSearching && mapResults.length === 0 && <li className="is-note">Searching…</li>}
                                             {!mapSearching && mapResults.length === 0 && <li className="is-note">No places found in Cebu.</li>}
                                             {mapResults.map((place) => (
                                                 <li key={place.id}>
@@ -1274,7 +1274,7 @@ if (showReportForm && canSubmitReport) {
                                 {lat && lng ? `Pinned at ${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)}` : "No pin yet"}
                                 {" · "}
                                 <button type="button" className="lfr2-link" onClick={pinMyLocation} disabled={locating}>
-                                    {locating ? "Getting your location..." : "Use my location"}
+                                    {locating ? "Getting your location…" : "Use my location"}
                                 </button>
                                 {lat && lng && (
                                     <>
@@ -1337,7 +1337,7 @@ if (showReportForm && canSubmitReport) {
                             Cancel
                         </button>
                         <button type="submit" className="lfr2-btn is-primary" disabled={submitting || photoUploading}>
-                            {submitting ? "Submitting..." : "Submit report"}
+                            {submitting ? "Submitting…" : "Submit report"}
                         </button>
                     </div>
                 </footer>
@@ -1447,7 +1447,7 @@ if (showReportForm && canSubmitReport) {
                         aria-label="Search reports"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search by name, breed or location..."
+                        placeholder="Search by name, breed or location…"
                     />
                     <select
                         className="pet-list-select"
@@ -1661,7 +1661,7 @@ if (showReportForm && canSubmitReport) {
                                                     disabled={isDeciding || !lostReport || !foundReport}
                                                     onClick={() => decidePossibleMatch(match._id, "confirm")}
                                                 >
-                                                    {isDeciding ? "Saving..." : "Confirm match"}
+                                                    {isDeciding ? "Saving…" : "Confirm match"}
                                                 </button>
                                             </div>
                                         </div>
@@ -2179,8 +2179,8 @@ if (showReportForm && canSubmitReport) {
                 }}
                 placeholder={
                     claimMode === "found"
-                        ? "Collar, markings, how it behaves, where it is now..."
-                        : "Marks or scars, collar, the name it answers to, when and where it was lost..."
+                        ? "Collar, markings, how it behaves, where it is now…"
+                        : "Marks or scars, collar, the name it answers to, when and where it was lost…"
                 }
             />
             <small>At least 20 characters ({claimText.trim().length} so far)</small>
@@ -2217,7 +2217,7 @@ if (showReportForm && canSubmitReport) {
             <div className="lfr2-photo">
                 {claimProofPhotoUrl && <img src={claimProofPhotoUrl} alt="Photo preview" />}
                 <label htmlFor="lf-claim-proof-input" className={`lfr2-photo-btn${claimProofUploading ? " is-disabled" : ""}`}>
-                    {claimProofUploading ? "Uploading..." : claimProofPhotoUrl ? "Change photo" : "Choose photo"}
+                    {claimProofUploading ? "Uploading…" : claimProofPhotoUrl ? "Change photo" : "Choose photo"}
                 </label>
                 <input
                     id="lf-claim-proof-input"
@@ -2265,7 +2265,7 @@ if (showReportForm && canSubmitReport) {
                 setClaimOpen(true);
             }}
         >
-            {canSayFoundForThis ? "I Found This Pet" : "This Is My Pet"}
+            {canSayFoundForThis ? "I found this pet" : "This is my pet"}
         </button>
     )}
     {isMyPendingClaim && (
@@ -2284,7 +2284,7 @@ if (showReportForm && canSubmitReport) {
                 if (done) setViewingReport(null);
             }}
         >
-            {r.myClaimType === "found" ? "Withdraw" : "Cancel My Claim"}
+            {r.myClaimType === "found" ? "Withdraw" : "Cancel my claim"}
         </button>
     )}
     {claimOpen && (canClaimThis || canSayFoundForThis) && (
@@ -2314,7 +2314,7 @@ if (showReportForm && canSubmitReport) {
                 if (done) setViewingReport(null);
             }}
         >
-            {claimMode === "found" ? "Send to Owner" : "Submit Claim"}
+            {claimMode === "found" ? "Send to owner" : "Submit claim"}
         </button>
     )}
 

@@ -776,11 +776,11 @@ export default function RescueAssignments() {
                         <span>
                             Description <span className="required-mark">*</span>
                         </span>
-                        <textarea name="description" rows={3} value={form.description} onChange={handleChange} placeholder="What the volunteer needs to do..." required />
+                        <textarea name="description" rows={3} value={form.description} onChange={handleChange} placeholder="What the volunteer needs to do…" required />
                     </label>
 
                     <button type="submit" className="rs2-submit" disabled={submitting}>
-                        {submitting ? "Saving..." : editingId ? "Save changes" : "Create assignment"}
+                        {submitting ? "Saving…" : editingId ? "Save changes" : "Add assignment"}
                     </button>
 
                     {editingId && (
@@ -825,7 +825,7 @@ export default function RescueAssignments() {
                             <input
                                 type="search"
                                 value={search}
-                                placeholder="Search title, person or location..."
+                                placeholder="Search title, person or location…"
                                 onChange={(event) => setSearch(event.target.value)}
                             />
                         </label>

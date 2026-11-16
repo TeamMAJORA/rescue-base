@@ -141,7 +141,7 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
                             onChange={(event) =>
                                 setReason(event.target.value.slice(0, REJECT_REASON_LIMIT))
                             }
-                            placeholder="Explain why this application is being rejected..."
+                            placeholder="Explain why this application is being rejected…"
                             rows={5}
                             maxLength={REJECT_REASON_LIMIT}
                             required
@@ -169,7 +169,7 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
                                 className="arj-confirm"
                                 disabled={loading || !reason.trim()}
                             >
-                                {loading ? "Rejecting..." : "Reject application"}
+                                {loading ? "Rejecting…" : "Reject application"}
                             </button>
                         </div>
                     </footer>
@@ -473,8 +473,8 @@ function InterviewModal({
                     <div>
                         <h2>
                             {application.interviewSchedule
-                                ? "Reschedule Adoption Interview"
-                                : "Schedule Adoption Interview"}
+                                ? "Reschedule adoption interview"
+                                : "Schedule adoption interview"}
                         </h2>
 
                         <p>
@@ -617,7 +617,7 @@ function InterviewModal({
                         disabled={loading || !finalDate || Boolean(timeError)}
                     >
                         <ReviewIcon name="check" />
-                        {loading ? "Scheduling..." : "Confirm Interview"}
+                        {loading ? "Scheduling…" : "Confirm interview"}
                     </button>
                 </footer>
             </section>
@@ -881,8 +881,8 @@ function getReviewSteps(application) {
 
 const REVIEW_TABS = [
     { key: "application", label: "Application" },
-    { key: "quiz", label: "Quiz Answers" },
-    { key: "why", label: "Why This Match" },
+    { key: "quiz", label: "Quiz answers" },
+    { key: "why", label: "Why this match" },
 ];
 
 const QUIZ_GROUPS = [
@@ -1252,7 +1252,7 @@ function ApplicationModal({
                     </span>
 
                     <div className="admin-review-identity">
-                        <span>Application Details</span>
+                        <span>Application details</span>
                         <h2>{application.fullName || "Unknown Applicant"}</h2>
                         <p>
                             {/* Email opens a Gmail draft in a new tab; phone opens the dialer */}
@@ -1558,7 +1558,7 @@ function ApplicationModal({
                                             onClick={handleSendDocRequest}
                                             disabled={loading}
                                         >
-                                            {loading ? "Sending..." : "Send request"}
+                                            {loading ? "Sending…" : "Send request"}
                                         </button>
                                     </div>
                                 </div>
@@ -1630,10 +1630,10 @@ function ApplicationModal({
                                     >
                                         <ReviewIcon name="calendar" />
                                         {loading
-                                            ? "Saving..."
+                                            ? "Saving…"
                                             : isScheduled
-                                                ? "Save New Schedule"
-                                                : "Schedule Interview"}
+                                                ? "Save new schedule"
+                                                : "Schedule interview"}
                                     </button>
                                 </>
                             )}
@@ -1674,7 +1674,7 @@ function ApplicationModal({
                                 onClick={() => onReject(application)}
                                 disabled={loading}
                             >
-                                Reject Application
+                                Reject application
                             </button>
                         )}
 
@@ -1685,7 +1685,7 @@ function ApplicationModal({
                                 onClick={() => onCompleteInterview(application)}
                                 disabled={loading}
                             >
-                                Mark Interview Done
+                                Mark interview done
                             </button>
                         )}
                     </div>
@@ -2194,7 +2194,7 @@ export default function AdoptionApplications() {
                         {sortOrder === "no-quiz" && !searchTerm && statusFilter === "all"
                             ? "Everyone here took the matching quiz before applying."
                             : searchTerm || statusFilter !== "all" || sortOrder === "no-quiz"
-                            ? "No applications match your search or filter."
+                            ? "No applications match your search or filters."
                             : activeTab === "active"
                                 ? "There are no active adoption applications."
                                 : "No closed applications yet."}
@@ -2210,7 +2210,7 @@ export default function AdoptionApplications() {
                                 onClick={toggleScoreSort}
                                 title="Sort by quiz score"
                             >
-                                Quiz Score <span className="aqr-arrow">{scoreDirection === "score-low" ? "↓" : "↑"}</span>
+                                Quiz score <span className="aqr-arrow">{scoreDirection === "score-low" ? "↓" : "↑"}</span>
                             </button>
                             <span>Status</span>
                             <button

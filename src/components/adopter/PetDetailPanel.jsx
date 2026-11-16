@@ -78,17 +78,17 @@ export default function PetDetailPanel({
                 </>
             )}
                     <section className="browse-pet-information">
-                        <h3>Ideal Home</h3>
+                        <h3>Ideal home</h3>
                         <p>{currentPet.idealHome || "Contact the shelter for additional information."}</p>
                     </section>
 
                     <section className="browse-pet-information">
-                        <h3>Health Status</h3>
+                        <h3>Health status</h3>
                         <p>{currentPet.health || "Health information is not available."}</p>
                     </section>
 
                     <section className="browse-pet-information">
-                        <h3>Rescue Story</h3>
+                        <h3>Rescue story</h3>
                         <p>
                             {currentPet.story ||
                                 `${currentPet.name} is currently under the care of RescueBase.`}

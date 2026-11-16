@@ -785,7 +785,7 @@ function goToPage(page, petId = null) {
                                         onClick={revokeApplication}
                                         disabled={revoking}
                                     >
-                                        {revoking ? "Revoking..." : "Yes, revoke"}
+                                        {revoking ? "Revoking…" : "Yes, revoke"}
                                     </button>
                                 </div>
                             </div>

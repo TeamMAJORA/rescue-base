@@ -260,7 +260,7 @@ export default function PublicGISMap({
                                 RESCUEBASE GIS
                             </span>
 
-                            <h2>Animal Rescue Map</h2>
+                            <h2>Animal rescue map</h2>
 
                             <p>
                                 Explore reported lost, found, and stray
@@ -280,7 +280,7 @@ export default function PublicGISMap({
                             </div>
 
                             <div className="public-gis-stat-content">
-                                <span>Animal Reports</span>
+                                <span>Animal reports</span>
 
                                 <strong>
                                     {loading ? "—" : validLocations.length}
@@ -299,7 +299,7 @@ export default function PublicGISMap({
                             </div>
 
                             <div className="public-gis-stat-content">
-                                <span>Active Shelters</span>
+                                <span>Active shelters</span>
 
                                 <strong>
                                     {loading ? "—" : validShelters.length}
@@ -312,7 +312,7 @@ export default function PublicGISMap({
 
                     <div className="public-gis-map-toolbar">
                         <div>
-                            <h3>Community Locations</h3>
+                            <h3>Community locations</h3>
                             <p>Select a marker to view its details.</p>
                         </div>
 

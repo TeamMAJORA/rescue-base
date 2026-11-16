@@ -42,7 +42,7 @@ const TRAIT_GROUPS = [
         ],
     },
     {
-        title: "Social & Learning",
+        title: "Social & learning",
         traits: [
             { key: "friendliness", label: "Friendliness", question: "How warm is {name} toward people they meet?", low: "Reserved", high: "Very friendly", tone: "good" },
             { key: "humanSociability", label: "Human Sociability", question: "How comfortable is {name} with handling, strangers, and kids?", low: "Shy", high: "Loves people", tone: "good" },
@@ -652,7 +652,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                 {!lockedAnimal && (
                     <>
                         <h2 className="ao-label-tip">
-                            {editingId ? "Edit Behavior Assessment" : "Behavior Assessment"}
+                            {editingId ? "Edit assessment" : "Add assessment"}
                             <InfoTip text="Rate each of the 8 traits from 1 (Very Low) to 5 (Very High) based on what you observed. These scores feed the adopter compatibility match and the personality tags shown on the animal's profile." />
                         </h2>
                         <p className="ao-hint">
@@ -724,7 +724,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         </label>
 
                         <label className="ao-field">
-                            <span>Assessment Date <span className="required-mark">*</span></span>
+                            <span>Assessment date <span className="required-mark">*</span></span>
                             <input
                                 type="date"
                                 value={form.assessmentDate}
@@ -779,7 +779,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
 
                     <div className="ao-assess-foot">
                         <label className="ao-field">
-                            <span>Observation Notes <span className="required-mark">*</span></span>
+                            <span>Observation notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}
@@ -802,10 +802,10 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                             )}
                             <button type="submit" className="ao-btn primary" disabled={submitting || !selectedAnimal}>
                                 {submitting
-                                    ? "Saving..."
+                                    ? "Saving…"
                                     : editingId
-                                      ? "Update Assessment"
-                                      : "Save Assessment"}
+                                      ? "Save changes"
+                                      : "Add assessment"}
                             </button>
                         </div>
                     </div>
@@ -816,7 +816,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
             {!lockedAnimal && (
                 <section className="ao-card">
                     <div className="ao-list-head">
-                        <h2>Assessed Animals</h2>
+                        <h2>Assessed animals</h2>
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
                     </div>
 
@@ -826,7 +826,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search name, breed, or personality..."
+                        placeholder="Search name, breed, or personality…"
                         filters={[
                             {
                                 label: "Personality",
@@ -911,7 +911,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                                             className="ao-btn sm"
                                             onClick={() => handleEditAssessment(animal)}
                                         >
-                                            Edit Ratings
+                                            Edit ratings
                                         </button>
                                     </div>
                                 </article>

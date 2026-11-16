@@ -236,7 +236,7 @@ function detailsFor(donation) {
         };
     }
 
-    const delivery = noteValue(donation.notes, "Delivery Method");
+    const delivery = noteValue(donation.notes, "Delivery method");
     const preferred = noteValue(donation.notes, "Preferred Date");
 
     return {
@@ -900,7 +900,7 @@ export default function Donations() {
             <section className="dl-page">
                 <header className="dl-head">
                     <div>
-                        <h2>Donation Ledger</h2>
+                        <h2>Donation ledger</h2>
                         <p>Record and manage money, food, medicine, and supply donations.</p>
                     </div>
 
@@ -911,13 +911,13 @@ export default function Donations() {
 
                 <form className="dl-form-card" onSubmit={handleSubmitDonation}>
                     <div className="dl-form-section">
-                        <h3>Donor & Donation</h3>
+                        <h3>Donor & donation</h3>
                         <p>Log a donation received or pledged. Fields marked * are required.</p>
                     </div>
 
                     <div className="dl-grid">
                         <label className="dl-field">
-                            <span>Donor Name <span className="required-mark">*</span></span>
+                            <span>Donor name <span className="required-mark">*</span></span>
                             <input
                                 value={donationForm.donorName}
                                 placeholder="e.g. Juan Dela Cruz"
@@ -927,7 +927,7 @@ export default function Donations() {
                         </label>
 
                         <label className="dl-field">
-                            <span>Donor Email</span>
+                            <span>Donor email</span>
                             <input
                                 type="email"
                                 value={donationForm.donorEmail}
@@ -937,7 +937,7 @@ export default function Donations() {
                         </label>
 
                         <div className="dl-field dl-span-2">
-                            <span>Donation Type <span className="required-mark">*</span></span>
+                            <span>Donation type <span className="required-mark">*</span></span>
                             <div className="dl-seg">
                                 {typeButtons.map((item) => (
                                     <button
@@ -999,7 +999,7 @@ export default function Donations() {
                         {money && (
                             <label className="dl-field">
                                 <span>
-                                    Receipt / Ref. no. <span className="required-mark">*</span>{" "}
+                                    Receipt / ref. no. <span className="required-mark">*</span>{" "}
                                     <Help text="Required for cash recorded by staff, since there is no proof-of-payment photo." />
                                 </span>
                                 <input
@@ -1018,14 +1018,14 @@ export default function Donations() {
                             <textarea
                                 rows="3"
                                 value={donationForm.notes}
-                                placeholder="Additional donation details..."
+                                placeholder="Additional donation details…"
                                 onChange={(e) => setField("notes", e.target.value)}
                             />
                         </label>
                     </div>
 
                     <div className="dl-form-section is-divided">
-                        <h3>Handover Details</h3>
+                        <h3>Handover details</h3>
                         <p>How and when the items reach the shelter.</p>
                     </div>
 
@@ -1058,7 +1058,7 @@ export default function Donations() {
                         )}
 
                         <label className="dl-field">
-                            <span>Delivery Method</span>
+                            <span>Delivery method</span>
                             <select
                                 value={donationForm.deliveryMethod}
                                 onChange={(e) => setField("deliveryMethod", e.target.value)}
@@ -1089,7 +1089,7 @@ export default function Donations() {
                                 Cancel
                             </button>
                             <button type="submit" className="dl-btn primary" disabled={submitting}>
-                                {submitting ? "Saving..." : "Save Donation"}
+                                {submitting ? "Saving…" : "Add donation"}
                             </button>
                         </div>
                     </div>
@@ -1140,7 +1140,7 @@ export default function Donations() {
                 <input
                     type="search"
                     className="dl-search"
-                    placeholder="Search donor, email or item..."
+                    placeholder="Search donor, email or item…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
@@ -1620,7 +1620,7 @@ export default function Donations() {
                                         />
                                         {dropOffPlacesOpen && typedDropOffAddress.trim().length >= 3 && (
                                             <ul className="gm-map-results">
-                                                {searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">Searching...</li>}
+                                                {searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">Searching…</li>}
                                                 {!searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">No places found in Cebu. Tap the map instead.</li>}
                                                 {dropOffPlaces.map((place) => (
                                                     <li key={place.id}>
@@ -1801,7 +1801,7 @@ export default function Donations() {
                                             Cancel
                                         </button>
                                         <button type="submit" className="dl-btn primary" disabled={savingDropOff}>
-                                            {savingDropOff ? "Saving..." : "Save"}
+                                            {savingDropOff ? "Saving…" : "Save"}
                                         </button>
                                     </div>
                                 </div>
@@ -1818,7 +1818,7 @@ export default function Donations() {
 
                                 <div className="dl-grid">
                                     <label className="dl-field">
-                                        <span>Method Name <span className="required-mark">*</span></span>
+                                        <span>Method name <span className="required-mark">*</span></span>
                                         <select
                                             value={methodForm.method_type}
                                             onChange={(e) => setMethodForm({ ...methodForm, method_type: e.target.value })}
@@ -1830,12 +1830,12 @@ export default function Donations() {
                                     </label>
 
                                     <label className="dl-field">
-                                        <span>Method Type</span>
+                                        <span>Method type</span>
                                         <input value={METHOD_NAMES[methodForm.method_type] || "Other"} disabled />
                                     </label>
 
                                     <label className="dl-field">
-                                        <span>Account Name <span className="required-mark">*</span></span>
+                                        <span>Account name <span className="required-mark">*</span></span>
                                         <input
                                             value={methodForm.account_name}
                                             placeholder="e.g. RescueBase Shelter"
@@ -1846,7 +1846,7 @@ export default function Donations() {
 
                                     <label className="dl-field">
                                         <span>
-                                            Account Number <span className="required-mark">*</span> <Help text="The mobile or bank account number donors send to." />
+                                            Account number <span className="required-mark">*</span> <Help text="The mobile or bank account number donors send to." />
                                         </span>
                                         <input
                                             value={methodForm.account_number}
@@ -1866,7 +1866,7 @@ export default function Donations() {
                                             {methodForm.qr_image_url && <img src={methodForm.qr_image_url} alt="QR code" />}
                                         </span>
                                         <span className="dl-method-info">
-                                            <b>{uploadingQr ? "Uploading..." : qrFileName || "No QR code yet"}</b>
+                                            <b>{uploadingQr ? "Uploading…" : qrFileName || "No QR code yet"}</b>
                                             <span>Upload JPG or PNG · shown to donors at checkout</span>
                                         </span>
                                         <label className="dl-btn small">
@@ -1877,7 +1877,7 @@ export default function Donations() {
                                 </div>
 
                                 <label className="dl-field">
-                                    <span>Instructions for Donors</span>
+                                    <span>Instructions for donors</span>
                                     <textarea
                                         rows="2"
                                         value={methodForm.instructions}
@@ -1935,7 +1935,7 @@ export default function Donations() {
                                             Cancel
                                         </button>
                                         <button type="submit" className="dl-btn primary" disabled={savingMethod || uploadingQr}>
-                                            {savingMethod ? "Saving..." : editingMethodId ? "Save Changes" : "Add Method"}
+                                            {savingMethod ? "Saving…" : editingMethodId ? "Save changes" : "Add method"}
                                         </button>
                                     </div>
                                 </div>

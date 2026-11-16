@@ -600,7 +600,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                         </button>
 
                         <div className="auth-card">
-                            <h1>Forgot Password?</h1>
+                            <h1>Forgot password?</h1>
 
                             <p className="auth-subtext">
                                 Enter your email address and
@@ -621,7 +621,7 @@ export default function AuthPage({ mode = "login", setPage }) {
 
                             <form onSubmit={handleForgotPassword}>
                                 <label className="auth-field">
-                                    <span>Email Address</span>
+                                    <span>Email address</span>
 
                                     <input
                                         type="email"
@@ -641,8 +641,8 @@ export default function AuthPage({ mode = "login", setPage }) {
                                     disabled={forgotPasswordLoading}
                                 >
                                     {forgotPasswordLoading
-                                        ? "Sending..."
-                                        : "Send Reset OTP"}
+                                        ? "Sending…"
+                                        : "Send reset OTP"}
                                 </button>
                             </form>
                         </div>
@@ -703,7 +703,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                         </button>
 
                         <div className="auth-card">
-                            <h1>Reset Password</h1>
+                            <h1>Reset password</h1>
 
                             <p className="auth-subtext">
                                 Enter the OTP sent to{" "}
@@ -740,7 +740,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                                 </label>
 
                                 <label className="auth-field auth-password">
-                                    <span>New Password</span>
+                                    <span>New password</span>
 
                                     <input
                                         type="password"
@@ -755,7 +755,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                                 </label>
 
                                 <label className="auth-field auth-password">
-                                    <span>Confirm New Password</span>
+                                    <span>Confirm new password</span>
 
                                     <input
                                         type="password"
@@ -775,8 +775,8 @@ export default function AuthPage({ mode = "login", setPage }) {
                                     disabled={loading}
                                 >
                                     {loading
-                                        ? "Resetting..."
-                                        : "Reset Password"}
+                                        ? "Resetting…"
+                                        : "Reset password"}
                                 </button>
                             </form>
                         </div>
@@ -836,7 +836,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                         </button>
 
                         <div className="auth-card">
-                            <h1>Login Verification</h1>
+                            <h1>Login verification</h1>
 
                             <p className="auth-subtext">
                                 Enter the OTP sent to{" "}
@@ -857,7 +857,7 @@ export default function AuthPage({ mode = "login", setPage }) {
 
                             <form onSubmit={handleVerifyLoginOtp}>
                                 <label className="auth-field">
-                                    <span>OTP Code</span>
+                                    <span>OTP code</span>
 
                                     <input
                                         type="text"
@@ -878,8 +878,8 @@ export default function AuthPage({ mode = "login", setPage }) {
                                     disabled={loading}
                                 >
                                     {loading
-                                        ? "Verifying..."
-                                        : "Verify & Log in"}
+                                        ? "Verifying…"
+                                        : "Verify & log in"}
                                 </button>
                             </form>
                         </div>
@@ -926,7 +926,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                         </button>
 
                         <div className="auth-card">
-                            <h1>Verify Email</h1>
+                            <h1>Verify email</h1>
                             <p className="auth-subtext">
                                 Enter the OTP sent to {otpEmail}.
                             </p>
@@ -936,7 +936,7 @@ export default function AuthPage({ mode = "login", setPage }) {
 
                             <form onSubmit={handleVerifyOtp}>
                                 <label className="auth-field">
-                                    <span>OTP Code</span>
+                                    <span>OTP code</span>
                                     <input
                                         type="text"
                                         value={otp}
@@ -947,7 +947,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                                 </label>
 
                                 <button className="auth-submit" type="submit" disabled={loading}>
-                                    {loading ? "Verifying..." : "Verify OTP"}
+                                    {loading ? "Verifying…" : "Verify OTP"}
                                 </button>
                             </form>
 
@@ -998,7 +998,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                     </button>
 
                     <div className="auth-card">
-                        <h1>{isSignup ? "Create Account" : "Log in"}</h1>
+                        <h1>{isSignup ? "Create account" : "Log in"}</h1>
 
                         <button className="google-btn" type="button" onClick={handleGoogleLogin} disabled={loading}>
                             <img className="google-icon" src={assets.icons.google} alt="" />
@@ -1013,7 +1013,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                         <form onSubmit={handleEmailAuth}>
                             {isSignup ? (
                                 <label className="auth-field">
-                                    <span>Full Name</span>
+                                    <span>Full name</span>
                                     <input
                                         type="text"
                                         value={fullName}
@@ -1023,7 +1023,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                             ) : null}
 
                             <label className="auth-field">
-                                <span>Email Address</span>
+                                <span>Email address</span>
                                 <input
                                     type="email"
                                     value={email}
@@ -1042,7 +1042,7 @@ export default function AuthPage({ mode = "login", setPage }) {
 
                             {isSignup ? (
                                 <label className="auth-field auth-password">
-                                    <span>Confirm Password</span>
+                                    <span>Confirm password</span>
                                     <input
                                         type="password"
                                         value={confirmPassword}
@@ -1052,7 +1052,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                             ) : null}
 
                             <button className="auth-submit" type="submit" disabled={loading}>
-                                {loading ? "Please wait..." : (isSignup ? "Create Account" : "Log in")}
+                                {loading ? "Please wait…" : (isSignup ? "Create account" : "Log in")}
                             </button>
                         </form>
 
@@ -1086,7 +1086,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                                         setSuccess("");
                                     }}
                                 >
-                                    Forgot Password?
+                                    Forgot password?
                                 </button>
                             )}
                         </p>

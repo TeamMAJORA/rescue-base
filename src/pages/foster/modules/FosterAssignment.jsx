@@ -120,7 +120,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
            onAdopt?.();
        }
 
-    // "Return Pet": foster asks the shelter to take the animal back early
+    // "Return pet": foster asks the shelter to take the animal back early
     const emptyReturn = { reason: "", preferredDate: "", notes: "", urgent: false };
     const [returnOpen, setReturnOpen] = useState(false);
     const [returnForm, setReturnForm] = useState(emptyReturn);
@@ -351,7 +351,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
             </div>
 
             <div className="fat-capacity">
-                <span className="fat-eyebrow">Foster Capacity</span>
+                <span className="fat-eyebrow">Foster capacity</span>
                 <b>
                     {assignments.length} of {capacity} {capacity === 1 ? "slot" : "slots"}
                 </b>
@@ -407,7 +407,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
             <section className="foster-panel">
                 <div className="foster-section-heading">
                     <div>
-                        <span>Current Foster</span>
+                        <span>Current foster</span>
                         <h2>Foster Assignment</h2>
                     </div>
                 </div>
@@ -458,7 +458,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                                 onClick={() => onNavigate?.("application")}
                             >
                                 <FaIcon name="report" size={16} />
-                                View My Application
+                                View my application
                             </button>
 
                             <button
@@ -468,7 +468,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                                 aria-expanded={contactOpen}
                             >
                                 <FaIcon name="chat" size={16} />
-                                Contact Shelter
+                                Contact shelter
                             </button>
                         </div>
 
@@ -535,7 +535,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
         <section className="foster-panel">
             <div className="foster-section-heading">
                 <div>
-                    <span>Current Foster</span>
+                    <span>Current foster</span>
                     <h2>
                         Foster Assignment
                     </h2>
@@ -572,7 +572,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                         <div className="fah-fact">
                             <span className="fah-fact-icon"><FaIcon name="calendar" /></span>
                             <div>
-                                <small>Assigned Date</small>
+                                <small>Assigned date</small>
                                 <b>{formatDate(assignment.startDate)}</b>
                             </div>
                         </div>
@@ -580,7 +580,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                         <div className="fah-fact">
                             <span className="fah-fact-icon"><FaIcon name="pulse" /></span>
                             <div>
-                                <small>Foster Care Status</small>
+                                <small>Foster care status</small>
                                 <b className={`fah-status is-${assignment.status}`}>{assignment.status}</b>
                             </div>
                         </div>
@@ -588,7 +588,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                         <div className="fah-fact">
                             <span className="fah-fact-icon"><FaIcon name="flag" /></span>
                             <div>
-                                <small>Expected Completion</small>
+                                <small>Expected completion</small>
                                 <b>{assignment.endDate ? formatDate(assignment.endDate) : "Not set yet"}</b>
                             </div>
                         </div>
@@ -601,7 +601,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                             onClick={() => onNavigate?.("updates", assignment._id)}
                         >
                             <FaIcon name="report" size={16} />
-                            Submit Weekly Report
+                            Submit weekly report
                         </button>
 
                         <button
@@ -620,13 +620,13 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                             aria-expanded={contactOpen}
                         >
                             <FaIcon name="chat" size={16} />
-                            Contact Shelter
+                            Contact shelter
                         </button>
 
                            {assignment.returnRequest?.status !== "pending" && !returnOpen && (
                                <button type="button" className="fah-btn is-return" onClick={openReturn}>
                                    <FaIcon name="home" size={16} />
-                                   Return Pet
+                                   Return pet
                                </button>
                            )}
 
@@ -754,7 +754,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                                     Cancel
                                 </button>
                                 <button type="submit" className="fah-btn is-primary" disabled={returnSending}>
-                                    {returnSending ? "Sending..." : "Send Return Request"}
+                                    {returnSending ? "Sending…" : "Send return request"}
                                 </button>
                             </div>
                         </form>
@@ -829,7 +829,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
 
                 <section className="assignment-card">
                     <div className="acard-head">
-                        <h3>Recent Weekly Updates</h3>
+                        <h3>Recent weekly updates</h3>
                         <span className="acard-count">{recentUpdates.length} submitted</span>
                     </div>
 

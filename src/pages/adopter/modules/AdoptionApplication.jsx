@@ -445,7 +445,7 @@ function validateForm() {
                     type="button"
                     onClick={() => onBack?.()}
                 >
-                    Browse Available Pets
+                    Browse available pets
                 </button>
             </section>
         );
@@ -534,7 +534,7 @@ function validateForm() {
                         <div className="adoption-form-heading adoption-form-heading--numbered">
                             <b className="adoption-step-number">1</b>
                             <div>
-                                <h3>Applicant Information</h3>
+                                <h3>Applicant information</h3>
                                 <p>
                                     Tell us who you are and where the pet will live.
                                     Your email comes from your RescueBase account.
@@ -545,7 +545,7 @@ function validateForm() {
                         <div className="adoption-form-grid">
                             <label>
                                 <span className="adoption-label-text">
-                                    Full Name <span className="required-mark">*</span>
+                                    Full name <span className="required-mark">*</span>
                                 </span>
                                 <input
                                     type="text"
@@ -562,7 +562,7 @@ function validateForm() {
                                 </label>
 
                             <label>
-                                Email Address
+                                Email address
                                 <span className="adoption-locked-field">
                                     <input
                                         type="email"
@@ -578,7 +578,7 @@ function validateForm() {
 
                             <label>
                                 <span className="adoption-label-text">
-                                    Phone Number <span className="required-mark">*</span>
+                                    Phone number <span className="required-mark">*</span>
                                 </span>
                                 <span className={`adoption-phone-field ${errors.phone ? "has-error" : ""}`}>
                                     <span className="adoption-phone-prefix">+63</span>
@@ -651,7 +651,7 @@ function validateForm() {
 
                             <label className="adoption-form-wide">
                                 <span className="adoption-label-text">
-                                    Complete Address <span className="required-mark">*</span>
+                                    Complete address <span className="required-mark">*</span>
                                 </span>
                             <textarea
                                 name="address"
@@ -671,7 +671,7 @@ function validateForm() {
                         <div className="adoption-form-heading adoption-form-heading--numbered">
                             <b className="adoption-step-number">2</b>
                             <div>
-                                <h3>Household Information</h3>
+                                <h3>Household information</h3>
                                 <p>Helps us match {pet.name} with a safe, suitable home.</p>
                             </div>
                         </div>
@@ -769,7 +769,7 @@ function validateForm() {
                         <div className="adoption-form-heading adoption-form-heading--numbered">
                             <b className="adoption-step-number">3</b>
                             <div>
-                                <h3>Identification Document</h3>
+                                <h3>Identification document</h3>
                                 <p>We only use this to verify who you are. It is seen by shelter staff only.</p>
                             </div>
                         </div>
@@ -815,7 +815,7 @@ function validateForm() {
 
                                     <span className="adoption-dropzone-text">
                                         <strong>
-                                            {documentUploading ? "Uploading your ID..." : "Drag and drop your ID here"}
+                                            {documentUploading ? "Uploading your ID…" : "Drag and drop your ID here"}
                                         </strong>
                                         <small>or click to browse from your device</small>
                                         <span className="adoption-dropzone-tags">
@@ -825,7 +825,7 @@ function validateForm() {
                                         </span>
                                     </span>
 
-                                    <span className="adoption-dropzone-button">Choose File</span>
+                                    <span className="adoption-dropzone-button">Choose file</span>
                                 </label>
                             )}
 
@@ -844,7 +844,7 @@ function validateForm() {
                                         onClick={removeDocument}
                                         disabled={submitting || documentUploading}
                                     >
-                                        Remove Document
+                                        Remove document
                                     </button>
                                 </div>
                             </div>
@@ -896,7 +896,7 @@ function validateForm() {
                             }}
                             disabled={submitting || documentUploading}
                         >
-                            Clear Form
+                            Clear form
                         </button>
 
                         <button
@@ -908,9 +908,9 @@ function validateForm() {
                             }
                         >
                             {documentUploading
-                                ? "Uploading document..."
+                                ? "Uploading document…"
                                 : submitting
-                                    ? "Submitting application..."
+                                    ? "Submitting application…"
                                     : `Submit Application for ${pet.name}`}
                         </button>
                     </div>

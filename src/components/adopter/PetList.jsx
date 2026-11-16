@@ -3,9 +3,9 @@ import BrowsePetCard from "./BrowsePetCard";
 import LoadingState from "../system/LoadingState";
 
 const STATUS_PILLS = [
-    { key: "all", label: "All Pets" },
+    { key: "all", label: "All pets" },
     { key: "available", label: "Available" },
-    { key: "in_foster", label: "In Foster" },
+    { key: "in_foster", label: "In foster" },
     { key: "saved", label: "Saved" },
 ];
 
@@ -27,7 +27,7 @@ function getSortTime(pet) {
 export default function PetList({
     className = "",
     id,
-    title = "Who's Stealing Your Heart Today?",
+    title = "Who's stealing your heart today?",
     subtitle = "Pick a pal below to peek at their story and apply today.",
     loading,
     error,
@@ -170,7 +170,7 @@ export default function PetList({
                         <span>!</span>
                         <p>{error}</p>
                         <button type="button" onClick={() => onRefresh?.()}>
-                            Try Again
+                            Try again
                         </button>
                     </div>
                 )}
@@ -183,7 +183,7 @@ export default function PetList({
                         <p>
                             {statusFilter === "saved"
                                 ? "You don't have any saved pets yet. Tap the heart on any pet to add them to your favorites!"
-                                : "No available animals matched your search."}
+                                : "No available animals match your search."}
                         </p>
                     </div>
                 )}
@@ -199,7 +199,7 @@ export default function PetList({
                                 key={pet._id}
                                 pet={pet}
                                 className={isSelected ? "active" : ""}
-                                viewLabel={isSelected ? "Viewing Profile" : "View Full Profile"}
+                                viewLabel={isSelected ? "Viewing profile" : "View full profile"}
                                 onClick={() => setSelectedPet(pet)}
                                 onView={setSelectedPet}
                             >

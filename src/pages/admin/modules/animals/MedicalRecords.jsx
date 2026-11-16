@@ -546,7 +546,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit Medical Record" : "Add Medical Record"}</h2>
+                    <h2>{editingId ? "Edit medical record" : "Add medical record"}</h2>
                     <p className="ao-hint">
                         Checkups, treatments, surgeries and deworming. Vaccines go in Vaccination Records.
                     </p>
@@ -580,7 +580,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
 
                         <label className="ao-field">
                             <span className="ao-label-tip">
-                                <span>Record Type <span className="required-mark">*</span></span>
+                                <span>Record type <span className="required-mark">*</span></span>
                                 <InfoTip text="Checkup: routine exam. Treatment: medicine or care for an illness or injury. Surgery: any operation, including spay/neuter. Deworming: parasite treatment. Vaccines go in Vaccination Records." />
                             </span>
                             <select
@@ -629,14 +629,14 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                             <textarea
                                 value={recordForm.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}
-                                placeholder="Write medical details here..."
+                                placeholder="Write medical details here…"
                                 required
                             />
                         </label>
 
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary">
-                                {editingId ? "Update Medical Record" : "Save Medical Record"}
+                                {editingId ? "Save changes" : "Add medical record"}
                             </button>
                             {editingId && (
                                 <button type="button" className="ao-btn" onClick={resetForm}>
@@ -666,7 +666,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search animal, vet, or notes..."
+                        placeholder="Search animal, vet, or notes…"
                         filters={[
                             {
                                 label: "Date range",

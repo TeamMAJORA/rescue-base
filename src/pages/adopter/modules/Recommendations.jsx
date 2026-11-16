@@ -141,7 +141,7 @@ export default function Recommendations({
 
                     <span>Matchmaking</span>
 
-                    <h2>Complete Your Matchmaking Quiz</h2>
+                    <h2>Complete your Matchmaking Quiz</h2>
 
                     <p>
                         RescueBase needs your lifestyle and behavioral
@@ -171,10 +171,10 @@ export default function Recommendations({
 
                         <div className="rec-podium-actions">
                             <button type="button" onClick={() => onTakeQuiz?.()}>
-                                Retake Quiz
+                                Retake quiz
                             </button>
                             <button type="button" onClick={() => onRefresh?.()} disabled={loading}>
-                                {loading ? "Refreshing..." : "Refresh"}
+                                {loading ? "Refreshing…" : "Refresh"}
                             </button>
                         </div>
 
@@ -272,7 +272,7 @@ export default function Recommendations({
                                     <path d="M4 11a8 8 0 1 1 2.3 5.7" />
                                     <path d="M4 4v7h7" />
                                 </svg>
-                                Retake Quiz
+                                Retake quiz
                             </button>
                         </div>
 
@@ -295,9 +295,9 @@ export default function Recommendations({
             ) : (
                 <header className="recommendations-header">
                         <div>
-                            <span>Behavioral Matching Results</span>
+                            <span>Behavioral matching results</span>
 
-                            <h2>Your Recommended Pets</h2>
+                            <h2>Your recommended pets</h2>
 
                             <p>
                                 These compatibility scores compare your matchmaking
@@ -311,7 +311,7 @@ export default function Recommendations({
                                 className="recommendations-retake-button"
                                 onClick={() => onTakeQuiz?.()}
                             >
-                                Retake Quiz
+                                Retake quiz
                             </button>
 
                             <button
@@ -320,7 +320,7 @@ export default function Recommendations({
                                 onClick={() => onRefresh?.()}
                                 disabled={loading}
                             >
-                                {loading ? "Refreshing..." : "Refresh Results"}
+                                {loading ? "Refreshing…" : "Refresh results"}
                             </button>
                         </div>
                     </header>
@@ -329,7 +329,7 @@ export default function Recommendations({
             {hasPendingApplication && (
                 <section className="recommendations-pending-banner">
                     <div>
-                        <span>Pending Adoption Application</span>
+                        <span>Pending adoption application</span>
 
                         <h3>
                             Your application for{" "}
@@ -359,7 +359,7 @@ export default function Recommendations({
             {loading && (
                 <div className="recommendations-message-state">
                     <span><PetTypeIcon /></span>
-                    <h3>Calculating your matches...</h3>
+                    <h3>Calculating your matches…</h3>
                     <p>Please wait while RescueBase evaluates the animals.</p>
                 </div>
             )}
@@ -374,7 +374,7 @@ export default function Recommendations({
                         type="button"
                         onClick={() => onRefresh?.()}
                     >
-                        Try Again
+                        Try again
                     </button>
                 </div>
             )}
@@ -552,7 +552,7 @@ export default function Recommendations({
                                             <p className={`rcard-note ${tier.key}`}>{tier.description}</p>
 
                                             <div className="rcard-section-head">
-                                                <h4>Behavioral Compatibility</h4>
+                                                <h4>Behavioral compatibility</h4>
                                                 <span>{measuredCount}/{FACTORS.length} factors assessed · AI score</span>
                                             </div>
 

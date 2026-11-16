@@ -24,7 +24,7 @@ const TRAIT_GROUPS = [
         ],
     },
     {
-        title: "Social & Learning",
+        title: "Social & learning",
         traits: [
             { key: "friendliness", label: "Friendliness", question: "How warm is {name} toward people?", low: "Reserved", high: "Very friendly", tone: "good" },
             { key: "humanSociability", label: "Human Sociability", question: "How comfortable is {name} with strangers and kids?", low: "Shy", high: "Loves people", tone: "good" },
@@ -168,10 +168,10 @@ export default function PublicPetProfile({ tagCode }) {
 
                     <div className="pp-actions">
                         <button type="button" className="pp-btn primary" onClick={goHome}>
-                            Apply to Adopt
+                            Apply to adopt
                         </button>
                         <button type="button" className="pp-btn secondary" onClick={goHome}>
-                            Donate to Shelter
+                            Donate to shelter
                         </button>
                     </div>
                 </main>

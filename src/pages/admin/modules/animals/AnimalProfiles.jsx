@@ -112,10 +112,10 @@ function AdopterPreview({ form, savedAnimal }) {
         <aside className="admin-panel admin-adopter-preview">
             <div className="admin-adopter-preview-heading">
                 <h3>
-                    Adopter Preview
+                    Adopter preview
                     <span className="admin-auto-badge">AUTO</span>
                 </h3>
-                <p>What Adopters see. Not editable.</p>
+                <p>What adopters see. Not editable.</p>
             </div>
 
             <div className="admin-preview-card">
@@ -352,7 +352,7 @@ const ANIMAL_FORM_TABS = [
     {
         key: "overview",
         label: "Overview",
-        title: "Animal Details",
+        title: "Animal details",
         description: "Core profile fields. Fields marked * are required.",
     },
     {
@@ -968,7 +968,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 {toastElement}
                 <div className="admin-page-header">
                     <div>
-                        <h2>{editingId ? "Edit Animal" : "Add Animal"}</h2>
+                        <h2>{editingId ? "Edit animal" : "Add animal"}</h2>
                         <p>
                             {editingId
                                 ? "Update this animal's details and status."
@@ -1139,7 +1139,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 required
                             >
                                 <option value="available">Available</option>
-                                <option value="pending">Pending Adoption</option>
+                                <option value="pending">Pending adoption</option>
                                 <option value="fostered">Fostered</option>
                                 <option value="adopted">Adopted</option>
                                 <option value="unavailable">Unavailable</option>
@@ -1162,7 +1162,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Shelter Location
+                                Shelter location
                                 <InfoTip text="Where the animal is staying now. Adopters see this on the pet profile. Leave blank for Mayari Animal Rescue." />
                             </span>
                             <input
@@ -1217,7 +1217,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 {animalForm.image && <img src={animalForm.image} alt="" />}
                                 <span>
                                     {imageUploading
-                                        ? "Uploading..."
+                                        ? "Uploading…"
                                         : animalForm.image
                                             ? "Change photo"
                                             : "Upload JPG or PNG"}
@@ -1237,13 +1237,13 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 rows={1}
                                 value={animalForm.description}
                                 onChange={(e) => setAnimalForm({ ...animalForm, description: e.target.value })}
-                                placeholder="Appearance, condition, notes..."
+                                placeholder="Appearance, condition, notes…"
                             />
                         </label>
 
                         {/* ===== Intake record ===== */}
                         <div className="admin-form-section admin-animal-full">
-                            <h3>Intake Record</h3>
+                            <h3>Intake record</h3>
                             <p>How the animal came into the shelter.</p>
                         </div>
 
@@ -1342,10 +1342,10 @@ function AnimalProfilesList({ onOpenRecords }) {
                                     title={!isFormDirty ? "No changes to save" : undefined}
                                 >
                                     {submitting
-                                        ? "Saving..."
+                                        ? "Saving…"
                                         : editingId
-                                            ? "Update Animal"
-                                            : "Save Animal"}
+                                            ? "Save changes"
+                                            : "Add animal"}
                                 </button>
                             </div>
                         </div>
@@ -1404,7 +1404,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 className="admin-modal-cancel"
                                 onClick={() => setShowDiscardModal(false)}
                             >
-                                Keep Editing
+                                Keep editing
                             </button>
 
                             <button
@@ -1445,7 +1445,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                     <div className="ao-strip-item">
                         <div className="ao-strip-label">
-                            Pending Adoption
+                            Pending adoption
                         </div>
                         <div className="ao-strip-value">{pendingAnimals}</div>
                     </div>
@@ -1470,7 +1470,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                             </svg>
                             <input
                                 type="search"
-                                placeholder="Search name, breed, colour, location, status..."
+                                placeholder="Search name, breed, colour, location, status…"
                                 aria-label="Search animals"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
@@ -1547,7 +1547,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 {loading ? (
                     <LoadingState label="Loading animal profiles…" />
                 ) : animals.length === 0 ? (
-                    <p className="admin-empty">No animal profiles found.</p>
+                    <p className="admin-empty">No animal profiles yet.</p>
                 ) : filteredAnimals.length === 0 ? (
                     <p className="admin-empty">No animals match your search.</p>
                 ) : viewMode === "grid" ? (
@@ -1968,7 +1968,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                         onClick={() => handleGenerateQr(viewedAnimal)}
                                                         disabled={qrGenerating}
                                                     >
-                                                        {qrGenerating ? "Generating..." : "Generate QR tag"}
+                                                        {qrGenerating ? "Generating…" : "Generate QR tag"}
                                                     </button>
                                                 </div>
                                             )}
@@ -2013,7 +2013,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                             handleEditAnimal(viewedAnimal);
                                         }}
                                     >
-                                        Edit Animal
+                                        Edit animal
                                     </button>
                                 )}
                             </footer>

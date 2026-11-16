@@ -166,7 +166,7 @@ export default function FosterHistory() {
         <section className="ao-page foster-history-page">
             <div className="foster-section-heading fh-heading">
                 <div>
-                    <span>Foster Records</span>
+                    <span>Foster records</span>
                     <h2>Foster History</h2>
                 </div>
             </div>
@@ -229,7 +229,7 @@ export default function FosterHistory() {
                     <p>
                         {history.length === 0
                             ? "Pets you finish fostering will appear here."
-                            : "No fosters match this filter."}
+                            : "No fosters match your filters."}
                     </p>
                 </div>
             ) : (

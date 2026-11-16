@@ -442,7 +442,7 @@ export default function StaffDashboard({ setPage }) {
             if (pendingApplication.length > 0) {
                 newNotifications.push({
                     id: "pending-applications",
-                    title: "Pending Adoption Applications",
+                    title: "Pending adoption applications",
                     message: `${pendingApplication.length} application(s) waiting for review.`,
                     page: "adoption-applications",
                 });
@@ -451,7 +451,7 @@ export default function StaffDashboard({ setPage }) {
             if (pendingFosterApplications.length > 0) {
                 newNotifications.push({
                     id: "pending-foster-applications",
-                    title: "Pending Foster Applications",
+                    title: "Pending foster applications",
                     message: `${pendingFosterApplications.length} foster application(s) waiting for review.`,
                     page: "foster-care",
                 });
@@ -469,7 +469,7 @@ export default function StaffDashboard({ setPage }) {
             if (completedFosters.length > 0) {
                 newNotifications.push({
                     id: "completed-fosters",
-                    title: "Completed Foster Assignment",
+                    title: "Completed foster assignment",
                     message: `${completedFosters.length} foster assignment(s) completed.`,
                     page: "foster-care",
                 });

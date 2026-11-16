@@ -372,7 +372,7 @@ export default function Feedback() {
                         <input
                             type="search"
                             value={search}
-                            placeholder="Search name, email or message..."
+                            placeholder="Search name, email or message…"
                             onChange={(event) => setSearch(event.target.value)}
                         />
                     </label>
@@ -558,7 +558,7 @@ export default function Feedback() {
                                     disabled={replying || !replyText.trim() || replyText.trim() === (selectedFeedback.reply || "")}
                                     onClick={sendReply}
                                 >
-                                    {replying ? "Sending..." : selectedFeedback.repliedAt ? "Send updated reply" : "Send reply"}
+                                    {replying ? "Sending…" : selectedFeedback.repliedAt ? "Send updated reply" : "Send reply"}
                                 </button>
                             </div>
                             {notice && <p className="fb2-notice">{notice}</p>}

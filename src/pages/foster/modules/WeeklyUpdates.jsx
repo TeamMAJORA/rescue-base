@@ -405,13 +405,13 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card">
-                    <h2>Weekly Care Update</h2>
+                    <h2>Weekly care update</h2>
                     <p className="ao-hint">Tell the shelter how {assignment.petName} is doing this week.</p>
 
                     <form className="ao-form" onSubmit={handleSubmit}>
                         <fieldset className="ao-fieldset" disabled={!hasAssignment}>
                         <SelectWithOther
-                            label="Overall Health"
+                            label="Overall health"
                             options={HEALTH_OPTIONS}
                             value={form.healthStatus}
                             other={form.healthOther}
@@ -491,17 +491,17 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                         </label>
 
                         <label className="ao-field">
-                            <span>Progress Notes <span className="required-mark">*</span></span>
+                            <span>Progress notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.note}
                                 onChange={(e) => updateField("note", e.target.value)}
-                                placeholder="Condition, appetite, behavior, anything the shelter should know..."
+                                placeholder="Condition, appetite, behavior, anything the shelter should know…"
                                 required
                             />
                         </label>
 
                         <button type="submit" className="ao-btn primary block" disabled={loading}>
-                            {loading ? "Sending..." : "Submit Update"}
+                            {loading ? "Sending…" : "Submit update"}
                         </button>
                     </fieldset>
                     </form>
@@ -510,7 +510,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                 {/* ---------- HISTORY ---------- */}
                 <section className="ao-card">
                     <div className="ao-list-head">
-                        <h2>Update History</h2>
+                        <h2>Update history</h2>
                     </div>
 
                     <div className="ao-toolbar">
@@ -520,7 +520,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                                 <input
                                     type="search"
                                     value={search}
-                                    placeholder="Search notes..."
+                                    placeholder="Search notes…"
                                     onChange={(e) => setSearch(e.target.value)}
                                 />
                             </label>

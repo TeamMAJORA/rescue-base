@@ -799,7 +799,7 @@ export default function UserManagement() {
                                 Cancel
                             </button>
                             <button type="submit" className="gs-btn primary" disabled={addingUser}>
-                                {addingUser ? "Adding..." : "Add user"}
+                                {addingUser ? "Adding…" : "Add user"}
                             </button>
                         </div>
                     </form>

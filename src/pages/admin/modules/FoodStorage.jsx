@@ -260,7 +260,7 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
                             Cancel
                         </button>
                         <button className="fs-btn fs-primary" disabled={saving}>
-                            {saving ? "Requesting..." : "Request"}
+                            {saving ? "Requesting…" : "Request"}
                         </button>
                     </div>
                 </form>
@@ -553,7 +553,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                             disabled={saving}
                         >
                             {saving
-                                ? "Saving..."
+                                ? "Saving…"
                                 : editing
                                   ? "Save changes"
                                   : "Add to inventory"}
@@ -740,7 +740,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                             onChange={(event) =>
                                 setNote(event.target.value)
                             }
-                            placeholder="Add a short note..."
+                            placeholder="Add a short note…"
                         />
                     </label>
 
@@ -772,7 +772,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                             disabled={saving}
                         >
                             {saving
-                                ? "Updating..."
+                                ? "Updating…"
                                 : action === "add"
                                   ? "Add stock"
                                   : "Remove stock"}
@@ -1007,7 +1007,7 @@ export default function FoodStorage() {
                                 type="search"
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Search food..."
+                                placeholder="Search food…"
                                 aria-label="Search food inventory"
                             />
                         </label>
@@ -1265,7 +1265,7 @@ function SuppliesHistory() {
                         type="search"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search item, reason or person..."
+                        placeholder="Search item, reason or person…"
                         aria-label="Search history"
                     />
                 </label>

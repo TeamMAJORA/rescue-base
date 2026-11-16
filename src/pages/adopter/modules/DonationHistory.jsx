@@ -191,17 +191,17 @@ export default function DonationHistory({ onMakeDonation }) {
             <div className="dh-stats">
                 <Kpi icon="total" 
                     value={stats.total} 
-                        label="Total Donations" />
+                        label="Total donations" />
                 <Kpi icon="pending" 
                     value={stats.pending} 
-                        label="Pending Review" />
+                        label="Pending review" />
                 <Kpi icon="received" 
                     value={stats.received} 
                         label="Received" 
                             tone="is-green" />
                 <Kpi icon="money" 
                     value={formatPeso(stats.monetaryGiven)} 
-                        label="Monetary Given" 
+                        label="Monetary given" 
                             tone="is-gold" />
             </div>
 
@@ -222,7 +222,7 @@ export default function DonationHistory({ onMakeDonation }) {
 
                     <input
                         className="dh-search"
-                        placeholder="Search donation..."
+                        placeholder="Search donation…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -235,11 +235,11 @@ export default function DonationHistory({ onMakeDonation }) {
                 {hasNoDonations && (
                     <div className="dh-empty">
                         <div className="dh-empty-icon" aria-hidden="true"><PetTypeIcon /></div>
-                        <h3>No Donations Yet</h3>
+                        <h3>No donations yet</h3>
                         <p>Your donations will appear here once you submit one.</p>
                         {onMakeDonation && (
                             <button type="button" onClick={onMakeDonation}>
-                                Make a Donation
+                                Make a donation
                             </button>
                         )}
                     </div>
@@ -314,7 +314,7 @@ export default function DonationHistory({ onMakeDonation }) {
                                     <>
                                         <dt>Amount</dt>
                                         <dd>{formatPeso(moneyValue(selected))}</dd>
-                                        <dt>Payment Method</dt>
+                                        <dt>Payment method</dt>
                                         <dd>{selected.paymentMethod || "--"}</dd>
                                     </>
                                 ) : (

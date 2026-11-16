@@ -328,8 +328,8 @@ const STATUS_TONE = {
 
 // What the quick-action button moves a transfer to.
 const NEXT_STEP = {
-    Pending: { status: "In Transit", label: "Start Transit" },
-    "In Transit": { status: "Completed", label: "Mark Completed" },
+    Pending: { status: "In Transit", label: "Start transit" },
+    "In Transit": { status: "Completed", label: "Mark completed" },
 };
 
 const SEARCH_FIELDS = {
@@ -579,7 +579,7 @@ export default function AnimalTransfers() {
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit Transfer" : "New Transfer"}</h2>
+                    <h2>{editingId ? "Edit transfer" : "Add transfer"}</h2>
                     <p className="ao-hint">Record where the animal is going and why.</p>
 
                     <form className="ao-form" onSubmit={handleSubmit}>
@@ -626,7 +626,7 @@ export default function AnimalTransfers() {
                         </div>
 
                         <label className="ao-field">
-                            <span>Transfer Date <span className="required-mark">*</span></span>
+                            <span>Transfer date <span className="required-mark">*</span></span>
                             <input
                                 type="date"
                                 value={form.transferDate}
@@ -668,7 +668,7 @@ export default function AnimalTransfers() {
 
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary">
-                                {editingId ? "Update Transfer" : "Save Transfer"}
+                                {editingId ? "Save changes" : "Add transfer"}
                             </button>
                             {editingId && (
                                 <button type="button" className="ao-btn" onClick={resetForm}>
@@ -691,7 +691,7 @@ export default function AnimalTransfers() {
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search animal, origin, or destination..."
+                        placeholder="Search animal, origin, or destination…"
                         filters={[
                             {
                                 label: "Date range",

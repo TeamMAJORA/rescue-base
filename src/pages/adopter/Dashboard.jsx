@@ -279,7 +279,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
         if (isApprovedApplication) {
             return {
                 tone: "success",
-                label: "Action Needed",
+                label: "Action needed",
                 icon: "/icons/approved.svg",
                 title: `Meet ${petName}!`,
                 linkText: "Check your interview schedule",
@@ -290,7 +290,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
         if (isRejectedApplication) {
             return {
                 tone: "danger",
-                label: "Action Needed",
+                label: "Action needed",
                 icon: "/icons/rejected.svg",
                 title: "Find another match",
                 linkText: "See your matches",
@@ -301,7 +301,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
         if (applicationStatus?.status === "interview_scheduled") {
             return {
                 tone: "action",
-                label: "Action Needed",
+                label: "Action needed",
                 icon: "/icons/Clock.svg",
                 title: `Interview for ${petName}`,
                 linkText: applicationStatus.interviewSchedule
@@ -331,7 +331,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
         if (!hasTakenQuiz) {
             return {
                 tone: "action",
-                label: "Action Needed",
+                label: "Action needed",
                 icon: "/icons/Action.svg",
                 title: "Finish your match quiz",
                 linkText: `Short quiz, ${QUIZ_PART_COUNT} parts`,
@@ -342,7 +342,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
         if (hasPendingApplication) {
             return {
                 tone: "info",
-                label: "In Review",
+                label: "In review",
                 icon: "/icons/in-review.svg",
                 title: `Application for ${petName}`,
                 linkText: "We'll notify you",
@@ -352,7 +352,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard 
 
         return {
             tone: "neutral",
-            label: "All Set",
+            label: "All set",
             icon: "/icons/done.svg",
             title: "You're all caught up",
             linkText: `${availablePets} pets available`,
@@ -1023,7 +1023,7 @@ async function fetchPets({ silent = false } = {}) {
                     <section className="adopter-hero">
                         <div className="adopter-hero-content">
                             <span className="adopter-hero-chip">
-                                RescueBase Matching
+                                RescueBase matching
                             </span>
 
                             <h2>Let's find your perfect companion</h2>
@@ -1048,7 +1048,7 @@ async function fetchPets({ silent = false } = {}) {
                                     type="button"
                                     onClick={() => setActiveAdopterPage("matchmaking-quiz")}
                                 >
-                                    {hasTakenQuiz ? "Retake Matching Quiz" : "Take Matching Quiz"}
+                                    {hasTakenQuiz ? "Retake matching quiz" : "Take matching quiz"}
                                     <img src={assets.icons.lightHeart} alt="" />
                                 </button>
 
@@ -1056,7 +1056,7 @@ async function fetchPets({ silent = false } = {}) {
                                     type="button"
                                     onClick={() => setActiveAdopterPage("browse-pets")}
                                 >
-                                    Browse All Pets
+                                    Browse all pets
                                 </button>
                             </div>
 
@@ -1156,7 +1156,7 @@ async function fetchPets({ silent = false } = {}) {
                         <article>
                             <span className="adopter-stat-label">
                                 <img src={assets.icons.saved} alt="" />
-                                Saved Pets
+                                Saved pets
                             </span>
 
                             <strong>{savedPetsCount}</strong>
@@ -1176,7 +1176,7 @@ async function fetchPets({ silent = false } = {}) {
                         <article>
                             <span className="adopter-stat-label">
                                 <img src={assets.icons.spark} alt="" />
-                                New Matches
+                                New matches
                             </span>
 
                             <strong>{hasTakenQuiz ? goodMatchesCount : "–"}</strong>

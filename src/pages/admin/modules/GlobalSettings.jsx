@@ -534,7 +534,7 @@ export default function GlobalSettings() {
                             Discard
                         </button>
                         <button type="submit" className="gs-btn primary" disabled={saving}>
-                            {saving ? "Saving..." : "Save Settings"}
+                            {saving ? "Saving…" : "Save settings"}
                         </button>
                     </span>
                 </div>
