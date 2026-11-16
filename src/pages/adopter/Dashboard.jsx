@@ -76,8 +76,6 @@ const emptyPet = {
     location: "RescueBase Shelter",
     personalityTags: [],
     personality: "No animal selected.",
-    idealHome: "Please check again later.",
-    health: "Not available",
     story: "There are currently no available animals.",
     description: "",
     petType: "",
@@ -1783,7 +1781,16 @@ async function fetchPets({ silent = false } = {}) {
                         hasPendingApplication={hasPendingApplication}
                         applicationStatus={applicationStatus}
                         onApply={handleApply}
+                        onViewApplication={() => {
+                            setIsPetModalOpen(false);
+                            setActiveAdopterPage("application-status");
+                        }}
+                        onSeeSimilar={(pet) => {
+                            setTypeFilter(String(pet.type || "all").toLowerCase());
+                            setIsPetModalOpen(false);
+                        }}
                         onClose={() => setIsPetModalOpen(false)}
+                        showSave
                     />
                 )}
             </section>

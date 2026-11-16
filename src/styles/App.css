@@ -1067,6 +1067,10 @@ body {
     --shadow-card: 0 2px 8px rgba(90, 27, 0, 0.08);
     --shadow-dropdown: 0 12px 28px rgba(90, 27, 0, 0.18);
     --shadow-modal: 0 24px 60px rgba(40, 20, 5, 0.28);
+    /* Modals (audit C2/M13): one overlay, one motion. Enter 200ms, exit 150ms. */
+    --overlay: rgba(40, 20, 5, 0.45);
+    --modal-enter: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    --modal-exit: 150ms ease-in;
 }
 
 /* Phone menu button + slide-in sidebar (admin, staff, volunteer, adopter and foster dashboards) */
@@ -1255,3 +1259,11 @@ img.inline-icon {
     border: 0;
     border-top: 1px solid rgba(90, 27, 0, 0.15);
 }
+
+/* Standard modal motion: fade + slight scale/rise in, quicker fade out. Reduced motion: fade only. */
+@keyframes rb-overlay-in { from { opacity: 0; } }
+@keyframes rb-overlay-out { to { opacity: 0; } }
+@keyframes rb-modal-in { from { opacity: 0; transform: translateY(8px) scale(0.96); } }
+@keyframes rb-modal-out { to { opacity: 0; transform: translateY(4px) scale(0.98); } }
+@keyframes rb-fade-in { from { opacity: 0; } }
+@keyframes rb-fade-out { to { opacity: 0; } }

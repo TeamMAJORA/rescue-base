@@ -512,7 +512,6 @@ function validateForm() {
                 <PetDetailPanel
                     className="browse-pet-details-panel"
                     pet={pet}
-                    showApply={false}
                 >
                     <div className="adoption-selected-pet-note">
                         <h3>Before submitting</h3>
