@@ -791,23 +791,6 @@
     }
 }
 
-/* Three nav links on a phone: keep each one on a single line */
-@media (max-width: 650px) {
-    .nav {
-        flex-wrap: wrap;
-        gap: 8px 12px;
-    }
-
-    .nav a {
-        white-space: nowrap;
-    }
-
-    /* The trailing paw would wrap onto a line by itself */
-    .nav img:last-child {
-        display: none;
-    }
-}
-
 /* ===== Hero: headline, actions, and a real pet photo ===== */
 .hero {
     height: auto;
@@ -1539,7 +1522,6 @@
 
 /* ===== Touch targets: at least 44px tall on phones ===== */
 @media (max-width: 760px) {
-    .nav a,
     .footer a,
     .footer-link,
     .footer-facebook,

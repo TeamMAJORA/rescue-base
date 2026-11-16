@@ -88,12 +88,15 @@ img {
    HEADER
 ========================= */
 
+/* Brand | nav | actions. The two side columns share the leftover space equally,
+   so the nav sits in the true centre of the page whatever the side widths are. */
 .header {
     height: 119px;
     background: var(--landing-orange);
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    justify-content: space-between;
+    column-gap: 24px;
     padding: 0 58px;
     position: relative;
     z-index: 20;
@@ -102,6 +105,7 @@ img {
 .brand {
     display: flex;
     align-items: center;
+    justify-self: start;
 }
 
 .brand img {
@@ -119,8 +123,7 @@ img {
 }
 
 .nav {
-    margin-left: auto;
-    margin-right: 60px;
+    justify-self: center;
     display: flex;
     align-items: center;
     gap: 18px;
@@ -136,6 +139,7 @@ img {
 }
 
 .header-actions {
+    justify-self: end;
     display: flex;
     align-items: center;
     gap: 20px;
@@ -866,6 +870,7 @@ img {
 
 @media (max-width: 1000px) {
     .header {
+        display: flex;
         height: auto;
         min-height: 119px;
         padding: 24px;
@@ -888,6 +893,32 @@ img {
         margin-left: auto;
     }
 
+}
+
+/* The site header is shared by the landing page and the log in / sign-up pages, so its phone rules live here */
+@media (max-width: 760px) {
+    .nav a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* Three nav links on a phone: keep each one on a single line */
+@media (max-width: 650px) {
+    .nav {
+        flex-wrap: wrap;
+        gap: 8px 12px;
+    }
+
+    .nav a {
+        white-space: nowrap;
+    }
+
+    /* The trailing paw would wrap onto a line by itself */
+    .nav img:last-child {
+        display: none;
+    }
 }
 
 @media (max-width: 650px) {

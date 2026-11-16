@@ -5,6 +5,8 @@ import "../styles/AuthPage.css";
 import { useEffect, useId, useRef, useState } from "react";
 import Icon from "../components/system/Icon";
 import OtpInput from "../components/system/OtpInput";
+import Header from "../components/landing/Header";
+import { openLandingSection } from "../components/landing/goToSection";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -602,7 +604,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                 </form>
 
                 <p className="auth-switch">
-                    <span>{isSignup ? "Already have an account?" : "New to RescueBase?"}</span>
+                    <span>{isSignup ? "Already have an account?" : "Do not have an account?"}</span>
                     <button type="button" className="auth-link" onClick={switchMode}>
                         {isSignup ? "Log in" : "Create an account"}
                     </button>
@@ -697,19 +699,7 @@ export default function AuthPage({ mode = "login", setPage }) {
 
     return (
         <main className="auth-page">
-            <header className="auth-header">
-                <button className="auth-brand" type="button" onClick={() => setPage("home")}>
-                    <img src={assets.logo} alt="RescueBase logo" />
-                    <span>RescueBase</span>
-                </button>
-
-                <nav className="auth-nav">
-                    <button type="button" onClick={() => setPage("home")}>About Us</button>
-                    <img src={assets.icons.redPaw} alt="" />
-                    <button type="button" onClick={() => setPage("home")}>Browse Pets</button>
-                    <img src={assets.icons.redPaw} alt="" />
-                </nav>
-            </header>
+            <Header showActions={false} onNavigate={(sectionId) => openLandingSection(sectionId, setPage)} />
 
             <section className="auth-shell">
                 <div className="auth-image-wrap">
@@ -737,4 +727,4 @@ export default function AuthPage({ mode = "login", setPage }) {
             </section>
         </main>
     );
-}
+}

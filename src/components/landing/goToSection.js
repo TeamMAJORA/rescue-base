@@ -10,3 +10,22 @@ export function goToSection(sectionId, fallback) {
 
     fallback?.();
 }
+
+// From another page (log in, sign-up): open the landing page, then scroll to the section once it's rendered.
+export function openLandingSection(sectionId, setPage) {
+    setPage("home");
+    if (!sectionId) {
+        window.scrollTo({ top: 0 });
+        return;
+    }
+
+    let tries = 0;
+    const timer = setInterval(() => {
+        const section = document.getElementById(sectionId);
+        tries += 1;
+        if (section || tries > 40) {
+            clearInterval(timer);
+            section?.scrollIntoView({ behavior: "smooth" });
+        }
+    }, 50);
+}
