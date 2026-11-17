@@ -1,13 +1,13 @@
 .admin-behavior-page {
     display: grid;
-    gap: 22px;
+    gap: 24px;
 }
 
 .admin-behavior-form-panel,
 .admin-behavior-list-panel {
     display: grid;
     gap: 20px;
-    padding: 26px 20px;
+    padding: 24px 20px;
 }
 
 .admin-behavior-form-panel .admin-panel-heading,
@@ -26,7 +26,7 @@
 
 .admin-behavior-form-panel .admin-panel-heading p,
 .admin-behavior-list-panel .admin-panel-heading p {
-    margin: 6px 0 0;
+    margin: 8px 0 0;
     color: rgba(90, 27, 0, 0.62);
     font-size: 14px;
 }
@@ -34,7 +34,7 @@
 .admin-behavior-form {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 16px;
     padding: 20px;
     border-radius: 20px;
     background: var(--paper);
@@ -43,9 +43,9 @@
 
 .admin-behavior-form label {
     display: grid;
-    gap: 7px;
+    gap: 8px;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
 }
 
@@ -55,15 +55,14 @@
     width: 100%;
     min-height: 40px;
     box-sizing: border-box;
-    padding: 8px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--gold);
     border-radius: 8px;
     background: var(--amber-soft);
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    outline: none;
+    font-size: 14px;
+    font-weight: 400;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -93,15 +92,15 @@
 .admin-behavior-top-row {
     display: grid;
     grid-template-columns: 2fr 1.5fr 1fr;
-    gap: 14px;
+    gap: 16px;
 }
 
 /* Progress */
 .admin-behavior-progress {
     display: grid;
     gap: 8px;
-    padding: 14px 16px;
-    border-radius: 16px;
+    padding: 16px 16px;
+    border-radius: 20px;
     background: var(--white-yellow);
     border: 1px solid rgba(251, 133, 0, 0.18);
 }
@@ -111,13 +110,13 @@
     justify-content: space-between;
     align-items: baseline;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
 }
 
 .admin-behavior-progress-text strong {
     font-family: "Itim", cursive;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 400;
     color: var(--orange);
 }
@@ -146,10 +145,10 @@
 
 .admin-trait-group legend {
     padding: 0;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: rgba(90, 27, 0, 0.6);
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
@@ -162,9 +161,9 @@
 
 .admin-trait-card {
     display: grid;
-    gap: 10px;
-    padding: 14px 16px;
-    border-radius: 16px;
+    gap: 8px;
+    padding: 16px 16px;
+    border-radius: 20px;
     background: var(--white);
     border: 1px solid rgba(90, 27, 0, 0.1);
 }
@@ -179,7 +178,7 @@
 .admin-trait-head h4 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 400;
     color: var(--brown);
 }
@@ -193,7 +192,7 @@
 
 .admin-trait-badge {
     flex-shrink: 0;
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 999px;
     background: var(--white-yellow);
     color: var(--orange-dark);
@@ -213,7 +212,7 @@
 .admin-trait-scale {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    gap: 8px;
 }
 
 .admin-trait-segment {
@@ -247,8 +246,8 @@
 .admin-trait-ends {
     display: flex;
     justify-content: space-between;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     color: rgba(90, 27, 0, 0.55);
 }
 
@@ -262,7 +261,7 @@
 .admin-behavior-message {
     margin: 0;
     padding: 12px 16px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
     font-size: 14px;
@@ -286,19 +285,19 @@
 .admin-behavior-form-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 8px;
 }
 
 .admin-behavior-form-footer button {
     min-height: 42px;
-    padding: 11px 22px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--orange);
     color: var(--white);
     font-family: inherit;
-    font-size: 13px;
-    font-weight: 900;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
@@ -330,15 +329,15 @@
     gap: 16px;
     width: 100%;
     box-sizing: border-box;
-    padding: 22px 24px;
-    border-radius: 18px;
+    padding: 24px 24px;
+    border-radius: 20px;
     background: var(--paper);
     border: 1.5px solid rgba(90, 27, 0, 0.55);
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .admin-behavior-row:hover {
-    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
     transform: translateY(-1px);
 }
 
@@ -355,7 +354,7 @@
     place-items: center;
     width: 56px;
     height: 56px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--amber-soft);
 }
 
@@ -367,7 +366,7 @@
 .admin-behavior-row-title h3 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 400;
     line-height: 1.1;
     color: var(--brown);
@@ -375,7 +374,7 @@
 
 .admin-behavior-row-title p {
     margin: 4px 0 0;
-    font-size: 15px;
+    font-size: 16px;
     color: rgba(90, 27, 0, 0.75);
 }
 
@@ -392,11 +391,11 @@
 .admin-behavior-row-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
 }
 
 .admin-behavior-row-tags span {
-    padding: 5px 16px;
+    padding: 4px 16px;
     border-radius: 999px;
     background: var(--peach);
     border: 1.5px solid var(--orange);
@@ -421,7 +420,7 @@
     display: grid;
     grid-template-columns: 110px 1fr 34px;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 
 .admin-score-label {
@@ -433,7 +432,7 @@
 .admin-score-track {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
+    gap: 4px;
 }
 
 .admin-score-track i {
@@ -456,7 +455,7 @@
 /* Notes */
 .admin-behavior-row-notes {
     margin: 0;
-    padding: 14px 18px;
+    padding: 16px 16px;
     border-radius: 12px;
     background: var(--amber-soft);
     color: rgba(90, 27, 0, 0.78);
@@ -473,10 +472,10 @@
 
 .admin-behavior-actions button {
     min-height: 42px;
-    padding: 0 22px;
+    padding: 0 24px;
     border-radius: 12px;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 800;
     cursor: pointer;
     transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
@@ -519,14 +518,14 @@
 .admin-empty {
     margin: 0;
 
-    padding: 30px;
+    padding: 32px;
 
     text-align: center;
 
     color: rgba(90, 27, 0, 0.62);
 
     border: 1px dashed rgba(90, 27, 0, 0.18);
-    border-radius: 16px;
+    border-radius: 20px;
 
     background: var(--paper);
 }
@@ -551,7 +550,7 @@
 }
 
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
 
     .admin-behavior-form {
         grid-template-columns: 1fr;
@@ -595,7 +594,7 @@
     }
 }
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
     .admin-behavior-top-row,
     .admin-trait-grid {
         grid-template-columns: 1fr;
@@ -641,21 +640,21 @@
 }
 
 .admin-behavior-list-panel .admin-panel-heading p {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .admin-behavior-list-panel .admin-panel-heading .admin-behavior-refresh {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     height: 36px;
     padding: 0 16px;
     border: 1.5px solid var(--brown);
-    border-radius: 10px;
+    border-radius: 12px;
     background: transparent;
     color: var(--brown);
     font-family: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
     transition: background 0.2s ease;
@@ -673,7 +672,7 @@
 .admin-behavior-toolbar {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .admin-behavior-toolbar input,
@@ -681,18 +680,17 @@
     box-sizing: border-box;
     height: 38px;
     border: 1.5px solid rgba(90, 27, 0, 0.45);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--white);
     color: var(--brown);
     font-family: inherit;
-    outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-behavior-toolbar input {
     flex: 1;
     min-width: 0;
-    padding: 0 14px;
+    padding: 0 16px;
     font-size: 14px;
 }
 
@@ -703,8 +701,8 @@
 .admin-behavior-toolbar select {
     flex-shrink: 0;
     width: auto;
-    padding: 0 30px 0 14px;
-    font-size: 13px;
+    padding: 0 32px 0 16px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
     appearance: none;
@@ -720,7 +718,7 @@
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
     .admin-behavior-toolbar {
         flex-wrap: wrap;
     }
@@ -741,7 +739,7 @@
     }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
     .admin-behavior-row-head {
         flex-wrap: wrap;
     }

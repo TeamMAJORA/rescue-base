@@ -4,6 +4,11 @@ import L from "leaflet";
 import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import "leaflet/dist/leaflet.css";
 import { formatDate } from "../../../utils/formatDate";
+import { formatPeso } from "../../../utils/formatMoney";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
+import RequiredValue from "../../../components/system/RequiredValue";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -108,9 +113,6 @@ function readDraft() {
     }
 }
 
-function formatPeso(amount) {
-    return `₱${Number(amount).toLocaleString("en-PH", { maximumFractionDigits: 2 })}`;
-}
 
 export default function DonationCenter({ onOpenDonationHistory }) {
     const [donation, setDonation] =
@@ -281,61 +283,16 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                 ? "Monetary Donation"
                 : donation.category);
 
-        if (
-            !donation.quantity ||
-            !Number.isFinite(Number(donation.quantity)) ||
-            Number(donation.quantity) < 1
-        ) {
-            setMessage(
-                isMoneyDonation
-                    ? "Donation amount must be at least ₱1."
-                    : "Quantity must be at least 1."
-            );
-            return;
-        }
-
-        if (!isMoneyDonation && !donation.itemName.trim()) {
-            setMessage("Please say what you're giving.");
-            return;
-        }
-
-        if (!isMoneyDonation && !donation.category) {
-            setMessage("Please pick a type for your items.");
-            return;
-        }
-
-        if (!isMoneyDonation && donation.category === "Other" && !donation.otherCategory.trim()) {
-            setMessage("Please type what kind of items they are.");
-            return;
-        }
-
+        // Required fields, amounts and choices were checked by the browser (errors show under each field)
         const unit = resolveUnit(donation.unit, donation.otherUnit);
 
-        if (!isMoneyDonation && !unit) {
-            setMessage("Please type the unit (e.g. trays, dozens).");
-            return;
-        }
-
-        if (isMoneyDonation && Number(donation.quantity) > 100000) {
-            setMessage("Donation amount can't be more than ₱100,000.");
-            return;
-        }
-
+        // No payment account set up yet: there are no buttons to choose from
         if (
             isMoneyDonation &&
             !donation.paymentMethod
         ) {
             setMessage(
                 "Please select a payment method."
-            );
-            return;
-        }
-
-        if (!donation.image) {
-            setMessage(
-                isMoneyDonation
-                    ? "Please upload your proof of payment."
-                    : "Please upload a photo of the item."
             );
             return;
         }
@@ -771,7 +728,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                     className="donation-jump"
                     onClick={() => donationFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                 >
-                    Donate now ↓
+                    Donate now <Icon name="arrow-down" />
                 </button>
             </section>
 
@@ -795,9 +752,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                 </div>
 
                 {loadingSupplies ? (
-                    <p>
-                        Loading needed supplies...
-                    </p>
+                    <LoadingState label="Loading needed supplies…" />
                 ) : neededSupplies.length === 0 ? (
                     <p>
                         No active supplies are
@@ -851,7 +806,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                             aria-label={`Donate ${supply.name}`}
                                             title={isFullyStocked ? "Fully stocked" : `Donate ${supply.name}`}
                                         >
-                                            <span aria-hidden="true">→</span>
+                                            <Icon name="arrow-right" />
                                         </button>
                                     </div>
                                 </article>
@@ -874,7 +829,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
             <section className="adopter-panel-form" ref={donationFormRef}>
                 <div className="adopter-panel-heading">
                     <div>
-                        <h2>Donate to Shelter Care</h2>
+                        <h2>Donate to shelter care</h2>
                         <p>
                             Your kindness provides food, medical care, and a safe shelter.
                         </p>
@@ -889,7 +844,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
                 {submittedGift ? (
                     <div className="donation-thanks" role="status">
-                        <span className="donation-thanks-check" aria-hidden="true">✓</span>
+                        <span className="donation-thanks-check" aria-hidden="true"><Icon name="check" /></span>
                         <h3>Thank you{savedUser.name ? `, ${savedUser.name.split(" ")[0]}` : ""}!</h3>
                         <p>We got your {submittedGift.isMoney ? "gift" : "pledge"}: <strong>{submittedGift.description}</strong></p>
 
@@ -975,7 +930,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                 key={step.label}
                                 className={step.done ? "is-done" : index === currentStepIndex ? "is-current" : ""}
                             >
-                                <span aria-hidden="true">{step.done ? "✓" : index + 1}</span>
+                                <span aria-hidden="true">{step.done ? <Icon name="check" /> : index + 1}</span>
                                 {step.label}
                             </li>
                         ))}
@@ -986,7 +941,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                             {isMoneyDonation ? (
                                 <>
                                     <div className="donation-choice">
-                                        <span>How much? <b>*</b></span>
+                                        <span>How much? <span className="required-mark">*</span></span>
                                         <div className="donation-pills" role="group" aria-label="Amount">
                                             {AMOUNT_PRESETS.map((amount) => {
                                                 const isChosen = !isCustomAmount && amountValue === amount;
@@ -1017,10 +972,10 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                 Other
                                             </button>
                                         </div>
+                                        {!isCustomAmount && <RequiredValue value={donation.quantity} message="Choose an amount, or press Other to type one." />}
 
                                         {isCustomAmount && (
-                                            <input
-                                                type="number"
+                                            <NumberInput
                                                 min="1"
                                                 max="100000"
                                                 step="0.01"
@@ -1035,8 +990,9 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     </div>
 
                                     <div className="donation-choice">
-                                        <span>Send it through <b>*</b></span>
+                                        <span>Send it through <span className="required-mark">*</span></span>
                                         {paymentMethods.length > 0 ? (
+                                            <>
                                             <div className="donation-pills" role="group" aria-label="Payment method">
                                                 {paymentMethods.map((method) => {
                                                     const isChosen = donation.paymentMethod === method.method_type;
@@ -1056,9 +1012,11 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                     );
                                                 })}
                                             </div>
+                                            <RequiredValue value={donation.paymentMethod} message="Choose how you'll send it." />
+                                            </>
                                         ) : (
                                             <small className="donation-choice-note">
-                                                {loadingPaymentMethods ? "Loading the shelter's accounts..." : "No payment account has been added yet."}
+                                                {loadingPaymentMethods ? "Loading the shelter's accounts…" : "No payment account has been added yet."}
                                             </small>
                                         )}
                                     </div>
@@ -1067,13 +1025,14 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                 <>
                                     {/* Postel's Law: donors type it their way; suggestions fill the rest */}
                                     <label>
-                                        <span>What are you giving? <b>*</b></span>
+                                        <span>What are you giving? <span className="required-mark">*</span></span>
                                         <input
                                             type="text"
                                             maxLength={80}
                                             placeholder="e.g. dry dog food, old towels"
                                             value={donation.itemName}
                                             onChange={(event) => handleItemNameChange(event.target.value)}
+                                            data-required-message="Say what you're giving."
                                             required
                                         />
                                     </label>
@@ -1110,7 +1069,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     )}
 
                                     <div className="donation-choice">
-                                        <span>Type <b>*</b></span>
+                                        <span>Type <span className="required-mark">*</span></span>
                                         <div className="donation-pills donation-type-pills" role="group" aria-label="Type of items">
                                             {inKindCategories.map((category) => {
                                                 const isChosen = donation.category === category;
@@ -1130,6 +1089,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                 );
                                             })}
                                         </div>
+                                        <RequiredValue value={donation.category} message="Pick a type for your items." />
 
                                         {donation.category === "Other" && (
                                             <input
@@ -1147,9 +1107,8 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
                                     <div className="donation-row">
                                         <label>
-                                            <span>Quantity <b>*</b></span>
-                                            <input
-                                                type="number"
+                                            <span>Quantity <span className="required-mark">*</span></span>
+                                            <NumberInput
                                                 min="1"
                                                 max={isMoneyDonation ? 100000 : 1000}
                                                 step="1"
@@ -1187,7 +1146,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
 
                                     {donation.unit === "Other" && (
                                         <label>
-                                            <span>Type the unit <b>*</b></span>
+                                            <span>Type the unit <span className="required-mark">*</span></span>
                                             <input
                                                 type="text"
                                                 maxLength={30}
@@ -1204,9 +1163,9 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                             <label className="donation-upload">
                                 <span>
                                     {isMoneyDonation
-                                        ? "Proof of Payment"
-                                        : "Proof of Item"}{" "}
-                                    <b>*</b>
+                                        ? "Proof of payment"
+                                        : "Proof of item"}{" "}
+                                    <span className="required-mark">*</span>
                                 </span>
 
                                 <input
@@ -1215,6 +1174,10 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                     disabled={uploadingImage}
                                     onChange={handleUploadImage}
                                     hidden
+                                />
+                                <RequiredValue
+                                    value={donation.image}
+                                    message={isMoneyDonation ? "Upload your proof of payment." : "Upload a photo of the item."}
                                 />
 
                                 <div className="donation-upload-box">
@@ -1231,8 +1194,8 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                         <>
                                             <strong>
                                                 {uploadingImage
-                                                    ? "Uploading..."
-                                                    : "Click to Upload"}
+                                                    ? "Uploading…"
+                                                    : "Click to upload"}
                                             </strong>
                                             <small>PNG or JPG</small>
                                         </>
@@ -1258,9 +1221,9 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                             )}
 
                                             <dl>
-                                                <dt>Account Name</dt>
+                                                <dt>Account name</dt>
                                                 <dd>{selectedMethod.account_name}</dd>
-                                                <dt>Account Number</dt>
+                                                <dt>Account number</dt>
                                                 <dd className="donation-account-number">
                                                     {selectedMethod.account_number}
                                                     <button
@@ -1268,7 +1231,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                                         className="donation-copy"
                                                         onClick={() => copyAccountNumber(selectedMethod.account_number)}
                                                     >
-                                                        {isAccountNumberCopied ? "Copied ✓" : "Copy"}
+                                                        {isAccountNumberCopied ? <>Copied <Icon name="check" /></> : "Copy"}
                                                     </button>
                                                 </dd>
                                                 {copyErrorMessage && <dd className="donation-copy-error">{copyErrorMessage}</dd>}
@@ -1303,7 +1266,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                                         <h4>Send your donation</h4>
                                         <p className="donation-info-empty">
                                             {loadingPaymentMethods
-                                                ? "Loading the shelter's payment accounts..."
+                                                ? "Loading the shelter's payment accounts…"
                                                 : "The shelter hasn't added a payment account yet. You can donate items with In-Kind instead."}
                                         </p>
                                     </>
@@ -1400,7 +1363,7 @@ export default function DonationCenter({ onOpenDonationHistory }) {
                             className="donation-submit"
                             disabled={submitting || uploadingImage}
                         >
-                            {submitting ? "Sending..." : submitLabel}
+                            {submitting ? "Sending…" : submitLabel}
                         </button>
 
                         {missingHint && (

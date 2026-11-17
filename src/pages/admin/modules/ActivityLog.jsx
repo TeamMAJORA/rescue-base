@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatDate, formatTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const PAGE_SIZE = 50;
@@ -212,7 +213,7 @@ export default function ActivityLog() {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                             <path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5" />
                         </svg>
-                        {loading ? "Refreshing..." : "Refresh"}
+                        {loading ? "Refreshing…" : "Refresh"}
                     </button>
                 </div>
 
@@ -222,10 +223,10 @@ export default function ActivityLog() {
                             <circle cx="11" cy="11" r="7" />
                             <path d="m21 21-4.3-4.3" />
                         </svg>
-                        <input
+                        <input aria-label="Search activity"
                             type="search"
                             value={searchInput}
-                            placeholder="Search activity..."
+                            placeholder="Search activity…"
                             onChange={(event) => setSearchInput(event.target.value)}
                         />
                     </label>
@@ -284,7 +285,7 @@ export default function ActivityLog() {
                 )}
 
                 {loading ? (
-                    <p className="al2-empty">Loading activity...</p>
+                    <LoadingState label="Loading activity…" />
                 ) : logs.length === 0 ? (
                     <p className="al2-empty">
                         {hasFilters ? "No activity matches your filters." : "No activity yet. Actions like adding animals or approving adoptions will show up here."}
@@ -338,7 +339,7 @@ export default function ActivityLog() {
                         </span>
                         {hasMore && (
                             <button type="button" className="al2-more" onClick={() => fetchLogs(logs.length)} disabled={loadingMore}>
-                                {loadingMore ? "Loading..." : "Load more"}
+                                {loadingMore ? "Loading…" : "Load more"}
                             </button>
                         )}
                     </div>

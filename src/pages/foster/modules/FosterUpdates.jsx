@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate } from "../../../utils/formatDate";
+import Icon from "../../../components/system/Icon";
 
 // Behavior Evaluation — foster rates the pet, admin reviews and accepts
 
@@ -20,7 +21,7 @@ const TRAIT_GROUPS = [
         ],
     },
     {
-        title: "Social & Learning",
+        title: "Social & learning",
         traits: [
             { key: "friendliness", label: "Friendliness", question: "How warm is {name} toward people?", low: "Reserved", high: "Very friendly", tone: "good" },
             { key: "humanSociability", label: "Human Sociability", question: "How comfortable is {name} with strangers and kids?", low: "Shy", high: "Loves people", tone: "good" },
@@ -254,11 +255,11 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                 </p>
 
                 <div className="ao-steps">
-                    <div className={`ao-step ${step1}`}><b>{step1 === "done" ? "✓" : 1}</b>Fill in ratings</div>
+                    <div className={`ao-step ${step1}`}><b>{step1 === "done" ? <Icon name="check" /> : 1}</b>Fill in ratings</div>
                     <span className={`ao-step-line ${step1 === "done" ? "done" : ""}`} />
-                    <div className={`ao-step ${step2}`}><b>{step2 === "done" ? "✓" : 2}</b>Submit for review</div>
+                    <div className={`ao-step ${step2}`}><b>{step2 === "done" ? <Icon name="check" /> : 2}</b>Submit for review</div>
                     <span className={`ao-step-line ${step2 === "done" ? "done" : ""}`} />
-                    <div className={`ao-step ${step3}`}><b>{step3 === "done" ? "✓" : 3}</b>Admin accepts</div>
+                    <div className={`ao-step ${step3}`}><b>{step3 === "done" ? <Icon name="check" /> : 3}</b>Admin accepts</div>
                 </div>
 
                 {banner && (
@@ -326,11 +327,11 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
 
                     <div className="ao-assess-foot">
                         <label className="ao-field">
-                            <span>Behavior Notes <span className="ao-req">*</span></span>
+                            <span>Behavior Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={evaluation.notes}
                                 onChange={(e) => setEvaluation((c) => ({ ...c, notes: e.target.value }))}
-                                placeholder="Habits, triggers, how they act with people and other pets..."
+                                placeholder="Habits, triggers, how they act with people and other pets…"
                                 disabled={locked}
                                 required
                             />
@@ -339,7 +340,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                         <div className="ao-form-actions">
                             {!locked && (
                                 <button type="submit" className="ao-btn primary" disabled={loading}>
-                                    {loading ? "Sending..." : status === "revision" ? "Resubmit for Review" : "Submit for Review"}
+                                    {loading ? "Sending…" : status === "revision" ? "Resubmit for review" : "Submit for review"}
                                 </button>
                             )}
                         </div>

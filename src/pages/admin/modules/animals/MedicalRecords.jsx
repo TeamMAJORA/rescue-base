@@ -3,6 +3,7 @@ import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
 import { formatDate, formatMonth } from "../../../../utils/formatDate";
+import UiIcon from "../../../../components/system/Icon";
 
 
 const API_ANIMALS = `${import.meta.env.VITE_BACKEND_URL}/api/animals`;
@@ -199,7 +200,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>
@@ -278,6 +279,7 @@ function SearchToolbar({
                             type="search"
                             value={search}
                             placeholder={placeholder}
+                            aria-label={String(placeholder || "Search").replace("…", "")}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </label>
@@ -546,14 +548,14 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit Medical Record" : "Add Medical Record"}</h2>
+                    <h2>{editingId ? "Edit medical record" : "Add medical record"}</h2>
                     <p className="ao-hint">
                         Checkups, treatments, surgeries and deworming. Vaccines go in Vaccination Records.
                     </p>
 
                     <form className="ao-form" onSubmit={handleAddRecord}>
                         <label className="ao-field">
-                            <span>Animal <span className="ao-req">*</span></span>
+                            <span>Animal <span className="required-mark">*</span></span>
                             {lockedAnimal ? (
                                 <input type="text" value={recordForm.animalName} readOnly />
                             ) : (
@@ -580,7 +582,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
 
                         <label className="ao-field">
                             <span className="ao-label-tip">
-                                <span>Record Type <span className="ao-req">*</span></span>
+                                <span>Record type <span className="required-mark">*</span></span>
                                 <InfoTip text="Checkup: routine exam. Treatment: medicine or care for an illness or injury. Surgery: any operation, including spay/neuter. Deworming: parasite treatment. Vaccines go in Vaccination Records." />
                             </span>
                             <select
@@ -602,7 +604,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                <span>Veterinarian <span className="ao-req">*</span></span>
+                                <span>Veterinarian <span className="required-mark">*</span></span>
                                 <input
                                     type="text"
                                     value={recordForm.vetName}
@@ -613,7 +615,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                             </label>
 
                             <label className="ao-field">
-                                <span>Date <span className="ao-req">*</span></span>
+                                <span>Date <span className="required-mark">*</span></span>
                                 <input
                                     type="date"
                                     value={recordForm.recordDate}
@@ -625,18 +627,18 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                         </div>
 
                         <label className="ao-field">
-                            <span>Notes <span className="ao-req">*</span></span>
+                            <span>Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={recordForm.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}
-                                placeholder="Write medical details here..."
+                                placeholder="Write medical details here…"
                                 required
                             />
                         </label>
 
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary">
-                                {editingId ? "Update Medical Record" : "Save Medical Record"}
+                                {editingId ? "Save changes" : "Add medical record"}
                             </button>
                             {editingId && (
                                 <button type="button" className="ao-btn" onClick={resetForm}>
@@ -654,7 +656,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                         {filterAnimal && !lockedAnimal && (
                             <span className="ap-filter-chip">
                                 Showing: {filterAnimal.name}
-                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}>✕</button>
+                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}><UiIcon name="close" /></button>
                             </span>
                         )}
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
@@ -666,7 +668,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search animal, vet, or notes..."
+                        placeholder="Search animal, vet, or notes…"
                         filters={[
                             {
                                 label: "Date range",

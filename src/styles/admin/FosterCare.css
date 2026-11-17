@@ -1,21 +1,21 @@
 .admin-foster-page {
     display: grid;
-    gap: 22px;
+    gap: 24px;
 }
 
 .admin-foster-application-panel,
 .admin-foster-assignment-panel,
 .admin-foster-list-panel {
     display: grid;
-    gap: 18px;
+    gap: 16px;
 }
 
 .admin-foster-application-form,
 .admin-foster-assignment-form {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-    padding: 18px;
+    gap: 16px;
+    padding: 16px;
     border-radius: 20px;
     background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.1);
@@ -24,9 +24,9 @@
 .admin-foster-application-form label,
 .admin-foster-assignment-form label {
     display: grid;
-    gap: 7px;
+    gap: 8px;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
 }
 
@@ -39,12 +39,11 @@
     width: 100%;
     min-height: 42px;
     border: 1px solid rgba(90, 27, 0, 0.16);
-    border-radius: 14px;
-    padding: 10px 12px;
+    border-radius: 12px;
+    padding: 8px 12px;
     background: var(--white);
     color: var(--brown);
     font-size: 14px;
-    outline: none;
 }
 
 .admin-foster-application-form textarea,
@@ -70,10 +69,10 @@
 .admin-foster-check {
     display: flex !important;
     align-items: center;
-    gap: 10px !important;
+    gap: 8px !important;
     min-height: 42px;
-    padding: 10px 12px;
-    border-radius: 14px;
+    padding: 8px 12px;
+    border-radius: 12px;
     background: var(--white);
     border: 1px solid rgba(90, 27, 0, 0.1);
 }
@@ -88,11 +87,11 @@
     align-self: end;
     min-height: 42px;
     border: none;
-    border-radius: 14px;
-    padding: 12px 18px;
+    border-radius: 12px;
+    padding: 12px 16px;
     background: var(--orange);
     color: var(--white);
-    font-weight: 900;
+    font-weight: 800;
     cursor: pointer;
     transition: .2s;
 }
@@ -111,7 +110,7 @@
     grid-column: 1 / -1;
     margin: 0;
     padding: 12px 16px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
     font-size: 14px;
@@ -129,9 +128,9 @@
 .admin-foster-row {
     display: grid;
     grid-template-columns: 100px 1fr auto;
-    gap: 18px;
+    gap: 16px;
     align-items: center;
-    padding: 18px 20px;
+    padding: 16px 20px;
     border-radius: 20px;
     background: var(--paper);
     border: 1px solid rgba(90,27,0,.08);
@@ -144,7 +143,7 @@
 .admin-foster-application-card:hover,
 .admin-foster-row:hover {
     border-color: rgba(251,133,0,.28);
-    box-shadow: 0 10px 24px rgba(90,27,0,.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .admin-foster-pet {
@@ -156,7 +155,7 @@
 .admin-foster-pet img {
     width: 90px;
     height: 90px;
-    border-radius: 16px;
+    border-radius: 20px;
     object-fit: cover;
     border: 2px solid rgba(251,133,0,.18);
     background: var(--white);
@@ -171,7 +170,7 @@
 .admin-foster-details h3 {
     margin: 0;
     color: var(--brown);
-    font-size: 17px;
+    font-size: 16px;
 }
 
 .admin-foster-application-card p,
@@ -188,10 +187,10 @@
 }
 
 .admin-foster-status {
-    padding: 7px 12px;
+    padding: 8px 12px;
     border-radius: 999px;
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
     border: 1px solid rgba(251,133,0,.18);
     text-transform: capitalize;
 }
@@ -234,11 +233,11 @@
 .admin-panel-heading button {
     border: none;
     border-radius: 12px;
-    padding: 10px 14px;
+    padding: 8px 16px;
     background: var(--orange);
     color: var(--white);
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
     cursor: pointer;
     transition: .2s;
 }
@@ -267,11 +266,11 @@
 
 .admin-empty {
     text-align: center;
-    padding: 30px;
+    padding: 32px;
     color: rgba(90,27,0,.6);
 }
 
-@media (max-width:1000px){
+@media (max-width: 900px){
 
     .admin-foster-application-form,
     .admin-foster-assignment-form{
@@ -290,7 +289,7 @@
 
 }
 
-@media (max-width:720px){
+@media (max-width: 640px){
 
     .admin-foster-application-form,
     .admin-foster-assignment-form{
@@ -334,7 +333,7 @@
 .admin-foster-list-panel .admin-panel-heading h2 {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .afl-count {
@@ -393,16 +392,16 @@
 .afl-toolbar {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 
 .afl-search {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     min-height: 42px;
-    padding: 0 14px;
+    padding: 0 16px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 12px;
     background: var(--white-yellow);
@@ -419,11 +418,10 @@
     flex: 1;
     min-width: 0;
     border: none;
-    outline: none;
     background: transparent;
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .afl-filters {
@@ -432,7 +430,7 @@
 }
 
 .afl-filters button {
-    padding: 7px 14px;
+    padding: 8px 16px;
     border: 1.5px solid rgba(90, 27, 0, 0.55);
     border-radius: 999px;
     background: var(--white);
@@ -455,21 +453,21 @@
 /* table */
 .afl-table {
     display: grid;
-    gap: 10px;
+    gap: 8px;
 }
 
 .afl-head,
 .afl-row {
     display: grid;
     grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.6fr) 0.7fr 0.6fr 0.9fr 110px;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
 }
 
 .afl-head {
-    padding: 0 18px;
+    padding: 0 16px;
     color: rgba(90, 27, 0, 0.6);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -481,18 +479,18 @@
 
 .afl-item {
     border: 1px solid rgba(251, 133, 0, 0.25);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .afl-item:hover {
     border-color: rgba(251, 133, 0, 0.5);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .afl-row {
-    padding: 10px 18px;
+    padding: 8px 16px;
 }
 
 .afl-pet {
@@ -508,7 +506,7 @@
     display: grid;
     place-items: center;
     overflow: hidden;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
 .afl-avatar img {
@@ -553,14 +551,14 @@
 
 .afl-cell {
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .afl-status {
     display: inline-block;
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     text-transform: capitalize;
 }
@@ -573,14 +571,14 @@
     display: block;
     margin-top: 4px;
     color: var(--orange-dark);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .afl-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 6px;
+    gap: 8px;
 }
 
 .afl-icon-btn {
@@ -625,8 +623,8 @@
 .afl-item .admin-foster-behavior-review {
     display: grid;
     gap: 12px;
-    margin: 0 18px 14px;
-    padding: 14px 16px;
+    margin: 0 16px 16px;
+    padding: 16px 16px;
     border: 1px dashed rgba(251, 133, 0, 0.45);
     border-radius: 12px;
     background: var(--paper);
@@ -637,15 +635,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
 }
 
 .afl-item .admin-foster-behavior-heading span {
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
     background: var(--white-yellow);
     color: var(--orange-dark);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
 }
 
@@ -659,8 +657,8 @@
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    padding: 8px 10px;
-    border-radius: 10px;
+    padding: 8px 8px;
+    border-radius: 12px;
     background: var(--white-yellow);
     font-size: 12px;
 }
@@ -675,13 +673,13 @@
 
 .afl-item .admin-foster-behavior-notes p {
     margin: 4px 0 0;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .afl-item .admin-foster-behavior-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 16px;
     color: rgba(90, 27, 0, 0.65);
     font-size: 12px;
 }
@@ -690,7 +688,7 @@
     justify-self: start;
     padding: 8px 16px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--orange);
     color: var(--white);
     font-weight: 800;
@@ -714,7 +712,7 @@
 
     .afl-row {
         grid-template-columns: 1fr 1fr;
-        row-gap: 10px;
+        row-gap: 8px;
     }
 
     .afl-pet,
@@ -726,7 +724,7 @@
         content: attr(data-label);
         display: block;
         color: rgba(90, 27, 0, 0.6);
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 800;
         letter-spacing: 0.06em;
         text-transform: uppercase;
@@ -745,13 +743,13 @@
 .afc-split {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 440px;
-    gap: 22px;
+    gap: 24px;
     align-items: start;
 }
 
 .afc-apps-panel {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .afc-apps-heading {
@@ -766,7 +764,7 @@
     align-items: center;
     gap: 8px;
     margin: 0;
-    font-size: 22px;
+    font-size: 24px;
     white-space: nowrap;
 }
 
@@ -777,19 +775,19 @@
 }
 
 .afc-new {
-    padding: 2px 9px;
+    padding: 2px 8px;
     border-radius: 999px;
     background: var(--orange);
     color: var(--white);
     font-family: "Inter", sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     white-space: nowrap;
 }
 
 .afc-apps-list {
     display: grid;
-    gap: 10px;
+    gap: 8px;
 }
 
 .afc-app {
@@ -797,16 +795,16 @@
     grid-template-columns: 40px minmax(0, 1fr) auto;
     gap: 12px;
     align-items: center;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border: 1px solid rgba(251, 133, 0, 0.25);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .afc-app:hover {
     border-color: rgba(251, 133, 0, 0.5);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .afc-initials {
@@ -817,7 +815,7 @@
     border-radius: 50%;
     background: var(--orange);
     color: var(--white);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
 }
 
@@ -846,15 +844,15 @@
 .afc-app-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .afc-approve,
 .afc-reject {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 6px 12px;
+    gap: 4px;
+    padding: 8px 12px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 800;
@@ -885,9 +883,9 @@
 }
 
 .afc-badge {
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     white-space: nowrap;
 }
@@ -899,12 +897,12 @@
     margin: 0;
     padding: 24px 12px;
     color: rgba(90, 27, 0, 0.55);
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
 }
 
 /* stack under the assignments list on smaller screens */
-@media (max-width: 1280px) {
+@media (max-width: 1200px) {
     .afc-split {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -924,49 +922,49 @@
 /* ===== Foster Applications (full width, below assignments) ===== */
 .afa-panel {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .afa-heading {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
 }
 
 .afa-heading h2 {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin: 0;
 }
 
 .afa-heading p {
     margin: 4px 0 0;
     color: rgba(90, 27, 0, 0.7);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .afa-list {
     display: grid;
-    gap: 10px;
+    gap: 8px;
 }
 
 .afa-row {
     display: grid;
     grid-template-columns: 40px minmax(0, 1.4fr) minmax(0, 1.3fr) 110px auto;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
-    padding: 12px 18px;
+    padding: 12px 16px;
     border: 1px solid rgba(251, 133, 0, 0.25);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .afa-row:hover {
     border-color: rgba(251, 133, 0, 0.5);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .afa-person {
@@ -976,7 +974,7 @@
 .afa-person b {
     display: block;
     color: var(--brown);
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .afa-person small {
@@ -991,17 +989,17 @@
 .afa-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
 
 .afa-chips span {
-    padding: 3px 10px;
+    padding: 3px 8px;
     border: 1px solid rgba(90, 27, 0, 0.2);
     border-radius: 999px;
     background: var(--paper);
     color: var(--brown);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .afa-status {
@@ -1026,7 +1024,7 @@
 .afa-review,
 .afa-assign {
     min-width: 76px;
-    padding: 8px 14px;
+    padding: 8px 16px;
     border: none;
     border-radius: 999px;
     font-size: 12px;
@@ -1047,7 +1045,7 @@
 .afa-assign {
     background: var(--orange);
     color: var(--white);
-    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .afa-assign:hover:not(:disabled) {
@@ -1072,25 +1070,25 @@
 .afa-modal-head {
     display: grid;
     grid-template-columns: 48px minmax(0, 1fr) auto;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
-    margin: 0 40px 18px 0;
+    margin: 0 40px 16px 0;
 }
 
 .afa-modal-head .afc-initials {
     width: 48px;
     height: 48px;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .afa-modal-head h2 {
     margin: 0;
-    font-size: 26px;
+    font-size: 24px;
 }
 
 .afa-modal-head small {
     color: rgba(90, 27, 0, 0.7);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .afa-modal .afa-modal-title {
@@ -1112,10 +1110,10 @@
 .afa-detail-grid p {
     margin: 0;
     padding: 8px 12px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     overflow-wrap: anywhere;
 }
@@ -1123,17 +1121,17 @@
 .afa-detail-grid p span {
     display: block;
     color: rgba(90, 27, 0, 0.6);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .afa-notes {
     margin: 0;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 8px 12px;
+    border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .afa-modal-actions {
@@ -1148,7 +1146,7 @@
 
 .afa-modal-note {
     color: rgba(90, 27, 0, 0.7);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 /* ----- smaller screens ----- */
@@ -1171,7 +1169,7 @@
     }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 480px) {
     .afa-detail-grid {
         grid-template-columns: 1fr;
     }
@@ -1180,27 +1178,27 @@
 /* ===== Medical Requests ===== */
 .amr-panel {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .amr-heading {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
 }
 
 .amr-heading h2 {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin: 0;
 }
 
 .amr-heading p {
     margin: 4px 0 0;
     color: rgba(90, 27, 0, 0.7);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 /* refresh button reuses .afl-refresh look outside the admin heading */
@@ -1225,36 +1223,36 @@
 }
 
 .amr-open {
-    padding: 2px 9px;
+    padding: 2px 8px;
     border-radius: 999px;
     background: var(--red-dark);
     color: var(--white);
     font-family: "Inter", sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     white-space: nowrap;
 }
 
 .amr-list {
     display: grid;
-    gap: 10px;
+    gap: 8px;
 }
 
 .amr-row {
     display: grid;
     grid-template-columns: 42px minmax(0, 1fr) auto auto;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
     padding: 12px 16px;
     border: 1px solid rgba(251, 133, 0, 0.25);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .amr-row:hover {
     border-color: rgba(251, 133, 0, 0.5);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .amr-row.is-resolved {
@@ -1266,7 +1264,7 @@
     height: 42px;
     display: grid;
     place-items: center;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--red-soft);
     color: var(--red-dark);
 }
@@ -1329,7 +1327,7 @@
     background: var(--white-yellow);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .amr-heading {
         flex-direction: column;
     }
@@ -1352,13 +1350,13 @@
 .afc-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 420px;
-    gap: 22px;
+    gap: 24px;
     align-items: start;
 }
 
 .afc-main {
     display: grid;
-    gap: 22px;
+    gap: 24px;
     min-width: 0;
 }
 
@@ -1371,7 +1369,7 @@
 /* narrower rows inside the side column */
 .afc-side .amr-heading {
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .afc-side .amr-heading h2 {
@@ -1396,7 +1394,7 @@
 }
 
 /* stack on smaller screens */
-@media (max-width: 1280px) {
+@media (max-width: 1200px) {
     .afc-layout {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -1414,9 +1412,9 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid rgba(90, 27, 0, 0.15);
-    border-radius: 22px;
+    border-radius: 20px;
     background: var(--paper);
-    box-shadow: 0 24px 60px rgba(58, 18, 0, 0.3);
+    box-shadow: var(--shadow-modal);
     color: var(--brown);
 }
 
@@ -1430,7 +1428,7 @@
     grid-template-columns: 64px minmax(0, 1fr) auto auto;
     gap: 16px;
     align-items: center;
-    padding: 22px 26px;
+    padding: 24px 24px;
     background:
         radial-gradient(circle at right top, rgba(252, 191, 73, 0.4), transparent 55%),
         var(--peach-soft);
@@ -1457,7 +1455,7 @@
 .afr-eyebrow {
     display: block;
     color: var(--red-dark);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -1467,7 +1465,7 @@
     margin: 2px 0 4px;
     overflow: hidden;
     font-family: "Itim", cursive;
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 400;
     line-height: 1.1;
     text-overflow: ellipsis;
@@ -1477,16 +1475,16 @@
 .afr-who small {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     color: rgba(90, 27, 0, 0.75);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .afr-pill {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 6px 14px;
+    gap: 8px;
+    padding: 8px 16px;
     border: 1.5px solid currentColor;
     border-radius: 999px;
     background: var(--white);
@@ -1517,7 +1515,7 @@
     border-radius: 50%;
     background: var(--white);
     color: var(--brown);
-    box-shadow: 0 4px 12px rgba(90, 27, 0, 0.15);
+    box-shadow: var(--shadow-card);
     cursor: pointer;
 }
 
@@ -1529,25 +1527,25 @@
 /* body */
 .afr-body {
     display: grid;
-    gap: 14px;
-    padding: 20px 26px;
+    gap: 16px;
+    padding: 20px 24px;
     overflow-y: auto;
 }
 
 .afr-facts {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
 }
 
 .afr-fact {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     min-width: 0;
     padding: 12px;
     border: 1px solid rgba(251, 133, 0, 0.25);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
 }
 
@@ -1557,7 +1555,7 @@
     display: grid;
     place-items: center;
     border: 1px solid rgba(90, 27, 0, 0.12);
-    border-radius: 9px;
+    border-radius: 8px;
     background: var(--white);
     color: var(--orange-dark);
 }
@@ -1570,7 +1568,7 @@
 .afr-fact small {
     display: block;
     color: rgba(90, 27, 0, 0.6);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -1583,14 +1581,14 @@
 }
 
 .afr-why {
-    padding: 16px 18px;
+    padding: 16px 16px;
     border: 1px solid rgba(251, 133, 0, 0.25);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
 }
 
 .afr-modal .afr-why h3 {
-    margin: 0 0 6px;
+    margin: 0 0 8px;
     font-family: "Itim", cursive;
     color: var(--brown);
     font-size: 20px;
@@ -1608,23 +1606,23 @@
 
 .afr-more summary {
     color: var(--orange-dark);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
 }
 
 .afr-more[open] summary {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .afr-note {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin: 0;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border-radius: 12px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .afr-note.is-pending,
@@ -1636,15 +1634,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding: 16px 26px;
+    gap: 8px;
+    padding: 16px 24px;
     border-top: 1px solid rgba(90, 27, 0, 0.1);
     background: var(--paper);
 }
 
 .afr-foot-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .afr-btn {
@@ -1652,7 +1650,7 @@
     align-items: center;
     gap: 8px;
     min-height: 42px;
-    padding: 0 22px;
+    padding: 0 24px;
     border-radius: 12px;
     font-size: 14px;
     font-weight: 800;
@@ -1684,7 +1682,7 @@
     border: none;
     background: var(--green);
     color: var(--white);
-    box-shadow: 0 8px 18px rgba(47, 143, 91, 0.3);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .afr-btn.is-approve:hover {
@@ -1696,7 +1694,7 @@
 @media (max-width: 640px) {
     .afr-head {
         grid-template-columns: 52px minmax(0, 1fr) auto;
-        padding: 18px;
+        padding: 16px;
     }
 
     .afr-avatar {
@@ -1722,8 +1720,8 @@
 
     .afr-body,
     .afr-foot {
-        padding-left: 18px;
-        padding-right: 18px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 }
 
@@ -1744,7 +1742,7 @@
 
 .afr-form label {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     color: var(--brown);
     font-size: 12px;
     font-weight: 800;
@@ -1763,15 +1761,14 @@
 .afr-form textarea {
     width: 100%;
     box-sizing: border-box;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1.5px solid rgba(90, 27, 0, 0.15);
     border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    outline: none;
+    font-size: 14px;
+    font-weight: 400;
     resize: vertical;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
@@ -1792,7 +1789,7 @@
     border: none;
     background: var(--orange);
     color: var(--white);
-    box-shadow: 0 8px 18px rgba(251, 133, 0, 0.3);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .afr-btn.is-assign .ao-icon {
@@ -1823,7 +1820,7 @@
 /* rejection reason in the review pop-up */
 .afr-reason {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     color: var(--brown);
     font-size: 12px;
     font-weight: 800;
@@ -1832,20 +1829,19 @@
 .afr-reason em {
     color: var(--brown-soft);
     font-style: normal;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .afr-reason textarea {
     width: 100%;
     resize: vertical;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid rgba(251, 133, 0, 0.28);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--peach-soft);
     color: var(--brown);
     font-family: inherit;
-    font-size: 13px;
-    outline: none;
+    font-size: 14px;
 }
 
 .afr-reason textarea:focus {
@@ -1860,17 +1856,17 @@
 
 .afr-reason-error {
     color: var(--red);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .afr-reason-shown {
     margin: 0;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 8px 12px;
+    border-radius: 12px;
     background: var(--red-soft);
     color: var(--red-dark);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 /* Behavior evaluation: Accept / Send back */
@@ -1883,7 +1879,7 @@
 .afl-item .afl-eval-actions button {
     padding: 8px 16px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--orange);
     color: var(--white);
     font-weight: 800;
@@ -1919,12 +1915,12 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 12px;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border: 1px solid rgba(251, 133, 0, 0.45);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--peach-soft);
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     animation: afa-banner-in 0.35s ease;
 }
 
@@ -1935,9 +1931,9 @@
 
 .afa-new-banner button {
     flex-shrink: 0;
-    padding: 7px 12px;
+    padding: 8px 12px;
     border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--white);
     color: var(--brown);
     font-family: inherit;
@@ -1976,7 +1972,7 @@
     border-radius: 999px;
     background: var(--orange);
     color: var(--white);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -2010,15 +2006,14 @@
 .afr-form select {
     width: 100%;
     box-sizing: border-box;
-    padding: 10px 36px 10px 12px;
+    padding: 8px 36px 8px 12px;
     border: 1.5px solid rgba(90, 27, 0, 0.15);
     border-radius: 12px;
     background: var(--white-yellow) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    outline: none;
     cursor: pointer;
     appearance: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -2030,10 +2025,10 @@
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: 72px minmax(0, 1fr);
-    gap: 12px 14px;
+    gap: 12px 16px;
     padding: 12px;
     border: 1.5px solid rgba(251, 133, 0, 0.35);
-    border-radius: 16px;
+    border-radius: 20px;
     background: var(--paper);
     animation: afr-pet-in 0.2s ease;
 }
@@ -2041,19 +2036,19 @@
     width: 72px; height: 72px;
     display: grid; place-items: center;
     overflow: hidden;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--yellow);
     color: var(--brown);
 }
 .afr-pet-photo img { width: 100%; height: 100%; object-fit: cover; }
 .afr-pet-info { display: grid; align-content: center; gap: 2px; min-width: 0; }
-.afr-pet-info b { color: var(--brown); font-family: "Itim", cursive; font-size: 18px; font-weight: 400; }
+.afr-pet-info b { color: var(--brown); font-family: "Itim", cursive; font-size: 20px; font-weight: 400; }
 .afr-pet-info small { color: rgba(90, 27, 0, 0.65); font-size: 12px; }
-.afr-pet-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-.afr-pet-tags span { padding: 2px 9px; border-radius: 999px; background: var(--white-yellow); color: var(--brown); font-size: 11px; font-weight: 700; }
-.afr-pet-notes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
-.afr-pet-notes div { padding: 8px 10px; border-radius: 12px; background: var(--white); }
-.afr-pet-notes dt { color: var(--orange); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.afr-pet-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.afr-pet-tags span { padding: 2px 8px; border-radius: 999px; background: var(--white-yellow); color: var(--brown); font-size: 12px; font-weight: 800; }
+.afr-pet-notes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.afr-pet-notes div { padding: 8px 8px; border-radius: 12px; background: var(--white); }
+.afr-pet-notes dt { color: var(--orange); font-size: 12px; font-weight: 800; text-transform: uppercase; }
 .afr-pet-notes dd { margin: 2px 0 0; color: var(--brown); font-size: 12px; line-height: 1.4; }
 
 @keyframes afr-pet-in {
@@ -2081,11 +2076,11 @@
 
 .afa-head {
     display: grid;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
-    padding: 0 18px;
+    padding: 0 16px;
     color: rgba(90, 27, 0, 0.6);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -2114,11 +2109,11 @@
 /* header bar */
 .afl-head,
 .afa-head {
-    padding: 14px 18px;
+    padding: 16px 16px;
     background: var(--white-yellow);
     color: var(--brown-soft);
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.03em;
     text-transform: uppercase;
 }
@@ -2142,7 +2137,7 @@
 
 .afl-row,
 .afa-row {
-    padding: 12px 18px;
+    padding: 12px 16px;
 }
 
 /* only NEW things turn orange */
@@ -2168,8 +2163,8 @@
 .afl-foster b,
 .afa-person b {
     font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     color: var(--brown);
 }
 
@@ -2184,8 +2179,8 @@
 .afa-status,
 .afa-chips span {
     padding: 3px 12px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2203,13 +2198,13 @@
 }
 
 .afl-return-btn {
-    padding: 6px 10px;
+    padding: 8px 8px;
     border: 1.5px solid var(--red-dark);
     border-radius: 8px;
     background: var(--white);
     color: var(--red-dark);
     font-family: inherit;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     white-space: nowrap;
     cursor: pointer;
@@ -2221,15 +2216,15 @@
 
 .afr-return-warnings {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     margin: 0;
-    padding: 12px 14px 12px 32px;
+    padding: 12px 16px 12px 32px;
     border: 1px solid rgba(214, 40, 40, 0.25);
     border-radius: 12px;
     background: var(--red-soft);
     color: var(--red-dark);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 /* room for "Review return" next to Edit / Delete */
@@ -2242,7 +2237,7 @@
 .afr-form .acl-field {
     grid-column: 1 / -1;
     display: grid;
-    gap: 6px;
+    gap: 8px;
 }
 
 .acl-label {
@@ -2253,7 +2248,7 @@
 
 .acl {
     display: grid;
-    gap: 10px;
+    gap: 8px;
     padding: 12px;
     border: 1.5px solid rgba(90, 27, 0, 0.15);
     border-radius: 12px;
@@ -2270,8 +2265,8 @@
 .acl-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 0;
+    gap: 8px;
+    padding: 8px 0;
     border-bottom: 1px dashed rgba(90, 27, 0, 0.14);
 }
 
@@ -2290,11 +2285,11 @@
 .afr-form .acl-row input {
     flex: 1;
     min-width: 0;
-    padding: 6px 8px;
+    padding: 8px 8px;
     border: 1px solid transparent;
     border-radius: 8px;
     background: transparent;
-    font-size: 13px;
+    font-size: 14px;
     resize: none;
 }
 
@@ -2316,7 +2311,7 @@
     place-items: center;
     padding: 0;
     border: 0;
-    border-radius: 6px;
+    border-radius: 8px;
     background: transparent;
     color: rgba(90, 27, 0, 0.45);
     cursor: pointer;
@@ -2351,24 +2346,24 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .acl-presets small {
     color: var(--brown-soft);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .acl-presets button {
-    padding: 3px 10px;
+    padding: 3px 8px;
     border: 1px solid rgba(251, 133, 0, 0.35);
     border-radius: 999px;
     background: var(--white-yellow);
     color: var(--brown);
     font-family: inherit;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -2386,7 +2381,7 @@
 .acl-label {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .acl-label .admin-info-tip {
@@ -2398,10 +2393,9 @@
     border-radius: 50%;
     background: var(--orange);
     color: var(--white);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     cursor: help;
-    outline: none;
 }
 
 .acl-label .admin-info-tip-bubble {
@@ -2411,14 +2405,14 @@
     right: auto;
     z-index: 20;
     width: 240px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border-radius: 8px;
     background: var(--brown);
     color: var(--white);
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.5;
-    box-shadow: 0 10px 24px rgba(58, 18, 0, 0.25);
+    box-shadow: var(--shadow-dropdown);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
@@ -2445,35 +2439,35 @@
 /* ===== Assign pop-up: pet cards + dates ===== */
 .afr-picker { display: grid; gap: 8px; }
 .afr-picker-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.afr-picker-tools input { flex: 1; min-width: 200px; height: 38px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); color: var(--brown); font: inherit; font-size: 13px; outline: none; }
+.afr-picker-tools input { flex: 1; min-width: 200px; height: 38px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); color: var(--brown); font: inherit; font-size: 14px;}
 .afr-picker-tools input:focus { border-color: var(--orange); }
-.afr-picker-chips { display: flex; gap: 6px; }
-.afr-picker-chips button { padding: 7px 12px; border: 1px solid var(--brown); border-radius: 999px; background: var(--paper); color: var(--brown); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.afr-picker-chips { display: flex; gap: 8px; }
+.afr-picker-chips button { padding: 8px 12px; border: 1px solid var(--brown); border-radius: 999px; background: var(--paper); color: var(--brown); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
 .afr-picker-chips button.is-on { background: var(--brown); color: var(--paper); }
 .afr-picker-chips button:disabled { opacity: 0.45; cursor: not-allowed; }
 .afr-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; max-height: 236px; overflow-y: auto; padding: 2px; }
-.afr-pick { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); color: var(--brown); font: inherit; text-align: left; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.afr-pick { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); color: var(--brown); font: inherit; text-align: left; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
 .afr-pick:hover { border-color: var(--orange); }
 .afr-pick.is-selected { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.2); background: var(--paper); }
-.afr-pick-photo { width: 46px; height: 46px; flex-shrink: 0; display: grid; place-items: center; overflow: hidden; border-radius: 10px; background: var(--peach-soft); color: var(--orange-dark); }
+.afr-pick-photo { width: 46px; height: 46px; flex-shrink: 0; display: grid; place-items: center; overflow: hidden; border-radius: 12px; background: var(--peach-soft); color: var(--orange-dark); }
 .afr-pick-photo img { width: 100%; height: 100%; object-fit: cover; }
 .afr-pick-text { min-width: 0; }
-.afr-pick-text b { display: block; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.afr-pick-text small { display: block; color: var(--brown-muted); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.afr-pick-match { display: inline-block; margin-top: 3px; padding: 1px 8px; border-radius: 999px; background: var(--green-soft); color: var(--green); font-size: 10.5px; font-weight: 800; }
-.afr-picker-empty { margin: 0; padding: 14px; border: 1px dashed var(--line); border-radius: 12px; color: var(--brown-muted); font-size: 13px; text-align: center; }
-.afr-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.afr-pick-text b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.afr-pick-text small { display: block; color: var(--brown-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.afr-pick-match { display: inline-block; margin-top: 3px; padding: 1px 8px; border-radius: 999px; background: var(--green-soft); color: var(--green); font-size: 12px; font-weight: 800; }
+.afr-picker-empty { margin: 0; padding: 16px; border: 1px dashed var(--line); border-radius: 12px; color: var(--brown-muted); font-size: 14px; text-align: center; }
+.afr-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
 .afr-form .afr-dates label { width: 100%; }
-.afr-dates label, .afr-lengths { display: grid; gap: 5px; }
+.afr-dates label, .afr-lengths { display: grid; gap: 4px; }
 .afr-dates label span, .afr-lengths > span { color: var(--brown-soft); font-size: 12px; font-weight: 800; }
-.afr-dates input { width: 100%; box-sizing: border-box; height: 38px; padding: 0 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); color: var(--brown); font: inherit; font-size: 13px; outline: none; }
+.afr-dates input { width: 100%; box-sizing: border-box; height: 38px; padding: 0 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); color: var(--brown); font: inherit; font-size: 14px;}
 .afr-dates input:focus { border-color: var(--orange); }
 .afr-lengths { grid-column: 1 / -1; }
-.afr-lengths > div { display: flex; flex-wrap: wrap; gap: 6px; }
-.afr-lengths button { padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--white); color: var(--brown); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.afr-lengths > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.afr-lengths button { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--white); color: var(--brown); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
 .afr-lengths button:hover:not(:disabled) { border-color: var(--orange); }
 .afr-lengths button:disabled { opacity: 0.45; cursor: not-allowed; }
-@media (max-width: 600px) { .afr-dates { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .afr-dates { grid-template-columns: 1fr; } }
 /* The picker and dates rows span both columns of the assign form */
 .afr-form > .afr-picker,
 .afr-form > .afr-dates {
@@ -2485,7 +2479,7 @@
     display: block;
     margin-top: 2px;
     color: var(--brown-muted);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .afl-flag.is-due {
@@ -2493,13 +2487,13 @@
 }
 
 .afl-ask-btn {
-    padding: 6px 10px;
+    padding: 8px 8px;
     border: 1.5px solid var(--brown);
     border-radius: 8px;
     background: var(--white);
     color: var(--brown);
     font-family: inherit;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     white-space: nowrap;
     cursor: pointer;
@@ -2532,6 +2526,6 @@
 /* Essential care instructions: always included, not editable */
 .acl-lock {
     color: var(--brown-muted);
-    font-size: 10.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }

@@ -9,7 +9,7 @@
 /* MAIN AREA */
 
 .staff-main {
-    padding: 32px 34px 46px;
+    padding: 32px 32px 48px;
 }
 
 .staff-topbar {
@@ -17,37 +17,37 @@
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    margin-bottom: 34px;
+    margin-bottom: 32px;
 }
 
 .staff-topbar h1 {
     font-family: "Itim", cursive;
     color: var(--brown);
-    font-size: 30px;
+    font-size: 32px;
 }
 
 /* REUSABLE staff COMPONENTS */
 
 .staff-panel {
     background: var(--paper);
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 20px;
     border: 1px solid rgba(90, 27, 0, 0.12);
 }
 
 .staff-panel h2 {
     font-family: "Itim", cursive;
-    font-size: 22px;
+    font-size: 24px;
     color: var(--brown);
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 .staff-panel-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
-    margin-bottom: 14px;
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .staff-panel-heading h2 {
@@ -77,13 +77,13 @@
 
 .staff-stat-card {
     min-height: 86px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 18px;
+    padding: 16px;
     border: 1px solid rgba(90, 27, 0, 0.16);
 }
 
@@ -91,19 +91,19 @@
     font-size: 12px;
     margin-bottom: 8px;
     color: var(--red);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .staff-stat-card h3 {
     font-family: "Itim", cursive;
-    font-size: 30px;
+    font-size: 32px;
     color: var(--brown);
 }
 
 .staff-stat-card > span {
     width: 42px;
     height: 42px;
-    border-radius: 9px;
+    border-radius: 8px;
     background: var(--orange-light);
     display: grid;
     place-items: center;
@@ -120,9 +120,9 @@
 
 .staff-status-pill {
     border-radius: 999px;
-    padding: 7px 12px;
+    padding: 8px 12px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: capitalize;
     background: rgba(90, 27, 0, 0.12);
     color: var(--brown);
@@ -154,12 +154,12 @@
     width: 44px;
     height: 44px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
     font-size: 20px;
     cursor: pointer;
-    box-shadow: 0 8px 20px rgba(90, 27, 0, 0.12);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .staff-notification-btn span {
@@ -168,11 +168,11 @@
     right: -6px;
     min-width: 20px;
     height: 20px;
-    padding: 0 6px;
+    padding: 0 8px;
     border-radius: 999px;
     background: var(--red);
     color: var(--white);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     display: flex;
     align-items: center;
@@ -185,10 +185,10 @@
     right: 0;
     z-index: 50;
     width: 320px;
-    padding: 14px;
-    border-radius: 18px;
+    padding: 16px;
+    border-radius: 20px;
     background: var(--white);
-    box-shadow: 0 18px 40px rgba(90, 27, 0, 0.18);
+    box-shadow: var(--shadow-modal);
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
@@ -196,7 +196,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: var(--brown);
 }
 
@@ -207,11 +207,11 @@
 
 .staff-notification-empty {
     margin: 0;
-    padding: 14px;
-    border-radius: 14px;
+    padding: 16px;
+    border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .staff-notification-item {
@@ -219,7 +219,7 @@
     border: none;
     text-align: left;
     padding: 12px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--paper);
     color: var(--brown);
     cursor: pointer;
@@ -327,13 +327,13 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 22px 16px 18px;
+    padding: 24px 16px 16px;
     overflow: hidden;
     background:
         radial-gradient(circle at top left, rgba(255, 250, 240, 0.7), transparent 45%),
         var(--peach);
     border-right: 1px solid rgba(90, 27, 0, 0.14);
-    box-shadow: 8px 0 25px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
     z-index: 20;
 }
 
@@ -344,7 +344,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 4px 8px 18px;
+    padding: 4px 8px 16px;
     border: 0;
     border-bottom: 1px solid rgba(90, 27, 0, 0.18);
     background: transparent;
@@ -356,14 +356,14 @@
     display: grid;
     color: var(--brown);
     font-family: "Itim", cursive;
-    font-size: 28px;
+    font-size: 32px;
     line-height: 1;
 }
 .staff-logo small {
     margin-top: 4px;
     color: var(--brown-soft);
     font-family: "Inter", sans-serif;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -374,7 +374,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
     min-height: 0;
     margin-top: 16px;
     overflow-y: auto;
@@ -391,10 +391,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding: 10px 14px;
+    gap: 8px;
+    padding: 8px 16px;
     border: 1px solid transparent;
-    border-radius: 14px;
+    border-radius: 12px;
     background: transparent;
     color: var(--brown);
     font-family: inherit;
@@ -412,12 +412,12 @@
     background: var(--brown);
     border-color: var(--brown);
     color: var(--white-yellow);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.25);
+    box-shadow: var(--shadow-dropdown);
 }
 .staff-menu-group > button.active:hover { background: var(--brown); color: var(--white-yellow); }
 
-.staff-menu-text { display: flex; align-items: center; gap: 10px; }
-.staff-menu-text strong { font-size: 14px; font-weight: 700; }
+.staff-menu-text { display: flex; align-items: center; gap: 8px; }
+.staff-menu-text strong { font-size: 14px; font-weight: 800; }
 
 /* Icons are painted with the text colour, so every icon is the exact same shade */
 .staff-menu-icon {
@@ -436,7 +436,7 @@
 .staff-submenu {
     display: grid;
     gap: 3px;
-    margin: 4px 0 4px 22px;
+    margin: 4px 0 4px 24px;
     padding-left: 12px;
     border-left: 2px solid rgba(90, 27, 0, 0.18);
 }
@@ -444,11 +444,11 @@
     min-height: 34px;
     padding: 0 12px;
     border: 0;
-    border-radius: 10px;
+    border-radius: 12px;
     background: transparent;
     color: var(--brown);
     font-family: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     text-align: left;
     cursor: pointer;
@@ -470,12 +470,12 @@
     display: grid;
     grid-template-columns: 43px minmax(0, 1fr) auto;
     align-items: center;
-    gap: 11px;
+    gap: 12px;
     flex-shrink: 0;
     margin: 16px 0 0;
     padding: 12px;
     border: 1px solid rgba(90, 27, 0, 0.14);
-    border-radius: 16px;
+    border-radius: 20px;
     background: var(--paper);
     color: var(--brown);
     font-family: inherit;
@@ -486,7 +486,7 @@
 .staff-user-card:hover {
     transform: translateY(-2px);
     border-color: rgba(90, 27, 0, 0.35);
-    box-shadow: 0 10px 20px rgba(90, 27, 0, 0.12);
+    box-shadow: var(--shadow-dropdown);
 }
 .staff-user-avatar {
     width: 43px;
@@ -498,8 +498,8 @@
 }
 .staff-user-avatar img { width: 22px; height: 22px; }
 .staff-user-info { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.staff-user-info strong { overflow: hidden; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
-.staff-user-info small { color: var(--brown-soft); font-size: 11px; }
+.staff-user-info strong { overflow: hidden; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; }
+.staff-user-info small { color: var(--brown-soft); font-size: 12px; }
 .staff-user-arrow { color: var(--orange-dark); font-weight: 800; }
 
 @media (max-width: 900px) {
@@ -507,7 +507,7 @@
     .staff-sidebar {
         position: static;
         height: auto;
-        padding: 14px;
+        padding: 16px;
         overflow: visible;
         border-right: 0;
         border-bottom: 1px solid rgba(90, 27, 0, 0.14);
@@ -543,7 +543,7 @@
     background: var(--green-dark);
     border-color: var(--green-dark);
     color: var(--white-yellow);
-    box-shadow: 0 8px 18px rgba(37, 111, 71, 0.25);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .staff-sidebar.is-volunteer .staff-menu-group > button.active:hover { background: var(--green-dark); }
@@ -564,7 +564,7 @@
 .staff-sidebar.is-volunteer .staff-user-arrow { color: var(--green-dark); }
 /* Tighter gap between the page title and the page content (matches admin) */
 .staff-topbar {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 .staff-topbar h1 {
@@ -593,14 +593,14 @@
 .admin-submenu button, .staff-submenu button { display: flex; align-items: center; gap: 8px; }
 
 .staff-notification-readall {
-    padding: 4px 10px;
+    padding: 4px 8px;
     border: 1px solid rgba(90, 27, 0, 0.2);
     border-radius: 8px;
     background: var(--paper);
     color: var(--brown);
     font: inherit;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
 }
 

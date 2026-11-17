@@ -4,6 +4,8 @@ import {
 import InfoTip from "../../../components/system/InfoTip";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatDateTime, toDayValue } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1267,7 +1269,7 @@ export default function FosterCare() {
 
                         {pendingApplications > 0 && (
                             <button type="button" onClick={scrollToApplications}>
-                                Review →
+                                Review <Icon name="arrow-right" />
                             </button>
                         )}
                     </div>
@@ -1275,7 +1277,7 @@ export default function FosterCare() {
                     <div className="ao-strip-item">
                         <div className="ao-strip-label">
                             <StatIcon name="check" />
-                            Approved Fosters
+                            Approved fosters
                         </div>
                         <div className="ao-strip-value">
                             {approvedFosters}
@@ -1286,7 +1288,7 @@ export default function FosterCare() {
                     <div className="ao-strip-item">
                         <div className="ao-strip-label">
                             <StatIcon name="home" />
-                            Active Assignments
+                            Active assignments
                         </div>
                         <div className="ao-strip-value">
                             {activeAssignments}
@@ -1297,7 +1299,7 @@ export default function FosterCare() {
                     <div className={`ao-strip-item ${openMedicalRequests > 0 ? "is-alert" : ""}`}>
                         <div className="ao-strip-label">
                             <StatIcon name="heart" />
-                            Medical Requests
+                            Medical requests
                         </div>
                         <div className="ao-strip-value">
                             {openMedicalRequests}
@@ -1312,7 +1314,7 @@ export default function FosterCare() {
                 <div className="admin-panel-heading">
                     <div>
                         <h2>
-                            Current Foster Assignments
+                            Current foster assignments
                             <span className="afl-count">{assignments.length}</span>
                         </h2>
                         <p>
@@ -1327,18 +1329,18 @@ export default function FosterCare() {
                         disabled={loading}
                     >
                         <img src="/icons/Refresh cw.svg" alt="" />
-                        {loading ? "Refreshing..." : "Refresh"}
+                        {loading ? "Refreshing…" : "Refresh"}
                     </button>
                 </div>
 
                 <div className="afl-toolbar">
                     <label className="afl-search">
                         <StatIcon name="search" />
-                        <input
+                        <input aria-label="Search pet or foster"
                             type="search"
                             value={listSearch}
                             onChange={(event) => setListSearch(event.target.value)}
-                            placeholder="Search pet or foster..."
+                            placeholder="Search pet or foster…"
                         />
                     </label>
 
@@ -1359,11 +1361,11 @@ export default function FosterCare() {
                 </div>
 
                 {loading && assignments.length === 0 ? (
-                    <p className="admin-empty">Loading assignments...</p>
+                    <LoadingState label="Loading assignments…" />
                 ) : visibleAssignments.length === 0 ? (
                     <p className="admin-empty">
                         {assignments.length === 0
-                            ? "No foster assignments found."
+                            ? "No foster assignments yet."
                             : "No assignments match your search."}
                     </p>
                 ) : (
@@ -1461,7 +1463,7 @@ export default function FosterCare() {
                                                     onClick={() => handleRequestUpdate(assignment)}
                                                 >
                                                     {requestingUpdateId === assignment._id
-                                                        ? "Asking..."
+                                                        ? "Asking…"
                                                         : askedInLastDay(assignment)
                                                           ? "Asked"
                                                           : "Ask for update"}
@@ -1496,7 +1498,7 @@ export default function FosterCare() {
                                     <div className="admin-foster-behavior-review">
                                         <div className="admin-foster-behavior-heading">
                                             <strong>Behavioral Evaluation</strong>
-                                            <span>Pending Review</span>
+                                            <span>Pending review</span>
                                         </div>
 
                                         <div className="admin-foster-behavior-grid">
@@ -1536,7 +1538,7 @@ export default function FosterCare() {
 
                                         {assignment.behaviorEvaluation.notes && (
                                             <div className="admin-foster-behavior-notes">
-                                                <strong>Foster Notes</strong>
+                                                <strong>Foster notes</strong>
                                                 <p>{assignment.behaviorEvaluation.notes}</p>
                                             </div>
                                         )}
@@ -1596,7 +1598,7 @@ export default function FosterCare() {
                                                     type="button"
                                                     onClick={() => handleAcceptBehaviorEvaluation(assignment._id)}
                                                 >
-                                                    Accept Evaluation
+                                                    Accept evaluation
                                                 </button>
                                                 <button
                                                     type="button"
@@ -1676,7 +1678,7 @@ export default function FosterCare() {
                     {visibleApplications.length === 0 ? (
                         <p className="afc-empty">
                             {appFilter === "all"
-                                ? "No foster applications found."
+                                ? "No foster applications yet."
                                 : `No ${appFilter} applications.`}
                         </p>
                     ) : (
@@ -2078,14 +2080,14 @@ export default function FosterCare() {
                                     return (
                                         <div className="is-wide afr-picker">
                                             <span className="acl-label">
-                                                Pick a pet <em>*</em>
+                                                Pick a pet <span className="required-mark">*</span>
                                             </span>
 
                                             <div className="afr-picker-tools">
-                                                <input
+                                                <input aria-label="Search name or breed"
                                                     type="search"
                                                     value={petSearch}
-                                                    placeholder="Search name or breed..."
+                                                    placeholder="Search name or breed…"
                                                     onChange={(event) => setPetSearch(event.target.value)}
                                                 />
                                                 <div className="afr-picker-chips">
@@ -2108,7 +2110,7 @@ export default function FosterCare() {
                                             </div>
 
                                             {animalsLoading ? (
-                                                <p className="afr-picker-empty">Loading pets...</p>
+                                                <LoadingState label="Loading pets…" />
                                             ) : shown.length === 0 ? (
                                                 <p className="afr-picker-empty">
                                                     {animals.length ? "No pets match your search." : "No pets available for foster."}
@@ -2279,7 +2281,7 @@ export default function FosterCare() {
                             >
                                 <StatIcon name="paw" size={16} />
                                 {submitting
-                                    ? "Assigning..."
+                                    ? "Assigning…"
                                     : assignmentForm.petName
                                         ? `Assign ${assignmentForm.petName}`
                                         : "Assign Foster"}
@@ -2336,7 +2338,7 @@ export default function FosterCare() {
                             <div className="afr-body">
                                 <div className="afr-form">
                                     <label className="is-wide">
-                                        <span>Animal <em>*</em></span>
+                                        <span>Animal <span className="required-mark">*</span></span>
                                         <select
                                             value={assignmentForm.animalId}
                                             onChange={(e) => pickAnimal(e.target.value)}
@@ -2422,7 +2424,7 @@ export default function FosterCare() {
 
                                 <button type="submit" className="afr-btn is-assign" disabled={submitting}>
                                     <StatIcon name="check" size={16} />
-                                    {submitting ? "Saving..." : "Save Changes"}
+                                    {submitting ? "Saving…" : "Save changes"}
                                 </button>
                             </footer>
                         </form>
@@ -2648,7 +2650,7 @@ export default function FosterCare() {
                                     disabled={earlyReturnBusy}
                                 >
                                     <StatIcon name="check" size={16} />
-                                    {earlyReturnBusy ? "Saving..." : "Confirm Return"}
+                                    {earlyReturnBusy ? "Saving…" : "Confirm return"}
                                 </button>
                             </footer>
                         </div>
@@ -2674,7 +2676,7 @@ export default function FosterCare() {
                             onClick={() => setReviewingRequest(null)}
                             aria-label="Close"
                         >
-                            ×
+                            <Icon name="close" />
                         </button>
 
                         <div className="afa-modal-head">
@@ -2732,7 +2734,7 @@ export default function FosterCare() {
                                     className="afc-reject amr-progress"
                                     onClick={() => updateFromReview("in_progress")}
                                 >
-                                    Mark In Progress
+                                    Mark in progress
                                 </button>
                             )}
 
@@ -2743,7 +2745,7 @@ export default function FosterCare() {
                                     onClick={() => updateFromReview("resolved")}
                                 >
                                     <StatIcon name="check" size={13} />
-                                    Mark Resolved
+                                    Mark resolved
                                 </button>
                             ) : (
                                 <span className="afa-modal-note">This request is resolved.</span>

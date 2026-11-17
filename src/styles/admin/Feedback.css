@@ -1,7 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Itim&display=swap");
 .admin-feedback-page {
     display: grid;
-    gap: 18px;
+    gap: 16px;
 }
 
 .admin-feedback-stats {
@@ -17,14 +16,14 @@
 
 .admin-feedback-stat-card span {
     color: var(--red);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .admin-feedback-stat-card strong {
     color: var(--brown);
     font-family: "Itim", cursive;
-    font-size: 34px;
+    font-size: 32px;
 }
 
 .admin-feedback-list-panel {
@@ -37,10 +36,9 @@
     border-radius: 999px;
     background: var(--white-yellow);
     color: var(--brown);
-    padding: 0 14px;
+    padding: 0 16px;
     font-family: "Inter", sans-serif;
-    font-size: 13px;
-    outline: none;
+    font-size: 14px;
     cursor: pointer;
 }
 
@@ -49,14 +47,14 @@
     gap: 12px;
     max-height: 560px;
     overflow-y: auto;
-    padding-right: 6px;
+    padding-right: 8px;
 }
 
 .admin-feedback-row {
     background: var(--white-yellow);
     border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 14px;
-    padding: 15px;
+    border-radius: 12px;
+    padding: 16px;
     display: flex;
     justify-content: space-between;
     gap: 16px;
@@ -65,19 +63,19 @@
 .admin-feedback-row h3 {
     font-family: "Itim", cursive;
     color: var(--brown);
-    font-size: 22px;
+    font-size: 24px;
 }
 
 .admin-feedback-row p {
     margin-top: 4px;
     color: var(--brown-soft);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .admin-feedback-row small {
     display: block;
-    margin-top: 6px;
+    margin-top: 8px;
     color: var(--brown);
     font-size: 12px;
     opacity: 0.75;
@@ -88,7 +86,7 @@
     display: block;
     margin-top: 8px;
     color: var(--red);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
 }
 
@@ -97,12 +95,12 @@
     display: grid;
     align-content: center;
     justify-items: end;
-    gap: 10px;
+    gap: 8px;
 }
 
 .admin-feedback-actions button {
     height: 34px;
-    padding: 0 14px;
+    padding: 0 16px;
     border: none;
     border-radius: 999px;
     background: var(--brown);
@@ -127,7 +125,7 @@
     color: var(--green-dark);
 }
 
-@media (max-width: 950px) {
+@media (max-width: 900px) {
     .admin-feedback-stats {
         grid-template-columns: 1fr;
     }
@@ -148,7 +146,7 @@
 .fb-hero {
     display: grid;
     justify-items: start;
-    gap: 6px;
+    gap: 8px;
     width: 100%;
     box-sizing: border-box;
     padding: 20px 20px 24px;
@@ -162,7 +160,7 @@
     border-radius: 999px;
     background: var(--peach);
     color: var(--red-dark);
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -170,9 +168,9 @@
 
 .fb-hero h1 {
     margin: 0;
-    font-family: "YourTitleFont", "Trebuchet MS", sans-serif;
+    font-family: "Itim", cursive;
     font-size: 32px;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.15;
 }
 
@@ -183,7 +181,7 @@
     opacity: 0.95;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
        .fb-hero h1 {
        font-family: "Itim", cursive;
        font-weight: 400;
@@ -203,7 +201,7 @@
 }
 
 .fb-card {
-    padding: 16px 16px 18px;
+    padding: 16px 16px 16px;
     border-radius: 12px;
     background: var(--paper);
 }
@@ -216,15 +214,15 @@
 .fb-card h3 {
     margin: 0 0 12px;
     color: var(--brown-strong);
-    font-family: "YourTitleFont", "Trebuchet MS", sans-serif;
-    font-size: 17px;
-    font-weight: 700;
+    font-family: "Itim", cursive;
+    font-size: 16px;
+    font-weight: 800;
 }
 
 .fb-steps,
 .fb-tips {
     display: grid;
-    gap: 10px;
+    gap: 8px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -233,9 +231,9 @@
 .fb-steps li {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     color: rgba(90, 27, 0, 0.55);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -248,7 +246,7 @@
     border-radius: 50%;
     background: var(--gold);
     color: var(--orange-dark);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
 }
 
@@ -256,7 +254,7 @@
     position: relative;
     padding-left: 16px;
     color: rgba(90, 27, 0, 0.6);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -275,7 +273,7 @@
 .fbf-form {
     display: grid;
     gap: 16px;
-    padding: 18px 16px 18px;
+    padding: 16px 16px 16px;
     border-radius: 12px;
     background: var(--paper);
 }
@@ -283,26 +281,26 @@
 .fbf-header h2 {
     margin: 0;
     color: var(--brown-strong);
-    font-family: "YourTitleFont", "Trebuchet MS", sans-serif;
+    font-family: "Itim", cursive;
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .fbf-header p {
     margin: 2px 0 0;
     color: var(--red-dark);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .fbf-field {
     display: grid;
-    gap: 6px;
+    gap: 8px;
 }
 
 .fbf-label {
     color: var(--brown-strong);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
 }
 
@@ -319,7 +317,7 @@
 
 .fbf-label-row small {
     color: rgba(90, 27, 0, 0.45);
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .fbf-stars {
@@ -338,7 +336,7 @@
 
 .fbf-star-cell small {
     color: rgba(90, 27, 0, 0.5);
-    font-size: 10px;
+    font-size: 12px;
     white-space: nowrap;
 }
 
@@ -380,7 +378,6 @@
     color: var(--brown-strong);
     font-family: inherit;
     font-size: 12px;
-    outline: none;
 }
 
 select.fbf-input {
@@ -390,7 +387,7 @@ select.fbf-input {
 
 textarea.fbf-input {
     min-height: 130px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     resize: vertical;
 }
 
@@ -402,7 +399,7 @@ textarea.fbf-input {
 .fbf-count {
     justify-self: end;
     color: rgba(90, 27, 0, 0.45);
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .fbf-submit {
@@ -411,7 +408,7 @@ textarea.fbf-input {
     border-radius: 8px;
     background: linear-gradient(180deg, var(--orange-light), var(--orange));
     color: var(--white);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -432,7 +429,7 @@ textarea.fbf-input {
 }
 .feedback-management {
     display: grid;
-    gap: 14px;
+    gap: 16px;
     color: var(--brown-strong);
 }
 
@@ -445,7 +442,7 @@ textarea.fbf-input {
 .feedback-management-header h2 {
     margin: 0;
     color: var(--dark);
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 800;
 }
 
@@ -461,12 +458,12 @@ textarea.fbf-input {
     margin-top: 4px;
     padding: 0 8px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--white);
     color: var(--brown-strong);
-    font-size: 11px;
+    font-size: 12px;
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-card);
 }
 
 .feedback-loading,
@@ -476,10 +473,10 @@ textarea.fbf-input {
 }
 
 .feedback-message {
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .feedback-error {
@@ -492,7 +489,7 @@ textarea.fbf-input {
     overflow-x: auto;
     border-radius: 12px;
     background: var(--paper);
-    box-shadow: 0 1px 3px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-card);
 }
 
 .feedback-table {
@@ -502,10 +499,10 @@ textarea.fbf-input {
 }
 
 .feedback-table th {
-    padding: 12px 14px;
+    padding: 12px 16px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.12);
     color: rgba(90, 27, 0, 0.6);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-align: left;
@@ -514,7 +511,7 @@ textarea.fbf-input {
 }
 
 .feedback-table td {
-    padding: 12px 14px;
+    padding: 12px 16px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.08);
     vertical-align: middle;
 }
@@ -529,20 +526,20 @@ textarea.fbf-input {
 
 .feedback-table td strong {
     display: block;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .feedback-table td small {
     display: block;
     color: rgba(90, 27, 0, 0.55);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .feedback-role {
-    padding: 3px 9px;
+    padding: 3px 8px;
     border-radius: 999px;
     background: var(--line-soft);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     text-transform: capitalize;
 }
@@ -557,9 +554,9 @@ textarea.fbf-input {
 }
 
 .feedback-status {
-    padding: 3px 9px;
+    padding: 3px 8px;
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     text-transform: capitalize;
 }
@@ -576,17 +573,17 @@ textarea.fbf-input {
 
 .feedback-actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .feedback-actions button {
-    padding: 6px 10px;
+    padding: 8px 8px;
     border: 1px solid rgba(90, 27, 0, 0.3);
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--white);
     color: var(--brown);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -623,7 +620,7 @@ textarea.fbf-input {
     max-height: 90vh;
     overflow-y: auto;
     padding: 20px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--paper);
 }
 
@@ -635,7 +632,7 @@ textarea.fbf-input {
 
 .feedback-modal-header h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 800;
 }
 
@@ -651,25 +648,25 @@ textarea.fbf-input {
 
 .feedback-detail strong {
     color: rgba(90, 27, 0, 0.6);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
 }
 
 .feedback-detail p {
     margin: 2px 0 0;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
     white-space: pre-wrap;
 }
 
 .feedback-detail small {
     color: rgba(90, 27, 0, 0.55);
-    font-size: 11px;
+    font-size: 12px;
 }
 .fb-history {
     display: grid;
-    gap: 10px;
+    gap: 8px;
     max-height: 360px;
     margin: 0;
     padding: 0 4px 0 0;
@@ -679,10 +676,10 @@ textarea.fbf-input {
 
 .fb-history li {
     display: grid;
-    gap: 6px;
-    padding: 10px 12px;
+    gap: 8px;
+    padding: 8px 12px;
     border: 1px solid var(--gold);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--white);
 }
 
@@ -694,7 +691,7 @@ textarea.fbf-input {
 
 .fb-history-top small {
     color: rgba(90, 27, 0, 0.5);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .fb-history-stars span {
@@ -708,14 +705,14 @@ textarea.fbf-input {
 
 .fb-history-meta {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .fb-history-cat,
 .fb-history-status {
-    padding: 2px 9px;
+    padding: 2px 8px;
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
 }
 
@@ -748,7 +745,7 @@ textarea.fbf-input {
 .fb-history-empty {
     margin: 0;
     color: rgba(90, 27, 0, 0.55);
-    font-size: 13px;
+    font-size: 14px;
 }
 /* Clickable history items */
 .fb-history-item {
@@ -760,7 +757,6 @@ textarea.fbf-input {
 .fb-history-item:focus-visible {
     border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
-    outline: none;
 }
 
 /* Long words without spaces won't overflow the card */
@@ -787,7 +783,7 @@ textarea.fbf-input {
     max-height: 90vh;
     overflow-y: auto;
     padding: 20px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--paper);
     color: var(--brown-strong);
 }
@@ -812,7 +808,7 @@ textarea.fbf-input {
     border-radius: 50%;
     background: var(--line-soft);
     color: var(--brown);
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
 }
 
@@ -824,7 +820,7 @@ textarea.fbf-input {
 
 .fb-modal-stars span {
     color: rgba(90, 27, 0, 0.18);
-    font-size: 22px;
+    font-size: 24px;
 }
 
 .fb-modal-stars span.is-on {
@@ -833,30 +829,30 @@ textarea.fbf-input {
 
 .fb-modal-stars b {
     margin-left: 8px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .fb-modal-facts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 16px;
+    gap: 8px 16px;
     margin: 0;
     padding: 12px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--amber-soft);
 }
 
 .fb-modal-facts dt {
     color: rgba(90, 27, 0, 0.6);
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     text-transform: uppercase;
 }
 
 .fb-modal-facts dd {
     margin: 3px 0 0;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .fb-modal h4 {
@@ -869,9 +865,9 @@ textarea.fbf-input {
     margin: 0;
     padding: 12px;
     border: 1px solid var(--gold);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--white);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.55;
     white-space: pre-wrap;
 }
@@ -902,11 +898,11 @@ textarea.fbf-input {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 .feedback-filter-chips button {
-    padding: 6px 14px;
+    padding: 8px 16px;
     border: 1.5px solid var(--red-dark);
     border-radius: 999px;
     background: var(--paper);
@@ -934,7 +930,7 @@ textarea.fbf-input {
 /* ===== Feedback redesign (fb2) — matches Reports / Lost & Found ===== */
 .fb2-page {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .fb2-page *,
@@ -967,23 +963,23 @@ textarea.fbf-input {
 }
 
 .fb2-stars.is-small {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .fb2-error {
     margin: 0;
-    padding: 10px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--red-soft);
     background: var(--red-soft);
     color: var(--red-dark);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .fb2-card {
     background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.12);
-    border-radius: 14px;
-    padding: 18px 20px;
+    border-radius: 12px;
+    padding: 16px 20px;
     min-width: 0;
 }
 
@@ -998,26 +994,26 @@ textarea.fbf-input {
 .fb2-head h3 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 400;
     color: var(--brown);
 }
 
 .fb2-chips {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .fb2-chips button {
-    padding: 6px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--brown-soft);
     border-radius: 999px;
     background: var(--paper);
     color: var(--brown-soft);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -1060,18 +1056,17 @@ textarea.fbf-input {
 .fb2-search input {
     flex: 1;
     min-width: 0;
-    padding: 9px 0;
+    padding: 8px 0;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
 .fb2-select {
     min-width: 150px;
-    padding: 9px 34px 9px 12px;
+    padding: 8px 32px 8px 12px;
     border: 1px solid var(--line);
     border-radius: 0;
     appearance: none;
@@ -1079,11 +1074,10 @@ textarea.fbf-input {
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
         no-repeat right 12px center;
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--brown-strong);
     cursor: pointer;
-    outline: none;
 }
 
 .fb2-select:focus {
@@ -1098,17 +1092,17 @@ textarea.fbf-input {
 .fb2-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
 .fb2-table th {
-    padding: 10px;
+    padding: 8px;
     background: var(--peach-soft);
     border-bottom: 1px solid rgba(90, 27, 0, 0.15);
     text-align: left;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--brown-soft);
@@ -1116,7 +1110,7 @@ textarea.fbf-input {
 }
 
 .fb2-table td {
-    padding: 12px 10px;
+    padding: 12px 8px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.08);
     vertical-align: middle;
 }
@@ -1146,11 +1140,11 @@ textarea.fbf-input {
 
 .fb2-role {
     display: inline-block;
-    padding: 3px 9px;
+    padding: 3px 8px;
     background: var(--line-soft);
     color: var(--brown-muted);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -1161,7 +1155,7 @@ textarea.fbf-input {
     border: 0;
     background: none;
     font: inherit;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--brown-soft);
     text-align: left;
     white-space: nowrap;
@@ -1176,10 +1170,10 @@ textarea.fbf-input {
 }
 
 .fb2-pill {
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -1207,20 +1201,20 @@ textarea.fbf-input {
     color: var(--brown);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     text-decoration: underline;
     cursor: pointer;
 }
 
 .fb2-mini {
-    padding: 6px 10px;
+    padding: 8px 8px;
     border: 1px solid var(--brown);
     border-radius: 0;
     background: var(--white);
     color: var(--brown);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
 }
@@ -1255,7 +1249,7 @@ textarea.fbf-input {
     margin: 0;
     padding: 28px 0;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-soft);
 }
 
@@ -1272,7 +1266,7 @@ textarea.fbf-input {
     background: none;
     color: var(--red-dark);
     font: inherit;
-    font-weight: 700;
+    font-weight: 800;
     text-decoration: underline;
     cursor: pointer;
 }
@@ -1280,8 +1274,8 @@ textarea.fbf-input {
 /* Details window */
 .fb2-modal {
     width: min(520px, calc(100vw - 32px));
-    padding: 20px 22px;
-    border-radius: 14px;
+    padding: 20px 24px;
+    border-radius: 12px;
     background: var(--paper);
 }
 
@@ -1295,7 +1289,7 @@ textarea.fbf-input {
 .fb2-modal-head h3 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 400;
     color: var(--brown);
 }
@@ -1319,15 +1313,15 @@ textarea.fbf-input {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
-    margin: 14px 0;
-    font-size: 13px;
+    gap: 8px;
+    margin: 16px 0;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
 .fb2-modal-msg {
-    margin: 0 0 10px;
-    padding: 12px 14px;
+    margin: 0 0 8px;
+    padding: 12px 16px;
     border: 1px solid var(--line);
     background: var(--white);
     font-size: 14px;
@@ -1338,7 +1332,7 @@ textarea.fbf-input {
 
 .fb2-modal-actions {
     margin-top: 16px;
-    padding-top: 14px;
+    padding-top: 16px;
     border-top: 1px solid rgba(90, 27, 0, 0.1);
 }
 
@@ -1346,7 +1340,7 @@ textarea.fbf-input {
     display: none;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 640px) {
     .fb2-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1356,41 +1350,40 @@ textarea.fbf-input {
 .fb2-replied {
     display: block;
     margin-top: 4px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     color: var(--blue);
 }
 
 .fb2-reply {
     display: grid;
-    gap: 6px;
-    margin-top: 14px;
-    padding-top: 14px;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
     border-top: 1px solid rgba(90, 27, 0, 0.1);
 }
 
 .fb2-reply label {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--brown);
 }
 
 .fb2-reply label small {
-    font-weight: 500;
+    font-weight: 400;
     color: var(--brown-soft);
 }
 
 .fb2-reply textarea {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 0;
     background: var(--white);
     color: var(--brown-strong);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     resize: vertical;
-    outline: none;
 }
 
 .fb2-reply textarea:focus {
@@ -1401,24 +1394,24 @@ textarea.fbf-input {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .fb2-reply-foot small {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--brown-soft);
 }
 
 .fb2-send {
-    padding: 8px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--orange);
     border-radius: 0;
     background: var(--orange);
     color: var(--white);
     font: inherit;
-    font-size: 12.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -1429,11 +1422,11 @@ textarea.fbf-input {
 
 .fb2-notice {
     margin: 0;
-    padding: 8px 10px;
+    padding: 8px 8px;
     border: 1px solid var(--green-soft);
     background: var(--cream-card);
     color: var(--green-dark);
-    font-size: 12.5px;
+    font-size: 12px;
 }
 
 /* Click a row to open it */
@@ -1470,7 +1463,7 @@ textarea.fbf-input {
 }
 
 .fb2-modal-top .fb2-actions {
-    gap: 6px;
+    gap: 8px;
 }
 
 /* Keep delete well away from the close button */
@@ -1479,27 +1472,27 @@ textarea.fbf-input {
 }
 
 .fb2-modal-top .fb2-actions {
-    margin-right: 22px;
-    padding-right: 22px;
+    margin-right: 24px;
+    padding-right: 24px;
     border-right: 1px solid rgba(90, 27, 0, 0.15);
 }
 
 /* Sender photo */
-.fb2-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.fb2-who { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .fb2-who > div { display: flex; flex-direction: column; min-width: 0; }
 .fb2-avatar { width: 34px; height: 34px; flex: none; display: grid; place-items: center; overflow: hidden; background: var(--peach-soft); border: 1px solid var(--line); color: var(--brown); font-size: 12px; font-weight: 800; }
-.fb2-avatar.is-big { width: 46px; height: 46px; font-size: 15px; }
+.fb2-avatar.is-big { width: 46px; height: 46px; font-size: 16px; }
 .fb2-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 /* Feedback history: show the shelter's reply */
 .fb-history-item { cursor: pointer; }
 .fb-history-item:hover { border-color: var(--orange); }
 .fb-history-status.is-replied { background: var(--blue-soft); color: var(--blue); }
-.fb-history-reply { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--orange); background: var(--paper); font-size: 12.5px; color: var(--brown); }
-.fb-history-reply b { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--amber); }
+.fb-history-reply { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; padding: 8px 8px; border-left: 3px solid var(--orange); background: var(--paper); font-size: 12px; color: var(--brown); }
+.fb-history-reply b { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--amber); }
 .fb-history-reply span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-.fb-history-open { display: block; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--orange-dark); }
+.fb-history-open { display: block; margin-top: 8px; font-size: 12px; font-weight: 800; color: var(--orange-dark); }
 .fb-modal-reply { padding: 12px; border-left: 3px solid var(--orange); background: var(--paper); color: var(--brown); }
-.fb-modal-reply p { margin: 0 0 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.fb-modal-reply p { margin: 0 0 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .fb-modal-reply small { color: var(--brown-muted); font-size: 12px; }
-.fb-modal-noreply { margin: 0; padding: 12px; background: var(--cream-card); color: var(--brown-muted); font-size: 13px; }
+.fb-modal-noreply { margin: 0; padding: 12px; background: var(--cream-card); color: var(--brown-muted); font-size: 14px; }

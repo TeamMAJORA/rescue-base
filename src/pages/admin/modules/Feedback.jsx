@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { isAdmin } from "../../../utils/auth";
 import { askConfirm, notify } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -368,10 +370,10 @@ export default function Feedback() {
                             <circle cx="11" cy="11" r="7" />
                             <path d="m21 21-4.3-4.3" />
                         </svg>
-                        <input
+                        <input aria-label="Search name, email or message"
                             type="search"
                             value={search}
-                            placeholder="Search name, email or message..."
+                            placeholder="Search name, email or message…"
                             onChange={(event) => setSearch(event.target.value)}
                         />
                     </label>
@@ -412,7 +414,7 @@ export default function Feedback() {
                 </div>
 
                 {loading ? (
-                    <p className="fb2-empty">Loading feedback...</p>
+                    <LoadingState label="Loading feedback…" />
                 ) : shown.length === 0 ? (
                     <p className="fb2-empty">
                         {feedback.length === 0 ? "No feedback yet." : "No feedback matches your search or filters."}
@@ -511,7 +513,7 @@ export default function Feedback() {
                             <div className="fb2-modal-top">
                                 {renderActions(selectedFeedback, true)}
                                 <button type="button" className="fb2-close" onClick={() => setSelectedFeedback(null)} aria-label="Close">
-                                ✕
+                                <Icon name="close" />
                             </button>
                             </div>
                         </div>
@@ -557,7 +559,7 @@ export default function Feedback() {
                                     disabled={replying || !replyText.trim() || replyText.trim() === (selectedFeedback.reply || "")}
                                     onClick={sendReply}
                                 >
-                                    {replying ? "Sending..." : selectedFeedback.repliedAt ? "Send updated reply" : "Send reply"}
+                                    {replying ? "Sending…" : selectedFeedback.repliedAt ? "Send updated reply" : "Send reply"}
                                 </button>
                             </div>
                             {notice && <p className="fb2-notice">{notice}</p>}

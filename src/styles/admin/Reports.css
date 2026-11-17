@@ -1,6 +1,6 @@
 .admin-reports-page {
     display: grid;
-    gap: 18px;
+    gap: 16px;
 }
 
 .admin-reports-stats {
@@ -16,20 +16,20 @@
 
 .admin-reports-stat-card span {
     color: var(--red);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .admin-reports-stat-card strong {
     color: var(--brown);
     font-family: "Itim", cursive;
-    font-size: 34px;
+    font-size: 32px;
 }
 
 .admin-reports-grid {
     display: grid;
     grid-template-columns: 380px 1fr;
-    gap: 18px;
+    gap: 16px;
     align-items: start;
 }
 
@@ -40,15 +40,15 @@
 
 .admin-reports-form {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .admin-reports-form label {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     color: var(--brown);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .admin-reports-form input,
@@ -59,10 +59,9 @@
     border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
-    padding: 11px 13px;
+    padding: 12px 12px;
     font-family: "Inter", sans-serif;
-    font-size: 13px;
-    outline: none;
+    font-size: 14px;
 }
 
 .admin-reports-form input,
@@ -89,7 +88,7 @@
     background: var(--brown);
     color: var(--yellow);
     font-family: "Itim", cursive;
-    font-size: 15px;
+    font-size: 16px;
     cursor: pointer;
 }
 
@@ -98,14 +97,14 @@
     gap: 12px;
     max-height: 560px;
     overflow-y: auto;
-    padding-right: 6px;
+    padding-right: 8px;
 }
 
 .admin-reports-row {
     background: var(--white-yellow);
     border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 14px;
-    padding: 15px;
+    border-radius: 12px;
+    padding: 16px;
     display: flex;
     justify-content: space-between;
     gap: 16px;
@@ -114,20 +113,20 @@
 .admin-reports-row h3 {
     font-family: "Itim", cursive;
     color: var(--brown);
-    font-size: 22px;
+    font-size: 24px;
 }
 
 .admin-reports-row p {
     margin-top: 4px;
     color: var(--brown-soft);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     text-transform: capitalize;
 }
 
 .admin-reports-row small {
     display: block;
-    margin-top: 6px;
+    margin-top: 8px;
     color: var(--brown);
     font-size: 12px;
     opacity: 0.75;
@@ -137,7 +136,7 @@
     display: block;
     margin-top: 8px;
     color: var(--red);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
 }
 
@@ -146,12 +145,12 @@
     display: grid;
     align-content: center;
     justify-items: end;
-    gap: 10px;
+    gap: 8px;
 }
 
 .admin-reports-actions button {
     height: 34px;
-    padding: 0 14px;
+    padding: 0 16px;
     border: none;
     border-radius: 999px;
     background: var(--brown);
@@ -176,7 +175,7 @@
     color: var(--green-dark);
 }
 
-@media (max-width: 950px) {
+@media (max-width: 900px) {
     .admin-reports-stats,
     .admin-reports-grid {
         grid-template-columns: 1fr;
@@ -193,7 +192,7 @@
 /* ===== Reports redesign (rp2) — square inputs, matches other admin pages ===== */
 .rp2-page {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .rp2-strip {
@@ -203,29 +202,29 @@
 .rp2-grid {
     display: grid;
     grid-template-columns: 380px minmax(0, 1fr);
-    gap: 14px;
+    gap: 16px;
     align-items: start;
 }
 
 .rp2-card {
     background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.12);
-    border-radius: 14px;
-    padding: 18px 20px;
+    border-radius: 12px;
+    padding: 16px 20px;
     min-width: 0;
 }
 
 .rp2-card h3 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 400;
     color: var(--brown);
 }
 
 .rp2-sub {
     margin: 4px 0 4px;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--brown-soft);
 }
 
@@ -236,27 +235,26 @@
 
 .rp2-label {
     display: block;
-    margin: 14px 0 6px;
+    margin: 16px 0 8px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--brown);
 }
 
 .rp2-input,
 .rp2-select {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 0;
     background: var(--white);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
-    outline: none;
 }
 
 .rp2-select {
-    padding-right: 34px;
+    padding-right: 32px;
     appearance: none;
     cursor: pointer;
     font-weight: 600;
@@ -277,12 +275,12 @@
 
 .rp2-seg button {
     flex: 1;
-    padding: 9px 4px;
+    padding: 8px 4px;
     border: 0;
     background: var(--white);
     color: var(--brown);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
 }
@@ -314,14 +312,14 @@
 .rp2-checks {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px 10px;
+    gap: 8px 8px;
 }
 
 .rp2-check {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
     cursor: pointer;
 }
@@ -367,12 +365,12 @@
 
 .rp2-hint {
     margin: 8px 0 0;
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--brown-soft);
 }
 
 .rp2-generate {
-    margin-top: 18px;
+    margin-top: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -384,7 +382,7 @@
     color: var(--white);
     font: inherit;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -407,19 +405,19 @@
 
 .rp2-chips {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .rp2-chips button {
-    padding: 6px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--brown-soft);
     border-radius: 999px;
     background: var(--paper);
     color: var(--brown-soft);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -467,12 +465,11 @@
 .rp2-search input {
     flex: 1;
     min-width: 0;
-    padding: 9px 0;
+    padding: 8px 0;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
@@ -484,17 +481,17 @@
 .rp2-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
 .rp2-table th {
-    padding: 10px;
+    padding: 8px;
     background: var(--peach-soft);
     border-bottom: 1px solid rgba(90, 27, 0, 0.15);
     text-align: left;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--brown-soft);
@@ -502,7 +499,7 @@
 }
 
 .rp2-table td {
-    padding: 12px 10px;
+    padding: 12px 8px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.08);
     vertical-align: middle;
 }
@@ -534,22 +531,22 @@
 }
 
 .rp2-counts span {
-    padding: 2px 6px;
+    padding: 2px 8px;
     background: var(--line-soft);
-    font-size: 10.5px;
+    font-size: 12px;
     color: var(--brown-soft);
 }
 
 .rp2-type {
-    font-size: 12.5px;
+    font-size: 12px;
 }
 
 .rp2-species {
     display: inline-block;
     margin-top: 3px;
     padding: 2px 8px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     background: var(--line-soft);
     color: var(--brown-muted);
 }
@@ -565,10 +562,10 @@
 }
 
 .rp2-pill {
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -586,18 +583,18 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .rp2-mini {
-    padding: 6px 10px;
+    padding: 8px 8px;
     border: 1px solid var(--brown);
     border-radius: 0;
     background: var(--white);
     color: var(--brown);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
 }
@@ -638,13 +635,13 @@
     color: var(--brown-soft);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
     .rp2-grid {
         grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 640px) {
     .rp2-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -696,7 +693,7 @@
 /* ===== Activity Log redesign (al2) — matches Reports / Feedback ===== */
 .al2-page {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .al2-page *,
@@ -711,9 +708,9 @@
 
 .al2-card {
     min-width: 0;
-    padding: 18px 20px;
+    padding: 16px 20px;
     border: 1px solid rgba(90, 27, 0, 0.12);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--paper);
     color: var(--brown);
 }
@@ -728,22 +725,22 @@
 .al2-head h3 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 400;
 }
 
 .al2-refresh {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
+    gap: 8px;
+    padding: 8px 12px;
     border: 1px solid var(--brown);
     border-radius: 0;
     background: var(--white);
     color: var(--brown);
     font: inherit;
-    font-size: 12.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -780,19 +777,18 @@
 .al2-search input {
     flex: 1;
     min-width: 0;
-    padding: 9px 0;
+    padding: 8px 0;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
 .al2-select {
     min-width: 150px;
     max-width: 230px;
-    padding: 9px 34px 9px 12px;
+    padding: 8px 32px 8px 12px;
     border: 1px solid var(--line);
     border-radius: 0;
     appearance: none;
@@ -800,11 +796,10 @@
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a1b00' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
         no-repeat right 12px center;
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--brown-strong);
     cursor: pointer;
-    outline: none;
 }
 
 .al2-select:focus {
@@ -828,10 +823,9 @@
 .al2-dates input {
     padding: 8px 2px;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
@@ -842,26 +836,26 @@
     background: none;
     color: var(--red-dark);
     font: inherit;
-    font-size: 12.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     text-decoration: underline;
     cursor: pointer;
 }
 
 .al2-error {
-    margin: 0 0 10px;
-    padding: 9px 12px;
+    margin: 0 0 8px;
+    padding: 8px 12px;
     border: 1px solid var(--red-soft);
     background: var(--red-soft);
     color: var(--red-dark);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .al2-empty {
     margin: 0;
     padding: 40px 0;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-soft);
 }
 
@@ -873,24 +867,24 @@
 .al2-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
 .al2-table th {
-    padding: 10px;
+    padding: 8px;
     background: var(--peach-soft);
     border-bottom: 1px solid rgba(90, 27, 0, 0.15);
     text-align: left;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--brown-soft);
 }
 
 .al2-table td {
-    padding: 11px 10px;
+    padding: 12px 8px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.08);
     vertical-align: middle;
 }
@@ -907,10 +901,10 @@
 }
 
 .al2-day td {
-    padding: 7px 10px;
+    padding: 8px 8px;
     background: var(--cream-card);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--brown-soft);
@@ -929,11 +923,11 @@
 
 .al2-type {
     display: inline-block;
-    padding: 3px 9px;
+    padding: 3px 8px;
     background: var(--line-soft);
     color: var(--brown-muted);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -957,14 +951,14 @@
 }
 
 .al2-more {
-    padding: 7px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--brown);
     border-radius: 0;
     background: var(--white);
     color: var(--brown);
     font: inherit;
-    font-size: 12.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -973,7 +967,7 @@
     color: var(--white);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 640px) {
     .al2-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -982,7 +976,7 @@
 /* ===== Rescue Assignments redesign (rs2) — matches Reports ===== */
 .rs2-page {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .rs2-page *,
@@ -997,11 +991,11 @@
 
 .rs2-msg {
     margin: 0;
-    padding: 10px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--green-soft);
     background: var(--cream-card);
     color: var(--green-dark);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .rs2-msg.is-error {
@@ -1013,15 +1007,15 @@
 .rs2-grid {
     display: grid;
     grid-template-columns: 360px minmax(0, 1fr);
-    gap: 14px;
+    gap: 16px;
     align-items: start;
 }
 
 .rs2-card {
     min-width: 0;
-    padding: 18px 20px;
+    padding: 16px 20px;
     border: 1px solid rgba(90, 27, 0, 0.12);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--paper);
     color: var(--brown);
 }
@@ -1029,13 +1023,13 @@
 .rs2-card h3 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 400;
 }
 
 .rs2-sub {
     margin: 4px 0 4px;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--brown-soft);
 }
 
@@ -1052,13 +1046,13 @@
 
 .rs2-field {
     display: grid;
-    gap: 5px;
+    gap: 4px;
     min-width: 0;
 }
 
 .rs2-field > span {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .rs2-field em {
@@ -1067,7 +1061,7 @@
 }
 
 .rs2-field small {
-    font-weight: 500;
+    font-weight: 400;
     color: var(--brown-muted);
 }
 
@@ -1076,14 +1070,13 @@
 .rs2-field textarea,
 .rs2-select {
     width: 100%;
-    padding: 9px 11px;
+    padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 0;
     background: var(--white);
     color: var(--brown-strong);
     font: inherit;
-    font-size: 13px;
-    outline: none;
+    font-size: 14px;
 }
 
 .rs2-field select,
@@ -1117,7 +1110,7 @@
     color: var(--white);
     font: inherit;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -1137,7 +1130,7 @@
     color: var(--brown);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     text-decoration: underline;
     cursor: pointer;
 }
@@ -1160,19 +1153,19 @@
 
 .rs2-chips {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .rs2-chips button {
-    padding: 6px 14px;
+    padding: 8px 16px;
     border: 1px solid var(--brown-soft);
     border-radius: 999px;
     background: var(--paper);
     color: var(--brown-soft);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -1219,12 +1212,11 @@
 .rs2-search input {
     flex: 1;
     min-width: 0;
-    padding: 9px 0;
+    padding: 8px 0;
     border: 0;
-    outline: none;
     background: transparent;
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
@@ -1232,7 +1224,7 @@
     margin: 0;
     padding: 40px 0;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-soft);
 }
 
@@ -1244,17 +1236,17 @@
 .rs2-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--brown-strong);
 }
 
 .rs2-table th {
-    padding: 10px;
+    padding: 8px;
     background: var(--peach-soft);
     border-bottom: 1px solid rgba(90, 27, 0, 0.15);
     text-align: left;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--brown-soft);
@@ -1262,7 +1254,7 @@
 }
 
 .rs2-table td {
-    padding: 11px 10px;
+    padding: 12px 8px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.08);
     vertical-align: middle;
 }
@@ -1296,8 +1288,8 @@
 
 .rs2-priority {
     padding: 3px 8px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
     background: var(--line-soft);
     color: var(--brown-muted);
@@ -1308,10 +1300,10 @@
 .rs2-priority.is-low { background: var(--cream-card); color: var(--brown-muted); }
 
 .rs2-status {
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
     background: var(--cream-card);
     color: var(--brown-muted);
@@ -1330,14 +1322,14 @@
 }
 
 .rs2-mini {
-    padding: 6px 10px;
+    padding: 8px 8px;
     border: 1px solid var(--brown);
     border-radius: 0;
     background: var(--white);
     color: var(--brown);
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -1368,13 +1360,13 @@
     color: var(--brown-soft);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
     .rs2-grid {
         grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 640px) {
     .rs2-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1391,25 +1383,25 @@
 }
 
 /* ===================== Account Settings (as2) ===================== */
-.as2-page { display: flex; flex-direction: column; gap: 14px; color: var(--brown); min-width: 0; }
+.as2-page { display: flex; flex-direction: column; gap: 16px; color: var(--brown); min-width: 0; }
 .as2-nav { display: flex; gap: 0; overflow-x: auto; scrollbar-width: thin; background: var(--paper); border: 1px solid var(--line); -webkit-overflow-scrolling: touch; }
-.as2-nav button { flex: none; white-space: nowrap; padding: 12px 18px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--brown); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 0; }
+.as2-nav button { flex: none; white-space: nowrap; padding: 12px 16px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--brown); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; border-radius: 0; }
 .as2-nav button:hover { background: var(--peach-soft); }
 .as2-nav button.is-active { border-bottom-color: var(--orange); background: var(--brown); color: var(--paper); }
-.as2-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.as2-card { background: var(--paper); border: 1px solid var(--line); padding: 18px 20px; }
+.as2-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.as2-card { background: var(--paper); border: 1px solid var(--line); padding: 16px 20px; }
 .as2-card.is-muted { background: var(--cream-card); }
-.as2-state { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; grid-column: 1 / -1; }
+.as2-state { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; grid-column: 1 / -1; }
 .as2-card-head { margin-bottom: 8px; }
 .as2-card-head h2 { margin: 0; font-size: 16px; font-weight: 800; color: var(--brown); }
-.as2-card-head p { margin: 4px 0 0; font-size: 13px; color: var(--brown-muted); }
-.as2-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line-soft); }
+.as2-card-head p { margin: 4px 0 0; font-size: 14px; color: var(--brown-muted); }
+.as2-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line-soft); }
 .as2-card-head + .as2-row { border-top: 0; }
 .as2-row > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .as2-row strong { font-size: 14px; }
-.as2-row small { font-size: 12.5px; color: var(--brown-muted); overflow-wrap: anywhere; }
-.as2-pill { flex-shrink: 0; padding: 4px 10px; background: var(--green-soft); color: var(--green-dark); font-size: 12px; font-weight: 700; border: 1px solid var(--green-soft); }
-.as2-btn { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 9px 16px; border: 1px solid var(--line); background: var(--white); color: var(--brown); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 0; }
+.as2-row small { font-size: 12px; color: var(--brown-muted); overflow-wrap: anywhere; }
+.as2-pill { flex-shrink: 0; padding: 4px 8px; background: var(--green-soft); color: var(--green-dark); font-size: 12px; font-weight: 800; border: 1px solid var(--green-soft); }
+.as2-btn { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 8px 16px; border: 1px solid var(--line); background: var(--white); color: var(--brown); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; border-radius: 0; }
 .as2-btn:hover:not(:disabled) { border-color: var(--brown); }
 .as2-btn:disabled, .as2-btn.is-disabled { opacity: .5; cursor: not-allowed; }
 .as2-btn.is-primary { background: var(--orange); border-color: var(--orange); color: var(--white); }
@@ -1417,19 +1409,19 @@
 .as2-btn.is-ghost { background: transparent; }
 .as2-btn.is-danger { color: var(--red-dark); border-color: var(--red-soft); }
 .as2-btn.is-danger:hover { border-color: var(--red-dark); }
-.as2-actions { display: flex; justify-content: flex-end; gap: 10px; }
-.as2-actions.is-inline { margin-top: 14px; }
-.as2-photo-row { display: flex; align-items: center; gap: 16px; padding: 8px 0 14px; }
-.as2-avatar { width: 72px; height: 72px; flex-shrink: 0; display: grid; place-items: center; background: var(--peach-soft); border: 1px solid var(--line); font-size: 22px; font-weight: 800; color: var(--brown); overflow: hidden; }
+.as2-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.as2-actions.is-inline { margin-top: 16px; }
+.as2-photo-row { display: flex; align-items: center; gap: 16px; padding: 8px 0 16px; }
+.as2-avatar { width: 72px; height: 72px; flex-shrink: 0; display: grid; place-items: center; background: var(--peach-soft); border: 1px solid var(--line); font-size: 24px; font-weight: 800; color: var(--brown); overflow: hidden; }
 .as2-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .as2-photo-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .as2-photo-actions small { width: 100%; font-size: 12px; color: var(--brown-muted); }
-.as2-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.as2-field { display: flex; flex-direction: column; gap: 6px; }
+.as2-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.as2-field { display: flex; flex-direction: column; gap: 8px; }
 .as2-field.is-wide { grid-column: 1 / -1; }
-.as2-field > span { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--brown-muted); }
-.as2-field input { padding: 10px 12px; border: 1px solid var(--line); border-radius: 0; background: var(--white); color: var(--brown); font: inherit; font-size: 14px; }
-.as2-field input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 2px rgba(251, 133, 0, .18); }
+.as2-field > span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--brown-muted); }
+.as2-field input { padding: 8px 12px; border: 1px solid var(--line); border-radius: 0; background: var(--white); color: var(--brown); font: inherit; font-size: 14px; }
+.as2-field input:focus { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(251, 133, 0, .18); }
 .as2-field input:disabled { background: var(--cream-card); color: var(--brown-muted); }
 .as2-field small { font-size: 12px; color: var(--brown-muted); }
 .as2-switch { position: relative; flex-shrink: 0; width: 44px; height: 24px; padding: 0; border: 0; border-radius: 999px; background: var(--line); cursor: pointer; transition: background .15s; }
@@ -1437,13 +1429,13 @@
 .as2-switch.is-on { background: var(--green); }
 .as2-switch.is-on span { transform: translateX(20px); }
 .as2-switch:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
-.as2-notice { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border: 1px solid; font-size: 13.5px; font-weight: 600; }
-.as2-notice button { border: 0; background: transparent; font-size: 18px; line-height: 1; cursor: pointer; color: inherit; }
+.as2-notice { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px; border: 1px solid; font-size: 14px; font-weight: 600; }
+.as2-notice button { border: 0; background: transparent; font-size: 20px; line-height: 1; cursor: pointer; color: inherit; }
 .as2-notice.is-success { background: var(--green-soft); border-color: var(--green-soft); color: var(--green-dark); }
 .as2-notice.is-error { background: var(--red-soft); border-color: var(--red-soft); color: var(--red-dark); }
 .as2-notice.is-info { background: var(--paper); border-color: var(--gold); color: var(--amber); }
-@media (max-width: 760px) {
-    .as2-nav button { padding: 10px 14px; font-size: 13px; }
+@media (max-width: 640px) {
+    .as2-nav button { padding: 8px 16px; font-size: 14px; }
     .as2-fields { grid-template-columns: 1fr; }
     .as2-row { flex-wrap: wrap; }
 }
@@ -1465,7 +1457,7 @@
 .ns2-progress { width: 120px; height: 8px; background: var(--line-soft); overflow: hidden; margin-bottom: 4px; }
 .ns2-progress span { display: block; height: 100%; background: var(--orange); }
 .ns2-progress span.is-done { background: var(--green); }
-.ns2-remaining { font-weight: 800; font-size: 15px; }
+.ns2-remaining { font-weight: 800; font-size: 16px; }
 .rs2-status:not(.is-active):not(.is-completed):not(.is-pending):not(.is-accepted):not(.is-open) { background: var(--cream-card); color: var(--brown-muted); }
 .rs2-status.is-open { background: var(--line-soft); color: var(--orange-dark); }
 .ns2-actions { display: grid; grid-template-columns: 52px 76px 32px; gap: 8px; justify-content: end; align-items: center; }

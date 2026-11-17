@@ -7,13 +7,13 @@
 
 .rp-field {
     display: grid;
-    gap: 6px;
-    margin-bottom: 14px;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
 .rp-field > span {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--brown-strong);
 }
 
@@ -23,20 +23,19 @@
 }
 
 .rp-field small {
-    font-weight: 500;
+    font-weight: 400;
     color: var(--brown-muted);
 }
 
 .rp-field textarea {
     width: 100%;
-    padding: 9px 11px;
+    padding: 8px 12px;
     border: 1px solid var(--line);
     background: var(--white);
     color: var(--brown-strong);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     resize: vertical;
-    outline: none;
 }
 
 .rp-field textarea:focus {
@@ -45,7 +44,7 @@
 
 .ao-confirm .rp-notes {
     margin: 0;
-    padding: 9px 11px;
+    padding: 8px 12px;
     background: var(--white);
     border: 1px solid var(--line-soft);
     color: var(--brown-strong);
@@ -64,7 +63,7 @@
     width: 76px;
     height: 76px;
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     background: var(--paper);
 }
@@ -91,7 +90,7 @@
     border-radius: 50%;
     background: rgba(40, 20, 5, 0.7);
     color: var(--white);
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1;
     cursor: pointer;
 }
@@ -102,7 +101,7 @@
     border-style: dashed;
     color: var(--orange-dark);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     text-align: center;
     cursor: pointer;
 }
@@ -129,12 +128,12 @@
 .rp-row-photos {
     display: flex;
     gap: 4px;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 .rp-row-photos img {
     width: 36px;
     height: 36px;
-    border-radius: 6px;
+    border-radius: 8px;
     object-fit: cover;
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -182,7 +183,7 @@ export default function Analytics() {
         return (
             <section className="an2-page">
                 <div className="an2-card">
-                    <p className="an2-muted">Loading analytics...</p>
+                    <LoadingState label="Loading analytics…" />
                 </div>
             </section>
         );

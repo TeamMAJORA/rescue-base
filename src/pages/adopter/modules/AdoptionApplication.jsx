@@ -1,9 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "../../../styles/adopter/AdoptionApplication.css";
 import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
 import InfoTip from "../../../components/system/InfoTip";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatTime } from "../../../utils/formatDate";
+import Icon from "../../../components/system/Icon";
+import PhoneInput from "../../../components/system/PhoneInput";
+import RequiredValue from "../../../components/system/RequiredValue";
+import FormTracker from "../../../components/system/FormTracker";
+import { readFormDraft, useFormDraft } from "../../../utils/useFormDraft";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -35,15 +40,7 @@ export default function AdoptionApplication({
 
     const DRAFT_KEY = `rescuebase_adoption_draft_${savedUser.email || "guest"}_${pet?._id || "none"}`;
 
-    function readDraft() {
-        try {
-            return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
-        } catch {
-            return null;
-        }
-    }
-
-    const [form, setForm] = useState(() => readDraft()?.form || {
+    const [form, setForm] = useState(() => readFormDraft(DRAFT_KEY)?.form || {
             fullName: "",
             email: savedUser.email || "",
             phone: "",
@@ -62,7 +59,7 @@ export default function AdoptionApplication({
     const [initialForm] = useState(() => form);
     const [leaveOpen, setLeaveOpen] = useState(false);
 
-    const [document, setDocument] = useState(() => readDraft()?.document || null);
+    const [document, setDocument] = useState(() => readFormDraft(DRAFT_KEY)?.document || null);
     const [documentUploading, setDocumentUploading] =
         useState(false);
 
@@ -75,15 +72,12 @@ export default function AdoptionApplication({
     const [messageType, setMessageType] =
         useState("");
 
-    const [draftSavedAt, setDraftSavedAt] = useState(
-        () => readDraft()?.savedAt || null
-    );
     const [activeStep, setActiveStep] = useState(null);
-    const [errors, setErrors] = useState({});
     const [dragActive, setDragActive] = useState(false);
     const hasProgress = Boolean(
         form.fullName || form.phone || form.address || form.reason || form.experience || document
     );
+    const { draftSavedAt, clearDraft } = useFormDraft(DRAFT_KEY, { form, document }, hasProgress);
     function requestLeave() {
         if (submitting || documentUploading) return;
         if (hasProgress) { setLeaveOpen(true); return; }
@@ -114,10 +108,9 @@ export default function AdoptionApplication({
         },
     ];
 
-    const currentStepIndex = trackerSteps.findIndex((step) => !step.done);
-    const allStepsDone = currentStepIndex === -1;
+    const firstUnfinishedStep = trackerSteps.findIndex((step) => !step.done);
     const highlightedStep =
-        activeStep ?? (allStepsDone ? trackerSteps.length - 1 : currentStepIndex);
+        activeStep ?? (firstUnfinishedStep === -1 ? trackerSteps.length - 1 : firstUnfinishedStep);
 
     function scrollToStep(index) {
         setActiveStep(index);
@@ -142,43 +135,7 @@ export default function AdoptionApplication({
             ...currentForm,
             [name]: value,
         }));
-
-        setErrors((current) => ({ ...current, [name]: undefined }));
     }
-
-    
-    function handlePhoneChange(event) {
-        const digits = event.target.value
-            .replace(/\D/g, "")
-            .replace(/^63/, "")
-            .replace(/^0/, "")
-            .slice(0, 10);
-
-        setMessage("");
-        setForm((current) => ({ ...current, phone: digits }));
-        setErrors((current) => ({ ...current, phone: undefined }));
-    }
-function validateForm() {
-    const newErrors = {};
-
-    if (!form.fullName.trim()) newErrors.fullName = "Please enter your full name.";
-
-    if (!form.phone.trim()) newErrors.phone = "Please enter your phone number.";
-    else if (!/^9\d{9}$/.test(form.phone)) newErrors.phone = "Enter a valid 10-digit mobile number starting with 9.";
-
-    if (form.homeType === "Other" && !(form.homeTypeOther || "").trim())
-        newErrors.homeTypeOther = "Please describe your home type.";
-
-    if (!form.address.trim()) newErrors.address = "Please enter your complete address.";
-
-    if (!form.reason.trim()) newErrors.reason = `Please tell us why you want to adopt ${pet.name}.`;
-
-    if (!form.experience.trim()) newErrors.experience = 'Please describe your pet-care experience, or write "None".';
-    if (!document) newErrors.document = "Please upload a valid ID before submitting.";
-
-    return newErrors;
-}
-
     async function handleDocumentUpload(event) {
         const file = event.target.files?.[0] || event.dataTransfer?.files?.[0];
 
@@ -247,7 +204,6 @@ function validateForm() {
                 status: "pending",
                 
             });
-            setErrors((current) => ({ ...current, document: undefined }));
             showMessage(
                 "success",
                 "Identification document uploaded successfully."
@@ -288,17 +244,6 @@ function validateForm() {
 
             return;
         }
-
-        const newErrors = validateForm();
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            showMessage("error", "Please fix the highlighted fields before submitting.");
-            const firstField = window.document.querySelector(`[name="${Object.keys(newErrors)[0]}"]`);
-            firstField?.focus();
-            firstField?.scrollIntoView({ behavior: "smooth", block: "center" });
-            return;
-        }
-        setErrors({});
 
         try {
             setSubmitting(true);
@@ -400,7 +345,7 @@ function validateForm() {
                     pendingApplication
                 )
             );
-            localStorage.removeItem(DRAFT_KEY);
+            clearDraft();
             showMessage(
                 "success",
                 `Your adoption application for ${pet.name} was submitted successfully.`
@@ -445,7 +390,7 @@ function validateForm() {
                     type="button"
                     onClick={() => onBack?.()}
                 >
-                    Browse Available Pets
+                    Browse available pets
                 </button>
             </section>
         );
@@ -479,39 +424,21 @@ function validateForm() {
                         documentUploading
                     }
                 >
-                    ← Back to Pets
+                    <Icon name="arrow-left" /> Back to Pets
                 </button>
             </header>
 
-            <nav className="adoption-tracker" aria-label="Application progress">
-                <ol>
-                    {trackerSteps.map((step, index) => (
-                        <li
-                            key={step.key}
-                            className={`${step.done ? "is-done" : ""} ${
-                                index === highlightedStep ? "is-current" : ""
-                            }`}
-                        >
-                            <button type="button" onClick={() => scrollToStep(index)}>
-                                <b>{step.done ? "✓" : index + 1}</b>
-                                {step.label}
-                            </button>
-                        </li>
-                    ))}
-                </ol>
-
-                <span className={`adoption-tracker-pill ${allStepsDone ? "is-ready" : ""}`}>
-                    {allStepsDone
-                        ? "Ready to submit"
-                        : `Step ${highlightedStep + 1} of ${trackerSteps.length}`}
-                </span>
-            </nav>
+            <FormTracker
+                steps={trackerSteps}
+                currentIndex={highlightedStep}
+                onSelect={scrollToStep}
+                label="Application progress"
+            />
 
             <div className="adoption-module-layout">
                 <PetDetailPanel
                     className="browse-pet-details-panel"
                     pet={pet}
-                    showApply={false}
                 >
                     <div className="adoption-selected-pet-note">
                         <h3>Before submitting</h3>
@@ -528,13 +455,13 @@ function validateForm() {
 
                 <form
                     className="adoption-module-form"
-                    onSubmit={handleSubmit} noValidate
+                    onSubmit={handleSubmit}
                 >
                     <section className="adoption-form-group" id="adoption-step-1" onFocus={() => setActiveStep(0)}>
                         <div className="adoption-form-heading adoption-form-heading--numbered">
                             <b className="adoption-step-number">1</b>
                             <div>
-                                <h3>Applicant Information</h3>
+                                <h3>Applicant information</h3>
                                 <p>
                                     Tell us who you are and where the pet will live.
                                     Your email comes from your RescueBase account.
@@ -545,7 +472,7 @@ function validateForm() {
                         <div className="adoption-form-grid">
                             <label>
                                 <span className="adoption-label-text">
-                                    Full Name <em>*</em>
+                                    Full name <span className="required-mark">*</span>
                                 </span>
                                 <input
                                     type="text"
@@ -554,20 +481,19 @@ function validateForm() {
                                     onChange={handleChange}
                                     placeholder="First and last name"
                                     autoComplete="name"
-                                    className={errors.fullName ? "has-error" : ""}
-                                    aria-invalid={Boolean(errors.fullName)}
+                                    data-required-message="Enter your full name."
                                     required
                                 />
-                                {errors.fullName && <small className="adoption-field-error">{errors.fullName}</small>}
                                 </label>
 
                             <label>
-                                Email Address
+                                Email address
                                 <span className="adoption-locked-field">
                                     <input
                                         type="email"
                                         name="email"
                                         value={form.email}
+                                        autoComplete="email"
                                         readOnly
                                         required
                                     />
@@ -578,27 +504,24 @@ function validateForm() {
 
                             <label>
                                 <span className="adoption-label-text">
-                                    Phone Number <em>*</em>
+                                    Phone number <span className="required-mark">*</span>
                                 </span>
-                                <span className={`adoption-phone-field ${errors.phone ? "has-error" : ""}`}>
-                                    <span className="adoption-phone-prefix">+63</span>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        inputMode="numeric"
-                                        value={form.phone}
-                                        onChange={handlePhoneChange}
-                                        placeholder="9XX XXX XXXX"
-                                        required
-                                    />
-                                </span>
-                                {errors.phone && <small className="adoption-field-error">{errors.phone}</small>}
+                                <PhoneInput
+                                    name="phone"
+                                    value={form.phone}
+                                    onDigitsChange={(phone) => {
+                                        setMessage("");
+                                        setForm((current) => ({ ...current, phone }));
+                                    }}
+                                    data-required-message="Enter your phone number."
+                                    required
+                                />
                                 <small>We call or text this to schedule your interview.</small>
                             </label>
 
                             <div className="adoption-choice-field">
                                 <span className="adoption-label-text">
-                                    Home Type <em>*</em>
+                                    Home Type <span className="required-mark">*</span>
                                     <InfoTip text="Where the pet will live. This helps shelter staff check that the animal suits your home." />
                                 </span>
 
@@ -638,31 +561,26 @@ function validateForm() {
                                             placeholder="Describe your home (e.g. townhouse, dorm, farm)"
                                             maxLength={60}
                                             autoFocus
-                                            className={errors.homeTypeOther ? "has-error" : ""}
-                                            aria-invalid={Boolean(errors.homeTypeOther)}
+                                            data-required-message="Describe your home type."
                                             required
                                         />
-                                        {errors.homeTypeOther && (
-                                            <small className="adoption-field-error">{errors.homeTypeOther}</small>
-                                        )}
                                     </>
                                 )}
                             </div>
 
                             <label className="adoption-form-wide">
                                 <span className="adoption-label-text">
-                                    Complete Address <em>*</em>
+                                    Complete address <span className="required-mark">*</span>
                                 </span>
                             <textarea
                                 name="address"
                                 value={form.address}
+                                autoComplete="street-address"
                                 onChange={handleChange}
                                 placeholder="House number, street, barangay, and city"
-                                className={errors.address ? "has-error" : ""}
-                                aria-invalid={Boolean(errors.address)}
+                                data-required-message="Enter your complete address."
                                 required
                             />
-                            {errors.address && <small className="adoption-field-error">{errors.address}</small>}
                             </label>
                         </div>
                     </section>
@@ -671,7 +589,7 @@ function validateForm() {
                         <div className="adoption-form-heading adoption-form-heading--numbered">
                             <b className="adoption-step-number">2</b>
                             <div>
-                                <h3>Household Information</h3>
+                                <h3>Household information</h3>
                                 <p>Helps us match {pet.name} with a safe, suitable home.</p>
                             </div>
                         </div>
@@ -691,7 +609,7 @@ function validateForm() {
                             ].map((question) => (
                                 <div className="adoption-choice-field" key={question.name}>
                                     <span className="adoption-label-text">
-                                        {question.label} <em>*</em>
+                                        {question.label} <span className="required-mark">*</span>
                                         <InfoTip text={question.tip} />
                                     </span>
 
@@ -723,7 +641,7 @@ function validateForm() {
 
                             <label className="adoption-form-wide">
                                 <span className="adoption-label-text">
-                                    Why do you want to adopt {pet.name}? <em>*</em>
+                                    Why do you want to adopt {pet.name}? <span className="required-mark">*</span>
                                     <InfoTip text="Share what draws you to this pet and how they will fit into your daily life. Honest answers help staff during your interview." />
                                 </span>
                                 <span className="adoption-textarea-wrap">
@@ -733,18 +651,16 @@ function validateForm() {
                                         onChange={handleChange}
                                         placeholder="Tell us why you want to provide this animal with a permanent home."
                                         maxLength={500}
-                                        className={errors.reason ? "has-error" : ""}
-                                        aria-invalid={Boolean(errors.reason)}
+                                        data-required-message={`Tell us why you want to adopt ${pet.name}.`}
                                         required
                                     />
                                     <span className="adoption-char-count">{form.reason.length} / 500</span>
                                 </span>
-                                {errors.reason && <small className="adoption-field-error">{errors.reason}</small>}
                             </label>
 
                             <label className="adoption-form-wide">
                                 <span className="adoption-label-text">
-                                    Previous pet-care experience <em>*</em>
+                                    Previous pet-care experience <span className="required-mark">*</span>
                                     <InfoTip text="Mention pets you have owned or cared for, how long, and any training or vet care you handled. No experience is okay, just write None." />
                                 </span>
                                 <span className="adoption-textarea-wrap">
@@ -754,13 +670,11 @@ function validateForm() {
                                         onChange={handleChange}
                                         placeholder='Describe your experience caring for animals, or write "None".'
                                         maxLength={500}
-                                        className={errors.experience ? "has-error" : ""}
-                                        aria-invalid={Boolean(errors.experience)}
+                                        data-required-message='Describe your pet-care experience, or write "None".'
                                         required
                                     />
                                     <span className="adoption-char-count">{form.experience.length} / 500</span>
                                 </span>
-                                {errors.experience && <small className="adoption-field-error">{errors.experience}</small>}
                             </label>
                         </div>
                     </section>
@@ -769,20 +683,20 @@ function validateForm() {
                         <div className="adoption-form-heading adoption-form-heading--numbered">
                             <b className="adoption-step-number">3</b>
                             <div>
-                                <h3>Identification Document</h3>
+                                <h3>Identification document</h3>
                                 <p>We only use this to verify who you are. It is seen by shelter staff only.</p>
                             </div>
                         </div>
 
                         <div className="adoption-id-field">
                             <span className="adoption-label-text">
-                                Upload identification image <em>*</em>
+                                Upload identification image <span className="required-mark">*</span>
                                 <InfoTip text="A clear photo of any valid ID, such as a National ID, driver's license, passport, or school ID. Make sure your name and photo are readable." />
                             </span>
 
                             {!document && (
                                 <label
-                                    className={`adoption-dropzone ${dragActive ? "is-dragging" : ""} ${errors.document ? "has-error" : ""} ${documentUploading ? "is-uploading" : ""}`}
+                                    className={`adoption-dropzone ${dragActive ? "is-dragging" : ""} ${documentUploading ? "is-uploading" : ""}`}
                                     onDragOver={(event) => {
                                         event.preventDefault();
                                         setDragActive(true);
@@ -815,7 +729,7 @@ function validateForm() {
 
                                     <span className="adoption-dropzone-text">
                                         <strong>
-                                            {documentUploading ? "Uploading your ID..." : "Drag and drop your ID here"}
+                                            {documentUploading ? "Uploading your ID…" : "Drag and drop your ID here"}
                                         </strong>
                                         <small>or click to browse from your device</small>
                                         <span className="adoption-dropzone-tags">
@@ -825,11 +739,11 @@ function validateForm() {
                                         </span>
                                     </span>
 
-                                    <span className="adoption-dropzone-button">Choose File</span>
+                                    <span className="adoption-dropzone-button">Choose file</span>
                                 </label>
                             )}
 
-                            {errors.document && <small className="adoption-field-error">{errors.document}</small>}
+                            <RequiredValue value={document?.documentUrl} message="Upload a photo of a valid ID." />
                         </div>
 
                         {document && (
@@ -844,7 +758,7 @@ function validateForm() {
                                         onClick={removeDocument}
                                         disabled={submitting || documentUploading}
                                     >
-                                        Remove Document
+                                        Remove document
                                     </button>
                                 </div>
                             </div>
@@ -876,7 +790,7 @@ function validateForm() {
                             type="button"
                             className="adoption-cancel-button"
                             onClick={() => {
-                                localStorage.removeItem(DRAFT_KEY);
+                                clearDraft();
                                 setForm({
                                     fullName: "",
                                     email: savedUser.email || "",
@@ -890,13 +804,12 @@ function validateForm() {
                                     experience: "",
                                 });
                                 setDocument(null);
-                                setDraftSavedAt(null);
                                 showMessage("success", "Form cleared. You can start over.");
                                 window.setTimeout(() => setMessage(""), 3000);
                             }}
                             disabled={submitting || documentUploading}
                         >
-                            Clear Form
+                            Clear form
                         </button>
 
                         <button
@@ -908,16 +821,16 @@ function validateForm() {
                             }
                         >
                             {documentUploading
-                                ? "Uploading document..."
+                                ? "Uploading document…"
                                 : submitting
-                                    ? "Submitting application..."
+                                    ? "Submitting application…"
                                     : `Submit Application for ${pet.name}`}
                         </button>
                     </div>
 
-                     {hasProgress && draftSavedAt && (
-                        <small className="adoption-draft-note">
-                            ✓ Draft saved at{" "}
+                    {hasProgress && draftSavedAt && (
+                        <small className="form-draft-note">
+                            <Icon name="check" /> Draft saved at{" "}
                             {formatTime(draftSavedAt)}
                         </small>
                     )}
@@ -949,8 +862,8 @@ function validateForm() {
 
                         <p>
                             You've filled in part of the form for{" "}
-                            <strong>{pet.name}</strong>. If you leave now,
-                            your answers won't be saved.
+                            <strong>{pet.name}</strong>. Your answers stay saved
+                            on this device, so you can finish later.
                         </p>
 
                         <div className="adopter-confirm-actions">
