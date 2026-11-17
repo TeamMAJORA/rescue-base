@@ -8,19 +8,30 @@
 .dh-hero {
     padding: 28px 32px;
     border-radius: 20px;
+<<<<<<< HEAD
     background: linear-gradient(135deg, #ff8a5c, #ffb36b);
     color: #fff;
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+=======
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    color: var(--white);
+    box-shadow: var(--shadow-modal);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-hero span {
     display: inline-flex;
-    margin-bottom: 10px;
-    padding: 6px 12px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.55);
+<<<<<<< HEAD
     color: var(--adopter-red);
     font-size: 11px;
+=======
+    color: var(--red);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -30,7 +41,7 @@
     font-family: "Itim", cursive;
     margin: 0 0 8px;
     font-size: 2.6rem;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .dh-hero p {
@@ -48,10 +59,15 @@
 
 .dh-stat {
     display: grid;
-    padding: 14px 18px;
+    padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.15);
+<<<<<<< HEAD
     border-radius: 14px;
     background: #fffaf0;
+=======
+    border-radius: 12px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-stat strong {
@@ -69,10 +85,15 @@
 .dh-panel {
     display: grid;
     gap: 16px;
-    padding: 18px;
+    padding: 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
+<<<<<<< HEAD
     border-radius: 18px;
     background: #fffaf0;
+=======
+    border-radius: 20px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-toolbar {
@@ -90,13 +111,20 @@
 }
 
 .dh-filters button {
-    padding: 7px 16px;
+    padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.3);
     border-radius: 999px;
+<<<<<<< HEAD
     background: #fff;
     color: #5a1b00;
     font-size: 13px;
     font-weight: 700;
+=======
+    background: var(--white);
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -109,11 +137,16 @@
 .dh-search {
     width: 300px;
     max-width: 100%;
-    padding: 10px 14px;
+    padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
+<<<<<<< HEAD
     border-radius: 10px;
     background: #fff;
     outline: none;
+=======
+    border-radius: 12px;
+    background: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-search:focus {
@@ -124,16 +157,16 @@
 /* List rows */
 .dh-list {
     display: grid;
-    gap: 10px;
+    gap: 8px;
 }
 
 .dh-row {
     display: grid;
     grid-template-columns: 40px 1fr 110px 120px 100px;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     width: 100%;
-    padding: 14px 16px;
+    padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.18);
     border-radius: 12px;
     background: #fffdf8;
@@ -145,7 +178,7 @@
 
 .dh-row:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .dh-row-icon {
@@ -153,8 +186,13 @@
     place-items: center;
     width: 36px;
     height: 36px;
+<<<<<<< HEAD
     color: #e07a00;
     font-size: 22px;
+=======
+    color: var(--orange-dark);
+    font-size: 24px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -179,9 +217,9 @@
 .dh-type,
 .dh-status {
     justify-self: center;
-    padding: 4px 14px;
+    padding: 4px 16px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
 }
@@ -198,8 +236,13 @@
 
 .dh-date {
     justify-self: center;
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 13px;
+=======
+    color: var(--brown);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-status {
@@ -232,15 +275,15 @@
 .dh-empty {
     display: grid;
     justify-items: center;
-    gap: 6px;
-    padding: 70px 20px;
+    gap: 8px;
+    padding: 72px 20px;
     border: 1.5px dashed rgba(90, 27, 0, 0.35);
     border-radius: 12px;
     text-align: center;
 }
 
 .dh-empty-icon {
-    font-size: 34px;
+    font-size: 32px;
 }
 
 .dh-empty h3 {
@@ -250,17 +293,28 @@
 
 .dh-empty p {
     margin: 0 0 8px;
+<<<<<<< HEAD
     color: #6c4b37;
     font-size: 13px;
+=======
+    color: var(--brown-soft);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-empty button {
-    padding: 10px 26px;
+    padding: 8px 24px;
     border: none;
     border-radius: 8px;
+<<<<<<< HEAD
     background: #fb8500;
     color: #fff;
     font-weight: 700;
+=======
+    background: var(--orange);
+    color: var(--white);
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -281,16 +335,26 @@
     max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
+<<<<<<< HEAD
     border-radius: 18px;
     background: #fff;
+=======
+    border-radius: 20px;
+    background: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+<<<<<<< HEAD
     padding: 18px 22px;
     border-bottom: 1px solid #eee;
+=======
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--line-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-modal-header h2 {
@@ -302,16 +366,16 @@
     width: 36px;
     height: 36px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     background: transparent;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
 }
 
 .dh-modal-body {
     display: grid;
-    gap: 14px;
-    padding: 22px;
+    gap: 16px;
+    padding: 24px;
 }
 
 .dh-modal-body img {
@@ -330,8 +394,13 @@
 }
 
 .dh-modal-body dt {
+<<<<<<< HEAD
     color: #8a6a55;
     font-weight: 700;
+=======
+    color: var(--brown-muted);
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-modal-body dd {
@@ -340,8 +409,13 @@
 }
 
 .dh-notes {
+<<<<<<< HEAD
     padding: 14px;
     border: 1px solid #ece4d8;
+=======
+    padding: 16px;
+    border: 1px solid var(--cream-card);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 12px;
     background: #faf8f5;
     color: #6b5848;
@@ -367,7 +441,7 @@
 .dh-stat {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 
 .dh-stat-icon {

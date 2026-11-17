@@ -256,7 +256,18 @@ export default function LandingPage({
 
             <TailsSection onSignup={onSignup} />
 
+<<<<<<< HEAD
             <CTAFooter />
+=======
+            {openPet && (
+                <PetDetailModal
+                    pet={openPet}
+                    onApply={onSignup}
+                    applyNote="You'll create a free account first."
+                    onClose={() => setOpenPet(null)}
+                />
+            )}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
         </main>
     );
 }

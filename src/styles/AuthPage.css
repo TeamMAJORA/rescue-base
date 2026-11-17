@@ -1,96 +1,25 @@
 /* =========================
-   AUTH PAGE
+   AUTH PAGE: log in, create account, forgot password, 6-digit code, new password.
+   Keeps the Figma look (landing-orange panel, photo slideshow, Itim headings, underlined fields).
+   Every step uses the same card, back button, field, button and message styles.
 ========================= */
 
 :root {
-    --auth-header-height: 86px;
+    --auth-header-height: 119px; /* same as the landing header */
     --auth-image-width: 760px;
-    --auth-curve: 17px;
-    --auth-overlap: -10px;
-    --auth-form-top: 150px;
 }
-
-.auth-header {
-    width: min(1220px, 100%);
-    height: 86px;
-    background: var(--yellow);
-    display: flex;
-    align-items: center;
-    padding: 0 42px;
-    position: relative;
-    z-index: 10;
-}
-
-/* HEADER */
 
 .auth-page {
     min-height: 100vh;
     width: 100%;
-    background: var(--yellow);
+    background: var(--landing-orange);
     overflow: hidden;
-    font-family: "Inter", Arial, sans-serif;
     color: var(--brown);
 }
 
-.auth-header {
-    width: 100%;
-    height: var(--auth-header-height);
-    background: var(--yellow);
-    display: flex;
-    align-items: center;
-    padding: 0 42px;
-    position: relative;
-    z-index: 10;
-}
+/* HEADER: the shared site header (components/landing/Header.jsx, styles in App.css) */
 
-.auth-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    color: var(--red);
-    font-family: "Itim", cursive;
-    cursor: pointer;
-}
-
-.auth-brand img {
-    width: 72px;
-    height: 72px;
-    object-fit: contain;
-}
-
-.auth-brand span {
-    font-size: 36px;
-    line-height: 1;
-}
-
-.auth-nav {
-    margin-left: auto;
-    margin-right: 30px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-family: "Itim", cursive;
-    font-size: 22px;
-    color: var(--red);
-}
-
-.auth-nav button {
-    background: transparent;
-    color: var(--red);
-    font-family: "Itim", cursive;
-    font-size: 19px;
-    cursor: pointer;
-}
-
-.auth-nav img {
-    width: 12px;
-    height: 12px;
-    object-fit: contain;
-}
-
-/* MAIN LAYOUT */
-
+/* LAYOUT: photo left, form panel right */
 .auth-shell {
     width: 100%;
     height: calc(100vh - var(--auth-header-height));
@@ -99,10 +28,9 @@
     position: relative;
 }
 
-
 .auth-image-wrap {
     position: relative;
-    height: calc(100vh - 86px);
+    height: 100%;
     overflow: hidden;
     z-index: 2;
 }
@@ -121,102 +49,80 @@
 .auth-slide.active {
     opacity: 1;
 }
-@keyframes authFade {
-    0% {
-        opacity: 0;
-    }
 
-    5% {
-        opacity: 1;
-    }
-
-    20% {
-        opacity: 1;
-    }
-
-    25% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 0;
-    }
-}
-
-.auth-image-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 30% center;
-}
-
+/* The panel scrolls when a step is taller than the screen (sign-up with messages no longer gets cut off) */
 .auth-panel {
     position: relative;
-    height: calc(100vh - 78px + 55px);
-    background: var(--yellow);
-
-    border-top-left-radius: 72px;
-    border-bottom-left-radius: 72px;
-
-    margin-left: -21px;
-    margin-top: -33px;
-
+    z-index: 3;
+    height: calc(100% + 32px);
+    margin: -32px 0 0 -20px;
+    padding: clamp(32px, 8vh, 96px) 24px 48px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: var(--landing-orange);
+    border-top-left-radius: 72px;
+    border-bottom-left-radius: 72px;
+}
 
-    padding-top: 220px;
-    z-index: 3;
+/* CARD (same for every step) */
+.auth-card {
+    width: min(360px, 100%);
+    color: var(--brown);
 }
 
 .auth-back {
-    position: absolute;
-    top: 68px;
-    left: 74px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0 0 16px -4px;
+    padding: 0 4px;
     background: transparent;
     color: var(--brown);
     font-family: "Itim", cursive;
-    font-size: 28px;
-    line-height: 1;
+    font-size: 20px;
     cursor: pointer;
 }
 
-/* FORM CARD */
-
-.auth-card {
-    width: 335px;
+.auth-step {
     text-align: center;
-    color: var(--brown);
 }
 
-.auth-card h1 {
+.auth-step h1 {
+    margin: 0;
     font-family: "Itim", cursive;
-    font-size: 24px;
-    font-weight: 500;
-    margin-bottom: 60px;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.15;
 }
 
 .auth-subtext {
-    font-size: 12px;
+    margin: 8px 0 24px;
     color: var(--brown);
-    opacity: 0.8;
-    margin: -40px 0 24px;
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
-/* AUTH MESSAGES (errors / success) */
+.auth-subtext strong {
+    color: var(--brown-strong);
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
 
+.auth-step form {
+    text-align: left;
+}
+
+/* Server messages (wrong password, account exists …); look comes from Feedback.css */
 .auth-message {
-    width: 100%;
-    box-sizing: border-box;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
     margin-bottom: 16px;
     text-align: left;
-    line-height: 1.4;
 }
 
+<<<<<<< HEAD
 .auth-message-error {
     background: rgba(178, 34, 34, 0.12);
     color: #b22222;
@@ -237,160 +143,304 @@
 
 /* GOOGLE BUTTON */
 
+=======
+/* GOOGLE + DIVIDER */
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 .google-btn {
     width: 100%;
-    height: 38px;
-    border-radius: 8px;
-    background: rgba(90, 27, 0, 0.25);
-    color: var(--brown);
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    font-size: 11px;
+    gap: 8px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--brown) 16%, transparent);
+    color: var(--brown-strong);
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
 }
 
 .google-btn:hover {
-    background: rgba(90, 27, 0, 0.33);
+    background: color-mix(in srgb, var(--brown) 24%, transparent);
 }
 
 .google-icon {
-    width: 29px;
-    height: 29px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
 }
 
-/* DIVIDER */
-
 .auth-divider {
-    margin: 24px 0 22px;
-    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
     color: var(--brown);
+    font-size: 14px;
 }
 
-/* INPUTS */
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--brown) 35%, transparent);
+}
 
+/* FIELDS: label row (with optional link), underlined input, one message line */
 .auth-field {
-    display: block;
-    text-align: left;
-    margin-bottom: 22px;
-    position: relative;
+    margin-bottom: 20px;
 }
 
-.auth-field span {
-    display: block;
-    font-size: 11px;
-    color: var(--brown);
+.auth-field-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
     margin-bottom: 4px;
+}
+
+.auth-field-head label {
+    color: var(--brown-strong);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.auth-field-control {
+    position: relative;
 }
 
 .auth-field input {
     width: 100%;
-    height: 24px;
-    background: transparent;
+    height: 40px;
+    padding: 0 44px 0 0;
     border: none;
     border-bottom: 1px solid var(--brown);
-    outline: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--brown-strong);
+    font-size: 16px;
+}
+
+.auth-field.has-error input {
+    border-bottom: 2px solid var(--red-dark);
+}
+
+/* Messages: dark text for contrast on orange; the icon carries the colour */
+.auth-field-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    margin: 4px 0 0;
     color: var(--brown);
     font-size: 13px;
-    padding-right: 28px;
+    line-height: 1.4;
 }
 
-.auth-field input:focus {
-    border-bottom-width: 2px;
+.auth-field-msg .rb-icon {
+    margin-top: 2px;
 }
 
-/* PASSWORD EYE */
+.auth-field-msg.is-error {
+    color: var(--brown-strong);
+    font-weight: 600;
+}
 
-.auth-password button {
+.auth-field-msg.is-error .rb-icon {
+    color: var(--red-dark);
+}
+
+.auth-field-msg.is-met .rb-icon {
+    color: var(--green-dark);
+}
+
+/* Show/hide password: 44px target over the end of the field */
+.auth-eye {
     position: absolute;
-    right: 0;
-    bottom: 4px;
+    right: -10px;
+    bottom: -2px;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
     background: transparent;
     color: var(--brown);
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
 }
 
-/* SUBMIT BUTTON */
+.auth-eye:hover {
+    color: var(--brown-strong);
+}
 
+/* Text links (Forgot password?, Create an account, Resend) */
+.auth-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--brown-strong);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.auth-link.is-strong {
+    font-weight: 800;
+}
+
+.auth-link:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* PRIMARY BUTTON */
 .auth-submit {
     width: 100%;
-    height: 38px;
-    border-radius: 7px;
+    min-height: 48px;
+    margin-top: 4px;
+    border-radius: 12px;
     background: var(--brown);
     color: var(--cream);
     font-family: "Itim", cursive;
-    font-size: 14px;
-    margin-top: 4px;
+    font-size: 18px;
     cursor: pointer;
 }
 
 .auth-submit:hover {
-    background: var(--red-dark);
+    background: var(--brown-strong);
 }
 
-/* SWITCH LOGIN / SIGNUP */
+.auth-submit:disabled,
+.google-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 .auth-switch {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
+    margin: 20px 0 0;
+    font-size: 14px;
 }
 
-.auth-switch > span {
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: 400;
+/* 6-DIGIT CODE STEP */
+.otp-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 0;
 }
 
-.auth-switch button {
+.otp-slot {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.otp-input input {
+    width: 48px;
+    height: 56px;
     padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--red-dark);
-    font-size: 11px;
-    cursor: pointer;
+    border: 1px solid color-mix(in srgb, var(--brown) 30%, transparent);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--brown-strong);
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    caret-color: var(--orange);
 }
 
-.auth-switch .forgot-password-btn {
-    margin-left: 0;
+/* The orange system ring disappears on the orange panel, so the code boxes use brown */
+.otp-input input:focus-visible {
+    outline: 3px solid var(--brown) !important;
+    outline-offset: 1px;
+    border-color: var(--brown) !important;
+}
+
+.otp-input input:disabled {
+    opacity: 0.6;
+}
+
+.otp-input.is-invalid input {
+    border-color: var(--red-dark);
+    animation: auth-shake 0.3s ease-in-out;
+}
+
+.otp-dash {
+    color: var(--brown);
+    font-size: 20px;
+}
+
+.auth-code-status {
+    min-height: 24px;
+    margin: 16px 0 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    color: var(--brown);
+    font-size: 14px;
+}
+
+.auth-code-status.is-error {
+    color: var(--brown-strong);
+    font-weight: 600;
+}
+
+.auth-code-status.is-error .rb-icon {
+    color: var(--red-dark);
+}
+
+.auth-code-status.is-ok {
+    color: var(--green-dark);
+    font-weight: 600;
+}
+
+.auth-code-resend {
+    margin: 0;
+    font-size: 14px;
+}
+
+.auth-code-wait {
+    color: var(--brown);
+    font-variant-numeric: tabular-nums;
+}
+
+/* STEP TRANSITIONS: rb-drill-forward / rb-drill-back (App.css) */
+@keyframes auth-shake {
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .otp-input.is-invalid input { animation: none; }
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
+@media (max-width: 1200px) {
+    :root { --auth-image-width: 52vw; }
+}
 
 @media (max-width: 900px) {
-    .auth-header {
-        height: auto;
-        min-height: 86px;
-        padding: 18px 24px;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .auth-brand img {
-        width: 58px;
-        height: 58px;
-    }
-
-    .auth-brand span {
-        font-size: 30px;
-    }
-
-    .auth-nav {
-        width: 100%;
-        margin: 0;
-        justify-content: center;
+    .auth-page {
+        overflow: visible;
     }
 
     .auth-shell {
+        height: auto;
         grid-template-columns: 1fr;
-        min-height: auto;
     }
 
     .auth-image-wrap {
@@ -398,34 +448,39 @@
     }
 
     .auth-panel {
+        height: auto;
         min-height: calc(100vh - 326px);
-        margin-left: 0;
-        border-top-left-radius: 52px;
-        border-top-right-radius: 52px;
-        border-bottom-left-radius: 0;
-        padding: 70px 24px 50px;
-    }
-
-    .auth-back {
-        top: 34px;
-        left: 36px;
-    }
-
-    .auth-card {
-        width: min(335px, 100%);
+        margin: -48px 0 0;
+        padding: 32px 20px 48px;
+        overflow: visible;
+        overflow-x: clip; /* the drill slide never makes the page scroll sideways */
+        border-radius: 48px 48px 0 0;
     }
 }
 
 @media (max-width: 480px) {
-    .auth-card h1 {
-        margin-bottom: 42px;
-    }
-
     .auth-image-wrap {
-        height: 210px;
+        height: 200px;
     }
 
-    .auth-panel {
-        padding-top: 64px;
+    .auth-step h1 {
+        font-size: 24px;
+    }
+
+    .otp-input,
+    .otp-slot {
+        gap: 4px;
+    }
+
+    .otp-input input {
+        width: 44px;
+        height: 52px;
+    }
+}
+
+/* Phones force inputs to 16px (stops iPhone zoom); code digits stay big, which is above 16px anyway */
+@media (max-width: 640px) {
+    .otp-input input {
+        font-size: 24px !important;
     }
 }

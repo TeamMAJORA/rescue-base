@@ -25,7 +25,7 @@ export default function BrowsePets({
             {hasPendingApplication && (
                 <section className="browse-pets-pending-banner">
                     <div>
-                        <span>Pending Application</span>
+                        <span>Pending application</span>
 
                         <h3>
                             You already applied for{" "}

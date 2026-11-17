@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/FoodStorage.css";
 import NeededSupplies from "./NeededSupplies";
+<<<<<<< HEAD
+=======
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDate, formatTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -206,15 +214,14 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
                     </div>
 
                     <button className="fs-close" type="button" onClick={onClose} disabled={saving} aria-label="Close">
-                        ×
+                        <Icon name="close" />
                     </button>
                 </header>
 
                 <form className="fs-form" onSubmit={submit}>
                     <label>
                         Amount needed (kg)
-                        <input
-                            type="number"
+                        <NumberInput
                             min="1"
                             max={MAX_SUPPLY_QUANTITY}
                             step="1"
@@ -261,7 +268,7 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
                             Cancel
                         </button>
                         <button className="fs-btn fs-primary" disabled={saving}>
-                            {saving ? "Requesting..." : "Request"}
+                            {saving ? "Requesting…" : "Request"}
                         </button>
                     </div>
                 </form>
@@ -427,7 +434,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                         disabled={saving}
                         aria-label="Close"
                     >
-                        ×
+                        <Icon name="close" />
                     </button>
                 </header>
 
@@ -449,8 +456,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                     <label>
                         Current quantity (kg)
 
-                        <input
-                            type="number"
+                        <NumberInput
                             min="0"
                             max="100000"
                             step="any"
@@ -481,8 +487,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                     <label>
                         Consumption per animal/day (kg)
 
-                        <input
-                            type="number"
+                        <NumberInput
                             min="0"
                             max="50"
                             step="0.01"
@@ -504,8 +509,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                     <label>
                         Forecast period (days)
 
-                        <input
-                            type="number"
+                        <NumberInput
                             min="1"
                             max="365"
                             step="1"
@@ -554,7 +558,7 @@ function ItemModal({ item, onClose, onSaved, onDeleted }) {
                             disabled={saving}
                         >
                             {saving
-                                ? "Saving..."
+                                ? "Saving…"
                                 : editing
                                   ? "Save changes"
                                   : "Add to inventory"}
@@ -661,7 +665,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                         disabled={saving}
                         aria-label="Close"
                     >
-                        ×
+                        <Icon name="close" />
                     </button>
                 </header>
 
@@ -701,8 +705,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                     <label className="fs-wide">
                         Quantity ({item.unit || "kg"})
 
-                        <input
-                            type="number"
+                        <NumberInput
                             min="0.01"
                             max="100000"
                             step="any"
@@ -741,7 +744,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                             onChange={(event) =>
                                 setNote(event.target.value)
                             }
-                            placeholder="Add a short note..."
+                            placeholder="Add a short note…"
                         />
                     </label>
 
@@ -773,7 +776,7 @@ function AdjustStockModal({ item, onClose, onSaved }) {
                             disabled={saving}
                         >
                             {saving
-                                ? "Updating..."
+                                ? "Updating…"
                                 : action === "add"
                                   ? "Add stock"
                                   : "Remove stock"}
@@ -1008,7 +1011,7 @@ export default function FoodStorage() {
                                 type="search"
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Search food..."
+                                placeholder="Search food…"
                                 aria-label="Search food inventory"
                             />
                         </label>
@@ -1037,10 +1040,7 @@ export default function FoodStorage() {
                 )}
 
                 {loading ? (
-                    <div className="fs-empty">
-                        <span className="fs-spinner" />
-                        Loading food inventory...
-                    </div>
+                    <LoadingState label="Loading food inventory…" />
                 ) : isEmpty ? (
                     <div className="fs-empty">
                         <span className="fs-empty-icon">
@@ -1155,7 +1155,7 @@ export default function FoodStorage() {
                 {!isEmpty && (
                     <footer className="fs-panel-foot">
                         <span>
-                            {loading ? "Loading..." : `Showing ${filteredItems.length} of ${items.length}`}
+                            {loading ? "Loading…" : `Showing ${filteredItems.length} of ${items.length}`}
                         </span>
 
                         <button type="button" onClick={loadInventory} disabled={loading}>
@@ -1269,7 +1269,7 @@ function SuppliesHistory() {
                         type="search"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search item, reason or person..."
+                        placeholder="Search item, reason or person…"
                         aria-label="Search history"
                     />
                 </label>
@@ -1283,7 +1283,7 @@ function SuppliesHistory() {
             {error ? (
                 <p className="al2-error" role="alert">{error}</p>
             ) : history === null ? (
-                <p className="al2-empty">Loading history...</p>
+                <LoadingState label="Loading history…" />
             ) : shown.length === 0 ? (
                 <p className="al2-empty">
                     {history.length === 0 ? "No changes yet. Stock updates and requests will show up here." : "Nothing matches your search."}

@@ -1,6 +1,6 @@
 .foster-main {
     display: grid;
-    gap: 22px;
+    gap: 24px;
     align-content: start;
     padding: 28px;
 }
@@ -10,21 +10,26 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
 }
 
 .foster-topbar h1 {
     margin: 0 0 2px;
     font-family: "Itim", cursive;
     font-weight: 400;
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 30px;
+=======
+    color: var(--brown);
+    font-size: 32px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .foster-topbar p {
     margin: 0;
     color: rgba(90, 27, 0, 0.72);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .foster-topbar button,
@@ -34,11 +39,19 @@
 .foster-application-form button,
 .foster-update-form button {
     border: none;
+<<<<<<< HEAD
     border-radius: 14px;
     padding: 11px 16px;
     background: #fb8500;
     color: white;
     font-weight: 900;
+=======
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: var(--orange);
+    color: var(--white);
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -53,7 +66,7 @@
 
 .foster-overview {
     display: grid;
-    gap: 22px;
+    gap: 24px;
 }
 
 .foster-stat-grid {
@@ -64,34 +77,56 @@
 
 .foster-stat-card {
     min-height: 92px;
+<<<<<<< HEAD
     padding: 20px 22px;
     border-radius: 18px;
     background: #fff7cb;
+=======
+    padding: 20px 24px;
+    border-radius: 20px;
+    background: var(--white-yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
     border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
 .foster-stat-card span {
     font-size: 14px;
+<<<<<<< HEAD
     font-weight: 900;
     color: #5a1b00;
+=======
+    font-weight: 800;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .foster-stat-card strong {
     font-size: 20px;
+<<<<<<< HEAD
     font-weight: 900;
     color: #3a1200;
+=======
+    font-weight: 800;
+    color: var(--brown-strong);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-transform: capitalize;
     text-align: right;
 }
 
 .foster-panel {
+<<<<<<< HEAD
     padding: 22px;
     border-radius: 22px;
     background: #fffaf0;
+=======
+    padding: 24px;
+    border-radius: 20px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
@@ -99,14 +134,21 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 22px;
+    gap: 24px;
 }
 
 .foster-label {
+<<<<<<< HEAD
     margin: 0 0 6px;
     color: #fb8500;
     font-size: 13px;
     font-weight: 900;
+=======
+    margin: 0 0 8px;
+    color: var(--orange);
+    font-size: 14px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -132,16 +174,22 @@
 
 .foster-quick-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .foster-message {
     margin: 0;
     padding: 12px 16px;
+<<<<<<< HEAD
     border-radius: 14px;
     background: #fff7cb;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
     font-weight: 800;
     border: 1px solid rgba(251, 133, 0, 0.22);
@@ -151,8 +199,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 18px;
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .foster-section-heading h2 {
@@ -161,22 +209,30 @@
 
 .foster-application-status-card {
     display: grid;
+<<<<<<< HEAD
     gap: 10px;
     margin-bottom: 18px;
     padding: 18px;
     border-radius: 18px;
     background: #fff7cb;
+=======
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 16px;
+    border-radius: 20px;
+    background: var(--white-yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
 .foster-status-pill {
     width: fit-content;
-    padding: 7px 12px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: #fff7cb;
     color: #5a1b00;
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
     text-transform: capitalize;
     border: 1px solid rgba(251, 133, 0, 0.22);
 }
@@ -200,16 +256,23 @@
 .foster-update-form {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    gap: 16px;
 }
 
 .foster-application-form label,
 .foster-update-form label {
     display: grid;
+<<<<<<< HEAD
     gap: 7px;
     color: #5a1b00;
     font-size: 13px;
     font-weight: 900;
+=======
+    gap: 8px;
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .foster-application-form input,
@@ -220,12 +283,18 @@
     width: 100%;
     min-height: 42px;
     border: 1px solid rgba(90, 27, 0, 0.16);
+<<<<<<< HEAD
     border-radius: 14px;
     padding: 10px 12px;
     background: white;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    padding: 8px 12px;
+    background: var(--white);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
-    outline: none;
 }
 
 .foster-application-form textarea,
@@ -250,11 +319,17 @@
 .foster-check-field {
     display: flex !important;
     align-items: center;
-    gap: 10px !important;
+    gap: 8px !important;
     min-height: 42px;
+<<<<<<< HEAD
     padding: 10px 12px;
     border-radius: 14px;
     background: white;
+=======
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
@@ -289,7 +364,7 @@
 .foster-assignment-card {
     display: grid;
     grid-template-columns: 240px 1fr;
-    gap: 22px;
+    gap: 24px;
     align-items: stretch;
 }
 
@@ -322,7 +397,7 @@
 .foster-assignment-info > p {
     margin: 0;
     color: rgba(90, 27, 0, 0.72);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .foster-meta {
@@ -332,20 +407,25 @@
 }
 
 .foster-meta span {
-    padding: 7px 11px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: #fff7cb;
     color: #5a1b00;
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
     border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
 .foster-instructions {
     margin-top: 8px;
     padding: 16px;
+<<<<<<< HEAD
     border-radius: 18px;
     background: #fff7cb;
+=======
+    border-radius: 20px;
+    background: var(--white-yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
@@ -357,7 +437,7 @@
 .foster-update-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
-    gap: 18px;
+    gap: 16px;
     align-items: start;
 }
 
@@ -367,13 +447,13 @@
 
 .foster-updates-panel {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .foster-empty-text {
     margin: 0;
     color: rgba(90, 27, 0, 0.65);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .foster-update-list {
@@ -383,10 +463,15 @@
 
 .foster-update-item {
     display: grid;
-    gap: 10px;
+    gap: 8px;
     padding: 16px;
+<<<<<<< HEAD
     border-radius: 18px;
     background: #fff7cb;
+=======
+    border-radius: 20px;
+    background: var(--white-yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border: 1px solid rgba(251, 133, 0, 0.18);
 }
 
@@ -400,15 +485,15 @@
     width: 100%;
     max-height: 220px;
     object-fit: cover;
-    border-radius: 14px;
+    border-radius: 12px;
 }
 
 .foster-update-item small {
     color: rgba(90, 27, 0, 0.55);
-    font-weight: 700;
+    font-weight: 800;
 }
 
-@media (max-width: 1050px) {
+@media (max-width: 900px) {
     .foster-stat-grid,
     .foster-application-form,
     .foster-assignment-card,
@@ -421,9 +506,9 @@
     }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 640px) {
     .foster-main {
-        padding: 18px;
+        padding: 16px;
     }
 
     .foster-topbar,
@@ -514,7 +599,7 @@
 .foster-topbar-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 /* Refresh: light secondary button instead of the orange one */
@@ -565,13 +650,18 @@
     justify-content: space-between;
     gap: 24px;
     margin-bottom: 16px;
-    padding: 24px 26px;
+    padding: 24px 24px;
     border: 1px solid rgba(90, 27, 0, 0.13);
     border-radius: 20px;
     background:
         radial-gradient(circle at right top, rgba(252, 191, 73, 0.25), transparent 40%),
+<<<<<<< HEAD
         #fffaf0;
     box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
+=======
+        var(--paper);
+    box-shadow: var(--shadow-dropdown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .fdb-header > div:first-child {
@@ -580,9 +670,15 @@
 
 .fdb-eyebrow {
     display: inline-block;
+<<<<<<< HEAD
     margin-bottom: 7px;
     color: #d62828;
     font-size: 11px;
+=======
+    margin-bottom: 8px;
+    color: var(--red);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -599,8 +695,13 @@
 
 .fdb-header p {
     max-width: 720px;
+<<<<<<< HEAD
     margin: 9px 0 0;
     color: #75432f;
+=======
+    margin: 8px 0 0;
+    color: var(--brown-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
     line-height: 1.65;
 }
@@ -609,11 +710,11 @@
     flex-shrink: 0;
     display: grid;
     justify-items: end;
-    gap: 10px;
+    gap: 8px;
 }
 
 .fdb-status {
-    padding: 6px 14px;
+    padding: 8px 16px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 800;
@@ -627,7 +728,7 @@
 
 .fdb-action {
     min-height: 43px;
-    padding: 10px 15px;
+    padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.17);
     border-radius: 12px;
     background: #fff7cb;
@@ -649,12 +750,17 @@
 .fdb-tracker {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
     margin-bottom: 24px;
     padding: 12px 20px;
     border: 1px solid rgba(90, 27, 0, 0.13);
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fffaf0;
+=======
+    border-radius: 20px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .fdb-tracker ol {
@@ -680,7 +786,7 @@
     content: "";
     flex: 1;
     height: 2px;
-    margin: 0 14px;
+    margin: 0 16px;
     border-radius: 999px;
     background: rgba(90, 27, 0, 0.12);
 }
@@ -699,7 +805,7 @@
     color: #a07c66;
     font-family: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     white-space: nowrap;
     cursor: pointer;
 }
@@ -710,9 +816,15 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
+<<<<<<< HEAD
     background: #f1e6c8;
     color: #a07c66;
     font-size: 11px;
+=======
+    background: var(--line-soft);
+    color: var(--brown-muted);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .fdb-tracker li.is-current button,
@@ -733,11 +845,17 @@
 
 .fdb-tracker-pill {
     flex-shrink: 0;
-    padding: 5px 14px;
+    padding: 4px 16px;
     border-radius: 999px;
+<<<<<<< HEAD
     background: #fff4c4;
     color: #5a1b00;
     font-size: 11px;
+=======
+    background: var(--amber-soft);
+    color: var(--brown);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -746,7 +864,7 @@
     color: #2f8f5b;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 640px) {
     .fdb-header {
         flex-direction: column;
     }
@@ -772,7 +890,7 @@
 /* ===== Revoke application ===== */
 .fdb-revoke {
     min-height: 40px;
-    padding: 9px 15px;
+    padding: 8px 16px;
     border: 1px solid rgba(214, 40, 40, 0.35);
     border-radius: 12px;
     background: #fff;
@@ -810,10 +928,15 @@
     justify-content: space-between;
     gap: 16px;
     margin-top: 12px;
-    padding: 16px 18px;
+    padding: 16px 16px;
     border: 1px solid rgba(214, 40, 40, 0.25);
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fff5f3;
+=======
+    border-radius: 20px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .fdb-revoke-confirm b {
@@ -830,10 +953,15 @@
 
 .fdb-revoke-error {
     display: block;
+<<<<<<< HEAD
     margin-top: 6px;
     color: #d62828;
+=======
+    margin-top: 8px;
+    color: var(--red);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .fdb-revoke-actions {
@@ -842,7 +970,7 @@
     gap: 8px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 640px) {
     .fdb-revoke-confirm {
         flex-direction: column;
         align-items: stretch;
@@ -865,12 +993,12 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 22px 18px 18px;
+    padding: 24px 16px 16px;
     background:
         radial-gradient(circle at top left, rgba(252, 191, 73, 0.32), transparent 42%),
         #fffaf0;
     border-right: 1px solid rgba(90, 27, 0, 0.14);
-    box-shadow: 8px 0 25px rgba(90, 27, 0, 0.06);
+    box-shadow: var(--shadow-dropdown);
     overflow: hidden;
     z-index: 20;
 }
@@ -879,8 +1007,8 @@
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 13px;
-    padding: 4px 10px 18px;
+    gap: 12px;
+    padding: 4px 8px 16px;
     border: 0;
     border-bottom: 1px solid rgba(90, 27, 0, 0.14);
     background: transparent;
@@ -889,13 +1017,13 @@
     text-align: left;
 }
 .foster-logo img { width: 58px; height: 58px; object-fit: contain; flex-shrink: 0; }
-.foster-logo span { font-family: "Itim", cursive; font-size: 30px; line-height: 1; }
+.foster-logo span { font-family: "Itim", cursive; font-size: 32px; line-height: 1; }
 
 .foster-menu {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
     min-height: 0;
     margin-top: 20px;
     overflow-y: auto;
@@ -910,10 +1038,10 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 15px;
+    gap: 8px;
+    padding: 12px 16px;
     border: 1px solid transparent;
-    border-radius: 14px;
+    border-radius: 12px;
     background: transparent;
     color: #7b452d;
     font-family: inherit;
@@ -921,7 +1049,7 @@
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
-.foster-menu > button strong { font-size: 14px; font-weight: 700; }
+.foster-menu > button strong { font-size: 14px; font-weight: 800; }
 .foster-menu > button:hover {
     background: #fff7cb;
     border-color: rgba(251, 133, 0, 0.2);
@@ -929,17 +1057,24 @@
     transform: translateX(3px);
 }
 .foster-menu > button.active {
+<<<<<<< HEAD
     background: linear-gradient(135deg, #fb8500, #fca62c);
     border-color: #fb8500;
     color: #ffffff;
     box-shadow: 0 8px 20px rgba(251, 133, 0, 0.24);
+=======
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    border-color: var(--orange);
+    color: var(--white);
+    box-shadow: var(--shadow-dropdown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 /* "Adopt a Pet" leaves the foster portal, so it sits apart */
 .foster-menu > button.foster-menu-switch {
     margin-top: 8px;
     border-top: 1px dashed rgba(90, 27, 0, 0.14);
-    border-radius: 0 0 14px 14px;
+    border-radius: 0 0 12px 12px;
     padding-top: 16px;
 }
 
@@ -953,14 +1088,20 @@
     display: grid;
     grid-template-columns: 43px minmax(0, 1fr) auto;
     align-items: center;
-    gap: 11px;
+    gap: 12px;
     flex-shrink: 0;
     margin-top: 16px;
     padding: 12px;
     border: 1px solid rgba(90, 27, 0, 0.14);
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fff7cb;
     color: #5a1b00;
+=======
+    border-radius: 20px;
+    background: var(--white-yellow);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-family: inherit;
     text-align: left;
     cursor: pointer;
@@ -969,7 +1110,7 @@
 .foster-user-card:hover {
     transform: translateY(-2px);
     border-color: rgba(251, 133, 0, 0.38);
-    box-shadow: 0 10px 20px rgba(90, 27, 0, 0.1);
+    box-shadow: var(--shadow-dropdown);
 }
 .foster-user-avatar {
     width: 43px;
@@ -983,9 +1124,15 @@
 .foster-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .foster-user-avatar img.is-placeholder { width: 22px; height: 22px; object-fit: contain; }
 .foster-user-info { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+<<<<<<< HEAD
 .foster-user-info strong { overflow: hidden; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
 .foster-user-info small { color: #7b452d; font-size: 11px; }
 .foster-user-arrow { color: #d96f00; font-weight: 800; }
+=======
+.foster-user-info strong { overflow: hidden; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; }
+.foster-user-info small { color: var(--brown-soft); font-size: 12px; }
+.foster-user-arrow { color: var(--orange-dark); font-weight: 800; }
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 @media (max-width: 1200px) {
     .foster-page { grid-template-columns: 235px 1fr; }
@@ -1000,20 +1147,20 @@
     .foster-sidebar {
         position: static;
         height: auto;
-        padding: 14px;
+        padding: 16px;
         overflow: visible;
         border-right: 0;
         border-bottom: 1px solid rgba(90, 27, 0, 0.14);
     }
 
-    .foster-logo { padding: 4px 5px 14px; }
+    .foster-logo { padding: 4px 4px 16px; }
     .foster-logo img { width: 46px; height: 46px; }
-    .foster-logo span { font-size: 26px; }
+    .foster-logo span { font-size: 24px; }
 
     .foster-menu {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        margin-top: 14px;
+        margin-top: 16px;
         overflow: visible;
     }
 
@@ -1022,14 +1169,14 @@
     .foster-menu > button.foster-menu-switch {
         margin-top: 0;
         border-top: 1px solid transparent;
-        border-radius: 14px;
+        border-radius: 12px;
         padding-top: 12px;
     }
 
-    .foster-user-card { margin-top: 14px; }
+    .foster-user-card { margin-top: 16px; }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 640px) {
     .foster-menu { grid-template-columns: 1fr; }
     .foster-menu > button { justify-content: flex-start; }
 }
@@ -1039,7 +1186,7 @@
     margin-top: 4px;
     color: #7b452d;
     font-family: "Inter", sans-serif;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;

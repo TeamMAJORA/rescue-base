@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";
 import InfoTip from "../../../../components/system/InfoTip";
+<<<<<<< HEAD
+=======
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
+import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
+import { formatDate, toDayValue } from "../../../../utils/formatDate";
+import UiIcon from "../../../../components/system/Icon";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 
 // Styled confirm popup + toast from the dashboard (falls back to the browser box)
@@ -221,7 +228,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>
@@ -300,6 +307,7 @@ function SearchToolbar({
                             type="search"
                             value={search}
                             placeholder={placeholder}
+                            aria-label={String(placeholder || "Search").replace("…", "")}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </label>
@@ -387,7 +395,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     const formRef = useRef(null);
     const listRef = useRef(null);
 
-    // Existing animals: used for the Animal dropdown and the "Not Vaccinated" tab
+    // Existing animals: used for the Animal dropdown and the "Not vaccinated" tab
     useEffect(() => {
         if (lockedAnimal) return;
         fetch(API_ANIMALS)
@@ -651,10 +659,10 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     const tabs = [
         ...(lockedAnimal || filterAnimal
             ? []
-            : [{ value: "unvaccinated", label: "Not Vaccinated", count: unvaccinated.length }]),
+            : [{ value: "unvaccinated", label: "Not vaccinated", count: unvaccinated.length }]),
         { value: "all", label: "All" },
         { value: "overdue", label: "Overdue", count: counts.overdue },
-        { value: "soon", label: "Due Soon", count: counts.soon },
+        { value: "soon", label: "Due soon", count: counts.soon },
         { value: "completed", label: "Completed" },
     ];
 
@@ -683,12 +691,12 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit Vaccination" : "Record Vaccination"}</h2>
+                    <h2>{editingId ? "Edit vaccination" : "Add vaccination"}</h2>
                     <p className="ao-hint">Log a vaccine given, and set when the next dose is due.</p>
 
                     <form className="ao-form" onSubmit={handleAddVaccination}>
                         <label className="ao-field">
-                            <span>Animal <span className="ao-req">*</span></span>
+                            <span>Animal <span className="required-mark">*</span></span>
                             {lockedAnimal ? (
                                 <input type="text" value={vaccinationForm.animalName} readOnly />
                             ) : (
@@ -715,7 +723,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         </label>
 
                         <div className="ao-field">
-                            <span>Vaccine <span className="ao-req">*</span></span>
+                            <span>Vaccine <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={COMMON_VACCINES.map((name) => ({ value: name, label: name }))}
                                 value={vaccinationForm.vaccineName}
@@ -726,12 +734,13 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                 value={isCustomVaccine ? vaccinationForm.vaccineName : ""}
                                 onChange={(e) => updateField("vaccineName", e.target.value)}
                                 placeholder="Other vaccine? Type it here"
+                                aria-label="Vaccine name"
                                 required={!vaccinationForm.vaccineName}
                             />
                         </div>
 
                         <label className="ao-field">
-                            <span>Veterinarian <span className="ao-req">*</span></span>
+                            <span>Veterinarian <span className="required-mark">*</span></span>
                             <input
                                 type="text"
                                 value={vaccinationForm.veterinarian}
@@ -743,7 +752,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                <span>Date Given <span className="ao-req">*</span></span>
+                                <span>Date given <span className="required-mark">*</span></span>
                                 <input
                                     type="date"
                                     value={vaccinationForm.vaccinationDate}
@@ -754,7 +763,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                             <label className="ao-field">
                                 <span className="ao-label-tip">
-                                    <span>Next Due <span className="ao-req">*</span></span>
+                                    <span>Next due <span className="required-mark">*</span></span>
                                     <InfoTip text="When the next dose or booster is due. It can't be earlier than the date given." />
                                 </span>
                                 <input
@@ -769,7 +778,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
 
                         <div className="ao-field">
                             <span className="ao-label-tip">
-                                <span>Status <span className="ao-req">*</span></span>
+                                <span>Status <span className="required-mark">*</span></span>
                                 <InfoTip text="Completed: the vaccine was given. Pending: scheduled but not given yet. Overdue: the due date passed and it wasn't given." />
                             </span>
                             <ChipGroup
@@ -781,18 +790,18 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         </div>
 
                         <label className="ao-field">
-                            <span>Notes <span className="ao-req">*</span></span>
+                            <span>Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={vaccinationForm.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}
-                                placeholder="Reactions, batch number, reminders..."
+                                placeholder="Reactions, batch number, reminders…"
                                 required
                             />
                         </label>
 
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary">
-                                {editingId ? "Update Vaccination" : "Save Vaccination"}
+                                {editingId ? "Save changes" : "Add vaccination"}
                             </button>
                             {editingId && (
                                 <button type="button" className="ao-btn" onClick={resetForm}>
@@ -810,7 +819,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         {filterAnimal && !lockedAnimal && (
                             <span className="ap-filter-chip">
                                 Showing: {filterAnimal.name}
-                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}>✕</button>
+                                <button type="button" aria-label="Show all animals" onClick={onClearFilter}><UiIcon name="close" /></button>
                             </span>
                         )}
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
@@ -824,7 +833,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                 searchByOptions={[{ value: "all", label: "Animal name" }]}
                                 search={filters.search}
                                 onSearchChange={(value) => setFilter("search", value)}
-                                placeholder="Search animal..."
+                                placeholder="Search animal…"
                                 filters={[
                                     {
                                         label: "Species",
@@ -885,7 +894,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search animal, vaccine, or vet..."
+                        placeholder="Search animal, vaccine, or vet…"
                         filters={[
                             {
                                 label: "Vaccine",
@@ -968,7 +977,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                                     className="ao-btn sm ok"
                                                     onClick={() => handleMarkGiven(vaccination)}
                                                 >
-                                                    Mark Given
+                                                    Mark given
                                                 </button>
                                             )}
                                             <button

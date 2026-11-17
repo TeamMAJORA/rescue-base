@@ -5,7 +5,7 @@
 
 .foster-update-form {
     display: grid;
-    gap: 18px;
+    gap: 16px;
 }
 
 .update-grid {
@@ -20,7 +20,7 @@
     gap: 8px;
     color: #5a1b00;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .update-grid input,
@@ -29,13 +29,19 @@
 .foster-update-form textarea {
     width: 100%;
     border: 1px solid rgba(90, 27, 0, .12);
+<<<<<<< HEAD
     border-radius: 14px;
     padding: 12px 14px;
     background: #fff;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: var(--white);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
     transition: .2s;
-    outline: none;
 }
 
 .update-grid input:focus,
@@ -54,10 +60,17 @@
 .foster-submit-button {
     justify-self: flex-end;
     border: none;
+<<<<<<< HEAD
     border-radius: 14px;
     padding: 13px 24px;
     background: linear-gradient(135deg,#fb8500,#ffb703);
     color: white;
+=======
+    border-radius: 12px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg,var(--orange),var(--yellow));
+    color: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: pointer;
     transition: .25s;
@@ -65,7 +78,7 @@
 
 .foster-submit-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(251,133,0,.25);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .foster-submit-button:disabled {
@@ -76,15 +89,22 @@
 
 .foster-update-list {
     display: grid;
-    gap: 18px;
+    gap: 16px;
 }
 
 .foster-update-card {
     display: grid;
+<<<<<<< HEAD
     gap: 14px;
     padding: 18px;
     border-radius: 18px;
     background: #fffaf0;
+=======
+    gap: 16px;
+    padding: 16px;
+    border-radius: 20px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border: 1px solid rgba(90,27,0,.08);
 }
 
@@ -103,14 +123,14 @@
     width: 100%;
     max-height: 320px;
     object-fit: cover;
-    border-radius: 14px;
+    border-radius: 12px;
 }
 
 .foster-alert {
     padding: 12px 16px;
     border-radius: 12px;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .foster-alert.success {
@@ -133,7 +153,7 @@
 
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
 
     .foster-submit-button {
         width: 100%;

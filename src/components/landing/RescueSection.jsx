@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 import assets from "../../data/assets.json";
 import PetSlider from "../landing/PetSlider";
+=======
+import { useState } from "react";
+import PetCarousel from "./PetCarousel";
+import BrowsePetCard from "../adopter/BrowsePetCard";
+import LoadingState from "../system/LoadingState";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const samplePets = [
     {
@@ -64,6 +71,7 @@ export default function RescueSection({ pets, onSignup }) {
                 </p>
             </div>
 
+<<<<<<< HEAD
             <a
                 className="see-all-pets"
                 href="#pets"
@@ -74,6 +82,29 @@ export default function RescueSection({ pets, onSignup }) {
             >
                 See All Pets →
             </a>
+=======
+            {isLoading ? (
+                <LoadingState label="Finding pets for you…" />
+            ) : pets.length === 0 ? (
+                <div className="pet-empty">
+                    <p>Our adoptable pets will show here soon.</p>
+                    {/* New sign-ups are adopter accounts, and adopters get a notification for every new pet */}
+                    <button type="button" className="pet-empty-action" onClick={onSignup}>
+                        Get notified when new pets arrive →
+                    </button>
+                </div>
+            ) : (
+                <>
+                    {pets.length > CAROUSEL_PET_COUNT && (
+                        <button
+                            type="button"
+                            className="see-all-pets"
+                            onClick={() => setShowAll((current) => !current)}
+                        >
+                            {showAll ? "Show fewer" : `See all ${pets.length} pets →`}
+                        </button>
+                    )}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
             <PetSlider
                 pets={displayPets}

@@ -1,4 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
+<<<<<<< HEAD
+=======
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { isAdmin } from "../../../utils/auth";
+import { searchCebuPlaces } from "../../../utils/cebuPlaces";
+import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDate } from "../../../utils/formatDate";
+import { formatPeso } from "../../../utils/formatMoney";
+import LoadingState from "../../../components/system/LoadingState";
+import UiIcon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -182,9 +197,6 @@ function moneyValue(donation) {
     return Number(donation.amount) || Number(donation.quantity) || 0;
 }
 
-function peso(value) {
-    return `₱${Number(value || 0).toLocaleString("en-PH")}`;
-}
 
 function formatDate(value) {
     if (!value) return "--";
@@ -216,14 +228,14 @@ function detailsFor(donation) {
         const reference = noteValue(donation.notes, "Payment Reference");
 
         return {
-            main: peso(moneyValue(donation)),
+            main: formatPeso(moneyValue(donation)),
             sub: [donation.paymentMethod, reference && `ref ${reference}`]
                 .filter(Boolean)
                 .join(" · "),
         };
     }
 
-    const delivery = noteValue(donation.notes, "Delivery Method");
+    const delivery = noteValue(donation.notes, "Delivery method");
     const preferred = noteValue(donation.notes, "Preferred Date");
 
     return {
@@ -847,24 +859,33 @@ export default function Donations() {
             <section className="dl-page">
                 <header className="dl-head">
                     <div>
-                        <h2>Donation Ledger</h2>
+                        <h2>Donation ledger</h2>
                         <p>Record and manage money, food, medicine, and supply donations.</p>
                     </div>
 
+<<<<<<< HEAD
                     <button type="button" className="dl-btn" onClick={handleCancelEdit}>
                         ← Back to Donations
+=======
+                    <button type="button" className="dl-btn" onClick={closeDonationForm}>
+                        <UiIcon name="arrow-left" /> Back to Donations
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                     </button>
                 </header>
 
                 <form className="dl-form-card" onSubmit={handleSubmitDonation}>
                     <div className="dl-form-section">
+<<<<<<< HEAD
                         <h3>{editingId ? "Edit Donation" : "Donor & Donation"}</h3>
+=======
+                        <h3>Donor & donation</h3>
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                         <p>Log a donation received or pledged. Fields marked * are required.</p>
                     </div>
 
                     <div className="dl-grid">
                         <label className="dl-field">
-                            <span>Donor Name <b>*</b></span>
+                            <span>Donor name <span className="required-mark">*</span></span>
                             <input
                                 value={donationForm.donorName}
                                 placeholder="e.g. Juan Dela Cruz"
@@ -874,7 +895,7 @@ export default function Donations() {
                         </label>
 
                         <label className="dl-field">
-                            <span>Donor Email</span>
+                            <span>Donor email</span>
                             <input
                                 type="email"
                                 value={donationForm.donorEmail}
@@ -884,7 +905,7 @@ export default function Donations() {
                         </label>
 
                         <div className="dl-field dl-span-2">
-                            <span>Donation Type <b>*</b></span>
+                            <span>Donation type <span className="required-mark">*</span></span>
                             <div className="dl-seg">
                                 {typeButtons.map((item) => (
                                     <button
@@ -901,7 +922,7 @@ export default function Donations() {
 
                         <label className="dl-field">
                             <span>
-                                Item Name {!money && <b>*</b>}{" "}
+                                Item Name {!money && <span className="required-mark">*</span>}{" "}
                                 <Help text="What was donated, e.g. the brand or item. Optional for money." />
                             </span>
                             <input
@@ -913,9 +934,8 @@ export default function Donations() {
                         </label>
 
                         <label className="dl-field">
-                            <span>Quantity {!money && <b>*</b>}</span>
-                            <input
-                                type="number"
+                            <span>Quantity {!money && <span className="required-mark">*</span>}</span>
+                            <NumberInput
                                 min="1"
                                 max="1000"
                                 value={money ? 1 : donationForm.quantity}
@@ -927,11 +947,10 @@ export default function Donations() {
 
                         <label className="dl-field">
                             <span>
-                                Amount (₱) {money && <b>*</b>}{" "}
+                                Amount (₱) {money && <span className="required-mark">*</span>}{" "}
                                 <Help text="Only used for Money donations." />
                             </span>
-                            <input
-                                type="number"
+                            <NumberInput
                                 min="1"
                                 max="100000"
                                 step="any"
@@ -946,7 +965,11 @@ export default function Donations() {
                         {money && (
                             <label className="dl-field">
                                 <span>
+<<<<<<< HEAD
                                     Receipt / Ref. no. {!editingId && <b>*</b>}{" "}
+=======
+                                    Receipt / ref. no. <span className="required-mark">*</span>{" "}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                                     <Help text="Required for cash recorded by staff, since there is no proof-of-payment photo." />
                                 </span>
                                 <input
@@ -979,14 +1002,14 @@ export default function Donations() {
                             <textarea
                                 rows="3"
                                 value={donationForm.notes}
-                                placeholder="Additional donation details..."
+                                placeholder="Additional donation details…"
                                 onChange={(e) => setField("notes", e.target.value)}
                             />
                         </label>
                     </div>
 
                     <div className="dl-form-section is-divided">
-                        <h3>Handover Details</h3>
+                        <h3>Handover details</h3>
                         <p>How and when the items reach the shelter.</p>
                     </div>
 
@@ -1006,7 +1029,7 @@ export default function Donations() {
                         </label>
 
                         <label className="dl-field">
-                            <span>Delivery Method</span>
+                            <span>Delivery method</span>
                             <select
                                 value={donationForm.deliveryMethod}
                                 onChange={(e) => setField("deliveryMethod", e.target.value)}
@@ -1048,7 +1071,11 @@ export default function Donations() {
                                 Cancel
                             </button>
                             <button type="submit" className="dl-btn primary" disabled={submitting}>
+<<<<<<< HEAD
                                 {submitting ? "Saving..." : editingId ? "Save Changes" : "Save Donation"}
+=======
+                                {submitting ? "Saving…" : "Add donation"}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                             </button>
                         </div>
                     </div>
@@ -1087,7 +1114,7 @@ export default function Donations() {
                 </div>
                 <div>
                     <small>Money received</small>
-                    <b>{peso(totalMoney)}</b>
+                    <b>{formatPeso(totalMoney)}</b>
                 </div>
             </div>
 
@@ -1096,10 +1123,10 @@ export default function Donations() {
             <div className="dl-layout">
             <div className="dl-card">
             <div className="dl-toolbar">
-                <input
+                <input aria-label="Search donor, email or item"
                     type="search"
                     className="dl-search"
-                    placeholder="Search donor, email or item..."
+                    placeholder="Search donor, email or item…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
@@ -1139,7 +1166,7 @@ export default function Donations() {
 
             <div className="dl-table-card">
                 {loading ? (
-                    <p className="dl-empty">Loading donations...</p>
+                    <LoadingState label="Loading donations…" />
                 ) : visibleDonations.length === 0 ? (
                     <p className="dl-empty">
                         {donations.length === 0 ? "No donations recorded yet." : "No donations match your filters."}
@@ -1283,6 +1310,197 @@ export default function Donations() {
                 )}
             </div>
 
+<<<<<<< HEAD
+=======
+            {notReceivedFor && (
+                <div className="ao-confirm-backdrop" onClick={() => setNotReceivedFor(null)}>
+                    <div
+                        className="ao-confirm danger dl-notreceived"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="dl-notreceived-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <h3 id="dl-notreceived-title">Mark as not received?</h3>
+                        <p>
+                            {notReceivedFor.donorName || "The donor"}&apos;s donation stays in the ledger as
+                            &quot;Not received&quot;. They&apos;ll see your reason.
+                        </p>
+                        <label className="dl-field">
+                            <span>Reason *</span>
+                            <textarea
+                                rows={3}
+                                maxLength={300}
+                                autoFocus
+                                value={notReceivedReason}
+                                placeholder="e.g. Not dropped off by the preferred date; payment not found in GCash"
+                                onChange={(event) => {
+                                    setNotReceivedReason(event.target.value);
+                                    setNotReceivedError("");
+                                }}
+                            />
+                        </label>
+                        {notReceivedError && <p className="dl-notreceived-error">{notReceivedError}</p>}
+                        <div className="ao-confirm-actions">
+                            <button type="button" onClick={() => setNotReceivedFor(null)}>
+                                Keep it
+                            </button>
+                            <button type="button" className="ao-confirm-ok" onClick={submitNotReceived}>
+                                Mark as not received
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {viewingDonation && (() => {
+                const donation = viewingDonation;
+                const status = donation.status || "pending";
+                const money = isMoneyDonation(donation);
+                const { rows: noteRows, text: noteText } = notesAsRows(donation.notes);
+                const reference = donation.paymentReference || noteValue(donation.notes, "Payment Reference");
+                const photo = money ? donation.proofOfPayment : donation.itemPhotoUrl;
+
+                return (
+                    <div className="dl-view-overlay" onClick={() => setViewingDonation(null)}>
+                        <div
+                            className="dl-view"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`Donation from ${donation.donorName || "Anonymous"}`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <header className="dl-view-head">
+                                <div>
+                                    <h3>{donation.donorName || "Anonymous"}</h3>
+                                    <span>{donation.donorEmail || "No email"}</span>
+                                </div>
+                                <span className={`dl-status is-${status}`}>{STATUS_LABEL[status] || status}</span>
+                                <button type="button" className="dl-view-close" onClick={() => setViewingDonation(null)} aria-label="Close">
+                                    <UiIcon name="close" />
+                                </button>
+                            </header>
+
+                            <div className="dl-view-body">
+                                <dl className="dl-view-facts">
+                                    <div>
+                                        <dt>Type</dt>
+                                        <dd>{donation.donationType}</dd>
+                                    </div>
+                                    {money ? (
+                                        <>
+                                            <div>
+                                                <dt>Amount</dt>
+                                                <dd>{formatPeso(moneyValue(donation))}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>Payment method</dt>
+                                                <dd>{donation.paymentMethod || "Recorded by staff"}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>Reference no.</dt>
+                                                <dd>{reference || "—"}</dd>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div>
+                                                <dt>Item</dt>
+                                                <dd>{donation.itemName || "—"}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>Quantity</dt>
+                                                <dd>{donation.quantity || 1}</dd>
+                                            </div>
+                                        </>
+                                    )}
+                                    {noteRows.map(([label, value]) => (
+                                        <div key={label}>
+                                            <dt>{label}</dt>
+                                            <dd>{label === "Preferred Date" ? formatDate(value) : value}</dd>
+                                        </div>
+                                    ))}
+                                    <div>
+                                        <dt>Submitted</dt>
+                                        <dd>{formatDate(donation.createdAt)}</dd>
+                                    </div>
+                                    {donation.receivedDate && (
+                                        <div>
+                                            <dt>Received</dt>
+                                            <dd>{formatDate(donation.receivedDate)}</dd>
+                                        </div>
+                                    )}
+                                    {status === "cancelled" && (
+                                        <div className="dl-view-wide">
+                                            <dt>Not received because</dt>
+                                            <dd>
+                                                {donation.notReceivedReason || "No reason recorded."}
+                                                {donation.notReceivedByName ? ` — ${donation.notReceivedByName}` : ""}
+                                            </dd>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <dt>Logged by</dt>
+                                        <dd>{donation.createdByName || "—"}</dd>
+                                    </div>
+                                </dl>
+
+                                {noteText && (
+                                    <>
+                                        <h4>Notes</h4>
+                                        <p className="dl-view-notes">{noteText}</p>
+                                    </>
+                                )}
+
+                                <h4>{money ? "Proof of payment" : "Photo of the items"}</h4>
+                                {photo ? (
+                                    <a href={photo} target="_blank" rel="noreferrer" className="dl-view-photo" title="Open full size">
+                                        <img src={photo} alt={money ? "Proof of payment" : "Donated items"} />
+                                    </a>
+                                ) : (
+                                    <p className="dl-view-nophoto">
+                                        {money
+                                            ? "No proof of payment was uploaded (recorded by staff with a receipt number)."
+                                            : "No photo was uploaded with this donation."}
+                                    </p>
+                                )}
+                            </div>
+
+                            <footer className="dl-view-foot">
+                                {isAdmin() && (
+                                    <button
+                                        type="button"
+                                        className="dl-btn danger"
+                                        onClick={() => handleDeleteDonation(donation._id)}
+                                    >
+                                        Delete record
+                                    </button>
+                                )}
+                                {status !== "cancelled" && (
+                                    <button
+                                        type="button"
+                                        className="dl-btn"
+                                        onClick={() => handleMarkNotReceived(donation)}
+                                    >
+                                        Mark as not received
+                                    </button>
+                                )}
+                                {status === "pending" && (
+                                    <button
+                                        type="button"
+                                        className="dl-btn primary"
+                                        onClick={() => handleUpdateStatus(donation._id, "received")}
+                                    >
+                                        Mark received
+                                    </button>
+                                )}
+                            </footer>
+                        </div>
+                    </div>
+                );
+            })()}
+
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
             {!loading && visibleDonations.length > 0 && (
                 <div className="dl-footer">
                     <span>
@@ -1366,11 +1584,12 @@ export default function Donations() {
                                 <h3>Drop-off point</h3>
                                 <p className="dl-pm-sub">
                                     <button type="button" className="dl-link" onClick={backToMethodList}>
-                                        ← Back to list
+                                        <UiIcon name="arrow-left" /> Back to list
                                     </button>{" "}
                                     · Donors see this when they hover the (i) on needed items.
                                 </p>
 
+<<<<<<< HEAD
                                 <label className="dl-field">
                                     <span>Address {dropOffForm.enabled && <b>*</b>}</span>
                                     <input
@@ -1381,6 +1600,96 @@ export default function Donations() {
                                         onChange={(e) => setDropOffForm({ ...dropOffForm, address: e.target.value })}
                                     />
                                 </label>
+=======
+                                <div className="dl-field">
+                                    <span>Address {dropOffForm.enabled && <span className="required-mark">*</span>}</span>
+                                    <div className="ao-where-search">
+                                        <input
+                                            type="search"
+                                            value={dropOffForm.address}
+                                            maxLength={500}
+                                            placeholder="e.g. RescueBase Shelter, Lahug, Cebu City"
+                                            required={dropOffForm.enabled}
+                                            autoComplete="off"
+                                            onChange={(e) => {
+                                                setDropOffForm({ ...dropOffForm, address: e.target.value });
+                                                setTypedDropOffAddress(e.target.value);
+                                                setDropOffPlacesOpen(true);
+                                            }}
+                                            onFocus={() => setDropOffPlacesOpen(true)}
+                                            onBlur={() => setTimeout(() => setDropOffPlacesOpen(false), 150)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault(); // stops the form from saving
+                                                    if (dropOffPlaces[0]) chooseDropOffPlace(dropOffPlaces[0]);
+                                                }
+                                                if (e.key === "Escape") setDropOffPlacesOpen(false);
+                                            }}
+                                        />
+                                        {dropOffPlacesOpen && typedDropOffAddress.trim().length >= 3 && (
+                                            <ul className="gm-map-results">
+                                                {searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">Searching…</li>}
+                                                {!searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">No places found in Cebu. Tap the map instead.</li>}
+                                                {dropOffPlaces.map((place) => (
+                                                    <li key={place.id}>
+                                                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chooseDropOffPlace(place)}>
+                                                            <b>{place.name}</b>
+                                                            {place.area && <small>{place.area}</small>}
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+
+                                    <div className="lfr2-map dl-dropoff-map">
+                                        <MapContainer
+                                            center={dropOffForm.latitude ? [dropOffForm.latitude, dropOffForm.longitude] : CEBU_CENTER}
+                                            zoom={dropOffForm.latitude ? 16 : 12}
+                                            scrollWheelZoom={false}
+                                            style={{ height: "100%", width: "100%" }}
+                                        >
+                                            <TileLayer
+                                                attribution="&copy; OpenStreetMap"
+                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            />
+                                            <DropOffPinPicker onPick={pinDropOff} />
+                                            <DropOffMapFollow latitude={dropOffForm.latitude} longitude={dropOffForm.longitude} />
+                                            {dropOffForm.latitude && (
+                                                <Marker
+                                                    position={[dropOffForm.latitude, dropOffForm.longitude]}
+                                                    icon={DROP_OFF_PIN}
+                                                    draggable
+                                                    eventHandlers={{
+                                                        dragend: (event) => {
+                                                            const point = event.target.getLatLng();
+                                                            pinDropOff(point.lat, point.lng);
+                                                        },
+                                                    }}
+                                                />
+                                            )}
+                                        </MapContainer>
+                                    </div>
+
+                                    <small className="lfr2-coord">
+                                        {dropOffForm.latitude
+                                            ? `Pinned at ${dropOffForm.latitude.toFixed(4)}, ${dropOffForm.longitude.toFixed(4)}. Drag the pin or tap the exact gate.`
+                                            : "No pin yet. Type the address or tap the map. Donors see this map on the donation page."}
+                                        {dropOffForm.latitude && (
+                                            <>
+                                                {" · "}
+                                                <button
+                                                    type="button"
+                                                    className="dl-link"
+                                                    onClick={() => setDropOffForm({ ...dropOffForm, latitude: null, longitude: null })}
+                                                >
+                                                    Remove pin
+                                                </button>
+                                            </>
+                                        )}
+                                    </small>
+                                </div>
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
                                 <div className="dl-field">
                                     <span>Open days</span>
@@ -1501,7 +1810,7 @@ export default function Donations() {
                                             Cancel
                                         </button>
                                         <button type="submit" className="dl-btn primary" disabled={savingDropOff}>
-                                            {savingDropOff ? "Saving..." : "Save"}
+                                            {savingDropOff ? "Saving…" : "Save"}
                                         </button>
                                     </div>
                                 </div>
@@ -1511,14 +1820,14 @@ export default function Donations() {
                                 <h3>{editingMethodId ? "Edit method" : "Add method"}</h3>
                                 <p className="dl-pm-sub">
                                     <button type="button" className="dl-link" onClick={backToMethodList}>
-                                        ← Back to list
+                                        <UiIcon name="arrow-left" /> Back to list
                                     </button>{" "}
                                     · Changes show on the donor's Donation page right away.
                                 </p>
 
                                 <div className="dl-grid">
                                     <label className="dl-field">
-                                        <span>Method Name <b>*</b></span>
+                                        <span>Method name <span className="required-mark">*</span></span>
                                         <select
                                             value={methodForm.method_type}
                                             onChange={(e) => setMethodForm({ ...methodForm, method_type: e.target.value })}
@@ -1530,12 +1839,12 @@ export default function Donations() {
                                     </label>
 
                                     <label className="dl-field">
-                                        <span>Method Type</span>
+                                        <span>Method type</span>
                                         <input value={METHOD_NAMES[methodForm.method_type] || "Other"} disabled />
                                     </label>
 
                                     <label className="dl-field">
-                                        <span>Account Name <b>*</b></span>
+                                        <span>Account name <span className="required-mark">*</span></span>
                                         <input
                                             value={methodForm.account_name}
                                             placeholder="e.g. RescueBase Shelter"
@@ -1546,7 +1855,7 @@ export default function Donations() {
 
                                     <label className="dl-field">
                                         <span>
-                                            Account Number <b>*</b> <Help text="The mobile or bank account number donors send to." />
+                                            Account number <span className="required-mark">*</span> <Help text="The mobile or bank account number donors send to." />
                                         </span>
                                         <input
                                             value={methodForm.account_number}
@@ -1566,7 +1875,7 @@ export default function Donations() {
                                             {methodForm.qr_image_url && <img src={methodForm.qr_image_url} alt="QR code" />}
                                         </span>
                                         <span className="dl-method-info">
-                                            <b>{uploadingQr ? "Uploading..." : qrFileName || "No QR code yet"}</b>
+                                            <b>{uploadingQr ? "Uploading…" : qrFileName || "No QR code yet"}</b>
                                             <span>Upload JPG or PNG · shown to donors at checkout</span>
                                         </span>
                                         <label className="dl-btn small">
@@ -1577,7 +1886,7 @@ export default function Donations() {
                                 </div>
 
                                 <label className="dl-field">
-                                    <span>Instructions for Donors</span>
+                                    <span>Instructions for donors</span>
                                     <textarea
                                         rows="2"
                                         value={methodForm.instructions}
@@ -1635,7 +1944,7 @@ export default function Donations() {
                                             Cancel
                                         </button>
                                         <button type="submit" className="dl-btn primary" disabled={savingMethod || uploadingQr}>
-                                            {savingMethod ? "Saving..." : editingMethodId ? "Save Changes" : "Add Method"}
+                                            {savingMethod ? "Saving…" : editingMethodId ? "Save changes" : "Add method"}
                                         </button>
                                     </div>
                                 </div>

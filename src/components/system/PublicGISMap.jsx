@@ -15,6 +15,7 @@ import "leaflet/dist/leaflet.css";
 import "../../styles/components/PublicGIS.css";
 
 import assets from "../../data/assets.json";
+import LoadingState from "./LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 const cebuCenter = [10.3157, 123.8854];
@@ -257,7 +258,7 @@ export default function PublicGISMap({
                                 RESCUEBASE GIS
                             </span>
 
-                            <h2>Animal Rescue Map</h2>
+                            <h2>Animal rescue map</h2>
 
                             <p>
                                 Explore reported lost, found, and stray
@@ -277,7 +278,7 @@ export default function PublicGISMap({
                             </div>
 
                             <div className="public-gis-stat-content">
-                                <span>Animal Reports</span>
+                                <span>Animal reports</span>
 
                                 <strong>
                                     {loading ? "—" : validLocations.length}
@@ -296,7 +297,7 @@ export default function PublicGISMap({
                             </div>
 
                             <div className="public-gis-stat-content">
-                                <span>Active Shelters</span>
+                                <span>Active shelters</span>
 
                                 <strong>
                                     {loading ? "—" : validShelters.length}
@@ -309,7 +310,7 @@ export default function PublicGISMap({
 
                     <div className="public-gis-map-toolbar">
                         <div>
-                            <h3>Community Locations</h3>
+                            <h3>Community locations</h3>
                             <p>Select a marker to view its details.</p>
                         </div>
 
@@ -335,9 +336,7 @@ export default function PublicGISMap({
             )}
 
             {loading && (
-                <div className="public-gis-message">
-                    Loading map data...
-                </div>
+                <div className="public-gis-message"><LoadingState label="Loading map data…" inline /></div>
             )}
 
             {error && (

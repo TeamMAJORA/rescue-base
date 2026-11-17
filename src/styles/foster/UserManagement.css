@@ -1,6 +1,6 @@
 .admin-user-page {
     display: grid;
-    gap: 22px;
+    gap: 24px;
 }
 
 /* Stats */
@@ -13,17 +13,23 @@
 /* Main panel spacing */
 .admin-user-panel {
     display: grid;
-    gap: 18px;
+    gap: 16px;
 }
 
 .admin-user-message {
     margin: 0;
     padding: 12px 16px;
+<<<<<<< HEAD
     border-radius: 14px;
     background: #fff7cb;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     border: 1px solid rgba(251, 133, 0, 0.22);
 }
 
@@ -31,8 +37,8 @@
 .admin-user-edit-form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    padding: 18px;
+    gap: 16px;
+    padding: 16px;
     border-radius: 20px;
     background: #fffaf0;
     border: 1px solid rgba(90, 27, 0, 0.1);
@@ -41,15 +47,26 @@
 .admin-user-edit-form h3 {
     grid-column: 1 / -1;
     margin: 0 0 4px;
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 18px;
+=======
+    color: var(--brown);
+    font-size: 20px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .admin-user-edit-form label {
     display: grid;
+<<<<<<< HEAD
     gap: 7px;
     color: #5a1b00;
     font-size: 13px;
+=======
+    gap: 8px;
+    color: var(--brown);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -58,12 +75,18 @@
     width: 100%;
     min-height: 42px;
     border: 1px solid rgba(90, 27, 0, 0.16);
+<<<<<<< HEAD
     border-radius: 14px;
     padding: 10px 12px;
     background: white;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    padding: 8px 12px;
+    background: var(--white);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
-    outline: none;
 }
 
 .admin-user-edit-form input:focus,
@@ -75,14 +98,14 @@
 .admin-user-form-actions {
     grid-column: 1 / -1;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: flex-end;
 }
 
 .admin-user-form-actions button {
     border: none;
-    border-radius: 14px;
-    padding: 11px 16px;
+    border-radius: 12px;
+    padding: 12px 16px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -107,8 +130,8 @@
     display: grid;
     grid-template-columns: minmax(220px, 1.4fr) minmax(230px, 1fr) auto;
     align-items: center;
-    gap: 18px;
-    padding: 16px 18px;
+    gap: 16px;
+    padding: 16px 16px;
     border-radius: 20px;
     background: #fffaf0;
     border: 1px solid rgba(90, 27, 0, 0.08);
@@ -116,17 +139,23 @@
 
 .admin-user-row:hover {
     border-color: rgba(251, 133, 0, 0.28);
-    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .admin-user-row h3 {
+<<<<<<< HEAD
     margin: 0 0 5px;
     color: #5a1b00;
     font-size: 17px;
+=======
+    margin: 0 0 4px;
+    color: var(--brown);
+    font-size: 16px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .admin-user-row p {
-    margin: 0 0 5px;
+    margin: 0 0 4px;
     color: rgba(90, 27, 0, 0.72);
     font-size: 14px;
     word-break: break-word;
@@ -134,7 +163,7 @@
 
 .admin-user-row small {
     color: rgba(90, 27, 0, 0.48);
-    font-size: 11px;
+    font-size: 12px;
     word-break: break-word;
 }
 
@@ -147,7 +176,7 @@
 }
 
 .admin-user-badges span {
-    padding: 7px 11px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: #fff7cb;
     color: #5a1b00;
@@ -160,10 +189,17 @@
 /* Row button */
 .admin-user-row button {
     border: none;
+<<<<<<< HEAD
     border-radius: 14px;
     padding: 10px 16px;
     background: #fb8500;
     color: white;
+=======
+    border-radius: 12px;
+    padding: 8px 16px;
+    background: var(--orange);
+    color: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
@@ -177,7 +213,7 @@
 /* Fix User row spacing */
 .admin-user-row {
     grid-template-columns: 1fr auto auto;
-    padding: 18px 20px;
+    padding: 16px 20px;
 }
 
 .admin-user-badges {
@@ -191,11 +227,11 @@
 
 /* Make rows cleaner */
 .admin-user-list {
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
 .admin-user-panel {
-    padding: 26px 20px;
+    padding: 24px 20px;
 }
 
 .admin-user-row-actions {
@@ -209,9 +245,9 @@
 .admin-user-action-btn {
     width: auto;
     min-width: 70px;
-    padding: 7px 12px;
+    padding: 8px 12px;
     border: none;
-    border-radius: 7px;
+    border-radius: 8px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -244,7 +280,7 @@
 }
 
 /* Mobile */
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
     .admin-user-row {
         grid-template-columns: 1fr;
         align-items: stretch;
@@ -255,7 +291,7 @@
     }
 }
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
 
     .admin-user-stats,
     .admin-user-edit-form {
@@ -270,4 +306,149 @@
     .admin-user-row-actions .admin-user-action-btn {
         width: auto;
     }
+<<<<<<< HEAD
 }
+=======
+}
+/* ===================== User Management redesign (Nov 9) ===================== */
+/* Plain headings (no highlight), flat cards, 12/8/6px corners, shadow only on the floating menu */
+.um-page .gs-card { border-radius: var(--radius-card, 12px); box-shadow: none; }
+.um-page .gs-card h3 { margin: 0; font-size: 16px; font-weight: 800; color: var(--brown); }
+.um-apps-head p { margin: 2px 0 0; }
+.um-count { border-radius: var(--radius-chip, 6px); }
+.um-role { border-radius: var(--radius-chip, 6px); padding: 3px 8px; }
+.um-you { border-radius: var(--radius-chip, 6px); }
+
+/* Role tabs instead of the "All roles" dropdown */
+.um-role-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 3px;
+    border-radius: var(--radius-inner, 8px);
+    background: var(--cream-card);
+}
+.um-role-tabs button {
+    padding: 8px 12px;
+    border: 0;
+    border-radius: var(--radius-chip, 6px);
+    background: transparent;
+    color: var(--brown-muted);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.um-role-tabs button span { margin-left: 3px; opacity: 0.75; }
+.um-role-tabs button.is-on { background: var(--white); color: var(--brown); box-shadow: var(--shadow-card); }
+.um-tools .um-search, .um-tools select { border-radius: var(--radius-inner, 8px); }
+
+/* Rows: tap to edit */
+.um-table tr.um-row { cursor: pointer; }
+.um-table tr.um-row:hover td,
+.um-table tr.um-row:focus-visible td { background: var(--paper); }
+.um-table tr.um-row:focus-visible { outline: 2px solid var(--orange); outline-offset: -2px; }
+.um-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* "⋯" button + floating menu */
+.um-more {
+    width: 32px;
+    height: 32px;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-inner, 8px);
+    background: var(--white);
+    color: var(--brown);
+    cursor: pointer;
+}
+.um-more:hover { border-color: var(--orange); }
+.um-menu {
+    position: fixed;
+    z-index: 1200;
+    display: grid;
+    min-width: 180px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-inner, 8px);
+    background: var(--white);
+    box-shadow: var(--shadow-dropdown);
+}
+.um-menu button {
+    padding: 8px 8px;
+    border: 0;
+    border-radius: var(--radius-chip, 6px);
+    background: transparent;
+    color: var(--brown);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+.um-menu button:hover { background: var(--cream-card); }
+.um-menu button.is-danger { color: var(--red-dark); }
+.um-menu button.is-ok { color: var(--green-dark); }
+
+/* Edit popup */
+.um-modal { border-radius: var(--radius-card, 12px); }
+.um-modal h3 { margin: 0; font-size: 20px; font-weight: 800; color: var(--brown); }
+.um-modal .gs-field input, .um-modal .gs-field select { border-radius: var(--radius-inner, 8px); }
+.um-modal .gs-field select:disabled { opacity: 0.6; cursor: not-allowed; }
+.um-self-note { margin-top: -8px; color: var(--brown-muted); font-size: 12px; }
+
+/* Phones: rows become tappable cards */
+@media (max-width: 640px) {
+    .um-tools { flex-wrap: wrap; }
+    .um-tools .um-search { flex-basis: 100%; }
+    .um-role-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+    .um-role-tabs::-webkit-scrollbar { display: none; }
+    .um-role-tabs button { flex: none; }
+
+    .um-table-wrap { overflow: visible; }
+    .um-table thead { display: none; }
+    .um-table, .um-table tbody { display: block; }
+    .um-table tbody { display: grid; gap: 8px; }
+    .um-table tr.um-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 4px 8px;
+        min-height: 56px;
+        padding: 8px 12px;
+        border: 1px solid var(--line-soft);
+        border-radius: var(--radius-inner, 8px);
+        background: var(--cream-card);
+    }
+    .um-table tr.um-row td { display: block; padding: 0; border: 0; background: transparent !important; }
+    .um-table tr.um-row td:nth-child(1) { grid-column: 1; grid-row: span 2; min-width: 0; }
+    .um-table tr.um-row td:nth-child(2) { grid-column: 2; text-align: right; }
+    .um-table tr.um-row td:nth-child(3) { grid-column: 2; text-align: right; font-size: 12px; }
+    .um-table tr.um-row td:nth-child(4) { display: none; }
+    .um-table tr.um-row td:nth-child(5) { grid-column: 3; grid-row: 1 / span 2; }
+    .um-who span { overflow: hidden; text-overflow: ellipsis; }
+}
+/* Keep every section inside the screen width */
+.um-page { grid-template-columns: minmax(0, 1fr); }
+.um-page > * { min-width: 0; }
+@media (max-width: 640px) {
+    .um-apps-head, .um-list-head { flex-wrap: wrap; gap: 8px; }
+}
+@media (max-width: 640px) {
+    /* Tap the card to edit (status/deactivate is in the popup), so no "⋯" on phones */
+    .um-table tr.um-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .um-table tr.um-row td:nth-child(5) { display: none; }
+    .um-who { min-width: 0; }
+    .um-who > div { min-width: 0; }
+    .um-who > div > b, .um-who > div > span { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+}
+/* Edit popup: Deactivate/Reactivate sits on the left, away from Save */
+.um-modal .um-modal-left { margin-right: auto; }
+@media (max-width: 640px) {
+    /* Cards show only who + role; status lives inside the edit popup */
+    .um-table tr.um-row td:nth-child(3) { display: none; }
+    .um-table tr.um-row td:nth-child(1) { grid-row: auto; }
+    .um-modal .um-actions { flex-wrap: wrap; }
+}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe

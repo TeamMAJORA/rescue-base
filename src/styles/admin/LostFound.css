@@ -1,36 +1,47 @@
-  @import url("https://fonts.googleapis.com/css2?family=Itim&display=swap");
 .lost-found-page {
     display: grid;
-    gap: 22px;
+    gap: 24px;
 }
 
 .lost-found-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
+    gap: 16px;
 }
 
 .lost-found-header h1 {
     margin: 0;
+<<<<<<< HEAD
     color: #f3f1f1;
     font-size: 28px;
     font-weight: 900;
+=======
+    color: var(--white);
+    font-size: 32px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lost-found-header p {
-    margin: 5px 0 0;
+    margin: 4px 0 0;
     color: rgb(241, 230, 227);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .lost-found-back {
     border: none;
     border-radius: 12px;
+<<<<<<< HEAD
     padding: 10px 14px;
     background: #e9dcc4;
     color: #5a1b00;
+=======
+    padding: 8px 16px;
+    background: var(--line-soft);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: pointer;
 }
@@ -42,9 +53,15 @@
 .lost-found-message {
     margin: 0;
     padding: 12px 16px;
+<<<<<<< HEAD
     border-radius: 14px;
     background: #fff7cb;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
     font-weight: 800;
     border: 1px solid rgba(251, 133, 0, 0.22);
@@ -70,7 +87,7 @@
 .lost-found-card {
     display: grid;
     gap: 20px;
-    padding: 26px 20px;
+    padding: 24px 20px;
     border-radius: 20px;
     background: #fffaf0;
     border: 1px solid rgba(90, 27, 0, 0.08);
@@ -80,30 +97,42 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
 }
 
 .lost-found-card-header h2 {
     margin: 0;
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 18px;
     font-weight: 900;
+=======
+    color: var(--brown);
+    font-size: 20px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lost-found-card-header p {
-    margin: 5px 0 0;
+    margin: 4px 0 0;
     color: rgba(90, 27, 0, 0.68);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     line-height: 1.5;
 }
 
 .lost-found-refresh {
     border: none;
     border-radius: 12px;
+<<<<<<< HEAD
     padding: 9px 13px;
     background: #e9dcc4;
     color: #5a1b00;
+=======
+    padding: 8px 12px;
+    background: var(--line-soft);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
@@ -116,8 +145,8 @@
 
 .lost-found-form {
     display: grid;
-    gap: 14px;
-    padding: 18px;
+    gap: 16px;
+    padding: 16px;
     border-radius: 20px;
     background: #fffaf0;
     border: 1px solid rgba(90, 27, 0, 0.1);
@@ -131,10 +160,17 @@
 .lost-found-type button {
     border: none;
     border-radius: 12px;
+<<<<<<< HEAD
     padding: 9px 14px;
     background: #e9dcc4;
     color: #5a1b00;
     font-size: 13px;
+=======
+    padding: 8px 16px;
+    background: var(--line-soft);
+    color: var(--brown);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: pointer;
 }
@@ -151,14 +187,20 @@
 .lost-found-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    gap: 16px;
 }
 
 .lost-found-field {
     display: grid;
+<<<<<<< HEAD
     gap: 7px;
     color: #5a1b00;
     font-size: 13px;
+=======
+    gap: 8px;
+    color: var(--brown);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -172,13 +214,19 @@
     min-height: 42px;
     box-sizing: border-box;
     border: 1px solid rgba(90, 27, 0, 0.16);
+<<<<<<< HEAD
     border-radius: 14px;
     padding: 10px 12px;
     background: white;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    padding: 8px 12px;
+    background: var(--white);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-family: "Inter", sans-serif;
     font-size: 14px;
-    outline: none;
 }
 
 .lost-found-field textarea {
@@ -196,11 +244,19 @@
     align-self: end;
     min-height: 42px;
     border: none;
+<<<<<<< HEAD
     border-radius: 14px;
     padding: 12px 18px;
     background: #fb8500;
     color: white;
     font-weight: 900;
+=======
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: var(--orange);
+    color: var(--white);
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -215,38 +271,51 @@
 
 .lost-found-empty {
     display: grid;
+<<<<<<< HEAD
     gap: 5px;
     padding: 30px 20px;
     border-radius: 16px;
     background: #fff7cb;
+=======
+    gap: 4px;
+    padding: 32px 20px;
+    border-radius: 20px;
+    background: var(--white-yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-align: center;
 }
 
 .lost-found-empty h3 {
     margin: 0;
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 18px;
     font-weight: 900;
+=======
+    color: var(--brown);
+    font-size: 20px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lost-found-empty p {
     margin: 0;
     color: rgba(90, 27, 0, 0.68);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .lost-found-list {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .lost-found-report {
     display: grid;
     grid-template-columns: 150px 1fr;
     align-items: center;
-    gap: 18px;
-    padding: 18px 20px;
+    gap: 16px;
+    padding: 16px 20px;
     border-radius: 20px;
     background: #fffaf0;
     border: 1px solid rgba(90, 27, 0, 0.08);
@@ -254,15 +323,20 @@
 
 .lost-found-report:hover {
     border-color: rgba(251, 133, 0, 0.28);
-    box-shadow: 0 10px 24px rgba(90, 27, 0, 0.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .lost-found-report-image {
     width: 150px;
     height: 150px;
     overflow: hidden;
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fff7cb;
+=======
+    border-radius: 20px;
+    background: var(--white-yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lost-found-report-image img {
@@ -279,7 +353,7 @@
     align-items: center;
     justify-content: center;
     color: rgba(90, 27, 0, 0.55);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
 }
 
@@ -296,10 +370,10 @@
 
 .lost-found-type-badge,
 .lost-found-status {
-    padding: 7px 11px;
+    padding: 8px 12px;
     border-radius: 999px;
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
     text-transform: capitalize;
 }
 
@@ -335,16 +409,23 @@
 }
 
 .lost-found-report-content h3 {
+<<<<<<< HEAD
     margin: 0 0 5px;
     color: #5a1b00;
     font-size: 17px;
     font-weight: 900;
+=======
+    margin: 0 0 4px;
+    color: var(--brown);
+    font-size: 16px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lost-found-report-species,
 .lost-found-report-location,
 .lost-found-report-description {
-    margin: 0 0 5px;
+    margin: 0 0 4px;
     color: rgba(90, 27, 0, 0.72);
     font-size: 14px;
     word-break: break-word;
@@ -362,28 +443,39 @@
 .lost-found-report-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 14px;
-    margin-top: 9px;
+    gap: 8px 16px;
+    margin-top: 8px;
 }
 
 .lost-found-report-meta span {
     color: rgba(90, 27, 0, 0.48);
-    font-size: 11px;
+    font-size: 12px;
     word-break: break-word;
 }
 
 .lost-found-claim-status {
     display: flex;
     flex-wrap: wrap;
+<<<<<<< HEAD
     gap: 6px;
     margin-top: 10px;
     color: #5a1b00;
+=======
+    gap: 8px;
+    margin-top: 8px;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 12px;
 }
 
 .lost-found-claim-status span {
+<<<<<<< HEAD
     color: #fb8500;
     font-weight: 900;
+=======
+    color: var(--orange);
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-transform: capitalize;
 }
 
@@ -397,11 +489,17 @@
 .lost-found-actions button {
     border: none;
     border-radius: 12px;
+<<<<<<< HEAD
     padding: 9px 12px;
     background: #fb8500;
     color: white;
+=======
+    padding: 8px 12px;
+    background: var(--orange);
+    color: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
 }
@@ -428,9 +526,15 @@
     width: 100%;
     min-width: 0;
     min-height: 86px;
+<<<<<<< HEAD
     padding: 20px 22px;
     border-radius: 14px;
     background: #fff7cb;
+=======
+    padding: 20px 24px;
+    border-radius: 12px;
+    background: var(--white-yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -438,16 +542,27 @@
 }
 
 .lost-found-stat-card span {
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 15px;
+=======
+    color: var(--brown);
+    font-size: 16px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     white-space: nowrap;
 }
 
 .lost-found-stat-card strong {
+<<<<<<< HEAD
     color: #3a1200;
     font-size: 22px;
     font-weight: 900;
+=======
+    color: var(--brown-strong);
+    font-size: 24px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     white-space: nowrap;
 }
 
@@ -457,7 +572,7 @@
     }
 }
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
     .lost-found-stats {
         grid-template-columns: 1fr;
     }
@@ -477,7 +592,7 @@
     }
 }
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
     .lost-found-header {
         align-items: stretch;
         flex-direction: column;
@@ -511,7 +626,7 @@
     }
 
     .lost-found-form {
-        padding: 15px;
+        padding: 16px;
     }
 
     .lost-found-card-header {
@@ -524,7 +639,7 @@
     }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 480px) {
     .lost-found-type {
         flex-direction: column;
     }
@@ -543,9 +658,15 @@
     justify-content: space-between;
     gap: 24px;
     padding: 20px 24px;
+<<<<<<< HEAD
     border-radius: 14px;
     background: linear-gradient(90deg, #ff8a65, #ffb26b);
     color: #fff;
+=======
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    color: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     width: 100%;
     box-sizing: border-box;
     flex: 1 1 100%;
@@ -554,12 +675,12 @@
 
 .lf-hero-badge {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
     background: #fff4e6;
     color: #b5562b;
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
@@ -567,7 +688,7 @@
 .lf-hero h1 {
     margin: 8px 0 4px;
     font-family: "Itim", cursive;
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 400;
 }
 
@@ -580,12 +701,18 @@
 
 .lf-hero-btn {
     flex-shrink: 0;
-    padding: 10px 18px;
+    padding: 8px 16px;
     border: none;
     border-radius: 8px;
+<<<<<<< HEAD
     background: #fffaf2;
     color: #814b1c;
     font-weight: 700;
+=======
+    background: var(--paper);
+    color: var(--brown-soft);
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -594,7 +721,7 @@
 }
 
 /* Phone: stack the button under the text */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .lf-hero {
         flex-direction: column;
         align-items: flex-start;
@@ -611,7 +738,7 @@
 .lf-toolbar {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .lf-search {
@@ -621,10 +748,16 @@
     padding: 0 12px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 8px;
+<<<<<<< HEAD
     background: #fffaf0;
     color: #5a1b00;
     font-size: 13px;
     outline: none;
+=======
+    background: var(--paper);
+    color: var(--brown);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-search:focus {
@@ -640,7 +773,7 @@
     background: #fffaf0;
     color: #5a1b00;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -648,7 +781,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
 }
 
 .lf-chips {
@@ -658,13 +791,13 @@
 }
 
 .lf-chip {
-    padding: 5px 12px;
+    padding: 4px 12px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 999px;
     background: #fffaf0;
     color: #5a1b00;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -683,7 +816,7 @@
     opacity: 0.85;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .lf-toolbar,
     .lf-chips-row {
         flex-wrap: wrap;
@@ -694,14 +827,20 @@
 }
 .lfr-page {
     display: grid;
-    gap: 18px;
+    gap: 16px;
 }
 
 .lfr-header h1 {
     margin: 0;
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 26px;
     font-weight: 900;
+=======
+    color: var(--brown);
+    font-size: 24px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-header p {
@@ -712,10 +851,17 @@
 
 .lfr-card {
     display: grid;
+<<<<<<< HEAD
     gap: 18px;
     padding: 14px 20px 18px;
     border-radius: 14px;
     background: #fffaeb;
+=======
+    gap: 16px;
+    padding: 16px 20px 16px;
+    border-radius: 12px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-tabs {
@@ -731,7 +877,7 @@
     background: none;
     color: rgba(90, 27, 0, 0.4);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -747,22 +893,34 @@
 
 .lfr-section h2 {
     margin: 0;
+<<<<<<< HEAD
     color: #5a1b00;
     font-family: Georgia, "Times New Roman", serif;
     font-size: 22px;
+=======
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 24px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 400;
 }
 
 .lfr-section > p {
+<<<<<<< HEAD
     margin: 2px 0 14px;
     color: #5a1b00;
     font-size: 11px;
+=======
+    margin: 2px 0 16px;
+    color: var(--brown);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px 12px;
+    gap: 16px 12px;
 }
 
 .lfr-span-2 { grid-column: span 2; }
@@ -771,10 +929,17 @@
 
 .lfr-field {
     display: grid;
+<<<<<<< HEAD
     gap: 6px;
     color: #5a1b00;
     font-size: 11px;
     font-weight: 700;
+=======
+    gap: 8px;
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-field em {
@@ -788,9 +953,15 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
+<<<<<<< HEAD
     background: #fb8500;
     color: #fff;
     font-size: 9px;
+=======
+    background: var(--orange);
+    color: var(--white);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-style: normal;
     cursor: help;
 }
@@ -800,13 +971,17 @@
     width: 100%;
     height: 34px;
     box-sizing: border-box;
+<<<<<<< HEAD
     padding: 0 10px;
     border: 1px solid #f3d98a;
+=======
+    padding: 0 8px;
+    border: 1px solid var(--gold);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 8px;
     background: #fdefb8;
     color: #5a1b00;
     font-size: 12px;
-    outline: none;
 }
 
 .lfr-field input:read-only {
@@ -823,7 +998,7 @@
 .lfr-age {
     display: grid;
     grid-template-columns: 1fr 72px;
-    gap: 6px;
+    gap: 8px;
 }
 
 .lfr-foot {
@@ -834,20 +1009,25 @@
 }
 
 .lfr-foot small {
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 11px;
+=======
+    color: var(--brown);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-foot > div {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .lfr-cancel,
 .lfr-submit {
     min-width: 92px;
     height: 34px;
-    padding: 0 18px;
+    padding: 0 16px;
     border-radius: 8px;
     font-size: 12px;
     font-weight: 800;
@@ -881,7 +1061,7 @@
     }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
     .lfr-grid {
         grid-template-columns: 1fr;
     }
@@ -895,7 +1075,7 @@
 }
 .lfr-optional {
     color: rgba(90, 27, 0, 0.55);
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 600;
 }
 
@@ -903,8 +1083,13 @@
     position: relative;
     height: 280px;
     overflow: hidden;
+<<<<<<< HEAD
     border: 1px solid #f3d98a;
     border-radius: 10px;
+=======
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-map-search {
@@ -914,6 +1099,7 @@
     z-index: 1100;
     width: min(240px, calc(100% - 70px));
     height: 30px;
+<<<<<<< HEAD
     padding: 0 10px;
     border: 1px solid #8a4a1f;
     border-radius: 6px;
@@ -921,6 +1107,14 @@
     color: #5a1b00;
     font-size: 11px;
     outline: none;
+=======
+    padding: 0 8px;
+    border: 1px solid var(--brown-soft);
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--brown);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-pin span {
@@ -930,7 +1124,7 @@
     border-radius: 50% 50% 50% 0;
     background: #b3261e;
     transform: rotate(-45deg);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-card);
 }
 
 .lfr-pin span::after {
@@ -982,7 +1176,7 @@
 .tint-3 { background: #e3dfc2; }
 
 .lf-card-emoji {
-    font-size: 44px;
+    font-size: 40px;
     line-height: 1;
 }
 
@@ -990,10 +1184,15 @@
     position: absolute;
     top: 8px;
     left: 8px;
-    padding: 3px 9px;
+    padding: 3px 8px;
     border-radius: 999px;
+<<<<<<< HEAD
     color: #fff;
     font-size: 10px;
+=======
+    color: var(--white);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     text-transform: uppercase;
 }
@@ -1006,12 +1205,19 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    padding: 3px 9px;
+    padding: 3px 8px;
     border-radius: 999px;
+<<<<<<< HEAD
     background: #fffaf0;
     color: #5a1b00;
     font-size: 10px;
     font-weight: 700;
+=======
+    background: var(--paper);
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-card-mine {
@@ -1020,9 +1226,15 @@
     left: 8px;
     padding: 2px 8px;
     border-radius: 999px;
+<<<<<<< HEAD
     background: #fb8500;
     color: #fff;
     font-size: 9px;
+=======
+    background: var(--orange);
+    color: var(--white);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -1031,36 +1243,41 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
+<<<<<<< HEAD
     padding: 12px 12px 14px;
     color: #5a1b00;
+=======
+    padding: 12px 12px 16px;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-card-body h3 {
     margin: 0;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 18px;
+    font-family: "Itim", cursive;
+    font-size: 20px;
     font-weight: 400;
 }
 
 .lf-card-body small {
     color: rgba(90, 27, 0, 0.7);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .lf-card-body p {
-    margin: 6px 0 0;
+    margin: 8px 0 0;
     font-size: 12px;
     line-height: 1.45;
 }
 
 .lf-card-claim {
-    font-weight: 700;
+    font-weight: 800;
     text-transform: capitalize;
 }
 
 .lf-card-actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     margin-top: auto;
     padding-top: 12px;
 }
@@ -1072,10 +1289,17 @@
     place-items: center;
     height: 30px;
     border: none;
+<<<<<<< HEAD
     border-radius: 6px;
     background: linear-gradient(90deg, #fb8500, #ffa53a);
     color: #fff;
     font-size: 11px;
+=======
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    color: var(--white);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     text-decoration: none;
     cursor: pointer;
@@ -1106,7 +1330,7 @@
 
 .lf-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.12);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .lf-modal-overlay {
@@ -1120,11 +1344,23 @@
 }
 
 .lf-modal {
+<<<<<<< HEAD
     width: min(560px, 100%);
     max-height: 90vh;
     overflow-y: auto;
     border-radius: 14px;
     background: #fffaeb;
+=======
+    position: relative;
+    width: min(940px, 100%);
+    height: min(640px, calc(100vh - 48px));
+    display: grid;
+    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--paper);
+    box-shadow: var(--shadow-modal);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-modal-media {
@@ -1159,27 +1395,52 @@
 }
 
 .lf-modal-body {
+<<<<<<< HEAD
     display: grid;
     gap: 4px;
     padding: 18px 20px 20px;
     color: #5a1b00;
+=======
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    padding: 24px 24px 0;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-modal-body h2 {
     margin: 0;
+<<<<<<< HEAD
     font-family: Georgia, "Times New Roman", serif;
     font-size: 24px;
+=======
+    padding-right: 40px;
+    font-family: "Itim", cursive;
+    font-size: 32px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 400;
 }
 
 .lf-modal-body > small {
     color: rgba(90, 27, 0, 0.7);
+<<<<<<< HEAD
     font-size: 12px;
 }
 
 .lf-modal-body h3 {
     margin: 12px 0 0;
     font-size: 12px;
+=======
+    font-size: 14px;
+}
+
+.lf-modal-body h3 {
+    margin: 16px 0 2px;
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -1192,24 +1453,43 @@
 .lf-modal-facts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+<<<<<<< HEAD
     gap: 10px 16px;
     margin: 12px 0 0;
     padding: 12px;
     border-radius: 10px;
     background: #fdefb8;
+=======
+    gap: 12px 16px;
+    margin: 16px 0 0;
+    padding: 16px 16px;
+    border-radius: 12px;
+    background: var(--amber-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-modal-facts dt {
     color: rgba(90, 27, 0, 0.6);
+<<<<<<< HEAD
     font-size: 10px;
     font-weight: 700;
+=======
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-transform: uppercase;
 }
 
 .lf-modal-facts dd {
+<<<<<<< HEAD
     margin: 2px 0 0;
     font-size: 12px;
     font-weight: 700;
+=======
+    margin: 3px 0 0;
+    font-size: 14px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     word-break: break-word;
 }
 
@@ -1224,6 +1504,7 @@
 .lf-modal-foot {
     display: flex;
     justify-content: flex-end;
+<<<<<<< HEAD
     gap: 10px;
     margin-top: 14px;
 }
@@ -1231,16 +1512,59 @@
 @media (max-width: 480px) {
     .lf-modal-facts {
         grid-template-columns: 1fr;
+=======
+    gap: 8px;
+    margin: auto -24px 0;
+    padding: 16px 24px;
+    border-top: 1px solid var(--gold);
+    background: var(--paper);
+}
+
+/* Phones and narrow windows: photo on top, details scroll below it */
+@media (max-width: 640px) {
+    .lf-modal-overlay {
+        padding: 12px;
+    }
+
+    .lf-modal {
+        height: calc(100vh - 24px);
+        grid-template-columns: 1fr;
+        grid-template-rows: 190px minmax(0, 1fr);
+    }
+
+    .lf-modal-body {
+        padding: 16px 16px 0;
+    }
+
+    .lf-modal-body h2 {
+        font-size: 24px;
+    }
+
+    .lf-modal-foot {
+        margin: auto -16px 0;
+        padding: 12px 16px;
+    }
+
+    .lf-modal-foot > button {
+        flex: 1 1 auto;
+        white-space: nowrap;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     }
 }
 .lf-claim {
     display: grid;
-    gap: 6px;
-    margin-top: 14px;
+    gap: 8px;
+    margin-top: 16px;
     padding: 12px;
+<<<<<<< HEAD
     border: 1px dashed #fb8500;
     border-radius: 10px;
     background: #fff4e0;
+=======
+    border: 1px dashed var(--orange);
+    border-radius: 12px;
+    background: var(--peach-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-claim h3 {
@@ -1255,15 +1579,19 @@
 .lf-claim textarea {
     width: 100%;
     box-sizing: border-box;
+<<<<<<< HEAD
     padding: 10px;
     border: 1px solid #f3d98a;
+=======
+    padding: 8px;
+    border: 1px solid var(--gold);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 8px;
     background: #fff;
     color: #5a1b00;
     font-family: inherit;
     font-size: 12px;
     resize: vertical;
-    outline: none;
 }
 
 .lf-claim textarea:focus {
@@ -1272,24 +1600,36 @@
 }
 
 .lf-claim-error {
+<<<<<<< HEAD
     color: #d62828;
     font-size: 11px;
     font-weight: 700;
+=======
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 .lf-claim-review {
     display: grid;
-    gap: 6px;
-    margin-top: 14px;
+    gap: 8px;
+    margin-top: 16px;
     padding: 12px;
+<<<<<<< HEAD
     border: 1px solid #f3d98a;
     border-radius: 10px;
     background: #fff;
+=======
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    background: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-claim-review h3 {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     margin: 0;
 }
 
@@ -1300,9 +1640,15 @@
 .lf-claim-pill {
     padding: 2px 8px;
     border-radius: 999px;
+<<<<<<< HEAD
     background: #e9dcc4;
     color: #5a1b00;
     font-size: 10px;
+=======
+    background: var(--line-soft);
+    color: var(--brown);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     text-transform: capitalize;
 }
@@ -1310,18 +1656,50 @@
 .lf-claim-pill.is-pending { background: #fff1c2; color: #a15c00; }
 .lf-claim-pill.is-approved { background: rgba(46, 158, 91, 0.15); color: #16834a; }
 .lf-claim-pill.is-rejected,
+<<<<<<< HEAD
 .lf-claim-pill.is-revoked { background: rgba(214, 40, 40, 0.12); color: #d62828; }
+=======
+.lf-claim-pill.is-revoked { background: rgba(214, 40, 40, 0.12); color: var(--red); }
+
+.lf-claims {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.lf-claim-review-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.lf-claim-indicator {
+    margin-top: 12px !important;
+    padding: 8px 12px;
+    border-left: 3px solid var(--orange);
+    border-radius: 8px;
+    background: var(--peach-soft);
+}
+
+.lf-claim-pill.is-cancelled { background: var(--line-soft); color: rgba(90, 27, 0, 0.7); }
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 .lf-claim-proof {
-    padding: 10px;
+    padding: 8px;
     border-radius: 8px;
     background: #fff4e0;
     white-space: pre-wrap;
 }
 /* ===== Lost & Found list: aligned with Donations / User Management (lf2-*) ===== */
 .lost-found-page {
+<<<<<<< HEAD
     gap: 14px;
     color: #5a1b00;
+=======
+    gap: 16px;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf2-actions {
@@ -1365,12 +1743,17 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     overflow: hidden;
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fffdf3;
+=======
+    border-radius: 20px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lost-found-page .um-strip > div {
-    padding: 16px 22px;
+    padding: 16px 24px;
     border-left: 1px solid rgba(90, 27, 0, 0.08);
 }
 
@@ -1382,7 +1765,7 @@
 }
 
 .lost-found-page .um-strip b {
-    font-size: 26px;
+    font-size: 24px;
 }
 
 .lost-found-page .um-strip > .um-strip-total {
@@ -1394,30 +1777,50 @@
 }
 
 .lost-found-page .um-strip > .um-strip-total b {
+<<<<<<< HEAD
     color: #fcbf49;
     font-size: 30px;
+=======
+    color: var(--yellow);
+    font-size: 32px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     line-height: 1;
 }
 
 .lost-found-page .um-strip > .um-strip-total small {
     margin-top: 4px;
+<<<<<<< HEAD
     color: #f3dcc0;
     font-weight: 500;
+=======
+    color: var(--peach);
+    font-weight: 400;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf2-card {
     display: grid;
     gap: 12px;
-    padding: 16px 18px;
+    padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.12);
+<<<<<<< HEAD
     border-radius: 14px;
     background: #fffdf4;
+=======
+    border-radius: 12px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf2-toolbar {
     display: flex;
+<<<<<<< HEAD
     gap: 10px;
     flex-wrap: wrap;
+=======
+    align-items: stretch;
+    gap: 8px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf2-search {
@@ -1432,9 +1835,16 @@
     outline: none;
 }
 
+<<<<<<< HEAD
 .lf2-select {
     position: relative;
 }
+=======
+@media (max-width: 640px) {
+    .lf2-toolbar {
+        flex-wrap: wrap;
+    }
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 .lf2-select > span {
     position: absolute;
@@ -1470,16 +1880,17 @@
 .lf2-tabs {
     display: flex;
     flex-wrap: wrap;
+<<<<<<< HEAD
     column-gap: 22px;
     border-bottom: 1px solid #e3d5b5;
-}
-
-.lf2-tabs button:focus:not(:focus-visible) {
-    outline: none;
+=======
+    column-gap: 24px;
+    border-bottom: 1px solid var(--line);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf2-tabs button {
-    padding: 10px 2px;
+    padding: 8px 2px;
     margin-bottom: -1px;
     border: 0;
     border-bottom: 3px solid transparent;
@@ -1487,17 +1898,22 @@
     color: #8a6a4a;
     font: inherit;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     white-space: nowrap;
     cursor: pointer;
 }
 
 .lf2-tabs button span {
-    margin-left: 5px;
-    padding: 1px 7px;
+    margin-left: 4px;
+    padding: 1px 8px;
     border-radius: 999px;
+<<<<<<< HEAD
     background: #f1ece2;
     font-size: 11px;
+=======
+    background: var(--cream-card);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf2-tabs button.is-active {
@@ -1514,21 +1930,32 @@
 .lfm-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 14px;
+    gap: 8px;
+    margin-top: 16px;
 }
 
 .lfm-intro {
     margin: 0 0 4px;
+<<<<<<< HEAD
     color: #8a6a4a;
     font-size: 13px;
+=======
+    color: var(--brown-muted);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfm-card {
     padding: 16px;
+<<<<<<< HEAD
     border: 1px solid #e3d5b5;
     border-radius: 14px;
     background: #fffdf4;
+=======
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfm-pair {
@@ -1544,7 +1971,7 @@
     align-items: flex-start;
     padding: 4px;
     border: 0;
-    border-radius: 10px;
+    border-radius: 12px;
     background: transparent;
     color: #5a1b00;
     font: inherit;
@@ -1567,7 +1994,7 @@
     width: 74px;
     height: 74px;
     flex-shrink: 0;
-    border-radius: 10px;
+    border-radius: 12px;
     object-fit: cover;
     background: #e8dcc2;
 }
@@ -1575,7 +2002,7 @@
 .lfm-thumb {
     display: grid;
     place-items: center;
-    font-size: 28px;
+    font-size: 32px;
 }
 
 .lfm-info {
@@ -1586,19 +2013,24 @@
 }
 
 .lfm-info b {
-    font-size: 17px;
+    font-size: 16px;
 }
 
 .lfm-info small {
+<<<<<<< HEAD
     color: #75432f;
     font-size: 12.5px;
+=======
+    color: var(--brown-soft);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfm-type {
     align-self: flex-start;
     padding: 2px 8px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
     background: #fde2e2;
@@ -1619,6 +2051,7 @@
 }
 
 .lfm-score strong {
+<<<<<<< HEAD
     color: #fb8500;
     font-size: 30px;
 }
@@ -1626,12 +2059,21 @@
 .lfm-score small {
     color: #8a6a4a;
     font-size: 11px;
+=======
+    color: var(--orange);
+    font-size: 32px;
+}
+
+.lfm-score small {
+    color: var(--brown-muted);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfm-foot {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     justify-content: space-between;
     margin-top: 12px;
@@ -1640,15 +2082,21 @@
 .lfm-factors {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
 
 .lfm-factor {
-    padding: 3px 9px;
+    padding: 3px 8px;
     border-radius: 999px;
+<<<<<<< HEAD
     font-size: 11.5px;
     background: #f1ece2;
     color: #8a6a4a;
+=======
+    font-size: 12px;
+    background: var(--cream-card);
+    color: var(--brown-muted);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfm-factor.is-good {
@@ -1667,14 +2115,22 @@
 }
 
 .lfm-btn {
+<<<<<<< HEAD
     padding: 8px 14px;
     border: 1px solid #e3d5b5;
     border-radius: 10px;
     background: #fff;
     color: #5a1b00;
+=======
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font: inherit;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -1689,7 +2145,7 @@
     cursor: default;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 640px) {
     .lfm-pair {
         grid-template-columns: 1fr;
     }
@@ -1708,15 +2164,21 @@
 .lf2-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .lf2-table th {
-    padding: 10px 8px;
+    padding: 8px 8px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.15);
+<<<<<<< HEAD
     color: #7a3e19;
     font-size: 11px;
     font-weight: 700;
+=======
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     letter-spacing: 0.04em;
     text-align: left;
     text-transform: uppercase;
@@ -1743,7 +2205,7 @@
 .lf2-pet {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .lf2-pet img,
@@ -1767,10 +2229,10 @@
 
 .lf2-pill {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -1813,13 +2275,18 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .lf2-mini {
+<<<<<<< HEAD
     padding: 6px 12px;
     border: 1px solid #5a1b00;
+=======
+    padding: 8px 12px;
+    border: 1px solid var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 999px;
     background: #5a1b00;
     color: #eae2b7;
@@ -1854,7 +2321,6 @@
 }
 .lfr-help {
     position: relative;
-    outline: none;
 }
 
 /* The bubble */
@@ -1866,16 +2332,23 @@
     z-index: 50;
     width: max-content;
     max-width: 240px;
+<<<<<<< HEAD
     padding: 10px 12px;
     border-radius: 10px;
     background: #4a1a00;
     color: #fff4e6;
+=======
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--brown);
+    color: var(--cream-card);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 12px;
     font-weight: 600;
     line-height: 1.45;
     text-align: left;
     white-space: normal;
-    box-shadow: 0 6px 16px rgba(40, 15, 0, 0.25);
+    box-shadow: var(--shadow-dropdown);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -1911,9 +2384,15 @@
 .lfr-drop {
     display: flex;
     align-items: center;
+<<<<<<< HEAD
     gap: 14px;
     padding: 16px 18px;
     border: 1.5px dashed #f0b860;
+=======
+    gap: 16px;
+    padding: 16px 16px;
+    border: 1.5px dashed var(--yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 12px;
     background: #fff4dc;
     transition: border-color 0.15s, background 0.15s;
@@ -1930,8 +2409,13 @@
     place-items: center;
     width: 44px;
     height: 44px;
+<<<<<<< HEAD
     border-radius: 10px;
     background: #ffd59a;
+=======
+    border-radius: 12px;
+    background: var(--gold);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-drop-icon svg {
@@ -1958,30 +2442,37 @@
 
 .lfr-drop-text small {
     color: rgba(90, 27, 0, 0.6);
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 .lfr-drop-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 6px;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .lfr-drop-tags span {
-    padding: 2px 9px;
+    padding: 2px 8px;
     border: 1px solid rgba(90, 27, 0, 0.2);
     border-radius: 999px;
+<<<<<<< HEAD
     background: #fff;
     color: #5a1b00;
     font-size: 10px;
     font-weight: 700;
+=======
+    background: var(--white);
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-drop-btn {
     flex-shrink: 0;
-    padding: 10px 18px;
+    padding: 8px 16px;
     border-radius: 8px;
     background: #4a1a00;
     color: #fff;
@@ -2003,8 +2494,13 @@
     display: flex;
     align-items: center;
     gap: 12px;
+<<<<<<< HEAD
     padding: 10px 12px;
     border: 1px solid #f3d98a;
+=======
+    padding: 8px 12px;
+    border: 1px solid var(--gold);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 12px;
     background: #fff;
 }
@@ -2024,36 +2520,60 @@
 
 .lfr-photo-done b {
     overflow: hidden;
+<<<<<<< HEAD
     color: #3a1200;
     font-size: 13px;
+=======
+    color: var(--brown-strong);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
 .lfr-photo-done small {
+<<<<<<< HEAD
     color: #16834a;
     font-size: 11px;
     font-weight: 700;
+=======
+    color: var(--green-dark);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr-photo-remove {
-    padding: 7px 12px;
+    padding: 8px 12px;
     border: 1px solid rgba(214, 40, 40, 0.4);
     border-radius: 8px;
+<<<<<<< HEAD
     background: #fff;
     color: #d62828;
     font-size: 11px;
     font-weight: 700;
+=======
+    background: var(--white);
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
 .lfr-photo-error {
+<<<<<<< HEAD
     color: #d62828;
     font-size: 11px;
     font-weight: 700;
+=======
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .lfr-drop {
         flex-wrap: wrap;
     }
@@ -2062,6 +2582,7 @@
         text-align: center;
     }
 }
+<<<<<<< HEAD
 .lfr-phone {
     display: flex;
     align-items: stretch;
@@ -2114,22 +2635,34 @@
     color: #d62828;
     font-size: 11px;
     font-weight: 700;
+=======
+
+.lfr-field-error {
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 .lf-hero-actions {
     display: flex;
     flex-shrink: 0;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .lf-hero-ghost {
-    padding: 9px 16px;
+    padding: 8px 16px;
     border: 1.5px solid rgba(255, 255, 255, 0.85);
     border-radius: 8px;
     background: transparent;
+<<<<<<< HEAD
     color: #fff;
     font-weight: 700;
+=======
+    color: var(--white);
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -2162,9 +2695,15 @@
 
 .lf2-mini {
     border-radius: 0;
+<<<<<<< HEAD
     background: #fff;
     color: #5a1b00;
     font-weight: 700;
+=======
+    background: var(--white);
+    color: var(--brown);
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-decoration: none;
 }
 
@@ -2216,11 +2755,17 @@
 }
 
 .lfr2-card {
-    padding: 20px 22px;
+    padding: 20px 24px;
     border: 1px solid rgba(90, 27, 0, 0.12);
+<<<<<<< HEAD
     border-radius: 14px;
     background: #fffdf4;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr2-head {
@@ -2240,8 +2785,13 @@
 
 .lfr2-head p {
     margin: 2px 0 0;
+<<<<<<< HEAD
     font-size: 12.5px;
     color: #7a3e19;
+=======
+    font-size: 12px;
+    color: var(--brown-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr2 em {
@@ -2255,14 +2805,14 @@
 }
 
 .lfr2-seg button {
-    padding: 8px 18px;
+    padding: 8px 16px;
     border: 0;
     border-radius: 0;
     background: #fff;
     color: #5a1b00;
     font: inherit;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -2277,14 +2827,14 @@
 
 .lfr2-sec {
     margin-top: 16px;
-    padding-top: 14px;
+    padding-top: 16px;
     border-top: 1px solid rgba(90, 27, 0, 0.1);
 }
 
 .lfr2-sec h4 {
     margin: 0 0 2px;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .lfr2-sec > p {
@@ -2321,12 +2871,13 @@
 
 .lfr2-field {
     display: grid;
-    gap: 5px;
+    gap: 4px;
     min-width: 0;
 }
 
 .lfr2-field > span {
     font-size: 12px;
+<<<<<<< HEAD
     font-weight: 700;
     color: #5a1b00;
 }
@@ -2334,20 +2885,33 @@
 .lfr2-field > span small {
     font-weight: 500;
     color: #a08670;
+=======
+    font-weight: 800;
+    color: var(--brown);
+}
+
+.lfr2-field > span small {
+    font-weight: 400;
+    color: var(--brown-muted);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr2-field input,
 .lfr2-field select,
 .lfr2-field textarea {
     width: 100%;
+<<<<<<< HEAD
     padding: 9px 11px;
     border: 1px solid #e3d5b5;
+=======
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 0;
     background: #fff;
     color: #3d2410;
     font: inherit;
-    font-size: 13px;
-    outline: none;
+    font-size: 14px;
 }
 
 .lfr2-field textarea {
@@ -2390,7 +2954,7 @@
 .lfr2-photo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     min-height: 38px;
     flex-wrap: wrap;
 }
@@ -2409,11 +2973,19 @@
 
 .lfr2-photo-btn {
     padding: 8px 12px;
+<<<<<<< HEAD
     border: 1px solid #5a1b00;
     background: #fff;
     color: #5a1b00;
     font-size: 12.5px;
     font-weight: 700;
+=======
+    border: 1px solid var(--brown);
+    background: var(--white);
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -2434,7 +3006,7 @@
     color: #5a1b00;
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     text-decoration: underline;
     cursor: pointer;
 }
@@ -2444,14 +3016,16 @@
     color: #d62828;
 }
 
+/* z-index 0 keeps Leaflet's own layers (400–1000) inside the map, so the date calendar opens over it */
 .lfr2-map {
     position: relative;
+    z-index: 0;
     height: 230px;
     border: 1px solid #e3d5b5;
 }
 
-
 .lfr2-coord {
+<<<<<<< HEAD
     font-size: 11.5px;
     color: #7a3e19;
 }
@@ -2477,6 +3051,12 @@
     border-color: #d62828;
 }
 
+=======
+    font-size: 12px;
+    color: var(--brown-soft);
+}
+
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 /* Stays pinned to the bottom of the screen so Submit is always visible */
 .lfr2-foot {
     position: sticky;
@@ -2487,11 +3067,16 @@
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
-    margin: 18px -22px -20px;
-    padding: 12px 22px;
+    margin: 16px -24px -20px;
+    padding: 12px 24px;
     border-top: 1px solid rgba(90, 27, 0, 0.1);
+<<<<<<< HEAD
     border-radius: 0 0 14px 14px;
     background: #fffdf4;
+=======
+    border-radius: 0 0 12px 12px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lfr2-foot small {
@@ -2505,14 +3090,19 @@
 }
 
 .lfr2-btn {
+<<<<<<< HEAD
     padding: 10px 18px;
     border: 1px solid #5a1b00;
+=======
+    padding: 8px 16px;
+    border: 1px solid var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 0;
     background: #fff;
     color: #5a1b00;
     font: inherit;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -2551,15 +3141,19 @@
 .lfr2-map-search input {
     width: 100%;
     box-sizing: border-box;
+<<<<<<< HEAD
     padding: 8px 10px;
     border: 1px solid #e3d5b5;
+=======
+    padding: 8px 8px;
+    border: 1px solid var(--line);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 0;
     background: #fff;
     color: #3d2410;
     font: inherit;
-    font-size: 13px;
-    box-shadow: 0 4px 12px rgba(90, 27, 0, 0.18);
-    outline: none;
+    font-size: 14px;
+    box-shadow: var(--shadow-card);
 }
 
 .gm-map-search input:focus,
@@ -2575,8 +3169,13 @@
     overflow-y: auto;
     border: 1px solid #e3d5b5;
     border-top: 0;
+<<<<<<< HEAD
     background: #fff;
     box-shadow: 0 8px 18px rgba(90, 27, 0, 0.18);
+=======
+    background: var(--white);
+    box-shadow: var(--shadow-dropdown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .gm-map-results li + li {
@@ -2587,7 +3186,7 @@
     width: 100%;
     display: grid;
     gap: 1px;
-    padding: 8px 10px;
+    padding: 8px 8px;
     border: 0;
     border-radius: 0;
     background: #fff;
@@ -2599,21 +3198,30 @@
 
 .gm-map-results button:hover,
 .gm-map-results button:focus-visible {
+<<<<<<< HEAD
     background: #fff4d6;
     outline: none;
+=======
+    background: var(--peach-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .gm-map-results b {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .gm-map-results small {
+<<<<<<< HEAD
     font-size: 11.5px;
     color: #7a3e19;
+=======
+    font-size: 12px;
+    color: var(--brown-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .gm-map-results .is-note {
-    padding: 8px 10px;
+    padding: 8px 8px;
     font-size: 12px;
     color: #7a3e19;
 }
@@ -2651,7 +3259,7 @@
 .lf-matches {
     display: grid;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 16px;
 }
 
 .lf-match-list {
@@ -2663,10 +3271,17 @@
     display: flex;
     align-items: center;
     gap: 8px;
+<<<<<<< HEAD
     padding: 8px 10px;
     border: 1px solid #f3d98a;
     border-radius: 10px;
     background: #fff;
+=======
+    padding: 8px 8px;
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    background: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .lf-match:hover {
@@ -2678,7 +3293,7 @@
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 0;
     border: none;
     background: none;
@@ -2713,13 +3328,13 @@
 }
 
 .lf-match-info b {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .lf-match-info small {
     overflow: hidden;
     color: rgba(90, 27, 0, 0.7);
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
@@ -2728,22 +3343,35 @@
     flex-shrink: 0;
     padding: 3px 8px;
     border-radius: 999px;
+<<<<<<< HEAD
     background: #2e9e5b;
     color: #fff;
     font-size: 9px;
+=======
+    background: var(--green);
+    color: var(--white);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     text-transform: uppercase;
 }
 
 .lf-match-dismiss {
     flex-shrink: 0;
-    padding: 6px 10px;
+    padding: 8px 8px;
     border: 1px solid rgba(90, 27, 0, 0.3);
     border-radius: 8px;
+<<<<<<< HEAD
     background: #fff;
     color: #5a1b00;
     font-size: 11px;
     font-weight: 700;
+=======
+    background: var(--white);
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -2754,14 +3382,384 @@
 
 .lf-match-note {
     color: rgba(90, 27, 0, 0.55);
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .lf-match-empty {
     margin: 0 !important;
-    padding: 10px;
+    padding: 8px;
     border-radius: 8px;
     background: #fff4e0;
     color: rgba(90, 27, 0, 0.75);
     font-size: 12px !important;
+<<<<<<< HEAD
 }
+=======
+}
+
+/* Possible matches panel (Lost & Found) */
+.lf-suggest-panel {
+    gap: 8px;
+    margin-bottom: 16px;
+    border-left: 4px solid var(--orange);
+}
+
+.lf-suggest-panel h3 {
+    margin: 0;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.lf-suggest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    gap: 8px;
+}
+
+.lf-claim-proof-photo {
+    max-width: 220px;
+    margin-top: 8px;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+}
+
+/* Grid view cards (shared row actions + status pill) */
+.lf-card-media {
+    height: 140px;
+}
+
+.lf-card-body .lf2-pill {
+    align-self: flex-start;
+    margin-top: 8px;
+}
+
+.lf-card-body .lf2-row-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+/* ===== Grid cards: compact, tap to view (Nov 9 redesign) ===== */
+.lf-tabs-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--line);
+}
+
+.lf-tabs-row .lf2-tabs {
+    flex: 1;
+    min-width: 0;
+    border-bottom: 0;
+}
+
+.lf-select-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 4px;
+    color: var(--brown);
+    font-size: 14px;
+}
+
+.lf-select-link {
+    border: 0;
+    background: none;
+    color: var(--orange-dark);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.lf-select-btn {
+    margin-bottom: 4px;
+    padding: 8px 16px;
+    border: 1px solid var(--brown);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--brown);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.lf-select-btn.is-danger {
+    border-color: var(--red-dark);
+    background: var(--red-dark);
+    color: var(--white);
+}
+
+.lf-select-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.lf-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.lf-grid .lf-card {
+    position: relative;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    overflow: visible;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--brown);
+}
+
+.lf-grid .lf-card:hover,
+.lf-grid .lf-card:focus-visible {
+    border-color: var(--orange);
+    box-shadow: var(--shadow-dropdown);
+    transform: translateY(-1px);
+}
+
+.lf-grid .lf-card.is-mine {
+    border-color: var(--orange);
+    box-shadow: none;
+}
+
+.lf-grid .lf-card.is-selected {
+    border-color: var(--red-dark);
+    background: var(--white);
+    box-shadow: 0 0 0 1px var(--red-dark) inset;
+}
+
+.lf-card-thumb {
+    width: 76px;
+    height: 76px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.lf-card-thumb .lf-card-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lf-card-thumb .lf-card-placeholder {
+    width: 34px;
+    height: auto;
+    opacity: 0.75;
+}
+
+.lf-card-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.lf-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding-right: 24px;
+}
+
+.lf-card-title h3 {
+    margin: 0;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 800;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.lf-card-title .lf-card-badge {
+    position: static;
+    flex-shrink: 0;
+    padding: 2px 8px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+}
+
+.lf-card-sub {
+    overflow: hidden;
+    color: var(--brown-soft);
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.lf-card-meta {
+    display: flex;
+    gap: 12px;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--brown-muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.lf-card-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lf-card-meta span:first-child {
+    flex-shrink: 1;
+}
+
+.lf-card-meta span:last-child {
+    flex-shrink: 0;
+}
+
+.lf-card-meta img {
+    width: auto;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+.lf-card-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    background: var(--white);
+}
+
+.lf-card-check.is-on {
+    border-color: var(--red-dark);
+    background: var(--red-dark);
+}
+
+.lf-card-flag {
+    align-self: flex-start;
+    margin-top: 3px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.lf-card-flag.is-match { background: var(--line-soft); color: var(--orange-dark); }
+.lf-card-flag.is-claim { background: var(--blue-soft); color: var(--blue); }
+.lf-card-flag.is-mine { background: var(--orange); color: var(--white); }
+
+/* Delete one report from its details popup (admin only) */
+.lf-modal-foot .lfr-delete {
+    margin-right: auto;
+    height: 34px;
+    padding: 0 16px;
+    border: 1px solid var(--red-dark);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--red-dark);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.lf-modal-foot .lfr-delete:hover {
+    background: var(--red-soft);
+}
+
+/* ===== Claims: "New" markers, found-claim form, staff read-only note ===== */
+.lf2-tabs button .lf2-tab-new {
+    margin-left: 8px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--red);
+    color: var(--white);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 800;
+    animation: lf-new-pulse 1.6s ease-in-out 3;
+}
+
+@keyframes lf-new-pulse {
+    50% { box-shadow: 0 0 0 4px rgba(214, 40, 40, 0.2); }
+}
+
+.lf-card-flag.is-new { background: var(--red); color: var(--white); }
+.lf-claim-pill.is-new { background: var(--red); color: var(--white); }
+
+.lf-claim-review.is-new {
+    border-left: 4px solid var(--red);
+    background: var(--white);
+}
+
+.lf-claim-readonly {
+    padding: 8px 8px;
+    border-radius: 8px;
+    background: var(--cream-card);
+    color: var(--brown-muted);
+    font-size: 12px;
+}
+
+/* Report steps: "Lost / Found" and the date side by side, then the place and map */
+.lfr2-what {
+    display: grid;
+    grid-template-columns: max-content minmax(220px, 280px);
+    justify-content: start;
+    align-items: end;
+    gap: 24px;
+    margin-bottom: 12px;
+}
+
+.lfr2-what .lfr2-seg {
+    align-self: end;
+    min-height: 44px;
+}
+
+.lfr2-contact {
+    max-width: 480px;
+}
+
+/* The step heading takes focus when the step changes (for keyboard and screen reader users) */
+.lfr2-sec h4:focus {
+    outline: none;
+}
+
+.lfr2-card > .form-tracker {
+    margin: 16px 0 0;
+}
+
+.lfr2-foot {
+    justify-content: space-between;
+}
+
+.lfr2-foot > div {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.lfr2-foot .form-draft-note {
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .lfr2-what {
+        grid-template-columns: 1fr;
+    }
+}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe

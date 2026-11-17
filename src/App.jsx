@@ -9,6 +9,16 @@ import StaffDashboard from "./pages/admin/StaffDashboard";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 import PublicPetProfile from "./pages/PublicPetProfile";
 import LandingPage from "./pages/LandingPage";
+<<<<<<< HEAD
+=======
+import AppDialogs from "./components/system/AppDialogs";
+// Last on purpose: the shared button, form and sidebar looks override the older per-module styles
+import "./styles/components/Buttons.css";
+import "./styles/components/Forms.css";
+import "./styles/components/Sidebar.css";
+import "./styles/components/Feedback.css";
+import Icon from "./components/system/Icon";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 // After a browser refresh, reopen the logged-in user's dashboard instead of the landing page
 function getStartPage() {
@@ -88,7 +98,7 @@ function MaintenanceTicker() {
                 aria-label="Hide maintenance notice"
                 onClick={() => setClosed(true)}
             >
-                ×
+                <Icon name="close" />
             </button>
         </div>
     );

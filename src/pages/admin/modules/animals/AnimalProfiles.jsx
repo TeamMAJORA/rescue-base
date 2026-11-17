@@ -7,6 +7,15 @@ import IntakeRecords from "./IntakeRecords";
 import AnimalTransfers from "./AnimalTransfers";
 import InfoTip from "../../../../components/system/InfoTip";
 import { formatAge } from "../../../../utils/formatAge";
+<<<<<<< HEAD
+=======
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
+import { askConfirm } from "../../../../utils/dialogs";
+import { formatDate } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
+import Icon from "../../../../components/system/Icon";
+import NumberInput from "../../../../components/system/NumberInput";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
@@ -115,10 +124,10 @@ function AdopterPreview({ form, savedAnimal }) {
         <aside className="admin-panel admin-adopter-preview">
             <div className="admin-adopter-preview-heading">
                 <h3>
-                    Adopter Preview
+                    Adopter preview
                     <span className="admin-auto-badge">AUTO</span>
                 </h3>
-                <p>What Adopters see. Not editable.</p>
+                <p>What adopters see. Not editable.</p>
             </div>
 
             <div className="admin-preview-card">
@@ -242,6 +251,78 @@ function getAnimalStatus(animal) {
     return "unavailable";
 }
 
+<<<<<<< HEAD
+=======
+// Who has the animal now (adopter or foster), with contacts so the shelter can follow up.
+// The server returns { success, [responseKey]: person | null }.
+function PersonContactCard({ title, url, responseKey, dateLabel, dateField, emptyText }) {
+    const [state, setState] = useState({ loading: true, person: null, error: "" });
+
+    useEffect(() => {
+        let cancelled = false;
+
+        fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "ngrok-skip-browser-warning": "true" } })
+            .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok || !data.success) throw new Error(data.message || "Could not load contact details.");
+                if (!cancelled) setState({ loading: false, person: data[responseKey], error: "" });
+            })
+            .catch((error) => {
+                if (!cancelled) setState({ loading: false, person: null, error: error.message });
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [url, responseKey]);
+
+    const { loading, person, error } = state;
+
+    return (
+        <section className="apm-card apm-person">
+            <h4>{title}</h4>
+            {loading ? (
+                <LoadingState label="Loading…" />
+            ) : error ? (
+                <p className="apm-muted is-error">{error}</p>
+            ) : !person ? (
+                <p className="apm-muted">{emptyText}</p>
+            ) : (
+                <>
+                    <p className="apm-person-name">
+                        {person.fullName}
+                        {person.isFosterAdoption && <small>Foster adoption</small>}
+                    </p>
+                    <div className="apm-facts is-3">
+                        <div>
+                            <span>Email</span>
+                            <b className="is-plain">
+                                <a href={`mailto:${person.email}`}>{person.email}</a>
+                            </b>
+                        </div>
+                        <div>
+                            <span>Phone</span>
+                            <b className="is-plain">
+                                {person.phone ? <a href={`tel:${person.phone}`}>{person.phone}</a> : "—"}
+                            </b>
+                        </div>
+                        <div>
+                            <span>{dateLabel}</span>
+                            <b>{formatDate(person[dateField])}</b>
+                        </div>
+                    </div>
+                    <p className="apm-person-address">
+                        <small>Address</small>
+                        {person.address || "—"}
+                    </p>
+                    {person.approvedByName && <p className="apm-muted">Approved by {person.approvedByName}</p>}
+                </>
+            )}
+        </section>
+    );
+}
+
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 function StatusPill({ status }) {
     const [iconMissing, setIconMissing] = useState(false);
     const label = ANIMAL_STATUS_LABELS[status];
@@ -298,7 +379,7 @@ const ANIMAL_FORM_TABS = [
     {
         key: "overview",
         label: "Overview",
-        title: "Animal Details",
+        title: "Animal details",
         description: "Core profile fields. Fields marked * are required.",
     },
     {
@@ -371,7 +452,7 @@ function AnimalProfilesList({ onOpenRecords }) {
             aria-live="polite"
         >
             <span className="admin-toast-icon">
-                {toast.type === "success" ? "✓" : "!"}
+                {toast.type === "success" ? <Icon name="check" /> : "!"}
             </span>
             <p>{toast.text}</p>
             <button
@@ -379,7 +460,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 aria-label="Close"
                 onClick={() => setToast(null)}
             >
-                ×
+                <Icon name="close" />
             </button>
         </div>
     );
@@ -901,7 +982,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 {toastElement}
                 <div className="admin-page-header">
                     <div>
-                        <h2>{editingId ? "Edit Animal" : "Add Animal"}</h2>
+                        <h2>{editingId ? "Edit animal" : "Add animal"}</h2>
                         <p>
                             {editingId
                                 ? "Update this animal's details and status."
@@ -914,7 +995,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         className="admin-page-header-back"
                         onClick={handleBackToList}
                     >
-                        ← Back to list
+                        <Icon name="arrow-left" /> Back to list
                     </button>
                 </div>
 
@@ -955,7 +1036,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         {/* ===== Row 1 ===== */}
                         <label>
                             <span className="admin-field-label">
-                                Animal Name <span className="admin-required">*</span>
+                                Animal Name <span className="required-mark">*</span>
                             </span>
                             <input
                                 value={animalForm.name}
@@ -967,7 +1048,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Species <span className="admin-required">*</span>
+                                Species <span className="required-mark">*</span>
                             </span>
                             <select
                                 value={animalForm.type}
@@ -1002,8 +1083,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         <label>
                             <span className="admin-field-label">Age</span>
                             <div className="admin-age-input">
-                                <input
-                                    type="number"
+                                <NumberInput
                                     min="0"
                                     max={ageUnit === "months" ? 1200 : 100}
                                     step={ageUnit === "months" ? "1" : "0.5"}
@@ -1028,7 +1108,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Gender <span className="admin-required">*</span>
+                                Gender <span className="required-mark">*</span>
                             </span>
                             <select
                                 value={animalForm.gender}
@@ -1044,7 +1124,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Size <span className="admin-required">*</span>
+                                Size <span className="required-mark">*</span>
                             </span>
                             <select
                                 value={animalForm.size}
@@ -1061,7 +1141,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Status <span className="admin-required">*</span>
+                                Status <span className="required-mark">*</span>
                                 <InfoTip text="Current shelter status: Available, Pending Adoption, Fostered, Adopted or Unavailable. Changing it updates what adopters see." />
                             </span>
                             <select
@@ -1072,7 +1152,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 required
                             >
                                 <option value="available">Available</option>
-                                <option value="pending">Pending Adoption</option>
+                                <option value="pending">Pending adoption</option>
                                 <option value="fostered">Fostered</option>
                                 <option value="adopted">Adopted</option>
                                 <option value="unavailable">Unavailable</option>
@@ -1082,7 +1162,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                         {/* ===== Row 3 ===== */}
                         <label>
                             <span className="admin-field-label">
-                                Intake Date <span className="admin-required">*</span>
+                                Intake Date <span className="required-mark">*</span>
                             </span>
                             <input
                                 type="date"
@@ -1095,7 +1175,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <label>
                             <span className="admin-field-label">
-                                Shelter Location
+                                Shelter location
                                 <InfoTip text="Where the animal is staying now. Adopters see this on the pet profile. Leave blank for Mayari Animal Rescue." />
                             </span>
                             <input
@@ -1150,7 +1230,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 {animalForm.image && <img src={animalForm.image} alt="" />}
                                 <span>
                                     {imageUploading
-                                        ? "Uploading..."
+                                        ? "Uploading…"
                                         : animalForm.image
                                             ? "Change photo"
                                             : "Upload JPG or PNG"}
@@ -1170,20 +1250,20 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 rows={1}
                                 value={animalForm.description}
                                 onChange={(e) => setAnimalForm({ ...animalForm, description: e.target.value })}
-                                placeholder="Appearance, condition, notes..."
+                                placeholder="Appearance, condition, notes…"
                             />
                         </label>
 
                         {/* ===== Intake record ===== */}
                         <div className="admin-form-section admin-animal-full">
-                            <h3>Intake Record</h3>
+                            <h3>Intake record</h3>
                             <p>How the animal came into the shelter.</p>
                         </div>
 
                         <div className="admin-intake-grid admin-animal-full">
                             <label>
                                 <span className="admin-field-label">
-                                    Intake Type <span className="admin-required">*</span>
+                                    Intake Type <span className="required-mark">*</span>
                                 </span>
                                 <select
                                     value={animalForm.intakeType}
@@ -1199,7 +1279,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                             <label>
                                 <span className="admin-field-label">
-                                    Source Location <span className="admin-required">*</span>
+                                    Source Location <span className="required-mark">*</span>
                                     <InfoTip text="Where the animal was found or came from. This is not shown to adopters." />
                                 </span>
                                 <input
@@ -1221,7 +1301,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                             <label>
                                 <span className="admin-field-label">
-                                    Condition <span className="admin-required">*</span>
+                                    Condition <span className="required-mark">*</span>
                                     <InfoTip text="The animal's condition on arrival. Medical Status above is its current condition." />
                                 </span>
                                 <select
@@ -1275,10 +1355,10 @@ function AnimalProfilesList({ onOpenRecords }) {
                                     title={!isFormDirty ? "No changes to save" : undefined}
                                 >
                                     {submitting
-                                        ? "Saving..."
+                                        ? "Saving…"
                                         : editingId
-                                            ? "Update Animal"
-                                            : "Save Animal"}
+                                            ? "Save changes"
+                                            : "Add animal"}
                                 </button>
                             </div>
                         </div>
@@ -1337,7 +1417,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 className="admin-modal-cancel"
                                 onClick={() => setShowDiscardModal(false)}
                             >
-                                Keep Editing
+                                Keep editing
                             </button>
 
                             <button
@@ -1378,7 +1458,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                     <div className="ao-strip-item">
                         <div className="ao-strip-label">
-                            Pending Adoption
+                            Pending adoption
                         </div>
                         <div className="ao-strip-value">{pendingAnimals}</div>
                     </div>
@@ -1413,7 +1493,12 @@ function AnimalProfilesList({ onOpenRecords }) {
                             </svg>
                             <input
                                 type="search"
+<<<<<<< HEAD
                                 placeholder="Search animal, breed, or species..."
+=======
+                                placeholder="Search name, breed, colour, location, status…"
+                                aria-label="Search animals"
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -1487,9 +1572,9 @@ function AnimalProfilesList({ onOpenRecords }) {
                 </div>
 
                 {loading ? (
-                    <p className="admin-empty">Loading animal profiles...</p>
+                    <LoadingState label="Loading animal profiles…" />
                 ) : animals.length === 0 ? (
-                    <p className="admin-empty">No animal profiles found.</p>
+                    <p className="admin-empty">No animal profiles yet.</p>
                 ) : filteredAnimals.length === 0 ? (
                     <p className="admin-empty">No animals match your search.</p>
                 ) : viewMode === "grid" ? (
@@ -1521,7 +1606,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                             <StatusPill key={status} status={status} />
                                         </span>
                                         {qrCodes[animal._id] && (
-                                            <span className="agc-qr" title="Has a QR tag">QR ✓</span>
+                                            <span className="agc-qr" title="Has a QR tag">QR <Icon name="check" /></span>
                                         )}
                                     </div>
 
@@ -1886,7 +1971,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                         onClick={() => handleGenerateQr(viewedAnimal)}
                                                         disabled={qrGenerating}
                                                     >
-                                                        {qrGenerating ? "Generating..." : "Generate QR tag"}
+                                                        {qrGenerating ? "Generating…" : "Generate QR tag"}
                                                     </button>
                                                 </div>
                                             )}
@@ -1931,7 +2016,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                             handleEditAnimal(viewedAnimal);
                                         }}
                                     >
-                                        Edit Animal
+                                        Edit animal
                                     </button>
                                 )}
                             </footer>

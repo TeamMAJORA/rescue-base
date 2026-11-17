@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Itim&family=Karma:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Itim&family=Karma:wght@400;500;700&display=swap");
 
 :root {
     --cream: #eae2b7;
@@ -59,12 +59,20 @@ img {
    HEADER
 ========================= */
 
+/* Brand | nav | actions. The two side columns share the leftover space equally,
+   so the nav sits in the true centre of the page whatever the side widths are. */
 .header {
     height: 119px;
+<<<<<<< HEAD
     background: var(--yellow);
     display: flex;
+=======
+    background: var(--landing-orange);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     align-items: center;
-    justify-content: space-between;
+    column-gap: 24px;
     padding: 0 58px;
     position: relative;
     z-index: 20;
@@ -73,6 +81,7 @@ img {
 .brand {
     display: flex;
     align-items: center;
+    justify-self: start;
 }
 
 .brand img {
@@ -90,8 +99,7 @@ img {
 }
 
 .nav {
-    margin-left: auto;
-    margin-right: 60px;
+    justify-self: center;
     display: flex;
     align-items: center;
     gap: 18px;
@@ -107,6 +115,7 @@ img {
 }
 
 .header-actions {
+    justify-self: end;
     display: flex;
     align-items: center;
     gap: 20px;
@@ -964,6 +973,7 @@ img {
 
 @media (max-width: 1000px) {
     .header {
+        display: flex;
         height: auto;
         min-height: 119px;
         padding: 24px;
@@ -992,6 +1002,32 @@ img {
 
     .pet-track {
         gap: 25px;
+    }
+}
+
+/* The site header is shared by the landing page and the log in / sign-up pages, so its phone rules live here */
+@media (max-width: 760px) {
+    .nav a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* Three nav links on a phone: keep each one on a single line */
+@media (max-width: 650px) {
+    .nav {
+        flex-wrap: wrap;
+        gap: 8px 12px;
+    }
+
+    .nav a {
+        white-space: nowrap;
+    }
+
+    /* The trailing paw would wrap onto a line by itself */
+    .nav img:last-child {
+        display: none;
     }
 }
 
@@ -1171,3 +1207,231 @@ body {
 /* Facebook link in the landing footer */
 .footer-bottom .footer-facebook { display: inline-flex; align-items: center; gap: 6px; }
 .footer-bottom .footer-facebook img { width: 16px; height: 16px; }
+<<<<<<< HEAD
+=======
+
+/* ================= Shared style rules (Nov 9) =================
+   Corners: cards 12px, things inside a card (inputs, buttons, menus) 8px, chips/tags 6px.
+   Shadow only on what floats (dropdowns, popups, tooltips, the phone menu). */
+:root {
+    /* Scales (audit F5-F8). Type: 12/14/16/20/24/32 (+40/48 display). Spacing: 4px grid.
+       Radius: 4 (tiny bars), 8 (fields, small controls), 12 (buttons, cards), 20 (modals, heroes), 999 (pills).
+       The landing section above "Shared style rules" keeps its Figma values. */
+    --radius-card: 12px;
+    --radius-inner: 8px;
+    --radius-chip: 8px;
+    --shadow-card: 0 2px 8px rgba(90, 27, 0, 0.08);
+    --shadow-dropdown: 0 12px 28px rgba(90, 27, 0, 0.18);
+    --shadow-modal: 0 24px 60px rgba(40, 20, 5, 0.28);
+    /* Modals (audit C2/M13): one overlay, one motion. Enter 200ms, exit 150ms. */
+    --overlay: rgba(40, 20, 5, 0.45);
+    --modal-enter: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    --modal-exit: 150ms ease-in;
+}
+
+/* Phone menu button + slide-in sidebar (admin, staff, volunteer, adopter and foster dashboards) */
+.dash-menu-btn { display: none; }
+
+/* Sidebar tabs scroll above the user card, never behind it: fade the last tab
+   so it's clear there are more below */
+.admin-menu,
+.staff-menu,
+.adopter-menu,
+.foster-menu {
+    padding-bottom: 16px;
+    -webkit-mask-image: linear-gradient(to bottom, var(--dark) calc(100% - 22px), transparent);
+    mask-image: linear-gradient(to bottom, var(--dark) calc(100% - 22px), transparent);
+}
+
+@media (max-width: 900px) {
+    .dash-menu-btn {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-inner);
+        background: var(--paper);
+        color: var(--brown);
+        cursor: pointer;
+    }
+
+    .admin-page > .admin-main > .admin-topbar,
+    .staff-page > .staff-main > .staff-topbar,
+    .adopter-dashboard-page > .adopter-main > .adopter-dashboard-topbar,
+    .foster-page > .foster-main > .foster-topbar {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .admin-page > .admin-main > .admin-topbar h1,
+    .staff-page > .staff-main > .staff-topbar h1,
+    .adopter-dashboard-page .adopter-topbar-title,
+    .foster-page .foster-topbar-title {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .admin-page > .admin-sidebar,
+    .staff-page > .staff-sidebar,
+    .adopter-dashboard-page > .adopter-sidebar,
+    .foster-page > .foster-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1500;
+        width: min(290px, 85vw);
+        height: 100dvh;
+        padding: 24px 16px 16px;
+        display: flex;
+        flex-direction: column;
+        /* The tab list scrolls; the user card stays pinned at the bottom */
+        overflow: hidden;
+        border-right: 1px solid rgba(90, 27, 0, 0.14);
+        border-bottom: 0;
+        box-shadow: none;
+        transform: translateX(-105%);
+        transition: transform 0.2s ease;
+    }
+
+    .admin-page > .admin-sidebar .admin-menu,
+    .staff-page > .staff-sidebar .staff-menu,
+    .adopter-dashboard-page > .adopter-sidebar .adopter-menu,
+    .foster-page > .foster-sidebar .foster-menu {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .adopter-dashboard-page > .adopter-sidebar .adopter-menu-group > button,
+    .foster-page > .foster-sidebar .foster-menu > button {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .admin-page > .admin-sidebar.is-open,
+    .staff-page > .staff-sidebar.is-open,
+    .adopter-dashboard-page > .adopter-sidebar.is-open,
+    .foster-page > .foster-sidebar.is-open {
+        transform: none;
+        box-shadow: var(--shadow-dropdown);
+    }
+
+    .dash-menu-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1400;
+        background: rgba(58, 20, 0, 0.35);
+    }
+}
+
+/* Phones: 16px inputs (stops iPhone zoom) and 44px tap targets */
+@media (max-width: 640px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+@media (pointer: coarse) {
+    button:not([role="switch"]),
+    select,
+    [role="button"],
+    input[type="submit"],
+    input[type="button"] {
+        /* !important: module styles set their own heights, but on touch screens 44px is the floor */
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    /* Stand-alone links (nav, footer, "See all"); links inside sentences and the map stay as they are */
+    a[href]:not(p a):not(li a):not(.leaflet-container a) {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px !important;
+    }
+}
+
+/* One focus ring for every control (audit S1). Buttons and links show it only when moving with Tab;
+   text fields show it whenever they are focused. Inputs inside search/phone wrappers use the wrapper's ring (Forms.css). */
+:where(button, a[href], [role="button"], [role="tab"], [tabindex], input, select, textarea):focus-visible {
+    outline: 3px solid var(--orange) !important;
+    outline-offset: 2px;
+}
+
+:where(input, select, textarea):focus-visible {
+    border-color: var(--orange) !important;
+    box-shadow: none !important;
+}
+
+/* Inputs inside a search box or phone field: the wrapper shows the ring instead */
+:where(.admin-adoption-search, .fb2-search, .fs-search, .afl-search, .ao-searchbox, .phone-input, .rp2-search,
+    .al2-search, .al2-dates, .rs2-search) :where(input, select):focus-visible {
+    outline: none !important;
+}
+
+/* Login and sign-up fields sit on the orange panel (Figma design): an orange ring would not show there,
+   so focus thickens the underline in brown instead */
+:where(.auth-field) :where(input):focus-visible {
+    outline: none !important;
+    border-color: var(--brown) !important;
+    box-shadow: 0 1px 0 0 var(--brown) !important;
+}
+
+/* Small icons that replaced emoji (PetTypeIcon, pins, clock, heart): 1em so they scale with the text.
+   !important: photo slots style every img to fill the box, but these stay emoji-sized */
+img.pet-type-icon,
+img.inline-icon {
+    position: static !important;
+    display: inline-block;
+    width: 1em !important;
+    height: 1em !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    object-fit: contain !important;
+    border-radius: 0 !important;
+    vertical-align: -0.15em;
+}
+
+/* Grouped sidebar (admin + staff) */
+.menu-section-label {
+    margin: 16px 16px 4px;
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.menu-section-divider {
+    margin: 8px 16px;
+    border: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.15);
+}
+
+/* Standard modal motion: fade + slight scale/rise in, quicker fade out. Reduced motion: fade only. */
+@keyframes rb-overlay-in { from { opacity: 0; } }
+@keyframes rb-overlay-out { to { opacity: 0; } }
+@keyframes rb-modal-in { from { opacity: 0; transform: translateY(8px) scale(0.96); } }
+@keyframes rb-modal-out { to { opacity: 0; transform: translateY(4px) scale(0.98); } }
+@keyframes rb-fade-in { from { opacity: 0; } }
+@keyframes rb-fade-out { to { opacity: 0; } }
+
+/* Step transitions (log in → code, form steps): the next step comes in from the right, going back from the left */
+.rb-drill-forward { animation: rb-drill-forward 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.rb-drill-back { animation: rb-drill-back 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes rb-drill-forward { from { opacity: 0; transform: translateX(40px); } }
+@keyframes rb-drill-back { from { opacity: 0; transform: translateX(-40px); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .rb-drill-forward,
+    .rb-drill-back { animation-name: rb-fade-in; }
+}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe

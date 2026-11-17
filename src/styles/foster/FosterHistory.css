@@ -13,18 +13,18 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
 }
 
 .fh-sort {
-    padding: 6px 12px;
+    padding: 8px 12px;
     border: 0;
     border-radius: 999px;
     background: transparent;
     color: #7b452d;
     font-family: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -50,7 +50,7 @@
 
 .fh-card:hover {
     border-color: rgba(251, 133, 0, 0.35);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.07);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .fh-photo {
@@ -59,9 +59,15 @@
     display: grid;
     place-items: center;
     overflow: hidden;
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fde3bf;
     color: #fb8500;
+=======
+    border-radius: 20px;
+    background: var(--peach);
+    color: var(--orange);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .fh-photo img {
@@ -73,7 +79,7 @@
 .fh-body {
     display: grid;
     align-content: start;
-    gap: 10px;
+    gap: 8px;
     min-width: 0;
 }
 
@@ -81,28 +87,33 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
 }
 
 .fh-head h3 {
     margin: 0;
     color: #5a1b00;
     font-family: "Itim", cursive;
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 400;
     line-height: 1.05;
 }
 
 .fh-head small {
+<<<<<<< HEAD
     color: #7b452d;
     font-size: 13px;
+=======
+    color: var(--brown-soft);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .fh-pill {
     flex-shrink: 0;
     padding: 3px 12px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
 }
 
@@ -113,7 +124,7 @@
 .fh-facts {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
 }
 
 .fh-fact {
@@ -121,7 +132,7 @@
     align-items: center;
     gap: 12px;
     min-width: 0;
-    padding: 10px 14px;
+    padding: 8px 16px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 12px;
     background: #fff7cb;
@@ -134,8 +145,13 @@
 .fh-fact small,
 .fh-care small {
     display: block;
+<<<<<<< HEAD
     color: #7b452d;
     font-size: 10px;
+=======
+    color: var(--brown-soft);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -155,7 +171,7 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 10px 14px;
+    padding: 8px 16px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 12px;
     background: #fffdf5;
@@ -172,8 +188,13 @@
 
 .fh-care p {
     margin: 2px 0 0;
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 13px;
+=======
+    color: var(--brown);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     line-height: 1.5;
 }
 
@@ -196,7 +217,7 @@
 .fh-empty {
     display: grid;
     justify-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 40px 20px;
     text-align: center;
 }
@@ -220,7 +241,11 @@
 
 .fh-empty p {
     margin: 0;
+<<<<<<< HEAD
     color: #7b452d;
     font-size: 13px;
+=======
+    color: var(--brown-soft);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
-

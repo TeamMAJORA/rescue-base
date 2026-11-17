@@ -5,6 +5,7 @@
 }
 
 .foster-form-card{
+<<<<<<< HEAD
     background:#ffffff;
     border-radius:18px;
     padding:28px;
@@ -16,6 +17,19 @@
     margin:0 0 22px;
     font-size:22px;
     color:#2d3436;
+=======
+    background:var(--white);
+    border-radius:20px;
+    padding:28px;
+    box-shadow: var(--shadow-dropdown);
+    border:1px solid var(--white);
+}
+
+.foster-form-card h3{
+    margin:0 0 24px;
+    font-size:24px;
+    color:var(--dark);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .foster-form-grid{
@@ -40,9 +54,8 @@
     width:100%;
     border:1px solid #dcdcdc;
     border-radius:12px;
-    padding:14px 16px;
-    font-size:15px;
-    outline:none;
+    padding:16px 16px;
+    font-size:16px;
     transition:.25s;
     background:#fff;
 }
@@ -70,7 +83,7 @@
     align-items:center;
     gap:12px;
     cursor:pointer;
-    font-weight:500;
+    font-weight: 400;
 }
 
 .foster-checkbox input{
@@ -89,9 +102,9 @@
 .foster-secondary-button{
     border:none;
     border-radius:12px;
-    padding:14px 28px;
+    padding:16px 28px;
     cursor:pointer;
-    font-size:15px;
+    font-size:16px;
     font-weight:600;
     transition:.25s;
 }
@@ -123,7 +136,7 @@
 
 .foster-alert{
     border-radius:12px;
-    padding:15px 18px;
+    padding:16px 16px;
     font-weight:600;
 }
 
@@ -139,7 +152,7 @@
     border:1px solid #ffc9c9;
 }
 
-@media (max-width:900px){
+@media (max-width: 900px){
 
     .foster-form-grid{
         grid-template-columns:1fr;
@@ -163,8 +176,13 @@
 /* ===== Personal Information card (same look as the adoption form) ===== */
 .foster-form-card.ffc-card {
     border: 1px solid rgba(90, 27, 0, 0.12);
+<<<<<<< HEAD
     background: #fffaf0;
     box-shadow: 0 10px 24px rgba(90, 27, 0, 0.07);
+=======
+    background: var(--paper);
+    box-shadow: var(--shadow-dropdown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffc-head {
@@ -191,7 +209,7 @@
 .foster-form-card.ffc-card .ffc-head h3 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 25px;
+    font-size: 24px;
     font-weight: 400;
     line-height: 1.1;
     color: #5a1b00;
@@ -201,7 +219,7 @@
     margin: 4px 0 0;
     color: #75432f;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* labels + inputs in the theme colors */
@@ -227,11 +245,14 @@
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
+<<<<<<< HEAD
 .ffc-required {
     color: #d62828;
     font-style: normal;
 }
 
+=======
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 /* locked (account) fields */
 .ffc-locked {
     position: relative;
@@ -239,7 +260,7 @@
 }
 
 .ffc-card .ffc-locked input[readonly] {
-    padding-right: 38px;
+    padding-right: 40px;
     border-color: rgba(90, 27, 0, 0.12);
     background: #f6efd6;
     color: #7b6658;
@@ -265,6 +286,7 @@
     pointer-events: none;
 }
 
+<<<<<<< HEAD
 /* +63 phone field */
 .ffc-phone {
     display: flex;
@@ -300,6 +322,8 @@
     box-shadow: none;
 }
 
+=======
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 /* ===== Household card: choice buttons + info tip ===== */
 .ffc-field {
     display: flex;
@@ -328,12 +352,18 @@
     min-height: 40px;
     padding: 8px 12px;
     border: 1px solid rgba(251, 133, 0, 0.28);
+<<<<<<< HEAD
     border-radius: 10px;
     background: #fff7d6;
     color: #5a1b00;
+=======
+    border-radius: 12px;
+    background: var(--peach-soft);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
@@ -344,21 +374,33 @@
 }
 
 .ffc-choices button.is-selected {
+<<<<<<< HEAD
     border-color: #fb8500;
     background: #fb8500;
     color: #fff;
     box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+=======
+    border-color: var(--orange);
+    background: var(--orange);
+    color: var(--white);
+    box-shadow: var(--shadow-dropdown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffc-choices button:focus-visible {
-    outline: none;
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
 }
 
 .ffc-hint {
+<<<<<<< HEAD
     color: #75432f;
     font-size: 11px;
     font-weight: 500;
+=======
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 400;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 /* "?" info tip (same look as the adoption form) */
@@ -370,12 +412,17 @@
     place-items: center;
     margin-left: 4px;
     border-radius: 50%;
+<<<<<<< HEAD
     background: #fb8500;
     color: #fff;
     font-size: 11px;
+=======
+    background: var(--orange);
+    color: var(--white);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: help;
-    outline: none;
 }
 
 .ffc-card .admin-info-tip-bubble {
@@ -384,14 +431,14 @@
     left: -12px;
     z-index: 20;
     width: 240px;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border-radius: 8px;
     background: #4a1a00;
     color: #fff;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.55;
-    box-shadow: 0 10px 24px rgba(58, 18, 0, 0.25);
+    box-shadow: var(--shadow-dropdown);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
@@ -416,7 +463,7 @@
     transform: translateY(0);
 }
 
-@media (max-width: 520px) {
+@media (max-width: 480px) {
     .ffc-choices {
         grid-auto-flow: row;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -429,8 +476,13 @@
     align-items: stretch;
     width: fit-content;
     border: 1px solid rgba(251, 133, 0, 0.28);
+<<<<<<< HEAD
     border-radius: 10px;
     background: #fff7d6;
+=======
+    border-radius: 12px;
+    background: var(--peach-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     overflow: hidden;
 }
 
@@ -458,8 +510,12 @@
 }
 
 .ffc-stepper button:focus-visible {
+<<<<<<< HEAD
     outline: none;
     box-shadow: inset 0 0 0 2px #fb8500;
+=======
+    box-shadow: inset 0 0 0 2px var(--orange);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffc-stepper output {
@@ -468,9 +524,15 @@
     place-items: center;
     border-left: 1px solid rgba(251, 133, 0, 0.28);
     border-right: 1px solid rgba(251, 133, 0, 0.28);
+<<<<<<< HEAD
     background: #fff;
     color: #5a1b00;
     font-size: 15px;
+=======
+    background: var(--white);
+    color: var(--brown);
+    font-size: 16px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -492,7 +554,7 @@
 
 .foster-form-card.ffc-card textarea {
     min-height: 0;
-    padding: 12px 14px 26px;
+    padding: 12px 16px 24px;
     border-color: rgba(251, 133, 0, 0.28);
     background: #fff7d6;
     color: #5a1b00;
@@ -512,8 +574,13 @@
     position: absolute;
     right: 12px;
     bottom: 9px;
+<<<<<<< HEAD
     color: #a07c66;
     font-size: 11px;
+=======
+    color: var(--brown-muted);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 600;
     pointer-events: none;
 }
@@ -521,7 +588,7 @@
 .ffc-optional {
     color: #a07c66;
     font-style: normal;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* ===== Guidelines checkbox card ===== */
@@ -556,9 +623,15 @@
     display: grid;
     place-items: center;
     margin-top: 1px;
+<<<<<<< HEAD
     border: 2px solid #fb8500;
     border-radius: 6px;
     background: #fff;
+=======
+    border: 2px solid var(--orange);
+    border-radius: 8px;
+    background: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     transition: background 0.15s ease;
 }
 
@@ -590,7 +663,7 @@
 .ffc-agree-text small {
     color: #75432f;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* ===== Bottom action bar ===== */
@@ -601,29 +674,34 @@
     gap: 16px;
     padding: 16px 20px;
     border: 1px solid rgba(251, 133, 0, 0.18);
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fffaf0;
+=======
+    border-radius: 20px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffc-actions-note {
     margin: 0;
     color: #75432f;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .ffc-actions-buttons {
     display: flex;
     flex-shrink: 0;
-    gap: 10px;
+    gap: 8px;
 }
 
 .ffc-btn {
     min-height: 40px;
-    padding: 9px 20px;
-    border-radius: 10px;
+    padding: 8px 20px;
+    border-radius: 12px;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
     transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
@@ -639,6 +717,7 @@
     background: #fff7d6;
 }
 
+<<<<<<< HEAD
 .ffc-btn-draft {
     border: 1.5px solid #fb8500;
     background: #fff7cb;
@@ -654,6 +733,13 @@
     background: #fb8500;
     color: #fff;
     box-shadow: 0 6px 14px rgba(251, 133, 0, 0.25);
+=======
+.ffc-btn-submit {
+    border: 1.5px solid var(--orange);
+    background: var(--orange);
+    color: var(--white);
+    box-shadow: var(--shadow-dropdown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffc-btn-submit:hover:not(:disabled) {
@@ -668,7 +754,6 @@
 }
 
 .ffc-btn:focus-visible {
-    outline: none;
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
 }
 
@@ -687,6 +772,7 @@
     }
 }
 
+<<<<<<< HEAD
 /* ===== Field errors ===== */
 .ffc-error {
     color: #d62828;
@@ -718,18 +804,27 @@
     border-color: #d62828;
 }
 
+=======
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 /* Editing a pending/approved application */
 .ffc-edit-note {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
     padding: 12px 16px;
     border: 1.5px solid rgba(251, 133, 0, 0.35);
+<<<<<<< HEAD
     border-left: 5px solid #fb8500;
     border-radius: 14px;
     background: #fffaf0;
     color: #5a1b00;
+=======
+    border-left: 5px solid var(--orange);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffc-edit-note.is-editing {
@@ -743,7 +838,7 @@
 
 .ffc-edit-note b {
     font-family: "Itim", cursive;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 400;
 }
 
@@ -774,7 +869,7 @@
 .ffa-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;
-    gap: 18px;
+    gap: 16px;
     align-items: start;
 }
 
@@ -786,33 +881,31 @@
     border: 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
 }
 
 /* ----- smaller form (My Application page only) ----- */
-.ffa-layout .ffa-form { gap: 14px; }
-.ffa-layout .foster-form-card.ffc-card { padding: 18px 20px; border-radius: 16px; }
+.ffa-layout .ffa-form { gap: 16px; }
+.ffa-layout .foster-form-card.ffc-card { padding: 16px 20px; border-radius: 20px; }
 .ffa-layout .ffc-head { margin-bottom: 12px; }
 .ffa-layout .ffc-step { width: 24px; height: 24px; font-size: 12px; }
-.ffa-layout .foster-form-card.ffc-card .ffc-head h3 { font-size: 19px; }
-.ffa-layout .ffc-head p { font-size: 11px; }
+.ffa-layout .foster-form-card.ffc-card .ffc-head h3 { font-size: 20px; }
+.ffa-layout .ffc-head p { font-size: 12px; }
 .ffa-layout .foster-form-grid { gap: 12px; }
 
 .ffa-layout .ffc-card .foster-form-grid label,
-.ffa-layout .ffc-label { gap: 6px; font-size: 11px; }
+.ffa-layout .ffc-label { gap: 8px; font-size: 12px; }
 
-.ffa-layout .ffc-card .foster-form-grid input { padding: 9px 12px; border-radius: 10px; font-size: 13px; }
-.ffa-layout .ffc-phone { border-radius: 10px; }
-.ffa-layout .ffc-phone-prefix { padding: 0 10px; font-size: 12px; }
-.ffa-layout .ffc-choices button { min-height: 34px; padding: 6px 10px; font-size: 12px; }
-.ffa-layout .ffc-stepper button { width: 36px; min-height: 34px; font-size: 17px; }
-.ffa-layout .ffc-stepper output { min-width: 44px; font-size: 13px; }
-.ffa-layout .foster-form-card.ffc-card textarea { padding: 10px 12px 24px; font-size: 13px; }
+.ffa-layout .ffc-card .foster-form-grid input { padding: 8px 12px; border-radius: 12px; font-size: 14px; }
+.ffa-layout .ffc-choices button { min-height: 34px; padding: 8px 8px; font-size: 12px; }
+.ffa-layout .ffc-stepper button { width: 36px; min-height: 34px; font-size: 16px; }
+.ffa-layout .ffc-stepper output { min-width: 44px; font-size: 14px; }
+.ffa-layout .foster-form-card.ffc-card textarea { padding: 8px 12px 24px; font-size: 14px; }
 .ffa-layout .foster-form-card.ffc-agree-card { padding: 12px 16px; }
-.ffa-layout .ffc-agree-text strong { font-size: 13px; }
-.ffa-layout .ffc-agree-text small { font-size: 11px; }
+.ffa-layout .ffc-agree-text strong { font-size: 14px; }
+.ffa-layout .ffc-agree-text small { font-size: 12px; }
 .ffa-layout .ffc-actions { padding: 12px 16px; }
-.ffa-layout .ffc-btn { min-height: 36px; padding: 7px 16px; font-size: 12px; }
+.ffa-layout .ffc-btn { min-height: 36px; padding: 8px 16px; font-size: 12px; }
 
 /* ----- locked (read-only) look ----- */
 .ffa-form.is-locked .ffa-fields input:disabled,
@@ -831,11 +924,14 @@
     -webkit-text-fill-color: transparent;
 }
 
+<<<<<<< HEAD
 .ffa-form.is-locked .ffc-phone {
     border-color: rgba(90, 27, 0, 0.1);
     background: #fffdf0;
 }
 
+=======
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 .ffa-form.is-locked .ffc-choices button:disabled {
     border-color: rgba(90, 27, 0, 0.1);
     background: transparent;
@@ -857,26 +953,32 @@
 /* ----- right-side info card (same look as the Role Application card) ----- */
 .ffa-side {
     display: grid;
-    gap: 14px;
+    gap: 16px;
     position: sticky;
     top: 20px;
 }
 
 .ffa-card {
-    padding: 18px;
+    padding: 16px;
     border: 1px solid rgba(90, 27, 0, 0.14);
     border-radius: 20px;
+<<<<<<< HEAD
     background: #fffaf0;
     box-shadow: 0 14px 34px rgba(90, 27, 0, 0.12);
     color: #5a1b00;
+=======
+    background: var(--paper);
+    box-shadow: var(--shadow-modal);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffa-card-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 8px;
 }
 
 .ffa-card-head h3 {
@@ -887,11 +989,16 @@
 }
 
 .ffa-badge {
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 999px;
     background: rgba(90, 27, 0, 0.08);
+<<<<<<< HEAD
     color: #7b452d;
     font-size: 11px;
+=======
+    color: var(--brown-soft);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -903,7 +1010,7 @@
 .ffa-row {
     display: flex;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     padding: 8px 0;
     border-bottom: 1px dashed rgba(90, 27, 0, 0.14);
     font-size: 12px;
@@ -912,13 +1019,13 @@
 .ffa-row span { color: #7b452d; }
 .ffa-row strong { text-align: right; }
 
-.ffa-steps { margin: 14px 0 0; padding: 0; list-style: none; }
+.ffa-steps { margin: 16px 0 0; padding: 0; list-style: none; }
 
 .ffa-step {
     position: relative;
     display: flex;
     gap: 12px;
-    padding-bottom: 14px;
+    padding-bottom: 16px;
 }
 
 .ffa-step:last-child { padding-bottom: 0; }
@@ -948,6 +1055,7 @@
 }
 
 .ffa-step-dot img { width: 12px; height: auto; }
+<<<<<<< HEAD
 .ffa-step b { display: block; font-size: 13px; }
 .ffa-step small { display: block; margin-top: 2px; color: #7b452d; font-size: 12px; }
 .ffa-step.is-upcoming b { color: #7b452d; }
@@ -955,10 +1063,19 @@
 .ffa-step.is-active .ffa-step-dot { background: #fb8500; color: #fff; box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18); }
 .ffa-step.is-declined .ffa-step-dot { background: #d62828; color: #fff; }
 .ffa-step.is-declined small { color: #d62828; }
+=======
+.ffa-step b { display: block; font-size: 14px; }
+.ffa-step small { display: block; margin-top: 2px; color: var(--brown-soft); font-size: 12px; }
+.ffa-step.is-upcoming b { color: var(--brown-soft); }
+.ffa-step.is-done .ffa-step-dot { background: var(--orange); color: var(--white); }
+.ffa-step.is-active .ffa-step-dot { background: var(--orange); color: var(--white); box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18); }
+.ffa-step.is-declined .ffa-step-dot { background: var(--red); color: var(--white); }
+.ffa-step.is-declined small { color: var(--red); }
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 .ffa-reason {
-    margin: 14px 0 0;
-    padding: 10px 12px;
+    margin: 16px 0 0;
+    padding: 8px 12px;
     border-radius: 12px;
     background: rgba(214, 40, 40, 0.07);
     color: #d62828;
@@ -967,17 +1084,22 @@
 
 .ffa-note {
     display: flex;
-    gap: 10px;
-    padding: 14px 16px;
+    gap: 8px;
+    padding: 16px 16px;
     border: 1px solid rgba(251, 133, 0, 0.3);
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fff7cb;
+=======
+    border-radius: 20px;
+    background: var(--white-yellow);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffa-note-dot {
     flex: 0 0 8px;
     height: 8px;
-    margin-top: 5px;
+    margin-top: 4px;
     border-radius: 50%;
     background: #fb8500;
 }
@@ -990,7 +1112,7 @@
 }
 
 /* stack on smaller screens: info card goes on top */
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
     .ffa-layout { grid-template-columns: 1fr; }
     .ffa-side { position: static; order: -1; }
 }
@@ -1002,20 +1124,26 @@
 
 .ffa-summary-note {
     margin: 0 0 16px;
+<<<<<<< HEAD
     color: #75432f;
     font-size: 13px;
+=======
+    color: var(--brown-soft);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffa-summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
+    gap: 8px;
     margin: 0;
 }
 
 .ffa-summary-grid div {
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid rgba(251, 133, 0, 0.2);
+<<<<<<< HEAD
     border-radius: 10px;
     background: #fffaf0;
 }
@@ -1024,6 +1152,16 @@
     color: #75432f;
     font-size: 11px;
     font-weight: 700;
+=======
+    border-radius: 12px;
+    background: var(--paper);
+}
+
+.ffa-summary-grid dt {
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
@@ -1032,7 +1170,7 @@
     margin: 4px 0 0;
     color: #5a1b00;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     overflow-wrap: anywhere;
 }
 
@@ -1043,16 +1181,22 @@
     padding: 20px 24px;
     border: 1px solid rgba(90, 27, 0, 0.08);
     border-radius: 20px;
+<<<<<<< HEAD
     background: #fffaf0;
     box-shadow: 0 10px 24px rgba(90, 27, 0, 0.06);
     color: #5a1b00;
+=======
+    background: var(--paper);
+    box-shadow: var(--shadow-dropdown);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .ffs-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
 }
 
 .ffs-head h3 {
@@ -1073,19 +1217,25 @@
     display: flex;
     flex-shrink: 0;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .ffs-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 4px 12px;
     border: 1px solid rgba(251, 133, 0, 0.35);
     border-radius: 999px;
+<<<<<<< HEAD
     background: #fff7cb;
     color: #5a1b00;
     font-size: 11px;
+=======
+    background: var(--white-yellow);
+    color: var(--brown);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -1104,8 +1254,13 @@
 
 .ffs-section h4 {
     margin: 0;
+<<<<<<< HEAD
     color: #d62828;
     font-size: 10px;
+=======
+    color: var(--red);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -1114,13 +1269,13 @@
 .ffs-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
     margin: 0;
 }
 
 .ffs-tile {
     min-width: 0;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid rgba(251, 133, 0, 0.25);
     border-radius: 12px;
     background: #fff7cb;
@@ -1135,8 +1290,13 @@
 }
 
 .ffs-tile dt {
+<<<<<<< HEAD
     color: #7b452d;
     font-size: 10px;
+=======
+    color: var(--brown-soft);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -1144,35 +1304,41 @@
 
 .ffs-tile dd {
     margin: 4px 0 0;
+<<<<<<< HEAD
     color: #5a1b00;
     font-size: 13px;
     font-weight: 700;
+=======
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     overflow-wrap: anywhere;
 }
 
 .ffs-tile.is-full dd {
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.5;
 }
 
 .ffs-yn {
     display: inline-block;
-    padding: 1px 10px;
+    padding: 1px 8px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
 }
 
 .ffs-yn.is-yes { background: #dff3e6; color: #17803d; }
 .ffs-yn.is-no  { background: #ece3c7; color: #7a6a3a; }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
     .ffs-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
     .ffs-head {
         flex-direction: column;
     }
@@ -1184,4 +1350,26 @@
     .ffs-tile.is-wide {
         grid-column: auto;
     }
+}
+/* Agreement not ticked on submit: the card and box turn red; the message wraps under the text */
+.foster-form-card .ffc-agree[data-rb-error] {
+    flex-wrap: wrap;
+}
+
+.foster-form-card.ffc-agree-card:has([aria-invalid="true"]) {
+    border-color: var(--red-dark);
+}
+
+.ffc-agree:has(input[aria-invalid="true"]) .ffc-agree-box {
+    border-color: var(--red-dark);
+}
+
+/* "Draft saved at …" sits on its own line under the buttons */
+.ffc-actions {
+    flex-wrap: wrap;
+}
+
+.ffc-actions .form-draft-note {
+    flex-basis: 100%;
+    margin-top: 0;
 }

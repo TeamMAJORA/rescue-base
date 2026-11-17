@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+<<<<<<< HEAD
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -6,6 +7,11 @@ function askConfirm(options) {
         ? window.rbConfirm(options)
         : Promise.resolve(window.confirm(options.title));
 }
+=======
+import { askConfirm } from "../../../utils/dialogs";
+import LoadingState from "../../../components/system/LoadingState";
+import NumberInput from "../../../components/system/NumberInput";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -331,7 +337,7 @@ export default function NeededSupplies() {
 
                     <label className="rs2-field">
                         <span>
-                            Item name <em>*</em>
+                            Item name <span className="required-mark">*</span>
                         </span>
                         <input
                             value={form.name}
@@ -369,10 +375,9 @@ export default function NeededSupplies() {
                     <div className="rs2-two">
                         <label className="rs2-field">
                             <span>
-                                Needed <em>*</em>
+                                Needed <span className="required-mark">*</span>
                             </span>
-                            <input
-                                type="number"
+                            <NumberInput
                                 min="1"
                                 max="10000"
                                 value={form.quantityNeeded}
@@ -384,8 +389,7 @@ export default function NeededSupplies() {
 
                         <label className="rs2-field">
                             <span>Received</span>
-                            <input
-                                type="number"
+                            <NumberInput
                                 min="0"
                                 max="10000"
                                 value={form.quantityReceived}
@@ -419,7 +423,7 @@ export default function NeededSupplies() {
                     </label>
 
                     <button type="submit" className="rs2-submit" disabled={submitting}>
-                        {submitting ? "Saving..." : editingId ? "Save changes" : "Add supply"}
+                        {submitting ? "Saving…" : editingId ? "Save changes" : "Add supply"}
                     </button>
 
                     {editingId && (
@@ -459,10 +463,10 @@ export default function NeededSupplies() {
                                 <circle cx="11" cy="11" r="7" />
                                 <path d="m21 21-4.3-4.3" />
                             </svg>
-                            <input
+                            <input aria-label="Search item or description"
                                 type="search"
                                 value={search}
-                                placeholder="Search item or description..."
+                                placeholder="Search item or description…"
                                 onChange={(event) => setSearch(event.target.value)}
                             />
                         </label>
@@ -487,10 +491,10 @@ export default function NeededSupplies() {
                     </div>
 
                     {loading ? (
-                        <p className="rs2-empty">Loading supplies...</p>
+                        <LoadingState label="Loading supplies…" />
                     ) : shown.length === 0 ? (
                         <p className="rs2-empty">
-                            {supplies.length === 0 ? "No supplies yet. Add the first one on the left." : "No supplies match these filters."}
+                            {supplies.length === 0 ? "No supplies yet. Add the first one on the left." : "No supplies match your filters."}
                         </p>
                     ) : (
                         <div className="rs2-table-wrap">

@@ -1,6 +1,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/IntakeForecast.css";
+<<<<<<< HEAD
+=======
+import { formatDateTime, formatMonth } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -227,7 +232,7 @@ export default function IntakeForecast() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                         <path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5" />
                     </svg>
-                    {loading ? "Loading..." : "Refresh forecast"}
+                    {loading ? "Loading…" : "Refresh forecast"}
                 </button>
             </div>
 
@@ -245,9 +250,7 @@ export default function IntakeForecast() {
             )}
 
             {loading && !forecast ? (
-                <div className="if2-card if2-loading" role="status">
-                    Loading the forecast...
-                </div>
+                <LoadingState label="Loading the forecast…" />
             ) : (
                 forecast && (
                     <>

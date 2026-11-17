@@ -1,5 +1,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+<<<<<<< HEAD
+=======
+import { askConfirm } from "../../../utils/dialogs";
+import { formatDateTime, toDayValue } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -587,7 +593,7 @@ export default function Reports() {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                             <path d="M12 3v12M6 11l6 6 6-6M4 21h16" />
                         </svg>
-                        {generating ? "Generating..." : "Generate report"}
+                        {generating ? "Generating…" : "Generate report"}
                     </button>
                 </form>
 
@@ -621,10 +627,10 @@ export default function Reports() {
                                 <circle cx="11" cy="11" r="7" />
                                 <path d="m21 21-4.3-4.3" />
                             </svg>
-                            <input
+                            <input aria-label="Search report name or author"
                                 type="search"
                                 value={listSearch}
-                                placeholder="Search report name or author..."
+                                placeholder="Search report name or author…"
                                 onChange={(event) => setListSearch(event.target.value)}
                             />
                         </label>
@@ -656,9 +662,7 @@ export default function Reports() {
                     </div>
 
                     {loading ? (
-                        <p className="rp-empty">
-                            <span className="ao-spinner" /> Loading reports...
-                        </p>
+                        <LoadingState label="Loading reports…" />
                     ) : shownReports.length === 0 ? (
                         <p className="rp-empty">
                             {generatedReports.length === 0

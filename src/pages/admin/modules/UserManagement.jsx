@@ -3,6 +3,11 @@ import {
     useMemo,
     useState
 } from "react";
+<<<<<<< HEAD
+=======
+import { askConfirm } from "../../../utils/dialogs";
+import LoadingState from "../../../components/system/LoadingState";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
@@ -584,7 +589,7 @@ export default function UserManagement() {
                 </div>
 
                 <div className="um-tools">
-                    <input
+                    <input aria-label="Search name or email"
                         type="search"
                         className="um-search"
                         placeholder="Search name or email"
@@ -613,9 +618,7 @@ export default function UserManagement() {
                 </p>
 
                 {loading ? (
-                    <p className="rp-empty">
-                        <span className="ao-spinner" /> Loading users...
-                    </p>
+                    <LoadingState label="Loading users…" />
                 ) : visibleUsers.length === 0 ? (
                     <p className="rp-empty">No users match your search.</p>
                 ) : (
@@ -701,12 +704,12 @@ export default function UserManagement() {
 
                         <label className="gs-field">
                             Username
-                            <input name="username" value={addForm.username} onChange={handleAddFormChange} required />
+                            <input name="username" value={addForm.username} autoComplete="off" onChange={handleAddFormChange} required />
                         </label>
 
                         <label className="gs-field">
                             Email
-                            <input type="email" name="email" value={addForm.email} onChange={handleAddFormChange} required />
+                            <input type="email" name="email" value={addForm.email} autoComplete="off" onChange={handleAddFormChange} required />
                         </label>
 
                         <label className="gs-field">
@@ -732,7 +735,7 @@ export default function UserManagement() {
                                 Cancel
                             </button>
                             <button type="submit" className="gs-btn primary" disabled={addingUser}>
-                                {addingUser ? "Adding..." : "Add user"}
+                                {addingUser ? "Adding…" : "Add user"}
                             </button>
                         </div>
                     </form>
@@ -750,7 +753,7 @@ export default function UserManagement() {
 
                         <label className="gs-field">
                             Username
-                            <input name="username" value={editForm.username} onChange={handleEditFormChange} required />
+                            <input name="username" value={editForm.username} autoComplete="off" onChange={handleEditFormChange} required />
                         </label>
 
                         <label className="gs-field">

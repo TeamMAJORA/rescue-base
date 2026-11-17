@@ -1,5 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "../styles/admin/Reports.css";
+import LoadingState from "../components/system/LoadingState";
+import Icon from "../components/system/Icon";
+import PasswordInput from "../components/system/PasswordInput";
+import { useCustomValidity } from "../utils/useCustomValidity";
+
+// Same minimum as sign-up; the server may ask for a stronger password if the shelter turned that on
+const MIN_PASSWORD_LENGTH = 6;
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -98,6 +105,11 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
     const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [savingPassword, setSavingPassword] = useState(false);
+    const confirmPasswordRef = useRef(null);
+    useCustomValidity(
+        confirmPasswordRef,
+        passwords.confirmPassword && passwords.confirmPassword !== passwords.newPassword ? "Passwords don't match." : ""
+    );
 
     // Notification form
     const [prefs, setPrefs] = useState({});
@@ -182,13 +194,10 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
         }
     }
 
-    async function saveProfile() {
+    async function saveProfile(event) {
+        event.preventDefault();
         if (!profile.name.trim()) {
             flash("error", "Name is required.");
-            return;
-        }
-        if (profile.username && !/^[a-zA-Z0-9._]{3,30}$/.test(profile.username)) {
-            flash("error", "Username must be 3–30 letters, numbers, dots or underscores.");
             return;
         }
 
@@ -221,19 +230,8 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
         setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
     }
 
-    async function savePassword() {
-        if (user.hasPassword && !passwords.currentPassword) {
-            flash("error", "Enter your current password.");
-            return;
-        }
-        if (passwords.newPassword.length < 8) {
-            flash("error", "New password must be at least 8 characters.");
-            return;
-        }
-        if (passwords.newPassword !== passwords.confirmPassword) {
-            flash("error", "New passwords don't match.");
-            return;
-        }
+    async function savePassword(event) {
+        event.preventDefault();
 
         setSavingPassword(true);
         try {
@@ -314,12 +312,12 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                 {notice && (
                     <div className={`as2-notice is-${notice.type}`} role="status">
                         <span>{notice.text}</span>
-                        <button type="button" aria-label="Dismiss" onClick={() => setNotice(null)}>×</button>
+                        <button type="button" aria-label="Dismiss" onClick={() => setNotice(null)}><Icon name="close" /></button>
                     </div>
                 )}
 
                 {onOwnTab && loading && (
-                    <div className="as2-card as2-state">Loading your account…</div>
+                    <LoadingState label="Loading your account…" />
                 )}
 
                 {onOwnTab && !loading && !ready && (
@@ -334,7 +332,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                 ))}
 
                 {ready && tab === "profile" && (
-                    <>
+                    <form onSubmit={saveProfile}>
                         <section className="as2-card">
                             <header className="as2-card-head">
                                 <h2>Profile</h2>
@@ -367,7 +365,10 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                     <span>Full name</span>
                                     <input
                                         value={profile.name}
+                                        autoComplete="name"
                                         maxLength={80}
+                                        data-required-message="Enter your name."
+                                        required
                                         onChange={(event) => setProfile((current) => ({ ...current, name: event.target.value }))}
                                     />
                                 </label>
@@ -375,14 +376,17 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                     <span>Username</span>
                                     <input
                                         value={profile.username}
+                                        autoComplete="username"
                                         maxLength={30}
+                                        pattern="[a-zA-Z0-9._]{3,30}"
+                                        title="Use 3–30 letters, numbers, dots or underscores."
                                         placeholder="e.g. juan.dc"
                                         onChange={(event) => setProfile((current) => ({ ...current, username: event.target.value }))}
                                     />
                                 </label>
                                 <label className="as2-field is-wide">
                                     <span>Email</span>
-                                    <input value={user.email || ""} disabled />
+                                    <input type="email" value={user.email || ""} autoComplete="email" disabled />
                                     <small>Email can't be changed here.</small>
                                 </label>
                             </div>
@@ -398,15 +402,14 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                 Cancel
                             </button>
                             <button
-                                type="button"
+                                type="submit"
                                 className="as2-btn is-primary"
                                 disabled={!profileDirty || savingProfile || uploading}
-                                onClick={saveProfile}
                             >
                                 {savingProfile ? "Saving…" : "Save changes"}
                             </button>
                         </div>
-                    </>
+                    </form>
                 )}
 
                 {ready && tab === "security" && (
@@ -448,7 +451,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                 <h2>Password</h2>
                                 <p>
                                     {user.hasPassword
-                                        ? "Use at least 8 characters with upper and lower case, a number and a symbol."
+                                        ? `Use at least ${MIN_PASSWORD_LENGTH} characters.`
                                         : "You signed in with Google. Set a password to also sign in with your email."}
                                 </p>
                             </header>
@@ -464,35 +467,42 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                     </button>
                                 </div>
                             ) : (
-                                <>
+                                <form onSubmit={savePassword}>
+                                    {/* lets password managers link the new password to this account */}
+                                    <input type="email" value={user.email || ""} autoComplete="username" readOnly hidden />
                                     <div className="as2-fields">
                                         {user.hasPassword && (
                                             <label className="as2-field is-wide">
                                                 <span>Current password</span>
-                                                <input
-                                                    type="password"
+                                                <PasswordInput
                                                     autoComplete="current-password"
                                                     value={passwords.currentPassword}
                                                     onChange={(event) => setPasswords((current) => ({ ...current, currentPassword: event.target.value }))}
+                                                    data-required-message="Enter your current password."
+                                                    required
                                                 />
                                             </label>
                                         )}
                                         <label className="as2-field">
                                             <span>New password</span>
-                                            <input
-                                                type="password"
+                                            <PasswordInput
                                                 autoComplete="new-password"
                                                 value={passwords.newPassword}
                                                 onChange={(event) => setPasswords((current) => ({ ...current, newPassword: event.target.value }))}
+                                                minLength={MIN_PASSWORD_LENGTH}
+                                                data-required-message="Enter a new password."
+                                                required
                                             />
                                         </label>
                                         <label className="as2-field">
                                             <span>Confirm new password</span>
-                                            <input
-                                                type="password"
+                                            <PasswordInput
+                                                ref={confirmPasswordRef}
                                                 autoComplete="new-password"
                                                 value={passwords.confirmPassword}
                                                 onChange={(event) => setPasswords((current) => ({ ...current, confirmPassword: event.target.value }))}
+                                                data-required-message="Type the new password again."
+                                                required
                                             />
                                         </label>
                                     </div>
@@ -500,11 +510,11 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                                         <button type="button" className="as2-btn is-ghost" disabled={savingPassword} onClick={closePasswordForm}>
                                             Cancel
                                         </button>
-                                        <button type="button" className="as2-btn is-primary" disabled={savingPassword} onClick={savePassword}>
+                                        <button type="submit" className="as2-btn is-primary" disabled={savingPassword}>
                                             {savingPassword ? "Saving…" : user.hasPassword ? "Update password" : "Set password"}
                                         </button>
                                     </div>
-                                </>
+                                </form>
                             )}
                         </section>
 

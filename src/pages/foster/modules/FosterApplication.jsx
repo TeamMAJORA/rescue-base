@@ -1,5 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import InfoTip from "../../../components/system/InfoTip";
+<<<<<<< HEAD
+=======
+import { formatDate, formatTime } from "../../../utils/formatDate";
+import Icon from "../../../components/system/Icon";
+import PhoneInput, { cleanPhoneDigits, formatPhone } from "../../../components/system/PhoneInput";
+import FormTracker from "../../../components/system/FormTracker";
+import { readFormDraft, useFormDraft } from "../../../utils/useFormDraft";
+import { useCustomValidity } from "../../../utils/useCustomValidity";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -33,10 +42,6 @@ function ChoiceGroup({ name, value, options, onPick, label }) {
     );
 }
 
-// Red message under a field
-function FieldError({ message }) {
-    return message ? <small className="ffc-error" role="alert">{message}</small> : null;
-}
 export default function FosterApplication({ embedded = false, onSubmitted, application = null, refresh }) {
 
     const savedUser = JSON.parse(
@@ -69,8 +74,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
     // Saved application -> form values (phones keep only the 10 digits after +63)
     function formFromApplication(app) {
-        const digits = (value) =>
-            String(value || "").replace(/\D/g, "").replace(/^63(?=9)/, "").replace(/^0/, "").slice(0, 10);
+        const digits = cleanPhoneDigits;
         const yesNo = (value) => (value ? "Yes" : "No");
 
         return {
@@ -95,14 +99,14 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
         };
     }
 
-    // Draft is saved per account on this browser only
+    // Draft is saved per account on this browser only, while typing (not when editing a sent application)
     const DRAFT_KEY = `rescuebase_foster_draft_${savedUser.email || "guest"}`;
 
     const [form, setForm] = useState(() => {
         if (isEditing) return formFromApplication(application);
 
         try {
-            const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+            const draft = readFormDraft(DRAFT_KEY);
             if (draft) {
                 return { ...initialForm, ...draft, fullName: draft.fullName || initialForm.fullName, email: initialForm.email };
             }
@@ -124,59 +128,52 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
     const locked = isEditing && !editing;
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
-    const [errors, setErrors] = useState({});
     const token = localStorage.getItem("token");
 
-    // Phone fields: digits only, drop a leading 0, max 10 (the number after +63)
-    const PHONE_FIELDS = ["phone", "emergencyPhone"];
+    const hasProgress = Boolean(
+        form.phone || form.address || form.experience || form.emergencyName ||
+        form.emergencyRelationship || form.emergencyPhone || form.notes
+    );
+    const { draftSavedAt, clearDraft } = useFormDraft(DRAFT_KEY, { ...form, agree: false }, !isEditing && hasProgress);
+
+    // The emergency contact must be someone else's number
+    const emergencyPhoneRef = useRef(null);
+    useCustomValidity(
+        emergencyPhoneRef,
+        form.emergencyPhone && form.emergencyPhone === form.phone ? "Use a different number from your own." : ""
+    );
+
+    // Progress across the four sections (choice sections always have an answer)
+    const [activeStep, setActiveStep] = useState(null);
+    const isMobileNumber = (value) => /^9\d{9}$/.test(value);
+    const trackerSteps = [
+        { key: "personal", label: "Personal", done: Boolean(form.fullName.trim() && isMobileNumber(form.phone) && form.address.trim()) },
+        { key: "household", label: "Household", done: true },
+        { key: "preferences", label: "Preferences", done: true },
+        {
+            key: "contact",
+            label: "Contact",
+            done: Boolean(
+                form.experience.trim() && form.emergencyName.trim() && form.emergencyRelationship.trim() &&
+                isMobileNumber(form.emergencyPhone) && form.emergencyPhone !== form.phone && form.agree
+            ),
+        },
+    ];
+    const firstUnfinishedStep = trackerSteps.findIndex((step) => !step.done);
+    const highlightedStep = activeStep ?? (firstUnfinishedStep === -1 ? trackerSteps.length - 1 : firstUnfinishedStep);
+
+    function scrollToStep(index) {
+        setActiveStep(index);
+        document.getElementById(`foster-step-${index + 1}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     function handleChange(e) {
         const { name, value, type, checked } = e.target;
-
-        const cleanValue = PHONE_FIELDS.includes(name)
-            ? value.replace(/\D/g, "").replace(/^0/, "").slice(0, 10)
-            : value;
-
-        setForm((prev) => ({
-            ...prev,
-            [name]:
-                type === "checkbox"
-                    ? checked
-                    : cleanValue,
-        }));
-
-        // remove that field's error once the user edits it
-        setErrors((prev) => {
-            if (!prev[name]) return prev;
-            const next = { ...prev };
-            delete next[name];
-            return next;
-        });
+        setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
     }
 
-    function validateForm(f) {
-        const found = {};
-        const phonePattern = /^9\d{9}$/;
-
-        if (!f.fullName.trim()) found.fullName = "Full name is required.";
-        if (!f.phone) found.phone = "Phone number is required.";
-        else if (!phonePattern.test(f.phone)) found.phone = "Enter a valid 10-digit mobile number starting with 9.";
-
-        if (!f.address.trim()) found.address = "Address is required.";
-
-        if (!f.experience.trim()) found.experience = 'Describe your experience, or write "None".';
-
-        if (!f.emergencyName.trim()) found.emergencyName = "Emergency contact name is required.";
-
-        if (!f.emergencyRelationship.trim()) found.emergencyRelationship = "Relationship is required.";
-
-        if (!f.emergencyPhone) found.emergencyPhone = "Emergency contact phone is required.";
-        else if (!phonePattern.test(f.emergencyPhone)) found.emergencyPhone = "Enter a valid 10-digit mobile number starting with 9.";
-        else if (f.emergencyPhone === f.phone) found.emergencyPhone = "Use a different number from your own.";
-
-        if (!f.agree) found.agree = "Please agree to the foster guidelines.";
-
-        return found;
+    function handlePhoneChange(name, digits) {
+        setForm((prev) => ({ ...prev, [name]: digits }));
     }
 
         // Used by the choice buttons (Household card)
@@ -186,31 +183,14 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
     function handleClear() {
         setForm(isEditing ? formFromApplication(application) : initialForm);
-        if (!isEditing) localStorage.removeItem(DRAFT_KEY);
+        if (!isEditing) clearDraft();
         setEditing(false);
-        setErrors({});
         setMessage("");
         setMessageType("");
     }
 
-    function handleSaveDraft() {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...form, agree: false }));
-        setMessage("Draft saved on this device.");
-        setMessageType("success");
-    }
-
     async function handleSubmit(e) {
         e.preventDefault();
-
-        const found = validateForm(form);
-        setErrors(found);
-
-        if (Object.keys(found).length > 0) {
-            setMessage("Please fix the highlighted fields before submitting.");
-            setMessageType("error");
-            document.querySelector(`[name="${Object.keys(found)[0]}"]`)?.focus();
-            return;
-        }
 
         try {
             setLoading(true);
@@ -267,7 +247,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             setEditing(false);
             if (!isEditing) {
                 setForm(initialForm);
-                localStorage.removeItem(DRAFT_KEY);
+                clearDraft();
             }
             onSubmitted?.();
             refresh?.();
@@ -330,7 +310,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                 <div className="ffa-row">
                     <span>Role</span>
-                    <strong>Foster Caregiver</strong>
+                    <strong>Foster caregiver</strong>
                 </div>
                 <div className="ffa-row">
                     <span>Applied</span>
@@ -359,7 +339,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                             <span className="ffa-step-dot">
                                 {step.state === "done"
                                     ? <img src="/icons/checkmark.svg" alt="" />
-                                    : step.state === "declined" ? "✕" : index + 1}
+                                    : step.state === "declined" ? <Icon name="close" /> : index + 1}
                             </span>
                             <div>
                                 <b>{step.title}</b>
@@ -389,16 +369,11 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
         </aside>
     );
     // Foster dashboard: a pending or approved application is shown read-only.
-    // "Update Application" switches to the form (editing = true).
+    // "Update application" switches to the form (editing = true).
     const currentStatus = application?.status;
 
     if (!embedded && !editing && (currentStatus === "pending" || currentStatus === "approved")) {
-        const phoneText = (value) => {
-            const digits = String(value || "").replace(/\D/g, "").replace(/^63(?=9)/, "").replace(/^0/, "");
-            return digits.length === 10
-                ? `+63 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`
-                : value || "—";
-        };
+        const phoneText = formatPhone;
         const yesNo = (value) => (
             <span className={`ffs-yn ${value ? "is-yes" : "is-no"}`}>{value ? "Yes" : "No"}</span>
         );
@@ -470,7 +445,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                                         setEditing(true);
                                     }}
                                 >
-                                    Update Application
+                                    Update application
                                 </button>
                             </div>
                         </div>
@@ -516,7 +491,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             {!embedded && (
                 <div className="foster-section-heading">
                     <div>
-                        <span>Become a Volunteer</span>
+                        <span>Become a volunteer</span>
                         <h2>Foster Application</h2>
                     </div>
                 </div>
@@ -526,7 +501,6 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             <form
                 className={`ffa-form ${locked ? "is-locked" : ""}`}
                 onSubmit={handleSubmit}
-                noValidate
             >
                 {isEditing && (
                     <div className={`ffc-edit-note ${editing ? "is-editing" : ""}`}>
@@ -555,39 +529,51 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     </div>
                 )}
 
+            {!locked && (
+                <FormTracker
+                    steps={trackerSteps}
+                    currentIndex={highlightedStep}
+                    onSelect={scrollToStep}
+                    label="Application progress"
+                />
+            )}
+
             <fieldset className="ffa-fields" disabled={locked}>
 
-                <section className="foster-form-card ffc-card">
+                <section className="foster-form-card ffc-card" id="foster-step-1" onFocus={() => setActiveStep(0)}>
                     <div className="ffc-head">
                         <b className="ffc-step">1</b>
                         <div>
-                            <h3>Personal Information</h3>
+                            <h3>Personal information</h3>
                             <p>Your name is filled in from your account. You can edit it if needed.</p>                        </div>
                     </div>
 
                     <div className="foster-form-grid">
                         <label>
-                            Full Name
+                            Full name
                             <span className="ffc-locked">
                                 <input
                                     type="text"
                                     name="fullName"
                                     value={form.fullName}
+                                    autoComplete="name"
                                     onChange={handleChange}
                                     placeholder="First and last name"
                                     maxLength={80}
+                                    data-required-message="Enter your full name."
                                     required
                                 />                                
                             </span>
                         </label>
 
                         <label>
-                            Email Address
+                            Email address
                             <span className="ffc-locked">
                                 <input
                                     type="email"
                                     name="email"
                                     value={form.email}
+                                    autoComplete="email"
                                     readOnly
                                     required
                                 />
@@ -597,45 +583,40 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <label>
                             <span>
-                                Phone Number <em className="ffc-required">*</em>
+                                Phone number <span className="required-mark">*</span>
                             </span>
-                            <span className="ffc-phone">
-                                <span className="ffc-phone-prefix">+63</span>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    inputMode="numeric"
-                                    value={form.phone}
-                                    onChange={handleChange}
-                                    placeholder="9XX XXX XXXX"
-                                    required
-                                />
-                            </span>
-                            <FieldError message={errors.phone} />
+                            <PhoneInput
+                                name="phone"
+                                value={form.phone}
+                                onDigitsChange={(digits) => handlePhoneChange("phone", digits)}
+                                data-required-message="Enter your phone number."
+                                required
+                            />
                         </label>
 
                         <label>
                             <span>
-                                Address <em className="ffc-required">*</em>
+                                Address <span className="required-mark">*</span>
                             </span>
-                            <FieldError message={errors.address} />
                             <input
                                 type="text"
                                 name="address"
                                 value={form.address}
+                                autoComplete="street-address"
                                 onChange={handleChange}
                                 placeholder="House no., street, barangay, city"
+                                data-required-message="Enter your address."
                                 required
                             />
                         </label>
                     </div>
                 </section>
 
-                <section className="foster-form-card ffc-card">
+                <section className="foster-form-card ffc-card" id="foster-step-2" onFocus={() => setActiveStep(1)}>
                     <div className="ffc-head">
                         <b className="ffc-step">2</b>
                         <div>
-                            <h3>Household Information</h3>
+                            <h3>Household information</h3>
                             <p>Helps us match you with a pet that fits your home.</p>
                         </div>
                     </div>
@@ -643,7 +624,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     <div className="foster-form-grid">
                         <div className="ffc-field foster-full-field">
                             <span className="ffc-label">
-                                Home Type <em className="ffc-required">*</em>
+                                Home Type <span className="required-mark">*</span>
                                 <InfoTip text="Where the foster animal will stay. This helps staff match an animal that suits your space." />
                             </span>
                             <ChoiceGroup
@@ -657,7 +638,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Children at home? <em className="ffc-required">*</em>
+                                Children at home? <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="hasChildren"
@@ -670,7 +651,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Existing pets? <em className="ffc-required">*</em>
+                                Existing pets? <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="hasPets"
@@ -683,7 +664,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Is your home pet friendly? <em className="ffc-required">*</em>
+                                Is your home pet friendly? <span className="required-mark">*</span>
                                 <InfoTip text="Choose Yes only if your landlord, condo or building rules allow keeping animals." />
                             </span>
                             <ChoiceGroup
@@ -698,11 +679,11 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     </div>
                 </section>
 
-                <section className="foster-form-card ffc-card">
+                <section className="foster-form-card ffc-card" id="foster-step-3" onFocus={() => setActiveStep(2)}>
                     <div className="ffc-head">
                         <b className="ffc-step">3</b>
                         <div>
-                            <h3>Foster Preferences</h3>
+                            <h3>Foster preferences</h3>
                             <p>Tell us what kind of animals you can take in.</p>
                         </div>
                     </div>
@@ -710,7 +691,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     <div className="foster-form-grid">
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Preferred Animal <em className="ffc-required">*</em>
+                                Preferred animal <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="preferredAnimal"
@@ -723,7 +704,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Preferred Size <em className="ffc-required">*</em>
+                                Preferred size <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="preferredSize"
@@ -736,7 +717,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field">
                             <span className="ffc-label">
-                                Maximum Animals <em className="ffc-required">*</em>
+                                Maximum animals <span className="required-mark">*</span>
                                 <InfoTip text="The most animals you can foster at the same time. Staff will not assign more than this number to you." />
                             </span>
                             <div className="ffc-stepper">
@@ -763,7 +744,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
                         <div className="ffc-field ffc-duration">
                             <span className="ffc-label">
-                                Foster Duration <em className="ffc-required">*</em>
+                                Foster duration <span className="required-mark">*</span>
                             </span>
                             <ChoiceGroup
                                 name="fosterDuration"
@@ -776,11 +757,11 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     </div>
                 </section>
 
-                <section className="foster-form-card ffc-card">
+                <section className="foster-form-card ffc-card" id="foster-step-4" onFocus={() => setActiveStep(3)}>
                     <div className="ffc-head">
                         <b className="ffc-step">4</b>
                         <div>
-                            <h3>Experience &amp; Emergency Contact</h3>
+                            <h3>Experience &amp; emergency contact</h3>
                             <p>Shown to staff only when they review your application.</p>
                         </div>
                     </div>
@@ -788,7 +769,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     <div className="foster-form-grid">
                         <label className="foster-full-field">
                             <span>
-                                Foster or pet-care experience <em className="ffc-required">*</em>
+                                Foster or pet-care experience <span className="required-mark">*</span>
                             </span>
                             <span className="ffc-textarea">
                                 <textarea
@@ -798,65 +779,62 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                                     onChange={handleChange}
                                     maxLength={500}
                                     placeholder='Describe any experience caring for animals, or write "None".'
+                                    data-required-message='Describe your experience, or write "None".'
                                     required
                                 />
                                 <small className="ffc-count">{form.experience.length} / 500</small>
                             </span>
-                            <FieldError message={errors.experience} />
                         </label>
 
                         <label>
                             <span>
-                                Emergency Contact Name <em className="ffc-required">*</em>
+                                Emergency contact name <span className="required-mark">*</span>
                             </span>
-                            <FieldError message={errors.emergencyName} />
                             <input
                                 type="text"
                                 name="emergencyName"
                                 value={form.emergencyName}
+                                autoComplete="off"
                                 onChange={handleChange}
                                 placeholder="Full name"
+                                data-required-message="Enter your emergency contact's name."
                                 required
                             />
                         </label>
 
                         <label>
                             <span>
-                                Relationship <em className="ffc-required">*</em>
+                                Relationship <span className="required-mark">*</span>
                             </span>
-                            <FieldError message={errors.emergencyRelationship} />
                             <input
                                 type="text"
                                 name="emergencyRelationship"
                                 value={form.emergencyRelationship}
                                 onChange={handleChange}
                                 placeholder="e.g. Mother, Sibling"
+                                data-required-message="Enter how they're related to you."
                                 required
                             />
                         </label>
 
                         <label>
                             <span>
-                                Emergency Contact Phone <em className="ffc-required">*</em>
+                                Emergency contact phone <span className="required-mark">*</span>
                             </span>
-                            <FieldError message={errors.emergencyPhone} />
-                            <span className="ffc-phone">
-                                <span className="ffc-phone-prefix">+63</span>
-                                <input
-                                    type="tel"
-                                    name="emergencyPhone"
-                                    inputMode="numeric"
-                                    value={form.emergencyPhone}
-                                    onChange={handleChange}
-                                    placeholder="9XX XXX XXXX"
-                                    required
-                                />
-                            </span>
+                            <PhoneInput
+                                ref={emergencyPhoneRef}
+                                name="emergencyPhone"
+                                value={form.emergencyPhone}
+                                onDigitsChange={(digits) => handlePhoneChange("emergencyPhone", digits)}
+                                autoComplete="off"
+                                data-required-message="Enter your emergency contact's phone number."
+                                required
+                            />
                         </label>
 
                         <label className="foster-full-field">
                             <span>
-                                Additional Notes <em className="ffc-optional">(optional)</em>
+                                Additional notes <em className="ffc-optional">(optional)</em>
                             </span>
                             <span className="ffc-textarea">
                                 <textarea
@@ -880,6 +858,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                             name="agree"
                             checked={form.agree}
                             onChange={handleChange}
+                            data-required-message="Agree to the foster guidelines to continue."
                             required
                         />
                         <span className="ffc-agree-box" aria-hidden="true">
@@ -887,12 +866,11 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                         </span>
                         <span className="ffc-agree-text">
                             <strong>
-                                I agree to follow the RescueBase Foster Guidelines. <em className="ffc-required">*</em>
+                                I agree to follow the RescueBase Foster Guidelines. <span className="required-mark">*</span>
                             </strong>
                             <small>Includes regular updates on the pet, vet visits through the shelter, and returning the pet when requested.</small>
                         </span>
                     </label>
-                    <FieldError message={errors.agree} />
                 </section>
             </fieldset>
 
@@ -907,7 +885,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
             {!locked && (
                 <div className="ffc-actions">
                     <p className="ffc-actions-note">
-                        Staff review every application. Fields marked <em className="ffc-required">*</em> are required.                    </p>
+                        Staff review every application. Fields marked <span className="required-mark">*</span> are required.                    </p>
 
                     <div className="ffc-actions-buttons">
                         <button
@@ -918,28 +896,23 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                             {isEditing ? "Cancel" : "Clear"}
                         </button>
 
-                        {!isEditing && (
-                            <button
-                                type="button"
-                                className="ffc-btn ffc-btn-draft"
-                                onClick={handleSaveDraft}
-                            >
-                                Save Draft
-                            </button>
-                        )}
-
                         <button
                             type="submit"
                             className="ffc-btn ffc-btn-submit"
                             disabled={loading}
                         >
                             {loading
-                                ? isEditing ? "Saving..." : "Submitting..."
+                                ? isEditing ? "Saving…" : "Submitting…"
                                 : isEditing
-                                    ? "Save Changes"
-                                    : application ? "Reapply" : "Submit Application"}
+                                    ? "Save changes"
+                                    : application ? "Reapply" : "Submit application"}
                         </button>
                     </div>
+                    {!isEditing && hasProgress && draftSavedAt && (
+                        <small className="form-draft-note">
+                            <Icon name="check" /> Draft saved at {formatTime(draftSavedAt)}
+                        </small>
+                    )}
                 </div>
             )}
             </form>

@@ -1,5 +1,20 @@
+<<<<<<< HEAD
 import { useState } from "react";
 import PublicGISMap from "../system/PublicGISMap";
+=======
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import LoadingState from "../system/LoadingState";
+
+// Leaflet is heavy, so the map code only downloads once the section is near the screen
+const PublicGISMap = lazy(() =>
+    import("../system/PublicGISMap").catch(() => ({ default: MapCodeFailedToLoad }))
+);
+
+function MapCodeFailedToLoad({ onUnavailable }) {
+    useEffect(() => onUnavailable(), [onUnavailable]);
+    return null;
+}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 // Report types shown on the map, with the same pin icons as the map itself
 const TYPE_FILTERS = [
@@ -54,6 +69,7 @@ export default function GISSection() {
                     ))}
                 </div>
 
+<<<<<<< HEAD
                 <div className="gis-filter-group gis-animal-filters">
                     <button
                         type="button"
@@ -63,6 +79,18 @@ export default function GISSection() {
                     >
                         Dogs
                     </button>
+=======
+                    <div className="gis-map-container">
+                        {isNearScreen && (
+                            <Suspense fallback={<div className="public-gis-message"><LoadingState label="Loading map…" inline /></div>}>
+                                <PublicGISMap
+                                    landingMode
+                                    filters={{ types, dogs, cats, days }}
+                                    onUnavailable={() => setIsMapUnavailable(true)}
+                                />
+                            </Suspense>
+                        )}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
                     <button
                         type="button"

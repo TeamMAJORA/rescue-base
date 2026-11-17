@@ -18,14 +18,24 @@
     margin: 0;
     font-family: "Itim", cursive;
     font-size: 2rem;
+<<<<<<< HEAD
     font-weight: 500;
     color: #5a1b00;
+=======
+    font-weight: 400;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-head p {
     margin: 2px 0 0;
+<<<<<<< HEAD
     font-size: 13px;
     color: #6c4b37;
+=======
+    font-size: 14px;
+    color: var(--brown-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-head-actions {
@@ -38,14 +48,21 @@
 .dl-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
+    gap: 8px;
+    padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 8px;
+<<<<<<< HEAD
     background: #fff;
     color: #5a1b00;
     font-size: 13px;
     font-weight: 700;
+=======
+    background: var(--white);
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
     white-space: nowrap;
 }
@@ -65,7 +82,7 @@
 }
 
 .dl-btn.small {
-    padding: 6px 10px;
+    padding: 8px 8px;
     font-size: 12px;
 }
 
@@ -80,9 +97,15 @@
     width: 30px;
     height: 30px;
     border: 1px solid rgba(90, 27, 0, 0.3);
+<<<<<<< HEAD
     border-radius: 7px;
     background: #fff;
     color: #5a1b00;
+=======
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -94,14 +117,14 @@
 .dl-kpis {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
+    gap: 16px;
 }
 
 .dl-kpi {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
+    gap: 16px;
+    padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 12px;
     background: #fffaf0;
@@ -145,17 +168,21 @@
 /* Toolbar */
 .dl-toolbar {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .dl-search {
     flex: 1 1 320px;
-    padding: 9px 14px;
+    padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 8px;
+<<<<<<< HEAD
     background: #fff;
     outline: none;
+=======
+    background: var(--white);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-search:focus,
@@ -167,14 +194,21 @@
 .dl-select {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 0 6px 0 12px;
+    gap: 8px;
+    padding: 0 8px 0 12px;
     border: 1px solid rgba(90, 27, 0, 0.35);
     border-radius: 8px;
+<<<<<<< HEAD
     background: #fff;
     font-size: 13px;
     font-weight: 700;
     color: #5a1b00;
+=======
+    background: var(--white);
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-select select {
@@ -183,7 +217,6 @@
     padding: 8px 4px;
     font: inherit;
     color: inherit;
-    outline: none;
     cursor: pointer;
 }
 
@@ -195,13 +228,13 @@
 }
 
 .dl-chips button {
-    padding: 5px 12px;
+    padding: 4px 12px;
     border: 1px solid rgba(90, 27, 0, 0.3);
     border-radius: 999px;
     background: #fff;
     color: #5a1b00;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -234,14 +267,19 @@
 .dl-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .dl-table th {
     padding: 12px 16px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.15);
+<<<<<<< HEAD
     color: #8a6a55;
     font-size: 11px;
+=======
+    color: var(--brown-muted);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     text-align: left;
     text-transform: uppercase;
@@ -249,7 +287,7 @@
 }
 
 .dl-table td {
-    padding: 14px 16px;
+    padding: 16px 16px;
     border-bottom: 1px solid rgba(90, 27, 0, 0.1);
     vertical-align: middle;
 }
@@ -284,8 +322,13 @@
 }
 
 .dl-donor small {
+<<<<<<< HEAD
     color: #a08a7a;
     font-size: 10px;
+=======
+    color: var(--brown-muted);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-date {
@@ -296,11 +339,11 @@
 /* Type pills */
 .dl-type {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
     border: 1px solid;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -332,11 +375,11 @@
 .dl-status {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 3px 10px;
+    gap: 8px;
+    padding: 3px 8px;
     border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -368,7 +411,7 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .dl-done {
@@ -387,20 +430,31 @@
     z-index: 1200;
     display: grid;
     min-width: 160px;
-    padding: 6px;
+    padding: 8px;
     border: 1px solid rgba(90, 27, 0, 0.2);
+<<<<<<< HEAD
     border-radius: 10px;
     background: #fff;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+=======
+    border-radius: 12px;
+    background: var(--white);
+    box-shadow: var(--shadow-dropdown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-menu button {
-    padding: 8px 10px;
+    padding: 8px 8px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     background: transparent;
+<<<<<<< HEAD
     color: #3a1400;
     font-size: 13px;
+=======
+    color: var(--brown-strong);
+    font-size: 14px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-align: left;
     cursor: pointer;
 }
@@ -459,20 +513,31 @@
 /* ===== Record / edit donation page ===== */
 .dl-form-card {
     display: grid;
-    gap: 14px;
+    gap: 16px;
     padding: 24px 28px;
     border: 1px solid rgba(90, 27, 0, 0.15);
+<<<<<<< HEAD
     border-radius: 16px;
     background: #fffdf6;
     box-shadow: 0 10px 30px rgba(90, 27, 0, 0.06);
+=======
+    border-radius: 20px;
+    background: var(--paper);
+    box-shadow: var(--shadow-modal);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-form-section h3 {
     margin: 0;
     font-family: "Itim", cursive;
     font-size: 1.6rem;
+<<<<<<< HEAD
     font-weight: 500;
     color: #5a1b00;
+=======
+    font-weight: 400;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-form-section p {
@@ -490,7 +555,7 @@
 .dl-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px 18px;
+    gap: 16px 16px;
 }
 
 .dl-grid.two {
@@ -507,7 +572,7 @@
 
 .dl-field {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     align-content: start;
 }
 
@@ -516,8 +581,13 @@
     align-items: center;
     gap: 4px;
     font-size: 12px;
+<<<<<<< HEAD
     font-weight: 700;
     color: #3a1400;
+=======
+    font-weight: 800;
+    color: var(--brown-strong);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-field > span b {
@@ -528,14 +598,18 @@
 .dl-field select,
 .dl-field textarea {
     width: 100%;
+<<<<<<< HEAD
     padding: 10px 12px;
     border: 1px solid #f0d58a;
+=======
+    padding: 8px 12px;
+    border: 1px solid var(--gold);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 8px;
     background: #fff4c9;
     color: #3a1400;
     font: inherit;
-    font-size: 13px;
-    outline: none;
+    font-size: 14px;
 }
 
 .dl-field textarea {
@@ -563,9 +637,15 @@
     width: 15px;
     height: 15px;
     border-radius: 50%;
+<<<<<<< HEAD
     background: #fb8500;
     color: #fff;
     font-size: 10px;
+=======
+    background: var(--orange);
+    color: var(--white);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: help;
 }
@@ -575,7 +655,7 @@
     display: grid;
     grid-auto-columns: 1fr;
     grid-auto-flow: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .dl-seg.is-half {
@@ -583,6 +663,7 @@
 }
 
 .dl-seg button {
+<<<<<<< HEAD
     padding: 10px 8px;
     border: 1px solid #f0d58a;
     border-radius: 8px;
@@ -590,6 +671,15 @@
     color: #5a1b00;
     font-size: 13px;
     font-weight: 700;
+=======
+    padding: 8px 8px;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 800;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -605,7 +695,7 @@
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 .dl-form-foot small {
@@ -615,11 +705,11 @@
 
 .dl-form-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .dl-form-actions .dl-btn {
-    padding: 10px 22px;
+    padding: 8px 24px;
 }
 
 /* ===== Payment methods pop-up ===== */
@@ -630,24 +720,35 @@
     width: min(620px, 100%);
     max-height: 90vh;
     overflow-y: auto;
-    padding: 24px 26px;
+    padding: 24px 24px;
     border: 1px solid rgba(90, 27, 0, 0.2);
+<<<<<<< HEAD
     border-radius: 14px;
     background: #fffdf6;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+=======
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: var(--shadow-modal);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-pm form {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .dl-pm h3 {
     margin: 0;
     font-family: "Itim", cursive;
     font-size: 1.6rem;
+<<<<<<< HEAD
     font-weight: 500;
     color: #3a1400;
+=======
+    font-weight: 400;
+    color: var(--brown-strong);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-pm-sub {
@@ -702,10 +803,15 @@
     align-items: center;
     gap: 12px;
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     border: 1px solid rgba(90, 27, 0, 0.2);
+<<<<<<< HEAD
     border-radius: 10px;
     background: #fffaf0;
+=======
+    border-radius: 12px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font: inherit;
     text-align: left;
     cursor: pointer;
@@ -722,8 +828,13 @@
 .dl-method-qr {
     flex: 0 0 48px;
     height: 48px;
+<<<<<<< HEAD
     border-radius: 6px;
     background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 0 0 / 10px 10px;
+=======
+    border-radius: 8px;
+    background: repeating-conic-gradient(var(--line-soft) 0% 25%, var(--white) 0% 50%) 0 0 / 10px 10px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     overflow: hidden;
 }
 
@@ -737,8 +848,13 @@
     display: grid;
     flex: 1;
     min-width: 0;
+<<<<<<< HEAD
     font-size: 13px;
     color: #3a1400;
+=======
+    font-size: 14px;
+    color: var(--brown-strong);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-method-info span {
@@ -750,8 +866,13 @@
     display: flex;
     align-items: center;
     gap: 12px;
+<<<<<<< HEAD
     padding: 10px 12px;
     border: 1px solid #f0d58a;
+=======
+    padding: 8px 12px;
+    border: 1px solid var(--gold);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 8px;
     background: #fff4c9;
 }
@@ -760,12 +881,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
     margin-top: 4px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
     .dl-kpis,
     .dl-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -789,8 +910,13 @@
 
 /* ===== Ledger layout aligned with User Management / GIS (Oct 2026) ===== */
 .dl-page {
+<<<<<<< HEAD
     gap: 14px;
     color: #5a1b00;
+=======
+    gap: 16px;
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-head {
@@ -826,22 +952,33 @@
 .dl-card {
     display: grid;
     gap: 12px;
-    padding: 16px 18px;
+    padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.12);
+<<<<<<< HEAD
     border-radius: 14px;
     background: #fffdf4;
+=======
+    border-radius: 12px;
+    background: var(--paper);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-card .dl-search {
-    border-radius: 10px;
+    border-radius: 12px;
     border-color: rgba(90, 27, 0, 0.25);
 }
 
 .dl-card .dl-select {
     position: relative;
+<<<<<<< HEAD
     padding: 0 6px 0 4px;
     border: 1px solid #5a1b00;
     border-radius: 10px;
+=======
+    padding: 0 8px 0 4px;
+    border: 1px solid var(--brown);
+    border-radius: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     min-width: 130px;
 }
 
@@ -850,15 +987,21 @@
     top: -8px;
     left: 8px;
     padding: 0 4px;
+<<<<<<< HEAD
     background: #ffffff;
     color: #7a3e19;
     font-size: 10px;
+=======
+    background: var(--white);
+    color: var(--brown-soft);
+    font-size: 12px;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 600;
 }
 
 .dl-card .dl-select select {
     width: 100%;
-    padding: 9px 6px;
+    padding: 8px 8px;
     font-weight: 600;
 }
 
@@ -881,7 +1024,7 @@
 
 .dl-card .dl-table th {
     text-align: left;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: #7a3e19;
@@ -912,7 +1055,7 @@
 /* Toolbar fields: square-ish like Intake Records, single border on dropdowns */
 .dl-card .dl-search,
 .dl-card .dl-select {
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
 .dl-card .dl-select select {
@@ -937,8 +1080,13 @@
 
 .dl-card .dl-select select {
     min-width: 130px;
+<<<<<<< HEAD
     padding: 9px 10px;
     border: 1px solid #5a1b00 !important;
+=======
+    padding: 8px 8px;
+    border: 1px solid var(--brown) !important;
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 0 !important;
     background: #ffffff;
 }
@@ -949,7 +1097,11 @@
 
 /* ===== Payment methods as a side card (left of the donations list) ===== */
 .dl-layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; align-items: start; }
+<<<<<<< HEAD
 .dl-pm.dl-pm-side { order: -1; position: sticky; top: 12px; width: auto; max-height: none; overflow: visible; padding: 16px 18px; border: 1px solid rgba(90, 27, 0, 0.12); border-radius: 14px; box-shadow: none; background: #fffdf4; align-content: start; }
+=======
+.dl-pm.dl-pm-side { order: -1; position: sticky; top: 12px; width: auto; max-height: none; overflow: visible; padding: 16px 16px; border: 1px solid rgba(90, 27, 0, 0.12); border-radius: 12px; box-shadow: none; background: var(--paper); align-content: start; }
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 .dl-pm-side h3 { font-size: 1.35rem; }
 .dl-pm-side .dl-grid { grid-template-columns: 1fr 1fr; }
 .dl-pm-side .dl-field { min-width: 0; }
@@ -957,16 +1109,22 @@
 .dl-pm-side .dl-pm-foot { flex-wrap: wrap; gap: 8px; justify-content: space-between; }
 .dl-pm-side .dl-pm-foot > .dl-btn.primary { width: 100%; justify-content: center; }
 .dl-pm-side .dl-form-actions { width: 100%; justify-content: flex-end; }
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
     .dl-layout { grid-template-columns: 1fr; }
     .dl-pm.dl-pm-side { order: 1; position: static; }
 }
 
 /* Drop-off point (side card, under payment methods) */
 .dl-dropoff-title {
+<<<<<<< HEAD
     margin-top: 18px;
     padding-top: 14px;
     border-top: 1px solid #efe4cb;
+=======
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line-soft);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dl-method.dl-dropoff {
@@ -985,19 +1143,25 @@
 .dl-days {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 5px;
+    gap: 4px;
 }
 
 .dl-days button {
     height: 34px;
     padding: 0;
     border: 1px solid rgba(90, 27, 0, 0.2);
+<<<<<<< HEAD
     border-radius: 9px;
     background: #ffffff;
     color: #5a1b00;
+=======
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--brown);
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font: inherit;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -1024,10 +1188,201 @@
 .dl-card .dl-search { flex: 1 1 220px; width: auto; }
 .dl-card .dl-table-card { min-width: 0; }
 /* Stack the side card above the list sooner (the sidebar takes ~260px) */
-@media (max-width: 1400px) {
+@media (max-width: 1440px) {
     .dl-layout { grid-template-columns: 1fr; }
     .dl-pm.dl-pm-side { order: 1; position: static; }
 }
 
 /* No scrollbars on the donations table; columns wrap instead */
 .dl-card .dl-table-wrap { overflow: visible; }
+<<<<<<< HEAD
+=======
+
+/* Drop-off pin map (search list and pin styles come from LostFound.css / IntakeRecords.css) */
+.dl-dropoff-map {
+    height: 220px;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+/* Donation details (view only: mark received, cancel, delete) */
+.dl-view-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(40, 20, 5, 0.5);
+}
+
+.dl-view {
+    position: relative;
+    width: min(620px, 100%);
+    max-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--paper);
+    color: var(--brown);
+    box-shadow: var(--shadow-modal);
+}
+
+.dl-view-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 56px 16px 24px;
+    border-bottom: 1px solid var(--gold);
+}
+
+.dl-view-head > div {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+}
+
+.dl-view-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+.dl-view-head > div span {
+    font-size: 14px;
+    color: rgba(90, 27, 0, 0.7);
+    word-break: break-all;
+}
+
+.dl-view-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--brown);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.dl-view-body {
+    display: grid;
+    gap: 8px;
+    overflow-y: auto;
+    padding: 16px 24px;
+}
+
+.dl-view-body h4 {
+    margin: 8px 0 0;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.dl-view-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+    margin: 0;
+    padding: 16px 16px;
+    border-radius: 12px;
+    background: var(--amber-soft);
+}
+
+.dl-view-facts dt {
+    color: rgba(90, 27, 0, 0.6);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.dl-view-facts dd {
+    margin: 3px 0 0;
+    font-size: 14px;
+    font-weight: 800;
+    word-break: break-word;
+}
+
+.dl-view-notes {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.dl-view-photo {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.dl-view-photo img {
+    display: block;
+    max-width: 100%;
+    max-height: 320px;
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    object-fit: contain;
+    background: var(--white);
+}
+
+.dl-view-nophoto {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--peach-soft);
+    font-size: 14px;
+    color: rgba(90, 27, 0, 0.75);
+}
+
+.dl-view-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--gold);
+}
+
+@media (max-width: 640px) {
+    .dl-view-overlay {
+        padding: 12px;
+    }
+
+    .dl-view-facts {
+        grid-template-columns: 1fr;
+    }
+
+    .dl-view-foot > .dl-btn {
+        flex: 1 1 auto;
+    }
+}
+
+/* "Not received" reason box (uses the dashboard's .ao-confirm dialog) */
+/* Opens on top of the donation details pop-up */
+.ao-confirm-backdrop:has(.dl-notreceived) { z-index: 2100; }
+.ao-confirm.dl-notreceived { max-width: 440px; }
+.dl-notreceived .dl-field { margin-bottom: 8px; }
+.dl-notreceived textarea { width: 100%; }
+.ao-confirm .dl-notreceived-error { margin: 0 0 8px; color: var(--red-dark); font-weight: 600; }
+.dl-view-facts .dl-view-wide { grid-column: 1 / -1; }
+
+
+/* Phones: each table row becomes a labelled card (labels come from data-label on each cell) */
+@media (max-width: 640px) {
+    .dl-table-wrap { overflow: visible; }
+    .dl-table thead { display: none; }
+    .dl-table, .dl-table tbody, .dl-table tr, .dl-table td { display: block; width: 100%; min-width: 0; }
+    .dl-table tr { margin: 0 0 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+    .dl-table td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; border: 0; text-align: right; }
+    .dl-table td::before { content: attr(data-label); flex: none; color: var(--brown-soft); font-size: 14px; font-weight: 600; text-align: left; }
+    .dl-table td > * { max-width: 65%; }
+}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe

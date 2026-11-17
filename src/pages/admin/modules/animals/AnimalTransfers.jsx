@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";   
+<<<<<<< HEAD
 
 // Styled confirm popup + toast from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -19,6 +20,11 @@ function notify(text, tone = "success") {
 function notifyErr(text) {
     notify(text, "error");
 }
+=======
+import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
+import { formatDate } from "../../../../utils/formatDate";
+import UiIcon from "../../../../components/system/Icon";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const ICONS = {
     search: (
@@ -94,7 +100,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>
@@ -173,6 +179,7 @@ function SearchToolbar({
                             type="search"
                             value={search}
                             placeholder={placeholder}
+                            aria-label={String(placeholder || "Search").replace("…", "")}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </label>
@@ -344,8 +351,8 @@ const STATUS_TONE = {
 
 // What the quick-action button moves a transfer to.
 const NEXT_STEP = {
-    Pending: { status: "In Transit", label: "Start Transit" },
-    "In Transit": { status: "Completed", label: "Mark Completed" },
+    Pending: { status: "In Transit", label: "Start transit" },
+    "In Transit": { status: "Completed", label: "Mark completed" },
 };
 
 const SEARCH_FIELDS = {
@@ -603,12 +610,12 @@ export default function AnimalTransfers() {
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit Transfer" : "New Transfer"}</h2>
+                    <h2>{editingId ? "Edit transfer" : "Add transfer"}</h2>
                     <p className="ao-hint">Record where the animal is going and why.</p>
 
                     <form className="ao-form" onSubmit={handleSubmit}>
                         <label className="ao-field">
-                            <span>Animal <span className="ao-req">*</span></span>
+                            <span>Animal <span className="required-mark">*</span></span>
                             <select
                                 value={form.animalName}
                                 onChange={(e) => updateField("animalName", e.target.value)}
@@ -629,7 +636,7 @@ export default function AnimalTransfers() {
 
                         <div className="ao-route">
                             <label className="ao-field">
-                                <span>From <span className="ao-req">*</span></span>
+                                <span>From <span className="required-mark">*</span></span>
                                 <input
                                     value={form.fromLocation}
                                     onChange={(e) => updateField("fromLocation", e.target.value)}
@@ -639,7 +646,7 @@ export default function AnimalTransfers() {
                             </label>
                             <Icon name="arrow" size={20} />
                             <label className="ao-field">
-                                <span>To <span className="ao-req">*</span></span>
+                                <span>To <span className="required-mark">*</span></span>
                                 <input
                                     value={form.toLocation}
                                     onChange={(e) => updateField("toLocation", e.target.value)}
@@ -650,7 +657,7 @@ export default function AnimalTransfers() {
                         </div>
 
                         <label className="ao-field">
-                            <span>Transfer Date <span className="ao-req">*</span></span>
+                            <span>Transfer date <span className="required-mark">*</span></span>
                             <input
                                 type="date"
                                 value={form.transferDate}
@@ -660,7 +667,7 @@ export default function AnimalTransfers() {
                         </label>
 
                         <label className="ao-field">
-                            <span>Reason <span className="ao-req">*</span></span>
+                            <span>Reason <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.reason}
                                 onChange={(e) => updateField("reason", e.target.value)}
@@ -670,7 +677,7 @@ export default function AnimalTransfers() {
                         </label>
 
                         <div className="ao-field">
-                            <span>Status <span className="ao-req">*</span></span>
+                            <span>Status <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={STATUS_OPTIONS}
                                 value={form.status}
@@ -692,7 +699,7 @@ export default function AnimalTransfers() {
 
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary">
-                                {editingId ? "Update Transfer" : "Save Transfer"}
+                                {editingId ? "Save changes" : "Add transfer"}
                             </button>
                             {editingId && (
                                 <button type="button" className="ao-btn" onClick={resetForm}>
@@ -715,7 +722,7 @@ export default function AnimalTransfers() {
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search animal, origin, or destination..."
+                        placeholder="Search animal, origin, or destination…"
                         filters={[
                             {
                                 label: "Date range",

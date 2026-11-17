@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+<<<<<<< HEAD
+=======
+import { formatDate } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -129,7 +134,7 @@ export default function FosterHistory() {
     if (loading) {
         return (
             <section className="foster-panel">
-                <div className="foster-loading">Loading foster history...</div>
+                <LoadingState label="Loading foster history…" />
             </section>
         );
     }
@@ -164,7 +169,7 @@ export default function FosterHistory() {
         <section className="ao-page foster-history-page">
             <div className="foster-section-heading fh-heading">
                 <div>
-                    <span>Foster Records</span>
+                    <span>Foster records</span>
                     <h2>Foster History</h2>
                 </div>
             </div>
@@ -227,7 +232,7 @@ export default function FosterHistory() {
                     <p>
                         {history.length === 0
                             ? "Pets you finish fostering will appear here."
-                            : "No fosters match this filter."}
+                            : "No fosters match your filters."}
                     </p>
                 </div>
             ) : (

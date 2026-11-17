@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import InfoTip from "../../../../components/system/InfoTip";
+<<<<<<< HEAD
+=======
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
+import { toDayValue } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
+import UiIcon from "../../../../components/system/Icon";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -39,7 +46,7 @@ const TRAIT_GROUPS = [
         ],
     },
     {
-        title: "Social & Learning",
+        title: "Social & learning",
         traits: [
             { key: "friendliness", label: "Friendliness", question: "How warm is {name} toward people they meet?", low: "Reserved", high: "Very friendly", tone: "good" },
             { key: "humanSociability", label: "Human Sociability", question: "How comfortable is {name} with handling, strangers, and kids?", low: "Shy", high: "Loves people", tone: "good" },
@@ -202,7 +209,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>
@@ -281,6 +288,7 @@ function SearchToolbar({
                             type="search"
                             value={search}
                             placeholder={placeholder}
+                            aria-label={String(placeholder || "Search").replace("…", "")}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </label>
@@ -656,7 +664,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                 {!lockedAnimal && (
                     <>
                         <h2 className="ao-label-tip">
-                            {editingId ? "Edit Behavior Assessment" : "Behavior Assessment"}
+                            {editingId ? "Edit assessment" : "Add assessment"}
                             <InfoTip text="Rate each of the 8 traits from 1 (Very Low) to 5 (Very High) based on what you observed. These scores feed the adopter compatibility match and the personality tags shown on the animal's profile." />
                         </h2>
                         <p className="ao-hint">
@@ -669,7 +677,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                 <form className="ao-form" onSubmit={handleSubmit}>
                     <div className="ao-assess-top">
                         <label className="ao-field">
-                            <span>Animal <span className="ao-req">*</span></span>
+                            <span>Animal <span className="required-mark">*</span></span>
                             {lockedAnimal ? (
                                 <input value={lockedAnimal.name} readOnly />
                             ) : (
@@ -700,7 +708,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         </label>
 
                         <label className="ao-field">
-                            <span>Assessed By <span className="ao-req">*</span></span>
+                            <span>Assessed By <span className="required-mark">*</span></span>
                             <select
                                 value={form.assessor}
                                 onChange={(e) => updateField("assessor", e.target.value)}
@@ -728,7 +736,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         </label>
 
                         <label className="ao-field">
-                            <span>Assessment Date <span className="ao-req">*</span></span>
+                            <span>Assessment date <span className="required-mark">*</span></span>
                             <input
                                 type="date"
                                 value={form.assessmentDate}
@@ -783,7 +791,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
 
                     <div className="ao-assess-foot">
                         <label className="ao-field">
-                            <span>Observation Notes <span className="ao-req">*</span></span>
+                            <span>Observation notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateField("notes", e.target.value)}
@@ -806,10 +814,10 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                             )}
                             <button type="submit" className="ao-btn primary" disabled={submitting || !selectedAnimal}>
                                 {submitting
-                                    ? "Saving..."
+                                    ? "Saving…"
                                     : editingId
-                                      ? "Update Assessment"
-                                      : "Save Assessment"}
+                                      ? "Save changes"
+                                      : "Add assessment"}
                             </button>
                         </div>
                     </div>
@@ -820,7 +828,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
             {!lockedAnimal && (
                 <section className="ao-card">
                     <div className="ao-list-head">
-                        <h2>Assessed Animals</h2>
+                        <h2>Assessed animals</h2>
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
                     </div>
 
@@ -830,7 +838,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search name, breed, or personality..."
+                        placeholder="Search name, breed, or personality…"
                         filters={[
                             {
                                 label: "Personality",
@@ -858,7 +866,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                     />
 
                     {loading ? (
-                        <p className="ao-empty">Loading behavioral profiles...</p>
+                        <LoadingState label="Loading behavioral profiles…" />
                     ) : filteredAnimals.length === 0 ? (
                         <p className="ao-empty">No assessed animals match your search.</p>
                     ) : (
@@ -915,7 +923,7 @@ export default function BehaviorAssessment({ lockedAnimal = null, onSaved }) {
                                             className="ao-btn sm"
                                             onClick={() => handleEditAssessment(animal)}
                                         >
-                                            Edit Ratings
+                                            Edit ratings
                                         </button>
                                     </div>
                                 </article>

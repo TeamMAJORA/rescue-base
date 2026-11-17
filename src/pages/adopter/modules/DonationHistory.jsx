@@ -1,4 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+<<<<<<< HEAD
+=======
+import PetTypeIcon from "../../../components/system/PetTypeIcon";
+import { formatDate } from "../../../utils/formatDate";
+import { formatPeso } from "../../../utils/formatMoney";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -19,9 +27,6 @@ function moneyValue(donation) {
     return Number(donation.amount) || Number(donation.quantity) || 0;
 }
 
-function peso(value) {
-    return `₱${Number(value || 0).toLocaleString("en-PH")}`;
-}
 
 function formatDate(date) {
     if (!date) return "--";
@@ -40,7 +45,7 @@ function formatStatus(status) {
 
 function rowTitle(donation) {
     return isMoney(donation)
-        ? peso(moneyValue(donation))
+        ? formatPeso(moneyValue(donation))
         : donation.itemName || donation.donationType;
 }
 
@@ -197,17 +202,17 @@ export default function DonationHistory({ onMakeDonation }) {
             <div className="dh-stats">
                 <Kpi icon="total" 
                     value={stats.total} 
-                        label="Total Donations" />
+                        label="Total donations" />
                 <Kpi icon="pending" 
                     value={stats.pending} 
-                        label="Pending Review" />
+                        label="Pending review" />
                 <Kpi icon="received" 
                     value={stats.received} 
                         label="Received" 
                             tone="is-green" />
                 <Kpi icon="money" 
-                    value={peso(stats.monetaryGiven)} 
-                        label="Monetary Given" 
+                    value={formatPeso(stats.monetaryGiven)} 
+                        label="Monetary given" 
                             tone="is-gold" />
             </div>
 
@@ -226,26 +231,31 @@ export default function DonationHistory({ onMakeDonation }) {
                         ))}
                     </div>
 
-                    <input
+                    <input aria-label="Search donation"
                         className="dh-search"
-                        placeholder="Search donation..."
+                        placeholder="Search donation…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
 
-                {loading && <p className="dh-message">Loading donation history...</p>}
+                {loading && <LoadingState label="Loading donation history…" />}
 
                 {!loading && error && <p className="dh-message">{error}</p>}
 
                 {hasNoDonations && (
                     <div className="dh-empty">
+<<<<<<< HEAD
                         <div className="dh-empty-icon" aria-hidden="true">🐾</div>
                         <h3>No Donations Yet</h3>
+=======
+                        <div className="dh-empty-icon" aria-hidden="true"><PetTypeIcon /></div>
+                        <h3>No donations yet</h3>
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                         <p>Your donations will appear here once you submit one.</p>
                         {onMakeDonation && (
                             <button type="button" onClick={onMakeDonation}>
-                                Make a Donation
+                                Make a donation
                             </button>
                         )}
                     </div>
@@ -297,7 +307,7 @@ export default function DonationHistory({ onMakeDonation }) {
                         <div className="dh-modal-header">
                             <h2>{rowTitle(selected)}</h2>
                             <button type="button" onClick={() => setSelected(null)}>
-                                ✕
+                                <Icon name="close" />
                             </button>
                         </div>
 
@@ -319,8 +329,8 @@ export default function DonationHistory({ onMakeDonation }) {
                                 {isMoney(selected) ? (
                                     <>
                                         <dt>Amount</dt>
-                                        <dd>{peso(moneyValue(selected))}</dd>
-                                        <dt>Payment Method</dt>
+                                        <dd>{formatPeso(moneyValue(selected))}</dd>
+                                        <dt>Payment method</dt>
                                         <dd>{selected.paymentMethod || "--"}</dd>
                                     </>
                                 ) : (

@@ -1,4 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
+<<<<<<< HEAD
+=======
+import { CompleteWithProofModal } from "../../../components/rescue/RescueProof";
+import { askConfirm, askPrompt } from "../../../utils/dialogs";
+import { formatDate, formatDateTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -243,8 +251,13 @@ export default function RescueAssignments() {
             {notice && <p className="vr-notice">{notice}</p>}
             {error && <p className="db2-error">{error}</p>}
 
+<<<<<<< HEAD
             {assignments === null ? (
                 <p className="db2-empty">Loading your rescues...</p>
+=======
+            {assignments === null || (tab === "open" && openAssignments === null) ? (
+                <LoadingState label="Loading your rescues…" />
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
             ) : shown.length === 0 ? (
                 <p className="db2-empty">Nothing here right now.</p>
             ) : (
@@ -320,13 +333,13 @@ export function VolunteerOverview({ onNavigate }) {
                     <h3>
                         Next rescues
                         <button type="button" className="db2-link" onClick={() => go("rescues")}>
-                            My Rescues →
+                            My Rescues <Icon name="arrow-right" />
                         </button>
                     </h3>
                     <p className="db2-sub">Jobs assigned to you, soonest first.</p>
 
                     {assignments === null ? (
-                        <p className="db2-empty">Loading...</p>
+                        <LoadingState label="Loading…" />
                     ) : upcoming.length === 0 ? (
                         <p className="db2-empty">No open rescue jobs. New ones will show up here.</p>
                     ) : (
@@ -336,6 +349,18 @@ export function VolunteerOverview({ onNavigate }) {
                             ))}
                         </div>
                     )}
+<<<<<<< HEAD
+=======
+
+                    {(openAssignments || []).length > 0 && (
+                        <p className="vr-open-note">
+                            {openAssignments.length} open rescue{openAssignments.length === 1 ? "" : "s"} any volunteer can claim.{" "}
+                            <button type="button" className="db2-link" onClick={() => go("rescues")}>
+                                Claim one in My Rescues <Icon name="arrow-right" />
+                            </button>
+                        </p>
+                    )}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                 </section>
 
                 <div className="db2-col">
@@ -359,7 +384,7 @@ export function VolunteerOverview({ onNavigate }) {
                             </button>
                         </h3>
                         {activity === null ? (
-                            <p className="db2-empty">Loading...</p>
+                            <LoadingState label="Loading…" />
                         ) : activity.length === 0 ? (
                             <p className="db2-empty">No activity yet.</p>
                         ) : (

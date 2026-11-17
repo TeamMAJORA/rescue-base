@@ -6,9 +6,13 @@ import {
     isPetAvailable,
     toAiScores,
 } from "../../../utils/matchScore";
+<<<<<<< HEAD
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const MAX_RECOMMENDATIONS = 4;
+=======
+import Icon from "../../../components/system/Icon";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 function formatStatus(value) {
     return String(value || "available").replaceAll("_", " ");
@@ -175,7 +179,7 @@ export default function Recommendations({
                 <div className="recommendations-empty-state">
                     <span>🐾</span>
 
-                    <h2>Complete Your Matchmaking Quiz</h2>
+                    <h2>Complete your Matchmaking Quiz</h2>
 
                     <p>
                         RescueBase needs your lifestyle and behavioral
@@ -186,7 +190,11 @@ export default function Recommendations({
                         type="button"
                         onClick={() => onTakeQuiz?.()}
                     >
+<<<<<<< HEAD
                         Take Matchmaking Quiz
+=======
+                        Take Matchmaking Quiz <Icon name="arrow-right" />
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                     </button>
                 </div>
             </section>
@@ -205,10 +213,10 @@ export default function Recommendations({
 
                         <div className="rec-podium-actions">
                             <button type="button" onClick={() => onTakeQuiz?.()}>
-                                Retake Quiz
+                                Retake quiz
                             </button>
                             <button type="button" onClick={() => onRefresh?.()} disabled={loading}>
-                                {loading ? "Refreshing..." : "Refresh"}
+                                {loading ? "Refreshing…" : "Refresh"}
                             </button>
                         </div>
 
@@ -306,7 +314,7 @@ export default function Recommendations({
                                     <path d="M4 11a8 8 0 1 1 2.3 5.7" />
                                     <path d="M4 4v7h7" />
                                 </svg>
-                                Retake Quiz
+                                Retake quiz
                             </button>
                         </div>
 
@@ -329,9 +337,9 @@ export default function Recommendations({
             ) : (
                 <header className="recommendations-header">
                         <div>
-                            <span>Behavioral Matching Results</span>
+                            <span>Behavioral matching results</span>
 
-                            <h2>Your Recommended Pets</h2>
+                            <h2>Your recommended pets</h2>
 
                             <p>
                                 These compatibility scores compare your matchmaking
@@ -345,7 +353,7 @@ export default function Recommendations({
                                 className="recommendations-retake-button"
                                 onClick={() => onTakeQuiz?.()}
                             >
-                                Retake Quiz
+                                Retake quiz
                             </button>
 
                             <button
@@ -354,7 +362,7 @@ export default function Recommendations({
                                 onClick={() => onRefresh?.()}
                                 disabled={loading}
                             >
-                                {loading ? "Refreshing..." : "Refresh Results"}
+                                {loading ? "Refreshing…" : "Refresh results"}
                             </button>
                         </div>
                     </header>
@@ -363,7 +371,7 @@ export default function Recommendations({
             {hasPendingApplication && (
                 <section className="recommendations-pending-banner">
                     <div>
-                        <span>Pending Adoption Application</span>
+                        <span>Pending adoption application</span>
 
                         <h3>
                             Your application for{" "}
@@ -392,8 +400,13 @@ export default function Recommendations({
 
             {loading && (
                 <div className="recommendations-message-state">
+<<<<<<< HEAD
                     <span>🐾</span>
                     <h3>Calculating your matches...</h3>
+=======
+                    <span><PetTypeIcon /></span>
+                    <h3>Calculating your matches…</h3>
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                     <p>Please wait while RescueBase evaluates the animals.</p>
                 </div>
             )}
@@ -408,7 +421,7 @@ export default function Recommendations({
                         type="button"
                         onClick={() => onRefresh?.()}
                     >
-                        Try Again
+                        Try again
                     </button>
                 </div>
             )}
@@ -584,8 +597,13 @@ export default function Recommendations({
                                             )}
 
                                             <div className="rcard-section-head">
+<<<<<<< HEAD
                                                 <h4>Behavioral Compatibility</h4>
                                                 <span>{measuredCount}/{FACTORS.length} factors assessed{isAi ? " · AI score" : ""}</span>
+=======
+                                                <h4>Behavioral compatibility</h4>
+                                                <span>{measuredCount}/{FACTORS.length} factors assessed · AI score</span>
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                                             </div>
 
                                             <div className="rcard-factors">

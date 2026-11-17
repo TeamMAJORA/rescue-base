@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { isAdmin, isStaff } from "../../../../utils/auth";
 import "../../../../styles/admin/QRTags.css";
+<<<<<<< HEAD
 
 // Styled confirm popup + toast from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -21,6 +22,12 @@ function notify(text, tone = "success") {
 function notifyErr(text) {
     notify(text, "error");
 }
+=======
+import PetTypeIcon from "../../../../components/system/PetTypeIcon";
+import { askConfirm, notifyError } from "../../../../utils/dialogs";
+import { formatDate } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/qr-tags`;
 
@@ -317,11 +324,12 @@ export default function QRTags() {
         <section className="qrt-page">
             <div className="qrt-generate">
                 <div className="qrt-generate-text">
-                    <h2>Generate a QR Tag</h2>
+                    <h2>Generate a QR tag</h2>
                     <p>Pick an animal to create a printable tag for their collar or kennel.</p>
                 </div>
                 <form className="qrt-generate-form" onSubmit={handleSubmit}>
                     <select
+                        aria-label="Animal"
                         value={form.animalId}
                         onChange={(e) => setForm({ animalId: e.target.value })}
                         required
@@ -336,7 +344,7 @@ export default function QRTags() {
                         ))}
                     </select>
                     <button type="submit" className="qrt-btn primary" disabled={submitting || !form.animalId}>
-                        {submitting ? "Generating..." : "Generate"}
+                        {submitting ? "Generating…" : "Generate"}
                     </button>
                 </form>
             </div>
@@ -347,16 +355,16 @@ export default function QRTags() {
             <div className="qrt-list-panel">
                 <div className="qrt-list-head">
                     <div>
-                        <h2>QR Tag Records</h2>
+                        <h2>QR tag records</h2>
                         <span className="qrt-count">
                             {filteredRecords.length} tag{filteredRecords.length === 1 ? "" : "s"}
                         </span>
                     </div>
                     <div className="qrt-tools">
-                        <input
+                        <input aria-label="Search by animal name"
                             className="qrt-search"
                             type="search"
-                            placeholder="Search by animal name..."
+                            placeholder="Search by animal name…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -367,7 +375,7 @@ export default function QRTags() {
                 </div>
 
                 {loading ? (
-                    <p className="qrt-empty">Loading QR tags...</p>
+                    <LoadingState label="Loading QR tags…" />
                 ) : filteredRecords.length === 0 ? (
                     <p className="qrt-empty">🐾 No QR tags found. Generate one above.</p>
                 ) : (

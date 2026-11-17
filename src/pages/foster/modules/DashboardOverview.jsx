@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { getNextReportDue } from "../utils/reportDue";
+<<<<<<< HEAD
+=======
+import { formatDate } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -346,7 +352,7 @@ export default function DashboardOverview({
                         >
                             <span className="fdo-action-icon"><FdoIcon name="report" size={20} /></span>
                             <span className="fdo-action-text">
-                                <b>Submit Weekly Report</b>
+                                <b>Submit weekly report</b>
                                 <small>
                                     {pets.length > 1
                                         ? `For ${nextReport.pet.petName}, due soonest`
@@ -362,7 +368,7 @@ export default function DashboardOverview({
                         >
                             <span className="fdo-action-icon"><FdoIcon name="plus" size={20} /></span>
                             <span className="fdo-action-text">
-                                <b>Request Medical Help</b>
+                                <b>Request medical help</b>
                                 <small>Report an injury or illness</small>
                             </span>
                         </button>
@@ -375,7 +381,7 @@ export default function DashboardOverview({
                         >
                             <span className="fdo-action-icon"><FdoIcon name="chat" size={20} /></span>
                             <span className="fdo-action-text">
-                                <b>Contact Shelter</b>
+                                <b>Contact shelter</b>
                                 <small>{contactOpen ? "Hide contacts" : "Call or email the shelter"}</small>
                             </span>
                         </button>
@@ -384,7 +390,7 @@ export default function DashboardOverview({
                     {contactOpen && (
                         <div className="fah-contact fdo-contact" role="region" aria-label="Shelter contacts">
                             {!contact ? (
-                                <p className="fah-contact-empty">Loading contacts...</p>
+                                <LoadingState label="Loading contacts…" />
                             ) : !contact.email && !contact.phone && !contact.facebook ? (
                                 <p className="fah-contact-empty">The shelter hasn't added contact details yet.</p>
                             ) : (
@@ -481,7 +487,7 @@ export default function DashboardOverview({
                             className="fdo-link"
                             onClick={() => onNavigate?.("assignment")}
                         >
-                            View details →
+                            View details <Icon name="arrow-right" />
                         </button>
                     </header>
 
@@ -536,7 +542,7 @@ export default function DashboardOverview({
                         <h3>Recent activity</h3>
                         {notifications.length > 0 && (
                             <button type="button" className="fdo-link" onClick={onOpenNotifications}>
-                                View all →
+                                View all <Icon name="arrow-right" />
                             </button>
                         )}
                     </header>

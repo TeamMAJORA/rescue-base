@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .matchmaking-module {
     width: 100%;
     min-width: 0;
@@ -1622,3 +1623,1657 @@
         padding: 20px 16px 24px;
     }
 }
+=======
+.matchmaking-module {
+    width: 100%;
+    min-width: 0;
+    color: var(--brown);
+}
+
+.matchmaking-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 16px;
+    padding: 28px 28px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 20px;
+    background:
+        radial-gradient(
+            circle at right top,
+            rgba(252, 191, 73, 0.25),
+            transparent 45%
+        ),
+        var(--paper);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.matchmaking-header > div:first-child {
+    min-width: 0;
+}
+
+.matchmaking-header > div:first-child > span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.matchmaking-header h2 {
+    margin: 0;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: clamp(32px, 3vw, 42px);
+    line-height: 1.05;
+}
+
+.matchmaking-header p {
+    max-width: 760px;
+    margin: 12px 0 0;
+    color: var(--brown-soft);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.matchmaking-progress-summary {
+    flex-shrink: 0;
+    min-width: 115px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    padding: 12px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.14);
+    border-radius: 12px;
+    background: var(--white-yellow);
+}
+
+.matchmaking-progress-summary span {
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.matchmaking-progress-summary strong {
+    color: var(--orange);
+    font-family: "Itim", cursive;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.matchmaking-progress-bar {
+    width: 100%;
+    height: 12px;
+    margin-bottom: 24px;
+    border-radius: 999px;
+    background: rgba(90, 27, 0, 0.1);
+    overflow: hidden;
+}
+
+.matchmaking-progress-bar > div {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(
+        90deg,
+        var(--orange),
+        var(--yellow)
+    );
+    transition: width 0.3s ease;
+}
+
+.matchmaking-form {
+    width: 100%;
+}
+
+.matchmaking-step {
+    padding: 24px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 20px;
+    background: var(--paper);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.matchmaking-step-heading {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.12);
+}
+
+.matchmaking-step-heading > span {
+    display: inline-flex;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--white-yellow);
+    color: var(--orange-dark);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.matchmaking-step-heading h3 {
+    margin: 0;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 32px;
+}
+
+.matchmaking-step-heading p {
+    max-width: 760px;
+    margin: 8px 0 0;
+    color: var(--brown-soft);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.matchmaking-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.matchmaking-grid label {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.matchmaking-grid select,
+.matchmaking-grid input {
+    width: 100%;
+    min-height: 47px;
+    padding: 8px 12px;
+    border: 1px solid rgba(90, 27, 0, 0.18);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--brown);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.matchmaking-grid select:focus,
+.matchmaking-grid input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
+}
+
+.matchmaking-information-box,
+.matchmaking-warning-box {
+    margin-top: 20px;
+    padding: 16px 16px;
+    border-radius: 12px;
+}
+
+.matchmaking-information-box {
+    border: 1px solid rgba(251, 133, 0, 0.24);
+    border-left: 5px solid var(--orange);
+    background: var(--white-yellow);
+}
+
+.matchmaking-warning-box {
+    border: 1px solid rgba(214, 40, 40, 0.2);
+    border-left: 5px solid var(--red);
+    background: var(--red-soft);
+}
+
+.matchmaking-information-box strong,
+.matchmaking-warning-box strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--brown);
+    font-size: 14px;
+}
+
+.matchmaking-warning-box strong {
+    color: var(--red-dark);
+}
+
+.matchmaking-information-box p,
+.matchmaking-warning-box p {
+    margin: 0;
+    color: var(--brown-soft);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.matchmaking-factor-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.matchmaking-factor-card {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid rgba(90, 27, 0, 0.13);
+    border-radius: 20px;
+    background: var(--peach-soft);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.matchmaking-factor-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(251, 133, 0, 0.42);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.matchmaking-factor-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.matchmaking-factor-heading > div {
+    min-width: 0;
+}
+
+.matchmaking-factor-heading h3 {
+    margin: 0;
+    color: var(--brown);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.matchmaking-factor-heading p {
+    margin: 4px 0 0;
+    color: var(--brown-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.matchmaking-factor-heading > span {
+    flex-shrink: 0;
+    padding: 8px 8px;
+    border-radius: 999px;
+    background: var(--yellow);
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.matchmaking-factor-card input[type="range"] {
+    width: 100%;
+    height: 8px;
+    appearance: none;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        var(--orange),
+        var(--yellow)
+    );
+    cursor: pointer;
+}
+
+.matchmaking-factor-card input[type="range"]::-webkit-slider-thumb {
+    width: 21px;
+    height: 21px;
+    appearance: none;
+    border: 4px solid var(--white);
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: var(--shadow-card);
+    cursor: grab;
+}
+
+.matchmaking-factor-card input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+}
+
+.matchmaking-factor-card input[type="range"]::-moz-range-track {
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        var(--orange),
+        var(--yellow)
+    );
+}
+
+.matchmaking-factor-card input[type="range"]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border: 4px solid var(--white);
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: var(--shadow-card);
+    cursor: grab;
+}
+
+.matchmaking-range-labels {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    margin-top: 8px;
+    color: var(--brown-muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.matchmaking-range-labels span:first-child {
+    text-align: left;
+}
+
+.matchmaking-range-labels span:last-child {
+    text-align: right;
+}
+
+.matchmaking-message {
+    margin-top: 16px;
+    padding: 16px 16px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.matchmaking-message.success {
+    border-color: rgba(47, 143, 91, 0.28);
+    background: var(--green-soft);
+    color: var(--green-dark);
+}
+
+.matchmaking-message.error {
+    border-color: rgba(214, 40, 40, 0.25);
+    background: var(--red-soft);
+    color: var(--red-dark);
+}
+
+.matchmaking-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 16px 0 2px;
+}
+
+.matchmaking-back-button,
+.matchmaking-next-button,
+.matchmaking-submit-button {
+    min-height: 48px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.matchmaking-back-button {
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    background: var(--paper);
+    color: var(--brown);
+}
+
+.matchmaking-back-button:hover:not(:disabled) {
+    border-color: var(--orange);
+    background: var(--white-yellow);
+}
+
+.matchmaking-next-button,
+.matchmaking-submit-button {
+    border: 0;
+    background: linear-gradient(
+        135deg,
+        var(--orange),
+        var(--orange-light)
+    );
+    color: var(--white);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.matchmaking-next-button:hover:not(:disabled),
+.matchmaking-submit-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: linear-gradient(
+        135deg,
+        var(--orange-dark),
+        var(--orange)
+    );
+    box-shadow: var(--shadow-dropdown);
+}
+
+.matchmaking-back-button:disabled,
+.matchmaking-next-button:disabled,
+.matchmaking-submit-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+    box-shadow: none;
+}
+
+@media (max-width: 900px) {
+    .matchmaking-factor-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .matchmaking-header {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .matchmaking-progress-summary {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .matchmaking-step {
+        padding: 20px;
+    }
+
+    .matchmaking-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .matchmaking-header h2 {
+        font-size: 32px;
+    }
+
+    .matchmaking-factor-heading {
+        flex-direction: column;
+    }
+
+    .matchmaking-factor-heading > span {
+        white-space: normal;
+    }
+
+    .matchmaking-actions {
+        flex-direction: column-reverse;
+    }
+
+    .matchmaking-back-button,
+    .matchmaking-next-button,
+    .matchmaking-submit-button {
+        width: 100%;
+    }
+}
+
+/* ===== Header: same look as the dashboard hero ===== */
+.matchmaking-header {
+    align-items: center;
+    padding: 32px 40px;
+    border: 0;
+    border-radius: 20px;
+    background:
+        url("/icons/heroPaw.svg") no-repeat right -30px bottom -150px / auto 135%,
+        linear-gradient(90deg, var(--orange) 0%, var(--orange-light) 55%, var(--orange-light) 100%);
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+}
+
+/* "Behavioral Matching" becomes the white chip */
+.matchmaking-header > div:first-child > span {
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--red);
+}
+
+.matchmaking-header h2 {
+    margin-top: 16px;
+    color: var(--brown);
+    font-size: clamp(32px, 3.4vw, 46px);
+}
+
+.matchmaking-header p {
+    max-width: 520px;
+    margin-top: 8px;
+    color: var(--brown-strong);
+    line-height: 1.55;
+}
+
+.matchmaking-progress-summary {
+    border: 0;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--shadow-dropdown);
+}
+
+/* ===== Step tracker (Home -> Lifestyle -> Preferences) ===== */
+.matchmaking-steps {
+    display: flex;
+    align-items: flex-start;
+    margin: 0 0 24px;
+    padding: 16px 44px 32px;
+    border: 1px solid rgba(251, 133, 0, 0.18);
+    border-radius: 20px;
+    background: var(--paper);
+    list-style: none;
+}
+
+.mq-step {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.mq-step:last-child {
+    flex: 0 0 auto;
+}
+
+/* line to the next step */
+.mq-step:not(:last-child)::after {
+    content: "";
+    flex: 1;
+    height: 4px;
+    margin: 0 8px;
+    border-radius: 999px;
+    background: var(--cream);
+}
+
+.mq-step.is-done::after {
+    background: var(--orange);
+}
+
+.mq-step-dot {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--cream);
+}
+
+.mq-step.is-done .mq-step-dot {
+    background: var(--orange);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.mq-step-dot img {
+    width: 15px;
+    height: 11px;
+}
+
+.mq-step.is-active .mq-step-dot {
+    border: 3px solid var(--orange);
+    background: var(--white);
+}
+
+.mq-step.is-active .mq-step-dot::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--orange);
+}
+
+/* label under each circle */
+.mq-step-dot small {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--line);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* the ring on the current step pushes its label up 3px; this lines it up */
+.mq-step.is-active .mq-step-dot small {
+    top: calc(100% + 11px);
+}
+
+.mq-step.is-done small,
+.mq-step.is-active small {
+    color: var(--orange);
+}
+
+@media (max-width: 640px) {
+    .matchmaking-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px 24px;
+    }
+
+    .matchmaking-steps {
+        padding: 16px 40px 32px;
+    }
+}
+
+/* ===== Step cards: numbered heading ===== */
+.matchmaking-step-heading {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.matchmaking-step-heading .mqs-num {
+    grid-row: span 2;
+    align-self: start;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--orange);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
+}
+
+.matchmaking-step-heading h3 {
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.matchmaking-step-heading p {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ===== Choice-button form (step 1) ===== */
+.mqs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 16px;
+}
+
+.mqs-full {
+    grid-column: 1 / -1;
+}
+
+.mqs-field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mqs-label {
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mqs-label em {
+    color: var(--red);
+    font-style: normal;
+}
+
+/* box style: equal-width buttons */
+.mqs-choices {
+    gap: 8px;
+}
+
+.mqs-choices button {
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 1px solid rgba(251, 133, 0, 0.3);
+    border-radius: 12px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.mqs-choices button:hover {
+    border-color: var(--orange);
+    background: var(--amber-soft);
+}
+
+.mqs-choices button.is-selected {
+    border-color: var(--orange);
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    color: var(--white);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.mqs-choices button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.mqs-choices.is-pill button {
+    min-height: 38px;
+    padding: 8px 16px;
+    border-radius: 999px;
+}
+
+/* "What are you looking for?" divider */
+.mqs-subhead {
+    margin: 8px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid rgba(90, 27, 0, 0.1);
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+@media (max-width: 640px) {
+    .mqs-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Choice buttons: compact width + softer colors ===== */
+.mqs-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mqs-choices button {
+    flex: 0 0 auto;
+    min-width: 110px;
+    min-height: 38px;
+    padding: 8px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    background: var(--paper);
+    color: var(--brown);
+    font-weight: 600;
+}
+
+.mqs-choices button:hover {
+    border-color: rgba(251, 133, 0, 0.55);
+    background: var(--paper);
+}
+
+.mqs-choices button.is-selected {
+    border-color: var(--orange);
+    background: var(--peach);
+    color: #8a3a00;
+    font-weight: 800;
+    box-shadow: inset 0 0 0 1px var(--orange);
+}
+
+.mqs-choices.is-pill button {
+    min-width: 0;
+}
+
+@media (max-width: 640px) {
+    .mqs-choices {
+        display: flex;
+    }
+
+    .mqs-choices button {
+        flex: 1 1 auto;
+    }
+}
+
+/* ===== Layout: step card on the left, "Why we ask" card on the right ===== */
+.matchmaking-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 290px;
+    column-gap: 20px;
+    align-items: start;
+}
+
+.matchmaking-form > * {
+    grid-column: 1;
+}
+
+.matchmaking-form > .mq-why {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    position: sticky;
+    top: 20px;
+}
+
+/* ===== "Why we ask" card ===== */
+.mq-why {
+    padding: 24px 24px 20px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 20px;
+    background: var(--paper);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.mq-why-eyebrow {
+    display: block;
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mq-why h3 {
+    margin: 4px 0 16px;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.mq-why ul {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mq-why li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--brown-soft);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.mq-why-check {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: var(--green-soft);
+}
+
+.mq-why-check svg {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: var(--green-dark);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* stack on smaller screens: card goes below the buttons */
+@media (max-width: 900px) {
+    .matchmaking-form {
+        grid-template-columns: 1fr;
+    }
+
+    .matchmaking-form > .mq-why {
+        grid-column: 1;
+        grid-row: auto;
+        position: static;
+        margin-top: 16px;
+    }
+}
+
+/* ===== One-question-at-a-time card ===== */
+.mq-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 32px 24px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 20px;
+    background: var(--paper);
+    box-shadow: var(--shadow-dropdown);
+    text-align: center;
+    animation: mq-card-in 0.25s ease;
+}
+
+@keyframes mq-card-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* "3 / 18" + thin bar */
+.mq-card-count {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.mq-card-count span {
+    flex-shrink: 0;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 20px;
+}
+
+.mq-card-count b {
+    color: var(--orange);
+    font-weight: 400;
+}
+
+.mq-card-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--cream);
+    overflow: hidden;
+}
+
+.mq-card-bar > div {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    transition: width 0.3s ease;
+}
+
+.mq-card-chip {
+    padding: 4px 12px;
+    border: 1px solid rgba(214, 40, 40, 0.25);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mq-card-title {
+    max-width: 560px;
+    margin: 16px 0 0;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: clamp(26px, 2.6vw, 34px);
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.mq-card-hint {
+    margin: 8px 0 20px;
+    color: var(--brown-soft);
+    font-size: 14px;
+}
+
+/* answer list */
+.mq-options {
+    width: 100%;
+    max-width: 560px;
+    display: grid;
+    gap: 8px;
+}
+
+.mq-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.16);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--brown);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mq-option:hover {
+    border-color: rgba(251, 133, 0, 0.55);
+    background: var(--paper);
+}
+
+.mq-option.is-selected {
+    border-color: var(--orange);
+    background: var(--white);
+    box-shadow: inset 0 0 0 1px var(--orange), 0 6px 14px rgba(251, 133, 0, 0.12);
+}
+
+.mq-option:focus-visible {
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.3);
+}
+
+.mq-option-dot {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    border: 2px solid rgba(251, 133, 0, 0.45);
+    border-radius: 50%;
+    background: var(--white);
+}
+
+.mq-option.is-selected .mq-option-dot {
+    border-color: var(--orange);
+    background: var(--orange);
+}
+
+.mq-option-dot img {
+    width: 11px;
+    height: 8px;
+}
+
+.mq-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.mq-option-text b {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.mq-option-text small {
+    color: var(--brown-muted);
+    font-size: 12px;
+}
+
+@media (max-width: 640px) {
+    .mq-card {
+        padding: 16px 16px 20px;
+    }
+}
+
+/* ===== Small animations ===== */
+
+/* answers slide in one after another */
+.mq-option {
+    animation: mq-option-in 0.35s ease both;
+}
+
+.mq-option:nth-child(1) { animation-delay: 0.05s; }
+.mq-option:nth-child(2) { animation-delay: 0.10s; }
+.mq-option:nth-child(3) { animation-delay: 0.15s; }
+.mq-option:nth-child(4) { animation-delay: 0.20s; }
+.mq-option:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes mq-option-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* title and chip fade in with the card */
+.mq-card-chip,
+.mq-card-title,
+.mq-card-hint {
+    animation: mq-fade-in 0.35s ease both;
+}
+
+@keyframes mq-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* selected answer: small bump + checkmark pop */
+.mq-option.is-selected {
+    animation: mq-option-pick 0.25s ease;
+}
+
+@keyframes mq-option-pick {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.015); }
+    100% { transform: scale(1); }
+}
+
+.mq-option.is-selected .mq-option-dot img {
+    animation: mq-check-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes mq-check-pop {
+    from { opacity: 0; transform: scale(0.3); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* current step in the tracker pulses softly */
+.mq-step.is-active .mq-step-dot {
+    animation: mq-step-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes mq-step-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 133, 0, 0.35); }
+    50% { box-shadow: 0 0 0 7px rgba(251, 133, 0, 0); }
+}
+
+/* buttons lift a little on hover */
+.matchmaking-back-button:hover:not(:disabled),
+.matchmaking-next-button:hover:not(:disabled),
+.matchmaking-submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+/* respect "reduce motion" in the user's device settings */
+@media (prefers-reduced-motion: reduce) {
+    .mq-card,
+    .mq-option,
+    .mq-card-chip,
+    .mq-card-title,
+    .mq-card-hint,
+    .mq-option.is-selected,
+    .mq-option.is-selected .mq-option-dot img,
+    .mq-step.is-active .mq-step-dot {
+        animation: none;
+    }
+}
+
+/* ===== Preferences: paw slider ===== */
+.mq-slider {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 24px 16px;
+    border: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 20px;
+    background: var(--paper);
+}
+
+/* big level label that pops when it changes */
+.mq-slider-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    animation: mq-value-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mq-slider-value b {
+    color: var(--orange);
+    font-family: "Itim", cursive;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.mq-slider-value small {
+    color: var(--brown-muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+@keyframes mq-value-pop {
+    0% { opacity: 0; transform: scale(0.7) translateY(4px); }
+    100% { opacity: 1; transform: none; }
+}
+
+/* the track */
+.mq-slider input[type="range"] {
+    width: 100%;
+    height: 10px;
+    margin: 8px 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        var(--orange) 0%,
+        var(--orange-light) var(--fill),
+        var(--cream) var(--fill),
+        var(--cream) 100%
+    );
+    cursor: pointer;
+}
+
+/* the thumb: orange circle with your white paw */
+.mq-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 34px;
+    height: 34px;
+    border: 3px solid var(--white);
+    border-radius: 50%;
+    background: var(--orange) url("/icons/sidebar/brown%20paw-light.svg") no-repeat center / 16px;
+    box-shadow: var(--shadow-card);
+    cursor: grab;
+    transition: transform 0.15s ease;
+}
+
+.mq-slider input[type="range"]::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--white);
+    border-radius: 50%;
+    background: var(--orange) url("/icons/sidebar/brown%20paw-light.svg") no-repeat center / 16px;
+    box-shadow: var(--shadow-card);
+    cursor: grab;
+}
+
+.mq-slider input[type="range"]:hover::-webkit-slider-thumb {
+    transform: scale(1.08);
+}
+
+.mq-slider input[type="range"]:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.3);
+}
+
+/* clickable labels under the track,
+   sized so each label sits right under its thumb position */
+.mq-slider-ticks {
+    width: calc(125% - 42.5px);
+    margin-left: calc(21.25px - 12.5%);
+    align-self: flex-start;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.mq-slider-ticks button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--line);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.mq-slider-ticks button span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--cream);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.mq-slider-ticks button.is-on {
+    color: #8a3a00;
+}
+
+.mq-slider-ticks button.is-on span {
+    background: var(--orange);
+    transform: scale(1.2);
+}
+
+.mq-slider-ticks button:hover span {
+    transform: scale(1.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mq-slider-value,
+    .mq-slider input[type="range"]:active::-webkit-slider-thumb {
+        animation: none;
+    }
+}
+
+/* ===== Paw wiggle: stronger and faster at higher levels ===== */
+.mq-slider input[type="range"]::-webkit-slider-thumb {
+    animation: mq-paw-wiggle var(--wiggle-speed, 0.7s) ease-in-out infinite;
+}
+
+.mq-slider input[type="range"]::-moz-range-thumb {
+    animation: mq-paw-wiggle var(--wiggle-speed, 0.7s) ease-in-out infinite;
+}
+
+/* dragging: slightly bigger */
+.mq-slider input[type="range"]:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    scale: 1.12;
+}
+
+@keyframes mq-paw-wiggle {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(calc(var(--wiggle, 10deg) * -1)) scale(var(--wiggle-bounce, 1));
+    }
+    75% {
+        transform: rotate(var(--wiggle, 10deg)) scale(var(--wiggle-bounce, 1));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mq-slider input[type="range"]::-webkit-slider-thumb,
+    .mq-slider input[type="range"]::-moz-range-thumb {
+        animation: none;
+    }
+}
+
+/* ===== Quiz intro screen ===== */
+.mq-intro {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 775px;
+    padding: 48px 24px 56px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--yellow) 0%, var(--peach) 100%);
+    color: var(--brown);
+    text-align: center;
+    justify-content: center;
+}
+
+/* keep content above the background paw */
+.mq-intro > :not(.mq-intro-paw) {
+    position: relative;
+}
+
+.mq-intro-paw {
+    position: absolute;
+    right: -70px;
+    bottom: -100px;
+    width: 550px;
+    opacity: 0.55;
+    transform: rotate(-15deg);
+    pointer-events: none;
+}
+
+.mq-intro-brand {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 24px;
+}
+
+.mq-intro-logo {
+    width: 150px;
+    margin: 28px 0 8px;
+}
+
+.mq-intro h2 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.mq-intro h2 span {
+    color: var(--orange-dark);
+}
+
+.mq-intro-text {
+    max-width: 420px;
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.mq-intro-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 36px;
+    padding: 16px 40px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    box-shadow: var(--shadow-dropdown);
+    color: var(--brown);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Take/Retake + See Recommendations side by side */
+.mq-intro-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 36px;
+}
+
+.mq-intro-actions .mq-intro-button {
+    margin-top: 0;
+}
+
+.mq-intro-button.is-secondary {
+    border: 1.5px solid var(--brown);
+    background: var(--paper);
+    box-shadow: none;
+}
+
+.mq-intro-button.is-secondary:hover {
+    background: var(--white-yellow);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.mq-intro-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.mq-intro-button:focus-visible {
+    outline: 3px solid var(--brown);
+    outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+    .mq-intro {
+        min-height: 0;
+        padding: 36px 16px 44px;
+    }
+
+    .mq-intro-paw {
+        width: 240px;
+        right: -60px;
+        bottom: -60px;
+    }
+
+    .mq-intro-logo {
+        width: 110px;
+    }
+}
+
+/* ===== Question screen (mockup 3) ===== */
+.matchmaking-module {
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 120px);
+    padding: 28px 24px 32px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--paper) 0%, var(--peach) 100%);
+}
+
+.mq-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* "Question 4 of 18" between the back and next arrows */
+.mq-count {
+    margin: 0;
+    color: var(--brown-soft);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mq-top button {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+}
+
+.mq-top button img {
+    width: 16px;
+}
+
+/* same arrow, mirrored to point forward */
+.mq-top-next img {
+    transform: scaleX(-1);
+}
+
+.mq-top button:hover:not(:disabled) {
+    background: var(--white-yellow);
+}
+
+.mq-top button:focus-visible {
+    outline: 3px solid var(--orange);
+    outline-offset: 2px;
+}
+
+.mq-top button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+/* question sits in the middle of the card */
+.matchmaking-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 0;
+}
+
+.matchmaking-form > * {
+    width: 100%;
+    max-width: 380px;
+}
+
+.mq-card {
+    align-items: flex-start;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    text-align: left;
+}
+
+.mq-card-chip {
+    padding: 8px 20px;
+    border: 0;
+    border-radius: 12px 4px 12px 4px;
+    background: var(--yellow);
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.mq-card-title {
+    margin-top: 12px;
+    font-size: clamp(24px, 2.4vw, 28px);
+}
+
+.mq-card-hint {
+    margin: 4px 0 16px;
+    font-size: 12px;
+}
+
+.mq-options {
+    max-width: none;
+    gap: 8px;
+}
+
+.mq-option {
+    padding: 16px 16px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.mq-option:hover {
+    background: var(--white);
+}
+
+.mq-option.is-selected {
+    background: var(--white);
+    box-shadow: inset 0 0 0 2px var(--orange), 0 4px 14px rgba(251, 133, 0, 0.16);
+}
+
+.mq-option-dot {
+    width: 20px;
+    height: 20px;
+}
+
+.mq-slider {
+    max-width: none;
+    border: 0;
+    background: var(--paper);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.matchmaking-actions {
+    margin-top: 16px;
+    padding: 0;
+}
+
+/* brown label: white on orange fails contrast */
+.matchmaking-submit-button {
+    width: 100%;
+    border-radius: 999px;
+    color: var(--brown);
+    font-size: 14px;
+}
+
+/* 3 dashes = Home, Lifestyle, Preferences; each fills as you go */
+.mq-dashes {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.mq-dashes span {
+    width: 28px;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(251, 133, 0, 0.25);
+}
+
+.mq-dashes i {
+    display: block;
+    height: 100%;
+    background: var(--orange);
+    transition: width 0.3s ease;
+}
+
+@media (max-width: 640px) {
+    .matchmaking-module {
+        min-height: calc(100vh - 90px);
+        padding: 20px 16px 24px;
+    }
+}
+>>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
