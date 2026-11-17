@@ -39,7 +39,7 @@
     justify-content: center;
     gap: 8px;
     min-height: 44px;
-    padding: 0 18px;
+    padding: 0 16px;
     border: 1.5px solid var(--orange);
     border-radius: 12px;
     background: var(--white);
@@ -129,8 +129,8 @@
 /* Small: compact rows and cards on desktop (touch screens still get 44px from App.css) */
 #root :is(.ao-btn.sm, .dl-btn.small, .qrt-btn.small, .vr-btn, .lf-card-btn, .afl-ask-btn, .afl-return-btn, .lf-select-btn, .lfr2-photo-btn, .edit-btn, .deactivate-btn) {
     min-height: 40px;
-    padding: 0 14px;
-    font-size: 13px;
+    padding: 0 16px;
+    font-size: 14px;
 }
 
 /* Pressed */

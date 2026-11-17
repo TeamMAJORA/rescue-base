@@ -2,6 +2,7 @@ import {
     useRef, useState
 } from "react";
 import { fireSideCannons } from "../../../utils/confetti";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -343,7 +344,7 @@ if (!started) {
             <img className="mq-intro-logo" src="/Logo.svg" alt="" />
 
             <h2>
-                Find Your <span>Perfect Pet Match</span>
+                Find Your <span>Perfect pet match</span>
             </h2>
 
             <p className="mq-intro-text">
@@ -358,7 +359,7 @@ if (!started) {
                     className="mq-intro-button"
                     onClick={() => setStarted(true)}
                 >
-                    {hasTakenQuiz ? "Retake Quiz" : "Take the Quiz"} <span aria-hidden="true">→</span>
+                    {hasTakenQuiz ? "Retake quiz" : "Take the quiz"} <Icon name="arrow-right" />
                 </button>
 
                 {hasTakenQuiz && (
@@ -367,7 +368,7 @@ if (!started) {
                         className="mq-intro-button is-secondary"
                         onClick={() => onSeeRecommendations?.()}
                     >
-                        See Recommendations
+                        See recommendations
                     </button>
                 )}
             </div>
@@ -510,7 +511,7 @@ if (!started) {
                             className="matchmaking-submit-button"
                             disabled={submitting}
                         >
-                            {submitting ? "Saving Preferences..." : "Complete Matchmaking Quiz"}
+                            {submitting ? "Saving preferences…" : "Complete Matchmaking Quiz"}
                         </button>
                     </div>
                 )}          
@@ -536,4 +537,3 @@ if (!started) {
         </section>
     );
 }
-

@@ -1,0 +1,130 @@
+/* Shared feedback look (audit L1-L3): loading, messages, empty states.
+   Imported last in App.jsx. "#root :is(...)" beats module rules, so class names stay. */
+
+/* L1 Loading: one spinner, one layout. Component: components/system/LoadingState.jsx */
+.rb-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 16px;
+    color: var(--brown-muted);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.rb-loading.is-inline {
+    padding: 0;
+}
+
+.rb-spinner {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    border: 2px solid var(--peach);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: rb-spin 0.8s linear infinite;
+}
+
+@keyframes rb-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rb-spinner { animation-duration: 2.4s; }
+}
+
+/* L2 Messages. Order matters: base/info, then success, then error. */
+#root :is(
+    .ao-alert, .gs-alert, .qrt-alert, .foster-alert, .browse-pets-message,
+    .lost-found-message, .feedback-message, .auth-message, .ao-banner,
+    .admin-animal-message, .foster-message, .assignment-message
+) {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 8px 16px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+#root :is(
+    .ao-alert.success, .gs-alert.success, .qrt-alert.success, .foster-alert.success,
+    .lost-found-message.success, .feedback-success, .auth-message-success, .ao-banner.green,
+    .fs-success, .role-application-success, .admin-gis-success, .fb2-notice
+) {
+    border: 1px solid color-mix(in srgb, var(--green) 35%, transparent);
+    border-radius: 12px;
+    padding: 8px 16px;
+    background: var(--green-soft);
+    color: var(--green-dark);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+#root :is(
+    .ao-alert.error, .gs-alert.error, .qrt-alert.error, .foster-alert.error,
+    .lost-found-message.error, .browse-pets-message.error, .feedback-error,
+    .auth-message-error, .ao-banner.red,
+    .al2-error, .db2-error, .fs-error, .fs-error-banner, .fb2-error, .if2-error,
+    .fah-return-error, .role-application-error, .admin-gis-error, .an2-error
+) {
+    border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+    border-radius: 12px;
+    padding: 8px 16px;
+    background: var(--red-soft);
+    color: var(--red-dark);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+/* Field-level error: text under the field, no box. */
+#root :is(
+    .admin-doc-request-error, .admin-review-error, .adoption-field-error, .afr-reason-error,
+    .ao-prompt-error, .application-withdraw-error, .asp-doc-error, .dl-notreceived-error,
+    .donation-copy-error, .fdb-revoke-error, .ffc-error, .lf-claim-error, .lfr2-error, .rp-error
+) {
+    margin: 4px 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--red-dark);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* L3 Empty states. List-level: centred block. Inline: muted line inside a card. */
+#root :is(
+    .admin-empty, .afc-empty, .ahx-empty, .al2-empty, .ao-empty, .art-empty, .dl-empty,
+    .fb-history-empty, .fb2-empty, .gm-empty, .lf2-empty, .qrt-empty, .rp-empty, .rs2-empty,
+    .np-empty, .fdo-activity-empty
+) {
+    margin: 0;
+    padding: 32px 16px;
+    color: var(--brown-muted);
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+}
+
+#root :is(
+    .admin-preview-empty, .pp-empty, .donation-info-empty, .fah-contact-empty, .lf-match-empty,
+    .afr-picker-empty, .supporters-empty, .apm-qr-empty, .db2-empty
+) {
+    color: var(--brown-muted);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* F9 icons: components/system/Icon.jsx */
+.rb-icon {
+    display: inline-block;
+    flex: 0 0 auto;
+    vertical-align: -0.125em;
+}

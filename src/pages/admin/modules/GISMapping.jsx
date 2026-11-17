@@ -17,6 +17,9 @@ import "leaflet/dist/leaflet.css";
 import assets from "../../../data/assets.json";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
+import NumberInput from "../../../components/system/NumberInput";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -1140,7 +1143,7 @@ export default function GISMapping({ onOpenLostFound }) {
     }
 
     async function gmSetReportSpot(latitude, longitude, where) {
-        setGmReport((current) => ({ ...current, where, latitude, longitude, placeName: "Finding address...", placeCity: "" }));
+        setGmReport((current) => ({ ...current, where, latitude, longitude, placeName: "Finding address…", placeCity: "" }));
         const place = await reverseGeocode(latitude, longitude);
         setGmReport((current) =>
             current.latitude === latitude && current.longitude === longitude
@@ -1583,7 +1586,7 @@ export default function GISMapping({ onOpenLostFound }) {
                             <input
                                 type="search"
                                 value={gmQuery}
-                                placeholder="Search a place in Cebu..."
+                                placeholder="Search a place in Cebu…"
                                 aria-label="Search a place"
                                 onChange={(event) => {
                                     setGmQuery(event.target.value);
@@ -1602,7 +1605,7 @@ export default function GISMapping({ onOpenLostFound }) {
                             />
                             {gmSearchOpen && gmQuery.trim().length >= 3 && (
                                 <ul className="gm-map-results">
-                                    {gmSearching && gmResults.length === 0 && <li className="is-note">Searching...</li>}
+                                    {gmSearching && gmResults.length === 0 && <li className="is-note">Searching…</li>}
                                     {!gmSearching && gmResults.length === 0 && <li className="is-note">No places found in Cebu.</li>}
                                     {gmResults.map((place) => (
                                         <li key={place.id}>
@@ -1693,7 +1696,7 @@ export default function GISMapping({ onOpenLostFound }) {
                             <div><span className="gm-hot-dot" /> Hotspot (500 m)</div>
                         </div>
 
-                        {loading && <div className="admin-gis-map-loading">Loading map reports...</div>}
+                        {loading && <div className="admin-gis-map-loading"><LoadingState label="Loading map reports…" inline /></div>}
                     </div>
 
                     {/* Side panel */}
@@ -1780,9 +1783,9 @@ export default function GISMapping({ onOpenLostFound }) {
 
                                             <div className="gm-list">
                                                 {loading ? (
-                                                    <p className="gm-empty">Loading reports...</p>
+                                                    <LoadingState label="Loading reports…" />
                                                 ) : gmFiltered.length === 0 ? (
-                                                    <p className="gm-empty">No reports match these filters.</p>
+                                                    <p className="gm-empty">No reports match your filters.</p>
                                                 ) : (
                                                     gmFiltered.map((location) => (
                                                         <article className="gm-row" key={location._id}>
@@ -1889,7 +1892,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                         <div className="gm-list">
                                             {hotspotError && <div className="admin-gis-error">{hotspotError}</div>}
                                             {hotspotLoading ? (
-                                                <p className="gm-empty">Loading hotspots...</p>
+                                                <LoadingState label="Loading hotspots…" />
                                             ) : hotspots.length === 0 ? (
                                                 <p className="gm-empty">No hotspots yet. Hotspots need 2 or more open reports within 500 m.</p>
                                             ) : (
@@ -1921,7 +1924,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                             {shelterError && <div className="admin-gis-error">{shelterError}</div>}
                                             {shelterSuccess && <div className="admin-gis-success">{shelterSuccess}</div>}
                                             {shelterLoading ? (
-                                                <p className="gm-empty">Loading shelters...</p>
+                                                <LoadingState label="Loading shelters…" />
                                             ) : shelters.length === 0 ? (
                                                 <p className="gm-empty">No shelters yet. Use Add shelter to place one.</p>
                                             ) : (
@@ -1962,7 +1965,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                         <p className="gm-empty">No hotspots yet.</p>
                                     )}
                                     <button type="button" className="gm-btn gm-btn-primary gm-block" onClick={loadHotspots} disabled={hotspotLoading}>
-                                        {hotspotLoading ? "Analyzing..." : "Run hotspot analysis"}
+                                        {hotspotLoading ? "Analyzing…" : "Run hotspot analysis"}
                                     </button>
                                     <label className="gm-switch">
                                         <span>
@@ -1986,11 +1989,12 @@ export default function GISMapping({ onOpenLostFound }) {
                                     <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
                                 </div>
 
-                                <div className="gm-seg">
+                                <div className="gm-seg" role="group" aria-label="Report type">
                                     {reportTypes.map((type) => (
                                         <button
                                             key={type}
                                             type="button"
+                                            aria-pressed={gmReport.reportType === type}
                                             className={gmReport.reportType === type ? "is-active" : ""}
                                             onClick={() => setGmReport((current) => ({ ...current, reportType: type }))}
                                         >
@@ -2008,15 +2012,15 @@ export default function GISMapping({ onOpenLostFound }) {
                                     </div>
                                 )}
 
-                                <span className="gm-label">Where?</span>
-                                <div className="gm-where">
+                                <span className="gm-label" id="gm-report-where">Where?</span>
+                                <div className="gm-where" role="group" aria-labelledby="gm-report-where">
                                     <button
                                         type="button"
                                         className={gmReport.where === "me" ? "is-me" : ""}
                                         onClick={() => gmChooseWhere("me")}
                                     >
                                         <img src="/gis/icon-find-nearest.svg" alt="" />
-                                        {gmLocating ? "Locating..." : "Use my location"}
+                                        {gmLocating ? "Locating…" : "Use my location"}
                                     </button>
                                     <button
                                         type="button"
@@ -2044,16 +2048,17 @@ export default function GISMapping({ onOpenLostFound }) {
                                     </div>
                                 ) : (
                                     <p className="gm-empty">
-                                        {gmReport.where === "pin" ? "Tap the map where it happened." : "Getting your location..."}
+                                        {gmReport.where === "pin" ? "Tap the map where it happened." : "Getting your location…"}
                                     </p>
                                 )}
 
-                                <span className="gm-label">Animal</span>
-                                <div className="gm-seg">
+                                <span className="gm-label" id="gm-report-animal">Animal</span>
+                                <div className="gm-seg" role="group" aria-labelledby="gm-report-animal">
                                     {[["dog", "Dog"], ["cat", "Cat"], ["unknown", "Not sure"]].map(([value, label]) => (
                                         <button
                                             key={value}
                                             type="button"
+                                            aria-pressed={gmReport.species === value}
                                             className={gmReport.species === value ? "is-active" : ""}
                                             onClick={() => setGmReport((current) => ({ ...current, species: value }))}
                                         >
@@ -2064,8 +2069,9 @@ export default function GISMapping({ onOpenLostFound }) {
 
                                 {(gmReport.reportType === "lost" || gmReport.reportType === "found") && (
                                     <>
-                                        <span className="gm-label">Pet name (optional)</span>
+                                        <label className="gm-label" htmlFor="gm-report-pet-name">Pet name (optional)</label>
                                         <input
+                                            id="gm-report-pet-name"
                                             className="gm-input"
                                             value={gmReport.petName}
                                             onChange={(e) => setGmReport((current) => ({ ...current, petName: e.target.value }))}
@@ -2074,21 +2080,23 @@ export default function GISMapping({ onOpenLostFound }) {
                                     </>
                                 )}
 
-                                <span className="gm-label">What did you see?</span>
+                                <label className="gm-label" htmlFor="gm-report-description">What did you see?</label>
                                 <textarea
+                                    id="gm-report-description"
                                     className="gm-input"
                                     rows={3}
                                     value={gmReport.description}
                                     onChange={(e) => setGmReport((current) => ({ ...current, description: e.target.value }))}
-                                    placeholder="Color, size, condition, landmarks..."
+                                    placeholder="Color, size, condition, landmarks…"
                                 />
 
-                                <span className="gm-label">Status</span>
-                                <div className="gm-seg">
+                                <span className="gm-label" id="gm-report-status">Status</span>
+                                <div className="gm-seg" role="group" aria-labelledby="gm-report-status">
                                     {[["open", "Open"], ["resolved", "Rescued now"]].map(([value, label]) => (
                                         <button
                                             key={value}
                                             type="button"
+                                            aria-pressed={gmReport.status === value}
                                             className={gmReport.status === value ? "is-active" : ""}
                                             onClick={() => setGmReport((current) => ({ ...current, status: value }))}
                                         >
@@ -2099,7 +2107,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                 <p className="gm-note">"Rescued now" saves it as resolved, e.g. when staff pick the animal up on the spot.</p>
 
                                 <button type="submit" className="gm-btn gm-btn-primary gm-block" disabled={submitting}>
-                                    {submitting ? "Saving..." : editingLocationId ? "Save changes" : "Submit report"}
+                                    {submitting ? "Saving…" : editingLocationId ? "Save changes" : "Submit report"}
                                 </button>
                             </form>
                         )}
@@ -2140,7 +2148,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                 <div className="gm-where">
                                     <button type="button" className={gmShelterWhere === "me" ? "is-me" : ""} onClick={gmShelterUseMe}>
                                         <img src="/gis/icon-find-nearest.svg" alt="" />
-                                        {gmLocating ? "Locating..." : "Use my location"}
+                                        {gmLocating ? "Locating…" : "Use my location"}
                                     </button>
                                     <button type="button" className={gmShelterWhere === "pin" ? "is-pin" : ""} onClick={() => setGmShelterWhere("pin")}>
                                         <img src="/gis/new-sighting-pin.svg" alt="" />
@@ -2197,7 +2205,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                 <div className="gm-two">
                                     <button type="button" className="gm-btn gm-btn-ghost" onClick={gmClosePanel}>Cancel</button>
                                     <button type="submit" className="gm-btn gm-btn-primary" disabled={savingShelter}>
-                                        {savingShelter ? "Saving..." : "Save"}
+                                        {savingShelter ? "Saving…" : "Save"}
                                     </button>
                                 </div>
                             </form>
@@ -2211,7 +2219,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                 </div>
                                 <p className="gm-sub">
                                     {gmLocating
-                                        ? "Getting your location..."
+                                        ? "Getting your location…"
                                         : userLocation
                                             ? "From your current location"
                                             : `Allow location access to see the closest ${gmNearestCategory === "clinic" ? "vet clinics" : "shelters"}.`}
@@ -2254,22 +2262,22 @@ export default function GISMapping({ onOpenLostFound }) {
             {/* GIS statistics */}
             <section className="admin-gis-stats">
                 <article className="admin-panel admin-gis-stat-card">
-                    <span>Total Map Reports</span>
+                    <span>Total map reports</span>
                     <strong>{locations.length}</strong>
                 </article>
 
                 <article className="admin-panel admin-gis-stat-card">
-                    <span>Open Cases</span>
+                    <span>Open cases</span>
                     <strong>{openCases}</strong>
                 </article>
 
                 <article className="admin-panel admin-gis-stat-card">
-                    <span>Lost Pet Cases</span>
+                    <span>Lost pet cases</span>
                     <strong>{lostCases}</strong>
                 </article>
 
                 <article className="admin-panel admin-gis-stat-card">
-                    <span>Active Shelters</span>
+                    <span>Active shelters</span>
                     <strong>{activeShelters.length}</strong>
                 </article>
             </section>
@@ -2282,8 +2290,8 @@ export default function GISMapping({ onOpenLostFound }) {
                             {userRole === "volunteer"
                                 ? "Record Stray Sighting"
                                 : editingLocationId
-                                    ? "Edit Map Location"
-                                    : "Add Map Location"}
+                                    ? "Edit map location"
+                                    : "Add map location"}
                         </h2>
                     </div>
 
@@ -2309,11 +2317,11 @@ export default function GISMapping({ onOpenLostFound }) {
                                         handleFormChange("reportType", e.target.value)
                                     }
                                 >
-                                    <option value="lost">Lost Pet</option>
-                                    <option value="found">Found Pet</option>
-                                    <option value="stray">Stray Animal</option>
-                                    <option value="rescue">Rescue Location</option>
-                                    <option value="intake">Shelter Intake</option>
+                                    <option value="lost">Lost pet</option>
+                                    <option value="found">Found pet</option>
+                                    <option value="stray">Stray animal</option>
+                                    <option value="rescue">Rescue location</option>
+                                    <option value="intake">Shelter intake</option>
                                 </select>
                             </label>
                         )}
@@ -2334,7 +2342,7 @@ export default function GISMapping({ onOpenLostFound }) {
                         </label>
 
                         <label>
-                            Location Name
+                            Location name
                             <input
                                 value={locationForm.locationName}
                                 onChange={(e) =>
@@ -2347,8 +2355,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Latitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-90"
                                 max="90"
@@ -2362,8 +2369,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Longitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-180"
                                 max="180"
@@ -2403,12 +2409,12 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <button type="submit" disabled={submitting || !userRole}>
                             {submitting
-                                ? "Saving..."
+                                ? "Saving…"
                                 : userRole === "volunteer"
                                     ? "Record Stray Sighting"
                                     : editingLocationId
-                                        ? "Save Changes"
-                                        : "Add Location"}
+                                        ? "Save changes"
+                                        : "Add location"}
                         </button>
 
                         {editingLocationId && (
@@ -2417,7 +2423,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                 onClick={handleCancelEdit}
                                 disabled={submitting}
                             >
-                                Cancel Edit
+                                Cancel edit
                             </button>
                         )}
                     </form>
@@ -2558,9 +2564,7 @@ export default function GISMapping({ onOpenLostFound }) {
                         </MapContainer>
 
                         {loading && (
-                            <div className="admin-gis-map-loading">
-                                Loading GIS locations...
-                            </div>
+                            <div className="admin-gis-map-loading"><LoadingState label="Loading GIS locations…" inline /></div>
                         )}
                     </div>
                 </section>
@@ -2569,14 +2573,14 @@ export default function GISMapping({ onOpenLostFound }) {
             {/* Manage reports */}
             <section className="admin-panel admin-gis-list-panel">
                 <div className="admin-panel-heading">
-                    <h2>Mapped Reports</h2>
+                    <h2>Mapped reports</h2>
                 </div>
 
                 <div className="admin-gis-list">
                     {loading ? (
-                        <div>Loading reports...</div>
+                        <LoadingState label="Loading reports…" />
                     ) : locations.length === 0 ? (
-                        <div>No mapped reports found.</div>
+                        <div>No mapped reports yet.</div>
                     ) : (
                         locations.map((location) => (
                             <article className="admin-gis-row" key={location._id}>
@@ -2642,7 +2646,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                                 }
                                             >
                                                 {deletingId === location._id
-                                                    ? "Deleting..."
+                                                    ? "Deleting…"
                                                     : "Delete"}
                                             </button>
                                         </>
@@ -2662,7 +2666,7 @@ export default function GISMapping({ onOpenLostFound }) {
                 >
                     <div className="admin-panel-heading">
                         <div>
-                            <h2>Manage Shelters</h2>
+                            <h2>Manage shelters</h2>
                             <p>
                                 Register and maintain physical animal shelters.
                                 This is separate from animal intake records.
@@ -2705,8 +2709,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Latitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-90"
                                 max="90"
@@ -2723,8 +2726,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Longitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-180"
                                 max="180"
@@ -2740,7 +2742,7 @@ export default function GISMapping({ onOpenLostFound }) {
                         </label>
 
                         <label>
-                            Contact Number
+                            Contact number
                             <input
                                 type="tel"
                                 value={shelterForm.contact}
@@ -2789,10 +2791,10 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <button type="submit" disabled={savingShelter}>
                             {savingShelter
-                                ? "Saving..."
+                                ? "Saving…"
                                 : editingShelterId
-                                    ? "Save Shelter Changes"
-                                    : "Register Shelter"}
+                                    ? "Save shelter changes"
+                                    : "Register shelter"}
                         </button>
 
                         {editingShelterId && (
@@ -2801,13 +2803,13 @@ export default function GISMapping({ onOpenLostFound }) {
                                 onClick={cancelShelterEdit}
                                 disabled={savingShelter}
                             >
-                                Cancel Edit
+                                Cancel edit
                             </button>
                         )}
                     </form>
 
                     <div className="admin-panel-heading">
-                        <h3>Registered Shelters</h3>
+                        <h3>Registered shelters</h3>
                         <button
                             type="button"
                             onClick={loadShelters}
@@ -2818,7 +2820,7 @@ export default function GISMapping({ onOpenLostFound }) {
                     </div>
 
                     {shelterLoading ? (
-                        <div>Loading shelters...</div>
+                        <LoadingState label="Loading shelters…" />
                     ) : shelters.length === 0 ? (
                         <div>No shelters registered yet.</div>
                     ) : (
@@ -2874,7 +2876,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                             }
                                         >
                                             {changingShelterId === shelter._id
-                                                ? "Updating..."
+                                                ? "Updating…"
                                                 : shelter.status === "active"
                                                     ? "Deactivate"
                                                     : "Activate"}
@@ -2891,7 +2893,7 @@ export default function GISMapping({ onOpenLostFound }) {
             <section className="admin-panel admin-nearest-shelter-panel">
                 <div className="admin-panel-heading">
                     <div>
-                        <h2>Find Nearest Shelter</h2>
+                        <h2>Find nearest shelter</h2>
                         <p>
                             Find active shelters using your current location
                             or enter coordinates manually.
@@ -2909,7 +2911,7 @@ export default function GISMapping({ onOpenLostFound }) {
                         onClick={useMyLocation}
                         disabled={shelterLoading}
                     >
-                        Use My Location
+                        Use my location
                     </button>
 
                     <form
@@ -2918,8 +2920,7 @@ export default function GISMapping({ onOpenLostFound }) {
                     >
                         <label>
                             Latitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-90"
                                 max="90"
@@ -2933,8 +2934,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                         <label>
                             Longitude
-                            <input
-                                type="number"
+                            <NumberInput
                                 step="any"
                                 min="-180"
                                 max="180"
@@ -2950,20 +2950,20 @@ export default function GISMapping({ onOpenLostFound }) {
                             type="submit"
                             disabled={shelterLoading || activeShelters.length === 0}
                         >
-                            Find Nearest
+                            Find nearest
                         </button>
                     </form>
                 </div>
 
                 {shelterLoading ? (
-                    <div className="admin-gis-list">Loading shelters...</div>
+                    <LoadingState label="Loading shelters…" />
                 ) : selectedShelter ? (
                     <div className="admin-nearest-shelter-details">
                         <button
                             type="button"
                             onClick={() => setSelectedShelter(null)}
                         >
-                            ← Back to Shelters
+                            <Icon name="arrow-left" /> Back to Shelters
                         </button>
 
                         <div className="admin-gis-row">
@@ -3001,7 +3001,7 @@ export default function GISMapping({ onOpenLostFound }) {
                     <div className="admin-nearest-shelter-results">
                         <div className="admin-panel-heading">
                             <div>
-                                <h3>Nearby Shelters</h3>
+                                <h3>Nearby shelters</h3>
                                 {userLocation && (
                                     <p>
                                         Search location:{" "}
@@ -3049,7 +3049,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                             <strong>
                                                 {shelter.distance.toFixed(2)} km
                                             </strong>
-                                            <span>View Details</span>
+                                            <span>View details</span>
                                         </div>
                                     </button>
                                 ))}
@@ -3064,7 +3064,7 @@ export default function GISMapping({ onOpenLostFound }) {
                 <section className="admin-panel admin-gis-hotspot-panel">
                     <div className="admin-panel-heading">
                         <div>
-                            <h2>Hotspot Analysis</h2>
+                            <h2>Hotspot analysis</h2>
                             <p>
                                 Areas with the highest concentration of open
                                 GIS reports.
@@ -3077,7 +3077,7 @@ export default function GISMapping({ onOpenLostFound }) {
                     )}
 
                     {hotspotLoading ? (
-                        <div>Loading hotspot analysis...</div>
+                        <LoadingState label="Loading hotspot analysis…" />
                     ) : hotspots.length === 0 ? (
                         <div>
                             No open GIS reports available for hotspot analysis.

@@ -138,6 +138,7 @@ export default function LandingPage({
                 <PetDetailModal
                     pet={openPet}
                     onApply={onSignup}
+                    applyNote="You'll create a free account first."
                     onClose={() => setOpenPet(null)}
                 />
             )}

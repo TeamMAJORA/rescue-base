@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatDate, formatTime } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const PAGE_SIZE = 50;
@@ -69,7 +70,7 @@ export default function ActivityLog() {
             {error && <p className="al2-error" role="alert">{error}</p>}
 
             {logs === null ? (
-                <p className="al2-empty">Loading activity...</p>
+                <LoadingState label="Loading activity…" />
             ) : logs.length === 0 ? (
                 <p className="al2-empty">No activity yet. Accepting rescues and pinning reports will show up here.</p>
             ) : (
@@ -112,7 +113,7 @@ export default function ActivityLog() {
                     </span>
                     {logs.length < total && (
                         <button type="button" className="al2-more" onClick={loadMore} disabled={loadingMore}>
-                            {loadingMore ? "Loading..." : "Load more"}
+                            {loadingMore ? "Loading…" : "Load more"}
                         </button>
                     )}
                 </div>

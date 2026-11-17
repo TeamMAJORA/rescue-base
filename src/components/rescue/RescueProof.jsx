@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../../styles/components/RescueProof.css";
 import { formatDateTime } from "../../utils/formatDate";
+import Icon from "../system/Icon";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const MAX_PROOF_PHOTOS = 5;
@@ -89,7 +90,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
 
                 <label className="rp-field">
                     <span>
-                        What was done? <em>*</em>
+                        What was done? <span className="required-mark">*</span>
                     </span>
                     <textarea
                         rows={3}
@@ -102,7 +103,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
 
                 <div className="rp-field">
                     <span>
-                        Proof photos <em>*</em> <small>(1–{MAX_PROOF_PHOTOS})</small>
+                        Proof photos <span className="required-mark">*</span> <small>(1–{MAX_PROOF_PHOTOS})</small>
                     </span>
                     <div className="rp-photos">
                         {completionPhotos.map((url) => (
@@ -113,13 +114,13 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
                                     aria-label="Remove photo"
                                     onClick={() => setCompletionPhotos((current) => current.filter((item) => item !== url))}
                                 >
-                                    ×
+                                    <Icon name="close" />
                                 </button>
                             </span>
                         ))}
                         {completionPhotos.length < MAX_PROOF_PHOTOS && (
                             <label className={`rp-add${uploading ? " is-busy" : ""}`}>
-                                {uploading ? "Uploading..." : "+ Add photo"}
+                                {uploading ? "Uploading…" : "+ Add photo"}
                                 <input
                                     type="file"
                                     accept={ALLOWED_PHOTO_TYPES.join(",")}
@@ -139,7 +140,7 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
                         Cancel
                     </button>
                     <button type="submit" className="ao-confirm-ok" disabled={uploading || submitting}>
-                        {submitting ? "Submitting..." : "Complete rescue"}
+                        {submitting ? "Submitting…" : "Complete rescue"}
                     </button>
                 </div>
             </form>

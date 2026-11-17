@@ -3,6 +3,8 @@ import InfoTip from "../../../components/system/InfoTip";
 import FosterApplication from "../../foster/modules/FosterApplication";
 import "../../../styles/foster/FosterApplication.css";
 import { formatDate } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -170,7 +172,7 @@ export default function RoleApplication() {
     const hasPendingApplication = Boolean(pendingRole);
 
         // Labels + step states for the right-side status card
-    const ROLE_LABELS = { volunteer: "Volunteer", foster: "Foster Caregiver" };
+    const ROLE_LABELS = { volunteer: "Volunteer", foster: "Foster caregiver" };
     const STATUS_LABELS = { none: "None", pending: "Pending", approved: "Approved", rejected: "Declined", withdrawn: "Revoked" };
 
 
@@ -234,11 +236,11 @@ export default function RoleApplication() {
                         disabled={loading}
                     >
                         <img src="/icons/Refresh cw.svg" alt="" />
-                        {loading ? "Refreshing..." : "Refresh"}
+                        {loading ? "Refreshing…" : "Refresh"}
                     </button>
                 </div>
 
-                {loading && <p className="ra-loading">Loading application...</p>}
+                {loading && <LoadingState label="Loading application…" />}
 
                 {error && <p className="role-application-error">{error}</p>}
 
@@ -247,7 +249,7 @@ export default function RoleApplication() {
                 {!loading && (
                     <div className="ra-field ra-role-field">
                         <span className="ra-label">
-                            Apply for <em>*</em>
+                            Apply for <span className="required-mark">*</span>
                             <InfoTip text="Volunteers help at the shelter. Fosters care for a pet at home until it gets adopted." />
                         </span>
 
@@ -329,7 +331,7 @@ export default function RoleApplication() {
                                         onClick={withdrawFosterApplication}
                                         disabled={withdrawing}
                                     >
-                                        {withdrawing ? "Revoking..." : "Yes, revoke"}
+                                        {withdrawing ? "Revoking…" : "Yes, revoke"}
                                     </button>
                                 </div>
                             )}
@@ -345,7 +347,7 @@ export default function RoleApplication() {
                     <form className="role-application-form" onSubmit={handleSubmit}>
                         <div className="ra-field">
                             <label className="ra-label" htmlFor="reason">
-                                Why do you want to apply? <em>*</em>
+                                Why do you want to apply? <span className="required-mark">*</span>
                             </label>
 
                             <div className="ra-textarea-wrap">
@@ -353,7 +355,7 @@ export default function RoleApplication() {
                                     id="reason"
                                     value={reason}
                                     onChange={(event) => setReason(event.target.value)}
-                                    placeholder="Explain why you want to join the RescueBase team..."
+                                    placeholder="Explain why you want to join the RescueBase team…"
                                     rows={6}
                                     maxLength={500}
                                     disabled={submitting}
@@ -378,7 +380,7 @@ export default function RoleApplication() {
                                 className="ra-submit"
                                 disabled={submitting || !reason.trim()}
                             >
-                                {submitting ? "Submitting..." : "Submit Application"}
+                                {submitting ? "Submitting…" : "Submit application"}
                             </button>
                         </div>
                     </form>
@@ -409,7 +411,7 @@ export default function RoleApplication() {
                                 <span className="ra-step-dot">
                                     {step.state === "done"
                                         ? <img src="/icons/checkmark.svg" alt="" />
-                                        : step.state === "declined" ? "✕" : index + 1}
+                                        : step.state === "declined" ? <Icon name="close" /> : index + 1}
                                 </span>
                                 <div>
                                     <b>{step.title}</b>

@@ -6,6 +6,7 @@ import {
 import { CompleteWithProofModal, RescueProofModal } from "../../../components/rescue/RescueProof";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatTime, toDayValue } from "../../../utils/formatDate";
+import LoadingState from "../../../components/system/LoadingState";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -682,7 +683,7 @@ export default function RescueAssignments() {
                             onChange={handleChange}
                             disabled={loadingVolunteers || ["accepted", "active"].includes(editingAssignmentStatus)}
                         >
-                            <option value="">{loadingVolunteers ? "Loading..." : "Open to all volunteers"}</option>
+                            <option value="">{loadingVolunteers ? "Loading…" : "Open to all volunteers"}</option>
                             {volunteerOptions.volunteers.length > 0 && (
                                 <optgroup label="Volunteers">
                                     {volunteerOptions.volunteers.map((person) => (
@@ -730,14 +731,14 @@ export default function RescueAssignments() {
 
                     <label className="rs2-field">
                         <span>
-                            Title <em>*</em>
+                            Title <span className="required-mark">*</span>
                         </span>
                         <input name="title" value={form.title} onChange={handleChange} placeholder="e.g. Rescue injured dog" maxLength={120} required />
                     </label>
 
                     <label className="rs2-field">
                         <span>
-                            Location <em>*</em>
+                            Location <span className="required-mark">*</span>
                         </span>
                         <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Gorordo Ave, Lahug" required />
                     </label>
@@ -745,7 +746,7 @@ export default function RescueAssignments() {
                     <div className="rs2-two">
                         <label className="rs2-field">
                             <span>
-                                Date <em>*</em>
+                                Date <span className="required-mark">*</span>
                             </span>
                             <input type="date" name="scheduledDate" value={form.scheduledDate} onChange={handleChange} required />
                         </label>
@@ -761,7 +762,7 @@ export default function RescueAssignments() {
                             Animal <small>(optional)</small>
                         </span>
                         <select name="animalId" value={form.animalId} onChange={handleChange} disabled={loadingAnimals}>
-                            <option value="">{loadingAnimals ? "Loading animals..." : "None"}</option>
+                            <option value="">{loadingAnimals ? "Loading animals…" : "None"}</option>
                             {animals.map((animal) => (
                                 <option key={animal._id} value={animal._id}>
                                     {animal.name}
@@ -773,13 +774,13 @@ export default function RescueAssignments() {
 
                     <label className="rs2-field">
                         <span>
-                            Description <em>*</em>
+                            Description <span className="required-mark">*</span>
                         </span>
-                        <textarea name="description" rows={3} value={form.description} onChange={handleChange} placeholder="What the volunteer needs to do..." required />
+                        <textarea name="description" rows={3} value={form.description} onChange={handleChange} placeholder="What the volunteer needs to do…" required />
                     </label>
 
                     <button type="submit" className="rs2-submit" disabled={submitting}>
-                        {submitting ? "Saving..." : editingId ? "Save changes" : "Create assignment"}
+                        {submitting ? "Saving…" : editingId ? "Save changes" : "Add assignment"}
                     </button>
 
                     {editingId && (
@@ -821,10 +822,10 @@ export default function RescueAssignments() {
                                 <circle cx="11" cy="11" r="7" />
                                 <path d="m21 21-4.3-4.3" />
                             </svg>
-                            <input
+                            <input aria-label="Search title, person or location"
                                 type="search"
                                 value={search}
-                                placeholder="Search title, person or location..."
+                                placeholder="Search title, person or location…"
                                 onChange={(event) => setSearch(event.target.value)}
                             />
                         </label>
@@ -850,7 +851,7 @@ export default function RescueAssignments() {
                     </div>
 
                     {loading ? (
-                        <p className="rs2-empty">Loading assignments...</p>
+                        <LoadingState label="Loading assignments…" />
                     ) : shown.length === 0 ? (
                         <p className="rs2-empty">
                             {assignments.length === 0 ? "No rescue assignments yet. Create one on the left." : "No assignments match your search or filters."}

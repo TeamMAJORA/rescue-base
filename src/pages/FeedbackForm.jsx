@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { formatDate, formatDateTime } from "../utils/formatDate";
+import LoadingState from "../components/system/LoadingState";
+import Icon from "../components/system/Icon";
+import RequiredValue from "../components/system/RequiredValue";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -61,15 +64,7 @@ export default function FeedbackForm({ onSubmitted }) {
             return;
         }
 
-        if (rating < 1) {
-            setError("Please select a rating.");
-            return;
-        }
-
-        if (!message.trim()) {
-            setError("Please enter your feedback.");
-            return;
-        }
+        // Rating and message were checked by the browser (errors show under each field)
 
         setLoading(true);
 
@@ -156,7 +151,7 @@ useEffect(() => {
             <div className="fb-layout">
                 <form className="fbf-form" onSubmit={handleSubmit}>
                     <div className="fbf-header">
-                        <h2>Share your Feedback</h2>
+                        <h2>Share your feedback</h2>
                         <p>Rate your experience and leave a comment for us!</p>
                     </div>
 
@@ -165,14 +160,16 @@ useEffect(() => {
 
                     <div className="fbf-field">
                         <span className="fbf-label">
-                            Rating <em>*</em>
+                            Rating <span className="required-mark">*</span>
                         </span>
 
-                        <div className="fbf-stars">
+                        <div className="fbf-stars" role="radiogroup" aria-label="Rating">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <div className="fbf-star-cell" key={star}>
                                     <button
                                         type="button"
+                                        role="radio"
+                                        aria-checked={star === rating}
                                         className={`fbf-star ${star <= rating ? "is-on" : ""}`}
                                         onClick={() => setRating(star)}
                                         aria-label={`Rate ${star} out of 5`}
@@ -186,11 +183,12 @@ useEffect(() => {
                                 </div>
                             ))}
                         </div>
+                        <RequiredValue value={rating || ""} message="Choose a rating from 1 to 5 stars." />
                     </div>
 
                     <div className="fbf-field">
                         <label className="fbf-label" htmlFor="feedback-category">
-                            Category <em>*</em>
+                            Category <span className="required-mark">*</span>
                         </label>
 
                         <select
@@ -210,9 +208,8 @@ useEffect(() => {
                     <div className="fbf-field">
                         <div className="fbf-label-row">
                             <label className="fbf-label" htmlFor="feedback-message">
-                                Your Feedback
+                                Your feedback <span className="required-mark">*</span>
                             </label>
-                            <small>Optional</small>
                         </div>
 
                         <textarea
@@ -222,14 +219,16 @@ useEffect(() => {
                             onChange={(e) => setMessage(e.target.value)}
                             maxLength={2000}
                             rows={6}
-                            placeholder="Tell us about your experience or suggestions..."
+                            placeholder="Tell us about your experience or suggestions…"
+                            data-required-message="Write a few words about your experience."
+                            required
                         />
 
                         <span className="fbf-count">{message.length} / 2000</span>
                     </div>
 
                     <button type="submit" className="fbf-submit" disabled={loading}>
-                        {loading ? "Submitting..." : "Submit Feedback"}
+                        {loading ? "Submitting…" : "Submit feedback"}
                     </button>
                 </form>
 
@@ -256,7 +255,7 @@ useEffect(() => {
         <h3>Your feedback history</h3>
 
         {historyLoading ? (
-            <p className="fb-history-empty">Loading...</p>
+            <LoadingState label="Loading…" />
         ) : history.length === 0 ? (
             <p className="fb-history-empty">You haven't sent any feedback yet.</p>
         ) : (
@@ -308,7 +307,7 @@ useEffect(() => {
             </div>
         )}
 
-        <span className="fb-history-open">{item.reply ? "Read full reply →" : "View details →"}</span>
+        <span className="fb-history-open">{item.reply ? "Read full reply" : "View details"} <Icon name="arrow-right" /></span>
     </li>
 ))}
             </ul>
@@ -335,7 +334,7 @@ useEffect(() => {
                     onClick={() => setViewingFeedback(null)}
                     aria-label="Close"
                 >
-                    ×
+                    <Icon name="close" />
                 </button>
             </header>
 
@@ -406,4 +405,3 @@ useEffect(() => {
         </>
     );
 }
-

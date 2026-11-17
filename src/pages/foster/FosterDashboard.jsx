@@ -23,6 +23,8 @@ import "../../styles/admin/IntakeRecords.css"; // shared page styles (stats stri
 import assets from "../../data/assets.json";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
 import { notify } from "../../utils/dialogs";
+import LoadingState from "../../components/system/LoadingState";
+import Icon from "../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -751,7 +753,7 @@ function goToPage(page, petId = null) {
                                         className="fdb-action"
                                         onClick={() => goToPage("application")}
                                     >
-                                        {applicationStatus === "none" ? "Start application →" : "Apply again →"}
+                                        {applicationStatus === "none" ? "Start application" : "Apply again"} <Icon name="arrow-right" />
                                     </button>
                                 )}
                             </div>
@@ -784,7 +786,7 @@ function goToPage(page, petId = null) {
                                         onClick={revokeApplication}
                                         disabled={revoking}
                                     >
-                                        {revoking ? "Revoking..." : "Yes, revoke"}
+                                        {revoking ? "Revoking…" : "Yes, revoke"}
                                     </button>
                                 </div>
                             </div>
@@ -810,10 +812,7 @@ function goToPage(page, petId = null) {
                             <div className="ao-skeleton ao-skeleton-card" />
                             <div className="ao-skeleton ao-skeleton-card" />
                         </div>
-                        <div className="ao-loading-note">
-                            <span className="ao-spinner" />
-                            Loading your foster dashboard...
-                        </div>
+                        <LoadingState label="Loading your foster dashboard…" />
                     </section>
 
                 ) : loadError ? (

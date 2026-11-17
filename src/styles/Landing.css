@@ -791,23 +791,6 @@
     }
 }
 
-/* Three nav links on a phone: keep each one on a single line */
-@media (max-width: 650px) {
-    .nav {
-        flex-wrap: wrap;
-        gap: 8px 12px;
-    }
-
-    .nav a {
-        white-space: nowrap;
-    }
-
-    /* The trailing paw would wrap onto a line by itself */
-    .nav img:last-child {
-        display: none;
-    }
-}
-
 /* ===== Hero: headline, actions, and a real pet photo ===== */
 .hero {
     height: auto;
@@ -1520,32 +1503,6 @@
     margin: 0;
 }
 
-.pet-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.pet-loading-spinner {
-    width: 18px;
-    height: 18px;
-    border: 3px solid rgba(90, 27, 0, 0.2);
-    border-top-color: var(--brown);
-    border-radius: 50%;
-    animation: pet-loading-spin 0.8s linear infinite;
-}
-
-@keyframes pet-loading-spin {
-    to { transform: rotate(360deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .pet-loading-spinner {
-        animation-duration: 2.4s;
-    }
-}
-
 .pet-empty-action {
     min-height: 44px;
     margin-top: 12px;
@@ -1565,7 +1522,6 @@
 
 /* ===== Touch targets: at least 44px tall on phones ===== */
 @media (max-width: 760px) {
-    .nav a,
     .footer a,
     .footer-link,
     .footer-facebook,

@@ -50,6 +50,7 @@ import AccountSettings from "../AccountSettings";
 import { fetchRecentNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
+import Icon from "../../components/system/Icon";
 
 // Sidebar icons (only the shape is used; the colour comes from CSS)
 const ICONS = {
@@ -442,7 +443,7 @@ export default function StaffDashboard({ setPage }) {
             if (pendingApplication.length > 0) {
                 newNotifications.push({
                     id: "pending-applications",
-                    title: "Pending Adoption Applications",
+                    title: "Pending adoption applications",
                     message: `${pendingApplication.length} application(s) waiting for review.`,
                     page: "adoption-applications",
                 });
@@ -451,7 +452,7 @@ export default function StaffDashboard({ setPage }) {
             if (pendingFosterApplications.length > 0) {
                 newNotifications.push({
                     id: "pending-foster-applications",
-                    title: "Pending Foster Applications",
+                    title: "Pending foster applications",
                     message: `${pendingFosterApplications.length} foster application(s) waiting for review.`,
                     page: "foster-care",
                 });
@@ -469,7 +470,7 @@ export default function StaffDashboard({ setPage }) {
             if (completedFosters.length > 0) {
                 newNotifications.push({
                     id: "completed-fosters",
-                    title: "Completed Foster Assignment",
+                    title: "Completed foster assignment",
                     message: `${completedFosters.length} foster assignment(s) completed.`,
                     page: "foster-care",
                 });
@@ -739,7 +740,7 @@ export default function StaffDashboard({ setPage }) {
 
                                     {item.children && (
                                         <span className={`staff-menu-arrow ${isOpen ? "open" : ""}`}>
-                                            ▾
+                                            <Icon name="chevron-down" />
                                         </span>
                                     )}
                                 </button>

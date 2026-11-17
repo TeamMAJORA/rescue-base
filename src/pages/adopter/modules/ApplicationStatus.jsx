@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
+import Icon from "../../../components/system/Icon";
 
 // Pet card helpers (status pill on the photo + short dates)
 const PET_CARD_STATUS = {
@@ -222,7 +223,7 @@ export default function ApplicationStatus({
                     onClick={() => onRefresh?.()}
                     disabled={loading}
                 >
-                    {loading ? "Checking..." : "Try again"}
+                    {loading ? "Checking…" : "Try again"}
                 </button>
             </section>
         );
@@ -235,7 +236,7 @@ export default function ApplicationStatus({
                     <PetTypeIcon />
                 </div>
 
-                <h2>Loading application status...</h2>
+                <h2>Loading application status…</h2>
 
                 <p>
                     RescueBase is checking your latest adoption
@@ -266,7 +267,7 @@ export default function ApplicationStatus({
                         type="button"
                         onClick={() => onBrowsePets?.()}
                     >
-                        Browse Available Pets <span aria-hidden="true">→</span>
+                        Browse available pets <Icon name="arrow-right" />
                     </button>
 
                     <button
@@ -275,7 +276,7 @@ export default function ApplicationStatus({
                         disabled={loading}
                     >
                         <img src="/icons/Refresh cw.svg" alt="" />
-                        {loading ? "Refreshing..." : "Refresh"}
+                        {loading ? "Refreshing…" : "Refresh"}
                     </button>
                 </div>
             </section>
@@ -485,7 +486,7 @@ export default function ApplicationStatus({
                                             disabled={docUploading}
                                             hidden
                                         />
-                                        {docUploading ? "Uploading..." : "Upload new ID"}
+                                        {docUploading ? "Uploading…" : "Upload new ID"}
                                     </label>
 
                                     {docError && <span className="asp-doc-error">{docError}</span>}
@@ -511,7 +512,7 @@ export default function ApplicationStatus({
                                 disabled={loading}
                             >
                                 <img src="/icons/Refresh cw.svg" alt="" />
-                                {loading ? "Refreshing..." : "Refresh Status"}
+                                {loading ? "Refreshing…" : "Refresh status"}
                             </button>
                         </div>
 
@@ -544,7 +545,7 @@ export default function ApplicationStatus({
                         {isPending && (
                             <section className="application-status-information pending">
                                 <div className="application-status-section-heading">
-                                    <span>What Happens Next</span>
+                                    <span>What happens next</span>
                                     <h3>
                                         Please wait for shelter review
                                     </h3>
@@ -593,7 +594,7 @@ export default function ApplicationStatus({
                         {isWithdrawn && (
                             <section className="application-status-information withdrawn">
                                 <div className="application-status-section-heading">
-                                    <span>Application Closed</span>
+                                    <span>Application closed</span>
                                     <h3>You can apply again</h3>
                                 </div>
 
@@ -608,7 +609,7 @@ export default function ApplicationStatus({
                                     className="application-browse-button"
                                     onClick={() => onBrowsePets?.()}
                                 >
-                                    Browse Available Pets
+                                    Browse available pets
                                 </button>
                             </section>
                         )}
@@ -616,7 +617,7 @@ export default function ApplicationStatus({
                         {isApproved && (
                             <section className="application-status-information approved">
                                 <div className="application-status-section-heading">
-                                    <span>Approval Details</span>
+                                    <span>Approval details</span>
                                     <h3>
                                         Continue the adoption process
                                     </h3>
@@ -643,7 +644,7 @@ export default function ApplicationStatus({
 
                                 {application.reviewNotes && (
                                     <div className="application-review-box">
-                                        <span>Shelter Notes</span>
+                                        <span>Shelter notes</span>
 
                                         <p>
                                             {application.reviewNotes}
@@ -656,7 +657,7 @@ export default function ApplicationStatus({
                         {isRejected && (
                             <section className="application-status-information rejected">
                                 <div className="application-status-section-heading">
-                                    <span>Review Result</span>
+                                    <span>Review result</span>
 
                                     <h3>
                                         Application review details
@@ -674,7 +675,7 @@ export default function ApplicationStatus({
 
                                 {application.reviewNotes && (
                                     <div className="application-review-box">
-                                        <span>Shelter Notes</span>
+                                        <span>Shelter notes</span>
 
                                         <p>
                                             {application.reviewNotes}
@@ -687,7 +688,7 @@ export default function ApplicationStatus({
                                     className="application-browse-button"
                                     onClick={() => onBrowsePets?.()}
                                 >
-                                    Browse Other Available Pets
+                                    Browse other available pets
                                 </button>
                             </section>
                         )}
@@ -710,7 +711,7 @@ export default function ApplicationStatus({
                                         className="application-withdraw-button"
                                         onClick={() => setConfirmingWithdraw(true)}
                                     >
-                                        Withdraw Application
+                                        Withdraw application
                                     </button>
                                 </div>
                             ) : (
@@ -750,7 +751,7 @@ export default function ApplicationStatus({
                                             }}
                                             disabled={withdrawing}
                                         >
-                                            Keep Application
+                                            Keep application
                                         </button>
 
                                         <button
@@ -759,7 +760,7 @@ export default function ApplicationStatus({
                                             onClick={handleWithdraw}
                                             disabled={withdrawing}
                                         >
-                                            {withdrawing ? "Withdrawing..." : "Yes, Withdraw"}
+                                            {withdrawing ? "Withdrawing…" : "Yes, withdraw"}
                                         </button>
                                     </div>
                                 </div>
@@ -771,7 +772,7 @@ export default function ApplicationStatus({
                 {pastApplications.length > 0 && (
                     <section className="ahx">
                         <header className="ahx-head">
-                            <h3>Application History</h3>
+                            <h3>Application history</h3>
 
                             <div className="ahx-filters" role="tablist">
                                 {HISTORY_FILTERS.map((filter) => (

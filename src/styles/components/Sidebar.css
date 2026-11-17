@@ -1,0 +1,60 @@
+/* =====================================================================
+   One sidebar look for every role (audit C5).
+   Admin, staff, volunteer, foster and adopter sidebars keep their own
+   markup; this file (imported last in App.jsx, scoped to #root) gives the
+   menu items the same size, hover and active state.
+   Active item = solid orange with white text and icon.
+   Sub-menu active item = light yellow with an orange bar on the left.
+   ===================================================================== */
+
+#root :is(.admin-menu-group > button, .staff-menu-group > button, .adopter-menu-group > button, .foster-menu > button) {
+    min-height: 44px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    box-shadow: none;
+    transform: none;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+#root :is(.admin-menu-group > button, .staff-menu-group > button, .adopter-menu-group > button, .foster-menu > button):hover:not(.active, :disabled) {
+    border-color: rgba(251, 133, 0, 0.2);
+    background: var(--white-yellow);
+    color: var(--brown);
+    transform: none;
+}
+
+#root :is(.admin-menu-group > button, .staff-menu-group > button, .adopter-menu-group > button, .foster-menu > button).active,
+#root :is(.admin-menu-group > button, .staff-menu-group > button, .adopter-menu-group > button, .foster-menu > button).active:hover {
+    border-color: var(--orange);
+    background: var(--orange);
+    color: var(--white);
+    box-shadow: var(--shadow-dropdown);
+}
+
+/* The active item keeps its light icon on hover (it used to flip back to the brown one) */
+#root :is(.adopter-menu-group > button, .foster-menu > button).active:hover .icon-default {
+    display: none;
+}
+
+#root :is(.adopter-menu-group > button, .foster-menu > button).active:hover .icon-active {
+    display: block;
+}
+
+/* Sub-menus (admin and staff) */
+#root :is(.admin-submenu, .staff-submenu) button {
+    min-height: 36px;
+    border-radius: 12px;
+}
+
+#root :is(.admin-submenu, .staff-submenu) button:hover:not(.active) {
+    background: var(--white-yellow);
+    color: var(--brown);
+}
+
+#root :is(.admin-submenu, .staff-submenu) button.active,
+#root :is(.admin-submenu, .staff-submenu) button.active:hover {
+    background: var(--white-yellow);
+    color: var(--brown);
+    font-weight: 800;
+    box-shadow: inset 3px 0 0 var(--orange);
+}

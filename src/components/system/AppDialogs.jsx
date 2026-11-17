@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../../styles/components/AppDialogs.css";
+import Icon from "./Icon";
 
 // One themed confirm box, text prompt and toast list for every page.
 // Modules call these instead of the browser's confirm / prompt / alert:
@@ -130,7 +131,7 @@ export default function AppDialogs() {
             <div className="ao-toasts" aria-live="polite">
                 {toasts.map((toast) => (
                     <div key={toast.id} className={`ao-toast ${toast.tone}`} role={toast.tone === "error" ? "alert" : undefined}>
-                        <i aria-hidden="true">{toast.tone === "error" ? "!" : "✓"}</i>
+                        <i aria-hidden="true">{toast.tone === "error" ? "!" : <Icon name="check" />}</i>
                         {toast.text}
                     </div>
                 ))}

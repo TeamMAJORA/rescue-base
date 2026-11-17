@@ -6,7 +6,7 @@ import PetTypeIcon from "../system/PetTypeIcon";
 export default function BrowsePetCard({
     pet,
     className = "",
-    viewLabel = "View Full Profile",
+    viewLabel = "View full profile",
     onClick,
     onView,
     children,

@@ -9,13 +9,13 @@
     border-radius: 20px;
     background: linear-gradient(135deg, var(--orange), var(--orange-light));
     color: var(--white);
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-modal);
 }
 
 .adopter-panel-form {
     display: grid;
     gap: 20px;
-    padding: 26px 20px;
+    padding: 24px 20px;
     border-radius: 20px;
     background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.08);
@@ -23,12 +23,12 @@
 
 .adopter-donation-hero span {
     display: inline-flex;
-    margin-bottom: 10px;
-    padding: 7px 12px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.55);
     color: var(--red);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -36,9 +36,9 @@
 
 .adopter-donation-hero h2 {
     font-family: "Itim", cursive;
-    margin: 0 0 10px;
+    margin: 0 0 8px;
     font-size: 3rem;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .adopter-donation-hero p {
@@ -58,10 +58,10 @@
 .donation-form-panel button {
       border: none;
     border-radius: 12px;
-    padding: 9px 14px;
+    padding: 8px 16px;
     background: var(--line-soft);
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -70,13 +70,13 @@
     background: var(--white);
     border-radius: 20px;
     padding: 28px;
-    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+    box-shadow: var(--shadow-modal);
 }
 
 .donation-form {
     display: grid;
-    gap: 14px;
-    padding: 18px;
+    gap: 16px;
+    padding: 16px;
     border-radius: 20px;
     background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.1);
@@ -95,10 +95,9 @@
 .donation-form select,
 .donation-form textarea {
     width: 100%;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border: 1px solid var(--blue-soft);
     border-radius: 12px;
-    outline: none;
     font-size: .95rem;
     transition: .2s;
     background: var(--white);
@@ -130,11 +129,11 @@
     grid-column: 1 / -1;
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
     padding: 16px;
     background: var(--white);
     border: 1px solid var(--blue-soft);
-    border-radius: 14px;
+    border-radius: 12px;
 }
 
 .donation-image-preview img {
@@ -151,7 +150,7 @@
 
 .donation-message {
     grid-column: 1 / -1;
-    padding: 14px 18px;
+    padding: 16px 16px;
     border-radius: 12px;
     background: var(--paper);
     border: 1px solid var(--peach);
@@ -162,10 +161,10 @@
 .donation-form button {
     border: none;
     border-radius: 12px;
-    padding: 9px 14px;
+    padding: 8px 16px;
     background: var(--line-soft);
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -188,7 +187,7 @@
     margin-top: 24px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 18px;
+    gap: 16px;
     border: 1px solid var(--line);
     border-radius: 12px;      
     padding: 20px;            
@@ -196,8 +195,8 @@
 }
 
 .donation-category-grid article {
-    padding: 22px;
-    border-radius: 18px;
+    padding: 24px;
+    border-radius: 20px;
     border: 1px solid var(--white);
     background: var(--white);
     transition: .25s;
@@ -206,7 +205,7 @@
 .donation-category-grid article:hover {
     transform: translateY(-4px);
     border-color: var(--orange);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .donation-category-grid span {
@@ -214,7 +213,7 @@
 }
 
 .donation-category-grid h3 {
-    margin: 14px 0 8px;
+    margin: 16px 0 8px;
     color: var(--dark);
 }
 
@@ -226,14 +225,14 @@
 
 .donation-note {
     margin-top: 28px;
-    padding: 22px;
-    border-radius: 16px;
+    padding: 24px;
+    border-radius: 20px;
     background: linear-gradient(135deg, var(--cream-card), var(--paper));
     border: 1px solid var(--peach);
 }
 
 .donation-note h3 {
-    margin: 0 0 10px;
+    margin: 0 0 8px;
     color: var(--red-dark);
 }
 
@@ -243,7 +242,7 @@
     color: var(--brown);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
 
     .donation-form,
     .donation-row {
@@ -283,7 +282,7 @@
 .donation-form .donation-toggle button {
     background: transparent;
     color: var(--brown-muted);
-    padding: 8px 18px;
+    padding: 8px 16px;
 }
 
 .donation-form .donation-toggle button.active {
@@ -294,13 +293,13 @@
 .donation-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 18px;
+    gap: 16px;
     align-items: start;
 }
 
 .donation-fields {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .donation-fields label > span b {
@@ -337,7 +336,7 @@
     gap: 12px;
     padding: 16px;
     border: 1px solid rgba(90, 27, 0, 0.2);
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--white);
 }
 
@@ -374,15 +373,15 @@
 }
 
 .donation-info-body dt {
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     text-transform: uppercase;
     color: var(--brown-muted);
 }
 
 .donation-info-body dd {
-    margin: 0 0 10px;
-    font-weight: 700;
+    margin: 0 0 8px;
+    font-weight: 800;
     color: var(--brown-strong);
 }
 
@@ -397,7 +396,7 @@
 }
 
 .donation-info-map .leaflet-control-attribution {
-    font-size: 8px;
+    font-size: 12px;
 }
 
 .donation-info-map-link {
@@ -416,9 +415,9 @@
     border-radius: 999px;
     background: rgba(255, 250, 240, 0.95);
     color: var(--brown);
-    font-size: 11px;
-    font-weight: 700;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    font-size: 12px;
+    font-weight: 800;
+    box-shadow: var(--shadow-card);
 }
 
 .donation-info-map-link:hover span,
@@ -436,10 +435,10 @@
     border-radius: 50% 50% 50% 0;
     background: var(--orange);
     transform: rotate(-45deg);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-card);
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
     .donation-info-body:has(.donation-info-map) {
         flex-direction: column;
         align-items: stretch;
@@ -466,7 +465,7 @@
     color: var(--white);
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
     .donation-layout {
         grid-template-columns: 1fr;
     }
@@ -476,8 +475,8 @@
 .needed-supplies-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
-    gap: 14px;
-    margin-top: 18px;
+    gap: 16px;
+    margin-top: 16px;
 }
 
 .needed-supply-card {
@@ -486,16 +485,16 @@
     min-height: 168px;
     overflow: hidden;
     border: 1px solid rgba(90, 27, 0, 0.12);
-    border-radius: 18px;
+    border-radius: 20px;
     background: var(--paper);
     color: var(--brown);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, 0.06);
+    box-shadow: var(--shadow-dropdown);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .needed-supply-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(90, 27, 0, 0.1);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .needed-supply-card.is-selected {
@@ -506,9 +505,9 @@
 .needed-supply-info {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
-    padding: 18px 18px 16px;
+    padding: 16px 16px 16px;
 }
 
 .needed-supply-info h3 {
@@ -522,12 +521,12 @@
 
 .needed-supply-category {
     align-self: flex-start;
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
     background: var(--white-yellow);
     color: var(--brown-soft);
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .needed-supply-note {
@@ -568,7 +567,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 8px;
+    padding: 16px 8px;
 }
 
 .needed-supply-strip.is-urgent { background: var(--red); color: var(--white); }
@@ -578,7 +577,7 @@
 .needed-supply-strip.is-done { background: var(--line-soft); color: var(--brown-muted); }
 
 .needed-supply-priority {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -606,10 +605,10 @@
     border-radius: 50%;
     background: var(--white);
     color: var(--brown);
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(90, 27, 0, 0.18);
+    box-shadow: var(--shadow-card);
     transition: transform 0.2s ease, background 0.2s ease;
 }
 
@@ -628,14 +627,14 @@
 .donation-public-name {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    margin: 4px 0 14px;
-    padding: 12px 14px;
+    gap: 8px;
+    margin: 4px 0 16px;
+    padding: 12px 16px;
     border: 1px solid var(--peach);
     border-radius: 12px;
     background: var(--paper);
     color: var(--brown-soft);
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.45;
     cursor: pointer;
 }
@@ -651,7 +650,7 @@
 .donation-public-name b {
     display: block;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 /* ===== Donate form: amount pills, payment tabs, steps, submit bar ===== */
@@ -668,12 +667,12 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px 6px 6px;
+    padding: 8px 12px 8px 8px;
     border-radius: 999px;
     background: var(--cream-card);
     color: var(--brown-muted);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .donation-steps li span {
@@ -732,7 +731,7 @@
 
 .donation-form .donation-pills button {
     min-height: 44px;
-    padding: 10px 16px;
+    padding: 8px 16px;
     border: 2px solid transparent;
     border-radius: 999px;
     background: var(--cream-card);
@@ -771,24 +770,24 @@
 
 .donation-submit-bar {
     display: grid;
-    gap: 6px;
+    gap: 8px;
 }
 
 .donation-form .donation-submit {
     min-height: 48px;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .donation-submit-hint {
     margin: 0;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     color: var(--red-dark);
     text-align: center;
 }
 
 /* Phones: the button stays in reach while scrolling the form (Fitts's Law) */
-@media (max-width: 700px) {
+@media (max-width: 640px) {
     .donation-submit-bar {
         position: sticky;
         bottom: 0;
@@ -796,7 +795,7 @@
         margin: 0 -12px;
         padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
         background: var(--paper);
-        box-shadow: 0 -6px 16px rgba(90, 27, 0, 0.12);
+        box-shadow: var(--shadow-dropdown);
     }
 
     .donation-steps li {
@@ -808,7 +807,7 @@
 .adopter-donation-hero .donation-jump {
     margin-top: 16px;
     min-height: 44px;
-    padding: 10px 20px;
+    padding: 8px 20px;
     border: none;
     border-radius: 999px;
     background: var(--white);
@@ -825,14 +824,14 @@
 .donation-social-proof {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     margin-top: 8px;
-    padding: 6px 12px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: var(--green-soft);
     color: var(--green-dark);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .donation-account-number {
@@ -864,7 +863,7 @@
     justify-items: center;
     gap: 12px;
     padding: 32px 20px;
-    border-radius: 16px;
+    border-radius: 20px;
     background: var(--white);
     border: 1px solid rgba(90, 27, 0, 0.1);
     color: var(--brown);
@@ -875,7 +874,7 @@
     margin: 0;
     font-family: "Itim", cursive;
     font-size: 2rem;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .donation-thanks p {
@@ -890,7 +889,7 @@
     border-radius: 50%;
     background: var(--green-dark);
     color: var(--white);
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 800;
 }
 
@@ -905,10 +904,10 @@
 
 .donation-thanks-steps li {
     position: relative;
-    padding-left: 30px;
+    padding-left: 32px;
     color: var(--brown-muted);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .donation-thanks-steps li::before {
@@ -933,19 +932,19 @@
     border-color: var(--green-dark);
     background: var(--green-dark);
     color: var(--white);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .donation-thanks-actions {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .donation-thanks-actions button {
     min-height: 44px;
-    padding: 10px 20px;
+    padding: 8px 20px;
     border: 2px solid var(--orange);
     border-radius: 999px;
     background: var(--white);
@@ -961,7 +960,7 @@
 }
 
 /* Phones: show 2 supplies so the donate form isn't buried (Serial Position / Fitts) */
-@media (max-width: 700px) {
+@media (max-width: 640px) {
     .needed-supplies-grid:not(.is-expanded) .needed-supply-card:nth-child(n + 3) {
         display: none;
     }
@@ -990,12 +989,12 @@
     display: grid;
     gap: 2px;
     text-align: left;
-    border-radius: 14px;
+    border-radius: 12px;
 }
 
 .donation-supply-pills small {
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     opacity: 0.8;
 }
 
@@ -1007,17 +1006,17 @@
 
 .donation-form .donation-type-pills button {
     min-height: 40px;
-    padding: 8px 14px;
-    font-size: 12.5px;
+    padding: 8px 16px;
+    font-size: 12px;
 }
 
 .donation-next {
     display: grid;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
     max-width: 460px;
     padding: 16px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--paper);
     border: 1px solid var(--peach);
     text-align: left;
@@ -1025,14 +1024,14 @@
 
 .donation-next h4 {
     margin: 0;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .donation-next ol {
     display: grid;
     gap: 12px;
     margin: 0;
-    padding-left: 22px;
+    padding-left: 24px;
 }
 
 .donation-next li {
@@ -1051,17 +1050,17 @@
 
 .donation-next span {
     color: var(--brown-soft);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .donation-next a {
     display: inline-block;
-    margin-top: 6px;
-    padding: 8px 14px;
+    margin-top: 8px;
+    padding: 8px 16px;
     border-radius: 999px;
     background: var(--orange);
     color: var(--white);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     text-decoration: none;
 }

@@ -7,6 +7,8 @@ import { searchCebuPlaces } from "../../../../utils/cebuPlaces";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm, askPrompt } from "../../../../utils/dialogs";
 import { formatDate, toDayValue } from "../../../../utils/formatDate";
+import LoadingState from "../../../../components/system/LoadingState";
+import UiIcon from "../../../../components/system/Icon";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -62,7 +64,7 @@ function MapFollow({ latitude, longitude }) {
 
 // Saved from a phone? (small screen or a mobile browser)
 function isPhoneDevice() {
-    const small = typeof window !== "undefined" && window.matchMedia?.("(max-width: 820px)").matches;
+    const small = typeof window !== "undefined" && window.matchMedia?.("(max-width: 900px)").matches;
     const mobileAgent = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
     return Boolean(small || mobileAgent);
 }
@@ -154,7 +156,7 @@ function StatsStrip({ highlight, items }) {
                 </div>
                 {highlight.actionLabel && (
                     <button type="button" onClick={highlight.onAction}>
-                        {highlight.actionLabel} →
+                        {highlight.actionLabel} <UiIcon name="arrow-right" />
                     </button>
                 )}
             </div>
@@ -233,6 +235,7 @@ function SearchToolbar({
                             type="search"
                             value={search}
                             placeholder={placeholder}
+                            aria-label={String(placeholder || "Search").replace("…", "")}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </label>
@@ -949,7 +952,7 @@ export default function IntakeRecords() {
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit Intake" : "Log New Intake"}</h2>
+                    <h2>{editingId ? "Edit intake" : "Add intake"}</h2>
                     <p className="ao-hint">
                         {editingId
                             ? "Update the arrival details, then save."
@@ -983,7 +986,7 @@ export default function IntakeRecords() {
                         </label>
 
                         <label className="ao-field">
-                            <span>Name or Nickname <span className="ao-req">*</span></span>
+                            <span>Name or nickname <span className="required-mark">*</span></span>
                             <input
                                 value={form.animalName}
                                 onChange={(e) => updateForm("animalName", e.target.value)}
@@ -993,7 +996,7 @@ export default function IntakeRecords() {
                         </label>
 
                         <div className="ao-field">
-                            <span>Species <span className="ao-req">*</span></span>
+                            <span>Species <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={SPECIES_OPTIONS}
                                 value={form.animalType}
@@ -1045,7 +1048,7 @@ export default function IntakeRecords() {
                         <small className="ao-hint">Fill in at least two of breed, colour, sex or size so lost-pet owners can be matched.</small>
 
                         <div className="ao-field">
-                            <span>How did they arrive? <span className="ao-req">*</span></span>
+                            <span>How did they arrive? <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={INTAKE_TYPE_OPTIONS}
                                 value={form.intakeType}
@@ -1076,7 +1079,7 @@ export default function IntakeRecords() {
 
                         <div className="ao-row2">
                             <label className="ao-field">
-                                <span>Date <span className="ao-req">*</span></span>
+                                <span>Date <span className="required-mark">*</span></span>
                                 <input
                                     type="date"
                                     value={form.intakeDate}
@@ -1086,7 +1089,7 @@ export default function IntakeRecords() {
                             </label>
 
                             <label className="ao-field">
-                                <span>Rescued By <span className="ao-req">*</span></span>
+                                <span>Rescued By <span className="required-mark">*</span></span>
                                 <input
                                     value={form.rescuedBy}
                                     onChange={(e) => updateForm("rescuedBy", e.target.value)}
@@ -1097,10 +1100,11 @@ export default function IntakeRecords() {
                         </div>
 
                         <div className="ao-field">
-                            <span>Where? <span className="ao-req">*</span></span>
+                            <span>Where? <span className="required-mark">*</span></span>
                             <div className="ao-where-search">
                                 <input
                                     type="search"
+                                    aria-label="Where the animal was found"
                                     value={form.rescueLocation}
                                     onChange={(e) => {
                                         updateForm("rescueLocation", e.target.value);
@@ -1122,7 +1126,7 @@ export default function IntakeRecords() {
                                 />
                                 {addressListOpen && typedAddress.trim().length >= 3 && (
                                     <ul className="gm-map-results">
-                                        {addressSearching && addressResults.length === 0 && <li className="is-note">Searching...</li>}
+                                        {addressSearching && addressResults.length === 0 && <li className="is-note">Searching…</li>}
                                         {!addressSearching && addressResults.length === 0 && <li className="is-note">No places found in Cebu. Tap the map instead.</li>}
                                         {addressResults.map((place) => (
                                             <li key={place.id}>
@@ -1184,7 +1188,7 @@ export default function IntakeRecords() {
                                     : "No pin yet. Type an address or tap the map."}
                                 {" · "}
                                 <button type="button" className="lfr2-link" onClick={locateMe} disabled={locating}>
-                                    {locating ? "Getting your location..." : "Use my location"}
+                                    {locating ? "Getting your location…" : "Use my location"}
                                 </button>
                                 {form.latitude && (
                                     <>
@@ -1198,7 +1202,7 @@ export default function IntakeRecords() {
                         </div>
 
                         <div className="ao-field">
-                            <span>Condition <span className="ao-req">*</span></span>
+                            <span>Condition <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={CONDITION_OPTIONS}
                                 value={form.condition}
@@ -1208,11 +1212,11 @@ export default function IntakeRecords() {
                         </div>
 
                         <label className="ao-field">
-                            <span>Notes <span className="ao-req">*</span></span>
+                            <span>Notes <span className="required-mark">*</span></span>
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => updateForm("notes", e.target.value)}
-                                placeholder="Anything staff should know..."
+                                placeholder="Anything staff should know…"
                                 required
                             />
                         </label>
@@ -1220,10 +1224,10 @@ export default function IntakeRecords() {
                         <div className="ao-form-actions">
                             <button type="submit" className="ao-btn primary" disabled={submitting}>
                                 {submitting
-                                    ? "Saving..."
+                                    ? "Saving…"
                                     : editingId
-                                      ? "Update Intake"
-                                      : "Save Intake"}
+                                      ? "Save changes"
+                                      : "Add intake"}
                             </button>
 
                             {editingId && (
@@ -1252,7 +1256,7 @@ export default function IntakeRecords() {
                         searchByOptions={SEARCH_BY_OPTIONS}
                         search={filters.search}
                         onSearchChange={(value) => setFilter("search", value)}
-                        placeholder="Search name, location, or person..."
+                        placeholder="Search name, location, or person…"
                         filters={[
                             {
                                 label: "Arrival type",
@@ -1303,7 +1307,7 @@ export default function IntakeRecords() {
                     />
 
                     {loading ? (
-                        <p className="ao-empty">Loading intake records...</p>
+                        <LoadingState label="Loading intake records…" />
                     ) : filteredRecords.length === 0 ? (
                         <p className="ao-empty">
                             {tab === "pending" && tabRecords.length === 0
@@ -1396,7 +1400,7 @@ export default function IntakeRecords() {
                                                         onClick={() => handleApprove(record._id)}
                                                         disabled={isProcessing}
                                                     >
-                                                        {isProcessing ? "Processing..." : "Approve"}
+                                                        {isProcessing ? "Processing…" : "Approve"}
                                                     </button>
                                                     <button
                                                         type="button"

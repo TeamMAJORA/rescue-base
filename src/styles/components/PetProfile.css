@@ -1,0 +1,354 @@
+/* Pet profile: the pop-up (adopter dashboard + landing page) and the inline panel (adoption application).
+   Imported by components/adopter/PetDetailPanel.jsx, so it loads wherever the profile is used.
+   Motion and overlay tokens live in App.css. */
+
+/* ---------- Profile body (shared) ---------- */
+.pdm-head h2 {
+    margin: 8px 0 4px;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 32px;
+    line-height: 1.1;
+}
+
+.pdm-breed {
+    margin: 0;
+    color: var(--brown-soft);
+    font-size: 14px;
+}
+
+/* Age · gender · size · place in one strip instead of a 2×2 grid */
+.pdm-facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pdm-facts li {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pdm-facts .pdm-facts-place {
+    border-color: transparent;
+    background: none;
+    padding-inline: 4px;
+    color: var(--brown-soft);
+    font-weight: 400;
+}
+
+.pdm-section {
+    margin-top: 20px;
+}
+
+.pdm-section h3 {
+    margin: 0 0 8px;
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* The rescue story is the hook: bigger, first, no box */
+.pdm-story p {
+    margin: 0;
+    color: var(--brown-strong);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.pdm-line {
+    margin: 8px 0 0;
+    color: var(--brown-soft);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.pdm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pdm-chips li {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--peach-soft);
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.pdm-chips-home li {
+    border: 1px solid var(--line);
+    background: var(--white);
+}
+
+.pdm-chips-home .rb-icon {
+    color: var(--orange-dark);
+}
+
+.pdm-chips-health .is-ok {
+    background: var(--green-soft);
+    color: var(--green-dark);
+}
+
+.pdm-chips-health .is-watch {
+    background: var(--amber-soft);
+    color: var(--amber);
+}
+
+.pdm-photo-empty {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    background: var(--white-yellow);
+    font-size: 76px;
+}
+
+.pdm-photo img,
+.pdm-inline-photo img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center 30%;
+}
+
+/* ---------- Inline panel (adoption application) ---------- */
+.pdm-inline-photo {
+    margin: -24px -24px 16px;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+    background: var(--white-yellow);
+}
+
+/* ---------- Pop-up ---------- */
+.pdm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1600;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: var(--overlay);
+    animation: rb-overlay-in var(--modal-enter) both;
+}
+
+.pdm-dialog {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    width: min(960px, 100%);
+    height: min(640px, calc(100dvh - 48px));
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--paper);
+    box-shadow: var(--shadow-modal);
+    animation: rb-modal-in var(--modal-enter) both;
+}
+
+.pdm-backdrop.is-closing { animation: rb-overlay-out var(--modal-exit) both; }
+.pdm-dialog.is-closing { animation: rb-modal-out var(--modal-exit) both; }
+
+/* The dialog itself takes focus on open (so screen readers announce it); its controls keep the ring */
+.pdm-dialog:focus-visible {
+    outline: none !important;
+}
+
+.pdm-photo {
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--white-yellow);
+}
+
+/* Photo fills its column (desktop) or its 4:3 box (phones) whatever the image's own shape */
+.pdm-photo img,
+.pdm-photo .pdm-photo-empty {
+    position: absolute;
+    inset: 0;
+}
+
+.pdm-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.pdm-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 32px 32px 24px;
+}
+
+.pdm-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--brown);
+    font-size: 20px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+}
+
+.pdm-close:hover {
+    background: var(--white-yellow);
+}
+
+/* Sticky action bar: always reachable, big target, primary on the right */
+.pdm-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px 12px;
+    padding: 16px 32px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+}
+
+.pdm-footer.has-save {
+    grid-template-columns: 48px 1fr;
+}
+
+.pdm-apply {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    color: var(--white);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.pdm-apply:hover {
+    background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+}
+
+.pdm-apply:active {
+    transform: translateY(1px);
+}
+
+.pdm-save {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--brown-soft);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Same colour as the heart on the pet cards */
+.pdm-save:hover,
+.pdm-save.is-saved {
+    border-color: var(--orange);
+    color: var(--orange);
+}
+
+.pdm-footer-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--brown-soft);
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Tablets and phones: one column, photo stays on top, profile scrolls under it */
+@media (max-width: 900px) {
+    .pdm-dialog {
+        display: flex;
+        flex-direction: column;
+        width: min(560px, 100%);
+        height: auto;
+        max-height: calc(100dvh - 48px);
+    }
+
+    .pdm-photo {
+        flex: 0 0 auto;
+        aspect-ratio: 4 / 3;
+        max-height: 34dvh;
+        width: 100%;
+    }
+
+    .pdm-content {
+        flex: 1 1 auto;
+    }
+
+    .pdm-scroll {
+        padding: 20px 20px 16px;
+    }
+
+    .pdm-footer {
+        padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+@media (max-width: 640px) {
+    .pdm-backdrop {
+        padding: 16px;
+    }
+
+    .pdm-dialog {
+        max-height: calc(100dvh - 32px);
+    }
+
+    .pdm-head h2 {
+        font-size: 24px;
+    }
+
+    .pdm-inline-photo {
+        margin: -16px -16px 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pdm-dialog { animation-name: rb-fade-in; }
+    .pdm-dialog.is-closing { animation-name: rb-fade-out; }
+    .pdm-apply { transition: none; }
+}

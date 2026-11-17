@@ -1,22 +1,15 @@
 import { useMemo, useState } from "react";
 import BrowsePetCard from "./BrowsePetCard";
+import LoadingState from "../system/LoadingState";
+import Icon from "../system/Icon";
+import { useSavedPets } from "../../utils/savedPets";
 
 const STATUS_PILLS = [
-    { key: "all", label: "All Pets" },
+    { key: "all", label: "All pets" },
     { key: "available", label: "Available" },
-    { key: "in_foster", label: "In Foster" },
+    { key: "in_foster", label: "In foster" },
     { key: "saved", label: "Saved" },
 ];
-
-const SAVED_KEY = "rescuebase_saved_pets";
-
-function readSavedPets() {
-    try {
-        return JSON.parse(localStorage.getItem(SAVED_KEY)) || [];
-    } catch {
-        return [];
-    }
-}
 
 function getSortTime(pet) {
     const time = new Date(pet.createdAt || pet.intakeDate || 0).getTime();
@@ -26,7 +19,7 @@ function getSortTime(pet) {
 export default function PetList({
     className = "",
     id,
-    title = "Who's Stealing Your Heart Today?",
+    title = "Who's stealing your heart today?",
     subtitle = "Pick a pal below to peek at their story and apply today.",
     loading,
     error,
@@ -44,24 +37,7 @@ export default function PetList({
 
     const [statusFilter, setStatusFilter] = useState(initialStatusFilter);
     const [sortBy, setSortBy] = useState("newest");
-    const [savedIds, setSavedIds] = useState(readSavedPets);
-
-    function toggleSaved(petId) {
-        setSavedIds((previous) => {
-            const next = previous.includes(petId)
-                ? previous.filter((savedId) => savedId !== petId)
-                : [...previous, petId];
-
-            try {
-                localStorage.setItem(SAVED_KEY, JSON.stringify(next));
-            } catch {
-                // storage unavailable — keep it in memory only
-            }
-
-            return next;
-        });
-    }
-
+    const { savedIds, toggleSaved } = useSavedPets();
     const visiblePets = useMemo(() => {
         const list = filteredPets.filter((pet) => {
             if (statusFilter === "available") return pet.fosterStatus !== "in_foster";
@@ -160,10 +136,7 @@ export default function PetList({
                             </article>
                         ))}
 
-                        <div className="adopter-loading-note">
-                            <span className="adopter-spinner" />
-                            Finding pets for you...
-                        </div>
+                        <LoadingState label="Finding pets for you…" />
                     </>
                 )}
 
@@ -172,7 +145,7 @@ export default function PetList({
                         <span>!</span>
                         <p>{error}</p>
                         <button type="button" onClick={() => onRefresh?.()}>
-                            Try Again
+                            Try again
                         </button>
                     </div>
                 )}
@@ -185,7 +158,7 @@ export default function PetList({
                         <p>
                             {statusFilter === "saved"
                                 ? "You don't have any saved pets yet. Tap the heart on any pet to add them to your favorites!"
-                                : "No available animals matched your search."}
+                                : "No available animals match your search."}
                         </p>
                     </div>
                 )}
@@ -201,7 +174,7 @@ export default function PetList({
                                 key={pet._id}
                                 pet={pet}
                                 className={isSelected ? "active" : ""}
-                                viewLabel={isSelected ? "Viewing Profile" : "View Full Profile"}
+                                viewLabel={isSelected ? "Viewing profile" : "View full profile"}
                                 onClick={() => setSelectedPet(pet)}
                                 onView={setSelectedPet}
                             >
@@ -215,15 +188,7 @@ export default function PetList({
                                         toggleSaved(pet._id);
                                     }}
                                 >
-                                    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path
-                                            d="M12 20.5s-7.5-4.6-7.5-10.1A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1z"
-                                            fill={isSaved ? "currentColor" : "none"}
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
+                                    <Icon name="heart" filled={isSaved} />
                                 </button>
                             </BrowsePetCard>
                         );

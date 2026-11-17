@@ -1,16 +1,16 @@
 .foster-dashboard-overview {
     display: grid;
-    gap: 22px;
+    gap: 24px;
 }
 
 .foster-label {
     display: inline-block;
-    padding: 7px 14px;
+    padding: 8px 16px;
     border-radius: 999px;
     background: rgba(251, 133, 0, .15);
     color: var(--orange);
-    font-size: 13px;
-    font-weight: 900;
+    font-size: 14px;
+    font-weight: 800;
     text-transform: uppercase;
 }
 
@@ -33,29 +33,29 @@
     background: var(--paper);
     border: 1px solid rgba(90, 27, 0, .08);
     border-radius: 20px;
-    padding: 22px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     transition: .25s;
 }
 
 .foster-stat-card:hover {
     transform: translateY(-3px);
     border-color: rgba(251,133,0,.25);
-    box-shadow: 0 10px 24px rgba(90,27,0,.08);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .foster-stat-card span {
     color: rgba(90,27,0,.6);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .foster-stat-card strong {
     color: var(--brown);
-    font-size: 30px;
-    font-weight: 900;
+    font-size: 32px;
+    font-weight: 800;
 }
 
 .foster-current-pet {
@@ -69,12 +69,12 @@
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
-    border-radius: 22px;
+    border-radius: 20px;
     border: 4px solid var(--orange);
 }
 
 .foster-current-info h2 {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     color: var(--brown);
     font-size: 32px;
 }
@@ -86,13 +86,13 @@
 
 .foster-care-box {
     margin-top: 24px;
-    padding: 18px;
-    border-radius: 18px;
+    padding: 16px;
+    border-radius: 20px;
     background: var(--cream-card);
 }
 
 .foster-care-box h4 {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: var(--orange);
 }
 
@@ -104,17 +104,17 @@
 .foster-dashboard-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 22px;
+    gap: 24px;
 }
 
 .foster-dashboard-grid h3 {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     color: var(--brown);
 }
 
 .foster-activity {
-    padding-bottom: 14px;
-    margin-bottom: 14px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
     border-bottom: 1px solid rgba(90,27,0,.08);
 }
 
@@ -126,7 +126,7 @@
 
 .foster-activity strong {
     color: var(--orange);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .foster-activity p {
@@ -137,7 +137,7 @@
 
 .foster-reminders {
     margin: 0;
-    padding-left: 18px;
+    padding-left: 16px;
 }
 
 .foster-reminders li {
@@ -146,7 +146,7 @@
     line-height: 1.6;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
 
     .foster-dashboard-stats {
         grid-template-columns: repeat(2,1fr);
@@ -167,7 +167,7 @@
 
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
 
     .foster-dashboard-banner {
         flex-direction: column;
@@ -193,11 +193,11 @@
     justify-content: space-between;
     align-items: center;
     gap: 28px;
-    padding: 30px 32px;
-    border-radius: 24px;
+    padding: 32px 32px;
+    border-radius: 20px;
     border: 1px solid rgba(90, 27, 0, .08);
     background: linear-gradient(135deg, var(--paper) 0%, var(--white-yellow) 100%);
-    box-shadow: 0 10px 24px rgba(90, 27, 0, .06);
+    box-shadow: var(--shadow-dropdown);
 }
 .fdo-hero-paw { position: absolute; pointer-events: none; opacity: .35; }
 .fdo-hero-paw.is-one { width: 150px; right: 180px; bottom: -50px; transform: rotate(-18deg); }
@@ -205,7 +205,7 @@
 
 .fdo-hero-text { position: relative; max-width: 640px; }
 .fdo-hero-text h2 {
-    margin: 10px 0 6px;
+    margin: 8px 0 8px;
     color: var(--brown);
     font-family: "Itim", cursive;
     font-size: 32px;
@@ -218,13 +218,13 @@
 .fdo-chip {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 8px 14px;
+    gap: 8px;
+    padding: 8px 16px;
     border-radius: 999px;
     background: var(--peach);
     color: var(--brown);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
 }
 .fdo-chip svg { flex-shrink: 0; }
 .fdo-chip.is-due { background: var(--white-yellow); border: 1px solid var(--yellow); color: var(--orange-dark); }
@@ -236,7 +236,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     min-width: 150px;
 }
 .fdo-hero-badge {
@@ -244,51 +244,51 @@
     place-items: center;
     width: 84px;
     height: 84px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     border-radius: 50%;
     background: var(--orange);
-    box-shadow: 0 8px 18px rgba(251, 133, 0, .3);
+    box-shadow: var(--shadow-dropdown);
 }
 .fdo-hero-badge img { width: 48px; height: 48px; }
 .fdo-hero-side small {
     color: var(--brown-soft);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: .08em;
     text-transform: uppercase;
 }
 .fdo-hero-side .status {
-    padding: 6px 16px;
+    padding: 8px 16px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     text-transform: capitalize;
 }
 .fdo-hero-side .status.pending { border: 1px solid var(--yellow); }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .fdo-hero { flex-direction: column-reverse; align-items: flex-start; padding: 24px 20px; }
     .fdo-hero-side { flex-direction: row; min-width: 0; }
-    .fdo-hero-badge { width: 52px; height: 52px; margin: 0 6px 0 0; }
+    .fdo-hero-badge { width: 52px; height: 52px; margin: 0 8px 0 0; }
     .fdo-hero-badge img { width: 30px; height: 30px; }
-    .fdo-hero-text h2 { font-size: 26px; }
+    .fdo-hero-text h2 { font-size: 24px; }
     .fdo-hero-paw.is-one { right: -30px; }
 }
 
 /* ===== Needs your attention ===== */
 .fdo-attn {
-    padding: 24px 26px;
-    border-radius: 24px;
+    padding: 24px 24px;
+    border-radius: 20px;
     border: 1px solid rgba(90, 27, 0, .08);
     background: var(--paper);
-    box-shadow: 0 10px 24px rgba(90, 27, 0, .06);
+    box-shadow: var(--shadow-dropdown);
 }
-.fdo-attn-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.fdo-attn-head { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
 .fdo-attn-head h3 {
     margin: 0;
     color: var(--brown);
     font-family: "Itim", cursive;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 400;
 }
 .fdo-attn-count {
@@ -296,20 +296,20 @@
     place-items: center;
     min-width: 24px;
     height: 24px;
-    padding: 0 7px;
+    padding: 0 8px;
     border-radius: 999px;
     background: var(--orange);
     color: var(--white);
     font-size: 12px;
     font-weight: 800;
 }
-.fdo-attn-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.fdo-attn-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .fdo-attn-row {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    border-radius: 16px;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: 20px;
     border: 1px solid rgba(90, 27, 0, .08);
     border-left: 4px solid var(--peach);
     background: var(--paper);
@@ -344,7 +344,7 @@
     border-radius: 999px;
     background: var(--white);
     color: var(--orange-dark);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
     transition: .2s;
@@ -356,9 +356,9 @@
 .fdo-attn-empty {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     padding: 16px;
-    border-radius: 16px;
+    border-radius: 20px;
     background: var(--green-soft);
 }
 .fdo-attn-empty-icon {
@@ -374,7 +374,7 @@
 .fdo-attn-empty b { display: block; color: var(--green-dark); font-size: 14px; }
 .fdo-attn-empty small { color: var(--green-dark); font-size: 12px; }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .fdo-attn { padding: 20px 16px; }
     .fdo-attn-row { flex-wrap: wrap; }
     .fdo-attn-text small { white-space: normal; }
@@ -383,11 +383,11 @@
 
 /* ===== Your foster pets ===== */
 .fdo-pets {
-    padding: 24px 26px;
-    border-radius: 24px;
+    padding: 24px 24px;
+    border-radius: 20px;
     border: 1px solid rgba(90, 27, 0, .08);
     background: var(--paper);
-    box-shadow: 0 10px 24px rgba(90, 27, 0, .06);
+    box-shadow: var(--shadow-dropdown);
 }
 .fdo-pets-head {
     display: flex;
@@ -400,12 +400,12 @@
     margin: 0;
     color: var(--brown);
     font-family: "Itim", cursive;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 400;
 }
 .fdo-pets-head small {
     color: var(--brown-soft);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
     letter-spacing: .08em;
     text-transform: uppercase;
@@ -415,7 +415,7 @@
     border: none;
     background: none;
     color: var(--orange-dark);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -424,16 +424,16 @@
 .fdo-pets-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 14px;
+    gap: 16px;
 }
 .fdo-pet {
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     width: 100%;
     padding: 12px;
-    border-radius: 18px;
+    border-radius: 20px;
     border: 1px solid rgba(90, 27, 0, .08);
     background: var(--paper);
     font: inherit;
@@ -444,7 +444,7 @@
 button.fdo-pet:hover {
     transform: translateY(-2px);
     border-color: var(--yellow);
-    box-shadow: 0 10px 20px rgba(90, 27, 0, .08);
+    box-shadow: var(--shadow-dropdown);
 }
 .fdo-pet-photo {
     display: grid;
@@ -453,7 +453,7 @@ button.fdo-pet:hover {
     width: 84px;
     height: 84px;
     overflow: hidden;
-    border-radius: 16px;
+    border-radius: 20px;
     border: 3px solid var(--orange);
     background: var(--peach);
 }
@@ -472,12 +472,12 @@ button.fdo-pet:hover {
 .fdo-pet-days {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     color: var(--brown-soft);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
 }
-.fdo-pill { margin-top: 2px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.fdo-pill { margin-top: 2px; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; }
 .fdo-pill.is-alert { background: var(--red-soft); color: var(--red-dark); }
 .fdo-pill.is-due { background: var(--white-yellow); color: var(--orange-dark); border: 1px solid var(--yellow); }
 .fdo-pill.is-good { background: var(--green-soft); color: var(--green-dark); }
@@ -493,10 +493,10 @@ button.fdo-pet:hover {
     cursor: default;
 }
 .fdo-pet.is-slot img { width: 40px; height: 40px; opacity: .55; }
-.fdo-pet.is-slot b { color: var(--brown-soft); font-size: 13px; }
-.fdo-pet.is-slot small { color: var(--brown-soft); font-size: 11px; }
+.fdo-pet.is-slot b { color: var(--brown-soft); font-size: 14px; }
+.fdo-pet.is-slot small { color: var(--brown-soft); font-size: 12px; }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .fdo-pets { padding: 20px 16px; }
     .fdo-pets-head { align-items: center; }
 }
@@ -505,19 +505,19 @@ button.fdo-pet:hover {
 .fdo-actions-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    gap: 16px;
 }
 .fdo-action {
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     width: 100%;
-    padding: 16px 18px;
+    padding: 16px 16px;
     border-radius: 20px;
     border: 1px solid rgba(90, 27, 0, .08);
     background: var(--paper);
-    box-shadow: 0 8px 18px rgba(90, 27, 0, .05);
+    box-shadow: var(--shadow-dropdown);
     font: inherit;
     text-align: left;
     cursor: pointer;
@@ -527,7 +527,7 @@ button.fdo-pet:hover {
 .fdo-action.is-open {
     transform: translateY(-2px);
     border-color: var(--yellow);
-    box-shadow: 0 12px 22px rgba(90, 27, 0, .09);
+    box-shadow: var(--shadow-dropdown);
 }
 .fdo-action-icon {
     display: grid;
@@ -535,7 +535,7 @@ button.fdo-pet:hover {
     flex-shrink: 0;
     width: 44px;
     height: 44px;
-    border-radius: 14px;
+    border-radius: 12px;
     background: var(--peach);
     color: var(--brown-soft);
 }
@@ -550,7 +550,7 @@ button.fdo-pet:hover {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-.fdo-contact { margin-top: 14px; }
+.fdo-contact { margin-top: 16px; }
 
 @media (max-width: 900px) {
     .fdo-actions-grid { grid-template-columns: 1fr; }
@@ -560,17 +560,17 @@ button.fdo-pet:hover {
 .fdo-bottom {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    gap: 22px;
+    gap: 24px;
     align-items: start;
 }
 .fdo-card {
     position: relative;
     overflow: hidden;
-    padding: 24px 26px;
-    border-radius: 24px;
+    padding: 24px 24px;
+    border-radius: 20px;
     border: 1px solid rgba(90, 27, 0, .08);
     background: var(--paper);
-    box-shadow: 0 10px 24px rgba(90, 27, 0, .06);
+    box-shadow: var(--shadow-dropdown);
 }
 .fdo-activity { display: grid; margin: 0; padding: 0; list-style: none; }
 .fdo-activity li + li { border-top: 1px solid rgba(90, 27, 0, .08); }
@@ -596,7 +596,7 @@ button.fdo-pet:hover {
     flex-shrink: 0;
     width: 34px;
     height: 34px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--peach);
     color: var(--brown-soft);
 }
@@ -612,8 +612,8 @@ button.fdo-pet:hover {
     background: var(--orange);
 }
 .fdo-activity-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.fdo-activity-text b { color: var(--brown); font-size: 13px; font-weight: 700; }
-.fdo-activity-row.is-unread .fdo-activity-text b { font-weight: 900; }
+.fdo-activity-text b { color: var(--brown); font-size: 14px; font-weight: 800; }
+.fdo-activity-row.is-unread .fdo-activity-text b { font-weight: 800; }
 .fdo-activity-text small {
     overflow: hidden;
     color: var(--brown-soft);
@@ -621,7 +621,7 @@ button.fdo-pet:hover {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-.fdo-activity-row time { flex-shrink: 0; color: var(--brown-soft); font-size: 11px; font-weight: 700; }
+.fdo-activity-row time { flex-shrink: 0; color: var(--brown-soft); font-size: 12px; font-weight: 800; }
 
 .fdo-activity-empty {
     display: grid;
@@ -630,7 +630,7 @@ button.fdo-pet:hover {
     padding: 24px 0 8px;
     text-align: center;
 }
-.fdo-activity-empty img { width: 44px; height: 44px; margin-bottom: 6px; opacity: .35; }
+.fdo-activity-empty img { width: 44px; height: 44px; margin-bottom: 8px; opacity: .35; }
 .fdo-activity-empty b { color: var(--brown); font-size: 14px; }
 .fdo-activity-empty small { color: var(--brown-soft); font-size: 12px; }
 
@@ -655,9 +655,9 @@ button.fdo-pet:hover {
 .fdo-reminders li {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     color: var(--brown);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
 }
 .fdo-reminders li span {
@@ -675,7 +675,7 @@ button.fdo-pet:hover {
 @media (max-width: 900px) {
     .fdo-bottom { grid-template-columns: 1fr; }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .fdo-card { padding: 20px 16px; }
 }
 
@@ -693,4 +693,3 @@ button.fdo-pet:hover {
         grid-template-columns: 1fr;
     }
 }
-
