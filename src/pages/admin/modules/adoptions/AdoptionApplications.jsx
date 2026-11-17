@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FACTORS, topScoredMatches } from "../../../../utils/matchScore";
 import { MonthCalendar, isSameDay, startOfToday } from "../../../../components/system/MonthCalendar";
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
-import { formatDate, formatDateTime, formatMonth } from "../../../../utils/formatDate";
+import { formatDate, formatDateTime, formatMonth } from "../../../../utils/formatDate";
+import useCloseOnEscape from "../../../../hooks/useCloseOnEscape";
 
 
 
@@ -39,6 +40,7 @@ const QUICK_REJECT_REASONS = [
 ];
 
 function RejectModal({ application, onClose, onConfirm, loading }) {
+    useCloseOnEscape(Boolean(application), onClose);
     const [reason, setReason] = useState("");
 
     useEffect(() => {
@@ -375,6 +377,7 @@ function InterviewModal({
     loading,
     bookedSlots = [],
 }) {
+    useCloseOnEscape(Boolean(application), onClose);
     const [viewMonth, setViewMonth] = useState(() => new Date());
     const [selectedDay, setSelectedDay] = useState(null);
     const [hour, setHour] = useState("9");
@@ -1175,6 +1178,7 @@ function ApplicationModal({
     onRequestDocuments,
     loading,
 }) {
+    useCloseOnEscape(Boolean(application), onClose);
     const [interviewDay, setInterviewDay] = useState("");
     const [interviewTime, setInterviewTime] = useState("");
     const [rescheduling, setRescheduling] = useState(false);
@@ -1377,7 +1381,7 @@ function ApplicationModal({
                             <dl className="arv-rows">
                                 <div>
                                     <dt>Phone</dt>
-                                    <dd>0{application.phone || "Not provided"}</dd>
+                                    <dd>{application.phone ? `0${application.phone}` : "Not provided"}</dd>
                                 </div>
                                 <div>
                                     <dt>Home type</dt>

@@ -3,7 +3,8 @@ import {
 } from "react"
 import InfoTip from "../../../components/system/InfoTip";
 import { askConfirm } from "../../../utils/dialogs";
-import { formatDate, formatDateTime, toDayValue } from "../../../utils/formatDate";
+import { formatDate, formatDateTime, toDayValue } from "../../../utils/formatDate";
+import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -1010,9 +1011,9 @@ export default function FosterCare() {
     }, []);
 
 
-    // Check for new applications every 10 seconds, and right away when the admin comes back to the tab
+    // Check for new applications every 60 seconds, and right away when the admin comes back to the tab
     useEffect(() => {
-        const interval = setInterval(fetchFosterApplications, 10000);
+        const interval = setInterval(fetchFosterApplications, 60000);
 
         function handleVisible() {
             if (document.visibilityState === "visible") fetchFosterApplications();
@@ -1249,6 +1250,11 @@ export default function FosterCare() {
         );
         setReviewingRequest(null);
     }
+
+    // Escape closes the open window (review, assign, edit)
+    useCloseOnEscape(Boolean(reviewingApplication), () => setReviewingApplication(null));
+    useCloseOnEscape(Boolean(assigningApplication), closeAssign);
+    useCloseOnEscape(Boolean(editingId), handleCancelEdit);
 
     return (
         <section className="admin-foster-page">

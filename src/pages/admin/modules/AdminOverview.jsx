@@ -3,7 +3,8 @@ import "../../../styles/admin/AdminDashboardOverview.css";
 import { formatDate, formatMonth, formatTime } from "../../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
-const REFRESH_MS = 60000;
+// The overview reloads 11 lists, so refresh every 5 minutes (and only while the tab is visible)
+const REFRESH_MS = 5 * 60 * 1000;
 const MONTHS_SHOWN = 6;
 
 const FOOD_LOW_DAYS = 5;
@@ -535,7 +536,9 @@ export default function AdminOverview({ onNavigate }) {
         }
 
         load();
-        const timer = setInterval(load, REFRESH_MS);
+        const timer = setInterval(() => {
+            if (document.visibilityState === "visible") load();
+        }, REFRESH_MS);
         return () => {
             alive = false;
             clearInterval(timer);
@@ -550,7 +553,8 @@ export default function AdminOverview({ onNavigate }) {
         today.setHours(0, 0, 0, 0);
 
         const animals = data.animals;
-        const inCare = animals.filter((a) => animalStatus(a) !== "adopted");
+        // In care = not adopted and not returned to the owner (same rule everywhere on the dashboard)
+        const inCare = animals.filter((a) => animalStatus(a) !== "adopted" && a.adoptionStatus !== "returned_to_owner");
         const inShelter = inCare.filter((a) => animalStatus(a) !== "fostered");
         const dogs = inCare.filter((a) => a.type === "Dog").length;
         const cats = inCare.filter((a) => a.type === "Cat").length;

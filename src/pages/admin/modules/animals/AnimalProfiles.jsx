@@ -1431,7 +1431,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                     <div className="ao-strip-cta">
                         <div>
                             <b>{totalAnimals}</b>
-                            <small>{totalAnimals === 1 ? "Animal under shelter care" : "Animals under shelter care"}</small>
+                            <small>{totalAnimals === 1 ? "Animal profile (all records)" : "Animal profiles (all records)"}</small>
                         </div>
                     </div>
 
