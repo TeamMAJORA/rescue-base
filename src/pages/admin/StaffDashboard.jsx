@@ -599,11 +599,21 @@ export default function StaffDashboard({ setPage }) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchStaffNotifications();
 
+        // Every 60 s, and only while the tab is visible: polling every 5 s used up the
+        // server's request limit (300 per 15 min) in about 4 minutes
         const interval = setInterval(() => {
-            fetchStaffNotifications();
-        }, 5000);
+            if (document.visibilityState === "visible") fetchStaffNotifications();
+        }, 60000);
 
-        return () => clearInterval(interval);
+        function refreshWhenTabIsShownAgain() {
+            if (document.visibilityState === "visible") fetchStaffNotifications();
+        }
+        document.addEventListener("visibilitychange", refreshWhenTabIsShownAgain);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", refreshWhenTabIsShownAgain);
+        };
     }, [signedOut, maintenance]);
 
 
