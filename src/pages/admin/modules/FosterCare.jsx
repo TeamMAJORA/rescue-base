@@ -1106,6 +1106,7 @@ export default function FosterCare() {
                 list.filter(
                     (animal) =>
                         animal.adoptionStatus !== "adopted" &&
+                        animal.adoptionStatus !== "returned_to_owner" &&
                         animal.fosterStatus !== "in_foster"
                 )
             );
