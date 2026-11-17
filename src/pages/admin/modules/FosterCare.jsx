@@ -4,12 +4,20 @@ import {
 import InfoTip from "../../../components/system/InfoTip";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatDateTime, toDayValue } from "../../../utils/formatDate";
-import LoadingState from "../../../components/system/LoadingState";
-import Icon from "../../../components/system/Icon";
+import LoadingState from "../../../components/system/LoadingState";
+import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
+import Icon from "../../../components/system/Icon"; 
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+const BEHAVIOR_EVALUATION_LABEL = {
+    not_submitted: "Not submitted yet",
+    pending: "Waiting for review",
+    accepted: "Accepted",
+    revision: "Sent back to the foster for revision",
+};
 
 // Planned to last 30+ days (no end date counts as long) -> weekly updates expected
 function isLongAssignment(assignment) {
@@ -411,6 +419,10 @@ export default function FosterCare() {
    
     // "Send back" form on a pending behavior evaluation
     const [returningId, setReturningId] = useState(null);
+    // Details card for one assignment (opened by clicking its row) and the row's ⋯ menu
+    const [viewingAssignmentId, setViewingAssignmentId] = useState(null);
+    const [openAssignmentMenuId, setOpenAssignmentMenuId] = useState(null);
+    const [openAssignmentMenuPosition, setOpenAssignmentMenuPosition] = useState({ top: 0, right: 0 });
     const [returnReason, setReturnReason] = useState("");
     const [returnError, setReturnError] = useState("");
 
@@ -1012,9 +1024,9 @@ export default function FosterCare() {
     }, []);
 
 
-    // Check for new applications every 10 seconds, and right away when the admin comes back to the tab
+    // Check for new applications every 60 seconds, and right away when the admin comes back to the tab
     useEffect(() => {
-        const interval = setInterval(fetchFosterApplications, 10000);
+        const interval = setInterval(fetchFosterApplications, 60000);
 
         function handleVisible() {
             if (document.visibilityState === "visible") fetchFosterApplications();
@@ -1252,6 +1264,78 @@ export default function FosterCare() {
         setReviewingRequest(null);
     }
 
+    // Always read the card's assignment from the latest list, so it updates after any action
+    const viewedAssignment = assignments.find((item) => item._id === viewingAssignmentId) || null;
+
+    // Escape closes the open window (review, assign, edit, early return, medical request)
+    useCloseOnEscape(Boolean(reviewingApplication), () => setReviewingApplication(null));
+    useCloseOnEscape(Boolean(assigningApplication), closeAssign);
+    useCloseOnEscape(Boolean(editingId), handleCancelEdit);
+    useCloseOnEscape(Boolean(earlyReturn), () => setEarlyReturn(null));
+    useCloseOnEscape(Boolean(reviewingRequest), () => setReviewingRequest(null));
+    useCloseOnEscape(Boolean(viewingAssignmentId), () => setViewingAssignmentId(null));
+
+    // Close the row's ⋯ menu on any outside click, scroll or resize
+    useEffect(() => {
+        if (!openAssignmentMenuId) return undefined;
+        const closeAssignmentMenu = () => setOpenAssignmentMenuId(null);
+        document.addEventListener("click", closeAssignmentMenu);
+        window.addEventListener("scroll", closeAssignmentMenu, true);
+        window.addEventListener("resize", closeAssignmentMenu);
+        return () => {
+            document.removeEventListener("click", closeAssignmentMenu);
+            window.removeEventListener("scroll", closeAssignmentMenu, true);
+            window.removeEventListener("resize", closeAssignmentMenu);
+        };
+    }, [openAssignmentMenuId]);
+
+    // The one action a row shows: review a return, complete, or ask for an update
+    function renderAssignmentPrimaryAction(assignment) {
+        if (assignment.status !== "active") return null;
+        if (assignment.returnRequest?.status === "pending") {
+            return (
+                <button type="button" className="afl-return-btn" onClick={() => openEarlyReturn(assignment)}>
+                    Review return
+                </button>
+            );
+        }
+        if (assignment.behaviorEvaluation?.status === "accepted") {
+            return (
+                <button
+                    type="button"
+                    className="afl-ask-btn is-complete"
+                    title="End this foster assignment now"
+                    onClick={() => handleCompleteAssignment(assignment)}
+                >
+                    Complete
+                </button>
+            );
+        }
+        return renderAskForUpdateButton(assignment);
+    }
+
+    function renderAskForUpdateButton(assignment) {
+        return (
+            <button
+                type="button"
+                className="afl-ask-btn"
+                disabled={askedInLastDay(assignment) || requestingUpdateId === assignment._id}
+                title={
+                    askedInLastDay(assignment)
+                        ? "Already asked in the last 24 hours"
+                        : "Send the foster a notification and email asking for a weekly update"
+                }
+                onClick={() => handleRequestUpdate(assignment)}
+            >
+                {requestingUpdateId === assignment._id
+                    ? "Asking…"
+                    : askedInLastDay(assignment)
+                      ? "Asked"
+                      : "Ask for update"}
+            </button>
+        );
+    }
+
     return (
         <section className="admin-foster-page">
             {/* Stats strip — same design as the Animal pages (styles in IntakeRecords.css) */}
@@ -1373,18 +1457,34 @@ export default function FosterCare() {
                         <div className="afl-head" aria-hidden="true">
                             <span>Pet</span>
                             <span>Foster</span>
-                            <span>Started</span>
-                            <span>Updates</span>
                             <span>Status</span>
-                            <span className="afl-right">Actions</span>
+                            <span>Action</span>
+                            <span />
                         </div>
 
                         {visibleAssignments.map((assignment, index) => (
-                                <article
-                                    className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" ? "is-new" : ""}`}
-                                    key={assignment._id}
+                            <article
+                                className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" ? "is-new" : ""}`}
+                                key={assignment._id}
+                            >
+                                {/* Click anywhere on the row (except its buttons) to open the details card */}
+                                <div
+                                    className="afl-row is-clickable"
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`Open ${assignment.petName}'s foster details`}
+                                    onClick={(event) => {
+                                        if (event.target.closest("button")) return;
+                                        setViewingAssignmentId(assignment._id);
+                                    }}
+                                    onKeyDown={(event) => {
+                                        if (event.target !== event.currentTarget) return;
+                                        if (event.key === "Enter" || event.key === " ") {
+                                            event.preventDefault();
+                                            setViewingAssignmentId(assignment._id);
+                                        }
+                                    }}
                                 >
-                                <div className="afl-row">
                                     <div className="afl-pet">
                                         <span className={`afl-avatar ${PET_TINTS[index % PET_TINTS.length]}`}>
                                             {assignment.petImage ? (
@@ -1395,7 +1495,8 @@ export default function FosterCare() {
                                         </span>
                                         <div>
                                             <b>{assignment.petName}</b>
-                                            <small>{assignment.petBreed || "Unknown breed"}</small>
+                                            <small className="afl-breed">{assignment.petBreed || "Unknown breed"}</small>
+                                            <small className="afl-foster-inline">{assignment.fosterName}</small>
                                         </div>
                                     </div>
 
@@ -1404,213 +1505,79 @@ export default function FosterCare() {
                                         <small>{assignment.fosterEmail}</small>
                                     </div>
 
-                                    <span className="afl-cell" data-label="Started">
-                                        {formatShortDate(assignment.startDate)}
-                                    </span>
-
-                                    <span className="afl-cell afl-updates" data-label="Updates">
-                                        {assignment.updates?.length || 0}
-                                        {lastUpdateDate(assignment) && (
-                                            <small>Last {formatShortDate(lastUpdateDate(assignment))}</small>
-                                        )}
-                                        {weeklyUpdateIsDue(assignment) && (
-                                            <span className="afl-flag is-due">Update due</span>
-                                        )}
-                                    </span>
-
-                                    <div className="afl-cell" data-label="Status">
+                                    <div className="afl-cell afl-status-cell">
                                         <span className={`afl-status is-${assignment.status}`}>
                                             {assignment.status}
                                         </span>
-                                        {assignment.returnRequest?.status === "pending" && (
+                                        {assignment.returnRequest?.status === "pending" ? (
                                             <span className="afl-flag is-return">
                                                 Return requested{assignment.returnRequest.urgent ? " · Urgent" : ""}
                                             </span>
-                                        )}                                        
+                                        ) : assignment.behaviorEvaluation?.status === "pending" ? (
+                                            <span className="afl-flag is-due">Evaluation to review</span>
+                                        ) : weeklyUpdateIsDue(assignment) ? (
+                                            <span className="afl-flag is-due">Update due</span>
+                                        ) : null}
                                     </div>
 
                                     <div className="afl-actions">
-                                        {assignment.status === "active" ? (
-                                            <>
-                                            {assignment.returnRequest?.status === "pending" && (
-                                                    <button
-                                                        type="button"
-                                                        className="afl-return-btn"
-                                                        onClick={() => openEarlyReturn(assignment)}
-                                                    >
-                                                        Review return
-                                                    </button>
-                                            )}
-                                                {assignment.behaviorEvaluation?.status === "accepted" && (
-                                                    <button
-                                                        type="button"
-                                                        className="afl-ask-btn is-complete"
-                                                        title="End this foster assignment now"
-                                                        onClick={() => handleCompleteAssignment(assignment)}
-                                                    >
-                                                        Complete
-                                                    </button>
-                                                )}
-                                                <button
-                                                    type="button"
-                                                    className="afl-ask-btn"
-                                                    disabled={askedInLastDay(assignment) || requestingUpdateId === assignment._id}
-                                                    title={
-                                                        askedInLastDay(assignment)
-                                                            ? "Already asked in the last 24 hours"
-                                                            : "Send the foster a notification and email asking for a weekly update"
-                                                    }
-                                                    onClick={() => handleRequestUpdate(assignment)}
-                                                >
-                                                    {requestingUpdateId === assignment._id
-                                                        ? "Asking…"
-                                                        : askedInLastDay(assignment)
-                                                          ? "Asked"
-                                                          : "Ask for update"}
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="afl-icon-btn"
-                                                    title="Edit"
-                                                    aria-label={`Edit ${assignment.petName}'s assignment`}
-                                                    onClick={() => handleEditAssignment(assignment)}
-                                                >
-                                                    <img src="/icons/edit.svg" alt="" />
-                                                </button>
+                                        {renderAssignmentPrimaryAction(assignment)}
+                                    </div>
 
+                                    <div className="afl-menu-cell">
+                                        {assignment.status === "active" && (
+                                            <button
+                                                type="button"
+                                                className="afl-menu-btn"
+                                                aria-label={`More actions for ${assignment.petName}`}
+                                                aria-haspopup="menu"
+                                                aria-expanded={openAssignmentMenuId === assignment._id}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    const rect = event.currentTarget.getBoundingClientRect();
+                                                    setOpenAssignmentMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                                                    setOpenAssignmentMenuId(openAssignmentMenuId === assignment._id ? null : assignment._id);
+                                                }}
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                    <circle cx="5" cy="12" r="2" />
+                                                    <circle cx="12" cy="12" r="2" />
+                                                    <circle cx="19" cy="12" r="2" />
+                                                </svg>
+                                            </button>
+                                        )}
+                                        {openAssignmentMenuId === assignment._id && (
+                                            <span
+                                                className="afl-menu"
+                                                role="menu"
+                                                style={{ top: openAssignmentMenuPosition.top, right: openAssignmentMenuPosition.right }}
+                                                onClick={(event) => event.stopPropagation()}
+                                            >
                                                 <button
                                                     type="button"
-                                                    className="afl-icon-btn is-danger"
-                                                    title="Delete"
-                                                    aria-label={`Delete ${assignment.petName}'s assignment`}
-                                                    onClick={() => handleDeleteAssignment(assignment._id)}
+                                                    role="menuitem"
+                                                    onClick={() => {
+                                                        setOpenAssignmentMenuId(null);
+                                                        handleEditAssignment(assignment);
+                                                    }}
                                                 >
-                                                    <StatIcon name="trash" />
+                                                    Edit
                                                 </button>
-                                            </>
-                                        ) : (
-                                            <span className="afl-muted">—</span>
+                                                <button
+                                                    type="button"
+                                                    role="menuitem"
+                                                    className="is-danger"
+                                                    onClick={() => {
+                                                        setOpenAssignmentMenuId(null);
+                                                        handleDeleteAssignment(assignment._id);
+                                                    }}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </span>
                                         )}
                                     </div>
                                 </div>
-
-                                {assignment.behaviorEvaluation?.status === "pending" && (
-                                    <div className="admin-foster-behavior-review">
-                                        <div className="admin-foster-behavior-heading">
-                                            <strong>Behavioral Evaluation</strong>
-                                            <span>Pending review</span>
-                                        </div>
-
-                                        <div className="admin-foster-behavior-grid">
-                                            <div>
-                                                <strong>Energy Level</strong>
-                                                <span>{assignment.behaviorEvaluation.energyLevel}/5</span>
-                                            </div>
-                                            <div>
-                                                <strong>Friendliness</strong>
-                                                <span>{assignment.behaviorEvaluation.friendliness}/5</span>
-                                            </div>
-                                            <div>
-                                                <strong>Human Sociability</strong>
-                                                <span>{assignment.behaviorEvaluation.humanSociability}/5</span>
-                                            </div>
-                                            <div>
-                                                <strong>Animal Sociability</strong>
-                                                <span>{assignment.behaviorEvaluation.animalSociability}/5</span>
-                                            </div>
-                                            <div>
-                                                <strong>Trainability</strong>
-                                                <span>{assignment.behaviorEvaluation.trainability}/5</span>
-                                            </div>
-                                            <div>
-                                                <strong>Anxiety Level</strong>
-                                                <span>{assignment.behaviorEvaluation.anxietyLevel}/5</span>
-                                            </div>
-                                            <div>
-                                                <strong>Aggression Level</strong>
-                                                <span>{assignment.behaviorEvaluation.aggressionLevel}/5</span>
-                                            </div>
-                                            <div>
-                                                <strong>Activity Level</strong>
-                                                <span>{assignment.behaviorEvaluation.activityLevel}/5</span>
-                                            </div>
-                                        </div>
-
-                                        {assignment.behaviorEvaluation.notes && (
-                                            <div className="admin-foster-behavior-notes">
-                                                <strong>Foster notes</strong>
-                                                <p>{assignment.behaviorEvaluation.notes}</p>
-                                            </div>
-                                        )}
-
-                                        <div className="admin-foster-behavior-meta">
-                                            <span>
-                                                Submitted by:{" "}
-                                                {assignment.behaviorEvaluation.submittedBy || assignment.fosterName}
-                                            </span>
-
-                                            {assignment.behaviorEvaluation.submittedAt && (
-                                                <span>
-                                                    Submitted:{" "}
-                                                    {formatDate(assignment.behaviorEvaluation.submittedAt)}
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {returningId === assignment._id ? (
-                                            <div className="afl-eval-return">
-                                                <label className="afr-reason">
-                                                    <span>
-                                                        What should the foster fix? <em>(shown to the foster)</em>
-                                                    </span>
-                                                    <textarea
-                                                        rows="2"
-                                                        value={returnReason}
-                                                        onChange={(e) => {
-                                                            setReturnReason(e.target.value);
-                                                            setReturnError("");
-                                                        }}
-                                                        placeholder="e.g. Aggression looks too high compared to the shelter notes. Please re-check."
-                                                        maxLength={300}
-                                                    />
-                                                    {returnError && <small className="afr-reason-error">{returnError}</small>}
-                                                </label>
-
-                                                <div className="afl-eval-actions">
-                                                    <button
-                                                        type="button"
-                                                        className="is-ghost"
-                                                        onClick={() => setReturningId(null)}
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleReturnBehaviorEvaluation(assignment._id)}
-                                                    >
-                                                        Send back
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="afl-eval-actions">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleAcceptBehaviorEvaluation(assignment._id)}
-                                                >
-                                                    Accept evaluation
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="is-ghost"
-                                                    onClick={() => startReturn(assignment._id)}
-                                                >
-                                                    Send back for revision
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
                             </article>
                         ))}
                     </div>
@@ -1753,6 +1720,262 @@ export default function FosterCare() {
                     )}
                 </div>
             </section>
+
+            {viewedAssignment && (() => {
+                const latestUpdate = [...(viewedAssignment.updates || [])].sort(
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                )[0];
+                const careInstructions = String(viewedAssignment.careInstructions || "")
+                    .split("\n")
+                    .map((line) => line.trim())
+                    .filter(Boolean);
+                const returnRequest = viewedAssignment.returnRequest;
+                const openMedicalRequests = (viewedAssignment.medicalRequests || []).filter((request) => request.status !== "resolved");
+                const isActive = viewedAssignment.status === "active";
+                const primaryAction = renderAssignmentPrimaryAction(viewedAssignment);
+                const primaryIsAskForUpdate =
+                    isActive && returnRequest?.status !== "pending" && viewedAssignment.behaviorEvaluation?.status !== "accepted";
+
+                return (
+                    <div className="admin-modal-overlay afd-overlay" onClick={() => setViewingAssignmentId(null)}>
+                        <section
+                            className="afd-card"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={`${viewedAssignment.petName} foster details`}
+                            onClick={(event) => event.stopPropagation()}
+                        >
+                            <header className="afd-head">
+                                <span className="afl-avatar is-orange">
+                                    {viewedAssignment.petImage ? (
+                                        <img src={viewedAssignment.petImage} alt="" />
+                                    ) : (
+                                        <StatIcon name="paw" size={24} />
+                                    )}
+                                </span>
+                                <div>
+                                    <h3>{viewedAssignment.petName}</h3>
+                                    <small>{viewedAssignment.petBreed || "Unknown breed"} · fostered by {viewedAssignment.fosterName}</small>
+                                </div>
+                                <button type="button" className="afd-close" aria-label="Close" onClick={() => setViewingAssignmentId(null)}>
+                                    &times;
+                                </button>
+                            </header>
+
+                            <div className="afd-section">
+                                <dl className="afd-grid">
+                                    <div><dt>Status</dt><dd className="afd-capitalize">{viewedAssignment.status}</dd></div>
+                                    <div><dt>Foster</dt><dd>{viewedAssignment.fosterName}<small>{viewedAssignment.fosterEmail}</small></dd></div>
+                                    <div><dt>Started</dt><dd>{formatDate(viewedAssignment.startDate)}</dd></div>
+                                    <div><dt>Planned end</dt><dd>{viewedAssignment.endDate ? formatDate(viewedAssignment.endDate) : "—"}</dd></div>
+                                    <div>
+                                        <dt>Updates</dt>
+                                        <dd>
+                                            {viewedAssignment.updates?.length || 0}
+                                            {lastUpdateDate(viewedAssignment) ? ` · last ${formatShortDate(lastUpdateDate(viewedAssignment))}` : ""}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt>Next update</dt>
+                                        <dd className={weeklyUpdateIsDue(viewedAssignment) ? "is-due" : ""}>
+                                            {!isActive ? "—" : weeklyUpdateIsDue(viewedAssignment) ? "Due now" : "Not due yet"}
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+
+                            {returnRequest?.status === "pending" && (
+                                <div className="afd-section">
+                                    <div className="afd-alert">
+                                        <b>Return requested{returnRequest.urgent ? " · Urgent" : ""}</b>
+                                        {returnRequest.reason ? ` · ${returnRequest.reason}` : ""}
+                                        {returnRequest.preferredDate ? ` · preferred ${formatShortDate(returnRequest.preferredDate)}` : ""}
+                                        {returnRequest.notes && <p>"{returnRequest.notes}"</p>}
+                                    </div>
+                                </div>
+                            )}
+
+                            {openMedicalRequests.length > 0 && (
+                                <div className="afd-section">
+                                    <h4>Open medical requests</h4>
+                                    <ul className="afd-list">
+                                        {openMedicalRequests.map((request) => (
+                                            <li key={request._id}>
+                                                {request.issueType || "Concern"} · {request.urgency || "Normal"} · {request.status === "in_progress" ? "In progress" : "Pending"}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            <div className="afd-section">
+                                <h4>{latestUpdate ? `Latest update · ${formatShortDate(latestUpdate.createdAt)}` : "Latest update"}</h4>
+                                <p className="afd-text">{latestUpdate ? latestUpdate.note || "No note added." : "No updates yet."}</p>
+                            </div>
+
+                            {careInstructions.length > 0 && (
+                                <div className="afd-section">
+                                    <h4>Care instructions</h4>
+                                    <ul className="afd-list">
+                                        {careInstructions.map((line, lineIndex) => (
+                                            <li key={lineIndex}>{line}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            <div className="afd-section afl-item">
+                                <h4>Behavior evaluation</h4>
+                                {viewedAssignment.behaviorEvaluation?.status === "pending" ? (
+                                    <div className="admin-foster-behavior-review">
+                                        <div className="admin-foster-behavior-heading">
+                                            <strong>Behavioral Evaluation</strong>
+                                            <span>Pending review</span>
+                                        </div>
+
+                                        <div className="admin-foster-behavior-grid">
+                                            <div>
+                                                <strong>Energy Level</strong>
+                                                <span>{viewedAssignment.behaviorEvaluation.energyLevel}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Friendliness</strong>
+                                                <span>{viewedAssignment.behaviorEvaluation.friendliness}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Human Sociability</strong>
+                                                <span>{viewedAssignment.behaviorEvaluation.humanSociability}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Animal Sociability</strong>
+                                                <span>{viewedAssignment.behaviorEvaluation.animalSociability}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Trainability</strong>
+                                                <span>{viewedAssignment.behaviorEvaluation.trainability}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Anxiety Level</strong>
+                                                <span>{viewedAssignment.behaviorEvaluation.anxietyLevel}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Aggression Level</strong>
+                                                <span>{viewedAssignment.behaviorEvaluation.aggressionLevel}/5</span>
+                                            </div>
+                                            <div>
+                                                <strong>Activity Level</strong>
+                                                <span>{viewedAssignment.behaviorEvaluation.activityLevel}/5</span>
+                                            </div>
+                                        </div>
+
+                                        {viewedAssignment.behaviorEvaluation.notes && (
+                                            <div className="admin-foster-behavior-notes">
+                                                <strong>Foster notes</strong>
+                                                <p>{viewedAssignment.behaviorEvaluation.notes}</p>
+                                            </div>
+                                        )}
+
+                                        <div className="admin-foster-behavior-meta">
+                                            <span>
+                                                Submitted by:{" "}
+                                                {viewedAssignment.behaviorEvaluation.submittedBy || viewedAssignment.fosterName}
+                                            </span>
+
+                                            {viewedAssignment.behaviorEvaluation.submittedAt && (
+                                                <span>
+                                                    Submitted:{" "}
+                                                    {formatDate(viewedAssignment.behaviorEvaluation.submittedAt)}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {returningId === viewedAssignment._id ? (
+                                            <div className="afl-eval-return">
+                                                <label className="afr-reason">
+                                                    <span>
+                                                        What should the foster fix? <em>(shown to the foster)</em>
+                                                    </span>
+                                                    <textarea
+                                                        rows="2"
+                                                        value={returnReason}
+                                                        onChange={(e) => {
+                                                            setReturnReason(e.target.value);
+                                                            setReturnError("");
+                                                        }}
+                                                        placeholder="e.g. Aggression looks too high compared to the shelter notes. Please re-check."
+                                                        maxLength={300}
+                                                    />
+                                                    {returnError && <small className="afr-reason-error">{returnError}</small>}
+                                                </label>
+
+                                                <div className="afl-eval-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="is-ghost"
+                                                        onClick={() => setReturningId(null)}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleReturnBehaviorEvaluation(viewedAssignment._id)}
+                                                    >
+                                                        Send back
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="afl-eval-actions">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAcceptBehaviorEvaluation(viewedAssignment._id)}
+                                                >
+                                                    Accept evaluation
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="is-ghost"
+                                                    onClick={() => startReturn(viewedAssignment._id)}
+                                                >
+                                                    Send back for revision
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="afd-text">{BEHAVIOR_EVALUATION_LABEL[viewedAssignment.behaviorEvaluation?.status] || "Not submitted yet"}</p>
+                                )}
+                            </div>
+
+                            {isActive && (
+                                <footer className="afd-foot">
+                                    {primaryAction && <span className="afd-primary">{primaryAction}</span>}
+                                    {!primaryIsAskForUpdate && renderAskForUpdateButton(viewedAssignment)}
+                                    <button
+                                        type="button"
+                                        className="afd-btn"
+                                        onClick={() => {
+                                            setViewingAssignmentId(null);
+                                            handleEditAssignment(viewedAssignment);
+                                        }}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="afd-btn is-danger"
+                                        onClick={async () => {
+                                            await handleDeleteAssignment(viewedAssignment._id);
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </footer>
+                            )}
+                        </section>
+                    </div>
+                );
+            })()}
 
             {reviewingApplication && (
                 <div

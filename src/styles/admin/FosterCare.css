@@ -225,7 +225,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    justify-content: flex-end;
+    justify-content: flex-start;
 }
 
 .admin-foster-actions button,
@@ -459,7 +459,8 @@
 .afl-head,
 .afl-row {
     display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.6fr) 0.7fr 0.6fr 0.9fr 110px;
+    /* Pet | Foster | Status | one action | ⋯ menu. Started/Updates live in the details card */
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) 140px 140px 36px;
     gap: 16px;
     align-items: center;
 }
@@ -577,7 +578,7 @@
 
 .afl-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 8px;
 }
 
@@ -1136,7 +1137,7 @@
 
 .afa-modal-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: center;
     gap: 8px;
     margin-top: 20px;
@@ -1393,8 +1394,8 @@
     grid-row: 1 / span 2;
 }
 
-/* stack on smaller screens */
-@media (max-width: 1200px) {
+/* stack on smaller screens (laptops up to 1500px too: side by side squeezed the assignments list) */
+@media (max-width: 1500px) {
     .afc-layout {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -2227,11 +2228,6 @@
     font-weight: 800;
 }
 
-/* room for "Review return" next to Edit / Delete */
-.afl-head,
-.afl-row {
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.6fr) 0.7fr 0.6fr 0.9fr 190px;
-}
 
 /* ===== Care instructions checklist (Assign + Edit pop-ups) ===== */
 .afr-form .acl-field {
@@ -2529,3 +2525,329 @@
     font-size: 12px;
     font-weight: 800;
 }
+
+/* ===== Assignment rows: click to open the details card ===== */
+.afl-row.is-clickable {
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+.afl-row.is-clickable:focus-visible {
+    outline: 3px solid var(--orange);
+    outline-offset: -3px;
+}
+
+/* Shown only on small screens, where the Foster column is hidden */
+.afl-foster-inline {
+    display: none !important;
+}
+
+.afl-menu-cell {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.afl-menu-btn {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--brown);
+    cursor: pointer;
+}
+
+.afl-menu-btn:hover,
+.afl-menu-btn[aria-expanded="true"] {
+    border-color: var(--orange);
+    background: var(--white-yellow);
+}
+
+.afl-menu {
+    position: fixed;
+    z-index: 1200;
+    display: grid;
+    min-width: 150px;
+    padding: 8px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 12px;
+    background: var(--white);
+    box-shadow: var(--shadow-dropdown);
+}
+
+.afl-menu button {
+    padding: 8px 8px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--brown);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.afl-menu button:hover {
+    background: var(--white-yellow);
+}
+
+.afl-menu button.is-danger {
+    color: var(--red-dark);
+}
+
+.afl-menu button.is-danger:hover {
+    background: var(--red-soft);
+}
+
+/* ===== Assignment details card ===== */
+.afd-card {
+    width: min(520px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--line, #e3d5b5);
+    border-radius: 18px;
+    background: var(--paper);
+    color: var(--brown);
+    box-shadow: 0 18px 50px rgba(90, 27, 0, 0.25);
+}
+
+.afd-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.afd-head .afl-avatar {
+    flex-basis: 56px;
+    height: 56px;
+}
+
+.afd-head h3 {
+    margin: 0;
+    font-family: "Itim", cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.afd-head small {
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 13px;
+}
+
+.afd-close {
+    flex: none;
+    margin-left: auto;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--brown);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.afd-section {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.1);
+}
+
+.afd-section h4 {
+    margin: 0 0 6px;
+    color: rgba(90, 27, 0, 0.65);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.afd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+    margin: 0;
+}
+
+.afd-grid dt {
+    color: rgba(90, 27, 0, 0.65);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.afd-grid dd {
+    margin: 2px 0 0;
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.afd-grid dd small {
+    display: block;
+    color: rgba(90, 27, 0, 0.7);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.afd-grid dd.is-due {
+    color: var(--orange-dark);
+}
+
+.afd-capitalize {
+    text-transform: capitalize;
+}
+
+.afd-alert {
+    padding: 10px 12px;
+    border: 1px solid rgba(214, 40, 40, 0.3);
+    border-radius: 12px;
+    background: var(--red-soft);
+    font-size: 14px;
+}
+
+.afd-alert p {
+    margin: 4px 0 0;
+}
+
+.afd-text {
+    margin: 0;
+    font-size: 14px;
+}
+
+.afd-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* The evaluation reuses the row styles (.afl-item); drop the row look inside the card */
+.afd-section.afl-item,
+.afd-section.afl-item:hover {
+    border: 0;
+    border-bottom: 1px solid rgba(90, 27, 0, 0.1);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+}
+
+.afd-card .afl-item .admin-foster-behavior-review {
+    margin: 0;
+}
+
+.afd-card .afl-item .admin-foster-behavior-grid {
+    grid-template-columns: 1fr 1fr;
+}
+
+.afd-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px 16px;
+}
+
+.afd-btn {
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid rgba(90, 27, 0, 0.3);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--brown);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.afd-btn:hover {
+    border-color: var(--orange);
+    background: var(--white-yellow);
+}
+
+.afd-btn.is-danger {
+    margin-left: auto;
+    border-color: rgba(214, 40, 40, 0.45);
+    color: var(--red-dark);
+}
+
+.afd-btn.is-danger:hover {
+    background: var(--red-soft);
+}
+
+/* Tablets and phones: Pet (with foster name under it) | Status | ⋯; the action lives in the card */
+@media (max-width: 900px) {
+    .afl-row {
+        grid-template-columns: minmax(0, 1fr) auto 36px;
+        row-gap: 0;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .afl-row .afl-pet {
+        grid-column: auto;
+    }
+
+    .afl-row .afl-foster,
+    .afl-row .afl-actions,
+    .afl-row .afl-breed {
+        display: none;
+    }
+
+    .afl-foster-inline {
+        display: block !important;
+    }
+
+    .afl-row .afl-status-cell {
+        text-align: right;
+    }
+
+    .afl-row .afl-cell::before {
+        content: none;
+    }
+}
+
+/* Phones: the card slides up from the bottom */
+@media (max-width: 640px) {
+    .afd-overlay {
+        place-items: end center !important;
+        padding: 0 !important;
+    }
+
+    .afd-card {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 18px 18px 0 0;
+    }
+
+    .afd-foot .afd-primary {
+        flex: 1 1 100%;
+        display: grid;
+    }
+
+    .afd-foot .afd-primary > button {
+        min-height: 44px;
+    }
+}
+
+/* Long names end with "…" instead of running into the next column */
+.afl-pet > div,
+.afl-foster {
+    min-width: 0;
+}
+
+.afl-pet b,
+.afl-foster b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
