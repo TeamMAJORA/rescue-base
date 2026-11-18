@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     MapContainer,
     Marker,
@@ -280,6 +280,10 @@ export default function GISMapping({ onOpenLostFound }) {
     const [openRowMenuId, setOpenRowMenuId] = useState(null);
     // Report picked on the map: its row in the side list is scrolled to and glows for a moment
     const [highlightedReportId, setHighlightedReportId] = useState(null);
+    // Phone: the report form is a bottom sheet; it shrinks to its header while you tap the map for the pin
+    const [isReportSheetPicking, setIsReportSheetPicking] = useState(false);
+    const reportMarkerRefs = useRef({});
+    const gmMapWrapRef = useRef(null);
     const [openRowMenuPosition, setOpenRowMenuPosition] = useState({ top: 0, right: 0 });
 
     // Close the row menu on any outside click, scroll or resize
@@ -449,6 +453,20 @@ export default function GISMapping({ onOpenLostFound }) {
         } finally {
             setLoading(false);
         }
+    }
+
+    function scrollMapIntoViewIfHidden() {
+        const mapBox = gmMapWrapRef.current?.getBoundingClientRect();
+        if (mapBox && (mapBox.top < 0 || mapBox.bottom > window.innerHeight)) {
+            gmMapWrapRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    }
+
+    // Report row tapped: fly to its pin and open its details
+    function showReportOnMap(location) {
+        setGmFocus({ latitude: Number(location.latitude), longitude: Number(location.longitude), zoom: 17 });
+        scrollMapIntoViewIfHidden();
+        setTimeout(() => reportMarkerRefs.current[location._id]?.openPopup(), 900);
     }
 
     function highlightReportInList(reportId) {
@@ -1262,6 +1280,7 @@ export default function GISMapping({ onOpenLostFound }) {
     }
 
     function gmMapPick(latitude, longitude) {
+        setIsReportSheetPicking(false);
         if (gmPanel === "report") gmSetReportSpot(latitude, longitude, "pin");
         if (gmPanel === "shelter") gmSetShelterSpot(latitude, longitude);
     }
@@ -1272,10 +1291,17 @@ export default function GISMapping({ onOpenLostFound }) {
         setEditingLocationId(null);
         setGmReport({ ...emptyGmReport });
         setGmPanel("report");
+        setIsReportSheetPicking(false);
         gmLocate(
             (spot) => gmSetReportSpot(spot.latitude, spot.longitude, "me"),
             () => setGmReport((current) => ({ ...current, where: "pin" }))
         );
+        // Desktop: the form is in the side panel; scroll it into view if it is off screen
+        requestAnimationFrame(() => {
+            const form = document.querySelector(".gm-form");
+            const formBox = form?.getBoundingClientRect();
+            if (formBox && window.innerWidth > 640 && formBox.top > window.innerHeight) form.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
     }
 
     function gmEditReport(location) {
@@ -1307,12 +1333,15 @@ export default function GISMapping({ onOpenLostFound }) {
         } else {
             setError("");
             setGmReport((current) => ({ ...current, where: "pin" }));
+            setIsReportSheetPicking(true);
+            scrollMapIntoViewIfHidden();
         }
     }
 
     function gmClosePanel() {// update this for shelter panel and clinic differences
         setError("");
         setGmPanel("list");
+        setIsReportSheetPicking(false);
         setEditingLocationId(null);
         setEditingShelterId(null);
         setShelterForm({ ...emptyShelterForm });
@@ -1482,7 +1511,7 @@ export default function GISMapping({ onOpenLostFound }) {
 
                 <div className="gm-grid">
                     {/* Map */}
-                    <div className={`gm-map-wrap${gmPinActive ? " is-picking" : ""}`}>
+                    <div className={`gm-map-wrap${gmPinActive ? " is-picking" : ""}`} ref={gmMapWrapRef}>
                         <MapContainer center={cebuCenter} zoom={13} scrollWheelZoom className="gm-map">
                             <TileLayer
                                 attribution="&copy; OpenStreetMap contributors"
@@ -1511,6 +1540,10 @@ export default function GISMapping({ onOpenLostFound }) {
                                         key={`gm-report-${location._id}`}
                                         position={[Number(location.latitude), Number(location.longitude)]}
                                         icon={reportIcon(location)}
+                                        ref={(marker) => {
+                                            if (marker) reportMarkerRefs.current[location._id] = marker;
+                                            else delete reportMarkerRefs.current[location._id];
+                                        }}
                                         eventHandlers={{ click: () => highlightReportInList(location._id) }}
                                     >
                                         <Popup>
@@ -1744,8 +1777,9 @@ export default function GISMapping({ onOpenLostFound }) {
                                     Add shelter
                                 </button>
                             )}
-                            <button type="button" className="gm-btn gm-btn-orange" onClick={gmOpenReport}>
-                                Pin a report
+                            <button type="button" className="gm-btn gm-btn-orange gm-pin-btn" onClick={gmOpenReport} aria-label="Pin a report">
+                                <Icon name="plus" className="gm-pin-btn-plus" />
+                                <span className="gm-pin-btn-label">Pin a report</span>
                             </button>
                         </div>
 
@@ -1861,7 +1895,8 @@ export default function GISMapping({ onOpenLostFound }) {
                                                             <button
                                                                 type="button"
                                                                 className="gm-row-text"
-                                                                onClick={() => setGmFocus({ latitude: Number(location.latitude), longitude: Number(location.longitude), zoom: 17 })}
+                                                                title="Show on map"
+                                                                onClick={() => showReportOnMap(location)}
                                                             >
                                                                 <b>
                                                                     {TYPE_LABEL[location.reportType] || "Report"} {SPECIES_LABEL[location.species] || "animal"}
@@ -1882,9 +1917,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                                                 ) : (
                                                                     <>
                                                                         {location.status === "open" ? (
-                                                                            !canManage ? (
-                                                                                <span className="gm-mini">Open</span>
-                                                                            ) :
+                                                                            !canManage ? null :
                                                                             <button type="button" className="gm-mini" onClick={() => handleResolveLocation(location._id)}>
                                                                                 Resolve
                                                                             </button>
@@ -1997,33 +2030,40 @@ export default function GISMapping({ onOpenLostFound }) {
                         )}
 
                         {gmPanel === "report" && (
-                            <form className="gm-card gm-form" onSubmit={gmSubmitReport}>
+                            <>
+                            {/* Phone: the form is a bottom sheet over the page; tap the dark area to close */}
+                            <div className={`gm-sheet-backdrop${isReportSheetPicking ? " is-hidden" : ""}`} onClick={gmClosePanel} aria-hidden="true" />
+                            <form
+                                className={`gm-card gm-form gm-report-sheet${isReportSheetPicking ? " is-picking" : ""}`}
+                                onSubmit={gmSubmitReport}
+                                onClick={() => isReportSheetPicking && setIsReportSheetPicking(false)}
+                            >
                                 <div className="gm-card-head">
-                                    <h3>{editingLocationId ? "Edit map report" : "New map report"}</h3>
+                                    <h3>{editingLocationId ? "Edit map report" : reportTypes.length > 1 ? "New map report" : "Report a stray"}</h3>
                                     <button type="button" className="gm-close" onClick={gmClosePanel} aria-label="Close">&times;</button>
                                 </div>
 
-                                <div className="gm-seg" role="group" aria-label="Report type">
-                                    {reportTypes.map((type) => (
-                                        <button
-                                            key={type}
-                                            type="button"
-                                            aria-pressed={gmReport.reportType === type}
-                                            className={gmReport.reportType === type ? "is-active" : ""}
-                                            onClick={() => setGmReport((current) => ({ ...current, reportType: type }))}
-                                        >
-                                            {TYPE_LABEL[type]}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {!editingLocationId && (
-                                    <div className="gm-form-hint">
-                                        <span>Lost or found pet? File it in Lost &amp; Found and it shows on this map.</span>
-                                        <button type="button" className="gm-link" onClick={() => onOpenLostFound?.()}>
-                                            Go to Lost &amp; Found
-                                        </button>
+                                {reportTypes.length > 1 ? (
+                                    <div className="gm-seg" role="group" aria-label="Report type">
+                                        {reportTypes.map((type) => (
+                                            <button
+                                                key={type}
+                                                type="button"
+                                                aria-pressed={gmReport.reportType === type}
+                                                className={gmReport.reportType === type ? "is-active" : ""}
+                                                onClick={() => setGmReport((current) => ({ ...current, reportType: type }))}
+                                            >
+                                                {TYPE_LABEL[type]}
+                                            </button>
+                                        ))}
                                     </div>
+                                ) : (
+                                    <p className="gm-strays-only">
+                                        <Icon name="alert" />
+                                        <span>
+                                            <mark>Strays only.</mark> Lost or found pets go in Lost &amp; Found.
+                                        </span>
+                                    </p>
                                 )}
 
                                 <span className="gm-label" id="gm-report-where">Where?</span>
@@ -2129,6 +2169,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                     {submitting ? "Saving…" : editingLocationId ? "Save changes" : "Submit report"}
                                 </button>
                             </form>
+                            </>
                         )}
 
                         {gmPanel === "shelter" && (

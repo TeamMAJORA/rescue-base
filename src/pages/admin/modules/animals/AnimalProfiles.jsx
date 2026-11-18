@@ -13,6 +13,7 @@ import { formatDate } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
 import Icon from "../../../../components/system/Icon";
 import NumberInput from "../../../../components/system/NumberInput";
+import RowActionsMenu from "../../../../components/system/RowActionsMenu";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -1729,26 +1730,13 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                     </td>
                                                     <td>
                                                         <div className="admin-animal-row-actions" onClick={(e) => e.stopPropagation()}>
-
-                                                            {canManage && (//updated for edit button
-                                                                <button
-                                                                    type="button"
-                                                                    className="edit"
-                                                                    onClick={() => handleEditAnimal(animal)}
-                                                                >
-                                                                    Edit
-                                                                </button>
-                                                            )}
-
-                                                            {isAdmin() && (
-                                                                <button
-                                                                    type="button"
-                                                                    className="delete"
-                                                                    onClick={() => handleDeleteAnimal(animal._id)}
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            )}
+                                                            <RowActionsMenu
+                                                                ariaLabel={`More actions for ${animal.name || "this animal"}`}
+                                                                items={[
+                                                                    ...(canManage ? [{ label: "Edit", onSelect: () => handleEditAnimal(animal) }] : []),
+                                                                    ...(isAdmin() ? [{ label: "Delete", onSelect: () => handleDeleteAnimal(animal._id), isDanger: true }] : []),
+                                                                ]}
+                                                            />
                                                         </div>
                                                     </td>
                                                 </tr>
