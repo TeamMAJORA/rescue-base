@@ -443,7 +443,7 @@
    One look for every in-card action: white, brown border, rounded, like "Resolve".
    Labels stay on one line; only the long "Delete method (unavailable…)" may wrap. */
 #root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .ao-signed-out-link, .adopter-stat-link,
-    .fdo-link, .lf-select-link, .if2-link, .adopter-signed-out-link, .admin-review-link, .acard-link) {
+    .fdo-link, .lf-select-link, .adopter-signed-out-link, .admin-review-link, .acard-link) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -477,7 +477,7 @@
 }
 
 #root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .ao-signed-out-link, .adopter-stat-link,
-    .fdo-link, .lf-select-link, .if2-link, .adopter-signed-out-link, .admin-review-link, .acard-link):hover:not(:disabled) {
+    .fdo-link, .lf-select-link, .adopter-signed-out-link, .admin-review-link, .acard-link):hover:not(:disabled) {
     background: var(--peach-soft);
     text-decoration: none;
 }
@@ -493,7 +493,7 @@
     background: var(--red-soft);
 }
 
-#root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .lf-select-link, .if2-link, .acard-link, .fdo-link):disabled {
+#root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .lf-select-link, .acard-link, .fdo-link):disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
