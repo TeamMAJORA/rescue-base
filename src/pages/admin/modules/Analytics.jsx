@@ -217,6 +217,8 @@ export default function Analytics() {
     const currentMonthIndex = monthlyStats.length - 1;
     const previousMonthLabel = monthlyStats.length > 1 ? monthlyStats[monthlyStats.length - 2].month : "";
     const monthValue = (metricKey, index) => Number(monthlyStats[index]?.[metricKey]) || 0;
+    // Percentages on this page stay between 1 and 100 (a real change is never shown as 0%, and never above 100%)
+    const toPercentInRange = (value) => Math.min(100, Math.max(1, Math.round(value)));
     const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
     function describeMonthChange(metricKey, isMoreGood) {
@@ -227,7 +229,7 @@ export default function Analytics() {
         const direction = current > previous ? "up" : "down";
         const tone = (direction === "up") === isMoreGood ? "good" : "bad";
         if (previous === 0) return { direction, tone, text: `${current} new`, suffix: `vs 0 in ${previousMonthLabel}` };
-        const percent = Math.round((Math.abs(current - previous) / previous) * 100);
+        const percent = toPercentInRange((Math.abs(current - previous) / previous) * 100);
         return { direction, tone, text: `${percent}%`, suffix: `vs ${previousMonthLabel} (${previous} → ${current})` };
     }
 
@@ -235,9 +237,9 @@ export default function Analytics() {
         const total = monthlyStats.reduce((sum, month) => sum + (Number(month.rescues) || 0), 0);
         if (!monthlyStats.length || total === 0) return `No rescues in the last ${monthlyStats.length || 6} months`;
         const average = total / monthlyStats.length;
-        const percent = Math.round(((monthValue("rescues", currentMonthIndex) - average) / average) * 100);
-        if (percent === 0) return `${nowLabel}: right at the monthly average`;
-        return `${nowLabel}: ${Math.abs(percent)}% ${percent > 0 ? "above" : "below"} the monthly average`;
+        const differenceFromAverage = ((monthValue("rescues", currentMonthIndex) - average) / average) * 100;
+        if (Math.round(differenceFromAverage) === 0) return `${nowLabel}: right at the monthly average`;
+        return `${nowLabel}: ${toPercentInRange(Math.abs(differenceFromAverage))}% ${differenceFromAverage > 0 ? "above" : "below"} the monthly average`;
     }
 
     const newLostFoundThisMonth = monthValue("lostFound", currentMonthIndex);
