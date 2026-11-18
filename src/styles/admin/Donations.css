@@ -1215,4 +1215,24 @@
     .dl-table td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; border: 0; text-align: right; }
     .dl-table td::before { content: attr(data-label); flex: none; color: var(--brown-soft); font-size: 14px; font-weight: 600; text-align: left; }
     .dl-table td > * { max-width: 65%; }
+
+    /* Short card: name, amount and status only. Tap the card for everything else (View window) */
+    .dl-table tr.dl-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: 8px; row-gap: 2px; cursor: pointer; }
+    .dl-table tr.dl-row td { display: block; width: auto; max-width: none; padding: 0; text-align: left; }
+    .dl-table tr.dl-row td::before { content: none; }
+    .dl-table tr.dl-row td > * { max-width: none; }
+    .dl-table tr.dl-row td[data-label="Donor"] { grid-column: 1 / 3; grid-row: 1; }
+    .dl-table tr.dl-row td[data-label="Details"] { grid-column: 1; grid-row: 2; }
+    .dl-table tr.dl-row td[data-label="Status"] { grid-column: 2; grid-row: 2; justify-self: start; }
+    .dl-table tr.dl-row td[data-label="Actions"],
+    .dl-table tr.dl-row .dl-actions { display: contents; }
+    .dl-table tr.dl-row .dl-menu-wrap { grid-column: 3; grid-row: 1 / 3; }
+    .dl-table tr.dl-row .dl-btn { grid-column: 1 / -1; grid-row: 3; justify-self: start; margin-top: 8px; }
+    .dl-table tr.dl-row td[data-label="Type"],
+    .dl-table tr.dl-row td[data-label="Date"],
+    .dl-table tr.dl-row .dl-donor span,
+    .dl-table tr.dl-row .dl-details span,
+    .dl-table tr.dl-row .dl-done,
+    .dl-table tr.dl-row .dl-icon-btn[title="View details"] { display: none; }
+    .dl-table tr.dl-row .dl-details b { font-size: 16px; }
 }

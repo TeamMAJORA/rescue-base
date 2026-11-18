@@ -603,69 +603,47 @@
     color: var(--brown-soft);
 }
 
-/* Insights */
+/* Insights: small tiles, status shown by the left border colour */
 .an2-insights {
     display: grid;
-    gap: 8px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
     margin-top: 12px;
 }
 
 .an2-insight {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
     padding: 12px 16px;
     border: 1px solid var(--line);
+    border-left: 4px solid var(--brown-muted);
     background: var(--white);
+}
+
+.an2-insight small {
+    display: block;
+    color: var(--brown-soft);
+    font-size: 12px;
 }
 
 .an2-insight b {
     display: block;
-    font-size: 14px;
-}
-
-.an2-insight p {
-    margin: 2px 0 0;
-    font-size: 12px;
-    color: var(--brown-soft);
-}
-
-.an2-insight-icon {
-    width: 26px;
-    height: 26px;
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    background: var(--line-soft);
-    color: var(--brown-muted);
-    font-size: 14px;
+    color: var(--brown);
+    font-size: 24px;
     font-weight: 800;
+    line-height: 1.2;
 }
 
-.an2-insight-tag {
-    margin-left: auto;
-    font-size: 12px;
-    font-weight: 800;
-    white-space: nowrap;
-    color: var(--brown-muted);
+.an2-insight.is-positive {
+    border-left-color: var(--green);
 }
 
-.an2-insight.is-positive .an2-insight-icon {
-    background: var(--green-soft);
-    color: var(--green);
+.an2-insight.is-warning {
+    border-left-color: var(--amber);
 }
 
-.an2-insight.is-positive .an2-insight-tag {
-    color: var(--green);
-}
-
-.an2-insight.is-warning .an2-insight-icon {
-    background: var(--white-yellow);
-    color: var(--amber);
-}
-
-.an2-insight.is-warning .an2-insight-tag {
-    color: var(--amber);
+@media (max-width: 760px) {
+    .an2-insights {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 1200px) {

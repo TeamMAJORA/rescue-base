@@ -32,12 +32,6 @@ const SLICE_COLORS = {
     foster: "#1baf7a",
 };
 
-const INSIGHT_TYPES = {
-    positive: { icon: "↑", label: "Good" },
-    warning: { icon: "!", label: "Needs attention" },
-    info: { icon: "i", label: "Info" },
-};
-
 // Top of the y-axis: always splits into 4 whole-number steps (6 -> 8, 23 -> 24)
 function niceMax(value) {
     if (value <= 4) return 4;
@@ -66,7 +60,6 @@ export default function Analytics() {
     const [totals, setTotals] = useState(emptyTotals);
     const [details, setDetails] = useState(emptyDetails);
     const [monthlyStats, setMonthlyStats] = useState([]);
-    const [insights, setInsights] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [reloadKey, setReloadKey] = useState(0);
@@ -103,7 +96,6 @@ export default function Analytics() {
                 setTotals({ ...emptyTotals, ...(data.totals || {}) });
                 setDetails({ ...emptyDetails, ...(data.details || {}) });
                 setMonthlyStats(Array.isArray(data.monthlyStats) ? data.monthlyStats : []);
-                setInsights(Array.isArray(data.insights) ? data.insights : []);
             } catch (err) {
                 if (err.name === "AbortError") return;
 
@@ -205,6 +197,37 @@ export default function Analytics() {
 
     const active = slices.items.find((item) => item.key === hoverSlice) || null;
     const nowLabel = monthlyStats.length ? monthlyStats[monthlyStats.length - 1].month : "";
+
+
+    // Insights as 4 small tiles: number first, status shown by the left border colour
+    const bestAdoptionMonth = monthlyStats.reduce(
+        (best, month) => (month.adoptions > (best?.adoptions || 0) ? month : best),
+        null
+    );
+    const insightTiles = [
+        bestAdoptionMonth && {
+            key: "best-month",
+            label: "Best month",
+            value: bestAdoptionMonth.month,
+            note: `most adoptions in ${monthlyStats.length} months`,
+            tone: "positive",
+        },
+        { key: "adopted", label: "Adopted", value: totals.adoptions, note: "animals", tone: "info" },
+        {
+            key: "lost-found",
+            label: "Lost & Found",
+            value: details.openLostFound,
+            note: "still open",
+            tone: details.openLostFound > 0 ? "warning" : "positive",
+        },
+        {
+            key: "foster",
+            label: "Foster care",
+            value: details.activeFosters,
+            note: `active · ${details.completedFosters} done`,
+            tone: "info",
+        },
+    ].filter(Boolean);
 
     return (
         <section className="an2-page">
@@ -412,26 +435,17 @@ export default function Analytics() {
             <section className="an2-card">
                 <h3>Insights</h3>
 
-                <div className="an2-insights">
-                    {insights.map((insight) => {
-                        const type = INSIGHT_TYPES[insight.type] || INSIGHT_TYPES.info;
-
-                        return (
-                            <article className={`an2-insight is-${insight.type || "info"}`} key={insight.id}>
-                                <span className="an2-insight-icon" aria-hidden="true">
-                                    {type.icon}
-                                </span>
-                                <div>
-                                    <b>{insight.title}</b>
-                                    <p>{insight.detail}</p>
-                                </div>
-                                <span className="an2-insight-tag">{type.label}</span>
+                {!loading && (
+                    <div className="an2-insights">
+                        {insightTiles.map((tile) => (
+                            <article className={`an2-insight is-${tile.tone}`} key={tile.key}>
+                                <small>{tile.label}</small>
+                                <b>{tile.value}</b>
+                                <small>{tile.note}</small>
                             </article>
-                        );
-                    })}
-
-                    {insights.length === 0 && <p className="an2-muted">No insights are available yet.</p>}
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
         </section>
     );

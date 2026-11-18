@@ -1733,152 +1733,6 @@
     text-align: center;
 }
 
-.lf2-table-wrap {
-    overflow-x: auto;
-}
-
-.lf2-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.lf2-table th {
-    padding: 8px 8px;
-    border-bottom: 1px solid rgba(90, 27, 0, 0.15);
-    color: var(--brown-soft);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-align: left;
-    text-transform: uppercase;
-}
-
-.lf2-table td {
-    padding: 12px 8px;
-    border-bottom: 1px solid rgba(90, 27, 0, 0.08);
-    vertical-align: middle;
-}
-
-.lf2-table tbody tr {
-    cursor: pointer;
-}
-
-.lf2-table tbody tr:hover {
-    background: rgba(252, 191, 73, 0.12);
-}
-
-.lf2-right {
-    text-align: right !important;
-}
-
-.lf2-pet {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.lf2-pet img,
-.lf2-thumb {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    object-fit: cover;
-    background: var(--line-soft);
-}
-
-.lf2-pet b {
-    display: block;
-}
-
-.lf2-pet small {
-    color: var(--brown-soft);
-    font-size: 12px;
-}
-
-.lf2-pill {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.lf2-pill.is-lost {
-    background: var(--white);
-    color: #6d28d9;
-}
-
-.lf2-pill.is-found {
-    background: var(--green-soft);
-    color: var(--green);
-}
-
-.lf2-pill.is-open {
-    background: var(--white-yellow);
-    color: var(--amber);
-}
-
-.lf2-pill.is-claim-pending {
-    background: var(--blue-soft);
-    color: var(--blue);
-}
-
-.lf2-pill.is-claim-approved {
-    background: var(--green-soft);
-    color: var(--green);
-}
-
-.lf2-pill.is-reunited,
-.lf2-pill.is-rejected {
-    background: var(--white);
-    color: var(--dark);
-}
-
-.lf2-date {
-    white-space: nowrap;
-}
-
-.lf2-row-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.lf2-mini {
-    padding: 8px 12px;
-    border: 1px solid var(--brown);
-    border-radius: 999px;
-    background: var(--brown);
-    color: var(--cream);
-    font: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.lf2-link {
-    padding: 0;
-    border: none;
-    background: none;
-    color: var(--brown);
-    font: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: underline;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.lf2-link.is-danger {
-    color: var(--red);
-}
-
 @media (max-width: 900px) {
     .lost-found-page .um-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2132,47 +1986,6 @@
     color: var(--brown-soft);
 }
 /* ===== Lost & Found: match Reports / Feedback (square controls, row buttons) ===== */
-.lf2-mini {
-    border-radius: 0;
-    background: var(--white);
-    color: var(--brown);
-    font-weight: 800;
-    text-decoration: none;
-}
-
-.lf2-mini.is-dark,
-.lf2-mini:hover {
-    background: var(--brown);
-    color: var(--white);
-}
-
-.lf2-icon {
-    width: 30px;
-    height: 30px;
-    display: grid;
-    place-items: center;
-    border: 1px solid var(--red-soft);
-    border-radius: 0;
-    background: var(--white);
-    color: var(--red);
-    cursor: pointer;
-}
-
-.lf2-icon:hover {
-    border-color: var(--red);
-}
-
-.lf2-name {
-    font-weight: 600;
-    color: var(--brown);
-}
-
-.lf2-thumb {
-    display: grid;
-    place-items: center;
-    font-size: 20px;
-    background: var(--line-soft);
-}
 
 .lf2-foot {
     margin: 0;
@@ -2748,18 +2561,6 @@
     height: 140px;
 }
 
-.lf-card-body .lf2-pill {
-    align-self: flex-start;
-    margin-top: 8px;
-}
-
-.lf-card-body .lf2-row-actions {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    margin-top: auto;
-    padding-top: 12px;
-}
-
 /* ===== Grid cards: compact, tap to view (Nov 9 redesign) ===== */
 .lf-tabs-row {
     display: flex;
@@ -3079,4 +2880,31 @@
     .lfr2-what {
         grid-template-columns: 1fr;
     }
+}
+
+/* Staff: possible matches in their own card under the reports */
+.lfm-panel h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.lfm-panel-count {
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--orange);
+    color: var(--white);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 20px;
+}
+
+.lfm-panel .lfm-list {
+    margin-top: 0;
 }

@@ -11,6 +11,7 @@ import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
 import UiIcon from "../../../components/system/Icon";
 import NumberInput from "../../../components/system/NumberInput";
+import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -320,6 +321,7 @@ export default function Donations() {
     const [donations, setDonations] = useState([]);
     const [donationForm, setDonationForm] = useState(emptyDonationForm);
     const [viewingDonation, setViewingDonation] = useState(null);
+    useCloseOnEscape(Boolean(viewingDonation), () => setViewingDonation(null));
     const [notReceivedFor, setNotReceivedFor] = useState(null);
     const [notReceivedReason, setNotReceivedReason] = useState("");
     const [notReceivedError, setNotReceivedError] = useState("");
@@ -1204,7 +1206,11 @@ export default function Donations() {
                                     const details = detailsFor(donation);
 
                                     return (
-                                        <tr key={donation._id} className={status === "cancelled" ? "is-off" : ""}>
+                                        <tr
+                                            key={donation._id}
+                                            className={`dl-row ${status === "cancelled" ? "is-off" : ""}`}
+                                            onClick={() => setViewingDonation(donation)}
+                                        >
                                             <td data-label="Donor">
                                                 <div className="dl-donor">
                                                     <b>{donation.donorName || "Anonymous"}</b>
@@ -1228,7 +1234,7 @@ export default function Donations() {
                                                 </span>
                                             </td>
                                             <td data-label="Date" className="dl-date">{formatDate(donation.createdAt)}</td>
-                                            <td data-label="Actions">
+                                            <td data-label="Actions" onClick={(event) => event.stopPropagation()}>
                                                 <div className="dl-actions">
                                                     {status === "pending" ? (
                                                         <button

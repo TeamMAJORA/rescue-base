@@ -737,8 +737,8 @@ export default function AdminOverview({ onNavigate }) {
         };
     }, [data]);
 
-    function go(page) {
-        if (onNavigate) onNavigate(page);
+    function go(page, options) {
+        if (onNavigate) onNavigate(page, options);
     }
 
     const foodLevels = buildFoodLevels(data?.foodInventory || [], view?.inCare || []);
@@ -1052,7 +1052,7 @@ export default function AdminOverview({ onNavigate }) {
                         <h3>
                             Space used
                             {isAdminUser && (
-                                <button type="button" className="db2-link" onClick={() => go("global-settings")}>
+                                <button type="button" className="db2-link" onClick={() => go("global-settings", { highlightSettingsField: "shelterCapacity" })}>
                                     Change limit
                                 </button>
                             )}

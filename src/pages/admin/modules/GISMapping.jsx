@@ -449,6 +449,58 @@ export default function GISMapping({ onOpenLostFound }) {
         }
     }
 
+    // ⋯ button with a small menu on a report row (items: { label, onSelect, isDanger })
+    function renderRowMenu(location, menuItems) {
+        const isMenuOpen = openRowMenuId === location._id;
+        return (
+            <span className="gm-row-menu-wrap">
+                <button
+                    type="button"
+                    className="gm-row-menu-btn"
+                    aria-label={`More actions for ${location.petName || location.locationName || "this report"}`}
+                    aria-haspopup="menu"
+                    aria-expanded={isMenuOpen}
+                    disabled={deletingId === location._id}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        const rect = event.currentTarget.getBoundingClientRect();
+                        setOpenRowMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                        setOpenRowMenuId(isMenuOpen ? null : location._id);
+                    }}
+                >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <circle cx="5" cy="12" r="2" />
+                        <circle cx="12" cy="12" r="2" />
+                        <circle cx="19" cy="12" r="2" />
+                    </svg>
+                </button>
+                {isMenuOpen && (
+                    <span
+                        className="gm-row-menu"
+                        role="menu"
+                        style={{ top: openRowMenuPosition.top, right: openRowMenuPosition.right }}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        {menuItems.map((menuItem) => (
+                            <button
+                                key={menuItem.label}
+                                type="button"
+                                role="menuitem"
+                                className={menuItem.isDanger ? "is-danger" : undefined}
+                                onClick={() => {
+                                    setOpenRowMenuId(null);
+                                    menuItem.onSelect();
+                                }}
+                            >
+                                {menuItem.label}
+                            </button>
+                        ))}
+                    </span>
+                )}
+            </span>
+        );
+    }
+
     async function loadHotspots() {
         if (!getToken()) {
             setHotspots([]);
@@ -1428,7 +1480,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                     radius={500}
                                     pathOptions={{ color: "#d62828", weight: 2, dashArray: "6 5", fillColor: "#d62828", fillOpacity: 0.16 }}
                                 >
-                                    <Tooltip direction="top" permanent className="gm-hot-label">
+                                    <Tooltip direction="top" className="gm-hot-label">
                                         {(hotspot.areaName || `Hotspot ${index + 1}`)} · {hotspot.count}
                                     </Tooltip>
                                 </Circle>
@@ -1799,19 +1851,18 @@ export default function GISMapping({ onOpenLostFound }) {
                                                                     {TYPE_LABEL[location.reportType] || "Report"} {SPECIES_LABEL[location.species] || "animal"}
                                                                     {location.reportType === "lost" && location.petName && !location.petName.startsWith("Unknown") ? ` "${location.petName}"` : ""}
                                                                     {location.locationName ? ` · ${location.locationName.split(",")[0]}` : ""}
-                                                                    {isLostFoundPin(location) && <em className="gm-source-tag">Lost &amp; Found</em>}
                                                                 </b>
+                                                                {location.description && <span className="gm-row-desc">{location.description}</span>}
                                                                 <span>
-                                                                    {location.description ? `${location.description} · ` : ""}
-                                                                    {location.createdByName ? `by ${location.createdByName}${location.createdBy?.role ? ` (${location.createdBy.role[0].toUpperCase()}${location.createdBy.role.slice(1)})` : ""} · ` : ""}
                                                                     {timeAgo(location.createdAt)}
+                                                                    {isLostFoundPin(location) ? " · Lost & Found" : ""}
                                                                 </span>
                                                             </button>
                                                             <div className="gm-row-actions">
                                                                 {isLostFoundPin(location) ? (
-                                                                    <button type="button" className="gm-mini gm-open-lf" onClick={() => onOpenLostFound?.(location.lostFoundReportId)}>
-                                                                        Open in Lost &amp; Found
-                                                                    </button>
+                                                                    renderRowMenu(location, [
+                                                                        { label: "Open in Lost & Found", onSelect: () => onOpenLostFound?.(location.lostFoundReportId) },
+                                                                    ])
                                                                 ) : (
                                                                     <>
                                                                         {location.status === "open" ? (
@@ -1824,60 +1875,10 @@ export default function GISMapping({ onOpenLostFound }) {
                                                                         ) : (
                                                                             <span className="gm-mini is-done">Resolved</span>
                                                                         )}
-                                                                        {canManage && (
-                                                                        <span className="gm-row-menu-wrap">
-                                                                            <button
-                                                                                type="button"
-                                                                                className="gm-row-menu-btn"
-                                                                                aria-label={`More actions for ${location.petName || location.locationName || "this report"}`}
-                                                                                aria-haspopup="menu"
-                                                                                aria-expanded={openRowMenuId === location._id}
-                                                                                disabled={deletingId === location._id}
-                                                                                onClick={(event) => {
-                                                                                    event.stopPropagation();
-                                                                                    const rect = event.currentTarget.getBoundingClientRect();
-                                                                                    setOpenRowMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
-                                                                                    setOpenRowMenuId(openRowMenuId === location._id ? null : location._id);
-                                                                                }}
-                                                                            >
-                                                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                                                                    <circle cx="5" cy="12" r="2" />
-                                                                                    <circle cx="12" cy="12" r="2" />
-                                                                                    <circle cx="19" cy="12" r="2" />
-                                                                                </svg>
-                                                                            </button>
-                                                                            {openRowMenuId === location._id && (
-                                                                                <span
-                                                                                    className="gm-row-menu"
-                                                                                    role="menu"
-                                                                                    style={{ top: openRowMenuPosition.top, right: openRowMenuPosition.right }}
-                                                                                    onClick={(event) => event.stopPropagation()}
-                                                                                >
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        role="menuitem"
-                                                                                        onClick={() => {
-                                                                                            setOpenRowMenuId(null);
-                                                                                            gmEditReport(location);
-                                                                                        }}
-                                                                                    >
-                                                                                        Edit
-                                                                                    </button>
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        role="menuitem"
-                                                                                        className="is-danger"
-                                                                                        onClick={() => {
-                                                                                            setOpenRowMenuId(null);
-                                                                                            handleDeleteLocation(location);
-                                                                                        }}
-                                                                                    >
-                                                                                        Delete
-                                                                                    </button>
-                                                                                </span>
-                                                                            )}
-                                                                        </span>
-                                                                        )}
+                                                                        {canManage && renderRowMenu(location, [
+                                                                            { label: "Edit", onSelect: () => gmEditReport(location) },
+                                                                            { label: "Delete", onSelect: () => handleDeleteLocation(location), isDanger: true },
+                                                                        ])}
                                                                     </>
                                                                 )}
                                                             </div>
@@ -1964,9 +1965,6 @@ export default function GISMapping({ onOpenLostFound }) {
                                     {!hotspotLoading && hotspots.length === 0 && (
                                         <p className="gm-empty">No hotspots yet.</p>
                                     )}
-                                    <button type="button" className="gm-btn gm-btn-primary gm-block" onClick={loadHotspots} disabled={hotspotLoading}>
-                                        {hotspotLoading ? "Analyzing…" : "Run hotspot analysis"}
-                                    </button>
                                     <label className="gm-switch">
                                         <span>
                                             Show where animals were rescued.
@@ -3120,4 +3118,4 @@ export default function GISMapping({ onOpenLostFound }) {
             )}
         </section>
     );
-}
+}

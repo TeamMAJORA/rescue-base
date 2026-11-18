@@ -259,11 +259,13 @@ export default function AdminDashboard({ setPage }) {
     const [lostFoundReportIdToOpen, setLostFoundReportIdToOpen] = useState(null);
     // Which tab Settings opens on (the dashboard's "View log" opens Activity log)
     const [settingsTab, setSettingsTab] = useState("system");
+    const [settingsFieldToHighlight, setSettingsFieldToHighlight] = useState(null);
     // Which tab Supplies opens on (dashboard food links open Food stock)
     const [suppliesTab, setSuppliesTab] = useState("food");
 
-    function openAdminPage(page) {
+    function openAdminPage(page, { highlightSettingsField = null } = {}) {
         if (page === "global-settings") setSettingsTab("system");
+        setSettingsFieldToHighlight(page === "global-settings" ? highlightSettingsField : null);
 
         if (page === "food-storage" || page === "needed-supplies") {
             setSuppliesTab(page === "food-storage" ? "food" : "needed");
@@ -384,6 +386,7 @@ export default function AdminDashboard({ setPage }) {
 
     function handleSidebarClick(item) {
         if (item.key === "global-settings") setSettingsTab("system");
+        setSettingsFieldToHighlight(null);
         if (item.key === "supplies") setSuppliesTab("food");
 
         if (item.children) {
@@ -650,7 +653,7 @@ export default function AdminDashboard({ setPage }) {
                     onProfileSaved={() => setUserVersion((n) => n + 1)}
                     onLogout={() => signOut("home")}
                     extraTabs={[
-                        { key: "system", label: "System settings", content: <GlobalSettings /> },
+                        { key: "system", label: "System settings", content: <GlobalSettings highlightField={settingsFieldToHighlight} /> },
                         { key: "activity-log", label: "Activity log", content: <ActivityLog /> },
                     ]}
                 />
