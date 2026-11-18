@@ -2384,3 +2384,15 @@
         flex-wrap: wrap;
     }
 }
+
+/* Orange page banners: heading stays smaller than the page title (UX check #11).
+   Page title is 38px on desktop and 28-32px on tablets and phones. */
+#root :is(.adopter-hero-content h2, .mq-intro h2, .adopter-donation-hero h2, .dh-hero h1) {
+    font-size: 32px;
+}
+
+@media (max-width: 900px) {
+    #root :is(.adopter-hero-content h2, .mq-intro h2, .adopter-donation-hero h2, .dh-hero h1) {
+        font-size: 24px;
+    }
+}

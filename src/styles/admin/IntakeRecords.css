@@ -783,6 +783,7 @@
 
 /* Small one-line photo picker (foster medical request) */
 .ao-photo.is-compact {
+    min-height: 44px;
     flex-direction: row;
     justify-content: center;
     gap: 8px;
@@ -2590,12 +2591,6 @@ a.ao-tag {
 .um-search:focus,
 .um-tools select:focus {
     border-color: var(--orange);
-}
-
-.um-shown {
-    margin: 8px 0 4px;
-    color: var(--brown-muted);
-    font-size: 12px;
 }
 
 .um-table-wrap {

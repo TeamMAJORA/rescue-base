@@ -1209,7 +1209,15 @@ export default function Donations() {
                                         <tr
                                             key={donation._id}
                                             className={`dl-row ${status === "cancelled" ? "is-off" : ""}`}
+                                            tabIndex={0}
+                                            aria-label={`View donation from ${donation.donorName || "Anonymous"}`}
                                             onClick={() => setViewingDonation(donation)}
+                                            onKeyDown={(event) => {
+                                                if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+                                                    event.preventDefault();
+                                                    setViewingDonation(donation);
+                                                }
+                                            }}
                                         >
                                             <td data-label="Donor">
                                                 <div className="dl-donor">
@@ -1239,7 +1247,7 @@ export default function Donations() {
                                                     {status === "pending" ? (
                                                         <button
                                                             type="button"
-                                                            className="dl-btn primary small"
+                                                            className="dl-btn small"
                                                             onClick={() => handleUpdateStatus(donation._id, "received")}
                                                         >
                                                             Mark received
@@ -1249,16 +1257,6 @@ export default function Donations() {
                                                             {status === "received" ? "Done" : "—"}
                                                         </span>
                                                     )}
-
-                                                    <button
-                                                        type="button"
-                                                        className="dl-icon-btn"
-                                                        title="View details"
-                                                        aria-label={`View donation from ${donation.donorName || "Anonymous"}`}
-                                                        onClick={() => setViewingDonation(donation)}
-                                                    >
-                                                        <Icon name="eye" size={15} />
-                                                    </button>
 
                                                     <div className="dl-menu-wrap">
                                                         <button
@@ -1568,7 +1566,7 @@ export default function Donations() {
 
                                 <div className="dl-pm-foot">
                                     <span />
-                                    <button type="button" className="dl-btn primary" onClick={newMethod}>
+                                    <button type="button" className="dl-btn" onClick={newMethod}>
                                         + Add method
                                     </button>
                                 </div>

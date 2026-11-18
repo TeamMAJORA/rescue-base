@@ -1232,7 +1232,10 @@
     .dl-table tr.dl-row td[data-label="Date"],
     .dl-table tr.dl-row .dl-donor span,
     .dl-table tr.dl-row .dl-details span,
-    .dl-table tr.dl-row .dl-done,
-    .dl-table tr.dl-row .dl-icon-btn[title="View details"] { display: none; }
+    .dl-table tr.dl-row .dl-done { display: none; }
     .dl-table tr.dl-row .dl-details b { font-size: 16px; }
 }
+
+/* Donation rows open the details window on click (the eye button was removed) */
+.dl-table tr.dl-row { cursor: pointer; }
+.dl-table tr.dl-row:hover td { background: var(--peach-soft); }

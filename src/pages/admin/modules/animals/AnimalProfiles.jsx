@@ -1499,11 +1499,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                             aria-label="List view"
                             aria-pressed={viewMode === "list"}
                         >
-                            <img
-                                src={viewMode === "list" ? "/icons/list-white.svg" : "/icons/list-brown.svg"}
-                                alt=""
-                                aria-hidden="true"
-                            />
+                            <Icon name="list" />
                         </button>
                         <button
                             type="button"
@@ -1513,11 +1509,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                             aria-label="Grid view"
                             aria-pressed={viewMode === "grid"}
                         >
-                            <img
-                                src={viewMode === "grid" ? "/icons/grid-white.svg" : "/icons/grid-brown.svg"}
-                                alt=""
-                                aria-hidden="true"
-                            />
+                            <Icon name="grid" />
                         </button>
                     </div>
                 </div>

@@ -818,7 +818,7 @@ async function fetchPets({ silent = false } = {}) {
             item.key === "adoption-application"
         ) {
             if (hasPendingApplication) {
-                setActiveAdopterPage("overview");
+                setActiveAdopterPage("application-status");
                 return;
             }
 
@@ -1587,12 +1587,6 @@ async function fetchPets({ silent = false } = {}) {
                             activeAdopterPage ===
                             item.key;
 
-                        const applicationDisabled =
-                            item.key ===
-                            "adoption-application" &&
-                            (hasPendingApplication ||
-                                !selectedPet?._id);
-
                         return (
                             <div
                                 className="adopter-menu-group"
@@ -1608,9 +1602,6 @@ async function fetchPets({ silent = false } = {}) {
                                         isActive
                                             ? "active"
                                             : ""
-                                    }
-                                    disabled={
-                                        applicationDisabled
                                     }
                                     onClick={() =>
                                         handleSidebarClick(
