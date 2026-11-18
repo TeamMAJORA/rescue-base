@@ -1114,3 +1114,118 @@
     flex-basis: 100%;
     margin-top: 0;
 }
+/* ===== My Application: "Foster more animals" capacity request ===== */
+.ffs-column {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+}
+
+.fcr-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.fcr-field {
+    display: grid;
+    gap: 6px;
+}
+
+.fcr-label {
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.fcr-card .ffc-stepper button,
+.fcr-card .ffc-stepper output {
+    min-height: 44px;
+}
+
+.fcr-reason {
+    flex: 1;
+    min-width: 220px;
+}
+
+.fcr-reason input {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--brown);
+    font: inherit;
+    font-size: 14px;
+}
+
+.fcr-send {
+    min-height: 44px;
+}
+
+.fcr-note {
+    margin: 0;
+    color: var(--brown-soft);
+    font-size: 13px;
+}
+
+.fcr-wait {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--white-yellow);
+    color: var(--brown);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.fcr-sent {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    padding: 12px 16px;
+    border: 1px solid rgba(251, 133, 0, 0.28);
+    border-radius: 12px;
+    background: var(--white-yellow);
+}
+
+.fcr-sent span {
+    flex: 1;
+    min-width: 200px;
+    color: var(--brown-soft);
+    font-size: 13px;
+}
+
+.fcr-cancel {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--red);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--red);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.fcr-cancel:hover:not(:disabled) {
+    background: var(--red-soft);
+}
+
+.fcr-cancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .fcr-send,
+    .fcr-cancel {
+        width: 100%;
+    }
+}

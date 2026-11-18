@@ -46,8 +46,15 @@ function askedInLastDay(assignment) {
 }
 
 
-// An edited application counts as unseen again until the admin opens it
+function hasPendingCapacityRequest(application) {
+    return application.capacityRequest?.status === "pending";
+}
+
+// An edited application (or a new capacity request) counts as unseen again until the admin opens it
 function seenKey(application) {
+    if (hasPendingCapacityRequest(application)) {
+        return `${application._id}@capacity@${application.capacityRequest.requestedAt}`;
+    }
     return application.lastEditedAt
         ? `${application._id}@${application.lastEditedAt}`
         : application._id;
@@ -592,6 +599,37 @@ export default function FosterCare() {
         }
     }
 
+    async function decideCapacityRequest(application, decision) {
+        try {
+            setMessage("");
+            const response = await fetch(
+                `${API}/api/foster/applications/${application._id}/capacity-request`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
+                    },
+                    body: JSON.stringify({ decision }),
+                }
+            );
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setMessage(data.message || "Could not update the capacity request.");
+                return;
+            }
+
+            setMessage(data.message);
+            setReviewingApplication(null);
+            fetchFosterApplications();
+        } catch (error) {
+            console.error("Capacity request decision error:", error);
+            setMessage("Server error while updating the capacity request.");
+        }
+    }
+
     async function handleAcceptBehaviorEvaluation(id) {
         try {
             setMessage("");
@@ -1056,7 +1094,8 @@ export default function FosterCare() {
     const newApplicationIds = applications
         .filter((application) =>
             (application.status === "pending" ||
-                (application.status === "approved" && application.lastEditedAt)) &&
+                (application.status === "approved" &&
+                    (application.lastEditedAt || hasPendingCapacityRequest(application)))) &&
             seenAppIds !== null &&
             !seenAppIds.includes(seenKey(application))
         )
@@ -1617,11 +1656,6 @@ export default function FosterCare() {
                         <p>
                             <b>
                                 {newApplicationCount === 1
-                                    ? "1 new foster application"
-                                    : `${newApplicationCount} new foster applications`}
-                            </b>
-                            <b>
-                                {newApplicationCount === 1
                                     ? "1 new or updated foster application"
                                     : `${newApplicationCount} new or updated foster applications`}
                             </b>
@@ -1664,7 +1698,9 @@ export default function FosterCare() {
                                         <b>{application.applicantName}
                                             {isNew && (
                                                 <span className="afa-new-tag">
-                                                    {application.lastEditedAt ? "Updated" : "New"}
+                                                    {hasPendingCapacityRequest(application)
+                                                        ? `Wants ${application.capacityRequest.requestedCapacity}`
+                                                        : application.lastEditedAt ? "Updated" : "New"}
                                                 </span>
                                             )}
                                         </b>
@@ -1672,7 +1708,11 @@ export default function FosterCare() {
                                     </div>
 
                                     <div className="afa-chips">
-                                        <span>Capacity {application.capacity || 1}</span>
+                                        <span>
+                                            Capacity {application.capacity || 1}
+                                            {hasPendingCapacityRequest(application) &&
+                                                ` → ${application.capacityRequest.requestedCapacity} asked`}
+                                        </span>
                                         <span>
                                             Prefers{" "}
                                             {PREFERS_LABEL[application.preferredAnimalType] ||
@@ -2023,6 +2063,39 @@ export default function FosterCare() {
 
                         {/* Body */}
                         <div className="afr-body">
+                            {hasPendingCapacityRequest(reviewingApplication) && (
+                                <div className="afr-capacity-request">
+                                    <div>
+                                        <b>
+                                            Wants to foster up to {reviewingApplication.capacityRequest.requestedCapacity} animals
+                                            (now {reviewingApplication.capacity || 1})
+                                        </b>
+                                        <span>
+                                            Asked on {formatDate(reviewingApplication.capacityRequest.requestedAt)}
+                                            {reviewingApplication.capacityRequest.reason
+                                                ? `: "${reviewingApplication.capacityRequest.reason}"`
+                                                : ". No reason given."}
+                                        </span>
+                                    </div>
+                                    <div className="afr-capacity-request-actions">
+                                        <button
+                                            type="button"
+                                            className="afr-btn is-reject"
+                                            onClick={() => decideCapacityRequest(reviewingApplication, "declined")}
+                                        >
+                                            Decline
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="afr-btn is-approve"
+                                            onClick={() => decideCapacityRequest(reviewingApplication, "approved")}
+                                        >
+                                            <StatIcon name="check" size={16} />
+                                            Approve
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                             {reviewingApplication.lastEditedAt &&
                                 reviewingApplication.editedFields?.length > 0 && (
                                 <p className="afr-note is-updated">

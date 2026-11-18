@@ -392,6 +392,7 @@ function goToPage(page, petId = null) {
         application: (
             <FosterApplication
                 application={application}
+                activeAssignmentCount={assignments.length}
                 onSubmitted={loadDashboard}
             />
         ),
