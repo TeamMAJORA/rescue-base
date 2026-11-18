@@ -438,3 +438,73 @@
 #root .phone-input:has(input:disabled) {
     background-color: var(--cream-card);
 }
+
+/* ---------- Small outline buttons (were underlined text links) ----------
+   One look for every in-card action: white, brown border, rounded, like "Resolve".
+   Labels stay on one line; only the long "Delete method (unavailable…)" may wrap. */
+#root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .ao-signed-out-link, .adopter-stat-link,
+    .fdo-link, .lf-select-link, .if2-link, .adopter-signed-out-link, .admin-review-link, .acard-link) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    max-width: 100%;
+    min-height: 32px;
+    padding: 4px 12px;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--brown);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+#root .dl-link.is-danger {
+    white-space: normal;
+}
+
+/* Rescue/Supplies tables use square buttons, so their links match the "Edit" next to them */
+#root .rs2-link {
+    border-radius: 0;
+}
+
+#root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .ao-signed-out-link, .adopter-stat-link,
+    .fdo-link, .lf-select-link, .if2-link, .adopter-signed-out-link, .admin-review-link, .acard-link):hover:not(:disabled) {
+    background: var(--peach-soft);
+    text-decoration: none;
+}
+
+#root :is(.lfr2-link, .rs2-link, .dl-link).is-danger,
+#root .rs2-link.is-warn {
+    border-color: var(--red-dark);
+    color: var(--red-dark);
+}
+
+#root :is(.lfr2-link, .rs2-link, .dl-link).is-danger:hover:not(:disabled),
+#root .rs2-link.is-warn:hover:not(:disabled) {
+    background: var(--red-soft);
+}
+
+#root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .lf-select-link, .if2-link, .acard-link, .fdo-link):disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* The dashboard link used to cancel its own padding with a negative margin */
+#root .db2-link {
+    margin: 0;
+}
+
+/* "Log out" under the signed-out message stays centred */
+#root :is(.ao-signed-out-link, .adopter-signed-out-link) {
+    display: flex;
+    width: fit-content;
+}

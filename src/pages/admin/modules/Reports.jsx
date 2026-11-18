@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDateTime, toDayValue } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -77,6 +78,8 @@ export default function Reports() {
     const [generating, setGenerating] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [reportToFinalize, setReportToFinalize] = useState(null);
+    useCloseOnEscape(Boolean(reportToFinalize), () => setReportToFinalize(null));
 
     const [config, setConfig] = useState({ ...INITIAL_CONFIG });
 
@@ -253,6 +256,12 @@ export default function Reports() {
         }
     }
 
+    async function confirmFinalizeReport() {
+        const reportId = reportToFinalize?._id;
+        setReportToFinalize(null);
+        await handleFinalizeReport(reportId);
+    }
+
     async function handleFinalizeReport(id) {
         if (!id) {
             setError("Cannot finalize a report without an ID.");
@@ -399,13 +408,17 @@ export default function Reports() {
     ];
 
     const COUNT_LABELS = {
-        animals: "animals",
-        medical_records: "medical",
-        vaccinations: "vaccinations",
-        adoption_applications: "adoptions",
-        foster_assignments: "fosters",
-        lost_found_reports: "lost & found",
+        animals: "Animals",
+        medical_records: "Medical",
+        vaccinations: "Vaccinations",
+        adoption_applications: "Adoptions",
+        foster_assignments: "Fosters",
+        lost_found_reports: "Lost & found",
     };
+    const reportToFinalizeCounts =
+        reportToFinalize?.recordCounts && typeof reportToFinalize.recordCounts === "object"
+            ? Object.entries(reportToFinalize.recordCounts)
+            : [];
 
     const now = new Date();
     const thisMonthCount = generatedReports.filter((report) => {
@@ -683,10 +696,6 @@ export default function Reports() {
                                     {shownReports.map((report) => {
                                         const status = report.status || "draft";
                                         const speciesKey = reportSpecies(report);
-                                        const counts =
-                                            report.recordCounts && typeof report.recordCounts === "object"
-                                                ? Object.entries(report.recordCounts)
-                                                : [];
                                         const createdAt = report.createdAt ? new Date(report.createdAt) : null;
                                         const createdLabel =
                                             createdAt && !Number.isNaN(createdAt.getTime())
@@ -697,15 +706,6 @@ export default function Reports() {
                                             <tr key={report._id}>
                                                 <td>
                                                     <b>{report.title || "Untitled report"}</b>
-                                                    {counts.length > 0 && (
-                                                        <div className="rp2-counts">
-                                                            {counts.map(([key, value]) => (
-                                                                <span key={key}>
-                                                                    {COUNT_LABELS[key] || key.replaceAll("_", " ")} {value}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    )}
                                                 </td>
                                                 <td>
                                                     <b className="rp2-type">{typeShort(report.type)}</b>
@@ -729,7 +729,7 @@ export default function Reports() {
                                                             <button
                                                                 type="button"
                                                                 className="rp2-mini"
-                                                                onClick={() => handleFinalizeReport(report._id)}
+                                                                onClick={() => setReportToFinalize(report)}
                                                             >
                                                                 Finalize
                                                             </button>
@@ -775,6 +775,38 @@ export default function Reports() {
                     )}
                 </section>
             </div>
+
+            {reportToFinalize && (
+                <div className="ao-confirm-backdrop" onClick={() => setReportToFinalize(null)}>
+                    <div
+                        className="ao-confirm rp2-finalize"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="rp2-finalize-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <h3 id="rp2-finalize-title">Finalize this report?</h3>
+                        <p>
+                            {reportToFinalize.title || "Untitled report"} · {reportToFinalize.createdByName || "Unknown"}
+                            {reportToFinalize.createdAt ? ` · ${formatDateTime(reportToFinalize.createdAt)}` : ""}
+                        </p>
+                        {reportToFinalizeCounts.length > 0 && (
+                            <dl className="rp2-finalize-counts">
+                                {reportToFinalizeCounts.map(([key, value]) => (
+                                    <div key={key}>
+                                        <dd>{value}</dd>
+                                        <dt>{COUNT_LABELS[key] || key.replaceAll("_", " ")}</dt>
+                                    </div>
+                                ))}
+                            </dl>
+                        )}
+                        <div className="ao-confirm-actions">
+                            <button type="button" onClick={() => setReportToFinalize(null)}>Cancel</button>
+                            <button type="button" className="ao-confirm-ok" onClick={confirmFinalizeReport}>Finalize</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

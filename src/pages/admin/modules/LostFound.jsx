@@ -129,7 +129,6 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
     const [search, setSearch] = useState("");
     const [speciesFilter, setSpeciesFilter] = useState("all");
     const [sortBy, setSortBy] = useState("newest");
-    const [viewMode, setViewMode] = useState("grid"); // "grid" (cards, default) | "list" (table)
     // Admin "Select" mode: pick several reports and delete them together
     const [isSelectingReports, setIsSelectingReports] = useState(false);
     // Fixed "now" for the "x days ago" labels (avoids calling Date.now() while rendering)
@@ -794,7 +793,6 @@ const LF_CHIPS = [
     ...(canManageReports
         ? [
               { value: "claims", label: "To review", count: countClaims, newCount: countNewClaims },
-              { value: "matches", label: "Possible matches", count: possibleMatchesTotal },
           ]
         : []),
     { value: "reunited", label: "Reunited", count: countReunited },
@@ -927,48 +925,6 @@ function openReportDetails(report, claimType = null) {
     setFoundLocation("");
     setFoundDate("");
     if (report.newClaimCount > 0) markClaimsSeen(report._id);
-}
-
-function renderReportActions(report, { canClaimThis, canSayFound }) {
-    return (
-        <div className="lf2-row-actions" onClick={(e) => e.stopPropagation()}>
-            {canClaimThis && report.reportType === "found" && (
-                <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report, "ownership")}>
-                    This is my pet
-                </button>
-            )}
-
-            {canSayFound && (
-                <button type="button" className="lf2-mini" onClick={() => openReportDetails(report, "found")}>
-                    I found this pet
-                </button>
-            )}
-
-            {needsMyDecision(report) && (
-                <button type="button" className="lf2-mini is-dark" onClick={() => openReportDetails(report)}>
-                    {report.pendingClaimCount > 1 ? `Review claims (${report.pendingClaimCount})` : "Review claim"}
-                </button>
-            )}
-
-            <button type="button" className="lf2-link" onClick={() => openReportDetails(report)}>
-                View
-            </button>
-
-            {report.canDelete && (
-                <button
-                    type="button"
-                    className="lf2-icon"
-                    title="Delete"
-                    aria-label="Delete report"
-                    onClick={() => handleDeleteReport(report._id)}
-                >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                        <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-                    </svg>
-                </button>
-            )}
-        </div>
-    );
 }
 
 useEffect(() => {
@@ -1310,7 +1266,7 @@ if (showReportForm && canSubmitReport) {
                                 {photoUrl && (
                                     <button
                                         type="button"
-                                        className="lfr2-link"
+                                        className="lfr2-link is-danger"
                                         onClick={() => {
                                             updateReport("photoUrl", "");
                                             updateReport("photoName", "");
@@ -1531,29 +1487,6 @@ if (showReportForm && canSubmitReport) {
                         <option value="newest">Sort: Newest</option>
                         <option value="oldest">Sort: Oldest</option>
                     </select>
-
-                    <div className="admin-view-toggle">
-                        <button
-                            type="button"
-                            className={viewMode === "list" ? "active" : ""}
-                            onClick={() => setViewMode("list")}
-                            title="List view"
-                            aria-label="List view"
-                            aria-pressed={viewMode === "list"}
-                        >
-                            <img src={viewMode === "list" ? "/icons/list-white.svg" : "/icons/list-brown.svg"} alt="" aria-hidden="true" />
-                        </button>
-                        <button
-                            type="button"
-                            className={viewMode === "grid" ? "active" : ""}
-                            onClick={() => setViewMode("grid")}
-                            title="Grid view"
-                            aria-label="Grid view"
-                            aria-pressed={viewMode === "grid"}
-                        >
-                            <img src={viewMode === "grid" ? "/icons/grid-white.svg" : "/icons/grid-brown.svg"} alt="" aria-hidden="true" />
-                        </button>
-                    </div>
                 </div>
 
                 <div className="lf-tabs-row">
@@ -1580,7 +1513,7 @@ if (showReportForm && canSubmitReport) {
                         ))}
                     </div>
 
-                    {canBulkDelete && viewMode === "grid" && typeFilter !== "matches" && visibleReports.length > 0 && (
+                    {canBulkDelete && visibleReports.length > 0 && (
                         isSelectingReports ? (
                             <div className="lf-select-bar">
                                 <b>{selectedReportIds.length} selected</b>
@@ -1611,7 +1544,94 @@ if (showReportForm && canSubmitReport) {
                     )}
                 </div>
 
-                {typeFilter === "matches" ? (
+                {loading ? (
+                    <LoadingState label="Loading reports…" />
+                ) : visibleReports.length === 0 ? (
+                    <p className="lf2-empty">
+                        {reports.length === 0 ? "No lost or found reports yet." : "No reports match your filters."}
+                    </p>
+                ) : (
+                    <div className="lf-grid">
+                        {visibleReports.map((report, index) => {
+                            const details = describeReport(report);
+                            const badge = report.status === "reunited" ? "reunited" : report.reportType;
+                            const isSelected = selectedReportIds.includes(report._id);
+                            const cardFlag = getCardFlag(report, details);
+                            const openOrSelect = () =>
+                                isSelectingReports ? toggleSelectedReport(report._id) : openReportDetails(report);
+
+                            return (
+                                <article
+                                    key={report._id}
+                                    className={`lf-card${details.isMine ? " is-mine" : ""}${isSelected ? " is-selected" : ""}`}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-pressed={isSelectingReports ? isSelected : undefined}
+                                    onClick={openOrSelect}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault();
+                                            openOrSelect();
+                                        }
+                                    }}
+                                >
+                                    <div className={`lf-card-thumb tint-${index % 4}`}>
+                                        {report.photoUrl ? (
+                                            <img className="lf-card-photo" src={report.photoUrl} alt="" />
+                                        ) : (
+                                            <img className="lf-card-placeholder" src="/icons/sidebar/brown paw.svg" alt="" aria-hidden="true" />
+                                        )}
+                                    </div>
+
+                                    <div className="lf-card-info">
+                                        <div className="lf-card-title">
+                                            <h3>{report.petName || "Unknown"}</h3>
+                                            <span className={`lf-card-badge is-${badge}`}>{badge}</span>
+                                        </div>
+                                        <small className="lf-card-sub">
+                                            {[report.species, report.breed].filter(Boolean).join(" · ") || "Unknown species"}
+                                        </small>
+                                        <div className="lf-card-meta">
+                                            <span>
+                                                <img src="/icons/pawPin.svg" alt="" aria-hidden="true" />
+                                                {report.location || "No location"}
+                                            </span>
+                                            <span>
+                                                <img src="/icons/Clock.svg" alt="" aria-hidden="true" />
+                                                {timeAgo(report.dateReported || report.createdAt)}
+                                            </span>
+                                        </div>
+                                        {cardFlag && <span className={`lf-card-flag is-${cardFlag.tone}`}>{cardFlag.text}</span>}
+                                    </div>
+
+                                    {isSelectingReports && (
+                                        <span className={`lf-card-check${isSelected ? " is-on" : ""}`} aria-hidden="true">
+                                            {isSelected && (
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M5 12l5 5L20 7" />
+                                                </svg>
+                                            )}
+                                        </span>
+                                    )}
+
+                                </article>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {!loading && reports.length > 0 && (
+                    <p className="lf2-foot">
+                        Showing {visibleReports.length} of {reports.length}
+                    </p>
+                )}
+            </section>
+
+            {canManageReports && (
+                <section className="lf2-card lfm-panel">
+                    <h3>
+                        Possible matches <span className="lfm-panel-count">{possibleMatchesTotal}</span>
+                    </h3>
                     <div className="lfm-list">
                         <p className="lfm-intro">
                             Suggested by the system from species, breed, colour, size, sex, distance and dates. Check both reports before confirming.
@@ -1733,144 +1753,8 @@ if (showReportForm && canSubmitReport) {
                             })
                         )}
                     </div>
-                ) : loading ? (
-                    <LoadingState label="Loading reports…" />
-                ) : visibleReports.length === 0 ? (
-                    <p className="lf2-empty">
-                        {reports.length === 0 ? "No lost or found reports yet." : "No reports match your filters."}
-                    </p>
-                ) : viewMode === "grid" ? (
-                    <div className="lf-grid">
-                        {visibleReports.map((report, index) => {
-                            const details = describeReport(report);
-                            const badge = report.status === "reunited" ? "reunited" : report.reportType;
-                            const isSelected = selectedReportIds.includes(report._id);
-                            const cardFlag = getCardFlag(report, details);
-                            const openOrSelect = () =>
-                                isSelectingReports ? toggleSelectedReport(report._id) : openReportDetails(report);
-
-                            return (
-                                <article
-                                    key={report._id}
-                                    className={`lf-card${details.isMine ? " is-mine" : ""}${isSelected ? " is-selected" : ""}`}
-                                    role="button"
-                                    tabIndex={0}
-                                    aria-pressed={isSelectingReports ? isSelected : undefined}
-                                    onClick={openOrSelect}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter" || e.key === " ") {
-                                            e.preventDefault();
-                                            openOrSelect();
-                                        }
-                                    }}
-                                >
-                                    <div className={`lf-card-thumb tint-${index % 4}`}>
-                                        {report.photoUrl ? (
-                                            <img className="lf-card-photo" src={report.photoUrl} alt="" />
-                                        ) : (
-                                            <img className="lf-card-placeholder" src="/icons/sidebar/brown paw.svg" alt="" aria-hidden="true" />
-                                        )}
-                                    </div>
-
-                                    <div className="lf-card-info">
-                                        <div className="lf-card-title">
-                                            <h3>{report.petName || "Unknown"}</h3>
-                                            <span className={`lf-card-badge is-${badge}`}>{badge}</span>
-                                        </div>
-                                        <small className="lf-card-sub">
-                                            {[report.species, report.breed].filter(Boolean).join(" · ") || "Unknown species"}
-                                        </small>
-                                        <div className="lf-card-meta">
-                                            <span>
-                                                <img src="/icons/pawPin.svg" alt="" aria-hidden="true" />
-                                                {report.location || "No location"}
-                                            </span>
-                                            <span>
-                                                <img src="/icons/Clock.svg" alt="" aria-hidden="true" />
-                                                {timeAgo(report.dateReported || report.createdAt)}
-                                            </span>
-                                        </div>
-                                        {cardFlag && <span className={`lf-card-flag is-${cardFlag.tone}`}>{cardFlag.text}</span>}
-                                    </div>
-
-                                    {isSelectingReports && (
-                                        <span className={`lf-card-check${isSelected ? " is-on" : ""}`} aria-hidden="true">
-                                            {isSelected && (
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M5 12l5 5L20 7" />
-                                                </svg>
-                                            )}
-                                        </span>
-                                    )}
-
-                                </article>
-                            );
-                        })}
-                    </div>
-                ) : (
-                    <div className="lf2-table-wrap">
-                        <table className="lf2-table">
-                            <thead>
-                                <tr>
-                                    <th>Pet</th>
-                                    <th>Type</th>
-                                    <th>Last seen / found at</th>
-                                    <th>Reported by</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th className="lf2-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {visibleReports.map((report) => {
-                                    const details = describeReport(report);
-
-                                    return (
-                                        <tr key={report._id} onClick={() => openReportDetails(report)}>
-                                            <td>
-                                                <div className="lf2-pet">
-                                                    {report.photoUrl ? (
-                                                        <img src={report.photoUrl} alt="" />
-                                                    ) : (
-                                                        <span className="lf2-thumb" aria-hidden="true">{details.speciesIcon}</span>
-                                                    )}
-                                                    <div>
-                                                        <b>{report.petName || "Unknown"}</b>
-                                                        <small>
-                                                            {[report.species, report.breed].filter(Boolean).join(" · ")}
-                                                            {details.isMine ? " · Your report" : ""}
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span className={`lf2-pill is-${report.reportType}`}>
-                                                    {report.reportType === "found" ? "Found" : "Lost"}
-                                                </span>
-                                            </td>
-                                            <td>{report.location || "—"}</td>
-                                            <td>
-                                                <b className="lf2-name">{report.reporterName || "—"}</b>
-                                            </td>
-                                            <td>
-                                                <span className={`lf2-pill is-${details.statusKey}`}>{details.statusLabel}</span>
-                                            </td>
-                                            <td className="lf2-date">{details.dateText}</td>
-                                            <td>{renderReportActions(report, details)}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {!loading && reports.length > 0 && typeFilter !== "matches" && (
-                    <p className="lf2-foot">
-                        Showing {visibleReports.length} of {reports.length}
-                    </p>
-                )}
-            </section>
+                </section>
+            )}
             {viewingReport && (() => {
     const r = viewingReport;
     const isMine = r.isMine;

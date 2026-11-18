@@ -335,6 +335,13 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
     const dueDate = new Date(lastUpdate || assignment.startDate || assignment.createdAt || Date.now());
     dueDate.setDate(dueDate.getDate() + 7);
     const dueIn = -daysBetween(dueDate);
+    const daysWithFoster = assignment.startDate ? Math.max(0, daysBetween(assignment.startDate)) : null;
+    const timeWithFosterText =
+        daysWithFoster === null
+            ? ""
+            : daysWithFoster < 14
+              ? `${daysWithFoster} day${daysWithFoster === 1 ? "" : "s"} with you`
+              : `${Math.floor(daysWithFoster / 7)} weeks with you`;
     const dueNote =
         dueIn > 1 ? `in ${dueIn} days` : dueIn === 1 ? "tomorrow" : dueIn === 0 ? "today" : `${-dueIn} days overdue`;
 
@@ -406,8 +413,25 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card">
+                    {hasAssignment && (
+                        <div className="ao-pet-head">
+                            {assignment.petImage ? (
+                                <img src={assignment.petImage} alt="" />
+                            ) : (
+                                <span className="ao-pet-head-photo" aria-hidden="true" />
+                            )}
+                            <div>
+                                <small>You're caring for</small>
+                                <b>{assignment.petName}</b>
+                                <small>
+                                    {[assignment.petBreed, timeWithFosterText]
+                                        .filter(Boolean)
+                                        .join(" · ")}
+                                </small>
+                            </div>
+                        </div>
+                    )}
                     <h2>Weekly care update</h2>
-                    <p className="ao-hint">Tell the shelter how {assignment.petName} is doing this week.</p>
 
                     <form className="ao-form" onSubmit={handleSubmit}>
                         <fieldset className="ao-fieldset" disabled={!hasAssignment}>

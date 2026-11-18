@@ -355,16 +355,10 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
             <div className="ao-layout">
                 {/* ---------- FORM ---------- */}
                 <section className="ao-card">
-                    <h2>Request medical help</h2>
-                    <p className="ao-hint">Tell the shelter what's wrong. Staff will reply here.</p>
+                    <h2>Medical help for {assignment.petName || "your pet"}</h2>
 
                     <form className="ao-form" onSubmit={handleSubmit}>
                         <fieldset className="ao-fieldset" disabled={!hasAssignment}>
-                        <label className="ao-field">
-                            <span>Pet</span>
-                            <input value={assignment.petName} readOnly />
-                        </label>
-
                         <label className="ao-field">
                             <span>What's wrong? <span className="required-mark">*</span></span>
                             <select value={issueType} onChange={(e) => setIssueType(e.target.value)} required>
@@ -395,17 +389,17 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                                         key={u.value}
                                         className={`${u.tone}${urgency === u.value ? " on" : ""}`}
                                         aria-pressed={urgency === u.value}
+                                        title={u.hint}
                                         onClick={() => setUrgency(u.value)}
                                     >
                                         {u.value}
-                                        <small>{u.hint}</small>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
                         <label className="ao-field">
-                            <span>Describe the problem <span className="required-mark">*</span></span>
+                            <span>Describe it <span className="required-mark">*</span></span>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
@@ -414,7 +408,7 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                             />
                         </label>
 
-                        <label className="ao-photo">
+                        <label className="ao-photo is-compact">
                             {photoPreview ? (
                                 <>
                                     <img className="ao-photo-preview" src={photoPreview} alt="Selected" />
@@ -422,9 +416,8 @@ export default function MedicalAssistance({ assignment: assignedPet, refreshAssi
                                 </>
                             ) : (
                                 <>
-                                    <Icon name="camera" size={26} />
-                                    <b>Add a photo</b>
-                                    <span>Optional · helps staff see the problem</span>
+                                    <Icon name="camera" size={18} />
+                                    <b>Add photo (optional)</b>
                                 </>
                             )}
                             <input type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />

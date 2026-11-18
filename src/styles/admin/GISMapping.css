@@ -486,6 +486,7 @@
 
 .gm-side {
     display: grid;
+    grid-template-columns: minmax(0, 1fr); /* long one-line descriptions shrink instead of widening the panel */
     gap: 16px;
 }
 
@@ -1241,6 +1242,17 @@
 .gm-row .gm-row-text { cursor: pointer; }
 .gm-row:hover { background: var(--peach-soft); }
 
+/* Row of the report just tapped on the map */
+.gm-row.is-highlighted {
+    background: var(--peach-soft);
+    box-shadow: inset 4px 0 0 var(--orange);
+    animation: gm-row-glow 1.1s ease-in-out 2;
+}
+
+@keyframes gm-row-glow {
+    50% { background: var(--peach); }
+}
+
 /* Report filters: inline on desktop, a bottom sheet on phones */
 .gm-filter-toggle,
 .gm-sheet-head,
@@ -1397,23 +1409,6 @@
     color: var(--red-dark);
 }
 
-/* Lost & Found pins on the GIS map (they are managed in Lost & Found) */
-.gm-source-tag {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 1px 8px;
-    border: 1px solid rgba(90, 27, 0, 0.25);
-    border-radius: 8px;
-    color: var(--brown-soft);
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    vertical-align: 1px;
-    white-space: nowrap;
-}
-
 .gm-form-hint {
     display: flex;
     flex-wrap: wrap;
@@ -1439,12 +1434,10 @@
     object-fit: cover;
 }
 
-/* Lost & Found rows: the longer button sits under the text so the text keeps its width */
-.gm-row:has(.gm-open-lf) {
-    flex-wrap: wrap;
-}
-
-.gm-row-actions:has(.gm-open-lf) {
-    width: 100%;
-    padding-left: 32px;
+/* Report rows: one line of description, full text is in the map popup */
+.gm-row-text span.gm-row-desc {
+    overflow: hidden;
+    color: var(--brown);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
