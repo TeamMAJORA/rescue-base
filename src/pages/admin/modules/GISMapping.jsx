@@ -24,7 +24,7 @@ import NumberInput from "../../../components/system/NumberInput";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
-const COMMUNITY_REPORTER_ROLES = ["volunteer", "adopter"];
+const COMMUNITY_REPORTER_ROLES = ["volunteer", "adopter", "foster"];
 const cebuCenter = [10.3157, 123.8854];
 
 const createMarkerIcon = (image, alt) =>
@@ -278,6 +278,8 @@ export default function GISMapping({ onOpenLostFound }) {
     const [deletingId, setDeletingId] = useState(null);
     // Row "⋯" menu (Edit / Delete): which report it is for, and where it sits (fixed, so the list can't clip it)
     const [openRowMenuId, setOpenRowMenuId] = useState(null);
+    // Report picked on the map: its row in the side list is scrolled to and glows for a moment
+    const [highlightedReportId, setHighlightedReportId] = useState(null);
     const [openRowMenuPosition, setOpenRowMenuPosition] = useState({ top: 0, right: 0 });
 
     // Close the row menu on any outside click, scroll or resize
@@ -326,7 +328,7 @@ export default function GISMapping({ onOpenLostFound }) {
     const [manualLongitude, setManualLongitude] = useState("");
 
     const canManage = ["admin", "staff"].includes(userRole);
-    // Volunteers and adopters see the public map and can pin stray sightings
+    // Volunteers, adopters and fosters see the public map and can pin stray sightings
     const isCommunityReporter = COMMUNITY_REPORTER_ROLES.includes(userRole);
 
     // ---------------------------
@@ -448,6 +450,22 @@ export default function GISMapping({ onOpenLostFound }) {
             setLoading(false);
         }
     }
+
+    function highlightReportInList(reportId) {
+        setGmPanel("list");
+        setGmTab("reports");
+        setHighlightedReportId(reportId);
+    }
+
+    useEffect(() => {
+        if (!highlightedReportId) return undefined;
+        const row = document.getElementById(`gm-row-${highlightedReportId}`);
+        const list = row?.closest(".gm-list");
+        // Scroll only inside the report list so the page (and the map) stays put
+        if (row && list) list.scrollTo({ top: row.offsetTop - list.offsetTop - 8, behavior: "smooth" });
+        const timer = setTimeout(() => setHighlightedReportId(null), 2200);
+        return () => clearTimeout(timer);
+    }, [highlightedReportId]);
 
     // ⋯ button with a small menu on a report row (items: { label, onSelect, isDanger })
     function renderRowMenu(location, menuItems) {
@@ -1493,6 +1511,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                         key={`gm-report-${location._id}`}
                                         position={[Number(location.latitude), Number(location.longitude)]}
                                         icon={reportIcon(location)}
+                                        eventHandlers={{ click: () => highlightReportInList(location._id) }}
                                     >
                                         <Popup>
                                             {isLostFoundPin(location) && location.photoUrl && (
@@ -1513,14 +1532,7 @@ export default function GISMapping({ onOpenLostFound }) {
                                                         Open in Lost &amp; Found
                                                     </button>
                                                 </>
-                                            ) : canManage && location.status === "open" && (
-                                                <>
-                                                    <br />
-                                                    <button type="button" className="gm-link" onClick={() => handleResolveLocation(location._id)}>
-                                                        Resolve
-                                                    </button>
-                                                </>
-                                            )}
+                                            ) : null}
                                         </Popup>
                                     </Marker>
                                 ))}
@@ -1840,7 +1852,11 @@ export default function GISMapping({ onOpenLostFound }) {
                                                     <p className="gm-empty">No reports match your filters.</p>
                                                 ) : (
                                                     gmFiltered.map((location) => (
-                                                        <article className="gm-row" key={location._id}>
+                                                        <article
+                                                            className={`gm-row ${highlightedReportId === location._id ? "is-highlighted" : ""}`}
+                                                            id={`gm-row-${location._id}`}
+                                                            key={location._id}
+                                                        >
                                                             <img src={reportIcon(location).options.iconUrl} alt="" className="gm-row-icon" />
                                                             <button
                                                                 type="button"
@@ -2088,21 +2104,26 @@ export default function GISMapping({ onOpenLostFound }) {
                                     placeholder="Color, size, condition, landmarks…"
                                 />
 
-                                <span className="gm-label" id="gm-report-status">Status</span>
-                                <div className="gm-seg" role="group" aria-labelledby="gm-report-status">
-                                    {[["open", "Open"], ["resolved", "Rescued now"]].map(([value, label]) => (
-                                        <button
-                                            key={value}
-                                            type="button"
-                                            aria-pressed={gmReport.status === value}
-                                            className={gmReport.status === value ? "is-active" : ""}
-                                            onClick={() => setGmReport((current) => ({ ...current, status: value }))}
-                                        >
-                                            {label}
-                                        </button>
-                                    ))}
-                                </div>
-                                <p className="gm-note">"Rescued now" saves it as resolved, e.g. when staff pick the animal up on the spot.</p>
+                                {/* Only staff/admin choose; community sightings are always saved as open */}
+                                {canManage && (
+                                    <>
+                                        <span className="gm-label" id="gm-report-status">Status</span>
+                                        <div className="gm-seg" role="group" aria-labelledby="gm-report-status">
+                                            {[["open", "Open"], ["resolved", "Rescued now"]].map(([value, label]) => (
+                                                <button
+                                                    key={value}
+                                                    type="button"
+                                                    aria-pressed={gmReport.status === value}
+                                                    className={gmReport.status === value ? "is-active" : ""}
+                                                    onClick={() => setGmReport((current) => ({ ...current, status: value }))}
+                                                >
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <p className="gm-note">"Rescued now" saves it as resolved, e.g. when staff pick the animal up on the spot.</p>
+                                    </>
+                                )}
 
                                 <button type="submit" className="gm-btn gm-btn-primary gm-block" disabled={submitting}>
                                     {submitting ? "Saving…" : editingLocationId ? "Save changes" : "Submit report"}

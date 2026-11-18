@@ -1266,7 +1266,7 @@ if (showReportForm && canSubmitReport) {
                                 {photoUrl && (
                                     <button
                                         type="button"
-                                        className="lfr2-link"
+                                        className="lfr2-link is-danger"
                                         onClick={() => {
                                             updateReport("photoUrl", "");
                                             updateReport("photoName", "");

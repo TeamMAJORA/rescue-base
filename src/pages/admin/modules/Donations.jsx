@@ -1678,7 +1678,7 @@ export default function Donations() {
                                                 {" · "}
                                                 <button
                                                     type="button"
-                                                    className="dl-link"
+                                                    className="dl-link is-danger"
                                                     onClick={() => setDropOffForm({ ...dropOffForm, latitude: null, longitude: null })}
                                                 >
                                                     Remove pin
