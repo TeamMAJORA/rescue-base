@@ -186,7 +186,7 @@ export default function IntakeForecast() {
     const history = useMemo(() => forecast?.history || [], [forecast]);
     const target = forecast?.target;
     const warnings = forecast?.dataQuality?.warnings || [];
-    const [showData, setShowData] = useState(false);
+    const [showData, setShowData] = useState(true); // monthly table starts open
     const [showWhy, setShowWhy] = useState(false);
 
     const stats = useMemo(() => {
