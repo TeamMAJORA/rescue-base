@@ -19,7 +19,7 @@ const emptyDetails = {
 
 const metricOptions = [
     { value: "adoptions", label: "Adoptions", noun: "adoptions" },
-    { value: "rescues", label: "Rescues", noun: "rescues" },
+    { value: "rescues", label: "Rescues", noun: "animals rescued" },
     { value: "lostFound", label: "Lost & Found", noun: "lost & found reports" },
     { value: "foster", label: "Foster", noun: "foster assignments" },
 ];
@@ -140,7 +140,7 @@ export default function Analytics() {
 
     const slices = useMemo(() => {
         const items = [
-            { key: "rescues", label: "Rescues", value: totals.rescues, detail: "Animals taken in as rescued" },
+            { key: "rescues", label: "Rescues", value: totals.rescues, detail: "Animals taken in as rescued (not rescue assignments)" },
             {
                 key: "adoptions",
                 label: "Adoptions",
@@ -228,7 +228,7 @@ export default function Analytics() {
         const tone = (direction === "up") === isMoreGood ? "good" : "bad";
         if (previous === 0) return { direction, tone, text: `${current} new`, suffix: `vs 0 in ${previousMonthLabel}` };
         const percent = Math.round((Math.abs(current - previous) / previous) * 100);
-        return { direction, tone, text: `${percent}%`, suffix: `vs ${previousMonthLabel}` };
+        return { direction, tone, text: `${percent}%`, suffix: `vs ${previousMonthLabel} (${previous} → ${current})` };
     }
 
     function describeRescuesVsAverage() {
@@ -278,20 +278,21 @@ export default function Analytics() {
             <div className="um-strip an2-strip">
                 <div className="um-strip-total">
                     <b>{totals.adoptions}</b>
-                    <small>Total adoptions</small>
+                    <small>Total adoptions (all time)</small>
                     <em>{details.pendingApplications} applications pending</em>
                 </div>
                 <div>
-                    <small>Rescues</small>
+                    <small>Animals rescued</small>
                     <b>{totals.rescues}</b>
+                    <em>all time</em>
                 </div>
                 <div>
-                    <small>Lost &amp; Found reports</small>
+                    <small>Lost &amp; Found reports (all time)</small>
                     <b>{totals.lostFound}</b>
                     <em>{details.openLostFound} open</em>
                 </div>
                 <div>
-                    <small>Foster assignments</small>
+                    <small>Foster assignments (all time)</small>
                     <b>{totals.foster}</b>
                     <em>{details.activeFosters} active</em>
                 </div>
@@ -437,7 +438,7 @@ export default function Analytics() {
                                     <>
                                         <b>{slices.total}</b>
                                         <span>Total</span>
-                                        <small>{slices.total === 0 ? "No activity yet" : "all activity"}</small>
+                                        <small>{slices.total === 0 ? "No activity yet" : "records, all time"}</small>
                                     </>
                                 )}
                             </div>
