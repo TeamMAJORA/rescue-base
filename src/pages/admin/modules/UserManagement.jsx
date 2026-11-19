@@ -598,7 +598,7 @@ export default function UserManagement() {
 
                     <button
                         type="button"
-                        className="gs-btn primary"
+                        className="gs-btn"
                         onClick={() => {
                             setShowAddForm(true);
                             setEditingUser(null);
@@ -639,10 +639,6 @@ export default function UserManagement() {
                         <option value="disabled">Deactivated</option>
                     </select>
                 </div>
-
-                <p className="um-shown">
-                    Showing {visibleUsers.length} of {totalUsers} users
-                </p>
 
                 {loading ? (
                     <LoadingState label="Loading users…" />

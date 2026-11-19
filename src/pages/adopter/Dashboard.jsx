@@ -55,7 +55,7 @@ const adopterMenu = [
     { key: "adoption-application", group: "Adopt", label: "Adoption Application", icon: "clipboard-brown.svg", activeIcon: "clipboard-light.svg" },
     { key: "application-status", group: "Adopt", label: "Application Status", icon: "Status.svg", activeIcon: "Status-light.svg" },
     { key: "lost-found", group: "Help animals", label: "Lost & Found", icon: "LostnFound-brown.svg", activeIcon: "LostnFound-light.svg" },
-    { key: "stray-map", group: "Help animals", label: "Stray Map", icon: "strayMap-brown.svg", activeIcon: "strayMap-light.svg" },
+    { key: "stray-map", group: "Help animals", label: "GIS Mapping", icon: "strayMap-brown.svg", activeIcon: "strayMap-light.svg" },
     { key: "donation", group: "Help animals", label: "Donation", icon: "donation-brown.svg", activeIcon: "donation-light.svg" },
     { key: "donation-history", group: "Help animals", label: "Donation History", icon: "history.svg", activeIcon: "history-light.svg" },
     { key: "role-application", group: "Account", label: "Role Application", icon: "role-brown.svg", activeIcon: "role-light.svg" },
@@ -818,7 +818,7 @@ async function fetchPets({ silent = false } = {}) {
             item.key === "adoption-application"
         ) {
             if (hasPendingApplication) {
-                setActiveAdopterPage("overview");
+                setActiveAdopterPage("application-status");
                 return;
             }
 
@@ -1587,12 +1587,6 @@ async function fetchPets({ silent = false } = {}) {
                             activeAdopterPage ===
                             item.key;
 
-                        const applicationDisabled =
-                            item.key ===
-                            "adoption-application" &&
-                            (hasPendingApplication ||
-                                !selectedPet?._id);
-
                         return (
                             <div
                                 className="adopter-menu-group"
@@ -1608,9 +1602,6 @@ async function fetchPets({ silent = false } = {}) {
                                         isActive
                                             ? "active"
                                             : ""
-                                    }
-                                    disabled={
-                                        applicationDisabled
                                     }
                                     onClick={() =>
                                         handleSidebarClick(

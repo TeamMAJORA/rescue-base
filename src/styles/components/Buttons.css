@@ -168,3 +168,75 @@
     cursor: not-allowed;
     filter: none;
 }
+
+/* Row "⋯" actions menu (components/system/RowActionsMenu.jsx) */
+#root .row-actions-menu-wrap {
+    display: inline-flex;
+}
+
+#root .row-actions-menu-btn {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    border: 1px solid rgba(90, 27, 0, 0.3);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--brown);
+    cursor: pointer;
+}
+
+/* Same height as the Approve / Reject buttons next to it */
+#root .ao-actions .row-actions-menu-btn {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+}
+
+#root .row-actions-menu-btn:hover:not(:disabled),
+#root .row-actions-menu-btn[aria-expanded="true"] {
+    background: var(--paper);
+}
+
+#root .row-actions-menu-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#root .row-actions-menu {
+    position: fixed;
+    z-index: 1200;
+    display: grid;
+    min-width: 150px;
+    padding: 8px;
+    border: 1px solid rgba(90, 27, 0, 0.2);
+    border-radius: 12px;
+    background: var(--white);
+    box-shadow: var(--shadow-dropdown);
+}
+
+#root .row-actions-menu button {
+    min-height: 40px;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--brown-strong);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+#root .row-actions-menu button:hover {
+    background: var(--paper);
+}
+
+#root .row-actions-menu button.is-danger {
+    border-top: 1px solid var(--line-soft);
+    border-radius: 0 0 8px 8px;
+    color: var(--red-dark);
+}

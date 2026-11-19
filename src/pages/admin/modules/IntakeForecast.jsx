@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/IntakeForecast.css";
 import { formatDateTime, formatMonth } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
+import Icon from "../../../components/system/Icon";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -187,7 +188,8 @@ export default function IntakeForecast() {
     const target = forecast?.target;
     const warnings = forecast?.dataQuality?.warnings || [];
     const [showData, setShowData] = useState(true); // monthly table starts open
-    const [showWhy, setShowWhy] = useState(false);
+    // Accuracy note on the forecast number: shown on hover/keyboard focus, or toggled by a tap on phones
+    const [isAccuracyNoteOpen, setIsAccuracyNoteOpen] = useState(false);
 
     const stats = useMemo(() => {
         const intakes = history.map((m) => Number(m.intake) || 0);
@@ -247,36 +249,37 @@ export default function IntakeForecast() {
             ) : (
                 forecast && (
                     <>
-                        <div className="if2-warning" role="note">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-                                <path d="M12 3 2 20h20L12 3z" />
-                                <path d="M12 10v4M12 17h.01" />
-                            </svg>
-                            <div>
-                                <p>
-                                    <b>Warning:</b> this shelter has little history yet, so the forecast can be off by about ±
-                                    {Math.round(MODEL_TEST_MAE)} animals (test error {MODEL_TEST_MAE}).
-                                    {warnings.length > 0 && (
-                                        <button type="button" className="if2-link" onClick={() => setShowWhy(!showWhy)}>
-                                            {showWhy ? "Hide details" : "Details"}
-                                        </button>
-                                    )}
-                                </p>
-                                {showWhy && (
-                                    <ul>
-                                        {warnings.map((warning, index) => (
-                                            <li key={`${index}-${warning}`}>{warning}</li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
-                        </div>
-
                         <div className="um-strip if2-strip">
                             <div className="um-strip-total">
                                 <b>{formatNumber(target?.roundedPredictedIntake)}</b>
                                 <small>Animals expected in {target?.label || "next month"}</small>
                                 <em>LSTM estimate {formatNumber(target?.predictedIntake, 2)}, rounded</em>
+                                <span className={`if2-accuracy ${isAccuracyNoteOpen ? "is-open" : ""}`}>
+                                    <button
+                                        type="button"
+                                        className="if2-accuracy-chip"
+                                        aria-expanded={isAccuracyNoteOpen}
+                                        aria-describedby="if2-accuracy-note"
+                                        onClick={() => setIsAccuracyNoteOpen((isOpen) => !isOpen)}
+                                        onBlur={() => setIsAccuracyNoteOpen(false)}
+                                    >
+                                        Could be off by ±{Math.round(MODEL_TEST_MAE)} animals
+                                        <Icon name="info" />
+                                    </button>
+                                    <span className="if2-accuracy-note" id="if2-accuracy-note" role="tooltip">
+                                        <strong>Insufficient history so far.</strong>
+                                        <span>
+                                            This forecast can be off by about ±{Math.round(MODEL_TEST_MAE)} animals (test error {MODEL_TEST_MAE}).
+                                        </span>
+                                        {warnings.length > 0 && (
+                                            <ul>
+                                                {warnings.map((warning, index) => (
+                                                    <li key={`${index}-${warning}`}>{warning}</li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </span>
+                                </span>
                             </div>
                             <div>
                                 <small>Intakes, last {history.length} months</small>

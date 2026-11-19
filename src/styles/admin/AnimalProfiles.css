@@ -587,49 +587,18 @@
     font-size: 12px;
 }
 
-/* Row actions */
+/* Row actions: one "⋯" button, centred in its row */
+.admin-animal-table thead th:last-child,
+.admin-animal-table tbody tr:not(.admin-animal-expanded-row) > td:last-child {
+    width: 56px;
+    padding-left: 8px;
+    padding-right: 16px;
+}
+
 .admin-animal-row-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-}
-
-.admin-animal-row-actions button {
-    padding: 4px 16px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.admin-animal-row-actions .view {
-    border: 1px solid var(--orange);
-    background: var(--orange);
-    color: var(--white);
-}
-
-.admin-animal-row-actions .view:hover {
-    background: var(--orange-dark);
-}
-
-.admin-animal-row-actions .edit {
-    border: 1px solid var(--brown-soft);
-    background: var(--paper);
-    color: var(--brown);
-}
-
-.admin-animal-row-actions .edit:hover {
-    background: var(--white-yellow);
-}
-
-.admin-animal-row-actions .delete {
-    border: 1px solid var(--red);
-    background: var(--paper);
-    color: var(--red);
-}
-
-.admin-animal-row-actions .delete:hover {
-    background: var(--red-soft);
+    align-items: center;
 }
 
 /* Expanded "View" row */

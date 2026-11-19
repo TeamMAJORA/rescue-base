@@ -13,6 +13,7 @@ import { formatDate } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
 import Icon from "../../../../components/system/Icon";
 import NumberInput from "../../../../components/system/NumberInput";
+import RowActionsMenu from "../../../../components/system/RowActionsMenu";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -1499,11 +1500,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                             aria-label="List view"
                             aria-pressed={viewMode === "list"}
                         >
-                            <img
-                                src={viewMode === "list" ? "/icons/list-white.svg" : "/icons/list-brown.svg"}
-                                alt=""
-                                aria-hidden="true"
-                            />
+                            <Icon name="list" />
                         </button>
                         <button
                             type="button"
@@ -1513,11 +1510,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                             aria-label="Grid view"
                             aria-pressed={viewMode === "grid"}
                         >
-                            <img
-                                src={viewMode === "grid" ? "/icons/grid-white.svg" : "/icons/grid-brown.svg"}
-                                alt=""
-                                aria-hidden="true"
-                            />
+                            <Icon name="grid" />
                         </button>
                     </div>
                 </div>
@@ -1737,26 +1730,13 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                     </td>
                                                     <td>
                                                         <div className="admin-animal-row-actions" onClick={(e) => e.stopPropagation()}>
-
-                                                            {canManage && (//updated for edit button
-                                                                <button
-                                                                    type="button"
-                                                                    className="edit"
-                                                                    onClick={() => handleEditAnimal(animal)}
-                                                                >
-                                                                    Edit
-                                                                </button>
-                                                            )}
-
-                                                            {isAdmin() && (
-                                                                <button
-                                                                    type="button"
-                                                                    className="delete"
-                                                                    onClick={() => handleDeleteAnimal(animal._id)}
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            )}
+                                                            <RowActionsMenu
+                                                                ariaLabel={`More actions for ${animal.name || "this animal"}`}
+                                                                items={[
+                                                                    ...(canManage ? [{ label: "Edit", onSelect: () => handleEditAnimal(animal) }] : []),
+                                                                    ...(isAdmin() ? [{ label: "Delete", onSelect: () => handleDeleteAnimal(animal._id), isDanger: true }] : []),
+                                                                ]}
+                                                            />
                                                         </div>
                                                     </td>
                                                 </tr>

@@ -9,6 +9,7 @@ import { askConfirm, askPrompt } from "../../../../utils/dialogs";
 import { formatDate, toDayValue } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
 import UiIcon from "../../../../components/system/Icon";
+import RowActionsMenu from "../../../../components/system/RowActionsMenu";
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -1413,27 +1414,14 @@ export default function IntakeRecords() {
                                                 </>
                                             )}
 
-                                            {canManage && (
-                                                <button
-                                                    type="button"
-                                                    className="ao-btn sm"
-                                                    onClick={() => handleEditRecord(record)}
-                                                    disabled={isProcessing}
-                                                >
-                                                    Edit
-                                                </button>
-                                            )}
-
-                                            {isAdmin() && (
-                                                <button
-                                                    type="button"
-                                                    className="ao-btn sm danger"
-                                                    onClick={() => handleDeleteRecord(record._id)}
-                                                    disabled={isProcessing}
-                                                >
-                                                    Delete
-                                                </button>
-                                            )}
+                                            <RowActionsMenu
+                                                ariaLabel={`More actions for ${record.name || "this intake"}`}
+                                                disabled={isProcessing}
+                                                items={[
+                                                    ...(canManage ? [{ label: "Edit", onSelect: () => handleEditRecord(record) }] : []),
+                                                    ...(isAdmin() ? [{ label: "Delete", onSelect: () => handleDeleteRecord(record._id), isDanger: true }] : []),
+                                                ]}
+                                            />
                                         </div>
 
                                         {openId === record._id && (

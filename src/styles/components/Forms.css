@@ -443,7 +443,7 @@
    One look for every in-card action: white, brown border, rounded, like "Resolve".
    Labels stay on one line; only the long "Delete method (unavailable…)" may wrap. */
 #root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .ao-signed-out-link, .adopter-stat-link,
-    .fdo-link, .lf-select-link, .if2-link, .adopter-signed-out-link, .admin-review-link, .acard-link) {
+    .fdo-link, .lf-select-link, .adopter-signed-out-link, .admin-review-link, .acard-link) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -477,7 +477,7 @@
 }
 
 #root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .ao-signed-out-link, .adopter-stat-link,
-    .fdo-link, .lf-select-link, .if2-link, .adopter-signed-out-link, .admin-review-link, .acard-link):hover:not(:disabled) {
+    .fdo-link, .lf-select-link, .adopter-signed-out-link, .admin-review-link, .acard-link):hover:not(:disabled) {
     background: var(--peach-soft);
     text-decoration: none;
 }
@@ -493,7 +493,7 @@
     background: var(--red-soft);
 }
 
-#root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .lf-select-link, .if2-link, .acard-link, .fdo-link):disabled {
+#root :is(.db2-link, .lfr2-link, .rs2-link, .dl-link, .gm-link, .lf-select-link, .acard-link, .fdo-link):disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -507,4 +507,35 @@
 #root :is(.ao-signed-out-link, .adopter-signed-out-link) {
     display: flex;
     width: fit-content;
+}
+
+/* Touch targets (UX check #8): the search text box fills its 44px frame, so a tap anywhere
+   in the frame lands in the box. No visual change. */
+#root :is(.admin-adoption-search, .fb2-search, .afl-search, .rp2-search, .rs2-search, .ao-searchbox-input) input {
+    align-self: stretch;
+    height: auto;
+    min-height: 0;
+}
+
+/* On/off switches are 44x24; an invisible layer makes the tap area 44x44. */
+#root .gs-switch::before {
+    content: "";
+    position: absolute;
+    inset: -10px 0;
+}
+
+/* List/grid switch (Animal Profiles): icon-only buttons, so no side padding; the shared
+   segmented padding (0 16px) pushed the 18px icon off-centre in the 40px button.
+   Class repeated to outrank the shared segmented rule (its :is() list has a 2-class selector). */
+#root .admin-view-toggle.admin-view-toggle > button {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    padding: 0;
+    color: var(--brown);
+    font-size: 20px; /* icon size (the icon is 1em) */
+}
+
+#root .admin-view-toggle.admin-view-toggle > button.active {
+    color: var(--white);
 }

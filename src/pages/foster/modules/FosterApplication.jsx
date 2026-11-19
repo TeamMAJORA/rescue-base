@@ -4,6 +4,7 @@ import { formatDate, formatTime } from "../../../utils/formatDate";
 import Icon from "../../../components/system/Icon";
 import PhoneInput, { cleanPhoneDigits, formatPhone } from "../../../components/system/PhoneInput";
 import FormTracker from "../../../components/system/FormTracker";
+import FosterCapacityRequestCard from "./FosterCapacityRequestCard";
 import { readFormDraft, useFormDraft } from "../../../utils/useFormDraft";
 import { useCustomValidity } from "../../../utils/useCustomValidity";
 
@@ -39,7 +40,7 @@ function ChoiceGroup({ name, value, options, onPick, label }) {
     );
 }
 
-export default function FosterApplication({ embedded = false, onSubmitted, application = null, refresh }) {
+export default function FosterApplication({ embedded = false, onSubmitted, application = null, refresh, activeAssignmentCount = 0 }) {
 
     const savedUser = JSON.parse(
         localStorage.getItem("rescuebase_user") || "{}"
@@ -68,6 +69,8 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
     // Pending or approved: the form edits that application instead of making a new one
     const isEditing = ["pending", "approved"].includes(application?.status);
+    // Approved fosters change their maximum through "Foster more animals" (staff approve it)
+    const isApprovedFoster = application?.status === "approved";
 
     // Saved application -> form values (phones keep only the 10 digits after +63)
     function formFromApplication(app) {
@@ -213,7 +216,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                         petFriendly: form.petFriendly === "Yes",
                         preferredAnimalType: form.preferredAnimal,
                         preferredSize: form.preferredSize,
-                        capacity: Number(form.maxAnimals),
+                        ...(isApprovedFoster ? {} : { capacity: Number(form.maxAnimals) }),
                         fosterDuration: form.fosterDuration,
                         fosterExperience: form.experience,
                         emergencyName: form.emergencyName,
@@ -419,52 +422,65 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
         return (
             <section className="foster-panel">
                 <div className="ffa-layout">
-                    <div className="ffs-card">
-                        <div className="ffs-head">
-                            <div>
-                                <h3>Your foster application</h3>
-                                <p>
-                                    {currentStatus === "pending"
-                                        ? "Staff are reviewing it. You can still update your answers."
-                                        : "You are an approved foster. You do not need to apply again."}
-                                </p>
+                    <div className="ffs-column">
+                        <div className="ffs-card">
+                            <div className="ffs-head">
+                                <div>
+                                    <h3>Your foster application</h3>
+                                    <p>
+                                        {currentStatus === "pending"
+                                            ? "Staff are reviewing it. You can still update your answers."
+                                            : "You are an approved foster. You do not need to apply again."}
+                                    </p>
+                                </div>
+
+                                <div className="ffs-head-actions">
+                                    <span className="ffs-pill">
+                                        <LockIcon />
+                                        Read only
+                                    </span>
+                                    <button
+                                        type="button"
+                                        className="ffc-btn ffc-btn-submit"
+                                        onClick={() => {
+                                            setMessage("");
+                                            setEditing(true);
+                                        }}
+                                    >
+                                        Update application
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="ffs-head-actions">
-                                <span className="ffs-pill">
-                                    <LockIcon />
-                                    Read only
-                                </span>
-                                <button
-                                    type="button"
-                                    className="ffc-btn ffc-btn-submit"
-                                    onClick={() => {
-                                        setMessage("");
-                                        setEditing(true);
-                                    }}
-                                >
-                                    Update application
-                                </button>
-                            </div>
+                            {message && (
+                                <div className={`foster-alert ${messageType}`}>{message}</div>
+                            )}
+
+                            {sections.map((section) => (
+                                <div key={section.title} className="ffs-section">
+                                    <h4>{section.title}</h4>
+                                    <dl className="ffs-grid">
+                                        {section.items.map(([label, value, size]) => (
+                                            <div key={label} className={`ffs-tile ${size || ""}`}>
+                                                <dt>{label}</dt>
+                                                <dd>{value}</dd>
+                                            </div>
+                                        ))}
+                                    </dl>
+                                </div>
+                            ))}
                         </div>
 
-                        {message && (
-                            <div className={`foster-alert ${messageType}`}>{message}</div>
+                        {currentStatus === "approved" && (
+                            <FosterCapacityRequestCard
+                                application={application}
+                                activeAssignmentCount={activeAssignmentCount}
+                                onChanged={() => {
+                                    onSubmitted?.();
+                                    refresh?.();
+                                }}
+                            />
                         )}
-
-                        {sections.map((section) => (
-                            <div key={section.title} className="ffs-section">
-                                <h4>{section.title}</h4>
-                                <dl className="ffs-grid">
-                                    {section.items.map(([label, value, size]) => (
-                                        <div key={label} className={`ffs-tile ${size || ""}`}>
-                                            <dt>{label}</dt>
-                                            <dd>{value}</dd>
-                                        </div>
-                                    ))}
-                                </dl>
-                            </div>
-                        ))}
                     </div>
 
                     {infoPanel}
@@ -713,32 +729,34 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                             />
                         </div>
 
-                        <div className="ffc-field">
-                            <span className="ffc-label">
-                                Maximum animals <span className="required-mark">*</span>
-                                <InfoTip text="The most animals you can foster at the same time. Staff will not assign more than this number to you." />
-                            </span>
-                            <div className="ffc-stepper">
-                                <button
-                                    type="button"
-                                    aria-label="Decrease maximum animals"
-                                    disabled={Number(form.maxAnimals) <= 1}
-                                    onClick={() => pickChoice("maxAnimals", Math.max(1, Number(form.maxAnimals) - 1))}
-                                >
-                                    −
-                                </button>
-                                <output aria-live="polite">{form.maxAnimals}</output>
-                                <button
-                                    type="button"
-                                    aria-label="Increase maximum animals"
-                                    disabled={Number(form.maxAnimals) >= 10}
-                                    onClick={() => pickChoice("maxAnimals", Math.min(10, Number(form.maxAnimals) + 1))}
-                                >
-                                    +
-                                </button>
+                        {!isApprovedFoster && (
+                            <div className="ffc-field">
+                                <span className="ffc-label">
+                                    Maximum animals <span className="required-mark">*</span>
+                                    <InfoTip text="The most animals you can foster at the same time. Staff will not assign more than this number to you." />
+                                </span>
+                                <div className="ffc-stepper">
+                                    <button
+                                        type="button"
+                                        aria-label="Decrease maximum animals"
+                                        disabled={Number(form.maxAnimals) <= 1}
+                                        onClick={() => pickChoice("maxAnimals", Math.max(1, Number(form.maxAnimals) - 1))}
+                                    >
+                                        −
+                                    </button>
+                                    <output aria-live="polite">{form.maxAnimals}</output>
+                                    <button
+                                        type="button"
+                                        aria-label="Increase maximum animals"
+                                        disabled={Number(form.maxAnimals) >= 10}
+                                        onClick={() => pickChoice("maxAnimals", Math.min(10, Number(form.maxAnimals) + 1))}
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                                <small className="ffc-hint">How many you can care for at the same time.</small>
                             </div>
-                            <small className="ffc-hint">How many you can care for at the same time.</small>
-                        </div>
+                        )}
 
                         <div className="ffc-field ffc-duration">
                             <span className="ffc-label">
