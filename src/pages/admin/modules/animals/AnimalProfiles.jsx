@@ -14,6 +14,7 @@ import LoadingState from "../../../../components/system/LoadingState";
 import Icon from "../../../../components/system/Icon";
 import NumberInput from "../../../../components/system/NumberInput";
 import RowActionsMenu from "../../../../components/system/RowActionsMenu";
+import { getAnimalStatus } from "../../../../utils/petStatus";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -233,14 +234,6 @@ const ANIMAL_STATUS_LABELS = {
     adopted: "Adopted",
     unavailable: "Unavailable",
 };
-
-function getAnimalStatus(animal) {
-    if (animal.adoptionStatus === "adopted") return "adopted";
-    if (animal.fosterStatus === "in_foster") return "fostered";
-    if (animal.adoptionStatus === "pending") return "pending";
-    if (animal.availabilityStatus === "available") return "available";
-    return "unavailable";
-}
 
 // Who has the animal now (adopter or foster), with contacts so the shelter can follow up.
 // The server returns { success, [responseKey]: person | null }.
