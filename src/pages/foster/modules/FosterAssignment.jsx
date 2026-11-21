@@ -406,13 +406,6 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
 
         return (
             <section className="foster-panel">
-                <div className="foster-section-heading">
-                    <div>
-                        <span>Current foster</span>
-                        <h2>Foster Assignment</h2>
-                    </div>
-                </div>
-
                 <div className="foster-assignment-top fae-card">
                     <div className="fae-art" aria-hidden="true">
                         <img src="/icons/heroPaw.svg" alt="" className="fae-paw is-one" />
@@ -534,15 +527,6 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
 
     return (
         <section className="foster-panel">
-            <div className="foster-section-heading">
-                <div>
-                    <span>Current foster</span>
-                    <h2>
-                        Foster Assignment
-                    </h2>
-                </div>
-             </div>
-
             {petTabs}
 
             <div className="foster-assignment-top">

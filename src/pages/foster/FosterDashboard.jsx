@@ -731,9 +731,12 @@ function goToPage(page, petId = null) {
                             </div>
 
                             <div className="fdb-side">
-                                <span className={`fdb-status is-${applicationStatus}`}>
-                                    Application: {STATUS_LABEL[applicationStatus] || applicationStatus}
-                                </span>
+                                {/* Approved is already shown in the side panel */}
+                                {applicationStatus !== "approved" && (
+                                    <span className={`fdb-status is-${applicationStatus}`}>
+                                        Application: {STATUS_LABEL[applicationStatus] || applicationStatus}
+                                    </span>
+                                )}
 
                                 {(applicationStatus === "pending" || applicationStatus === "approved") && !confirmRevoke && (
                                     <button
