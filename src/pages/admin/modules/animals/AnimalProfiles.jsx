@@ -620,7 +620,9 @@ function AnimalProfilesList({ onOpenRecords }) {
         }
     }
 
-        async function fetchQrCodes() {
+    async function fetchQrCodes() {
+        // QR tags are staff/admin only; volunteers would just get a 403
+        if (!canManage) return;
         try {
             const response = await fetch(`${API}/api/qr-tags`, {
                 headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
@@ -2044,6 +2046,16 @@ export default function AnimalProfiles({ initialTab = "profiles" }) {
 
     const clearFilter = () => setFilterAnimal(null);
     const filterKey = filterAnimal?._id || "all";
+
+    // Volunteers only see the animal list: the server refuses them on intake, medical,
+    // vaccination and transfer records, so those tabs are hidden instead of failing
+    if (!isAdmin() && !isStaff()) {
+        return (
+            <div className="ap-tabs-page">
+                <AnimalProfilesList onOpenRecords={openRecords} />
+            </div>
+        );
+    }
 
     return (
         <div className="ap-tabs-page">
