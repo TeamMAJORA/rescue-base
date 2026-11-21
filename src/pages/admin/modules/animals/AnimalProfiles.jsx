@@ -14,6 +14,7 @@ import LoadingState from "../../../../components/system/LoadingState";
 import Icon from "../../../../components/system/Icon";
 import NumberInput from "../../../../components/system/NumberInput";
 import RowActionsMenu from "../../../../components/system/RowActionsMenu";
+import { getAnimalStatus } from "../../../../utils/petStatus";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -233,14 +234,6 @@ const ANIMAL_STATUS_LABELS = {
     adopted: "Adopted",
     unavailable: "Unavailable",
 };
-
-function getAnimalStatus(animal) {
-    if (animal.adoptionStatus === "adopted") return "adopted";
-    if (animal.fosterStatus === "in_foster") return "fostered";
-    if (animal.adoptionStatus === "pending") return "pending";
-    if (animal.availabilityStatus === "available") return "available";
-    return "unavailable";
-}
 
 // Who has the animal now (adopter or foster), with contacts so the shelter can follow up.
 // The server returns { success, [responseKey]: person | null }.
@@ -620,7 +613,9 @@ function AnimalProfilesList({ onOpenRecords }) {
         }
     }
 
-        async function fetchQrCodes() {
+    async function fetchQrCodes() {
+        // QR tags are staff/admin only; volunteers would just get a 403
+        if (!canManage) return;
         try {
             const response = await fetch(`${API}/api/qr-tags`, {
                 headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
@@ -2044,6 +2039,16 @@ export default function AnimalProfiles({ initialTab = "profiles" }) {
 
     const clearFilter = () => setFilterAnimal(null);
     const filterKey = filterAnimal?._id || "all";
+
+    // Volunteers only see the animal list: the server refuses them on intake, medical,
+    // vaccination and transfer records, so those tabs are hidden instead of failing
+    if (!isAdmin() && !isStaff()) {
+        return (
+            <div className="ap-tabs-page">
+                <AnimalProfilesList onOpenRecords={openRecords} />
+            </div>
+        );
+    }
 
     return (
         <div className="ap-tabs-page">
