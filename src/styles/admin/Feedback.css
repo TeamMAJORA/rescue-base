@@ -166,10 +166,10 @@
     text-transform: uppercase;
 }
 
-.fb-hero h1 {
+.fb-hero h2 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: 32px;
+    font-size: 24px; /* smaller than the 32px page title */
     font-weight: 800;
     line-height: 1.15;
 }
@@ -182,7 +182,7 @@
 }
 
 @media (max-width: 640px) {
-       .fb-hero h1 {
+       .fb-hero h2 {
        font-family: "Itim", cursive;
        font-weight: 400;
    }

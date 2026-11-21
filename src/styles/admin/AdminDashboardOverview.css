@@ -49,7 +49,7 @@
 /* ===================== Dashboard overview (db2) ===================== */
 .db2-page { display: flex; flex-direction: column; gap: 16px; color: var(--brown); min-width: 0; }
 .db2-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-.db2-top h1 { margin: 0; font-size: 24px; font-weight: 800; color: var(--brown); }
+.db2-top h2 { margin: 0; font-size: 24px; font-weight: 800; color: var(--brown); }
 .db2-clock { display: grid; gap: 1px; text-align: right; }
 .db2-clock b { font-size: 20px; font-variant-numeric: tabular-nums; }
 .db2-clock small { font-size: 12px; font-weight: 600; color: var(--brown-muted); }
@@ -162,7 +162,7 @@
 }
 
 /* ===================== Dashboard v4: two-column layout, soft corners, svg icons ===================== */
-.db2-top h1 span { color: var(--orange); }
+.db2-top h2 span { color: var(--orange); }
 .db2-hello { margin: 2px 0 0; color: var(--brown-muted); font-size: 14px; }
 .db2-layout { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(290px, 1fr); gap: 16px; align-items: start; }
 .db2-col { display: grid; gap: 16px; min-width: 0; }
@@ -291,6 +291,7 @@
 .vr-note label { display: grid; gap: 4px; color: var(--brown-soft); font-size: 12px; font-weight: 800; }
 .vr-note textarea { width: 100%; box-sizing: border-box; padding: 8px 8px; border: 1.5px solid var(--line); border-radius: 12px; font: inherit; font-size: 14px; color: var(--brown); resize: vertical;}
 .vr-note textarea:focus { border-color: var(--orange); }
+.vr-page-actions { display: flex; justify-content: flex-end; margin-bottom: 12px; }
 .vr-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .vr-tabs button { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--white); color: var(--brown); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
 .vr-tabs button.is-active { border-color: var(--brown); background: var(--brown); color: var(--paper); }
@@ -339,7 +340,7 @@
 /* Phones */
 @media (max-width: 640px) {
     .db2-top { align-items: flex-start; flex-direction: column; gap: 8px; }
-    .db2-top h1 { font-size: 24px; }
+    .db2-top h2 { font-size: 24px; }
     .db2-clockbar-date-long, .db2-clockbar-live, .db2-clockbar-sep.is-live { display: none; }
     .db2-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .db2-stat b { font-size: 24px; }

@@ -751,10 +751,10 @@ export default function AdminOverview({ onNavigate }) {
     const header = (
         <div className="db2-top">
             <div>
-                <h1>
+                <h2>
                     {greeting(now)}
                     {firstName && <>, <span>{firstName}</span></>}
-                </h1>
+                </h2>
             </div>
             <div className="db2-clockbar" aria-label="Current time">
                 <span className="db2-clockbar-dot" aria-hidden="true" />

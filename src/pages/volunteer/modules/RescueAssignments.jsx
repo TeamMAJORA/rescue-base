@@ -293,7 +293,7 @@ function RescueRow({ assignment, busy, onAct }) {
 // Sidebar page: all of the volunteer's rescue jobs, by status
 export default function RescueAssignments() {
     const { assignments, openAssignments, error, busyId, notice, act, reload, completionModal } = useMyRescues();
-    const [tab, setTab] = useState("pending");
+    const [pickedTab, setPickedTab] = useState(null);
 
     const list = assignments || [];
     const inTab = (key) =>
@@ -302,16 +302,18 @@ export default function RescueAssignments() {
             : key === "declined"
                 ? list.filter((assignment) => ["declined", "cancelled"].includes(assignment.status))
                 : list.filter((assignment) => assignment.status === key);
+    // Open on "New"; if nothing is new but a job is open to claim, open that tab instead
+    const tab = pickedTab ?? (inTab("pending").length === 0 && inTab("open").length > 0 ? "open" : "pending");
     const shown = inTab(tab);
 
     return (
         <section className="db2-card vr-page">
-            <h3>
-                My Rescues
+            {/* The page title already says "My Rescues", so the card has no heading of its own */}
+            <div className="vr-page-actions">
                 <button type="button" className="db2-link" onClick={reload}>
                     Refresh
                 </button>
-            </h3>
+            </div>
             <p className="db2-sub">Rescue jobs assigned to you, plus open ones any volunteer can claim.</p>
 
             <div className="vr-tabs">
@@ -322,7 +324,7 @@ export default function RescueAssignments() {
                             key={item.key}
                             type="button"
                             className={tab === item.key ? "is-active" : ""}
-                            onClick={() => setTab(item.key)}
+                            onClick={() => setPickedTab(item.key)}
                         >
                             {item.label} ({count})
                         </button>
@@ -336,7 +338,13 @@ export default function RescueAssignments() {
             {assignments === null || (tab === "open" && openAssignments === null) ? (
                 <LoadingState label="Loading your rescues…" />
             ) : shown.length === 0 ? (
-                <p className="db2-empty">{tab === "open" ? "No open rescues right now." : "Nothing here right now."}</p>
+                <p className="db2-empty">
+                    {tab === "open"
+                        ? "No open rescues right now. New ones will show up here."
+                        : inTab("open").length > 0
+                            ? "Nothing here. Check Open to claim for a job you can take."
+                            : "Nothing here right now."}
+                </p>
             ) : (
                 <div className="vr-list">
                     {shown.map((assignment) => (
@@ -377,7 +385,7 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
     return (
         <div className="db2-page">
             <div className="db2-top">
-                <h1>Hello, {firstName}</h1>
+                <h2>Hello, {firstName}</h2>
             </div>
 
             {error && <p className="db2-error">{error}</p>}
@@ -419,7 +427,7 @@ export function VolunteerOverview({ onNavigate, onOpenAdopterPage }) {
                     {assignments === null ? (
                         <LoadingState label="Loading…" />
                     ) : upcoming.length === 0 ? (
-                        <p className="db2-empty">No open rescue jobs. New ones will show up here.</p>
+                        <p className="db2-empty">No jobs assigned to you yet.</p>
                     ) : (
                         <div className="vr-list">
                             {upcoming.map((assignment) => (
