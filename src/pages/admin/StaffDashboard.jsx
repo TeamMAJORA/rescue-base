@@ -256,6 +256,8 @@ export default function StaffDashboard({ setPage }) {
     const [settingsTab, setSettingsTab] = useState("profile");
     // Lost & Found report to open after "Open in Lost & Found" on the GIS map
     const [lostFoundReportIdToOpen, setLostFoundReportIdToOpen] = useState(null);
+    // Foster assignment whose details card to open (from a bell notification)
+    const [fosterAssignmentIdToOpen, setFosterAssignmentIdToOpen] = useState(null);
     const newDots = useSidebarDots(activeStaffPage);
     const [openSidebarMenu, setOpenSidebarMenu] = useState(null);
     // Phones: the sidebar slides in from the left behind a menu button
@@ -374,6 +376,7 @@ export default function StaffDashboard({ setPage }) {
         }
 
         if (notification.page) {
+            if (notification.page === "foster-care" && notification.relatedId) setFosterAssignmentIdToOpen(notification.relatedId);
             setActiveStaffPage(notification.page);
         }
 
@@ -531,7 +534,7 @@ export default function StaffDashboard({ setPage }) {
         }
 
         if (activeStaffPage === "foster-care") {
-            return <FosterCare />
+            return <FosterCare openAssignmentId={fosterAssignmentIdToOpen} onOpenAssignmentHandled={() => setFosterAssignmentIdToOpen(null)} />
         }
 
         if (activeStaffPage === "lost-found") {

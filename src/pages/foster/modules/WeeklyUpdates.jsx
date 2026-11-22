@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { formatDate } from "../../../utils/formatDate";
+import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import NumberInput from "../../../components/system/NumberInput";
 
 // Care Updates — weekly care report for the foster's active pet
@@ -43,6 +43,7 @@ const ICONS = {
         </>
     ),
     check: <path d="M20 6 9 17l-5-5" />,
+    eye: <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />,
     list: <path d="M4 6h16M4 12h16M4 18h10" />,
     // The app's paw (same file as the sidebar Animals icon)
     paw: <image href="/icons/sidebar/brown paw.svg" x="2" y="2" width="20" height="20" />,
@@ -521,6 +522,13 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                         <button type="submit" className="ao-btn primary block" disabled={loading}>
                             {loading ? "Sending…" : "Submit update"}
                         </button>
+
+                        <p className="wu-visibility-note">
+                            <Icon name="eye" size={14} />
+                            <span>
+                                Shelter staff and admins can read every update you send. Each one shows <b>Seen</b> in the history once they open it.
+                            </span>
+                        </p>
                     </fieldset>
                     </form>
                 </section>
@@ -596,6 +604,12 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                                         <article className="ao-update" key={update._id}>
                                             <div>
                                                 <h3>{formatDate(update.createdAt)}</h3>
+                                                <p className={`wu-seen${update.seenAt ? " is-seen" : ""}`}>
+                                                    <Icon name={update.seenAt ? "check" : "clock"} size={13} />
+                                                    {update.seenAt
+                                                        ? `Seen by ${update.seenByName || "the shelter"} · ${formatDateTime(update.seenAt)}`
+                                                        : "Sent · not seen by the shelter yet"}
+                                                </p>
                                                 <div className="ao-tags">
                                                     {update.healthStatus && (
                                                         <span className={`ao-tag ${healthTone(update.healthStatus)}`}>

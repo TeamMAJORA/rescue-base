@@ -140,3 +140,35 @@
     }
 
 }
+/* Who can see the reports, and whether the shelter has seen each one */
+.wu-visibility-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--blue-soft);
+    color: var(--blue);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.wu-visibility-note svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.wu-seen {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 4px 0 0;
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.wu-seen.is-seen {
+    color: var(--green-dark);
+}
