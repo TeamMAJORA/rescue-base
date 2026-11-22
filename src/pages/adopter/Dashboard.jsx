@@ -6,6 +6,11 @@ import {
 
 // Assets
 import assets from "../../data/assets.json";
+<<<<<<< HEAD
+=======
+import { readAdopterStartPage, clearAdopterStartPage } from "../../utils/adopterStartPage";
+import { notify } from "../../utils/dialogs";
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 // CSS
 import "../../styles/adopter/Dashboard.css";
@@ -42,10 +47,12 @@ import Icon from "../../components/system/Icon";
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
+const ROLE_LABEL = { adopter: "Adopter", foster: "Foster", volunteer: "Volunteer" };
 
 const ICON_PATH = "/icons/sidebar/";
 
 const adopterMenu = [
+<<<<<<< HEAD
     {
         key: "overview",
         label: "Dashboard",
@@ -118,6 +125,21 @@ const adopterMenu = [
         icon: "settings-brown.svg",
         activeIcon: "settings-light.svg",
     },
+=======
+    { key: "overview", group: "", label: "Dashboard", icon: "dashboard-brown.svg", activeIcon: "dashboard-light.svg" },
+    { key: "browse-pets", group: "Adopt", label: "Browse Pets", icon: "brown paw.svg", activeIcon: "brown paw-light.svg" },
+    { key: "matchmaking-quiz", group: "Adopt", label: "Matchmaking Quiz", icon: "quiz-brown.svg", activeIcon: "quiz-light.svg" },
+    { key: "recommendations", group: "Adopt", label: "Recommendations", icon: "Recommend.svg", activeIcon: "Recommend-light.svg" },
+    { key: "adoption-application", group: "Adopt", label: "Adoption Application", icon: "clipboard-brown.svg", activeIcon: "clipboard-light.svg" },
+    { key: "application-status", group: "Adopt", label: "Application Status", icon: "Status.svg", activeIcon: "Status-light.svg" },
+    { key: "lost-found", group: "Help animals", label: "Lost & Found", icon: "LostnFound-brown.svg", activeIcon: "LostnFound-light.svg" },
+    { key: "stray-map", group: "Help animals", label: "GIS Mapping", icon: "strayMap-brown.svg", activeIcon: "strayMap-light.svg" },
+    { key: "donation", group: "Help animals", label: "Donation", icon: "donation-brown.svg", activeIcon: "donation-light.svg" },
+    { key: "donation-history", group: "Help animals", label: "Donation History", icon: "history.svg", activeIcon: "history-light.svg" },
+    { key: "role-application", group: "Account", label: "Role Application", icon: "role-brown.svg", activeIcon: "role-light.svg" },
+    { key: "feedback", group: "Account", label: "Feedback", icon: "Feedback-brown.svg", activeIcon: "Feedback-light.svg" },
+    { key: "settings", group: "", label: "Settings", icon: "settings-brown.svg", activeIcon: "settings-light.svg" },
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 ];
 
 const emptyPet = {
@@ -599,6 +621,9 @@ async function fetchPets({ silent = false } = {}) {
                             currentPet?._id
                     );
 
+                // A foster's own unlisted pet is never in this list: keep it selected
+                if (!existingPet && currentPet?.isOwnFosterPet) return currentPet;
+
                 return (
                     existingPet ||
                     normalizedPets[0] ||
@@ -617,12 +642,16 @@ async function fetchPets({ silent = false } = {}) {
             }
 
             if (adoptPetId) {
-                const fosterPet = normalizedPets.find((pet) => pet._id === adoptPetId);
+                const listedPet = normalizedPets.find((pet) => pet._id === adoptPetId);
 
-                if (fosterPet) {
-                    handleApply(fosterPet);
+                if (listedPet) {
+                    handleApply(listedPet);
                 } else {
-                    setPetsError("That pet is no longer available for adoption.");
+                    // A foster's own pet may not be listed for adoption yet: load it by id.
+                    // The server checks that the applicant really is this pet's foster.
+                    const fosterPet = await fetchOwnFosterPet(adoptPetId);
+                    if (fosterPet) handleApply(fosterPet);
+                    else setPetsError("That pet is no longer available for adoption.");
                 }
             }
             
@@ -836,6 +865,7 @@ async function fetchPets({ silent = false } = {}) {
         }
 
         await fetchApplicationStatus();
+        notify("Your application was withdrawn.");
     }
 
     async function fetchApplicationHistory() {
@@ -906,7 +936,7 @@ async function fetchPets({ silent = false } = {}) {
             item.key === "adoption-application"
         ) {
             if (hasPendingApplication) {
-                setActiveAdopterPage("overview");
+                setActiveAdopterPage("application-status");
                 return;
             }
 
@@ -918,6 +948,21 @@ async function fetchPets({ silent = false } = {}) {
 
         setActiveAdopterPage(item.key);
         setNotificationOpen(false);
+    }
+
+    async function fetchOwnFosterPet(animalId) {
+        try {
+            const response = await fetch(`${API}/api/animals/${animalId}`, {
+                headers: { "ngrok-skip-browser-warning": "true" },
+            });
+            const data = await response.json();
+            const animal = data.animal;
+            if (!response.ok || animal?.fosterStatus !== "in_foster" || animal.adoptionStatus !== "available") return null;
+            return { ...toPetProfile(animal), status: "available", isOwnFosterPet: true };
+        } catch (error) {
+            console.error("Load foster pet error:", error);
+            return null;
+        }
     }
 
     function handleApply(pet) {
@@ -1097,8 +1142,15 @@ async function fetchPets({ silent = false } = {}) {
                 typeFilter={typeFilter}
                 setTypeFilter={setTypeFilter}
                 filteredPets={filteredPets}
+<<<<<<< HEAD
                 selectedPet={selectedPet}
                 setSelectedPet={setSelectedPet}
+=======
+                pets={pets}
+                // Only highlight a card while its pop-up is open
+                selectedPet={isPetModalOpen ? selectedPet : null}
+                setSelectedPet={openPet}
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                 onRefresh={fetchPets}
             />
         );
@@ -1675,12 +1727,6 @@ async function fetchPets({ silent = false } = {}) {
                             activeAdopterPage ===
                             item.key;
 
-                        const applicationDisabled =
-                            item.key ===
-                            "adoption-application" &&
-                            (hasPendingApplication ||
-                                !selectedPet?._id);
-
                         return (
                             <div
                                 className="adopter-menu-group"
@@ -1693,9 +1739,6 @@ async function fetchPets({ silent = false } = {}) {
                                         isActive
                                             ? "active"
                                             : ""
-                                    }
-                                    disabled={
-                                        applicationDisabled
                                     }
                                     onClick={() =>
                                         handleSidebarClick(
@@ -1787,7 +1830,8 @@ async function fetchPets({ silent = false } = {}) {
                                 "Adopter"}
                         </strong>
 
-                        <small>Adopter</small>
+                        {/* Fosters and volunteers also use these pages: show their real role */}
+                        <small>{ROLE_LABEL[savedUser.role] || "Adopter"}</small>
                     </div>
 
                     <span>→</span>

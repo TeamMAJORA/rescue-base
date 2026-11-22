@@ -144,9 +144,9 @@ useEffect(() => {
         <>
             <section className="fb-hero">
                 <span className="fb-hero-badge">Feedback</span>
-                <h1 style={{ fontFamily: '"Itim", cursive', fontWeight: 400 }}>
+                <h2 style={{ fontFamily: '"Itim", cursive', fontWeight: 400 }}>
                       Help us make RescueBase better for every animal and adopter!
-                 </h1>
+                 </h2>
                 <p>Tell us about your experience with RescueBase. It only takes a minute.</p>
             </section>
 

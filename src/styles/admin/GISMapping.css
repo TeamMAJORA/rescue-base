@@ -526,6 +526,7 @@
 
 .gm-side {
     display: grid;
+    grid-template-columns: minmax(0, 1fr); /* long one-line descriptions shrink instead of widening the panel */
     gap: 16px;
 }
 
@@ -1435,6 +1436,17 @@
 =======
 .gm-row:hover { background: var(--peach-soft); }
 
+/* Row of the report just tapped on the map */
+.gm-row.is-highlighted {
+    background: var(--peach-soft);
+    box-shadow: inset 4px 0 0 var(--orange);
+    animation: gm-row-glow 1.1s ease-in-out 2;
+}
+
+@keyframes gm-row-glow {
+    50% { background: var(--peach); }
+}
+
 /* Report filters: inline on desktop, a bottom sheet on phones */
 .gm-filter-toggle,
 .gm-sheet-head,
@@ -1591,23 +1603,6 @@
     color: var(--red-dark);
 }
 
-/* Lost & Found pins on the GIS map (they are managed in Lost & Found) */
-.gm-source-tag {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 1px 8px;
-    border: 1px solid rgba(90, 27, 0, 0.25);
-    border-radius: 8px;
-    color: var(--brown-soft);
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    vertical-align: 1px;
-    white-space: nowrap;
-}
-
 .gm-form-hint {
     display: flex;
     flex-wrap: wrap;
@@ -1633,13 +1628,194 @@
     object-fit: cover;
 }
 
-/* Lost & Found rows: the longer button sits under the text so the text keeps its width */
-.gm-row:has(.gm-open-lf) {
-    flex-wrap: wrap;
+/* Report rows: one line of description, full text is in the map popup */
+.gm-row-text span.gm-row-desc {
+    overflow: hidden;
+    color: var(--brown);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.gm-row-actions:has(.gm-open-lf) {
-    width: 100%;
-    padding-left: 32px;
+/* ===== Map controls layout (UX check 2026-11-19) =====
+   Search alone on top; one row under it with Nearest shelter / Nearest clinic (left) and
+   Add shelter / Pin a report (right). Zoom and "my location" sit at the bottom-right.
+   Phone: Pin a report is a round + button at the bottom-right, zoom and location stacked above it. */
+.gm-map-wrap .gm-map-search {
+    left: 10px;
+    width: min(360px, calc(100% - 20px));
+}
+
+.gm-map-wrap .gm-map-find {
+    top: 62px;
+    left: 10px;
+    right: auto;
+}
+
+.gm-map-wrap .gm-map-actions {
+    top: 62px;
+    right: 10px;
+    bottom: auto;
+    left: auto;
+}
+
+.gm-map-wrap .leaflet-top.leaflet-left {
+    top: auto;
+    left: auto;
+    right: 10px;
+    bottom: 76px;
+}
+
+.gm-map-wrap .leaflet-top.leaflet-left .leaflet-control {
+    margin: 0;
+}
+
+.gm-map-wrap .gm-locate {
+    top: auto;
+    left: auto;
+    right: 10px;
+    bottom: 30px;
+}
+
+/* "Tap the map to drop a pin" sits under the button rows, not behind the search box */
+.gm-map-wrap .gm-map-hint {
+    top: 116px;
+    white-space: nowrap;
+}
+
+.gm-pin-btn .gm-pin-btn-plus {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .gm-map-wrap .gm-map-find {
+        right: 10px;
+    }
+
+    .gm-map-wrap .gm-map-actions {
+        top: auto;
+        right: 14px;
+        bottom: 28px;
+        left: auto;
+        align-items: center;
+    }
+
+    .gm-map-wrap .gm-pin-btn {
+        display: grid;
+        place-items: center;
+        width: 56px;
+        height: 56px;
+        min-height: 56px;
+        padding: 0;
+        border-radius: 50%;
+        box-shadow: 0 6px 16px rgba(92, 42, 10, 0.35);
+    }
+
+    .gm-map-wrap .gm-pin-btn .gm-pin-btn-plus {
+        display: block;
+        font-size: 26px;
+    }
+
+    .gm-map-wrap .gm-pin-btn .gm-pin-btn-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    .gm-map-wrap .leaflet-top.leaflet-left {
+        right: 14px;
+        bottom: 150px;
+    }
+
+    .gm-map-wrap .leaflet-control-zoom a {
+        width: 44px;
+        height: 44px;
+        line-height: 44px;
+    }
+
+    .gm-map-wrap .gm-locate {
+        right: 14px;
+        bottom: 96px;
+        width: 48px;
+        height: 48px;
+    }
+}
+
+/* "Strays only" note in the community report form (replaces a one-option type picker) */
+.gm-strays-only {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 12px;
+    color: var(--amber);
+    font-size: 13px;
+}
+
+.gm-strays-only .rb-icon {
+    flex: none;
+    margin-top: 1px;
+    font-size: 16px;
+}
+
+.gm-strays-only mark {
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--peach-soft);
+    color: var(--amber);
+    font-weight: 800;
+}
+
+/* Phone: the report form is a bottom sheet; while choosing a spot it shrinks to its header */
+.gm-sheet-backdrop {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .gm-sheet-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1990;
+        display: block;
+        background: rgba(40, 18, 4, 0.45);
+    }
+
+    .gm-sheet-backdrop.is-hidden {
+        display: none;
+    }
+
+    .gm-report-sheet.gm-form {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2000;
+        max-height: 86vh;
+        margin: 0;
+        padding-top: 24px;
+        overflow-y: auto;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -8px 30px rgba(40, 18, 4, 0.25);
+        transition: max-height 0.2s ease;
+    }
+
+    .gm-report-sheet.gm-form::before {
+        content: "";
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        width: 40px;
+        height: 5px;
+        margin-left: -20px;
+        border-radius: 3px;
+        background: var(--line);
+    }
+
+    .gm-report-sheet.gm-form.is-picking {
+        max-height: 72px;
+        overflow: hidden;
+        cursor: pointer;
+    }
 }
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe

@@ -19,12 +19,24 @@ import OtpInput from "../components/system/OtpInput";
 import PasswordInput from "../components/system/PasswordInput";
 import Header from "../components/landing/Header";
 import { openLandingSection } from "../components/landing/goToSection";
+import { EMAIL_FORMAT, suggestEmailFix } from "../utils/emailTypos";
 
 const API = import.meta.env.VITE_BACKEND_URL;
+
+
+function emailError(email, isSignup) {
+    if (!email) return "Enter your email address.";
+    if (!EMAIL_FORMAT.test(email)) return "Enter an email like name@example.com.";
+    const suggestion = isSignup ? suggestEmailFix(email) : "";
+    return suggestion ? `Check your email: did you mean ${suggestion}?` : "";
+}
 const RESEND_COOLDOWN_SECONDS = 30;
 const MIN_PASSWORD_LENGTH = 6;
+<<<<<<< HEAD
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
+=======
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 const authSlides = [
     assets.images.authPets,
@@ -79,8 +91,10 @@ function friendlyAuthError(error) {
 }
 
 function friendlyCodeError(message = "") {
+    if (/too many|locked|try again in/i.test(message)) return message; // "Too many wrong codes. Try again in 15 minutes."
+    const triesLeft = message.match(/\d+ tr(?:y|ies) left/i)?.[0];
+    if (triesLeft) return `That code didn't work. ${triesLeft}.`;
     if (/expire/i.test(message)) return "That code has expired. Resend a new one.";
-    if (/attempt|locked|too many/i.test(message)) return message;
     return "That code didn't work. Check it and try again.";
 }
 
@@ -332,9 +346,7 @@ export default function AuthPage({ mode = "login", setPage }) {
     const passwordRule = `At least ${MIN_PASSWORD_LENGTH} characters`;
     const errors = {
         fullName: cleanName(fullName) ? "" : "Enter your full name.",
-        email: !cleanEmail(email)
-            ? "Enter your email address."
-            : EMAIL_PATTERN.test(cleanEmail(email)) ? "" : "Enter an email like name@example.com.",
+        email: emailError(cleanEmail(email), isSignup),
         password: !password
             ? "Enter your password."
             : isSignup && password.length < MIN_PASSWORD_LENGTH ? `Use ${passwordRule.toLowerCase()}.` : "",

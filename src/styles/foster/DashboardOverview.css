@@ -261,7 +261,7 @@
     color: var(--brown);
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-family: "Itim", cursive;
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 400;
     line-height: 1.2;
 }
@@ -341,7 +341,9 @@
     .fdo-hero-side { flex-direction: row; min-width: 0; }
     .fdo-hero-badge { width: 52px; height: 52px; margin: 0 8px 0 0; }
     .fdo-hero-badge img { width: 30px; height: 30px; }
-    .fdo-hero-text h2 { font-size: 24px; }
+    /* Phone: urgent items right under the greeting, before the shortcut cards */
+    .fdo-hero { order: -2; }
+    .fdo-attn { order: -1; }
     .fdo-hero-paw.is-one { right: -30px; }
 }
 

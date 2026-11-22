@@ -106,6 +106,29 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [savingPassword, setSavingPassword] = useState(false);
     const confirmPasswordRef = useRef(null);
+    const settingsTabBarRef = useRef(null);
+    const [tabBarCanScroll, setTabBarCanScroll] = useState({ left: false, right: false });
+
+    // Phones: show arrow buttons when the tab bar has more tabs off-screen on that side
+    const updateTabBarArrows = useCallback(() => {
+        const tabBar = settingsTabBarRef.current;
+        if (!tabBar) return;
+        setTabBarCanScroll({
+            left: tabBar.scrollLeft > 2,
+            right: tabBar.scrollLeft + tabBar.clientWidth < tabBar.scrollWidth - 2,
+        });
+    }, []);
+
+    useEffect(() => {
+        updateTabBarArrows();
+        window.addEventListener("resize", updateTabBarArrows);
+        return () => window.removeEventListener("resize", updateTabBarArrows);
+    }, [updateTabBarArrows]);
+
+    function slideTabBar(direction) {
+        const tabBar = settingsTabBarRef.current;
+        if (tabBar) tabBar.scrollBy({ left: direction * tabBar.clientWidth * 0.7, behavior: "smooth" });
+    }
     useCustomValidity(
         confirmPasswordRef,
         passwords.confirmPassword && passwords.confirmPassword !== passwords.newPassword ? "Passwords don't match." : ""
@@ -295,7 +318,13 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
 
     return (
         <div className="as2-page">
-            <nav className="as2-nav" aria-label="Settings">
+            <div className="as2-nav-wrap">
+            {tabBarCanScroll.left && (
+                <button type="button" className="as2-nav-arrow is-left" aria-label="Show earlier tabs" onClick={() => slideTabBar(-1)}>
+                    <Icon name="arrow-left" />
+                </button>
+            )}
+            <nav className="as2-nav" aria-label="Settings" ref={settingsTabBarRef} onScroll={updateTabBarArrows}>
                 {[...TABS, ...extraTabs].map((item) => (
                     <button
                         key={item.key}
@@ -307,6 +336,12 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
                     </button>
                 ))}
             </nav>
+            {tabBarCanScroll.right && (
+                <button type="button" className="as2-nav-arrow is-right" aria-label="Show more tabs" onClick={() => slideTabBar(1)}>
+                    <Icon name="arrow-right" />
+                </button>
+            )}
+            </div>
 
             <div className="as2-main">
                 {notice && (

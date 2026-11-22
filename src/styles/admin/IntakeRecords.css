@@ -862,6 +862,57 @@
     color: var(--ao-muted);
 }
 
+/* Foster weekly update: which pet you're writing about */
+.ao-pet-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--peach-soft);
+}
+
+.ao-pet-head img,
+.ao-pet-head-photo {
+    width: 52px;
+    height: 52px;
+    flex: none;
+    border-radius: 12px;
+    background: var(--line-soft);
+    object-fit: cover;
+}
+
+.ao-pet-head div {
+    min-width: 0;
+}
+
+.ao-pet-head b {
+    display: block;
+    color: var(--brown);
+    font-size: 16px;
+}
+
+.ao-pet-head small {
+    display: block;
+    color: var(--brown-muted);
+    font-size: 12px;
+}
+
+/* Small one-line photo picker (foster medical request) */
+.ao-photo.is-compact {
+    min-height: 44px;
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-width: 1px;
+}
+
+.ao-photo.is-compact:has(.ao-photo-preview) {
+    flex-direction: column;
+}
+
 .ao-photo-preview {
     width: 100%;
     max-height: 180px;
@@ -1604,6 +1655,7 @@
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
+<<<<<<< HEAD
 .ao-urgency small {
     display: block;
     margin-top: 2px;
@@ -1616,6 +1668,12 @@
 .ao-urgency button.medium.on { background: #fff1d6; border-color: #f0a020; color: #b45309; }
 .ao-urgency button.high.on { background: #fde3d4; border-color: #e0703a; color: #b4441a; }
 .ao-urgency button.emergency.on { background: #fdeaea; border-color: #d64545; color: #b42318; }
+=======
+.ao-urgency button.low.on { background: var(--green-soft); border-color: var(--green); color: var(--green-dark); }
+.ao-urgency button.medium.on { background: var(--peach-soft); border-color: var(--orange-light); color: var(--orange-dark); }
+.ao-urgency button.high.on { background: var(--line-soft); border-color: var(--orange-dark); color: var(--red-dark); }
+.ao-urgency button.emergency.on { background: var(--red-soft); border-color: var(--red); color: var(--red-dark); }
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 /* Shelter reply under a medical request */
 .ao-reply {
@@ -2149,6 +2207,17 @@ a.ao-tag {
 
 .gs-unit input {
     padding-right: 48px;
+}
+
+/* Field opened from a shortcut (e.g. "Change limit"): orange glow that pulses 3 times */
+.gs-field.is-highlighted .gs-unit input {
+    border-color: var(--orange);
+    animation: gs-field-pulse 1.2s ease-in-out 3;
+    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.3);
+}
+
+@keyframes gs-field-pulse {
+    50% { box-shadow: 0 0 0 10px rgba(251, 133, 0, 0.08); }
 }
 
 .gs-unit i {
@@ -3062,12 +3131,15 @@ a.ao-tag {
     border-color: #fb8500;
 }
 
+<<<<<<< HEAD
 .um-shown {
     margin: 8px 0 4px;
     color: #8a6a55;
     font-size: 12px;
 }
 
+=======
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 .um-table-wrap {
     overflow-x: auto;
     scrollbar-width: none;

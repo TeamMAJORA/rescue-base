@@ -253,7 +253,6 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                 </div>
             )}
             <section className="ao-card">
-                <h2>Behavior Evaluation</h2>
                 <p className="ao-hint">
                     You know {name} best at home. Rate what you've seen — the shelter reviews it before it
                     appears on {name}'s adoption profile.

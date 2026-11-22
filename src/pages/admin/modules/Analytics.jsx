@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import LoadingState from "../../../components/system/LoadingState";
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -19,7 +19,7 @@ const emptyDetails = {
 
 const metricOptions = [
     { value: "adoptions", label: "Adoptions", noun: "adoptions" },
-    { value: "rescues", label: "Rescues", noun: "rescues" },
+    { value: "rescues", label: "Rescues", noun: "animals rescued" },
     { value: "lostFound", label: "Lost & Found", noun: "lost & found reports" },
     { value: "foster", label: "Foster", noun: "foster assignments" },
 ];
@@ -30,12 +30,6 @@ const SLICE_COLORS = {
     adoptions: "#eda100",
     lostFound: "#2a78d6",
     foster: "#1baf7a",
-};
-
-const INSIGHT_TYPES = {
-    positive: { icon: "↑", label: "Good" },
-    warning: { icon: "!", label: "Needs attention" },
-    info: { icon: "i", label: "Info" },
 };
 
 // Top of the y-axis: always splits into 4 whole-number steps (6 -> 8, 23 -> 24)
@@ -66,12 +60,24 @@ export default function Analytics() {
     const [totals, setTotals] = useState(emptyTotals);
     const [details, setDetails] = useState(emptyDetails);
     const [monthlyStats, setMonthlyStats] = useState([]);
-    const [insights, setInsights] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [reloadKey, setReloadKey] = useState(0);
     const [hoverBar, setHoverBar] = useState(null);
     const [hoverSlice, setHoverSlice] = useState(null);
+    // Insight tile clicked: its chart metric is shown and that month's bar is outlined for a few seconds
+    const [selectedInsightKey, setSelectedInsightKey] = useState(null);
+    const [highlightedBarIndex, setHighlightedBarIndex] = useState(null);
+    const monthlyChartRef = useRef(null);
+
+    useEffect(() => {
+        if (highlightedBarIndex === null) return undefined;
+        const timer = setTimeout(() => {
+            setHighlightedBarIndex(null);
+            setHoverBar((current) => (current === highlightedBarIndex ? null : current));
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, [highlightedBarIndex]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -103,7 +109,6 @@ export default function Analytics() {
                 setTotals({ ...emptyTotals, ...(data.totals || {}) });
                 setDetails({ ...emptyDetails, ...(data.details || {}) });
                 setMonthlyStats(Array.isArray(data.monthlyStats) ? data.monthlyStats : []);
-                setInsights(Array.isArray(data.insights) ? data.insights : []);
             } catch (err) {
                 if (err.name === "AbortError") return;
 
@@ -135,7 +140,7 @@ export default function Analytics() {
 
     const slices = useMemo(() => {
         const items = [
-            { key: "rescues", label: "Rescues", value: totals.rescues, detail: "Animals taken in as rescued" },
+            { key: "rescues", label: "Rescues", value: totals.rescues, detail: "Animals taken in as rescued (not rescue assignments)" },
             {
                 key: "adoptions",
                 label: "Adoptions",
@@ -206,25 +211,90 @@ export default function Analytics() {
     const active = slices.items.find((item) => item.key === hoverSlice) || null;
     const nowLabel = monthlyStats.length ? monthlyStats[monthlyStats.length - 1].month : "";
 
+
+    // Insights: one tile per chart metric. Trend = this month vs last month; clicking a tile shows
+    // that metric in the Monthly activity chart and outlines this month's bar.
+    const currentMonthIndex = monthlyStats.length - 1;
+    const previousMonthLabel = monthlyStats.length > 1 ? monthlyStats[monthlyStats.length - 2].month : "";
+    const monthValue = (metricKey, index) => Number(monthlyStats[index]?.[metricKey]) || 0;
+    // Percentages on this page stay between 1 and 100 (a real change is never shown as 0%, and never above 100%)
+    const toPercentInRange = (value) => Math.min(100, Math.max(1, Math.round(value)));
+    const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
+
+    function describeMonthChange(metricKey, isMoreGood) {
+        if (monthlyStats.length < 2) return null;
+        const current = monthValue(metricKey, currentMonthIndex);
+        const previous = monthValue(metricKey, currentMonthIndex - 1);
+        if (current === previous) return { direction: "flat", tone: "neutral", text: `Same as ${previousMonthLabel}` };
+        const direction = current > previous ? "up" : "down";
+        const tone = (direction === "up") === isMoreGood ? "good" : "bad";
+        if (previous === 0) return { direction, tone, text: `${current} new`, suffix: `vs 0 in ${previousMonthLabel}` };
+        const percent = toPercentInRange((Math.abs(current - previous) / previous) * 100);
+        return { direction, tone, text: `${percent}%`, suffix: `vs ${previousMonthLabel} (${previous} → ${current})` };
+    }
+
+    function describeRescuesVsAverage() {
+        const total = monthlyStats.reduce((sum, month) => sum + (Number(month.rescues) || 0), 0);
+        if (!monthlyStats.length || total === 0) return `No rescues in the last ${monthlyStats.length || 6} months`;
+        const average = total / monthlyStats.length;
+        const differenceFromAverage = ((monthValue("rescues", currentMonthIndex) - average) / average) * 100;
+        if (Math.round(differenceFromAverage) === 0) return `${nowLabel}: right at the monthly average`;
+        return `${nowLabel}: ${toPercentInRange(Math.abs(differenceFromAverage))}% ${differenceFromAverage > 0 ? "above" : "below"} the monthly average`;
+    }
+
+    const newLostFoundThisMonth = monthValue("lostFound", currentMonthIndex);
+    const insightTiles = [
+        {
+            key: "adoptions", metric: "adoptions", label: "Adoptions", value: totals.adoptions, note: "adopted so far",
+            change: describeMonthChange("adoptions", true), tone: "positive",
+            footer: details.pendingApplications > 0
+                ? `${plural(details.pendingApplications, "application")} waiting for review`
+                : "No applications waiting",
+        },
+        {
+            key: "rescues", metric: "rescues", label: "Rescues", value: totals.rescues, note: "animals taken in",
+            change: describeMonthChange("rescues", true), tone: "neutral", footer: describeRescuesVsAverage(),
+        },
+        {
+            key: "lost-found", metric: "lostFound", label: "Lost & Found", value: details.openLostFound, note: "reports still open",
+            change: describeMonthChange("lostFound", false), tone: details.openLostFound > 0 ? "warning" : "neutral",
+            footer: `${plural(newLostFoundThisMonth, "new report")} in ${nowLabel}`,
+        },
+        {
+            key: "foster", metric: "foster", label: "Foster care", value: details.activeFosters, note: "pets in foster now",
+            change: describeMonthChange("foster", true), tone: "neutral",
+            footer: `${plural(details.completedFosters, "placement")} completed`,
+        },
+    ];
+
+    function showInsightInChart(tile) {
+        setSelectedMetric(tile.metric);
+        setSelectedInsightKey(tile.key);
+        setHoverBar(currentMonthIndex);
+        setHighlightedBarIndex(currentMonthIndex);
+        monthlyChartRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
     return (
         <section className="an2-page">
             <div className="um-strip an2-strip">
                 <div className="um-strip-total">
                     <b>{totals.adoptions}</b>
-                    <small>Total adoptions</small>
+                    <small>Total adoptions (all time)</small>
                     <em>{details.pendingApplications} applications pending</em>
                 </div>
                 <div>
-                    <small>Rescues</small>
+                    <small>Animals rescued</small>
                     <b>{totals.rescues}</b>
+                    <em>all time</em>
                 </div>
                 <div>
-                    <small>Lost &amp; Found reports</small>
+                    <small>Lost &amp; Found reports (all time)</small>
                     <b>{totals.lostFound}</b>
                     <em>{details.openLostFound} open</em>
                 </div>
                 <div>
-                    <small>Foster assignments</small>
+                    <small>Foster assignments (all time)</small>
                     <b>{totals.foster}</b>
                     <em>{details.activeFosters} active</em>
                 </div>
@@ -232,7 +302,7 @@ export default function Analytics() {
 
             <div className="an2-grid">
                 {/* Monthly activity */}
-                <section className="an2-card">
+                <section className="an2-card" ref={monthlyChartRef}>
                     <div className="an2-head">
                         <h3>Monthly activity</h3>
                         <div className="an2-seg" role="radiogroup" aria-label="Metric">
@@ -290,7 +360,7 @@ export default function Analytics() {
                                                     {value}
                                                 </span>
                                                 <div
-                                                    className={`an2-bar${isCurrent ? " is-current" : ""}${hoverBar === index ? " is-hover" : ""}`}
+                                                    className={`an2-bar${isCurrent ? " is-current" : ""}${hoverBar === index ? " is-hover" : ""}${highlightedBarIndex === index ? " is-highlighted" : ""}`}
                                                     style={{ height: `${(value / monthly.top) * 100}%` }}
                                                 />
                                                 {hoverBar === index && (
@@ -370,7 +440,7 @@ export default function Analytics() {
                                     <>
                                         <b>{slices.total}</b>
                                         <span>Total</span>
-                                        <small>{slices.total === 0 ? "No activity yet" : "all activity"}</small>
+                                        <small>{slices.total === 0 ? "No activity yet" : "records, all time"}</small>
                                     </>
                                 )}
                             </div>
@@ -412,26 +482,33 @@ export default function Analytics() {
             <section className="an2-card">
                 <h3>Insights</h3>
 
-                <div className="an2-insights">
-                    {insights.map((insight) => {
-                        const type = INSIGHT_TYPES[insight.type] || INSIGHT_TYPES.info;
-
-                        return (
-                            <article className={`an2-insight is-${insight.type || "info"}`} key={insight.id}>
-                                <span className="an2-insight-icon" aria-hidden="true">
-                                    {type.icon}
-                                </span>
-                                <div>
-                                    <b>{insight.title}</b>
-                                    <p>{insight.detail}</p>
-                                </div>
-                                <span className="an2-insight-tag">{type.label}</span>
-                            </article>
-                        );
-                    })}
-
-                    {insights.length === 0 && <p className="an2-muted">No insights are available yet.</p>}
-                </div>
+                {!loading && (
+                    <div className="an2-insights">
+                        {insightTiles.map((tile) => (
+                            <button
+                                type="button"
+                                className={`an2-insight is-${tile.tone}${selectedInsightKey === tile.key && selectedMetric === tile.metric ? " is-selected" : ""}`}
+                                key={tile.key}
+                                onClick={() => showInsightInChart(tile)}
+                                aria-label={`${tile.label}: ${tile.value} ${tile.note}. Show ${nowLabel} in the Monthly activity chart`}
+                            >
+                                <span className="an2-insight-label">{tile.label}</span>
+                                <b>{tile.value}</b>
+                                <span className="an2-insight-note">{tile.note}</span>
+                                {tile.change && (
+                                    <span className="an2-insight-change">
+                                        <span className={`an2-trend is-${tile.change.tone}`}>
+                                            {tile.change.direction === "up" ? "↗ " : tile.change.direction === "down" ? "↘ " : "— "}
+                                            {tile.change.text}
+                                        </span>
+                                        {tile.change.suffix && <small>{tile.change.suffix}</small>}
+                                    </span>
+                                )}
+                                <span className="an2-insight-footer">{tile.footer}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
             </section>
         </section>
     );

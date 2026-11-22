@@ -670,15 +670,17 @@
     color: #7a3e19;
 }
 
-/* Insights */
+/* Insights: clickable tiles. Number, what it counts, this month vs last month, one line of context. */
 .an2-insights {
     display: grid;
-    gap: 8px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
     margin-top: 12px;
 }
 
-.an2-insight {
+#root .an2-insight {
     display: flex;
+<<<<<<< HEAD
     align-items: flex-start;
     gap: 12px;
 <<<<<<< HEAD
@@ -687,16 +689,35 @@
     background: #fff;
 =======
     padding: 12px 16px;
+=======
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
     border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--brown);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#root .an2-insight:hover {
+    border-color: var(--orange);
     background: var(--white);
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
-.an2-insight b {
-    display: block;
-    font-size: 14px;
+#root .an2-insight.is-selected {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.25);
 }
 
+<<<<<<< HEAD
 .an2-insight p {
     margin: 2px 0 0;
 <<<<<<< HEAD
@@ -720,15 +741,62 @@
     font-size: 13px;
 =======
     background: var(--line-soft);
+=======
+.an2-insight-label {
+    padding: 12px 16px 0;
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.an2-insight b {
+    padding: 2px 16px 0;
+    color: var(--brown);
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.an2-insight-note {
+    padding: 0 16px;
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
     color: var(--brown-muted);
+    font-size: 12px;
+}
+
+.an2-insight-change {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 6px;
+    margin: 12px 16px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.an2-insight-change small {
+    color: var(--brown-muted);
+    font-size: 12px;
+}
+
+.an2-trend {
     font-size: 14px;
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
-.an2-insight-tag {
-    margin-left: auto;
+.an2-trend.is-good { color: var(--green); }
+.an2-trend.is-bad { color: var(--red-dark); }
+.an2-trend.is-neutral { color: var(--brown-muted); }
+
+.an2-insight-footer {
+    margin-top: auto;
+    padding: 8px 16px;
+    background: var(--cream-card);
+    color: var(--brown);
     font-size: 12px;
+<<<<<<< HEAD
     font-weight: 800;
     white-space: nowrap;
     color: #7b6658;
@@ -750,6 +818,46 @@
 
 .an2-insight.is-warning .an2-insight-tag {
     color: #8a5a00;
+=======
+    font-weight: 600;
+}
+
+.an2-insight.is-positive .an2-insight-footer {
+    background: var(--green-soft);
+    color: var(--green-dark);
+}
+
+.an2-insight.is-warning .an2-insight-footer {
+    background: var(--peach-soft);
+    color: var(--amber);
+}
+
+/* The month a clicked tile points to */
+.an2-bar.is-highlighted {
+    outline: 3px solid var(--orange);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 8px rgba(251, 133, 0, 0.18);
+}
+
+@media (max-width: 760px) {
+    .an2-insights {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .an2-insight-label,
+    .an2-insight b,
+    .an2-insight-note,
+    .an2-insight-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .an2-insight-change {
+        margin: 10px 12px;
+        padding: 8px 10px;
+    }
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 }
 
 @media (max-width: 1200px) {

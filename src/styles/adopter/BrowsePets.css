@@ -814,6 +814,11 @@
     font-size: 14px;
 }
 
+.pet-list-scan {
+    flex: none;
+    white-space: nowrap;
+}
+
 .pet-list-search::placeholder {
     color: rgba(90, 27, 0, 0.45);
 }

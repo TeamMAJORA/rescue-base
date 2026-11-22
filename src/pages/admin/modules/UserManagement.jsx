@@ -172,8 +172,12 @@ export default function UserManagement() {
                 return;
             }
 
-            setMessage("User deactivated successfully.");
             await fetchUsers();
+<<<<<<< HEAD
+=======
+            setMessage("User deactivated successfully.");
+            return true;
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
         } catch (error) {
             console.error("Deactivate user error:", error);
             setMessage(
@@ -221,11 +225,11 @@ export default function UserManagement() {
                 return;
             }
 
-            setMessage("User created successfully.");
             setAddForm(initialAddForm);
             setShowAddForm(false);
 
             await fetchUsers();
+            setMessage("User created successfully.");
         } catch (error) {
             console.error("Add user error:", error);
             setMessage(
@@ -265,11 +269,11 @@ export default function UserManagement() {
                 return;
             }
 
-            setMessage("User updated successfully.");
             setEditingUser(null);
             setEditForm(initialEditForm);
 
             await fetchUsers();
+            setMessage("User updated successfully.");
         } catch (error) {
             console.error("Update user error:", error);
             setMessage(
@@ -330,16 +334,16 @@ export default function UserManagement() {
                 return;
             }
 
-            setMessage(
-                decision === "approved"
-                    ? "Role application approved successfully."
-                    : "Role application rejected successfully."
-            );
 
             setReviewingApplication(null);
             setRejectionReason("");
 
             await fetchUsers();
+            setMessage(
+                decision === "approved"
+                    ? "Role application approved successfully."
+                    : "Role application rejected successfully."
+            );
         } catch (error) {
             console.error("Review role application error:", error);
 
@@ -379,8 +383,12 @@ export default function UserManagement() {
                 return;
             }
 
-            setMessage("User reactivated.");
             await fetchUsers();
+<<<<<<< HEAD
+=======
+            setMessage("User reactivated.");
+            return true;
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
         } catch (error) {
             console.error("Reactivate user error:", error);
             setMessage("Server error while reactivating user.");
@@ -577,7 +585,7 @@ export default function UserManagement() {
 
                     <button
                         type="button"
-                        className="gs-btn primary"
+                        className="gs-btn"
                         onClick={() => {
                             setShowAddForm(true);
                             setEditingUser(null);
@@ -612,10 +620,6 @@ export default function UserManagement() {
                         <option value="disabled">Deactivated</option>
                     </select>
                 </div>
-
-                <p className="um-shown">
-                    Showing {visibleUsers.length} of {totalUsers} users
-                </p>
 
                 {loading ? (
                     <LoadingState label="Loading users…" />

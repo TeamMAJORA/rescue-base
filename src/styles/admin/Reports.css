@@ -580,13 +580,12 @@
     color: #7a3e19;
 }
 
-.rp2-counts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 4px;
+/* Finalize window: the report's record counts to check before locking it */
+.ao-confirm.rp2-finalize {
+    max-width: 440px;
 }
 
+<<<<<<< HEAD
 .rp2-counts span {
 <<<<<<< HEAD
     padding: 2px 6px;
@@ -599,6 +598,30 @@
     font-size: 12px;
     color: var(--brown-soft);
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
+=======
+.rp2-finalize-counts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0 0 12px;
+}
+
+.rp2-finalize-counts div {
+    padding: 8px 12px;
+    background: var(--cream-card);
+}
+
+.rp2-finalize-counts dd {
+    margin: 0;
+    color: var(--brown);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.rp2-finalize-counts dt {
+    color: var(--brown-muted);
+    font-size: 12px;
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 }
 
 .rp2-type {
@@ -1731,3 +1754,15 @@
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 .ns2-actions { display: grid; grid-template-columns: 52px 76px 32px; gap: 8px; justify-content: end; align-items: center; }
 .ns2-actions .rs2-mini { width: 100%; justify-content: center; text-align: center; }
+<<<<<<< HEAD
+=======
+
+/* Settings tabs: arrow buttons appear on a side when more tabs are hidden there (phones) */
+.as2-nav-wrap { position: relative; min-width: 0; }
+.as2-nav-wrap .as2-nav { scrollbar-width: none; }
+.as2-nav-wrap .as2-nav::-webkit-scrollbar { display: none; }
+.as2-nav-arrow { position: absolute; top: 1px; bottom: 1px; z-index: 1; display: grid; place-items: center; width: 40px; padding: 0; border: 0; background: var(--paper); color: var(--brown); cursor: pointer; }
+.as2-nav-arrow.is-left { left: 1px; border-right: 1px solid var(--line); }
+.as2-nav-arrow.is-right { right: 1px; border-left: 1px solid var(--line); }
+.as2-nav-arrow:hover { background: var(--peach-soft); }
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5

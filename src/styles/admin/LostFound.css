@@ -2157,6 +2157,7 @@
     text-align: center;
 }
 
+<<<<<<< HEAD
 .lf2-table-wrap {
     overflow-x: auto;
 }
@@ -2314,6 +2315,8 @@
     color: #d62828;
 }
 
+=======
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 @media (max-width: 900px) {
     .lost-found-page .um-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2681,6 +2684,7 @@
     color: #814b1c;
 }
 /* ===== Lost & Found: match Reports / Feedback (square controls, row buttons) ===== */
+<<<<<<< HEAD
 .lost-found-page .lf2-search,
 .lost-found-page .lf2-select select {
     border: 1px solid #e3d5b5;
@@ -2740,6 +2744,8 @@
     font-size: 20px;
     background: #f6edd6;
 }
+=======
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 .lf2-foot {
     margin: 0;
@@ -3430,18 +3436,6 @@
     height: 140px;
 }
 
-.lf-card-body .lf2-pill {
-    align-self: flex-start;
-    margin-top: 8px;
-}
-
-.lf-card-body .lf2-row-actions {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    margin-top: auto;
-    padding-top: 12px;
-}
-
 /* ===== Grid cards: compact, tap to view (Nov 9 redesign) ===== */
 .lf-tabs-row {
     display: flex;
@@ -3762,4 +3756,34 @@
         grid-template-columns: 1fr;
     }
 }
+<<<<<<< HEAD
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
+=======
+
+/* Staff: possible matches in their own card under the reports */
+.lfm-panel h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--brown);
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.lfm-panel-count {
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--orange);
+    color: var(--white);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 20px;
+}
+
+.lfm-panel .lfm-list {
+    margin-top: 0;
+}
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5

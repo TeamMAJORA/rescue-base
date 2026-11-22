@@ -151,9 +151,9 @@ function SettingToggle({ label, description, checked, onChange, disabled = false
 }
 
 // Number field with its unit shown inside (tries, min)
-function NumberField({ label, unit, hint, value, min, max, onChange }) {
+function NumberField({ label, unit, hint, value, min, max, onChange, fieldId, isHighlighted = false }) {
     return (
-        <label className="gs-field">
+        <label className={`gs-field ${isHighlighted ? "is-highlighted" : ""}`} id={fieldId}>
             {label}
             <span className="gs-unit">
                 <NumberInput
@@ -185,7 +185,8 @@ function formatSavedAt(value) {
     });
 }
 
-export default function GlobalSettings() {
+// highlightField: "shelterCapacity" when opened from the dashboard's "Change limit"
+export default function GlobalSettings({ highlightField = null }) {
     const [settings, setSettings] = useState(() =>
         mergeSettings(DEFAULT_SETTINGS)
     );
@@ -222,6 +223,15 @@ export default function GlobalSettings() {
     useEffect(() => {
         loadSettings();
     }, [loadSettings]);
+
+    // Scroll to the field we were sent to and put the cursor in it
+    useEffect(() => {
+        if (loading || !highlightField) return;
+        const field = document.getElementById(`gs-field-${highlightField}`);
+        if (!field) return;
+        field.scrollIntoView({ behavior: "smooth", block: "center" });
+        field.querySelector("input")?.focus({ preventScroll: true });
+    }, [loading, highlightField]);
 
     const isDirty = JSON.stringify(settings) !== JSON.stringify(savedSettings);
 
@@ -395,6 +405,8 @@ export default function GlobalSettings() {
                             max={10000}
                             value={general.shelterCapacity ?? 30}
                             onChange={(value) => updateSetting("general", "shelterCapacity", value)}
+                            fieldId="gs-field-shelterCapacity"
+                            isHighlighted={highlightField === "shelterCapacity"}
                         />
 
                         <label className="gs-field">

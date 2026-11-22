@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/AdminDashboardOverview.css";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
-const REFRESH_MS = 60000;
+// The overview reloads 11 lists, so refresh every 5 minutes (and only while the tab is visible)
+const REFRESH_MS = 5 * 60 * 1000;
 const MONTHS_SHOWN = 6;
 
 const FOOD_LOW_DAYS = 5;
@@ -534,7 +535,9 @@ export default function AdminOverview({ onNavigate }) {
         }
 
         load();
-        const timer = setInterval(load, REFRESH_MS);
+        const timer = setInterval(() => {
+            if (document.visibilityState === "visible") load();
+        }, REFRESH_MS);
         return () => {
             alive = false;
             clearInterval(timer);
@@ -549,7 +552,8 @@ export default function AdminOverview({ onNavigate }) {
         today.setHours(0, 0, 0, 0);
 
         const animals = data.animals;
-        const inCare = animals.filter((a) => animalStatus(a) !== "adopted");
+        // In care = not adopted and not returned to the owner (same rule everywhere on the dashboard)
+        const inCare = animals.filter((a) => animalStatus(a) !== "adopted" && a.adoptionStatus !== "returned_to_owner");
         const inShelter = inCare.filter((a) => animalStatus(a) !== "fostered");
         const dogs = inCare.filter((a) => a.type === "Dog").length;
         const cats = inCare.filter((a) => a.type === "Cat").length;
@@ -732,8 +736,8 @@ export default function AdminOverview({ onNavigate }) {
         };
     }, [data]);
 
-    function go(page) {
-        if (onNavigate) onNavigate(page);
+    function go(page, options) {
+        if (onNavigate) onNavigate(page, options);
     }
 
     const foodLevels = buildFoodLevels(data?.foodInventory || [], view?.inCare || []);
@@ -744,11 +748,15 @@ export default function AdminOverview({ onNavigate }) {
     const header = (
         <div className="db2-top">
             <div>
-                <h1>
+                <h2>
                     {greeting(now)}
                     {firstName && <>, <span>{firstName}</span></>}
+<<<<<<< HEAD
                 </h1>
                 <p className="db2-hello">Here&apos;s how the shelter is doing today.</p>
+=======
+                </h2>
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
             </div>
             <div className="db2-clock">
                 <b>{clock}</b>
@@ -1038,7 +1046,7 @@ export default function AdminOverview({ onNavigate }) {
                         <h3>
                             Space used
                             {isAdminUser && (
-                                <button type="button" className="db2-link" onClick={() => go("global-settings")}>
+                                <button type="button" className="db2-link" onClick={() => go("global-settings", { highlightSettingsField: "shelterCapacity" })}>
                                     Change limit
                                 </button>
                             )}

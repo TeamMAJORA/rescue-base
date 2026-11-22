@@ -13,7 +13,11 @@ import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
 import UiIcon from "../../../components/system/Icon";
 import NumberInput from "../../../components/system/NumberInput";
+<<<<<<< HEAD
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
+=======
+import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 // Styled confirm popup from the dashboard (falls back to the browser box)
 function askConfirm(options) {
@@ -310,7 +314,15 @@ function Icon({ name, size = 18 }) {
 export default function Donations() {
     const [donations, setDonations] = useState([]);
     const [donationForm, setDonationForm] = useState(emptyDonationForm);
+<<<<<<< HEAD
     const [editingId, setEditingId] = useState(null);
+=======
+    const [viewingDonation, setViewingDonation] = useState(null);
+    useCloseOnEscape(Boolean(viewingDonation), () => setViewingDonation(null));
+    const [notReceivedFor, setNotReceivedFor] = useState(null);
+    const [notReceivedReason, setNotReceivedReason] = useState("");
+    const [notReceivedError, setNotReceivedError] = useState("");
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState("");
@@ -486,11 +498,15 @@ export default function Donations() {
                 return;
             }
 
+<<<<<<< HEAD
             setMessage(editingId ? "Donation updated successfully." : "Donation created successfully.");
+=======
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
             setDonationForm(emptyDonationForm);
             setEditingId(null);
             setShowForm(false);
             fetchDonations();
+            setMessage("Donation created successfully.");
         } catch (error) {
             console.error("Save donation error:", error);
             setMessage("Server error while saving donation.");
@@ -556,8 +572,15 @@ export default function Donations() {
                 return;
             }
 
+<<<<<<< HEAD
             setMessage("Donation status updated.");
             fetchDonations();
+=======
+            setViewingDonation((current) => (current?._id === donationId ? data.donation : current));
+            fetchDonations();
+            setMessage("Donation status updated.");
+            return true;
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
         } catch (error) {
             console.error("Update donation status error:", error);
             setMessage("Server error while updating donation status.");
@@ -605,8 +628,13 @@ export default function Donations() {
                 return;
             }
 
+<<<<<<< HEAD
             setMessage(data.message || "Donation deleted successfully.");
+=======
+            setViewingDonation(null);
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
             fetchDonations();
+            setMessage("Donation deleted successfully.");
         } catch (error) {
             console.error("Delete donation error:", error);
             setMessage("Server error while deleting donation.");
@@ -1190,8 +1218,25 @@ export default function Donations() {
                                     const details = detailsFor(donation);
 
                                     return (
+<<<<<<< HEAD
                                         <tr key={donation._id} className={status === "cancelled" ? "is-off" : ""}>
                                             <td>
+=======
+                                        <tr
+                                            key={donation._id}
+                                            className={`dl-row ${status === "cancelled" ? "is-off" : ""}`}
+                                            tabIndex={0}
+                                            aria-label={`View donation from ${donation.donorName || "Anonymous"}`}
+                                            onClick={() => setViewingDonation(donation)}
+                                            onKeyDown={(event) => {
+                                                if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+                                                    event.preventDefault();
+                                                    setViewingDonation(donation);
+                                                }
+                                            }}
+                                        >
+                                            <td data-label="Donor">
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                                                 <div className="dl-donor">
                                                     <b>{donation.donorName || "Anonymous"}</b>
                                                     <span>{donation.donorEmail || "No email"}</span>
@@ -1213,13 +1258,18 @@ export default function Donations() {
                                                     {STATUS_LABEL[status] || status}
                                                 </span>
                                             </td>
+<<<<<<< HEAD
                                             <td className="dl-date">{formatDate(donation.createdAt)}</td>
                                             <td>
+=======
+                                            <td data-label="Date" className="dl-date">{formatDate(donation.createdAt)}</td>
+                                            <td data-label="Actions" onClick={(event) => event.stopPropagation()}>
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                                                 <div className="dl-actions">
                                                     {status === "pending" ? (
                                                         <button
                                                             type="button"
-                                                            className="dl-btn primary small"
+                                                            className="dl-btn small"
                                                             onClick={() => handleUpdateStatus(donation._id, "received")}
                                                         >
                                                             Mark received
@@ -1230,6 +1280,7 @@ export default function Donations() {
                                                         </span>
                                                     )}
 
+<<<<<<< HEAD
                                                     <button
                                                         type="button"
                                                         className="dl-icon-btn"
@@ -1239,6 +1290,8 @@ export default function Donations() {
                                                         <Icon name="edit" size={15} />
                                                     </button>
 
+=======
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                                                     <div className="dl-menu-wrap">
                                                         <button
                                                             type="button"
@@ -1558,7 +1611,7 @@ export default function Donations() {
 
                                 <div className="dl-pm-foot">
                                     <span />
-                                    <button type="button" className="dl-btn primary" onClick={newMethod}>
+                                    <button type="button" className="dl-btn" onClick={newMethod}>
                                         + Add method
                                     </button>
                                 </div>
@@ -1680,7 +1733,7 @@ export default function Donations() {
                                                 {" · "}
                                                 <button
                                                     type="button"
-                                                    className="dl-link"
+                                                    className="dl-link is-danger"
                                                     onClick={() => setDropOffForm({ ...dropOffForm, latitude: null, longitude: null })}
                                                 >
                                                     Remove pin

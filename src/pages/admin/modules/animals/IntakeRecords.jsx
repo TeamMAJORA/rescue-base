@@ -11,7 +11,11 @@ import { askConfirm, askPrompt } from "../../../../utils/dialogs";
 import { formatDate, toDayValue } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
 import UiIcon from "../../../../components/system/Icon";
+<<<<<<< HEAD
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
+=======
+import RowActionsMenu from "../../../../components/system/RowActionsMenu";
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 const CEBU_CENTER = [10.3157, 123.8854];
 
@@ -495,11 +499,17 @@ export default function IntakeRecords() {
         setLoading(true);
         setError("");
 
-        const results = await Promise.allSettled([
-            fetchList(`${API_BASE_URL}/intakes`, "intakes"),
-            fetchList(`${API_BASE_URL}?intakeStatus=approved`, "animals"),
-            fetchList(`${API_BASE_URL}?intakeStatus=rejected`, "animals"),
-        ]);
+        // Volunteers get only their own intakes (every status) from /intakes; staff get the
+        // review queue plus every approved and rejected intake
+        const results = await Promise.allSettled(
+            canManage
+                ? [
+                    fetchList(`${API_BASE_URL}/intakes`, "intakes"),
+                    fetchList(`${API_BASE_URL}?intakeStatus=approved`, "animals"),
+                    fetchList(`${API_BASE_URL}?intakeStatus=rejected`, "animals"),
+                ]
+                : [fetchList(`${API_BASE_URL}/intakes`, "intakes")]
+        );
 
         const merged = [];
         const seen = new Set();
@@ -881,10 +891,7 @@ export default function IntakeRecords() {
             <StatsStrip
                 highlight={{
                     value: counts.pending,
-                    label:
-                        counts.pending === 1
-                            ? "Intake waiting for your review"
-                            : "Intakes waiting for your review",
+                    label: `${counts.pending === 1 ? "Intake" : "Intakes"} waiting for ${canManage ? "your" : "staff"} review`,
                 }}
                 items={[
                     { icon: "paw", label: "Intakes this month", value: stats.thisMonth },
@@ -1297,27 +1304,14 @@ export default function IntakeRecords() {
                                                 </>
                                             )}
 
-                                            {canManage && (
-                                                <button
-                                                    type="button"
-                                                    className="ao-btn sm"
-                                                    onClick={() => handleEditRecord(record)}
-                                                    disabled={isProcessing}
-                                                >
-                                                    Edit
-                                                </button>
-                                            )}
-
-                                            {isAdmin() && (
-                                                <button
-                                                    type="button"
-                                                    className="ao-btn sm danger"
-                                                    onClick={() => handleDeleteRecord(record._id)}
-                                                    disabled={isProcessing}
-                                                >
-                                                    Delete
-                                                </button>
-                                            )}
+                                            <RowActionsMenu
+                                                ariaLabel={`More actions for ${record.name || "this intake"}`}
+                                                disabled={isProcessing}
+                                                items={[
+                                                    ...(canManage ? [{ label: "Edit", onSelect: () => handleEditRecord(record) }] : []),
+                                                    ...(isAdmin() ? [{ label: "Delete", onSelect: () => handleDeleteRecord(record._id), isDanger: true }] : []),
+                                                ]}
+                                            />
                                         </div>
 
                                         {openId === record._id && (

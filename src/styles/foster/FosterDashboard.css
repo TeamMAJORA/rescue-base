@@ -16,11 +16,15 @@
 .foster-topbar h1 {
     margin: 0 0 2px;
     font-family: "Itim", cursive;
+<<<<<<< HEAD
     font-weight: 400;
 <<<<<<< HEAD
     color: #5a1b00;
     font-size: 30px;
 =======
+=======
+    font-weight: 700; /* bold like the other roles' page titles */
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
     color: var(--brown);
     font-size: 32px;
 >>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
@@ -687,7 +691,7 @@
 .fdb-header h2 {
     margin: 0;
     font-family: "Itim", cursive;
-    font-size: clamp(29px, 3vw, 39px);
+    font-size: 28px; /* below the 32px page title */
     font-weight: 400;
     line-height: 1.08;
     color: #5a1b00;
@@ -1190,4 +1194,31 @@
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+<<<<<<< HEAD
 }
+=======
+}
+
+/* Phones: the menu button keeps the shared look (not the orange topbar button),
+   and the bell + Refresh stay their own size next to the title */
+@media (max-width: 900px) {
+    .foster-topbar .dash-menu-btn {
+        width: 44px;
+        padding: 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        color: var(--brown);
+    }
+
+    .foster-topbar .foster-topbar-actions button { width: auto; }
+    .foster-topbar .foster-topbar-title { min-width: 0; }
+    .foster-topbar .foster-topbar-title h1 { font-size: 24px; }
+}
+/* Phone: the banner heading stays below the 24px page title */
+@media (max-width: 640px) {
+    .fdb-header h2 {
+        font-size: 22px;
+    }
+}
+>>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5

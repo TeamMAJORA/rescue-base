@@ -167,13 +167,6 @@ export default function FosterHistory() {
 
     return (
         <section className="ao-page foster-history-page">
-            <div className="foster-section-heading fh-heading">
-                <div>
-                    <span>Foster records</span>
-                    <h2>Foster History</h2>
-                </div>
-            </div>
-
             {/* Stats strip */}
             <div className="ao-strip">
                 <div className="ao-strip-cta">
