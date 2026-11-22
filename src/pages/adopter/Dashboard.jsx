@@ -1030,6 +1030,7 @@ async function fetchPets({ silent = false } = {}) {
                 typeFilter={typeFilter}
                 setTypeFilter={setTypeFilter}
                 filteredPets={filteredPets}
+                pets={pets}
                 // Only highlight a card while its pop-up is open
                 selectedPet={isPetModalOpen ? selectedPet : null}
                 setSelectedPet={openPet}

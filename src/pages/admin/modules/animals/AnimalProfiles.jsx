@@ -15,6 +15,8 @@ import Icon from "../../../../components/system/Icon";
 import NumberInput from "../../../../components/system/NumberInput";
 import RowActionsMenu from "../../../../components/system/RowActionsMenu";
 import { getAnimalStatus } from "../../../../utils/petStatus";
+import QrScanDialog from "../../../../components/system/QrScanDialog";
+import { tagCodeFrom } from "../../../../utils/qrTag";
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -388,6 +390,7 @@ function AnimalProfilesList({ onOpenRecords }) {
     const [qrCodes, setQrCodes] = useState({});
     const [qrImages, setQrImages] = useState({});
     const [qrOpen, setQrOpen] = useState(null);
+    const [qrScanning, setQrScanning] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
@@ -506,6 +509,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
     const filteredAnimals = useMemo(() => {
         const query = search.trim().toLowerCase();
+        const queryTagCode = tagCodeFrom(search);
 
         return animals.filter((animal) => {
             if (!matchesStatus(animal, statusFilter)) {
@@ -517,6 +521,7 @@ function AnimalProfilesList({ onOpenRecords }) {
             }
 
             if (!query) return true;
+            if (queryTagCode.startsWith("RB-") && String(qrCodes[animal._id] || "").toUpperCase().includes(queryTagCode)) return true;
 
             // One box searches every detail shown on the profile
             const searchableValues = [
@@ -538,7 +543,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 .filter(Boolean)
                 .some((value) => String(value).toLowerCase().includes(query));
         });
-    }, [animals, search, speciesFilter, statusFilter]);
+    }, [animals, qrCodes, search, speciesFilter, statusFilter]);
 
 
     const sortedAnimals = useMemo(() => {
@@ -614,10 +619,9 @@ function AnimalProfilesList({ onOpenRecords }) {
     }
 
     async function fetchQrCodes() {
-        // QR tags are staff/admin only; volunteers would just get a 403
-        if (!canManage) return;
+        // Volunteers get tag codes only (for lookup); QR images stay staff/admin only
         try {
-            const response = await fetch(`${API}/api/qr-tags`, {
+            const response = await fetch(`${API}/api/qr-tags${canManage ? "" : "/tag-codes"}`, {
                 headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
 
@@ -626,7 +630,7 @@ function AnimalProfilesList({ onOpenRecords }) {
             const data = await response.json();
             const records = Array.isArray(data)
                 ? data
-                : data.qrTags || data.records || [];
+                : data.qrTags || data.tagCodes || data.records || [];
 
             const codeMap = {};
             const imageMap = {};    
@@ -640,6 +644,17 @@ function AnimalProfilesList({ onOpenRecords }) {
         } catch {
             // QR search is optional; name/breed search still works
         }
+    }
+
+    function openAnimalFromScan(scannedText) {
+        const tagCode = tagCodeFrom(scannedText);
+        const animalId = Object.keys(qrCodes).find((id) => String(qrCodes[id]).toUpperCase() === tagCode);
+        if (!animalId || !animals.some((animal) => animal._id === animalId)) {
+            return `No animal in the records has tag "${tagCode}".`;
+        }
+        setQrScanning(false);
+        setExpandedId(animalId);
+        return "";
     }
 
     const [qrGenerating, setQrGenerating] = useState(false);
@@ -1467,13 +1482,17 @@ function AnimalProfilesList({ onOpenRecords }) {
                             </svg>
                             <input
                                 type="search"
-                                placeholder="Search name, breed, colour, location, status…"
+                                placeholder="Search name, breed, QR code, location…"
                                 aria-label="Search animals"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
                         </label>
                     </div>
+
+                    <button type="button" className="ao-btn" onClick={() => setQrScanning(true)}>
+                        <QrIcon /> Scan QR
+                    </button>
 
                     <select
                         className="ao-dropdown"
@@ -1998,6 +2017,8 @@ function AnimalProfilesList({ onOpenRecords }) {
                     </div>
                 </div>
             )}
+            {qrScanning && <QrScanDialog onScan={openAnimalFromScan} onClose={() => setQrScanning(false)} />}
+
             {qrOpen && (
                 <div
                     onClick={() => setQrOpen(null)}

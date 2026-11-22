@@ -12,6 +12,7 @@
   "dependencies": {
     "canvas-confetti": "^1.9.4",
     "firebase": "^12.19.0",
+    "jsqr": "^1.4.0",
     "leaflet": "^1.9.4",
     "qrcode": "^1.5.4",
     "react": "^19.2.7",
@@ -36,4 +37,4 @@
     "@firebase/util@1.15.1": true,
     "protobufjs@7.6.4": true
   }
-}
+}

@@ -2340,8 +2340,9 @@
         flex-wrap: wrap;
     }
 
+    /* Search and Scan QR share the first row; the filters wrap to the second */
     .adopter-dashboard-page .pet-list-toolbar .pet-list-search {
-        flex: 1 1 100%;
+        flex: 1 1 calc(100% - 136px);
     }
 
     .adopter-dashboard-page .pet-list-toolbar .pet-list-select {
