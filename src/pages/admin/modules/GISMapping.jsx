@@ -294,6 +294,7 @@ export default function GISMapping({ onOpenLostFound }) {
     // Phone: the report form is a bottom sheet; it shrinks to its header while you tap the map for the pin
     const [isReportSheetPicking, setIsReportSheetPicking] = useState(false);
     const reportMarkerRefs = useRef({});
+    const shelterMarkerRefs = useRef({});
     const gmMapWrapRef = useRef(null);
     const [openRowMenuPosition, setOpenRowMenuPosition] = useState({ top: 0, right: 0 });
 
@@ -471,6 +472,13 @@ export default function GISMapping({ onOpenLostFound }) {
         if (mapBox && (mapBox.top < 0 || mapBox.bottom > window.innerHeight)) {
             gmMapWrapRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
         }
+    }
+
+    // Shelter picked: fly to it and open its popup (Leaflet closes the popup that was open before)
+    function showShelterOnMap(shelter) {
+        setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 });
+        scrollMapIntoViewIfHidden();
+        setTimeout(() => shelterMarkerRefs.current[shelter._id]?.openPopup(), 900);
     }
 
     // Report row tapped: fly to its pin and open its details
@@ -1425,7 +1433,7 @@ export default function GISMapping({ onOpenLostFound }) {
         setShelterSuccess("");
         if (shelter) {
             editShelter(shelter);
-            setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 });
+            showShelterOnMap(shelter);
         } else {
             setEditingShelterId(null);
             setShelterForm({ ...emptyShelterForm });
@@ -1458,6 +1466,7 @@ export default function GISMapping({ onOpenLostFound }) {
                 ? { bounds: [[from.latitude, from.longitude], target] }
                 : { latitude: target[0], longitude: target[1], zoom: 16 }
         );
+        setTimeout(() => shelterMarkerRefs.current[place._id]?.openPopup(), 900);
     }
 
     function gmOpenNearest(category = "shelter") {
@@ -1595,6 +1604,10 @@ export default function GISMapping({ onOpenLostFound }) {
                                             key={`gm-shelter-${shelter._id}`}
                                             position={[Number(shelter.latitude), Number(shelter.longitude)]}
                                             icon={placeIcon(shelter)}
+                                            ref={(marker) => {
+                                                if (marker) shelterMarkerRefs.current[shelter._id] = marker;
+                                                else delete shelterMarkerRefs.current[shelter._id];
+                                            }}
                                         >
                                             <Popup>
                                                 <strong>{shelter.name}</strong>
@@ -2012,8 +2025,8 @@ export default function GISMapping({ onOpenLostFound }) {
                                                             className="gm-row-text"
                                                             title={canManage ? "Edit this place" : "Show on map"}
                                                             onClick={() => {
-                                                                setGmFocus({ latitude: Number(shelter.latitude), longitude: Number(shelter.longitude), zoom: 16 });
                                                                 if (canManage) gmOpenShelter(shelter);
+                                                                else showShelterOnMap(shelter);
                                                             }}
                                                         >
                                                             <b>{shelter.name}</b>
