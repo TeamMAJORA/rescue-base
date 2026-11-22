@@ -1601,13 +1601,23 @@ export default function GISMapping({ onOpenLostFound }) {
                                                 <br />
                                                 {isClinic(shelter) && (
                                                     <>
-                                                        Vet clinic{shelter.contact ? ` · ${shelter.contact}` : ""}
+                                                        Vet clinic
                                                         <br />
                                                     </>
                                                 )}
-                                                {counts
-                                                    ? `${counts.dogs} dogs · ${counts.cats} cats available · ${counts.inFoster} in foster`
-                                                    : shelter.address}
+                                                {shelter.address}
+                                                {counts && (
+                                                    <>
+                                                        <br />
+                                                        {`${counts.dogs} dogs · ${counts.cats} cats available · ${counts.inFoster} in foster`}
+                                                    </>
+                                                )}
+                                                {shelter.contact && (
+                                                    <>
+                                                        <br />
+                                                        Contact: {shelter.contact}
+                                                    </>
+                                                )}
                                                 {canManage && (
                                                     <>
                                                         <br />
