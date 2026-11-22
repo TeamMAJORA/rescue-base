@@ -4,8 +4,10 @@ import { MonthCalendar, isSameDay, startOfToday } from "../../../../components/s
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
 import { formatDate, formatDateTime, formatMonth } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
-import Icon from "../../../../components/system/Icon";
+import Icon from "../../../../components/system/Icon";
 import useCloseOnEscape from "../../../../hooks/useCloseOnEscape";
+import useCloseOnOutsideClick from "../../../../hooks/useCloseOnOutsideClick";
+import { WHEEL_HOURS, WHEEL_PERIODS, WheelColumn, joinTime, minuteOptions, splitTime, to24Hour } from "../../../../components/system/TimeField";
 
 
 
@@ -183,100 +185,12 @@ function RejectModal({ application, onClose, onConfirm, loading }) {
 }
 
 const WEEK_DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const WHEEL_ITEM_HEIGHT = 36;
-const WHEEL_HOURS = Array.from({ length: 12 }, (_, index) => String(index + 1));
-const WHEEL_MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"));
-const WHEEL_PERIODS = ["AM", "PM"];
+const WHEEL_MINUTES = minuteOptions(5);
 const SHELTER_OPEN_HOUR = 8;
 const SHELTER_CLOSE_HOUR = 17;
 
-function to24Hour(hour, period) {
-    return (Number(hour) % 12) + (period === "PM" ? 12 : 0);
-}
-
-function WheelColumn({ items, value, onChange, label }) {
-    const columnRef = useRef(null);
-    const scrollTimer = useRef(null);
-    const selectedIndex = Math.max(0, items.indexOf(value));
-
-    useEffect(() => {
-        const column = columnRef.current;
-        if (!column) return;
-
-        const target = selectedIndex * WHEEL_ITEM_HEIGHT;
-
-        if (Math.abs(column.scrollTop - target) > 2) {
-            column.scrollTo({ top: target });
-        }
-    }, [selectedIndex]);
-
-    function handleScroll() {
-        clearTimeout(scrollTimer.current);
-
-        scrollTimer.current = setTimeout(() => {
-            const column = columnRef.current;
-            if (!column) return;
-
-            const nextIndex = Math.min(
-                items.length - 1,
-                Math.max(0, Math.round(column.scrollTop / WHEEL_ITEM_HEIGHT))
-            );
-
-            if (items[nextIndex] !== value) {
-                onChange(items[nextIndex]);
-            }
-        }, 120);
-    }
-
-    return (
-        <div
-            ref={columnRef}
-            className="admin-wheel-column"
-            onScroll={handleScroll}
-            role="listbox"
-            aria-label={label}
-        >
-            {items.map((item, index) => {
-                const distance = Math.abs(index - selectedIndex);
-
-                return (
-                    <button
-                        key={item}
-                        type="button"
-                        role="option"
-                        aria-selected={item === value}
-                        className={`admin-wheel-item ${distance === 0 ? "is-selected" : distance === 1 ? "is-near" : ""}`}
-                        onClick={() =>
-                            columnRef.current?.scrollTo({
-                                top: index * WHEEL_ITEM_HEIGHT,
-                                behavior: "smooth",
-                            })
-                        }
-                    >
-                        {item}
-                    </button>
-                );
-            })}
-        </div>
-    );
-}
-
 // ---------- Interview picker (review popup): month calendar + time wheel ----------
-const PICKER_MINUTES = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
-
-// "HH:mm" (24h) <-> wheel values
-function splitTime(time) {
-    const [h, m] = String(time || "09:00").split(":").map(Number);
-    return {
-        hour: String(h % 12 || 12),
-        minute: String(Number.isFinite(m) ? m : 0).padStart(2, "0"),
-        period: h >= 12 ? "PM" : "AM",
-    };
-}
-
-function joinTime(hour, minute, period) {
-    return `${String(to24Hour(hour, period)).padStart(2, "0")}:${minute}`;
-}
+const PICKER_MINUTES = minuteOptions(1);
 
 function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
     const today = startOfToday();
@@ -284,22 +198,7 @@ function InterviewPicker({ day, time, onDayChange, onTimeChange, disabled }) {
     const [open, setOpen] = useState(null); // null | "date" | "time"
     const boxRef = useRef(null);
 
-    // Click outside the picker closes the open panel
-    useEffect(() => {
-        if (!open) return undefined;
-        function handleClick(event) {
-            if (boxRef.current && !boxRef.current.contains(event.target)) setOpen(null);
-        }
-        function handleKey(event) {
-            if (event.key === "Escape") setOpen(null);
-        }
-        document.addEventListener("mousedown", handleClick);
-        document.addEventListener("keydown", handleKey);
-        return () => {
-            document.removeEventListener("mousedown", handleClick);
-            document.removeEventListener("keydown", handleKey);
-        };
-    }, [open]);
+    useCloseOnOutsideClick(Boolean(open), boxRef, () => setOpen(null));
 
     // Interviews: today up to the end of the year after next
     const latestDay = new Date(today.getFullYear() + 2, 11, 31);

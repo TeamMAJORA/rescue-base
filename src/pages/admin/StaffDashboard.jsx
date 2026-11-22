@@ -47,6 +47,7 @@ import AdoptionApplications from "./modules/adoptions/AdoptionApplications";
 import AnimalTransfers from "./modules/animals/AnimalTransfers";
 import { SuppliesPage } from "./modules/FoodStorage";
 import AccountSettings from "../AccountSettings";
+import ActivityLog from "./modules/ActivityLog";
 import { fetchRecentNotifications, markNotificationRead, markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
@@ -251,6 +252,8 @@ function useSidebarDots(activePage) {
 export default function StaffDashboard({ setPage }) {
 
     const [activeStaffPage, setActiveStaffPage] = useState("overview");
+    // Which tab Settings opens on (the dashboard's "View log" opens Activity log)
+    const [settingsTab, setSettingsTab] = useState("profile");
     // Lost & Found report to open after "Open in Lost & Found" on the GIS map
     const [lostFoundReportIdToOpen, setLostFoundReportIdToOpen] = useState(null);
     const newDots = useSidebarDots(activeStaffPage);
@@ -357,6 +360,7 @@ export default function StaffDashboard({ setPage }) {
         }
 
         setOpenSidebarMenu(null);
+        if (item.key === "settings") setSettingsTab("profile");
         setActiveStaffPage(item.key);
         setIsMobileMenuOpen(false);
     }
@@ -486,9 +490,14 @@ export default function StaffDashboard({ setPage }) {
         if (activeStaffPage === "overview") {
             return (
                 <AdminOverview
-                    onNavigate={(page) =>
-                        setActiveStaffPage(page === "food-storage" || page === "needed-supplies" ? "supplies" : page)
-                    }
+                    onNavigate={(page) => {
+                        if (page === "activity-log") {
+                            setSettingsTab("activity-log");
+                            setActiveStaffPage("settings");
+                            return;
+                        }
+                        setActiveStaffPage(page === "food-storage" || page === "needed-supplies" ? "supplies" : page);
+                    }}
                 />
             );
         }
@@ -553,7 +562,15 @@ export default function StaffDashboard({ setPage }) {
         }
 
         if (activeStaffPage === "settings") {
-            return <AccountSettings onLogout={() => signOut("home")} onProfileSaved={() => setUserVersion((n) => n + 1)} />;
+            return (
+                <AccountSettings
+                    key={settingsTab}
+                    initialTab={settingsTab}
+                    onLogout={() => signOut("home")}
+                    onProfileSaved={() => setUserVersion((n) => n + 1)}
+                    extraTabs={[{ key: "activity-log", label: "Activity log", content: <ActivityLog /> }]}
+                />
+            );
         }
 
         if (activeStaffPage === "intake-forecast") {
@@ -772,7 +789,7 @@ export default function StaffDashboard({ setPage }) {
 
                 <SidebarUserCard
                     cardClassName="staff-user-card"
-                    onOpenAccount={() => { setOpenSidebarMenu(null); setActiveStaffPage("settings"); setIsMobileMenuOpen(false); }}
+                    onOpenAccount={() => { setOpenSidebarMenu(null); setSettingsTab("profile"); setActiveStaffPage("settings"); setIsMobileMenuOpen(false); }}
                     onConfirmLogout={() => signOut("home")}
                 >
                     <span className="staff-user-avatar">

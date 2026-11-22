@@ -1,8 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { searchCebuPlaces } from "../../../utils/cebuPlaces";
 import { DateField, startOfToday, toDayValue } from "../../../components/system/MonthCalendar";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { askConfirm } from "../../../utils/dialogs";
@@ -13,6 +9,7 @@ import NumberInput from "../../../components/system/NumberInput";
 import PhoneInput from "../../../components/system/PhoneInput";
 import RequiredValue from "../../../components/system/RequiredValue";
 import FormTracker from "../../../components/system/FormTracker";
+import LocationPicker from "../../../components/system/LocationPicker";
 import { readFormDraft, useFormDraft } from "../../../utils/useFormDraft";
 import { formatTime } from "../../../utils/formatDate";
 
@@ -93,32 +90,6 @@ function kilometersBetween(first, second) {
 function reportDate(report) {
     return report?.eventDate || report?.dateReported || report?.createdAt || null;
 }
-const CEBU_CENTER = [10.3157, 123.8854];
-
-const PIN_ICON = L.divIcon({
-    className: "lfr-pin",
-    html: "<span></span>",
-    iconSize: [26, 34],
-    iconAnchor: [13, 34],
-});
-
-// Click on the map = drop a pin
-function MapClick({ onPick }) {
-    useMapEvents({
-        click: (e) => onPick(e.latlng.lat, e.latlng.lng),
-    });
-    return null;
-}
-
-// Move the map to the pin when it changes
-function MapFollow({ lat, lng }) {
-    const map = useMap();
-    useEffect(() => {
-        if (lat && lng) map.setView([lat, lng], Math.max(map.getZoom(), 16));
-    }, [lat, lng]);
-    return null;
-}
-
 export default function LostFoundPage({ setPage, openReportId, onOpenReportHandled }) {
     const [user, setUser] = useState(null);
     const [reports, setReports] = useState([]);
@@ -139,11 +110,6 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
     const [possibleMatchesTotal, setPossibleMatchesTotal] = useState(0);
     const [decidingMatchId, setDecidingMatchId] = useState("");
     const [showReportForm, setShowReportForm] = useState(false);
-    const [mapSearch, setMapSearch] = useState(""); 
-    const [mapResults, setMapResults] = useState([]);
-    const [mapSearchOpen, setMapSearchOpen] = useState(false);
-    const [mapSearching, setMapSearching] = useState(false);
-    const [locating, setLocating] = useState(false);
     const [viewingReport, setViewingReport] = useState(null);
     const [claimOpen, setClaimOpen] = useState(false);
     // "ownership" = This is my pet (found report); "found" = I found this pet (lost report)
@@ -200,7 +166,6 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
         setReportForm(EMPTY_REPORT);
         clearReportDraft();
         setPhotoError("");
-        setMapSearch("");
         goToReportStep(0);
     }
     useEffect(() => {
@@ -439,7 +404,6 @@ export default function LostFoundPage({ setPage, openReportId, onOpenReportHandl
             clearReportDraft();
             setReportStep(0);
             setPhotoError("");
-            setMapSearch("");
             await loadReports();
             setShowReportForm(false);
 
@@ -927,91 +891,8 @@ function openReportDetails(report, claimType = null) {
     if (report.newClaimCount > 0) markClaimsSeen(report._id);
 }
 
-useEffect(() => {
-    const query = mapSearch.trim();
-    if (query.length < 3) return undefined;
-
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-        setMapSearching(true);
-        try {
-            setMapResults(await searchCebuPlaces(query, controller.signal));
-        } catch (err) {
-            if (err.name !== "AbortError") setMapResults([]);
-        } finally {
-            setMapSearching(false);
-        }
-    }, 400);
-
-    return () => {
-        clearTimeout(timer);
-        controller.abort();
-    };
-}, [mapSearch]);
-
-// Fill the location box from a pin (only if the user hasn't typed one)
-async function fillLocationFromPin(la, ln) {
-    try {
-        const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&lat=${la}&lon=${ln}`
-        );
-        const data = await res.json();
-        const a = data.address || {};
-        const place = [
-            a.road || a.neighbourhood || data.name,
-            a.suburb || a.village || a.quarter,
-            a.city || a.town || a.municipality,
-        ]
-            .filter(Boolean)
-            .filter((part, i, list) => list.indexOf(part) === i)
-            .join(", ");
-        if (place) updateReport("location", (current) => (current.trim() ? current : place));
-    } catch {
-        // Address lookup is a nice-to-have; the pin is already saved
-    }
-}
-
-function pickOnMap(la, ln) {
-    pickPoint(la, ln);
-    fillLocationFromPin(la, ln);
-}
-
-function pickMapResult(place) {
-    pickPoint(place.latitude, place.longitude);
-    setMapSearch(place.name);
-    setMapSearchOpen(false);
-    if (!location.trim()) updateReport("location", [place.name, place.area].filter(Boolean).join(", "));
-}
-
-function pickPoint(la, ln) {
-    updateReport("lat", la.toFixed(6));
-    updateReport("lng", ln.toFixed(6));
-}
-
-
 if (showReportForm && canSubmitReport) {
     const isLost = reportType === "lost";
-
-    function pinMyLocation() {
-        if (!navigator.geolocation) {
-            setError("Your browser can't share your location. Tap the map instead.");
-            return;
-        }
-        setLocating(true);
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setLocating(false);
-                pickOnMap(position.coords.latitude, position.coords.longitude);
-                setSuccess("");
-                setError("");
-            },
-            () => {
-                setLocating(false);
-                setError("Couldn't get your location. Allow location access, or tap the map to drop a pin.");
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-        );
-    }
 
     return (
         <main className="lfr-page lfr2">
@@ -1070,103 +951,25 @@ if (showReportForm && canSubmitReport) {
                     </div>
 
                     <div className="lfr2-col">
-                        <label className="lfr2-field">
+                        <div className="lfr2-field">
                             <span>
                                 {isLost ? "Last seen location" : "Location name"} <span className="required-mark">*</span>
                             </span>
-                            <input
-                                value={location}
-                                onChange={(e) => updateReport("location", e.target.value)}
+                            <LocationPicker
+                                address={location}
+                                onAddressChange={(address) => updateReport("location", address)}
+                                latitude={lat ? Number(lat) : null}
+                                longitude={lng ? Number(lng) : null}
+                                onPinChange={(latitude, longitude) => {
+                                    updateReport("lat", latitude === null ? "" : String(latitude));
+                                    updateReport("lng", longitude === null ? "" : String(longitude));
+                                }}
+                                ariaLabel={isLost ? "Last seen location" : "Location name"}
                                 placeholder={isLost ? "e.g. Brgy. Lahug, Cebu City" : "e.g. Near Ayala Center, Cebu City"}
-                                data-required-message={isLost ? "Enter where the pet was last seen." : "Enter where you found the pet."}
                                 required
+                                requiredMessage={isLost ? "Enter where the pet was last seen." : "Enter where you found the pet."}
                             />
-                        </label>
-
-                        <div className="lfr2-map">
-                            <MapContainer
-                                center={lat && lng ? [Number(lat), Number(lng)] : CEBU_CENTER}
-                                zoom={14}
-                                scrollWheelZoom={false}
-                                style={{ height: "100%", width: "100%" }}
-                            >
-                                <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                                <MapClick onPick={pickOnMap} />
-                                <MapFollow lat={Number(lat)} lng={Number(lng)} />
-                                {lat && lng && <Marker position={[Number(lat), Number(lng)]} icon={PIN_ICON} />}
-                            </MapContainer>
-
-                            <button
-                                type="button"
-                                className={`lfr2-locate${locating ? " is-busy" : ""}`}
-                                onClick={pinMyLocation}
-                                disabled={locating}
-                                title="Pin my current location"
-                                aria-label="Pin my current location"
-                            >
-                                <img src="/gis/icon-find-nearest.svg" alt="" />
-                            </button>
-
-                            <div className="lfr2-map-search">
-                                <input
-                                    type="search"
-                                    value={mapSearch}
-                                    aria-label="Search a place"
-                                    onChange={(e) => {
-                                        setMapSearch(e.target.value);
-                                        setMapSearchOpen(true);
-                                        if (e.target.value.trim().length < 3) setMapResults([]);
-                                    }}
-                                    onFocus={() => setMapSearchOpen(true)}
-                                    onBlur={() => setTimeout(() => setMapSearchOpen(false), 150)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                            e.preventDefault(); // stops the form from submitting
-                                            if (mapResults[0]) pickMapResult(mapResults[0]);
-                                        }
-                                        if (e.key === "Escape") setMapSearchOpen(false);
-                                    }}
-                                    placeholder="Search a place in Cebu…"
-                                />
-                                {mapSearchOpen && mapSearch.trim().length >= 3 && (
-                                    <ul className="gm-map-results">
-                                        {mapSearching && mapResults.length === 0 && <li className="is-note">Searching…</li>}
-                                        {!mapSearching && mapResults.length === 0 && <li className="is-note">No places found in Cebu.</li>}
-                                        {mapResults.map((place) => (
-                                            <li key={place.id}>
-                                                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pickMapResult(place)}>
-                                                    <b>{place.name}</b>
-                                                    {place.area && <small>{place.area}</small>}
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
                         </div>
-
-                        <small className="lfr2-coord">
-                            {lat && lng ? `Pinned at ${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)}` : "No pin yet"}
-                            {" · "}
-                            <button type="button" className="lfr2-link" onClick={pinMyLocation} disabled={locating}>
-                                {locating ? "Getting your location…" : "Use my location"}
-                            </button>
-                            {lat && lng && (
-                                <>
-                                    {" · "}
-                                    <button
-                                        type="button"
-                                        className="lfr2-link"
-                                        onClick={() => {
-                                            updateReport("lat", "");
-                                            updateReport("lng", "");
-                                        }}
-                                    >
-                                        Clear pin
-                                    </button>
-                                </>
-                            )}
-                        </small>
                     </div>
                 </section>
                 )}

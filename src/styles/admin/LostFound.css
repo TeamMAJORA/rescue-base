@@ -918,26 +918,7 @@
     font-size: 12px;
 }
 
-.lfr-pin span {
-    display: block;
-    width: 26px;
-    height: 26px;
-    border-radius: 50% 50% 50% 0;
-    background: var(--red-dark);
-    transform: rotate(-45deg);
-    box-shadow: var(--shadow-card);
-}
 
-.lfr-pin span::after {
-    content: "";
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--white);
-}
 .lf-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -2228,19 +2209,6 @@
     color: var(--red);
 }
 
-/* z-index 0 keeps Leaflet's own layers (400–1000) inside the map, so the date calendar opens over it */
-.lfr2-map {
-    position: relative;
-    z-index: 0;
-    height: 230px;
-    border: 1px solid var(--line);
-}
-
-.lfr2-coord {
-    font-size: 12px;
-    color: var(--brown-soft);
-}
-
 /* Stays pinned to the bottom of the screen so Submit is always visible */
 .lfr2-foot {
     position: sticky;
@@ -2301,115 +2269,8 @@
     }
 }
 
-/* Place search with suggestions (GIS map + report form map) */
-.gm-map-search,
-.lfr2-map-search {
-    position: absolute;
-    top: 10px;
-    left: 54px;
-    z-index: 600;
-    width: min(320px, calc(100% - 64px));
-}
 
-.gm-map-search input,
-.lfr2-map-search input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px 8px;
-    border: 1px solid var(--line);
-    border-radius: 0;
-    background: var(--white);
-    color: var(--brown-strong);
-    font: inherit;
-    font-size: 14px;
-    box-shadow: var(--shadow-card);
-}
 
-.gm-map-search input:focus,
-.lfr2-map-search input:focus {
-    border-color: var(--orange);
-}
-
-.gm-map-results {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    max-height: 260px;
-    overflow-y: auto;
-    border: 1px solid var(--line);
-    border-top: 0;
-    background: var(--white);
-    box-shadow: var(--shadow-dropdown);
-}
-
-.gm-map-results li + li {
-    border-top: 1px solid rgba(90, 27, 0, 0.08);
-}
-
-.gm-map-results button {
-    width: 100%;
-    display: grid;
-    gap: 1px;
-    padding: 8px 8px;
-    border: 0;
-    border-radius: 0;
-    background: var(--white);
-    color: var(--brown);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-}
-
-.gm-map-results button:hover,
-.gm-map-results button:focus-visible {
-    background: var(--peach-soft);
-}
-
-.gm-map-results b {
-    font-size: 14px;
-}
-
-.gm-map-results small {
-    font-size: 12px;
-    color: var(--brown-soft);
-}
-
-.gm-map-results .is-note {
-    padding: 8px 8px;
-    font-size: 12px;
-    color: var(--brown-soft);
-}
-
-/* "My location" button on the report map (under the zoom buttons) */
-.lfr2-locate {
-    position: absolute;
-    top: 80px;
-    left: 10px;
-    z-index: 600;
-    width: 34px;
-    height: 34px;
-    display: grid;
-    place-items: center;
-    padding: 0;
-    border: 2px solid rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    background: var(--white);
-    cursor: pointer;
-}
-
-.lfr2-locate img {
-    width: 18px;
-    height: 18px;
-}
-
-.lfr2-locate:hover {
-    background: var(--peach-soft);
-}
-
-.lfr2-locate.is-busy {
-    cursor: wait;
-    opacity: 0.6;
-}
 .lf-matches {
     display: grid;
     gap: 8px;

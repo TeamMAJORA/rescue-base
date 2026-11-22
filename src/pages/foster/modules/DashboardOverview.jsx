@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { getNextReportDue } from "../utils/reportDue";
 import { formatDate } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
@@ -8,14 +8,8 @@ const API = import.meta.env.VITE_BACKEND_URL;
 
 // Same line-icon style as My Foster Pet
 const FDO_ICONS = {
-    paw: (
-        <>
-            <circle cx="11" cy="4" r="2" />
-            <circle cx="18" cy="8" r="2" />
-            <circle cx="4" cy="8" r="2" />
-            <path d="M8 14c0-2 2-4 4-4s4 2 4 4-1 6-4 6-4-4-4-6z" />
-        </>
-    ),
+    // The app's paw (same file as the sidebar Animals icon)
+    paw: <image href="/icons/sidebar/brown paw.svg" x="2" y="2" width="20" height="20" />,
     calendar: (
         <>
             <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -42,6 +36,7 @@ const FDO_ICONS = {
     pulse: <path d="M3 12h4l3-7 4 14 3-7h4" />,
     home: <path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
     heart: <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" />,
+    syringe: <path d="m18 2 4 4M17 7l3-3M19 9 9 19l-4 1 1-4L16 6zM14 8l2 2M11 11l2 2" />,
 };
 
 function FdoIcon({ name, size = 16 }) {
@@ -60,6 +55,20 @@ function shortDate(date) {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TONE_ORDER = { alert: 0, due: 1, info: 2 };
+
+function daysUntil(date) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const day = new Date(date);
+    day.setHours(0, 0, 0, 0);
+    return Math.round((day - today) / DAY_MS);
+}
+
+function dueInWords(daysLeft) {
+    if (daysLeft === 0) return "today";
+    if (daysLeft === 1) return "tomorrow";
+    return `in ${daysLeft} days`;
+}
 
 // Everything the foster has to act on (or is waiting on), for every pet
 function buildAttentionItems(pets) {
@@ -92,7 +101,22 @@ function buildAttentionItems(pets) {
             });
         }
 
-        // 2. Behavior evaluation
+        // 2. Vaccinations due within a week, or overdue (the shelter gives the shot)
+        (pet.dueVaccinations || []).forEach((vaccine) => {
+            const daysLeft = daysUntil(vaccine.dueDate);
+            items.push({
+                key: `vaccine-${vaccine._id}`,
+                tone: daysLeft < 0 ? "alert" : "due",
+                icon: "syringe",
+                title: daysLeft < 0
+                    ? `${name}'s ${vaccine.vaccineName} is overdue`
+                    : `${name}'s ${vaccine.vaccineName} is due ${dueInWords(daysLeft)}`,
+                text: `${daysLeft < 0 ? "Was due" : "Due"} ${shortDate(vaccine.dueDate)}. Contact the shelter to arrange the shot.`,
+                action: "Contact shelter", contactShelter: true,
+            });
+        });
+
+        // 3. Behavior evaluation
         const evaluation = pet.behaviorEvaluation?.status || "not_submitted";
         if (evaluation === "revision") {
             items.push({
@@ -110,7 +134,7 @@ function buildAttentionItems(pets) {
             });
         }
 
-        // 3. Early return request
+        // 4. Early return request
         const request = pet.returnRequest || {};
         if (request.status === "pending") {
             items.push({
@@ -132,7 +156,7 @@ function buildAttentionItems(pets) {
             });
         }
 
-        // 4. Open medical requests
+        // 5. Open medical requests
         (pet.medicalRequests || [])
             .filter((req) => req.status !== "resolved")
             .forEach((req) => {
@@ -158,6 +182,16 @@ function reportBadge(pet) {
     return { tone: "good", label: "Reports on track" };
 }
 
+// Vaccine pill for a pet card (soonest due shot), or null
+function vaccineBadge(pet) {
+    const soonest = (pet.dueVaccinations || [])[0];
+    if (!soonest) return null;
+    const daysLeft = daysUntil(soonest.dueDate);
+    return daysLeft < 0
+        ? { tone: "alert", label: `${soonest.vaccineName} overdue` }
+        : { tone: "due", label: `${soonest.vaccineName} due ${shortDate(soonest.dueDate)}` };
+}
+
 function daysInCare(pet) {
     if (!pet.startDate) return 0;
     return Math.max(0, Math.floor((Date.now() - new Date(pet.startDate)) / DAY_MS));
@@ -168,6 +202,7 @@ const ACTIVITY_TYPES = {
     foster_update: { icon: "paw", page: "assignment" },
     application_update: { icon: "report", page: "application" },
     medical_update: { icon: "pulse", page: "medical" },
+    vaccination: { icon: "syringe", page: "assignment" },
     adoption_update: { icon: "heart", page: null },
 };
 
@@ -214,7 +249,9 @@ export default function DashboardOverview({
     const nextReport = pets
         .map((pet) => ({ pet, due: getNextReportDue(pet) }))
         .sort((a, b) => a.due - b.due)[0];
-    const reportOverdue = nextReport && nextReport.due.getTime() < Date.now();
+
+    const attention = buildAttentionItems(pets);
+    const hasUrgent = attention.some((item) => item.tone === "alert");
 
     // One short line that tells the foster where they stand
     let statusChips;
@@ -225,12 +262,17 @@ export default function DashboardOverview({
                     <FdoIcon name="paw" />
                     Caring for {pets.length} {pets.length === 1 ? "pet" : "pets"}
                 </span>
-                <span className={`fdo-chip ${reportOverdue ? "is-alert" : "is-due"}`}>
-                    <FdoIcon name={reportOverdue ? "flag" : "calendar"} />
-                    {reportOverdue
-                        ? `${nextReport.pet.petName}'s weekly report is overdue`
-                        : `Next report due ${shortDate(nextReport.due)} · ${nextReport.pet.petName}`}
-                </span>
+                {attention.length ? (
+                    <span className={`fdo-chip ${hasUrgent ? "is-alert" : "is-due"}`}>
+                        <FdoIcon name={hasUrgent ? "flag" : "calendar"} />
+                        {attention.length} {attention.length === 1 ? "thing needs" : "things need"} you
+                    </span>
+                ) : (
+                    <span className="fdo-chip is-good">
+                        <FdoIcon name="check" />
+                        All caught up
+                    </span>
+                )}
             </>
         );
     } else if (appStatus === "approved") {
@@ -263,14 +305,17 @@ export default function DashboardOverview({
         );
     }
 
-    const attention = buildAttentionItems(pets);
     // Contact Shelter panel (same endpoint as My Foster Pet)
     const [contactOpen, setContactOpen] = useState(false);
     const [contact, setContact] = useState(null);
+    const contactRef = useRef(null);
 
-    async function toggleContact() {
-        const opening = !contactOpen;
+    async function toggleContact({ keepOpen = false } = {}) {
+        const opening = keepOpen || !contactOpen;
         setContactOpen(opening);
+
+        // Opened from a "Needs your attention" row: bring the contacts into view
+        if (keepOpen) requestAnimationFrame(() => contactRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }));
 
         if (!opening || contact) return;
 
@@ -329,6 +374,7 @@ export default function DashboardOverview({
                     <div className="fdo-chips">{statusChips}</div>
                 </div>
 
+                {pets.length === 0 && (
                 <div className="fdo-hero-side">
                     <div className="fdo-hero-badge">
                         <img src="/icons/Foster.svg" alt="" aria-hidden="true" />
@@ -338,31 +384,52 @@ export default function DashboardOverview({
                         {application?.status || "Not Submitted"}
                     </strong>
                 </div>
+                )}
             </section>
 
-            <section className="fdo-actions fdo-shortcuts">
-                <div className="fdo-actions-grid">
-                    <button type="button" className="fdo-action" onClick={() => onOpenAdopterPage?.("lost-found")}>
-                        <span className="fdo-action-icon">
-                            <img src="/icons/sidebar/LostnFound-brown.svg" alt="" width="22" height="22" />
-                        </span>
-                        <span className="fdo-action-text">
-                            <b>Lost &amp; Found</b>
-                            <small>Report or look for a lost pet</small>
-                        </span>
-                    </button>
+            {pets.length > 0 && (
+                <section className="fdo-attn">
+                    <header className="fdo-attn-head">
+                        <h3>Needs your attention</h3>
+                        {attention.length > 0 && (
+                            <span className="fdo-attn-count">{attention.length}</span>
+                        )}
+                    </header>
 
-                    <button type="button" className="fdo-action" onClick={() => onOpenAdopterPage?.("donation")}>
-                        <span className="fdo-action-icon">
-                            <img src="/icons/sidebar/donation-brown.svg" alt="" width="22" height="22" />
-                        </span>
-                        <span className="fdo-action-text">
-                            <b>Donate</b>
-                            <small>Give money or supplies to the shelter</small>
-                        </span>
-                    </button>
-                </div>
-            </section>
+                    {attention.length ? (
+                        <ul className="fdo-attn-list">
+                            {attention.map((item) => (
+                                <li key={item.key} className={`fdo-attn-row is-${item.tone}`}>
+                                    <span className="fdo-attn-icon">
+                                        <FdoIcon name={item.icon} size={18} />
+                                    </span>
+                                    <div className="fdo-attn-text">
+                                        <b>{item.title}</b>
+                                        <small>{item.text}</small>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="fdo-attn-btn"
+                                        onClick={() => (item.contactShelter ? toggleContact({ keepOpen: true }) : onNavigate?.(item.page, item.petId))}
+                                    >
+                                        {item.action}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="fdo-attn-empty">
+                            <span className="fdo-attn-empty-icon">
+                                <img src="/icons/checkmark.svg" alt="" aria-hidden="true" />
+                            </span>
+                            <div>
+                                <b>You're all caught up</b>
+                                <small>No reports, shots, evaluations or requests need you right now.</small>
+                            </div>
+                        </div>
+                    )}
+                </section>
+            )}
 
             {pets.length > 0 && (
                 <section className="fdo-actions">
@@ -398,7 +465,7 @@ export default function DashboardOverview({
                         <button
                             type="button"
                             className={`fdo-action ${contactOpen ? "is-open" : ""}`}
-                            onClick={toggleContact}
+                            onClick={() => toggleContact()}
                             aria-expanded={contactOpen}
                         >
                             <span className="fdo-action-icon"><FdoIcon name="chat" size={20} /></span>
@@ -410,7 +477,7 @@ export default function DashboardOverview({
                     </div>
 
                     {contactOpen && (
-                        <div className="fah-contact fdo-contact" role="region" aria-label="Shelter contacts">
+                        <div ref={contactRef} className="fah-contact fdo-contact" role="region" aria-label="Shelter contacts">
                             {!contact ? (
                                 <LoadingState label="Loading contacts…" />
                             ) : !contact.email && !contact.phone && !contact.facebook ? (
@@ -452,50 +519,6 @@ export default function DashboardOverview({
             )}
 
             {pets.length > 0 && (
-                <section className="fdo-attn">
-                    <header className="fdo-attn-head">
-                        <h3>Needs your attention</h3>
-                        {attention.length > 0 && (
-                            <span className="fdo-attn-count">{attention.length}</span>
-                        )}
-                    </header>
-
-                    {attention.length ? (
-                        <ul className="fdo-attn-list">
-                            {attention.map((item) => (
-                                <li key={item.key} className={`fdo-attn-row is-${item.tone}`}>
-                                    <span className="fdo-attn-icon">
-                                        <FdoIcon name={item.icon} size={18} />
-                                    </span>
-                                    <div className="fdo-attn-text">
-                                        <b>{item.title}</b>
-                                        <small>{item.text}</small>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="fdo-attn-btn"
-                                        onClick={() => onNavigate?.(item.page, item.petId)}
-                                    >
-                                        {item.action}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <div className="fdo-attn-empty">
-                            <span className="fdo-attn-empty-icon">
-                                <img src="/icons/checkmark.svg" alt="" aria-hidden="true" />
-                            </span>
-                            <div>
-                                <b>You're all caught up</b>
-                                <small>No reports, evaluations or requests need you right now.</small>
-                            </div>
-                        </div>
-                    )}
-                </section>
-            )}
-
-            {pets.length > 0 && (
                 <section className="fdo-pets">
                     <header className="fdo-pets-head">
                         <div>
@@ -516,6 +539,7 @@ export default function DashboardOverview({
                     <div className="fdo-pets-grid">
                         {pets.map((pet) => {
                             const badge = reportBadge(pet);
+                            const vaccine = vaccineBadge(pet);
                             const days = daysInCare(pet);
                             const info = [pet.petBreed, pet.animalId?.age, pet.animalId?.gender]
                                 .filter(Boolean)
@@ -542,7 +566,10 @@ export default function DashboardOverview({
                                             <FdoIcon name="calendar" size={14} />
                                             {days === 0 ? "Arrived today" : `${days} ${days === 1 ? "day" : "days"} in your care`}
                                         </span>
-                                        <span className={`fdo-pill is-${badge.tone}`}>{badge.label}</span>
+                                        <span className="fdo-pills">
+                                            <span className={`fdo-pill is-${badge.tone}`}>{badge.label}</span>
+                                            {vaccine && <span className={`fdo-pill is-${vaccine.tone}`}>{vaccine.label}</span>}
+                                        </span>
                                     </span>
                                 </button>
                             );
@@ -614,6 +641,31 @@ export default function DashboardOverview({
                     </ul>
                 </article>
             </section>
+            <section className="fdo-actions fdo-shortcuts" aria-labelledby="fdo-more-title">
+                <h3 id="fdo-more-title" className="fdo-more-title">More from RescueBase</h3>
+                <div className="fdo-actions-grid">
+                    <button type="button" className="fdo-action" onClick={() => onOpenAdopterPage?.("lost-found")}>
+                        <span className="fdo-action-icon">
+                            <img src="/icons/sidebar/LostnFound-brown.svg" alt="" width="22" height="22" />
+                        </span>
+                        <span className="fdo-action-text">
+                            <b>Lost &amp; Found</b>
+                            <small>Report or look for a lost pet</small>
+                        </span>
+                    </button>
+
+                    <button type="button" className="fdo-action" onClick={() => onOpenAdopterPage?.("donation")}>
+                        <span className="fdo-action-icon">
+                            <img src="/icons/sidebar/donation-brown.svg" alt="" width="22" height="22" />
+                        </span>
+                        <span className="fdo-action-text">
+                            <b>Donate</b>
+                            <small>Give money or supplies to the shelter</small>
+                        </span>
+                    </button>
+                </div>
+            </section>
+
         </section>
     );
 }

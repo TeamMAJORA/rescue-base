@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import "../../styles/components/RescueProof.css";
-import { formatDateTime } from "../../utils/formatDate";
 import Icon from "../system/Icon";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
@@ -153,58 +152,6 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
                     </button>
                 </div>
             </form>
-        </div>
-    );
-}
-
-// Staff view of what the volunteer submitted
-export function RescueProofModal({ assignment, onClose }) {
-    const completedAt = assignment.completedAt
-        ? formatDateTime(assignment.completedAt)
-        : "";
-    const photos = assignment.completionPhotos || [];
-
-    return (
-        <div className="ao-confirm-backdrop" onClick={onClose}>
-            <div
-                className="ao-confirm rp-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="rp-view-title"
-                onClick={(event) => event.stopPropagation()}
-            >
-                <h3 id="rp-view-title">Proof: {assignment.title}</h3>
-                <p>
-                    Completed by {assignment.volunteerName || "volunteer"}
-                    {completedAt ? ` · ${completedAt}` : ""}
-                </p>
-
-                <div className="rp-field">
-                    <span>What was done</span>
-                    <p className="rp-notes">{assignment.completionNotes || "No notes given."}</p>
-                </div>
-
-                <div className="rp-field">
-                    <span>Photos</span>
-                    {photos.length === 0 ? (
-                        <p className="rp-notes">No photos (completed before proof was required).</p>
-                    ) : (
-                        <div className="rp-photos is-large">
-                            {photos.map((url) => (
-                                <a key={url} className="rp-photo" href={url} target="_blank" rel="noreferrer" title="Open full size">
-                                    <img src={url} alt="Proof" />
-                                </a>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                <div className="ao-confirm-actions">
-                    <button type="button" className="ao-confirm-ok" onClick={onClose}>
-                        Close
-                    </button>
-                </div>
-            </div>
         </div>
     );
 }
