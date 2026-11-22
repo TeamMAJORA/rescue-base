@@ -26,6 +26,17 @@ const API = import.meta.env.VITE_BACKEND_URL;
 
 const COMMUNITY_REPORTER_ROLES = ["volunteer", "adopter", "foster"];
 const cebuCenter = [10.3157, 123.8854];
+const SERVICE_AREA_RADIUS_KM = 30; // keep the same as the server (utils/serviceArea.js)
+
+function distanceInKm(fromLatitude, fromLongitude, toLatitude, toLongitude) {
+    const toRadians = (degrees) => (degrees * Math.PI) / 180;
+    const a =
+        Math.sin(toRadians(toLatitude - fromLatitude) / 2) ** 2 +
+        Math.cos(toRadians(fromLatitude)) * Math.cos(toRadians(toLatitude)) *
+        Math.sin(toRadians(toLongitude - fromLongitude) / 2) ** 2;
+
+    return 2 * 6371 * Math.asin(Math.sqrt(a));
+}
 
 const createMarkerIcon = (image, alt) =>
     L.divIcon({
@@ -712,6 +723,11 @@ export default function GISMapping({ onOpenLostFound }) {
 
         const latitude = Number(locationForm.latitude);
         const longitude = Number(locationForm.longitude);
+
+        if (distanceInKm(cebuCenter[0], cebuCenter[1], latitude, longitude) > SERVICE_AREA_RADIUS_KM) {
+            setError(`Location must be within ${SERVICE_AREA_RADIUS_KM} km of Cebu City.`);
+            return;
+        }
 
         const body = isVolunteer
             ? {
