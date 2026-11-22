@@ -67,6 +67,7 @@ export default function FosterNotifications({
                 break;
 
             case "foster_update":
+            case "vaccination": // a foster pet's shot is due
                 setActivePage("assignment");
                 break;
 

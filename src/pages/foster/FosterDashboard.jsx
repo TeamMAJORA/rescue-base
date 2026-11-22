@@ -365,8 +365,14 @@ function goToPage(page, petId = null) {
     useEffect(() => {
         if (isWrongRole || signedOut || maintenance) return;
 
-        loadDashboard();
-        loadNotifications();
+        // Pets first: loading them can create vaccination reminders, which the bell then shows
+        loadDashboard().finally(loadNotifications);
+
+        // Keep the bell current while the tab is visible (same 60 s as the staff side)
+        const interval = setInterval(() => {
+            if (document.visibilityState === "visible") loadNotifications();
+        }, 60000);
+        return () => clearInterval(interval);
     }, [signedOut, maintenance]);
 
 // Pet chosen from the dashboard / My Foster Pet; falls back to the newest
@@ -699,17 +705,6 @@ function goToPage(page, petId = null) {
                                 </span>
                             )}
                         </button>
-
-                        <button
-                            type="button"
-                            className="foster-refresh-button"
-                            onClick={() => {
-                                loadDashboard();
-                                loadNotifications();
-                            }}
-                        >
-                            Refresh
-                        </button>
                     </div>
                 </header>
 
@@ -879,4 +874,4 @@ function goToPage(page, petId = null) {
 
     );
 
-}
+}
