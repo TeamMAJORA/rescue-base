@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { isAdmin } from "../../../../utils/auth";
-import { searchCebuPlaces } from "../../../../utils/cebuPlaces";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm, askPrompt } from "../../../../utils/dialogs";
 import { formatDate, toDayValue } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
 import UiIcon from "../../../../components/system/Icon";
 import RowActionsMenu from "../../../../components/system/RowActionsMenu";
-
-const CEBU_CENTER = [10.3157, 123.8854];
+import LocationPicker from "../../../../components/system/LocationPicker";
 
 // Same colours as Lost & Found reports, so intakes and reports can be matched
 const INTAKE_COLOUR_OPTIONS = ["Black", "White", "Brown", "Tan", "Gray", "Cream", "Golden", "Orange", "Red", "Mixed", "Other"];
@@ -22,46 +20,6 @@ const AO_PIN = L.divIcon({
     iconSize: [26, 34],
     iconAnchor: [13, 34],
 });
-
-// Coordinates -> "Street, Barangay, City" (OpenStreetMap)
-async function lookupAddress(lat, lng) {
-    try {
-        const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&lat=${lat}&lon=${lng}`
-        );
-        const data = await res.json();
-        const a = data.address || {};
-        return [
-            a.road || a.pedestrian || a.neighbourhood || data.name,
-            a.suburb || a.village || a.quarter || a.hamlet,
-            a.city || a.town || a.municipality,
-        ]
-            .filter(Boolean)
-            .filter((part, i, list) => list.indexOf(part) === i)
-            .join(", ");
-    } catch {
-        return "";
-    }
-}
-
-// Tap the map to move the pin
-function PinPicker({ onPick }) {
-    useMapEvents({
-        click(event) {
-            onPick(event.latlng.lat, event.latlng.lng);
-        },
-    });
-    return null;
-}
-
-// Move the map to the pin whenever it changes
-function MapFollow({ latitude, longitude }) {
-    const map = useMap();
-    useEffect(() => {
-        if (latitude && longitude) map.setView([latitude, longitude], Math.max(map.getZoom(), 16));
-    }, [map, latitude, longitude]);
-    return null;
-}
 
 // Saved from a phone? (small screen or a mobile browser)
 function isPhoneDevice() {
@@ -449,13 +407,6 @@ export default function IntakeRecords() {
     const [editingId, setEditingId] = useState(null);
     const [form, setForm] = useState(freshForm);
     const [photo, setPhoto] = useState(null);
-    const [locating, setLocating] = useState(false);
-    const [accuracy, setAccuracy] = useState(null);
-    // Address typed in "Where?" -> Cebu place suggestions; the top one is pinned automatically
-    const [typedAddress, setTypedAddress] = useState("");
-    const [addressResults, setAddressResults] = useState([]);
-    const [addressSearching, setAddressSearching] = useState(false);
-    const [addressListOpen, setAddressListOpen] = useState(false);
     const [openId, setOpenId] = useState(null);
 
     const [tab, setTab] = useState("pending");
@@ -539,8 +490,6 @@ export default function IntakeRecords() {
         setForm(freshForm());
         setEditingId(null);
         setPhoto(null);
-        setAccuracy(null);
-        setTypedAddress("");
     }
 
     // Photo preview (freed when the photo changes)
@@ -565,95 +514,8 @@ export default function IntakeRecords() {
         return data.imageUrl;
     }
 
-    // ---------- Location ----------
-    async function setPin(lat, lng) {
-        setForm((current) => ({
-            ...current,
-            latitude: Number(lat).toFixed(6),
-            longitude: Number(lng).toFixed(6),
-        }));
-        const place = await lookupAddress(lat, lng);
-        if (place) setForm((current) => ({ ...current, rescueLocation: place }));
-    }
-
-    function locateMe() {
-        if (!navigator.geolocation) {
-            setError("This browser can't share its location. Tap the map instead.");
-            return;
-        }
-        setError("");
-        setLocating(true);
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                setAccuracy(Math.round(position.coords.accuracy || 0));
-                await setPin(position.coords.latitude, position.coords.longitude);
-                setLocating(false);
-            },
-            () => {
-                setError("Couldn't get your location. Allow location access, or tap the map.");
-                setLocating(false);
-            },
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-        );
-    }
-
-    // Only typing triggers a search, so pins from the map/Locate never re-pin themselves
-    useEffect(() => {
-        const query = typedAddress.trim();
-        if (query.length < 3) {
-            setAddressResults([]);
-            return undefined;
-        }
-
-        const controller = new AbortController();
-        const timer = setTimeout(async () => {
-            setAddressSearching(true);
-            try {
-                const places = await searchCebuPlaces(query, controller.signal);
-                setAddressResults(places);
-                if (places[0]) pinAddressResult(places[0]);
-            } catch (err) {
-                if (err.name !== "AbortError") setAddressResults([]);
-            } finally {
-                setAddressSearching(false);
-            }
-        }, 600);
-
-        return () => {
-            clearTimeout(timer);
-            controller.abort();
-        };
-    }, [typedAddress]);
-
-    // Pin a search result without overwriting what the user typed
-    function pinAddressResult(place) {
-        setAccuracy(null);
-        setForm((current) => ({
-            ...current,
-            latitude: place.latitude.toFixed(6),
-            longitude: place.longitude.toFixed(6),
-        }));
-    }
-
-    function chooseAddressResult(place) {
-        pinAddressResult(place);
-        setForm((current) => ({ ...current, rescueLocation: [place.name, place.area].filter(Boolean).join(", ") }));
-        setAddressListOpen(false);
-    }
-
-    function pickOnMap(lat, lng) {
-        setAccuracy(null);
-        setPin(lat, lng);
-    }
-
-    function clearPin() {
-        setAccuracy(null);
-        setForm((current) => ({ ...current, latitude: "", longitude: "" }));
-    }
-
     function handleEditRecord(record) {
         setEditingId(record._id);
-        setTypedAddress("");
 
         setForm({
             animalName: record.name || "",
@@ -673,7 +535,6 @@ export default function IntakeRecords() {
             image: record.image || "",
         });
         setPhoto(null);
-        setAccuracy(null);
 
         setError("");
         setSuccessMessage("");
@@ -1105,104 +966,18 @@ export default function IntakeRecords() {
 
                         <div className="ao-field">
                             <span>Where? <span className="required-mark">*</span></span>
-                            <div className="ao-where-search">
-                                <input
-                                    type="search"
-                                    aria-label="Where the animal was found"
-                                    value={form.rescueLocation}
-                                    onChange={(e) => {
-                                        updateForm("rescueLocation", e.target.value);
-                                        setTypedAddress(e.target.value);
-                                        setAddressListOpen(true);
-                                    }}
-                                    onFocus={() => setAddressListOpen(true)}
-                                    onBlur={() => setTimeout(() => setAddressListOpen(false), 150)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                            e.preventDefault(); // stops the form from submitting
-                                            if (addressResults[0]) chooseAddressResult(addressResults[0]);
-                                        }
-                                        if (e.key === "Escape") setAddressListOpen(false);
-                                    }}
-                                    placeholder="Type an address, e.g. Brgy. Guadalupe, Cebu City"
-                                    autoComplete="off"
-                                    required
-                                />
-                                {addressListOpen && typedAddress.trim().length >= 3 && (
-                                    <ul className="gm-map-results">
-                                        {addressSearching && addressResults.length === 0 && <li className="is-note">Searching…</li>}
-                                        {!addressSearching && addressResults.length === 0 && <li className="is-note">No places found in Cebu. Tap the map instead.</li>}
-                                        {addressResults.map((place) => (
-                                            <li key={place.id}>
-                                                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chooseAddressResult(place)}>
-                                                    <b>{place.name}</b>
-                                                    {place.area && <small>{place.area}</small>}
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
-
-                            <div className="lfr2-map">
-                                <MapContainer
-                                    center={form.latitude ? [Number(form.latitude), Number(form.longitude)] : CEBU_CENTER}
-                                    zoom={form.latitude ? 16 : 12}
-                                    scrollWheelZoom={false}
-                                    style={{ height: "100%", width: "100%" }}
-                                >
-                                    <TileLayer
-                                        attribution="&copy; OpenStreetMap"
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    />
-                                    <PinPicker onPick={pickOnMap} />
-                                    <MapFollow latitude={Number(form.latitude)} longitude={Number(form.longitude)} />
-                                    {form.latitude && (
-                                        <Marker
-                                            position={[Number(form.latitude), Number(form.longitude)]}
-                                            icon={AO_PIN}
-                                            draggable
-                                            eventHandlers={{
-                                                dragend: (event) => {
-                                                    const point = event.target.getLatLng();
-                                                    pickOnMap(point.lat, point.lng);
-                                                },
-                                            }}
-                                        />
-                                    )}
-                                </MapContainer>
-
-                                <button
-                                    type="button"
-                                    className={`lfr2-locate${locating ? " is-busy" : ""}`}
-                                    onClick={locateMe}
-                                    disabled={locating}
-                                    title="Pin my current location"
-                                    aria-label="Pin my current location"
-                                >
-                                    <img src="/gis/icon-find-nearest.svg" alt="" />
-                                </button>
-                            </div>
-
-                            <small className="lfr2-coord">
-                                {form.latitude
-                                    ? accuracy && accuracy > 50
-                                        ? `Approximate (±${accuracy >= 1000 ? `${(accuracy / 1000).toFixed(1)} km` : `${accuracy} m`}). Tap the exact spot.`
-                                        : `Pinned at ${Number(form.latitude).toFixed(4)}, ${Number(form.longitude).toFixed(4)}`
-                                    : "No pin yet. Type an address or tap the map."}
-                                {" · "}
-                                <button type="button" className="lfr2-link" onClick={locateMe} disabled={locating}>
-                                    {locating ? "Getting your location…" : "Use my location"}
-                                </button>
-                                {form.latitude && (
-                                    <>
-                                        {" · "}
-                                        <button type="button" className="lfr2-link" onClick={clearPin}>
-                                            Clear pin
-                                        </button>
-                                    </>
-                                )}
-                            </small>
+                            <LocationPicker
+                                address={form.rescueLocation}
+                                onAddressChange={(address) => updateForm("rescueLocation", address)}
+                                latitude={form.latitude ? Number(form.latitude) : null}
+                                longitude={form.longitude ? Number(form.longitude) : null}
+                                onPinChange={(latitude, longitude) =>
+                                    setForm((current) => ({ ...current, latitude: latitude === null ? "" : String(latitude), longitude: longitude === null ? "" : String(longitude) }))
+                                }
+                                ariaLabel="Where the animal was found"
+                                placeholder="Type an address, e.g. Brgy. Guadalupe, Cebu City"
+                                required
+                            />
                         </div>
 
                         <div className="ao-field">

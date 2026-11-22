@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "../../styles/components/MonthCalendar.css";
+import useCloseOnOutsideClick from "../../hooks/useCloseOnOutsideClick";
 import { formatDate, formatMonth, toDayValue } from "../../utils/formatDate";
 import Icon from "./Icon";
 import RequiredValue from "./RequiredValue";
@@ -145,22 +146,7 @@ export function DateField({ value, onChange, minDate, maxDate, placeholder = "Pi
     const boxRef = useRef(null);
     const selected = value ? new Date(`${value}T00:00`) : null;
 
-    // Click outside or Esc closes the calendar
-    useEffect(() => {
-        if (!open) return undefined;
-        function handleClick(event) {
-            if (boxRef.current && !boxRef.current.contains(event.target)) setOpen(false);
-        }
-        function handleKey(event) {
-            if (event.key === "Escape") setOpen(false);
-        }
-        document.addEventListener("mousedown", handleClick);
-        document.addEventListener("keydown", handleKey);
-        return () => {
-            document.removeEventListener("mousedown", handleClick);
-            document.removeEventListener("keydown", handleKey);
-        };
-    }, [open]);
+    useCloseOnOutsideClick(open, boxRef, () => setOpen(false));
 
     // Inside a scrolling pop-up, bring the opened calendar into view
     useEffect(() => {

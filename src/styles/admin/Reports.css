@@ -1539,17 +1539,6 @@
     font-size: 12px;
 }
 
-/* Same height as the other fields in this form */
-.ra-form .aip-datefield .aip-field {
-    height: 44px;
-}
-
-/* The date sits in the left half: open the calendar to the right so it stays on screen */
-.ra-form .aip-datefield.is-floating .aip-calendar {
-    left: 0;
-    right: auto;
-}
-
 .ra-form.is-editing {
     border-color: var(--orange);
 }

@@ -3,6 +3,7 @@ import { CompleteWithProofModal } from "../../../components/rescue/RescueProof";
 import RowActionsMenu from "../../../components/system/RowActionsMenu";
 import LoadingState from "../../../components/system/LoadingState";
 import LocationPicker from "../../../components/system/LocationPicker";
+import TimeField from "../../../components/system/TimeField";
 import { DateField, startOfToday } from "../../../components/system/MonthCalendar";
 import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
 import { askConfirm, askPrompt, notify, notifyError } from "../../../utils/dialogs";
@@ -479,40 +480,46 @@ export default function RescueAssignments() {
                         <input name="title" value={form.title} onChange={handleChange} placeholder="e.g. Rescue injured dog" maxLength={120} required />
                     </label>
 
-                    <label className="rs2-field">
+                    <div className="rs2-field">
                         <span>
                             Location <span className="required-mark">*</span>
                         </span>
-                        <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Gorordo Ave, Lahug" required />
-                    </label>
+                        <LocationPicker
+                            address={form.location}
+                            onAddressChange={(location) => setForm((current) => ({ ...current, location }))}
+                            latitude={form.latitude}
+                            longitude={form.longitude}
+                            onPinChange={(latitude, longitude) => setForm((current) => ({ ...current, latitude, longitude }))}
+                            ariaLabel="Location"
+                            placeholder="e.g. Gorordo Ave, Lahug"
+                            required
+                            requiredMessage="Enter location."
+                        />
+                    </div>
 
-                    <LocationPicker
-                        latitude={form.latitude}
-                        longitude={form.longitude}
-                        onPinChange={(latitude, longitude) => setForm((current) => ({ ...current, latitude, longitude }))}
-                        onPlaceFound={(placeName) => setForm((current) => (current.location.trim() ? current : { ...current, location: placeName }))}
-                    />
+                    <div className="rs2-field">
+                        <span>
+                            Date <span className="required-mark">*</span>
+                        </span>
+                        <DateField
+                            value={form.scheduledDate}
+                            onChange={(day) => setForm((current) => ({ ...current, scheduledDate: day }))}
+                            minDate={earliestDay}
+                            maxDate={latestDay}
+                            ariaLabel="Date"
+                            required
+                            requiredMessage="Pick a date."
+                        />
+                    </div>
 
-                    <div className="rs2-two">
-                        <div className="rs2-field">
-                            <span>
-                                Date <span className="required-mark">*</span>
-                            </span>
-                            <DateField
-                                value={form.scheduledDate}
-                                onChange={(day) => setForm((current) => ({ ...current, scheduledDate: day }))}
-                                minDate={earliestDay}
-                                maxDate={latestDay}
-                                ariaLabel="Date"
-                                required
-                                requiredMessage="Pick a date."
-                            />
-                        </div>
-
-                        <label className="rs2-field">
-                            <span>Time</span>
-                            <input type="time" name="scheduledTime" value={form.scheduledTime} onChange={handleChange} />
-                        </label>
+                    <div className="rs2-field">
+                        <span>Time <small>(optional)</small></span>
+                        <TimeField
+                            value={form.scheduledTime}
+                            onChange={(scheduledTime) => setForm((current) => ({ ...current, scheduledTime }))}
+                            ariaLabel="Time"
+                            clearable
+                        />
                     </div>
 
                     <label className="rs2-field">

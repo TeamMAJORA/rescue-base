@@ -18,7 +18,8 @@
 /* Compact day cells (fixed height instead of square) */
 .aip-day { aspect-ratio: auto; height: 36px; }
 .aip-grid { gap: 2px 4px; }
-.aip-field { display: flex; align-items: center; gap: 8px; min-width: 0; height: 40px; padding: 0 12px; border: 1px solid rgba(251, 133, 0, 0.35); border-radius: 12px; background: var(--white); color: var(--brown-strong); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+/* Same size and border as the other form fields (Forms.css: 44px, 1px line, 8px corners) */
+.aip-field { display: flex; align-items: center; gap: 8px; min-width: 0; height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--brown-strong); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
 .aip-field > span:not(.aip-clock) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .aip-field.is-empty > span { color: var(--brown-muted); font-weight: 400; }
 .aip-field i { font-style: normal; color: var(--brown-muted); transition: transform 0.15s; }
