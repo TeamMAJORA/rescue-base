@@ -177,7 +177,7 @@ export default function AuthPage({ mode = "login", setPage }) {
         setCodePurpose(purpose);
         setCodeEmail(targetEmail);
         setCode("");
-        setCodeStatus({ tone: "", text: "" });
+        setCodeStatus({ tone: "ok", text: `We sent a 6-digit code to ${targetEmail}.` });
         setResendIn(RESEND_COOLDOWN_SECONDS); // a code was just sent
         goTo("code", "forward");
     }
