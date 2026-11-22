@@ -57,8 +57,10 @@ function friendlyAuthError(error) {
 }
 
 function friendlyCodeError(message = "") {
+    if (/too many|locked|try again in/i.test(message)) return message; // "Too many wrong codes. Try again in 15 minutes."
+    const triesLeft = message.match(/\d+ tr(?:y|ies) left/i)?.[0];
+    if (triesLeft) return `That code didn't work. ${triesLeft}.`;
     if (/expire/i.test(message)) return "That code has expired. Resend a new one.";
-    if (/attempt|locked|too many/i.test(message)) return message;
     return "That code didn't work. Check it and try again.";
 }
 
