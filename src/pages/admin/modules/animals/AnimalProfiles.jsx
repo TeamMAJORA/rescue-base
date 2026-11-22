@@ -1848,7 +1848,8 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <div className="apm-body">
                             <div className="apm-main">
-                                {viewedAnimal.adoptionStatus === "adopted" && (
+                                {/* Adopter and foster contact details are for staff and admin only */}
+                                {canManage && viewedAnimal.adoptionStatus === "adopted" && (
                                     <PersonContactCard
                                         key={`adopter-${viewedAnimal._id}`}
                                         title="Adopted by"
@@ -1860,7 +1861,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                     />
                                 )}
 
-                                {viewedAnimal.fosterStatus === "in_foster" && (
+                                {canManage && viewedAnimal.fosterStatus === "in_foster" && (
                                     <PersonContactCard
                                         key={`foster-${viewedAnimal._id}`}
                                         title="Currently fostered by"
