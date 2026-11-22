@@ -55,14 +55,8 @@ const ICONS = {
             <circle cx="12" cy="10" r="2.5" />
         </>
     ),
-    paw: (
-        <>
-            <circle cx="11" cy="4" r="2" />
-            <circle cx="18" cy="8" r="2" />
-            <circle cx="4" cy="8" r="2" />
-            <path d="M8 14c0-2 2-4 4-4s4 2 4 4-1 6-4 6-4-4-4-6z" />
-        </>
-    ),
+    // The app's paw (same file as the sidebar Animals icon)
+    paw: <image href="/icons/sidebar/brown paw.svg" x="2" y="2" width="20" height="20" />,
     phone: (
         <>
             <rect x="7" y="2" width="10" height="20" rx="2" />

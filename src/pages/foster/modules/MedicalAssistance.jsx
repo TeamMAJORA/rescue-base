@@ -43,14 +43,8 @@ const ICONS = {
     ),
     check: <path d="M20 6 9 17l-5-5" />,
     list: <path d="M4 6h16M4 12h16M4 18h10" />,
-    paw: (
-        <>
-            <circle cx="11" cy="4" r="2" />
-            <circle cx="18" cy="8" r="2" />
-            <circle cx="4" cy="8" r="2" />
-            <path d="M8 14c0-2 2-4 4-4s4 2 4 4-1 6-4 6-4-4-4-6z" />
-        </>
-    ),
+    // The app's paw (same file as the sidebar Animals icon)
+    paw: <image href="/icons/sidebar/brown paw.svg" x="2" y="2" width="20" height="20" />,
     bell: (
         <>
             <path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />

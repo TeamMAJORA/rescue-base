@@ -1798,6 +1798,11 @@
     stroke: none;
 }
 
+/* The paw is the brown sidebar image: show it white on the orange button */
+.afr-btn.is-assign .ao-icon image {
+    filter: brightness(0) invert(1);
+}
+
 .afr-btn.is-assign:hover:not(:disabled) {
     background: var(--orange-dark);
     transform: translateY(-1px);
