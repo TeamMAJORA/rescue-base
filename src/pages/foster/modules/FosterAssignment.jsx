@@ -166,8 +166,8 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
             }
 
             setReturnOpen(false);
+            await loadAssignment();
             setMessage(data.message);
-            loadAssignment();
         } catch (error) {
             console.error(error);
             setReturnError("Server error. Please try again.");

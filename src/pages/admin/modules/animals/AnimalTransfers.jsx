@@ -481,6 +481,7 @@ export default function AnimalTransfers() {
             setTransfers((current) =>
                 current.map((t) => (t.id === transfer.id ? { ...t, status: next.status } : t))
             );
+            notify("Transfer updated");
         } catch (error) {
             notifyError(error.message || "Couldn't update the transfer.");
         }

@@ -128,6 +128,7 @@ export default function Feedback() {
 
             await loadFeedback();
             setSelectedFeedback(null);
+            notify(action === "restore" ? "Feedback restored." : "Feedback archived.");
         } catch (err) {
             console.error(`Feedback ${action} error:`, err);
             setError(err.message || `Failed to ${action} feedback.`);
@@ -207,6 +208,7 @@ export default function Feedback() {
 
             await loadFeedback();
             setSelectedFeedback(null);
+            notify("Feedback deleted.");
         } catch (err) {
             console.error("Delete feedback error:", err);
             setError(err.message || "Failed to delete feedback.");

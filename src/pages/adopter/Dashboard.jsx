@@ -7,6 +7,7 @@ import {
 // Assets
 import assets from "../../data/assets.json";
 import { readAdopterStartPage, clearAdopterStartPage } from "../../utils/adopterStartPage";
+import { notify } from "../../utils/dialogs";
 
 // CSS
 import "../../styles/adopter/Dashboard.css";
@@ -753,6 +754,7 @@ async function fetchPets({ silent = false } = {}) {
         }
 
         await fetchApplicationStatus();
+        notify("Your application was withdrawn.");
     }
 
     async function fetchApplicationHistory() {
