@@ -56,6 +56,7 @@ export default function BrowsePets({
                     typeFilter={typeFilter}
                     setTypeFilter={setTypeFilter}
                     filteredPets={filteredPets}
+                    pets={pets}
                     selectedPet={selectedPet}
                     setSelectedPet={onOpenPet}
                     onRefresh={onRefresh}

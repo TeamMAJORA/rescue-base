@@ -1,8 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BrowsePetCard from "./BrowsePetCard";
 import LoadingState from "../system/LoadingState";
 import Icon from "../system/Icon";
 import { useSavedPets } from "../../utils/savedPets";
+import QrScanDialog from "../system/QrScanDialog";
+import { TAG_CODE_PATTERN, lookupAnimalByTag, tagCodeFrom } from "../../utils/qrTag";
+import { getAnimalStatus } from "../../utils/petStatus";
 
 const STATUS_PILLS = [
     { key: "all", label: "All pets" },
@@ -28,6 +31,7 @@ export default function PetList({
     typeFilter,
     setTypeFilter,
     filteredPets = [],
+    pets = [],
     selectedPet,
     setSelectedPet,
     onRefresh,
@@ -38,8 +42,44 @@ export default function PetList({
     const [statusFilter, setStatusFilter] = useState(initialStatusFilter);
     const [sortBy, setSortBy] = useState("newest");
     const { savedIds, toggleSaved } = useSavedPets();
+    const [qrScanning, setQrScanning] = useState(false);
+    // A full tag code (or pasted /pet/RB-… link) in the search box shows only that pet
+    const searchedTagCode = TAG_CODE_PATTERN.test(tagCodeFrom(search)) ? tagCodeFrom(search) : "";
+    const [tagMatch, setTagMatch] = useState({ tagCode: "", animalId: null });
+
+    useEffect(() => {
+        if (!searchedTagCode) return undefined;
+        let cancelled = false;
+        lookupAnimalByTag(searchedTagCode)
+            .then((animal) => !cancelled && setTagMatch({ tagCode: searchedTagCode, animalId: animal?._id || null }))
+            .catch(() => !cancelled && setTagMatch({ tagCode: searchedTagCode, animalId: null }));
+        return () => { cancelled = true; };
+    }, [searchedTagCode]);
+
+    async function openPetFromScan(scannedText) {
+        const tagCode = tagCodeFrom(scannedText);
+        const animal = await lookupAnimalByTag(tagCode);
+        if (!animal) return `No pet has tag "${tagCode}".`;
+
+        const listedPet = pets.find((pet) => pet._id === animal._id);
+        if (listedPet) {
+            setQrScanning(false);
+            setSelectedPet(listedPet);
+            return undefined;
+        }
+        const status = getAnimalStatus(animal);
+        return {
+            message: `${animal.name} isn't up for adoption right now (${status[0].toUpperCase()}${status.slice(1)}). You can still see the public page with the shelter's contact.`,
+            linkLabel: "View public page",
+            linkHref: `/pet/${encodeURIComponent(tagCode)}`,
+        };
+    }
+
     const visiblePets = useMemo(() => {
-        const list = filteredPets.filter((pet) => {
+        const searchedPets = searchedTagCode
+            ? pets.filter((pet) => tagMatch.tagCode === searchedTagCode && pet._id === tagMatch.animalId)
+            : filteredPets;
+        const list = searchedPets.filter((pet) => {
             if (statusFilter === "available") return pet.fosterStatus !== "in_foster";
             if (statusFilter === "in_foster") return pet.fosterStatus === "in_foster";
             if (statusFilter === "saved") return savedIds.includes(pet._id);
@@ -51,7 +91,7 @@ export default function PetList({
             if (sortBy === "oldest") return getSortTime(a) - getSortTime(b);
             return getSortTime(b) - getSortTime(a);
         });
-    }, [filteredPets, statusFilter, sortBy, savedIds]);
+    }, [filteredPets, pets, searchedTagCode, tagMatch, statusFilter, sortBy, savedIds]);
 
     return (
         <section className={className} id={id}>
@@ -69,8 +109,12 @@ export default function PetList({
                     aria-label="Search pets"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search pet name, breed, or type"
+                    placeholder="Search pet name, breed, type, or QR code"
                 />
+
+                <button type="button" className="ao-btn pet-list-scan" onClick={() => setQrScanning(true)}>
+                    <Icon name="qr" /> Scan QR
+                </button>
 
                 <select
                     className="pet-list-select"
@@ -194,6 +238,7 @@ export default function PetList({
                         );
                     })}
             </div>
+            {qrScanning && <QrScanDialog onScan={openPetFromScan} onClose={() => setQrScanning(false)} />}
         </section>
     );
 }

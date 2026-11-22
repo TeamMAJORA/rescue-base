@@ -9,6 +9,7 @@
 /* MAIN AREA */
 
 .staff-main {
+    min-width: 0; /* same as admin: stop wide content (tab bars, tables) from stretching the page past the screen */
     padding: 32px 32px 48px;
 }
 

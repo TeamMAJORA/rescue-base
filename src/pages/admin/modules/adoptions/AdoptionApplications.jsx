@@ -2002,6 +2002,15 @@ export default function AdoptionApplications() {
 
             await fetchApplications();
 
+            notify(
+                {
+                    approved: "Application approved. The pet is marked as adopted.",
+                    rejected: "Application rejected.",
+                    interview_scheduled: "Interview scheduled.",
+                    interview_completed: "Interview marked as completed.",
+                }[status] || "Application updated."
+            );
+
             return true;
         } catch (error) {
             console.error("Update status error:", error);

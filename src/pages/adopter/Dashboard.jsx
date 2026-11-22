@@ -7,6 +7,7 @@ import {
 // Assets
 import assets from "../../data/assets.json";
 import { readAdopterStartPage, clearAdopterStartPage } from "../../utils/adopterStartPage";
+import { notify } from "../../utils/dialogs";
 
 // CSS
 import "../../styles/adopter/Dashboard.css";
@@ -753,6 +754,7 @@ async function fetchPets({ silent = false } = {}) {
         }
 
         await fetchApplicationStatus();
+        notify("Your application was withdrawn.");
     }
 
     async function fetchApplicationHistory() {
@@ -1030,6 +1032,7 @@ async function fetchPets({ silent = false } = {}) {
                 typeFilter={typeFilter}
                 setTypeFilter={setTypeFilter}
                 filteredPets={filteredPets}
+                pets={pets}
                 // Only highlight a card while its pop-up is open
                 selectedPet={isPetModalOpen ? selectedPet : null}
                 setSelectedPet={openPet}
