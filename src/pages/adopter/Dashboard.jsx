@@ -43,6 +43,7 @@ import { formatDate, formatDateTime } from "../../utils/formatDate";
 import Icon from "../../components/system/Icon";
 
 const API = import.meta.env.VITE_BACKEND_URL;
+const ROLE_LABEL = { adopter: "Adopter", foster: "Foster", volunteer: "Volunteer" };
 
 const ICON_PATH = "/icons/sidebar/";
 
@@ -505,6 +506,9 @@ async function fetchPets({ silent = false } = {}) {
                             currentPet?._id
                     );
 
+                // A foster's own unlisted pet is never in this list: keep it selected
+                if (!existingPet && currentPet?.isOwnFosterPet) return currentPet;
+
                 return (
                     existingPet ||
                     normalizedPets[0] ||
@@ -523,12 +527,16 @@ async function fetchPets({ silent = false } = {}) {
             }
 
             if (adoptPetId) {
-                const fosterPet = normalizedPets.find((pet) => pet._id === adoptPetId);
+                const listedPet = normalizedPets.find((pet) => pet._id === adoptPetId);
 
-                if (fosterPet) {
-                    handleApply(fosterPet);
+                if (listedPet) {
+                    handleApply(listedPet);
                 } else {
-                    setPetsError("That pet is no longer available for adoption.");
+                    // A foster's own pet may not be listed for adoption yet: load it by id.
+                    // The server checks that the applicant really is this pet's foster.
+                    const fosterPet = await fetchOwnFosterPet(adoptPetId);
+                    if (fosterPet) handleApply(fosterPet);
+                    else setPetsError("That pet is no longer available for adoption.");
                 }
             }
             
@@ -830,6 +838,21 @@ async function fetchPets({ silent = false } = {}) {
 
         setActiveAdopterPage(item.key);
         setNotificationOpen(false);
+    }
+
+    async function fetchOwnFosterPet(animalId) {
+        try {
+            const response = await fetch(`${API}/api/animals/${animalId}`, {
+                headers: { "ngrok-skip-browser-warning": "true" },
+            });
+            const data = await response.json();
+            const animal = data.animal;
+            if (!response.ok || animal?.fosterStatus !== "in_foster" || animal.adoptionStatus !== "available") return null;
+            return { ...toPetProfile(animal), status: "available", isOwnFosterPet: true };
+        } catch (error) {
+            console.error("Load foster pet error:", error);
+            return null;
+        }
     }
 
     function handleApply(pet) {
@@ -1693,7 +1716,8 @@ async function fetchPets({ silent = false } = {}) {
                                 "Adopter"}
                         </strong>
 
-                        <small>Adopter</small>
+                        {/* Fosters and volunteers also use these pages: show their real role */}
+                        <small>{ROLE_LABEL[savedUser.role] || "Adopter"}</small>
                     </div>
                 </SidebarUserCard>
             </aside>

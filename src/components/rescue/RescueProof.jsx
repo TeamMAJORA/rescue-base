@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../styles/components/RescueProof.css";
 import { formatDateTime } from "../../utils/formatDate";
 import Icon from "../system/Icon";
@@ -35,6 +35,15 @@ export function CompleteWithProofModal({ assignment, onSubmit, onClose }) {
     const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+
+    // Escape closes the form like every other window, except while it is saving
+    useEffect(() => {
+        function closeOnEscape(event) {
+            if (event.key === "Escape" && !submitting) onClose();
+        }
+        window.addEventListener("keydown", closeOnEscape);
+        return () => window.removeEventListener("keydown", closeOnEscape);
+    }, [onClose, submitting]);
 
     async function handlePhotosChosen(event) {
         const files = Array.from(event.target.files || []);

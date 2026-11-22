@@ -30,7 +30,7 @@
     /* danger */
     .admin-delete-button, .admin-vaccination-delete-button, .afl-return-btn, .afr-btn.is-reject,
     .ao-btn.danger, .application-withdraw-button, .as2-btn.is-danger, .deactivate-btn, .dl-btn.danger,
-    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger, .vr-btn.is-danger,
+    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger,
     /* ghost */
     .as2-btn.is-ghost, .qrt-btn.ghost
 ) {
@@ -102,7 +102,7 @@
 #root :is(
     .admin-delete-button, .admin-vaccination-delete-button, .afl-return-btn, .afr-btn.is-reject,
     .ao-btn.danger, .application-withdraw-button, .as2-btn.is-danger, .deactivate-btn, .dl-btn.danger,
-    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger, .vr-btn.is-danger
+    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger
 ) {
     border-color: var(--red);
     background: var(--red);
@@ -112,11 +112,16 @@
 #root :is(
     .admin-delete-button, .admin-vaccination-delete-button, .afl-return-btn, .afr-btn.is-reject,
     .ao-btn.danger, .application-withdraw-button, .as2-btn.is-danger, .deactivate-btn, .dl-btn.danger,
-    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger, .vr-btn.is-danger
+    .gs-btn.rp-delete, .gs-btn.um-danger, .lf-select-btn.is-danger, .qrt-btn.danger
 ):hover:not(:disabled) {
     border-color: var(--red-dark);
     background: var(--red-dark);
     color: var(--white);
+}
+
+/* Volunteer "Decline": an outline button with red text, so it doesn't compete with "Accept" */
+#root .vr-btn.is-danger {
+    color: var(--red-dark);
 }
 
 /* Ghost (text only) */
