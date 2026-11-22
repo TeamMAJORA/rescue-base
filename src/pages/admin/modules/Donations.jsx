@@ -500,10 +500,10 @@ export default function Donations() {
                 return;
             }
 
-            setMessage("Donation created successfully.");
             setDonationForm(emptyDonationForm);
             setShowForm(false);
             fetchDonations();
+            setMessage("Donation created successfully.");
         } catch (error) {
             console.error("Save donation error:", error);
             setMessage("Server error while saving donation.");
@@ -546,9 +546,9 @@ export default function Donations() {
                 return false;
             }
 
-            setMessage("Donation status updated.");
             setViewingDonation((current) => (current?._id === donationId ? data.donation : current));
             fetchDonations();
+            setMessage("Donation status updated.");
             return true;
         } catch (error) {
             console.error("Update donation status error:", error);
@@ -600,9 +600,9 @@ export default function Donations() {
                 return;
             }
 
-            setMessage("Donation deleted successfully.");
             setViewingDonation(null);
             fetchDonations();
+            setMessage("Donation deleted successfully.");
         } catch (error) {
             console.error("Delete donation error:", error);
             setMessage("Server error while deleting donation.");

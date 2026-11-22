@@ -34,7 +34,7 @@
     "vite": "^8.1.0"
   },
   "allowScripts": {
-    "@firebase/util@1.15.1": true,
-    "protobufjs@7.6.4": true
+    "@firebase/util@1.15.3": true,
+    "protobufjs@7.6.6": true
   }
-}
+}

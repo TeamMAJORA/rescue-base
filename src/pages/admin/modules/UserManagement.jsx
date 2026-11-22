@@ -175,8 +175,8 @@ export default function UserManagement() {
                 return false;
             }
 
-            setMessage("User deactivated successfully.");
             await fetchUsers();
+            setMessage("User deactivated successfully.");
             return true;
         } catch (error) {
             console.error("Deactivate user error:", error);
@@ -227,11 +227,11 @@ export default function UserManagement() {
                 return;
             }
 
-            setMessage("User created successfully.");
             setAddForm(initialAddForm);
             setShowAddForm(false);
 
             await fetchUsers();
+            setMessage("User created successfully.");
         } catch (error) {
             console.error("Add user error:", error);
             setMessage(
@@ -272,11 +272,11 @@ export default function UserManagement() {
                 return;
             }
 
-            setMessage("User updated successfully.");
             setEditingUser(null);
             setEditForm(initialEditForm);
 
             await fetchUsers();
+            setMessage("User updated successfully.");
         } catch (error) {
             console.error("Update user error:", error);
             setMessage(
@@ -338,16 +338,16 @@ export default function UserManagement() {
                 return;
             }
 
-            setMessage(
-                decision === "approved"
-                    ? "Role application approved successfully."
-                    : "Role application rejected successfully."
-            );
 
             setReviewingApplication(null);
             setRejectionReason("");
 
             await fetchUsers();
+            setMessage(
+                decision === "approved"
+                    ? "Role application approved successfully."
+                    : "Role application rejected successfully."
+            );
         } catch (error) {
             console.error("Review role application error:", error);
 
@@ -388,8 +388,8 @@ export default function UserManagement() {
                 return false;
             }
 
-            setMessage("User reactivated.");
             await fetchUsers();
+            setMessage("User reactivated.");
             return true;
         } catch (error) {
             console.error("Reactivate user error:", error);
