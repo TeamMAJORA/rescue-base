@@ -20,6 +20,11 @@ const BEHAVIOR_EVALUATION_LABEL = {
 };
 
 // Planned to last 30+ days (no end date counts as long) -> weekly updates expected
+// A weekly report the shelter hasn't opened yet (shown as "New")
+function hasUnseenUpdates(assignment) {
+    return (assignment.updates || []).some((update) => !update.seenAt);
+}
+
 function isLongAssignment(assignment) {
     if (!assignment.endDate) return true;
     const start = new Date(assignment.startDate || assignment.createdAt);
@@ -300,7 +305,8 @@ function CareChecklistInput({ value, onChange }) {
         </div>
     );
 }
-export default function FosterCare() {
+// openAssignmentId: open that assignment's details card (from a bell notification)
+export default function FosterCare({ openAssignmentId = null, onOpenAssignmentHandled } = {}) {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
@@ -1298,6 +1304,33 @@ export default function FosterCare() {
     // Always read the card's assignment from the latest list, so it updates after any action
     const viewedAssignment = assignments.find((item) => item._id === viewingAssignmentId) || null;
 
+    // Bell notification about an assignment: open its card once the list is loaded
+    useEffect(() => {
+        if (!openAssignmentId || loading) return;
+        if (assignments.some((item) => item._id === openAssignmentId)) setViewingAssignmentId(openAssignmentId);
+        else notifyError("That foster assignment no longer exists.");
+        onOpenAssignmentHandled?.();
+    }, [openAssignmentId, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Weekly reports the shelter hadn't seen when this card opened: tagged "New" in the card
+    const [newUpdateIds, setNewUpdateIds] = useState([]);
+
+    // Opening the details counts as seeing its weekly reports: the foster then sees "Seen"
+    useEffect(() => {
+        const unseenIds = (viewedAssignment?.updates || []).filter((update) => !update.seenAt).map((update) => update._id);
+        setNewUpdateIds(unseenIds);
+        if (unseenIds.length === 0) return;
+
+        fetch(`${API}/api/foster/assignments/${viewedAssignment._id}/updates/seen`, {
+            method: "PATCH",
+            headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
+        })
+            .then((response) => {
+                if (response.ok) fetchAssignments();
+            })
+            .catch((error) => console.error("Mark weekly updates seen error:", error));
+    }, [viewingAssignmentId]); // eslint-disable-line react-hooks/exhaustive-deps
+
     // Escape closes the open window (review, assign, edit, early return, medical request)
     useCloseOnEscape(Boolean(reviewingApplication), () => setReviewingApplication(null));
     useCloseOnEscape(Boolean(assigningApplication), closeAssign);
@@ -1495,7 +1528,7 @@ export default function FosterCare() {
 
                         {visibleAssignments.map((assignment, index) => (
                             <article
-                                className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" ? "is-new" : ""}`}
+                                className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" || hasUnseenUpdates(assignment) ? "is-new" : ""}`}
                                 key={assignment._id}
                             >
                                 {/* Click anywhere on the row (except its buttons) to open the details card */}
@@ -1546,6 +1579,8 @@ export default function FosterCare() {
                                             </span>
                                         ) : assignment.behaviorEvaluation?.status === "pending" ? (
                                             <span className="afl-flag is-due">Evaluation to review</span>
+                                        ) : hasUnseenUpdates(assignment) ? (
+                                            <span className="afl-flag is-due">New weekly update</span>
                                         ) : weeklyUpdateIsDue(assignment) ? (
                                             <span className="afl-flag is-due">Update due</span>
                                         ) : null}
@@ -1754,9 +1789,10 @@ export default function FosterCare() {
             </section>
 
             {viewedAssignment && (() => {
-                const latestUpdate = [...(viewedAssignment.updates || [])].sort(
+                // Every weekly report, newest first, so staff can look back
+                const weeklyUpdates = [...(viewedAssignment.updates || [])].sort(
                     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-                )[0];
+                );
                 const careInstructions = String(viewedAssignment.careInstructions || "")
                     .split("\n")
                     .map((line) => line.trim())
@@ -1841,8 +1877,46 @@ export default function FosterCare() {
                             )}
 
                             <div className="afd-section">
-                                <h4>{latestUpdate ? `Latest update · ${formatShortDate(latestUpdate.createdAt)}` : "Latest update"}</h4>
-                                <p className="afd-text">{latestUpdate ? latestUpdate.note || "No note added." : "No updates yet."}</p>
+                                <h4>Weekly updates{weeklyUpdates.length ? ` · ${weeklyUpdates.length}` : ""}</h4>
+                                {weeklyUpdates.length === 0 ? (
+                                    <p className="afd-text">No updates yet.</p>
+                                ) : (
+                                    <ol className="afd-updates">
+                                        {weeklyUpdates.map((update) => {
+                                            const isNew = newUpdateIds.includes(update._id);
+                                            const facts = [
+                                                update.healthStatus && `${update.healthStatus} health`,
+                                                update.appetite && `${update.appetite} appetite`,
+                                                update.behavior,
+                                                update.weight != null && `${update.weight} kg`,
+                                                update.medication && "Medication given",
+                                                update.exercise && "Exercise done",
+                                            ].filter(Boolean);
+
+                                            return (
+                                                <li key={update._id} className={`afd-update${isNew ? " is-new" : ""}`}>
+                                                    <div className="afd-update-body">
+                                                        <b>
+                                                            {formatDateTime(update.createdAt)}
+                                                            {isNew && <span className="afd-new">New</span>}
+                                                        </b>
+                                                        {facts.length > 0 && (
+                                                            <span className="afd-update-tags">
+                                                                {facts.map((fact) => <span key={fact}>{fact}</span>)}
+                                                            </span>
+                                                        )}
+                                                        <p>{update.note || "No note added."}</p>
+                                                    </div>
+                                                    {update.photoUrl && (
+                                                        <a className="afd-update-photo" href={update.photoUrl} target="_blank" rel="noreferrer" title="Open photo">
+                                                            <img src={update.photoUrl} alt={`Update photo, ${formatShortDate(update.createdAt)}`} />
+                                                        </a>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ol>
+                                )}
                             </div>
 
                             {careInstructions.length > 0 && (

@@ -35,6 +35,7 @@ export async function fetchRecentNotifications() {
         type: item.type,
         createdAt: item.createdAt,
         page: PAGE_BY_TYPE[item.type] || null,
+        relatedId: item.relatedId || null,
     }));
 }
 
