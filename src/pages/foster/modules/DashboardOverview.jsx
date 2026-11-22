@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { getNextReportDue } from "../utils/reportDue";
-<<<<<<< HEAD
-=======
 import { formatDate } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -58,7 +55,7 @@ function FdoIcon({ name, size = 16 }) {
 }
 
 function shortDate(date) {
-    return new Date(date).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+    return formatDate(date, { withYear: false });
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -208,6 +205,7 @@ export default function DashboardOverview({
     notifications = [],
     onOpenNotifications,
     onRefreshNotifications,
+    onOpenAdopterPage,
 }) {
     const pets = assignments.length ? assignments : assignment ? [assignment] : [];
     const appStatus = String(application?.status || "").toLowerCase();
@@ -279,7 +277,7 @@ export default function DashboardOverview({
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(`${API}/api/settings/contact`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
             setContact(response.ok && data.success ? data.contact : {});
@@ -298,7 +296,7 @@ export default function DashboardOverview({
                 const token = localStorage.getItem("token");
                 await fetch(`${API}/api/notifications/${notification._id}/read`, {
                     method: "PATCH",
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                 });
                 await onRefreshNotifications?.();
             } catch (error) {
@@ -339,6 +337,30 @@ export default function DashboardOverview({
                     <strong className={`status ${appStatus || "pending"}`}>
                         {application?.status || "Not Submitted"}
                     </strong>
+                </div>
+            </section>
+
+            <section className="fdo-actions fdo-shortcuts">
+                <div className="fdo-actions-grid">
+                    <button type="button" className="fdo-action" onClick={() => onOpenAdopterPage?.("lost-found")}>
+                        <span className="fdo-action-icon">
+                            <img src="/icons/sidebar/LostnFound-brown.svg" alt="" width="22" height="22" />
+                        </span>
+                        <span className="fdo-action-text">
+                            <b>Lost &amp; Found</b>
+                            <small>Report or look for a lost pet</small>
+                        </span>
+                    </button>
+
+                    <button type="button" className="fdo-action" onClick={() => onOpenAdopterPage?.("donation")}>
+                        <span className="fdo-action-icon">
+                            <img src="/icons/sidebar/donation-brown.svg" alt="" width="22" height="22" />
+                        </span>
+                        <span className="fdo-action-text">
+                            <b>Donate</b>
+                            <small>Give money or supplies to the shelter</small>
+                        </span>
+                    </button>
                 </div>
             </section>
 

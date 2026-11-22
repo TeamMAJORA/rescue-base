@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
-=======
 import { formatDate } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -79,13 +76,13 @@ function daysOfCare(item) {
 
 function shortDate(value) {
     return value
-        ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        ? formatDate(value)
         : "—";
 }
 
 function longDate(value) {
     return value
-        ? new Date(value).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+        ? formatDate(value)
         : "—";
 }
 
@@ -105,7 +102,7 @@ export default function FosterHistory() {
             setLoading(true);
 
             const response = await fetch(`${API}/api/foster/assignments/me/history`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 

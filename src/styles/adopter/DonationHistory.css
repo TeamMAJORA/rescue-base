@@ -8,15 +8,9 @@
 .dh-hero {
     padding: 28px 32px;
     border-radius: 20px;
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #ff8a5c, #ffb36b);
-    color: #fff;
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
-=======
     background: linear-gradient(135deg, var(--orange), var(--orange-light));
     color: var(--white);
     box-shadow: var(--shadow-modal);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-hero span {
@@ -25,13 +19,8 @@
     padding: 8px 12px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.55);
-<<<<<<< HEAD
-    color: var(--adopter-red);
-    font-size: 11px;
-=======
     color: var(--red);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -61,24 +50,19 @@
     display: grid;
     padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.15);
-<<<<<<< HEAD
-    border-radius: 14px;
-    background: #fffaf0;
-=======
     border-radius: 12px;
     background: var(--paper);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-stat strong {
     font-size: 1.6rem;
-    color: #5a1b00;
+    color: var(--brown);
     line-height: 1.1;
 }
 
 .dh-stat small {
     font-size: 12px;
-    color: #8a6a55;
+    color: var(--brown-muted);
 }
 
 /* Panel + toolbar */
@@ -87,13 +71,8 @@
     gap: 16px;
     padding: 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
-<<<<<<< HEAD
-    border-radius: 18px;
-    background: #fffaf0;
-=======
     border-radius: 20px;
     background: var(--paper);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-toolbar {
@@ -114,24 +93,17 @@
     padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.3);
     border-radius: 999px;
-<<<<<<< HEAD
-    background: #fff;
-    color: #5a1b00;
-    font-size: 13px;
-    font-weight: 700;
-=======
     background: var(--white);
     color: var(--brown);
     font-size: 14px;
     font-weight: 800;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
 .dh-filters button.active {
-    background: #5a1b00;
-    border-color: #5a1b00;
-    color: #fff;
+    background: var(--brown);
+    border-color: var(--brown);
+    color: var(--white);
 }
 
 .dh-search {
@@ -139,18 +111,12 @@
     max-width: 100%;
     padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.35);
-<<<<<<< HEAD
-    border-radius: 10px;
-    background: #fff;
-    outline: none;
-=======
     border-radius: 12px;
     background: var(--white);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-search:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.15);
 }
 
@@ -169,7 +135,7 @@
     padding: 16px 16px;
     border: 1px solid rgba(90, 27, 0, 0.18);
     border-radius: 12px;
-    background: #fffdf8;
+    background: var(--white);
     text-align: left;
     font: inherit;
     cursor: pointer;
@@ -186,13 +152,8 @@
     place-items: center;
     width: 36px;
     height: 36px;
-<<<<<<< HEAD
-    color: #e07a00;
-    font-size: 22px;
-=======
     color: var(--orange-dark);
     font-size: 24px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -202,12 +163,12 @@
 }
 
 .dh-row-text strong {
-    color: #3a1400;
+    color: var(--brown-strong);
     font-size: 1rem;
 }
 
 .dh-row-text small {
-    color: #6c4b37;
+    color: var(--brown-soft);
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -225,24 +186,19 @@
 }
 
 .dh-type {
-    background: #ffd9a8;
-    color: #7a3e00;
+    background: var(--peach);
+    color: var(--amber);
 }
 
 .dh-type.is-money {
-    background: #c8f0d2;
-    color: #1d6b3a;
+    background: var(--green-soft);
+    color: var(--green-dark);
 }
 
 .dh-date {
     justify-self: center;
-<<<<<<< HEAD
-    color: #5a1b00;
-    font-size: 13px;
-=======
     color: var(--brown);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-status {
@@ -250,25 +206,25 @@
 }
 
 .dh-status.is-pending {
-    background: #f59e0b;
-    color: #fff;
+    background: var(--orange-light);
+    color: var(--white);
 }
 
 .dh-status.is-received {
-    background: #10b981;
-    color: #fff;
+    background: var(--green);
+    color: var(--white);
 }
 
 .dh-status.is-cancelled {
-    background: #fde2e2;
-    color: #d62828;
+    background: var(--red-soft);
+    color: var(--red);
 }
 
 .dh-message {
     margin: 0;
     padding: 24px;
     text-align: center;
-    color: #6c4b37;
+    color: var(--brown-soft);
 }
 
 /* Empty state */
@@ -288,33 +244,22 @@
 
 .dh-empty h3 {
     margin: 0;
-    color: #3a1400;
+    color: var(--brown-strong);
 }
 
 .dh-empty p {
     margin: 0 0 8px;
-<<<<<<< HEAD
-    color: #6c4b37;
-    font-size: 13px;
-=======
     color: var(--brown-soft);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-empty button {
     padding: 8px 24px;
     border: none;
     border-radius: 8px;
-<<<<<<< HEAD
-    background: #fb8500;
-    color: #fff;
-    font-weight: 700;
-=======
     background: var(--orange);
     color: var(--white);
     font-weight: 800;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
 }
 
@@ -335,31 +280,21 @@
     max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
-<<<<<<< HEAD
-    border-radius: 18px;
-    background: #fff;
-=======
     border-radius: 20px;
     background: var(--white);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-<<<<<<< HEAD
-    padding: 18px 22px;
-    border-bottom: 1px solid #eee;
-=======
     padding: 16px 24px;
     border-bottom: 1px solid var(--line-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-modal-header h2 {
     margin: 0;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .dh-modal-header button {
@@ -383,7 +318,7 @@
     max-height: 260px;
     object-fit: contain;
     border-radius: 12px;
-    background: #f5f5f5;
+    background: var(--white);
 }
 
 .dh-modal-body dl {
@@ -394,31 +329,21 @@
 }
 
 .dh-modal-body dt {
-<<<<<<< HEAD
-    color: #8a6a55;
-    font-weight: 700;
-=======
     color: var(--brown-muted);
     font-weight: 800;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .dh-modal-body dd {
     margin: 0;
-    color: #3a1400;
+    color: var(--brown-strong);
 }
 
 .dh-notes {
-<<<<<<< HEAD
-    padding: 14px;
-    border: 1px solid #ece4d8;
-=======
     padding: 16px;
     border: 1px solid var(--cream-card);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 12px;
-    background: #faf8f5;
-    color: #6b5848;
+    background: var(--white);
+    color: var(--brown-muted);
     line-height: 1.6;
     white-space: pre-line;
 }
@@ -449,15 +374,15 @@
     place-items: center;
     flex: 0 0 40px;
     height: 40px;
-    color: #e07a00;
+    color: var(--orange-dark);
 }
 
 .dh-stat-icon.is-green {
-    color: #10b981;
+    color: var(--green);
 }
 
 .dh-stat-icon.is-gold {
-    color: #f5a400;
+    color: var(--orange-light);
 }
 
 .dh-stat-text {

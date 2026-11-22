@@ -6,11 +6,8 @@ import {
 
 // Assets
 import assets from "../../data/assets.json";
-<<<<<<< HEAD
-=======
 import { readAdopterStartPage, clearAdopterStartPage } from "../../utils/adopterStartPage";
 import { notify } from "../../utils/dialogs";
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 // CSS
 import "../../styles/adopter/Dashboard.css";
@@ -20,6 +17,8 @@ import "../../styles/adopter/MatchmakingQuiz.css";
 import "../../styles/adopter/Recommendations.css";
 import "../../styles/adopter/DonationCenter.css";
 import "../../styles/adopter/DonationHistory.css";
+import "../../styles/admin/IntakeRecords.css"; // stats strip on the Stray Map (shared with staff pages)
+import "../../styles/admin/GISMapping.css"; // Stray Map (same map as staff and volunteers)
 
 // Module
 import AdoptionApplication from "./modules/AdoptionApplication";
@@ -30,102 +29,27 @@ import Recommendations from "./modules/Recommendations";
 import DonationCenter from "./modules/DonationCenter";
 import DonationHistory from "./modules/DonationHistory";
 import LostFound from "../admin/modules/LostFound";
+import GISMapping from "../admin/modules/GISMapping";
 import FeedbackForm from "../FeedbackForm";
 import RoleApplication from "./modules/RoleApplication";
 import PetList from "../../components/adopter/PetList";
-import PetDetailPanel from "../../components/adopter/PetDetailPanel";
-import { formatAge } from "../../utils/formatAge";
+import { PetDetailModal } from "../../components/adopter/PetDetailPanel";
+import { toPetProfile } from "../../utils/petProfile";
 import AccountSettings from "../AccountSettings";
-<<<<<<< HEAD
-=======
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import NotificationPanel from "../../components/notifications/NotificationPanel";
 import SidebarUserCard from "../../components/system/SidebarUserCard";
 import PetTypeIcon from "../../components/system/PetTypeIcon";
 import { formatDate, formatDateTime } from "../../utils/formatDate";
 import Icon from "../../components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 const ROLE_LABEL = { adopter: "Adopter", foster: "Foster", volunteer: "Volunteer" };
 
 const ICON_PATH = "/icons/sidebar/";
 
+// Grouped like the Admin/Staff sidebars: a label shows where the group changes, "" after the first item = divider
 const adopterMenu = [
-<<<<<<< HEAD
-    {
-        key: "overview",
-        label: "Dashboard",
-        icon: "dashboard-brown.svg",
-        activeIcon: "dashboard-light.svg",
-    },
-    {
-        key: "browse-pets",
-        label: "Browse Pets",
-        icon: "brown paw.svg",
-        activeIcon: "brown paw-light.svg",
-    },
-    {
-        key: "adoption-application",
-        label: "Adoption Application",
-        icon: "clipboard-brown.svg",
-        activeIcon: "clipboard-light.svg",
-    },
-    {
-        key: "application-status",
-        label: "Application Status",
-        icon: "Status.svg",
-        activeIcon: "Status-light.svg",
-    },
-    {
-        key: "matchmaking-quiz",
-        label: "Matchmaking Quiz",
-        icon: "quiz-brown.svg",
-        activeIcon: "quiz-light.svg",
-    },
-    {
-        key: "recommendations",
-        label: "Recommendations",
-        icon: "Recommend.svg",
-        activeIcon: "Recommend-light.svg",
-    },
-    {
-        key: "lost-found",
-        label: "Lost & Found",
-        icon: "LostnFound-brown.svg",
-        activeIcon: "LostnFound-light.svg",
-    },
-    {
-        key: "donation",
-        label: "Donation",
-        icon: "donation-brown.svg",
-        activeIcon: "donation-light.svg",
-    },
-    {
-        key: "donation-history",
-        label: "Donation History",
-        icon: "history.svg",
-        activeIcon: "history-light.svg",
-    },
-    {
-        key: "role-application",
-        label: "Role Application",
-        icon: "role-brown.svg",
-        activeIcon: "role-light.svg",
-    },
-    {
-        key: "feedback",
-        label: "Feedback",
-        icon: "Feedback-brown.svg",
-        activeIcon: "Feedback-light.svg",
-    },
-    {
-        key: "settings",
-        label: "Settings",
-        icon: "settings-brown.svg",
-        activeIcon: "settings-light.svg",
-    },
-=======
     { key: "overview", group: "", label: "Dashboard", icon: "dashboard-brown.svg", activeIcon: "dashboard-light.svg" },
     { key: "browse-pets", group: "Adopt", label: "Browse Pets", icon: "brown paw.svg", activeIcon: "brown paw-light.svg" },
     { key: "matchmaking-quiz", group: "Adopt", label: "Matchmaking Quiz", icon: "quiz-brown.svg", activeIcon: "quiz-light.svg" },
@@ -139,7 +63,6 @@ const adopterMenu = [
     { key: "role-application", group: "Account", label: "Role Application", icon: "role-brown.svg", activeIcon: "role-light.svg" },
     { key: "feedback", group: "Account", label: "Feedback", icon: "Feedback-brown.svg", activeIcon: "Feedback-light.svg" },
     { key: "settings", group: "", label: "Settings", icon: "settings-brown.svg", activeIcon: "settings-light.svg" },
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 ];
 
 const emptyPet = {
@@ -157,7 +80,7 @@ const emptyPet = {
     personality: "No animal selected.",
     story: "There are currently no available animals.",
     description: "",
-    icon: "🐾",
+    petType: "",
     image: "",
 };
 
@@ -183,14 +106,15 @@ function getAdopterPageTitle(activeAdopterPage) {
     return currentItem?.label || "Dashboard";
 }
 
-export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
+export default function Dashboard({ onLogout, onLoginAgain, onOpenRoleDashboard }) {
     const savedUser = getSavedUser();
     const [, setUserVersion] = useState(0);
 
     // Signed out: login expired (server answered 401) or this account is not an adopter
     const savedRole = String(savedUser.role || "adopter").trim().toLowerCase();
-    const isWrongRole = !["adopter", "foster"].includes(savedRole);
-    const isFoster = savedRole === "foster";
+    const isWrongRole = !["adopter", "foster", "volunteer"].includes(savedRole);
+    // Fosters and volunteers also adopt here and can switch back to their own dashboard
+    const roleDashboardName = { foster: "Foster", volunteer: "Volunteer" }[savedRole];
     const [signedOut, setSignedOut] = useState(false);
     // Server is under maintenance for roles that are not allowed to log in (admins are let through by the server)
     const [maintenance, setMaintenance] = useState("");
@@ -201,8 +125,23 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
         .trim()
         .toLowerCase();
 
+    // Opens straight on Lost & Found / Donation when the Foster dashboard asked for it
     const [activeAdopterPage, setActiveAdopterPage] =
-        useState("overview");
+        useState(() => readAdopterStartPage("overview"));
+
+    useEffect(() => {
+        clearAdopterStartPage();
+    }, []);
+
+    // Phones: the sidebar slides in from the menu button and closes once a page is picked
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    // Clicking an animal opens its profile as a pop-up (selectedPet stays chosen for the application)
+    const [isPetModalOpen, setIsPetModalOpen] = useState(false);
+
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+        setIsPetModalOpen(false);
+    }, [activeAdopterPage]);
 
     const [browseStartFilter, setBrowseStartFilter] = useState("all");
 
@@ -219,13 +158,9 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
     const [petsLoading, setPetsLoading] = useState(true);
     const [petsError, setPetsError] = useState("");
 
-    const [hasTakenQuiz] = useState(() => {
-    try {
-        return Boolean(localStorage.getItem("rescuebase_matchmaking_results"));
-    } catch {
-        return false;
-    }
-    });
+    // Latest quiz answers + matches, always from the database (null = quiz not taken)
+    const [myMatchmaking, setMyMatchmaking] = useState({ quizResponse: null, matches: [] });
+    const hasTakenQuiz = Boolean(myMatchmaking.quizResponse);
 
     const [selectedPet, setSelectedPet] =
         useState(emptyPet);
@@ -272,7 +207,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
     }, [pets]);
 
     
-    const QUIZ_TOTAL_STEPS = 3;
+    const QUIZ_PART_COUNT = 3; // Your space, Your experience, Energy level
 
     const savedPetsCount = (() => {
         try {
@@ -282,18 +217,9 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
         }
     })();
 
-    const goodMatchesCount = (() => {
-        try {
-            const results = JSON.parse(
-                localStorage.getItem("rescuebase_matchmaking_results") || "null"
-            );
-            return (results?.matches || []).filter(
-                (match) => match.eligible && Number(match.score) >= 60
-            ).length;
-        } catch {
-            return 0;
-        }
-    })();
+    const goodMatchesCount = myMatchmaking.matches.filter(
+        (match) => match.eligible && Number(match.score) >= 60
+    ).length;
 
     const draftApplication = (() => {
         try {
@@ -380,12 +306,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
                 icon: "/icons/Clock.svg",
                 title: `Interview for ${petName}`,
                 linkText: applicationStatus.interviewSchedule
-                    ? new Date(applicationStatus.interviewSchedule).toLocaleString("en-PH", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                    })
+                    ? formatDateTime(applicationStatus.interviewSchedule)
                     : "See your schedule",
                 page: "application-status",
             };
@@ -414,7 +335,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
                 label: "Action needed",
                 icon: "/icons/Action.svg",
                 title: "Finish your match quiz",
-                linkText: `${QUIZ_TOTAL_STEPS} quick steps`,
+                linkText: `Short quiz, ${QUIZ_PART_COUNT} parts`,
                 page: "matchmaking-quiz",
             };
         }
@@ -444,27 +365,19 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
 
 
     const featuredMatch = (() => {
-        try {
-            const results = JSON.parse(
-                localStorage.getItem("rescuebase_matchmaking_results") || "null"
+        const best = myMatchmaking.matches
+            .filter((match) => match.eligible && match.score !== null)
+            .sort((a, b) => Number(b.score) - Number(a.score))
+            .find((match) =>
+                pets.some((pet) => pet._id === String(match.animalId))
             );
 
-            const best = (results?.matches || [])
-                .filter((match) => match.eligible && match.score !== null)
-                .sort((a, b) => Number(b.score) - Number(a.score))
-                .find((match) =>
-                    pets.some((pet) => pet._id === String(match.animalId))
-                );
+        if (!best) return null;
 
-            if (!best) return null;
-
-            return {
-                pet: pets.find((pet) => pet._id === String(best.animalId)),
-                score: Math.round(Number(best.score)),
-            };
-        } catch {
-            return null;
-        }
+        return {
+            pet: pets.find((pet) => pet._id === String(best.animalId)),
+            score: Math.round(Number(best.score)),
+        };
     })();
 
     const filteredPets = useMemo(() => {
@@ -507,6 +420,7 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
                 `${API}/api/notifications`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
             }
             );
@@ -532,6 +446,23 @@ export default function Dashboard({ onLogout, onLoginAgain, onOpenFoster }) {
         }
     }
 
+async function loadMyMatchmaking() {
+    try {
+        const response = await fetch(`${API}/api/matchmaking/quiz/me`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "ngrok-skip-browser-warning": "true" },
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to load your matchmaking results.");
+        }
+
+        setMyMatchmaking({ quizResponse: data.quizResponse, matches: data.matches || [] });
+    } catch (error) {
+        console.error("Load matchmaking error:", error);
+    }
+}
+
 async function fetchPets({ silent = false } = {}) {
     try {
         if (!silent) setPetsLoading(true);
@@ -540,7 +471,8 @@ async function fetchPets({ silent = false } = {}) {
             const response = await fetch(
                 `${API}/api/animals?availabilityStatus=available&adoptionStatus=available`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 }
             }
             );
@@ -563,53 +495,7 @@ async function fetchPets({ silent = false } = {}) {
                 ? data.animals
                 : [];
 
-            const normalizedPets = animals.map(
-                (animal) => {
-                    return {
-                        ...animal,
-
-                        id: animal._id,
-
-                        status:
-                            animal.availabilityStatus ===
-                                "available" &&
-                                animal.adoptionStatus ===
-                                "available"
-                                ? "available"
-                                : "not_available",
-
-                        age: formatAge(animal.age),
-
-                        personalityTags:
-                            animal.personality?.tags || [],
-
-                        personality:
-                            animal.personality?.summary ||
-                            animal.behaviorNotes ||
-                            "Behavior information has not been added yet.",
-
-                        idealHome:
-                            animal.description ||
-                            "Contact the shelter to learn about the ideal home.",
-
-                        health:
-                            animal.medicalStatus ||
-                            animal.intakeCondition ||
-                            "Health information is not available.",
-
-                        story:
-                            animal.description ||
-                            `${animal.name} is currently under the care of RescueBase.`,
-
-                        icon:
-                            animal.type === "Dog"
-                                ? "🐶"
-                                : animal.type === "Cat"
-                                    ? "🐱"
-                                    : "🐾",
-                    };
-                }
-            );
+            const normalizedPets = animals.map(toPetProfile);
 
             setPets(normalizedPets);
 
@@ -691,6 +577,7 @@ async function fetchPets({ silent = false } = {}) {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -806,7 +693,7 @@ async function fetchPets({ silent = false } = {}) {
 
         const uploadResponse = await fetch(`${API}/api/uploads/image`, {
             method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             body: uploadData,
         });
         const uploadResult = await uploadResponse.json();
@@ -822,6 +709,7 @@ async function fetchPets({ silent = false } = {}) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     documents: [
@@ -853,6 +741,7 @@ async function fetchPets({ silent = false } = {}) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ reason }),
             }
@@ -877,6 +766,7 @@ async function fetchPets({ silent = false } = {}) {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -932,6 +822,8 @@ async function fetchPets({ silent = false } = {}) {
     }
 
     function handleSidebarClick(item) {
+        setIsMobileMenuOpen(false);
+
         if (
             item.key === "adoption-application"
         ) {
@@ -1028,14 +920,7 @@ async function fetchPets({ silent = false } = {}) {
             return "Date not available";
         }
 
-        return parsedDate.toLocaleDateString(
-            "en-PH",
-            {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            }
-        );
+        return formatDate(parsedDate);
     }
 
     function renderApplicationBanner() {
@@ -1062,7 +947,7 @@ async function fetchPets({ silent = false } = {}) {
                             }
                         />
                     ) : (
-                        <span>🐾</span>
+                        <span><PetTypeIcon /></span>
                     )}
                 </div>
 
@@ -1130,6 +1015,11 @@ async function fetchPets({ silent = false } = {}) {
         );
     }
 
+    function openPet(pet) {
+        setSelectedPet(pet);
+        setIsPetModalOpen(true);
+    }
+
     function renderPetBrowser() {
         return (
             <PetList
@@ -1142,28 +1032,11 @@ async function fetchPets({ silent = false } = {}) {
                 typeFilter={typeFilter}
                 setTypeFilter={setTypeFilter}
                 filteredPets={filteredPets}
-<<<<<<< HEAD
-                selectedPet={selectedPet}
-                setSelectedPet={setSelectedPet}
-=======
                 pets={pets}
                 // Only highlight a card while its pop-up is open
                 selectedPet={isPetModalOpen ? selectedPet : null}
                 setSelectedPet={openPet}
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                 onRefresh={fetchPets}
-            />
-        );
-    }
-
-    function renderPetDetail() {
-        return (
-            <PetDetailPanel
-                className="browse-pet-details-panel"
-                pet={selectedPet}
-                hasPendingApplication={hasPendingApplication}
-                applicationStatus={applicationStatus}
-                onApply={handleApply}
             />
         );
     }
@@ -1181,8 +1054,8 @@ async function fetchPets({ silent = false } = {}) {
                             <h2>Let's find your perfect companion</h2>
 
                             <p>
-                                Answer {QUIZ_TOTAL_STEPS} quick steps about your home and
-                                we'll pair you with pets that fit your life.
+                                Take a short quiz in {QUIZ_PART_COUNT} parts about your home and
+                                lifestyle, and we'll pair you with pets that fit your life.
                             </p>
 
                             <ol className="adopter-hero-steps">
@@ -1191,7 +1064,7 @@ async function fetchPets({ silent = false } = {}) {
                                 <li><b>3</b> Energy level</li>
                                 <li className="adopter-hero-time">
                                     <img src="/icons/Clock.svg" alt="" />
-                                    ~2 min
+                                    ~3 min
                                 </li>
                             </ol>
 
@@ -1261,7 +1134,7 @@ async function fetchPets({ silent = false } = {}) {
 
                                         <button
                                             type="button"
-                                            onClick={() => setSelectedPet(featuredMatch.pet)}
+                                            onClick={() => openPet(featuredMatch.pet)}
                                         >
                                             Meet {featuredMatch.pet.name} <Icon name="arrow-right" />
                                         </button>
@@ -1351,8 +1224,6 @@ async function fetchPets({ silent = false } = {}) {
 
                     {renderPetBrowser()}
                 </div>
-
-                {renderPetDetail()}
             </div>
         );
     }
@@ -1414,11 +1285,10 @@ async function fetchPets({ silent = false } = {}) {
                     typeFilter={typeFilter}
                     setTypeFilter={setTypeFilter}
                     filteredPets={filteredPets}
-                    selectedPet={selectedPet}
-                    setSelectedPet={setSelectedPet}
+                    selectedPet={isPetModalOpen ? selectedPet : null}
+                    onOpenPet={openPet}
                     hasPendingApplication={hasPendingApplication}
                     applicationStatus={applicationStatus}
-                    onApply={handleApply}
                     onRefresh={fetchPets}
                     initialStatusFilter={browseStartFilter}
                 />
@@ -1438,10 +1308,15 @@ async function fetchPets({ silent = false } = {}) {
 
             return (
                 <MatchmakingQuiz
+                    // Re-mount once the saved answers arrive so the form starts from them
+                    key={myMatchmaking.quizResponse?._id || "new-quiz"}
                     user={currentUser}
-                    onCompleted={() =>
-                        setActiveAdopterPage("recommendations")
-                    }
+                    previousQuizResponse={myMatchmaking.quizResponse}
+                    onSeeRecommendations={() => setActiveAdopterPage("recommendations")}
+                    onCompleted={(result) => {
+                        setMyMatchmaking({ quizResponse: result.quizResponse, matches: result.matches || [] });
+                        setActiveAdopterPage("recommendations");
+                    }}
                 />
             );
         }
@@ -1450,9 +1325,14 @@ async function fetchPets({ silent = false } = {}) {
             return (
                 <Recommendations
                     pets={pets}
+                    quizResponse={myMatchmaking.quizResponse}
+                    aiMatches={myMatchmaking.matches}
                     loading={petsLoading}
                     error={petsError}
-                    onRefresh={fetchPets}
+                    onRefresh={() => {
+                        fetchPets();
+                        loadMyMatchmaking();
+                    }}
                     onApply={handleApply}
                     hasPendingApplication={hasPendingApplication}
                     applicationStatus={applicationStatus}
@@ -1460,16 +1340,13 @@ async function fetchPets({ silent = false } = {}) {
                         setActiveAdopterPage("matchmaking-quiz")
                     }
                     onBrowsePets={() => setActiveAdopterPage("browse-pets")}
-                    onViewPet={(pet) => {
-                        setSelectedPet(pet);
-                        setActiveAdopterPage("browse-pets");
-                    }}
+                    onViewPet={openPet}
                 />
             );
         }
 
         if (activeAdopterPage === "donation") {
-            return <DonationCenter />
+            return <DonationCenter onOpenDonationHistory={() => setActiveAdopterPage("donation-history")} />
         }
 
         if (activeAdopterPage === "donation-history") {
@@ -1478,6 +1355,10 @@ async function fetchPets({ silent = false } = {}) {
 
         if (activeAdopterPage === "lost-found") {
             return <LostFound />
+        }
+
+        if (activeAdopterPage === "stray-map") {
+            return <GISMapping onOpenLostFound={() => setActiveAdopterPage("lost-found")} />
         }
 
         if (activeAdopterPage === "feedback") {
@@ -1501,6 +1382,14 @@ async function fetchPets({ silent = false } = {}) {
         return renderOverview();
     }
 
+    async function handleMarkAllRead() {
+        await markAllNotificationsRead().catch((error) =>
+            console.error("Mark all notifications read error:", error)
+        );
+
+        await loadNotifications();
+    }
+
     async function handleNotificationClick(notification) {
         if (!notification.read && token) {
             try {
@@ -1510,6 +1399,7 @@ async function fetchPets({ silent = false } = {}) {
                         method: "PATCH",
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            "ngrok-skip-browser-warning": "true",
                         },
                     }
                 );
@@ -1543,6 +1433,10 @@ async function fetchPets({ silent = false } = {}) {
                 setActiveAdopterPage("application-status");
                 break;
 
+            case "lost_found_update":
+                setActiveAdopterPage("lost-found");
+                break;
+                                
             default:
                 setActiveAdopterPage("overview");
                 break;
@@ -1596,14 +1490,11 @@ async function fetchPets({ silent = false } = {}) {
 
         refreshDashboard();
         loadNotifications();
+        loadMyMatchmaking();
 
-        const interval = setInterval(() => {
-            fetchApplicationStatus();
-        }, 5000);
-
-        return () => {
-            clearInterval(interval);
-        };
+        // Older versions kept the quiz in the browser, shared by everyone on this computer
+        localStorage.removeItem("rescuebase_matchmaking_quiz");
+        localStorage.removeItem("rescuebase_matchmaking_results");
     }, [savedEmail, signedOut]);
 
     // Keep pet availability fresh
@@ -1616,14 +1507,6 @@ async function fetchPets({ silent = false } = {}) {
     useEffect(() => {
         fetchPets({ silent: true });
     }, [activeAdopterPage]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            fetchPets({ silent: true });
-        }, 30000);
-
-        return () => clearInterval(interval);
-    }, []);
     
     // Account was deactivated by an admin
     if (signedOut === "disabled") {
@@ -1698,7 +1581,10 @@ async function fetchPets({ silent = false } = {}) {
 
     return (
         <main className="adopter-dashboard-page">
-            <aside className="adopter-sidebar">
+            {isMobileMenuOpen && (
+                <div className="dash-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)} aria-hidden="true" />
+            )}
+            <aside className={`adopter-sidebar${isMobileMenuOpen ? " is-open" : ""}`}>
                 <button
                     type="button"
                     className="adopter-logo"
@@ -1715,14 +1601,14 @@ async function fetchPets({ silent = false } = {}) {
 
                     <span>
                         RescueBase
-                        <small>Adopter</small>
                     </span>
                 </button>
 
                 <nav className="adopter-menu">
                     {adopterMenu
-                        .filter((item) => !(isFoster && item.key === "role-application"))
-                        .map((item) => {
+                        .filter((item) => !(roleDashboardName && item.key === "role-application"))
+                        .map((item, index, visibleMenu) => {
+                        const isFirstInSection = index > 0 && item.group !== visibleMenu[index - 1].group;
                         const isActive =
                             activeAdopterPage ===
                             item.key;
@@ -1732,6 +1618,9 @@ async function fetchPets({ silent = false } = {}) {
                                 className="adopter-menu-group"
                                 key={item.key}
                             >
+                                {isFirstInSection && (item.group
+                                    ? <p className="menu-section-label">{item.group}</p>
+                                    : <hr className="menu-section-divider" />)}
                                 <button
                                     type="button"
                                     title={item.label}
@@ -1773,13 +1662,13 @@ async function fetchPets({ silent = false } = {}) {
                         );
                     })}
 
-                    {isFoster && (
+                    {roleDashboardName && (
                         <div className="adopter-menu-group">
                             <button
                                 type="button"
-                                title="Foster Dashboard"
+                                title={`${roleDashboardName} Dashboard`}
                                 className="adopter-menu-switch"
-                                onClick={() => onOpenFoster?.()}
+                                onClick={() => onOpenRoleDashboard?.()}
                             >
                                 <div className="adopter-menu-text">
                                     <img
@@ -1794,17 +1683,17 @@ async function fetchPets({ silent = false } = {}) {
                                         alt=""
                                         aria-hidden="true"
                                     />
-                                    <strong>Back to Foster Dashboard</strong>
+                                    <strong>Back to {roleDashboardName} Dashboard</strong>
                                 </div>
                             </button>
                         </div>
                     )}
                 </nav>
 
-                <button
-                    className="adopter-user-card"
-                    type="button"
-                    onClick={handleLogout}
+                <SidebarUserCard
+                    cardClassName="adopter-user-card"
+                    onOpenAccount={() => setActiveAdopterPage("settings")}
+                    onConfirmLogout={handleLogout}
                 >
                     <div className="adopter-user-avatar">
                         {savedUser.profileImage ? (
@@ -1819,7 +1708,7 @@ async function fetchPets({ silent = false } = {}) {
                                 }
                             />
                         ) : (
-                            <span>👤</span>
+                            <img src="/icons/User-brown.svg" alt="" aria-hidden="true" />
                         )}
                     </div>
 
@@ -1833,14 +1722,24 @@ async function fetchPets({ silent = false } = {}) {
                         {/* Fosters and volunteers also use these pages: show their real role */}
                         <small>{ROLE_LABEL[savedUser.role] || "Adopter"}</small>
                     </div>
-
-                    <span>→</span>
-                </button>
+                </SidebarUserCard>
             </aside>
 
             <section className="adopter-main">
                 <header className="adopter-dashboard-topbar">
-                    <div>
+                    <button
+                        type="button"
+                        className="dash-menu-btn"
+                        aria-label="Open menu"
+                        aria-expanded={isMobileMenuOpen}
+                        onClick={() => setIsMobileMenuOpen(true)}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                            <path d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                    </button>
+
+                    <div className="adopter-topbar-title">
                         <h1>
                             {getAdopterPageTitle(
                                 activeAdopterPage
@@ -1874,65 +1773,18 @@ async function fetchPets({ silent = false } = {}) {
                                 aria-hidden="true"
                             />
 
-                            {notifications.length >
-                                0 && (
-                                    <span>
-                                        {
-                                            notifications.length
-                                        }
-                                    </span>
-                                )}
+                            {unreadCount > 0 && (
+                                <span>{unreadCount}</span>
+                            )}
                         </button>
 
                         {notificationOpen && (
-                            <div className="adopter-notification-dropdown">
-                                <div className="adopter-notification-header">
-                                    <strong>
-                                        Notifications
-                                    </strong>
-
-                                    <small>
-                                        {
-                                            notifications.length
-                                        }{" "}
-                                        update(s)
-                                    </small>
-                                </div>
-
-                                {notifications.length ===
-                                    0 ? (
-                                    <p className="adopter-notification-empty">
-                                        No new
-                                        notifications.
-                                    </p>
-                                ) : (
-                                    notifications.map(
-                                        (notification) => (
-                                            <button
-                                                key={notification._id}
-                                                type="button"
-                                                className={`adopter-notification-item ${notification.read ? "" : "unread"
-                                                    }`}
-                                                onClick={() =>
-                                                    handleNotificationClick(notification)
-                                                }
-                                            >
-                                                <strong>
-                                                    {
-                                                        notification.title
-                                                    }
-                                                </strong>
-
-                                                <span>
-                                                    {
-                                                        notification.message
-                                                    }
-                                                </span>
-                                            </button>
-                                        )
-                                    )
-                                )}
-                            </div>
+                            <NotificationPanel
+                                items={notifications.map((notification) => ({ ...notification, id: notification._id }))}
+                                unreadCount={unreadCount}
+                                onItemClick={handleNotificationClick}
+                                onMarkAllRead={handleMarkAllRead}
+                            />
                         )}
                     </div>
                 </header>
@@ -1940,8 +1792,6 @@ async function fetchPets({ silent = false } = {}) {
                 <section className="adopter-dashboard-content">
                     {renderAdopterContent()}
                 </section>
-<<<<<<< HEAD
-=======
 
                 {isPetModalOpen && selectedPet?._id && (
                     <PetDetailModal
@@ -1961,7 +1811,6 @@ async function fetchPets({ silent = false } = {}) {
                         showSave
                     />
                 )}
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
             </section>
         </main>
     );

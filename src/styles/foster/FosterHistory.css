@@ -17,7 +17,7 @@
     border: 0;
     border-radius: 999px;
     background: transparent;
-    color: #7b452d;
+    color: var(--brown-soft);
     font-family: inherit;
     font-size: 12px;
     font-weight: 800;
@@ -25,7 +25,7 @@
 }
 
 .fh-sort:hover {
-    background: #f6eedb;
+    background: var(--line-soft);
 }
 
 /* list */
@@ -55,15 +55,9 @@
     display: grid;
     place-items: center;
     overflow: hidden;
-<<<<<<< HEAD
-    border-radius: 16px;
-    background: #fde3bf;
-    color: #fb8500;
-=======
     border-radius: 20px;
     background: var(--peach);
     color: var(--orange);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .fh-photo img {
@@ -88,7 +82,7 @@
 
 .fh-head h3 {
     margin: 0;
-    color: #5a1b00;
+    color: var(--brown);
     font-family: "Itim", cursive;
     font-size: 24px;
     font-weight: 400;
@@ -96,13 +90,8 @@
 }
 
 .fh-head small {
-<<<<<<< HEAD
-    color: #7b452d;
-    font-size: 13px;
-=======
     color: var(--brown-soft);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .fh-pill {
@@ -113,9 +102,9 @@
     font-weight: 800;
 }
 
-.fh-pill.is-completed { background: #dff3e6; color: #17803d; }
-.fh-pill.is-adopted   { background: #dde9f8; color: #2a5a8c; }
-.fh-pill.is-returned  { background: #fde3bf; color: #b45309; }
+.fh-pill.is-completed { background: var(--green-soft); color: var(--green-dark); }
+.fh-pill.is-adopted   { background: var(--blue-soft); color: var(--blue); }
+.fh-pill.is-returned  { background: var(--peach); color: var(--orange-dark); }
 
 .fh-facts {
     display: grid;
@@ -131,23 +120,18 @@
     padding: 8px 16px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 12px;
-    background: #fff7cb;
+    background: var(--white-yellow);
 }
 
 .fh-fact .ao-icon {
-    color: #fb8500;
+    color: var(--orange);
 }
 
 .fh-fact small,
 .fh-care small {
     display: block;
-<<<<<<< HEAD
-    color: #7b452d;
-    font-size: 10px;
-=======
     color: var(--brown-soft);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -157,7 +141,7 @@
     display: block;
     margin-top: 2px;
     overflow: hidden;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 14px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -170,27 +154,22 @@
     padding: 8px 16px;
     border: 1px solid rgba(251, 133, 0, 0.3);
     border-radius: 12px;
-    background: #fffdf5;
+    background: var(--paper);
 }
 
 .fh-care .ao-icon {
     margin-top: 2px;
-    color: #7b452d;
+    color: var(--brown-soft);
 }
 
 .fh-care small {
-    color: #d62828;
+    color: var(--red);
 }
 
 .fh-care p {
     margin: 2px 0 0;
-<<<<<<< HEAD
-    color: #5a1b00;
-    font-size: 13px;
-=======
     color: var(--brown);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     line-height: 1.5;
 }
 
@@ -224,12 +203,12 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: #fde3bf;
-    color: #fb8500;
+    background: var(--peach);
+    color: var(--orange);
 }
 
 .fh-empty b {
-    color: #5a1b00;
+    color: var(--brown);
     font-family: "Itim", cursive;
     font-size: 20px;
     font-weight: 400;
@@ -237,11 +216,6 @@
 
 .fh-empty p {
     margin: 0;
-<<<<<<< HEAD
-    color: #7b452d;
-    font-size: 13px;
-=======
     color: var(--brown-soft);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }

@@ -141,7 +141,7 @@ function matchesFilters(location, filters, loadedAt) {
 }
 
 async function fetchJSON(url) {
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: { "ngrok-skip-browser-warning": "true" } });
     const data = await response.json();
 
     if (!response.ok) {
@@ -156,6 +156,7 @@ async function fetchJSON(url) {
 export default function PublicGISMap({
     landingMode = false,
     filters = null,
+    onUnavailable = null,
 }) {
     const [locations, setLocations] = useState([]);
     const [loadedAt, setLoadedAt] = useState(0);
@@ -194,6 +195,7 @@ export default function PublicGISMap({
                     locationsResult.reason?.message ||
                     "Unable to load animal reports."
                 );
+                onUnavailable?.();
             }
 
             if (sheltersResult.status === "fulfilled") {
@@ -345,7 +347,7 @@ export default function PublicGISMap({
                 </div>
             )}
 
-            {shelterError && !loading && (
+            {shelterError && !loading && !landingMode && (
                 <div className="public-gis-message warning">
                     {shelterError}
                 </div>
@@ -386,6 +388,8 @@ export default function PublicGISMap({
                                         Number(location.longitude),
                                     ]}
                                     icon={REPORT_ICONS[reportGroupOf(location)]}
+                                    title={`${location.petName || "Animal report"}${location.locationName ? `, ${location.locationName}` : ""}`}
+                                    alt={location.petName || "Animal report"}
                                 >
                                     <Popup>
                                         <strong>
@@ -421,6 +425,8 @@ export default function PublicGISMap({
                                         Number(shelter.longitude),
                                     ]}
                                     icon={shelter.category === "clinic" ? clinicIcon : shelterIcon}
+                                    title={shelter.name || "Animal Shelter"}
+                                    alt={shelter.name || "Animal Shelter"}
                                 >
                                     <Popup>
                                         <strong>

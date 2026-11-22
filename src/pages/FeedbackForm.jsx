@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
-=======
 import { formatDate, formatDateTime } from "../utils/formatDate";
 import LoadingState from "../components/system/LoadingState";
 import Icon from "../components/system/Icon";
 import RequiredValue from "../components/system/RequiredValue";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -81,6 +78,7 @@ export default function FeedbackForm({ onSubmitted }) {
                             "application/json",
                         Authorization:
                             `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         rating,
@@ -125,7 +123,7 @@ async function loadHistory() {
     try {
         setHistoryLoading(true);
         const response = await fetch(`${API}/api/feedback/me`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
         });
         const data = await response.json();
         if (response.ok && data.success) setHistory(data.feedback || []);
@@ -283,11 +281,7 @@ useEffect(() => {
                 ))}
             </span>
             <small>
-                {new Date(item.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                })}
+                {formatDate(item.createdAt)}
             </small>
         </div>
 
@@ -370,24 +364,14 @@ useEffect(() => {
                 <div>
                     <dt>Submitted</dt>
                     <dd>
-                        {new Date(viewingFeedback.createdAt).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                        })}
+                        {formatDateTime(viewingFeedback.createdAt)}
                     </dd>
                 </div>
                 {viewingFeedback.archivedAt && (
                     <div>
                         <dt>Reviewed</dt>
                         <dd>
-                            {new Date(viewingFeedback.archivedAt).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                            })}
+                            {formatDate(viewingFeedback.archivedAt)}
                         </dd>
                     </div>
                 )}
@@ -403,13 +387,7 @@ useEffect(() => {
                     <small>
                         {viewingFeedback.repliedByName ? `${viewingFeedback.repliedByName} · ` : ""}
                         {viewingFeedback.repliedAt &&
-                            new Date(viewingFeedback.repliedAt).toLocaleString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                                hour: "numeric",
-                                minute: "2-digit",
-                            })}
+                            formatDateTime(viewingFeedback.repliedAt)}
                     </small>
                 </div>
             ) : (

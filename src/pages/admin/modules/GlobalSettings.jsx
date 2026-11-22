@@ -1,12 +1,9 @@
 
 import { useCallback, useEffect, useState } from "react";
-<<<<<<< HEAD
-=======
 import { askConfirm, notify } from "../../../utils/dialogs";
 import { formatDateTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import NumberInput from "../../../components/system/NumberInput";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -50,6 +47,7 @@ async function requestSettings(method = "GET", body) {
         headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...(body ? { "Content-Type": "application/json" } : {}),
+            "ngrok-skip-browser-warning": "true",
         },
         ...(body ? { body: JSON.stringify(body) } : {}),
     });
@@ -176,13 +174,7 @@ function NumberField({ label, unit, hint, value, min, max, onChange, fieldId, is
 function formatSavedAt(value) {
     if (!value) return "";
 
-    return new Date(value).toLocaleString("en-PH", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-    });
+    return formatDateTime(value);
 }
 
 // highlightField: "shelterCapacity" when opened from the dashboard's "Change limit"
@@ -257,16 +249,14 @@ export default function GlobalSettings({ highlightField = null }) {
 
         // Turning maintenance on closes RescueBase for users: ask first
         if (settings.maintenance.enabled && !savedSettings.maintenance.enabled) {
-            const ok = window.rbConfirm
-                ? await window.rbConfirm({
+            const ok = await askConfirm({
                     title: "Turn on maintenance mode?",
                     message: settings.maintenance.allowAdminAccess
                         ? "Everyone except admins will see the maintenance message instead of their dashboard."
                         : "Everyone, including admins, will be blocked. Only this Global Settings page keeps working.",
                     confirmLabel: "Turn on",
                     danger: true,
-                })
-                : window.confirm("Turn on maintenance mode?");
+                });
 
             if (!ok) return;
         }
@@ -287,8 +277,7 @@ export default function GlobalSettings({ highlightField = null }) {
             window.dispatchEvent(new CustomEvent("rb-settings-saved", { detail: merged }));
 
             const text = data.message || "Global settings saved.";
-            if (window.rbToast) window.rbToast(text);
-            else setSuccess(text);
+            notify(text);
         } catch (err) {
             console.error("Save global settings error:", err);
             setError(err.message || "Failed to save settings.");

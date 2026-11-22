@@ -1,15 +1,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-<<<<<<< HEAD
-=======
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDateTime, toDayValue } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
-<<<<<<< HEAD
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
-=======
 import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -133,6 +127,7 @@ export default function Reports() {
                     : {}),
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 ...(options.headers || {}),
+                "ngrok-skip-browser-warning": "true",
             },
         });
 
@@ -225,6 +220,7 @@ export default function Reports() {
                     ...(token
                         ? { Authorization: `Bearer ${token}` }
                         : {}),
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(body),
             });
@@ -315,9 +311,9 @@ export default function Reports() {
             const response = await fetch(
                 `${API}/api/reports/${report._id}/download`,
                 {
-                    headers: token
+                    headers: { ...(token
                         ? { Authorization: `Bearer ${token}` }
-                        : {},
+                        : {}), "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -339,14 +335,12 @@ export default function Reports() {
             return;
         }
 
-        const ok = window.rbConfirm
-            ? await window.rbConfirm({
+        const ok = await askConfirm({
                 title: "Delete this report?",
                 message: "It will be removed from the list. This can't be undone.",
                 confirmLabel: "Delete",
                 danger: true,
-            })
-            : window.confirm("Delete this report permanently?");
+            });
 
         if (!ok) return;
 
@@ -402,7 +396,7 @@ export default function Reports() {
     const reportSpecies = (report) =>
         report.species || report.datasets?.species || "all";
 
-    const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local
+    const today = toDayValue();
 
     const DATASETS = [
         { key: "includeAnimals", label: "Animals" },
@@ -705,13 +699,7 @@ export default function Reports() {
                                         const createdAt = report.createdAt ? new Date(report.createdAt) : null;
                                         const createdLabel =
                                             createdAt && !Number.isNaN(createdAt.getTime())
-                                                ? createdAt.toLocaleString("en-PH", {
-                                                    month: "short",
-                                                    day: "numeric",
-                                                    year: "numeric",
-                                                    hour: "numeric",
-                                                    minute: "2-digit",
-                                                })
+                                                ? formatDateTime(createdAt)
                                                 : "";
 
                                         return (

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/AdminDashboardOverview.css";
+import { formatDate, formatMonth, formatTime } from "../../../utils/formatDate";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 // The overview reloads 11 lists, so refresh every 5 minutes (and only while the tab is visible)
@@ -67,7 +68,7 @@ function authHeaders() {
 }
 
 async function getJson(path) {
-    const response = await fetch(`${API}${path}`, { headers: authHeaders() });
+    const response = await fetch(`${API}${path}`, { headers: { ...(authHeaders()), "ngrok-skip-browser-warning": "true" } });
     if (!response.ok) throw new Error(`${path} ${response.status}`);
     return response.json();
 }
@@ -113,15 +114,15 @@ function lastMonths(count, now = new Date()) {
         const d = new Date(now.getFullYear(), now.getMonth() - (count - 1 - i), 1);
         return {
             key: monthKey(d),
-            short: d.toLocaleDateString("en-US", { month: "short" }),
-            long: d.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+            short: formatMonth(d, { withYear: false, short: true }),
+            long: formatMonth(d),
         };
     });
 }
 
 function shortDate(date) {
     if (!date) return "";
-    return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return formatDate(date, { withYear: false });
 }
 
 function timeAgo(date, nowMs) {
@@ -742,8 +743,10 @@ export default function AdminOverview({ onNavigate }) {
 
     const foodLevels = buildFoodLevels(data?.foodInventory || [], view?.inCare || []);
 
-    const clock = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" });
-    const dateLine = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    const [clockTime, clockPeriod] = formatTime(now)
+        .split(" ");
+    const dateLong = formatDate(now, { withWeekday: true, withYear: false });
+    const dateShort = formatDate(now, { withWeekday: true, withYear: false });
 
     const header = (
         <div className="db2-top">
@@ -751,17 +754,20 @@ export default function AdminOverview({ onNavigate }) {
                 <h2>
                     {greeting(now)}
                     {firstName && <>, <span>{firstName}</span></>}
-<<<<<<< HEAD
-                </h1>
-                <p className="db2-hello">Here&apos;s how the shelter is doing today.</p>
-=======
                 </h2>
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
             </div>
-            <div className="db2-clock">
-                <b>{clock}</b>
-                <small>{dateLine}</small>
-                <span className="db2-live">Live · updated {lastLoaded ? timeAgo(lastLoaded, now.getTime()) : "…"}</span>
+            <div className="db2-clockbar" aria-label="Current time">
+                <span className="db2-clockbar-dot" aria-hidden="true" />
+                <span className="db2-clockbar-time">
+                    <b>{clockTime}</b> {clockPeriod}
+                </span>
+                <span className="db2-clockbar-sep" aria-hidden="true" />
+                <span className="db2-clockbar-date-long">{dateLong}</span>
+                <span className="db2-clockbar-date-short">{dateShort}</span>
+                <span className="db2-clockbar-sep is-live" aria-hidden="true" />
+                <span className="db2-clockbar-live">
+                    Updated {lastLoaded ? timeAgo(lastLoaded, now.getTime()) : "…"}
+                </span>
             </div>
         </div>
     );
@@ -794,7 +800,7 @@ export default function AdminOverview({ onNavigate }) {
         const tomorrow = new Date(nowMs + 86400000);
         if (d.toDateString() === today.toDateString()) return "Today";
         if (d.toDateString() === tomorrow.toDateString()) return "Tomorrow";
-        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        return formatDate(d, { withYear: false });
     };
     const healthKey = (a) => healthGroup(a);
     const intakeRows = view.recentIntakes
@@ -886,7 +892,7 @@ export default function AdminOverview({ onNavigate }) {
                                                 <small>Adopting {app.petName || "a pet"}</small>
                                                 <em>
                                                     <img src="/icons/Clock.svg" alt="" aria-hidden="true" />
-                                                    {when.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} · {dayLabel(when)}
+                                                    {formatTime(when)} · {dayLabel(when)}
                                                 </em>
                                             </span>
                                         </button>
@@ -970,7 +976,7 @@ export default function AdminOverview({ onNavigate }) {
                                                             </span>
                                                         </span>
                                                     </td>
-                                                    <td>{a.intakeSource === "field" ? "📱 Phone" : a.intakeSource === "desk" ? "Computer" : "—"}</td>
+                                                    <td>{a.intakeSource === "field" ? "Phone" : a.intakeSource === "desk" ? "Computer" : "—"}</td>
                                                     <td>
                                                         <span className={`db2-pill is-${health}`}>
                                                             {health === "sick" ? a.intakeCondition || "Sick" : health === "observation" ? "Observation" : health === "healthy" ? "Healthy" : "Unknown"}

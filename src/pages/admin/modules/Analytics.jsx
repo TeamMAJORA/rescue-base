@@ -96,7 +96,7 @@ export default function Analytics() {
                 setError("");
 
                 const response = await fetch(`${API}/api/analytics/overview`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                     signal: controller.signal,
                 });
 

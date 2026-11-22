@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import InfoTip from "../../../components/system/InfoTip";
-<<<<<<< HEAD
-=======
 import { formatDate, formatTime } from "../../../utils/formatDate";
 import Icon from "../../../components/system/Icon";
 import PhoneInput, { cleanPhoneDigits, formatPhone } from "../../../components/system/PhoneInput";
@@ -9,7 +7,6 @@ import FormTracker from "../../../components/system/FormTracker";
 import FosterCapacityRequestCard from "./FosterCapacityRequestCard";
 import { readFormDraft, useFormDraft } from "../../../utils/useFormDraft";
 import { useCustomValidity } from "../../../utils/useCustomValidity";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -206,6 +203,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         applicantName: form.fullName,
@@ -271,7 +269,7 @@ export default function FosterApplication({ embedded = false, onSubmitted, appli
 
     function shortDate(value) {
         return value
-            ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+            ? formatDate(value)
             : "—";
     }
 

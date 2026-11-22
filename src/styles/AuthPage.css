@@ -122,30 +122,7 @@
     text-align: left;
 }
 
-<<<<<<< HEAD
-.auth-message-error {
-    background: rgba(178, 34, 34, 0.12);
-    color: #b22222;
-    border: 1px solid rgba(178, 34, 34, 0.3);
-}
-
-.auth-message-success {
-    background: rgba(46, 125, 50, 0.12);
-    color: #2e7d32;
-    border: 1px solid rgba(46, 125, 50, 0.3);
-}
-
-.auth-submit:disabled,
-.google-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* GOOGLE BUTTON */
-
-=======
 /* GOOGLE + DIVIDER */
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 .google-btn {
     width: 100%;
     min-height: 48px;

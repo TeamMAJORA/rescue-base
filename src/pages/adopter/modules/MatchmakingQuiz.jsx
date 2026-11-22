@@ -1,5 +1,5 @@
 import {
-    useMemo, useRef, useState
+    useRef, useState
 } from "react";
 import { fireSideCannons } from "../../../utils/confetti";
 import Icon from "../../../components/system/Icon";
@@ -177,26 +177,15 @@ const SECTIONS = ["Home", "Lifestyle", "Preferences"].map((name) => ({
     count: QUESTIONS.filter((item) => item.section === name).length,
 }));
 
-function getSavedQuiz() {
-    try {
-        return JSON.parse(
-            localStorage.getItem(
-                "rescuebase_matchmaking_quiz"
-            ) || "null"
-        );
-    } catch {
-        return null;
-    }
-}
-
 export default function MatchmakingQuiz({
     user,
+    previousQuizResponse,
     onCompleted,
+    onSeeRecommendations,
 }) {
-    const savedQuiz = useMemo(
-        () => getSavedQuiz(),
-        []
-    );
+    const hasTakenQuiz = Boolean(previousQuizResponse);
+    // Retaking starts from the answers saved in the database
+    const savedQuiz = previousQuizResponse;
 
     const [form, setForm] = useState({
         preferredPetType: savedQuiz?.preferredPetType || "",
@@ -302,16 +291,13 @@ export default function MatchmakingQuiz({
                     new Date().toISOString(),
             };
 
-            localStorage.setItem(
-                "rescuebase_matchmaking_quiz",
-                JSON.stringify(quizResponse)
-            );
-
             const response = await fetch(`${API}/api/matchmaking/quiz`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type" : "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(quizResponse),
                 }
@@ -322,8 +308,6 @@ export default function MatchmakingQuiz({
             if (!response.ok || !result.success) {
                 throw new Error(result.message || "Failed to process matchmaking quiz.");
             }
-
-            localStorage.setItem("rescuebase_matchmaking_results", JSON.stringify(result));
 
             setMessageType("success");
             setMessage(
@@ -369,15 +353,6 @@ if (!started) {
                 are the perfect fit for you.
             </p>
 
-<<<<<<< HEAD
-            <button
-                type="button"
-                className="mq-intro-button"
-                onClick={() => setStarted(true)}
-            >
-                Take the Quiz <span aria-hidden="true">→</span>
-            </button>
-=======
             <div className="mq-intro-actions">
                 <button
                     type="button"
@@ -397,7 +372,6 @@ if (!started) {
                     </button>
                 )}
             </div>
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
         </section>
     );
 }
@@ -414,6 +388,10 @@ if (!started) {
                 >
                     <img src="/icons/sidebar/return-brown.svg" alt="" />
                 </button>
+
+                <p className="mq-count" aria-hidden="true">
+                    Question {questionIndex + 1} of {QUESTIONS.length}
+                </p>
 
                 <button
                     type="button"

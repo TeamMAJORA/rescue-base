@@ -9,8 +9,6 @@ import StaffDashboard from "./pages/admin/StaffDashboard";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 import PublicPetProfile from "./pages/PublicPetProfile";
 import LandingPage from "./pages/LandingPage";
-<<<<<<< HEAD
-=======
 import AppDialogs from "./components/system/AppDialogs";
 // Last on purpose: the shared button, form and sidebar looks override the older per-module styles
 import "./styles/components/Buttons.css";
@@ -18,7 +16,6 @@ import "./styles/components/Forms.css";
 import "./styles/components/Sidebar.css";
 import "./styles/components/Feedback.css";
 import Icon from "./components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 // After a browser refresh, reopen the logged-in user's dashboard instead of the landing page
 function getStartPage() {
@@ -49,7 +46,7 @@ function MaintenanceTicker() {
 
         async function check() {
             try {
-                const response = await fetch(`${API}/api/settings/status`);
+                const response = await fetch(`${API}/api/settings/status`, { headers: { "ngrok-skip-browser-warning": "true" } });
                 const data = await response.json();
 
                 if (active) {
@@ -104,7 +101,7 @@ function MaintenanceTicker() {
     );
 }
 
-export default function App() {
+function AppPages() {
     const [page, setPage] = useState(getStartPage);
     const petMatch = window.location.pathname.match(/^\/pet\/([^/]+)/);
     if (petMatch) return <PublicPetProfile tagCode={decodeURIComponent(petMatch[1])} />;
@@ -138,7 +135,7 @@ export default function App() {
             <Dashboard
                 onLogout={() => setPage("home")}
                 onLoginAgain={() => setPage("auth")}
-                onOpenFoster={() => setPage("foster")}
+                onOpenRoleDashboard={() => setPage(getStartPage())}
             />
         );
     }
@@ -182,6 +179,16 @@ export default function App() {
                 onLogin={() => setPage("auth")}
                 onSignup={() => setPage("signup")}
             />
+        </>
+    );
+}
+
+// Themed confirm / prompt / toast live once here, so every page (and every role) gets them
+export default function App() {
+    return (
+        <>
+            <AppPages />
+            <AppDialogs />
         </>
     );
 }

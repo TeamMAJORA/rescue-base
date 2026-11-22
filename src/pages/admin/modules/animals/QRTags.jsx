@@ -2,32 +2,10 @@
 import { useEffect, useState } from "react";
 import { isAdmin, isStaff } from "../../../../utils/auth";
 import "../../../../styles/admin/QRTags.css";
-<<<<<<< HEAD
-
-// Styled confirm popup + toast from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
-
-function notify(text, tone = "success") {
-    if (window.rbToast) {
-        window.rbToast(text, tone);
-    } else {
-        window.alert(text);
-    }
-}
-
-function notifyErr(text) {
-    notify(text, "error");
-}
-=======
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm, notifyError } from "../../../../utils/dialogs";
 import { formatDate } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/qr-tags`;
 
@@ -81,7 +59,7 @@ export default function QRTags() {
         const response = await fetch(
             `${import.meta.env.VITE_BACKEND_URL}/api/animals`,
             {
-                headers: getHeaders(),
+                headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
             }
         );
 
@@ -96,7 +74,7 @@ export default function QRTags() {
 
     async function loadQRTags() {
         const response = await fetch(API_BASE_URL, {
-            headers: getHeaders(),
+            headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
         });
 
         const data = await parseResponse(response);
@@ -147,7 +125,7 @@ export default function QRTags() {
                 `${API_BASE_URL}/generate`,
                 {
                     method: "POST",
-                    headers: getHeaders(true),
+                    headers: { ...(getHeaders(true)), "ngrok-skip-browser-warning": "true" },
                     body: JSON.stringify({
                         animalId: form.animalId,
                     }),
@@ -174,7 +152,7 @@ export default function QRTags() {
 
     async function handleDelete(id) {
         if (!(isAdmin() || isStaff())) {
-            notifyErr("Only administrators and staff members can delete QR tags.");
+            notifyError("Only administrators and staff members can delete QR tags.");
             return;
         }
 
@@ -192,7 +170,7 @@ export default function QRTags() {
                 `${API_BASE_URL}/${id}`,
                 {
                     method: "DELETE",
-                    headers: getHeaders(),
+                    headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -214,7 +192,7 @@ export default function QRTags() {
 
     async function handleRegenerate(id) {
         if (!(isAdmin() || isStaff())) {
-            notifyErr(
+            notifyError(
                 "Only administrators and staff members can regenerate QR tags."
             );
             return;
@@ -234,7 +212,7 @@ export default function QRTags() {
                 `${API_BASE_URL}/${id}/regenerate`,
                 {
                     method: "POST",
-                    headers: getHeaders(),
+                    headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
                 }
             );
 
@@ -275,9 +253,7 @@ export default function QRTags() {
             return "N/A";
         }
 
-        return new Date(date)
-            .toISOString()
-            .split("T")[0];
+        return formatDate(date);
     }
 
     function getQRImage(record) {
@@ -377,7 +353,7 @@ export default function QRTags() {
                 {loading ? (
                     <LoadingState label="Loading QR tags…" />
                 ) : filteredRecords.length === 0 ? (
-                    <p className="qrt-empty">🐾 No QR tags found. Generate one above.</p>
+                    <p className="qrt-empty"><PetTypeIcon /> No QR tags found. Generate one above.</p>
                 ) : (
                     <div className="qrt-grid">
                         {filteredRecords.map((record) => {
@@ -407,7 +383,7 @@ export default function QRTags() {
                                         <div>
                                             <h3>{getAnimalName(record)}</h3>
                                             <span className="qrt-meta">
-                                                {animal.type === "Cat" ? "🐱" : "🐶"} {animal.type || "Animal"} · {getCreatedDate(record)}
+                                                <PetTypeIcon type={animal.type} /> {animal.type || "Animal"} · {getCreatedDate(record)}
                                             </span>
                                         </div>
                                     </div>

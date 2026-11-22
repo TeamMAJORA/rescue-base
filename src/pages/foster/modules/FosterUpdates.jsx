@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
-=======
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate } from "../../../utils/formatDate";
 import Icon from "../../../components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 // Behavior Evaluation — foster rates the pet, admin reviews and accepts
 
@@ -53,10 +50,6 @@ function isRated(value) {
     return value !== null && value !== "" && value !== undefined && n >= 1 && n <= 5;
 }
 
-function formatDate(value) {
-    if (!value) return "—";
-    return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
 
 function TraitScale({ trait, value, name, disabled, onChange }) {
     const score = Number(value);
@@ -190,6 +183,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(body),
                 }
@@ -213,8 +207,9 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
     }
 
     // Steps: 1 Fill in ratings → 2 Submit for review → 3 Admin accepts
-    const step1 = locked || allRated ? "done" : "current";
-    const step2 = locked ? "done" : allRated ? "current" : "";
+    // No pet yet: the steps only explain how it works, none are done
+    const step1 = !hasAssignment ? "" : locked || allRated ? "done" : "current";
+    const step2 = !hasAssignment ? "" : locked ? "done" : allRated ? "current" : "";
     const step3 = status === "accepted" ? "done" : status === "pending" ? "current" : "";
 
     const banners = {
@@ -281,7 +276,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                 {hasAssignment && (
                 <div className="ao-petcard">
                     <div className="ao-avatar">
-                        {assignment.petImage ? <img src={assignment.petImage} alt="" /> : "🐾"}
+                        {assignment.petImage ? <img src={assignment.petImage} alt="" /> : <PetTypeIcon />}
                     </div>
                     <div>
                         <b>{name}</b>
@@ -293,8 +288,9 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                 </div>
                 )}
 
+                {hasAssignment && (
                 <form className="ao-form" onSubmit={handleSubmit}>
-                        <fieldset className="ao-fieldset" disabled={!hasAssignment}>
+                        <fieldset className="ao-fieldset">
                     <div className="ao-progress">
                         <span>{ratedCount} of {TRAITS.length} traits rated</span>
                         <div className="ao-progress-track">
@@ -350,6 +346,7 @@ export default function FosterUpdates({ assignment: assignedPet, refreshAssignme
                     </div>
                 </fieldset>
                     </form>
+                )}
             </section>
         </section>
     );

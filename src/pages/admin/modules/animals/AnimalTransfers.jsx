@@ -1,30 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../../utils/auth";   
-<<<<<<< HEAD
-
-// Styled confirm popup + toast from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
-
-function notify(text, tone = "success") {
-    if (window.rbToast) {
-        window.rbToast(text, tone);
-    } else {
-        window.alert(text);
-    }
-}
-
-function notifyErr(text) {
-    notify(text, "error");
-}
-=======
 import { askConfirm, notify, notifyError } from "../../../../utils/dialogs";
 import { formatDate } from "../../../../utils/formatDate";
 import UiIcon from "../../../../components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const ICONS = {
     search: (
@@ -286,6 +264,7 @@ async function apiRequest(url, options = {}) {
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "ngrok-skip-browser-warning": "true",
         },
     });
 
@@ -377,14 +356,6 @@ const DEFAULT_FILTERS = {
     sort: "newest",
 };
 
-function formatDate(date) {
-    if (!date) return "No date";
-    return new Date(date).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
-}
 
 export default function AnimalTransfers() {
     const [transfers, setTransfers] = useState([]);
@@ -401,7 +372,7 @@ export default function AnimalTransfers() {
 
     // Existing animals for the Animal field
     useEffect(() => {
-        fetch(API_ANIMALS)
+        fetch(API_ANIMALS, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) => {
                 const list = data.animals || [];
@@ -422,7 +393,7 @@ export default function AnimalTransfers() {
             const data = await apiRequest(API_TRANSFERS);
             setTransfers((data.transfers || []).map(fromApi));
         } catch (error) {
-            notifyErr(error.message || "Couldn't load transfers.");
+            notifyError(error.message || "Couldn't load transfers.");
         }
     }
 
@@ -457,7 +428,7 @@ export default function AnimalTransfers() {
         const animalId = findAnimalId(form.animalName);
 
         if (!animalId) {
-            notifyErr("Pick an animal from Animal Profiles.");
+            notifyError("Pick an animal from Animal Profiles.");
             return;
         }
 
@@ -479,7 +450,7 @@ export default function AnimalTransfers() {
             resetForm();
             await loadTransfers();
         } catch (error) {
-            notifyErr(error.message || "Couldn't save the transfer.");
+            notifyError(error.message || "Couldn't save the transfer.");
         }
     }
 
@@ -512,13 +483,13 @@ export default function AnimalTransfers() {
             );
             notify("Transfer updated");
         } catch (error) {
-            notifyErr(error.message || "Couldn't update the transfer.");
+            notifyError(error.message || "Couldn't update the transfer.");
         }
     }
 
     async function handleDeleteTransfer(id) {
         if (!isAdmin()) {
-            notifyErr("Only administrators can delete transfers");
+            notifyError("Only administrators can delete transfers");
             return;
         }
 
@@ -531,7 +502,7 @@ export default function AnimalTransfers() {
 
             if (editingId === id) resetForm();
         } catch (error) {
-            notifyErr(error.message || "Couldn't delete the transfer.");
+            notifyError(error.message || "Couldn't delete the transfer.");
         }
     }
 

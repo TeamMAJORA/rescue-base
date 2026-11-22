@@ -5,7 +5,7 @@
     gap: 24px;
     width: 100%;
     min-width: 0;
-    color: var(--text-primary, #202b27);
+    color: var(--brown-strong);
 }
 
 .if-page-header {
@@ -17,13 +17,8 @@
 }
 
 .if-eyebrow {
-<<<<<<< HEAD
-    color: #21845a;
-    font-size: 11px;
-=======
     color: var(--green);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 1.5px;
     margin-bottom: 8px;
@@ -38,7 +33,7 @@
 
 .if-page-header p,
 .if-panel-header p {
-    color: var(--text-secondary, #718078);
+    color: var(--brown-soft);
     line-height: 1.6;
     margin: 8px 0 0;
     font-size: 14px;
@@ -49,19 +44,11 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-<<<<<<< HEAD
-    padding: 11px 16px;
-    border: 1px solid #cbd9d1;
-    border-radius: 10px;
-    background: var(--surface, #fff);
-    color: var(--text-primary, #26342d);
-=======
     padding: 12px 16px;
     border: 1px solid var(--green-soft);
     border-radius: 12px;
     background: var(--white);
     color: var(--brown-strong);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font: inherit;
     font-size: 14px;
     font-weight: 800;
@@ -70,7 +57,7 @@
 }
 
 .if-refresh-button:hover {
-    background: #edf7f0;
+    background: var(--cream-card);
     border-color: #8fc8a5;
 }
 
@@ -84,13 +71,13 @@
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
-    color: #278052;
+    color: var(--green-dark);
     font-size: 12px;
     font-weight: 600;
 }
 
 .if-status-line > span:last-child {
-    color: var(--text-secondary, #718078);
+    color: var(--brown-soft);
     font-weight: 400;
     margin-left: auto;
 }
@@ -100,7 +87,7 @@
     height: 8px;
     flex: 0 0 8px;
     border-radius: 50%;
-    background: #2eaa68;
+    background: var(--green);
 }
 
 .if-metrics {
@@ -112,17 +99,10 @@
 .if-metric-card,
 .if-panel,
 .if-quality-panel {
-<<<<<<< HEAD
-    border: 1px solid var(--border, #e0e8e2);
-    border-radius: 16px;
-    background: var(--card-bg, #fff);
-    box-shadow: 0 3px 12px rgb(24 48 35 / 3%);
-=======
     border: 1px solid var(--line);
     border-radius: 20px;
     background: var(--white);
     box-shadow: var(--shadow-card);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if-metric-card {
@@ -137,13 +117,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-<<<<<<< HEAD
-    color: var(--text-secondary, #718078);
-    font-size: 13px;
-=======
     color: var(--brown-soft);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 600;
 }
 
@@ -152,28 +127,21 @@
     place-items: center;
     width: 34px;
     height: 34px;
-<<<<<<< HEAD
-    border-radius: 10px;
-    color: #217b50;
-    background: #e9f6ed;
-    font-size: 19px;
-=======
     border-radius: 12px;
     color: var(--green-dark);
     background: var(--green-soft);
     font-size: 20px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if-metric-value {
-    color: var(--text-primary, #203029);
+    color: var(--brown-strong);
     font-size: clamp(26px, 3vw, 36px);
     line-height: 1;
     letter-spacing: -1px;
 }
 
 .if-metric-description {
-    color: var(--text-secondary, #718078);
+    color: var(--brown-soft);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -201,8 +169,8 @@
 .if-panel-tag {
     padding: 8px 8px;
     border-radius: 8px;
-    background: #edf6ef;
-    color: #28764d;
+    background: var(--cream-card);
+    color: var(--green-dark);
     white-space: nowrap;
     font-size: 12px;
     font-weight: 800;
@@ -217,7 +185,7 @@
     justify-content: flex-end;
     gap: 16px;
     margin-bottom: 16px;
-    color: var(--text-secondary, #718078);
+    color: var(--brown-soft);
     font-size: 12px;
 }
 
@@ -235,11 +203,11 @@
 }
 
 .if-legend-intake {
-    background: #299968;
+    background: var(--green);
 }
 
 .if-legend-adoptions {
-    background: #5789d8;
+    background: var(--blue);
 }
 
 .if-chart-grid {
@@ -266,12 +234,12 @@
     width: 100%;
     height: 170px;
     padding: 0 2px;
-    border-bottom: 1px solid var(--border, #e0e8e2);
+    border-bottom: 1px solid var(--line);
     background: repeating-linear-gradient(
         to top,
         transparent 0,
         transparent 41px,
-        var(--border, #edf0ed) 42px
+        var(--line) 42px
     );
 }
 
@@ -283,45 +251,29 @@
 }
 
 .if-chart-bar-intake {
-    background: #299968;
+    background: var(--green);
 }
 
 .if-chart-bar-adoptions {
-    background: #5789d8;
+    background: var(--blue);
 }
 
 .if-chart-label {
-<<<<<<< HEAD
-    color: var(--text-secondary, #718078);
-    font-size: 10px;
-=======
     color: var(--brown-soft);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     white-space: nowrap;
 }
 
 .if-chart-values {
-<<<<<<< HEAD
-    color: var(--text-primary, #405048);
-    font-size: 10px;
-=======
     color: var(--brown-strong);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     white-space: nowrap;
 }
 
 .if-chart-footnote {
-<<<<<<< HEAD
-    color: var(--text-secondary, #718078);
-    margin: 18px 0 0;
-    font-size: 11px;
-=======
     color: var(--brown-soft);
     margin: 16px 0 0;
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     line-height: 1.5;
 }
 
@@ -339,50 +291,31 @@
 
 .if-table th,
 .if-table td {
-<<<<<<< HEAD
-    padding: 13px 15px;
-    border-bottom: 1px solid var(--border, #e9eeea);
-=======
     padding: 12px 16px;
     border-bottom: 1px solid var(--line);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     white-space: nowrap;
 }
 
 .if-table th {
-<<<<<<< HEAD
-    color: var(--text-secondary, #718078);
-    background: var(--surface-subtle, #f7faf7);
-    font-size: 11px;
-    font-weight: 750;
-=======
     color: var(--brown-soft);
     background: var(--paper);
     font-size: 12px;
     font-weight: 800;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .if-table tbody tr:hover {
-    background: var(--surface-subtle, #f7faf7);
+    background: var(--paper);
 }
 
 .if-quality-panel {
     display: flex;
     align-items: flex-start;
-<<<<<<< HEAD
-    gap: 14px;
-    padding: 21px;
-    border-color: #ead9b2;
-    background: #fffaf0;
-=======
     gap: 16px;
     padding: 20px;
     border-color: var(--line);
     background: var(--paper);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if-quality-icon {
@@ -392,13 +325,13 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: #f6e8c6;
-    color: #8a5a12;
+    background: var(--peach-soft);
+    color: var(--amber);
     font-weight: 800;
 }
 
 .if-quality-panel h3 {
-    color: #76511c;
+    color: var(--amber);
 }
 
 .if-quality-panel ul {
@@ -407,25 +340,20 @@
     gap: 8px;
     padding-left: 20px;
     margin: 12px 0 0;
-    color: #765f3b;
+    color: var(--brown-muted);
     font-size: 12px;
     line-height: 1.6;
 }
 
 .if-quality-panel p {
-    color: #765f3b;
+    color: var(--brown-muted);
     font-size: 12px;
     line-height: 1.6;
 }
 
 .if-footer {
-<<<<<<< HEAD
-    color: var(--text-secondary, #718078);
-    font-size: 11px;
-=======
     color: var(--brown-soft);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     line-height: 1.6;
 }
 
@@ -434,16 +362,11 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
-<<<<<<< HEAD
-    padding: 18px;
-    border: 1px solid #efc4c4;
-=======
     padding: 16px;
     border: 1px solid var(--red-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 12px;
-    background: #fff4f4;
-    color: #8d2929;
+    background: var(--white);
+    color: var(--brown);
 }
 
 .if-error p {
@@ -459,8 +382,8 @@
     padding: 8px 12px;
     border: 1px solid #e1aaaa;
     border-radius: 8px;
-    background: #fff;
-    color: #8d2929;
+    background: var(--white);
+    color: var(--brown);
     cursor: pointer;
     white-space: nowrap;
 }
@@ -471,47 +394,30 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-<<<<<<< HEAD
-    gap: 10px;
-    border: 1px solid var(--border, #e0e8e2);
-    border-radius: 16px;
-    background: var(--card-bg, #fff);
-=======
     gap: 8px;
     border: 1px solid var(--line);
     border-radius: 20px;
     background: var(--white);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-align: center;
 }
 
 .if-loading p {
-<<<<<<< HEAD
-    color: var(--text-secondary, #718078);
-    font-size: 13px;
-=======
     color: var(--brown-soft);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if-spinner {
     width: 28px;
     height: 28px;
-    border: 3px solid #d9eadf;
-    border-top-color: #299968;
+    border: 3px solid var(--green-soft);
+    border-top-color: var(--green);
     border-radius: 50%;
     animation: if-spin 0.75s linear infinite;
 }
 
 .if-empty-chart {
-<<<<<<< HEAD
-    padding: 45px 12px;
-    color: var(--text-secondary, #718078);
-=======
     padding: 44px 12px;
     color: var(--brown-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-align: center;
 }
 
@@ -566,7 +472,7 @@
 .if2-page {
     display: grid;
     gap: 12px;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .if2-page *,
@@ -586,49 +492,32 @@
     display: flex;
     align-items: center;
     gap: 8px;
-<<<<<<< HEAD
-    font-size: 12.5px;
-    font-weight: 700;
-    color: #2f6b47;
-=======
     font-size: 12px;
     font-weight: 800;
     color: var(--green-dark);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if2-status i {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #2f8f5b;
+    background: var(--green);
 }
 
 .if2-status span {
-<<<<<<< HEAD
-    font-weight: 500;
-    color: #7a3e19;
-=======
     font-weight: 400;
     color: var(--brown-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if2-refresh {
     display: inline-flex;
     align-items: center;
-<<<<<<< HEAD
-    gap: 6px;
-    padding: 7px 12px;
-    border: 1px solid #5a1b00;
-=======
     gap: 8px;
     padding: 8px 12px;
     border: 1px solid var(--brown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 0;
-    background: #fff;
-    color: #5a1b00;
+    background: var(--white);
+    color: var(--brown);
     font: inherit;
     font-size: 12px;
     font-weight: 800;
@@ -636,8 +525,8 @@
 }
 
 .if2-refresh:hover:not(:disabled) {
-    background: #5a1b00;
-    color: #fff;
+    background: var(--brown);
+    color: var(--white);
 }
 
 .if2-refresh:disabled {
@@ -650,19 +539,11 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-<<<<<<< HEAD
-    padding: 12px 14px;
-    border: 1px solid #f0c9c9;
-    background: #fdecec;
-    color: #a12020;
-    font-size: 13px;
-=======
     padding: 12px 16px;
     border: 1px solid var(--red-soft);
     background: var(--red-soft);
     color: var(--red-dark);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if2-error p {
@@ -674,48 +555,16 @@
 }
 
 .if2-error button {
-<<<<<<< HEAD
-    padding: 7px 12px;
-    border: 1px solid #a12020;
-=======
     padding: 8px 12px;
     border: 1px solid var(--red-dark);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 0;
-    background: #fff;
-    color: #a12020;
+    background: var(--white);
+    color: var(--red-dark);
     font: inherit;
     font-weight: 800;
     cursor: pointer;
 }
 
-<<<<<<< HEAD
-.if2-warning {
-    display: flex;
-<<<<<<< HEAD
-    gap: 10px;
-    padding: 10px 14px;
-    border: 1px solid #f1d9a8;
-    border-left: 4px solid #eda100;
-    background: #fff8e6;
-    color: #7a3e19;
-    font-size: 13px;
-=======
-    gap: 8px;
-    padding: 8px 16px;
-    border: 1px solid var(--cream);
-    border-left: 4px solid var(--orange-light);
-    background: var(--paper);
-    color: var(--brown-soft);
-    font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
-}
-
-.if2-warning svg {
-    flex-shrink: 0;
-    margin-top: 1px;
-    color: #8a5a00;
-=======
 /* Accuracy chip on the forecast number; the full note shows on hover, keyboard focus or tap */
 .if2-strip {
     overflow: visible; /* let the note hang below the strip */
@@ -723,7 +572,6 @@
 
 .if2-strip > .um-strip-total {
     border-radius: 20px 0 0 20px; /* the strip no longer clips its corners */
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 }
 
 .if2-accuracy {
@@ -732,24 +580,6 @@
     margin-top: 8px;
 }
 
-<<<<<<< HEAD
-.if2-warning b {
-    color: #8a5a00;
-}
-
-.if2-warning ul {
-    margin: 8px 0 0;
-    padding-left: 16px;
-    font-size: 12px;
-}
-
-.if2-link {
-    margin-left: 8px;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: #8a5a00;
-=======
 .if2-accuracy-chip {
     display: inline-flex;
     align-items: center;
@@ -759,7 +589,6 @@
     border-radius: 999px;
     background: transparent;
     color: var(--yellow);
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
     font: inherit;
     font-size: 12px;
     font-weight: 800;
@@ -819,13 +648,8 @@
 }
 
 .if2-strip em {
-<<<<<<< HEAD
-    margin-left: 6px;
-    color: #8a6a55;
-=======
     margin-left: 8px;
     color: var(--brown-muted);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 12px;
     font-style: normal;
 }
@@ -833,7 +657,7 @@
 .if2-strip .um-strip-total em {
     display: block;
     margin: 2px 0 0;
-    color: #f3dcc0;
+    color: var(--peach);
 }
 
 .if2-card {
@@ -841,23 +665,12 @@
     min-width: 0;
     padding: 16px 20px;
     border: 1px solid rgba(90, 27, 0, 0.12);
-<<<<<<< HEAD
-    border-radius: 14px;
-    background: #fffdf4;
-}
-
-.if2-loading,
-.if2-muted {
-    font-size: 13px;
-    color: #7a3e19;
-=======
     border-radius: 12px;
     background: var(--paper);
 }
 .if2-muted  {
     font-size: 14px;
     color: var(--brown-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if2-head {
@@ -877,13 +690,8 @@
 
 .if2-head p {
     margin: 2px 0 0;
-<<<<<<< HEAD
-    font-size: 12.5px;
-    color: #7a3e19;
-=======
     font-size: 12px;
     color: var(--brown-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if2-legend {
@@ -903,17 +711,17 @@
 
 .if2-legend i.is-intake,
 .if2-bar.is-intake {
-    background: #7a3e19;
+    background: var(--brown-soft);
 }
 
 .if2-legend i.is-adoption,
 .if2-bar.is-adoption {
-    background: #eda100;
+    background: var(--orange-light);
 }
 
 .if2-legend i.is-forecast {
-    background: #fde6c8;
-    border: 1.5px dashed #fb8500;
+    background: var(--peach);
+    border: 1.5px dashed var(--orange);
 }
 
 .if2-chart {
@@ -939,13 +747,8 @@
     top: -8px;
     width: 20px;
     text-align: right;
-<<<<<<< HEAD
-    font-size: 11px;
-    color: #a08670;
-=======
     font-size: 12px;
     color: var(--brown-muted);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if2-cols,
@@ -964,12 +767,12 @@
 }
 
 .if2-col.is-forecast {
-    border-left: 1px dashed #fb8500;
-    background: #fff8ec;
+    border-left: 1px dashed var(--orange);
+    background: var(--paper);
 }
 
 .if2-col:focus-visible .if2-bars {
-    outline: 2px solid #fb8500;
+    outline: 2px solid var(--orange);
     outline-offset: 2px;
 }
 
@@ -990,13 +793,13 @@
 
 .if2-bar.is-forecast {
     width: min(24px, 45%);
-    border: 2px dashed #fb8500;
+    border: 2px dashed var(--orange);
     border-bottom: 0;
-    background: repeating-linear-gradient(45deg, #fde6c8 0 5px, #fff4e6 5px 10px);
+    background: repeating-linear-gradient(45deg, var(--peach) 0 5px, var(--cream-card) 5px 10px);
 }
 
 .if2-col:hover .if2-bar.is-intake {
-    background: #5a1b00;
+    background: var(--brown);
 }
 
 .if2-tip {
@@ -1004,15 +807,9 @@
     bottom: 50%;
     left: calc(50% + 22px);
     z-index: 5;
-<<<<<<< HEAD
-    padding: 8px 10px;
-    background: #3d2410;
-    color: #fff;
-=======
     padding: 8px 8px;
     background: var(--brown-strong);
     color: var(--white);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 12px;
     white-space: nowrap;
     box-shadow: var(--shadow-dropdown);
@@ -1040,30 +837,19 @@
     text-align: center;
     font-size: 12px;
     font-weight: 600;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .if2-months span.is-forecast {
-<<<<<<< HEAD
-    color: #5a1b00;
-    font-weight: 700;
-=======
     color: var(--brown);
     font-weight: 800;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if2-months small {
     display: block;
-<<<<<<< HEAD
-    font-size: 10px;
-    font-weight: 700;
-    color: #c25e00;
-=======
     font-size: 12px;
     font-weight: 800;
     color: var(--orange-dark);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .if2-toggle {
@@ -1071,7 +857,7 @@
     padding: 0;
     border: 0;
     background: none;
-    color: #5a1b00;
+    color: var(--brown);
     font: inherit;
     font-size: 14px;
     font-weight: 800;
@@ -1087,15 +873,6 @@
 .if2-table {
     width: 100%;
     border-collapse: collapse;
-<<<<<<< HEAD
-    font-size: 13px;
-    color: #3d2410;
-}
-
-.if2-table th {
-    padding: 9px 10px;
-    background: #faf3df;
-=======
     font-size: 14px;
     color: var(--brown-strong);
 }
@@ -1103,13 +880,12 @@
 .if2-table th {
     padding: 8px 8px;
     background: var(--peach-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-align: left;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #7a3e19;
+    color: var(--brown-soft);
 }
 
 .if2-table td {
@@ -1118,15 +894,9 @@
 }
 
 .if2-foot {
-<<<<<<< HEAD
-    margin: 10px 0 0;
-    font-size: 11.5px;
-    color: #a08670;
-=======
     margin: 8px 0 0;
     font-size: 12px;
     color: var(--brown-muted);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 @media (max-width: 640px) {

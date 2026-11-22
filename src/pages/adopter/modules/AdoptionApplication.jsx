@@ -2,8 +2,6 @@ import { useState } from "react";
 import "../../../styles/adopter/AdoptionApplication.css";
 import PetDetailPanel from "../../../components/adopter/PetDetailPanel";
 import InfoTip from "../../../components/system/InfoTip";
-<<<<<<< HEAD
-=======
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatTime } from "../../../utils/formatDate";
 import Icon from "../../../components/system/Icon";
@@ -11,7 +9,6 @@ import PhoneInput from "../../../components/system/PhoneInput";
 import RequiredValue from "../../../components/system/RequiredValue";
 import FormTracker from "../../../components/system/FormTracker";
 import { readFormDraft, useFormDraft } from "../../../utils/useFormDraft";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -181,7 +178,8 @@ export default function AdoptionApplication({
                 {
                     method: "POST",
                     headers : {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true"
                     },
                     body: uploadData,
                 }
@@ -286,6 +284,7 @@ export default function AdoptionApplication({
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
 
                     body: JSON.stringify(payload),
@@ -376,7 +375,7 @@ export default function AdoptionApplication({
         return (
             <section className="adoption-module-empty">
                 <div className="adoption-module-empty-icon">
-                    🐾
+                    <PetTypeIcon />
                 </div>
 
                 <h2>No animal selected</h2>
@@ -829,20 +828,10 @@ export default function AdoptionApplication({
                         </button>
                     </div>
 
-<<<<<<< HEAD
-                     {hasProgress && draftSavedAt && (
-                        <small className="adoption-draft-note">
-                            ✓ Draft saved at{" "}
-                            {new Date(draftSavedAt).toLocaleTimeString([], {
-                                hour: "numeric",
-                                minute: "2-digit",
-                            })}
-=======
                     {hasProgress && draftSavedAt && (
                         <small className="form-draft-note">
                             <Icon name="check" /> Draft saved at{" "}
                             {formatTime(draftSavedAt)}
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                         </small>
                     )}
                 </form>

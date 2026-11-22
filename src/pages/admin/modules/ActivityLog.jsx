@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-<<<<<<< HEAD
-=======
 import { formatDate, formatTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const PAGE_SIZE = 50;
@@ -35,7 +32,7 @@ function normalizeArray(value) {
 async function fetchJson(url) {
     const token = localStorage.getItem("token");
     const response = await fetch(url, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "ngrok-skip-browser-warning": "true" },
     });
     const data = await response.json().catch(() => ({}));
 
@@ -63,11 +60,11 @@ function dayHeading(date) {
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
-    const full = date.toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
+    const full = formatDate(date);
 
     if (dayKey(date) === dayKey(today)) return `Today · ${full}`;
     if (dayKey(date) === dayKey(yesterday)) return `Yesterday · ${full}`;
-    return date.toLocaleDateString("en-PH", { weekday: "long" }) + ` · ${full}`;
+    return formatDate(date, { withWeekday: true });
 }
 
 export default function ActivityLog() {
@@ -314,7 +311,7 @@ export default function ActivityLog() {
                                         <tr key={row.key}>
                                             <td className="al2-time">
                                                 {row.date
-                                                    ? row.date.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" })
+                                                    ? formatTime(row.date)
                                                     : "—"}
                                             </td>
                                             <td>

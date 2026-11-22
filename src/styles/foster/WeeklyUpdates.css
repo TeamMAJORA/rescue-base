@@ -18,7 +18,7 @@
 .foster-update-form label {
     display: grid;
     gap: 8px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 14px;
     font-weight: 800;
 }
@@ -29,17 +29,10 @@
 .foster-update-form textarea {
     width: 100%;
     border: 1px solid rgba(90, 27, 0, .12);
-<<<<<<< HEAD
-    border-radius: 14px;
-    padding: 12px 14px;
-    background: #fff;
-    color: #5a1b00;
-=======
     border-radius: 12px;
     padding: 12px 16px;
     background: var(--white);
     color: var(--brown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
     transition: .2s;
 }
@@ -48,7 +41,7 @@
 .update-grid select:focus,
 .foster-update-form input:focus,
 .foster-update-form textarea:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251,133,0,.15);
 }
 
@@ -60,17 +53,10 @@
 .foster-submit-button {
     justify-self: flex-end;
     border: none;
-<<<<<<< HEAD
-    border-radius: 14px;
-    padding: 13px 24px;
-    background: linear-gradient(135deg,#fb8500,#ffb703);
-    color: white;
-=======
     border-radius: 12px;
     padding: 12px 24px;
     background: linear-gradient(135deg,var(--orange),var(--yellow));
     color: var(--white);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: pointer;
     transition: .25s;
@@ -94,22 +80,15 @@
 
 .foster-update-card {
     display: grid;
-<<<<<<< HEAD
-    gap: 14px;
-    padding: 18px;
-    border-radius: 18px;
-    background: #fffaf0;
-=======
     gap: 16px;
     padding: 16px;
     border-radius: 20px;
     background: var(--paper);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border: 1px solid rgba(90,27,0,.08);
 }
 
 .foster-update-card strong {
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 14px;
 }
 
@@ -134,14 +113,14 @@
 }
 
 .foster-alert.success {
-    background: #e9f8e4;
-    color: #2f6b1f;
+    background: var(--green-soft);
+    color: var(--green-dark);
     border: 1px solid #b7ddb0;
 }
 
 .foster-alert.error {
-    background: #ffe5e5;
-    color: #c62828;
+    background: var(--red-soft);
+    color: var(--red-dark);
     border: 1px solid #efb0b0;
 }
 

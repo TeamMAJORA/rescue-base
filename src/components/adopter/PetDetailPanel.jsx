@@ -1,13 +1,9 @@
-<<<<<<< HEAD
-import { formatPetStatus } from "../../utils/petStatus";
-=======
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { formatPetStatus } from "../../utils/petStatus";
 import { useSavedPets } from "../../utils/savedPets";
 import PetTypeIcon from "../system/PetTypeIcon";
 import Icon from "../system/Icon";
 import "../../styles/components/PetProfile.css";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const CLOSE_ANIMATION_MS = 150; // matches rb-modal-out in App.css
 const FOCUSABLE = 'button:not([disabled]), a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -88,25 +84,13 @@ export default function PetDetailPanel({ className = "", pet, children }) {
         return (
             <aside className={className}>
                 <div className="browse-pet-empty-details">
-                    <span>🐾</span>
+                    <span><PetTypeIcon /></span>
                     <h3>No animal selected</h3>
                     <p>Select an available animal from the list to view its profile.</p>
                 </div>
-<<<<<<< HEAD
-            ) : (
-                <>
-                    <div className="browse-pet-main-image">
-                        {currentPet.image ? (
-                            <img src={currentPet.image} alt={currentPet.name} />
-                        ) : (
-                            <span>{currentPet.icon || "🐾"}</span>
-                        )}
-                    </div>
-=======
             </aside>
         );
     }
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
     return (
         <aside className={`pdm-inline ${className}`.trim()} aria-labelledby={nameId}>
@@ -115,8 +99,6 @@ export default function PetDetailPanel({ className = "", pet, children }) {
             {children}
         </aside>
     );
-<<<<<<< HEAD
-=======
 }
 
 // The one main action. Never a dead, disabled button: pending → their application, unavailable → other pets.
@@ -262,5 +244,4 @@ export function PetDetailModal({
             </div>
         </div>
     );
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }

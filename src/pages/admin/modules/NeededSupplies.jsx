@@ -1,17 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-<<<<<<< HEAD
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
-=======
 import { askConfirm } from "../../../utils/dialogs";
 import LoadingState from "../../../components/system/LoadingState";
 import NumberInput from "../../../components/system/NumberInput";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -101,7 +91,7 @@ export default function NeededSupplies() {
     async function fetchSupplies() {
         try {
             const response = await fetch(`${API}/api/supplies`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -156,6 +146,7 @@ export default function NeededSupplies() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(payload),
             });
@@ -212,7 +203,7 @@ export default function NeededSupplies() {
             setMessage("");
             const response = await fetch(`${API}/api/supplies/${supply._id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -238,6 +229,7 @@ export default function NeededSupplies() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ status }),
             });
@@ -258,7 +250,7 @@ export default function NeededSupplies() {
 
     useEffect(() => {
         let alive = true;
-        fetch(`${API}/api/supplies`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+        fetch(`${API}/api/supplies`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json().then((data) => ({ response, data })))
             .then(({ response, data }) => {
                 if (!alive) return;

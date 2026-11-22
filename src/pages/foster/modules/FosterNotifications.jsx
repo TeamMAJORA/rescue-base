@@ -1,16 +1,13 @@
 import { useEffect } from "react";
-
-const ICONS = {
-    application_update: "📋",
-    foster_update: "🐾",
-    general: "📢",
-};
+import { markAllNotificationsRead } from "../../../utils/savedNotifications";
+import NotificationPanel from "../../../components/notifications/NotificationPanel";
 
 export default function FosterNotifications({
     open,
     notifications,
     onClose,
     setActivePage,
+    onOpenAdopterPage,
     refresh,
 }) {
     useEffect(() => {
@@ -27,6 +24,14 @@ export default function FosterNotifications({
 
     if (!open) return null;
 
+    async function handleMarkAllRead() {
+        await markAllNotificationsRead().catch((error) =>
+            console.error("Mark all notifications read error:", error)
+        );
+
+        await refresh?.();
+    }
+
     async function handleNotification(notification) {
         const token = localStorage.getItem("token");
 
@@ -38,6 +43,7 @@ export default function FosterNotifications({
                         method: "PATCH",
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            "ngrok-skip-browser-warning": "true",
                         },
                     }
                 );
@@ -64,6 +70,16 @@ export default function FosterNotifications({
                 setActivePage("assignment");
                 break;
 
+            // These pages are on the Adopter dashboard
+            case "lost_found_update":
+                onOpenAdopterPage?.("lost-found");
+                break;
+
+            case "donation":
+            case "donation_update":
+                onOpenAdopterPage?.("donation-history");
+                break;
+
             default:
                 setActivePage("dashboard");
                 break;
@@ -73,64 +89,15 @@ export default function FosterNotifications({
     }
     
     return (
-        <div
-            className="foster-notification-overlay"
-            onClick={onClose}
-        >
-            <div
-                className="foster-notification-panel"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="notification-header">
-                    <h3>Notifications</h3>
-
-                    <button
-                        type="button"
-                        onClick={onClose}
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                {notifications.length === 0 ? (
-                    <div className="notification-empty">
-                        No notifications.
-                    </div>
-                ) : (
-                    notifications.map((notification) => (
-                        <button
-                            type="button"
-                            key={notification._id}
-                            className={`notification-item ${notification.read
-                                ? ""
-                                : "unread"
-                                }`}
-                            onClick={() =>
-                                handleNotification(notification)
-                            }
-                        >
-                            <div className="notification-icon">
-                                {ICONS[notification.type] || "📢"}
-                            </div>
-
-                            <div className="notification-content">
-                                <strong>
-                                    {notification.title}
-                                </strong>
-
-                                <p>
-                                    {notification.message}
-                                </p>
-
-                                <small>
-                                    {new Date(
-                                        notification.createdAt
-                                    ).toLocaleString()}
-                                </small>
-                            </div>
-                        </button>
-                    ))
-                )}
+        <div className="foster-notification-overlay" onClick={onClose}>
+            <div onClick={(event) => event.stopPropagation()}>
+                <NotificationPanel
+                    className="is-static"
+                    items={notifications.map((notification) => ({ ...notification, id: notification._id }))}
+                    unreadCount={notifications.filter((notification) => !notification.read).length}
+                    onItemClick={handleNotification}
+                    onMarkAllRead={handleMarkAllRead}
+                />
             </div>
         </div>
     );

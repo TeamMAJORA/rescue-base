@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
-=======
 import { formatDate, formatTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 const PAGE_SIZE = 50;
@@ -18,7 +15,7 @@ export default function ActivityLog() {
     function fetchPage(skip) {
         const token = localStorage.getItem("token");
         return fetch(`${API}/api/activity-logs?limit=${PAGE_SIZE}&skip=${skip}`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "ngrok-skip-browser-warning": "true" },
         })
             .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
             .then(({ ok, data }) => {
@@ -56,7 +53,7 @@ export default function ActivityLog() {
     let lastDay = "";
     (logs || []).forEach((log) => {
         const date = new Date(log.activityDate || log.createdAt);
-        const day = date.toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+        const day = formatDate(date, { withWeekday: true });
         if (day !== lastDay) {
             rows.push({ key: `day-${day}`, heading: day });
             lastDay = day;
@@ -95,7 +92,7 @@ export default function ActivityLog() {
                                 ) : (
                                     <tr key={row.key}>
                                         <td className="al2-time">
-                                            {row.date.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" })}
+                                            {formatTime(row.date)}
                                         </td>
                                         <td className="al2-activity">{row.log.activity || "Activity"}</td>
                                         <td>

@@ -1,23 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../../styles/admin/FoodStorage.css";
 import NeededSupplies from "./NeededSupplies";
-<<<<<<< HEAD
-=======
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
 import NumberInput from "../../../components/system/NumberInput";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 const URL = `${API}/api/food-inventory`;
 
 const EMPTY_FORM = {
@@ -40,6 +31,7 @@ async function apiRequest(path = "", options = {}) {
                 ? { "Content-Type": "application/json" }
                 : {}),
             ...options.headers,
+            "ngrok-skip-browser-warning": "true",
         },
     });
 
@@ -171,6 +163,7 @@ function RequestMoreModal({ item, level, onClose, onSaved }) {
                 headers: {
                     "Content-Type": "application/json",
                     ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     name: item.name,
@@ -825,7 +818,7 @@ export default function FoodStorage() {
 
     // Animals still in the shelter's care eat the food (adopted ones don't)
     useEffect(() => {
-        fetch(`${API}/api/animals`)
+        fetch(`${API}/api/animals`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json())
             .then((data) =>
                 setAnimalsInCare(
@@ -842,7 +835,7 @@ export default function FoodStorage() {
         const token = localStorage.getItem("token");
 
         return fetch(`${API}/api/supplies`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "ngrok-skip-browser-warning": "true" },
         })
             .then((response) => response.json())
             .then((data) => {
@@ -1086,14 +1079,14 @@ export default function FoodStorage() {
                                                 if (event.key === "Enter") setItemModal(item);
                                             }}
                                         >
-                                            <td>
+                                            <td data-label="Food item">
                                                 <div className="fs-food-name">
                                                     <strong>{item.name}</strong>
                                                     <small>{eatersLabel(level)}</small>
                                                 </div>
                                             </td>
 
-                                            <td>
+                                            <td data-label="Stock">
                                                 <div className="fs-stock">
                                                     <strong>
                                                         {formatNumber(item.quantityInStock)} {item.unit || "kg"}
@@ -1114,11 +1107,11 @@ export default function FoodStorage() {
                                                 </div>
                                             </td>
 
-                                            <td>{formatNumber(item.foodRatePerAnimalPerDay ?? 0.5)} kg</td>
+                                            <td data-label="Per animal / day">{formatNumber(item.foodRatePerAnimalPerDay ?? 0.5)} kg</td>
 
-                                            <td>{item.forecastDays ?? 30} days</td>
+                                            <td data-label="Forecast goal">{item.forecastDays ?? 30} days</td>
 
-                                            <td>
+                                            <td data-label="Status">
                                                 <span className={`fs-status is-${level.status}`}>
                                                     {STATUS_TEXT[level.status]}
                                                 </span>
@@ -1130,7 +1123,7 @@ export default function FoodStorage() {
                                                 )}
                                             </td>
 
-                                            <td>
+                                            <td data-label="Actions">
                                                 <div
                                                     className="fs-row-actions"
                                                     onClick={(event) => event.stopPropagation()}
@@ -1241,7 +1234,7 @@ function SuppliesHistory() {
     let lastDay = "";
     shown.forEach((entry) => {
         const date = new Date(entry.date);
-        const day = date.toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+        const day = formatDate(date, { withWeekday: true });
         if (day !== lastDay) {
             rows.push({ key: `day-${day}`, heading: day });
             lastDay = day;
@@ -1309,7 +1302,7 @@ function SuppliesHistory() {
                                 ) : (
                                     <tr key={row.key}>
                                         <td className="al2-time">
-                                            {row.date.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" })}
+                                            {formatTime(row.date)}
                                         </td>
                                         <td><b>{row.entry.item}</b></td>
                                         <td>

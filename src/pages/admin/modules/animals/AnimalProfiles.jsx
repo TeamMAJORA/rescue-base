@@ -7,30 +7,17 @@ import IntakeRecords from "./IntakeRecords";
 import AnimalTransfers from "./AnimalTransfers";
 import InfoTip from "../../../../components/system/InfoTip";
 import { formatAge } from "../../../../utils/formatAge";
-<<<<<<< HEAD
-=======
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm } from "../../../../utils/dialogs";
 import { formatDate } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
 import Icon from "../../../../components/system/Icon";
 import NumberInput from "../../../../components/system/NumberInput";
-<<<<<<< HEAD
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
-=======
 import RowActionsMenu from "../../../../components/system/RowActionsMenu";
 import { getAnimalStatus } from "../../../../utils/petStatus";
 import QrScanDialog from "../../../../components/system/QrScanDialog";
 import { tagCodeFrom } from "../../../../utils/qrTag";
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -250,19 +237,6 @@ const ANIMAL_STATUS_LABELS = {
     unavailable: "Unavailable",
 };
 
-<<<<<<< HEAD
-function getAnimalStatus(animal) {
-    if (animal.adoptionStatus === "adopted") return "adopted";
-    if (animal.fosterStatus === "in_foster") return "fostered";
-    if (animal.adoptionStatus === "pending") return "pending";
-    if (animal.availabilityStatus === "available") return "available";
-    return "unavailable";
-}
-
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 // Who has the animal now (adopter or foster), with contacts so the shelter can follow up.
 // The server returns { success, [responseKey]: person | null }.
 function PersonContactCard({ title, url, responseKey, dateLabel, dateField, emptyText }) {
@@ -332,7 +306,6 @@ function PersonContactCard({ title, url, responseKey, dateLabel, dateField, empt
     );
 }
 
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 function StatusPill({ status }) {
     const [iconMissing, setIconMissing] = useState(false);
     const label = ANIMAL_STATUS_LABELS[status];
@@ -351,18 +324,6 @@ function StatusPill({ status }) {
     return <span className={`admin-animal-status ${status}`}>{label}</span>;
 }
 
-function formatIntakeDate(value) {
-    if (!value) return "—";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "—";
-
-    return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-    });
-}
 
 function QrIcon() {
     return (
@@ -424,8 +385,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
     const [search, setSearch] = useState("");
     const [speciesFilter, setSpeciesFilter] = useState("All");
-    const [searchBy, setSearchBy] = useState("all");
-    const [viewMode, setViewMode] = useState("list"); // "list" (table) | "grid" (cards)
+    const [viewMode, setViewMode] = useState("grid"); // "grid" (cards, default) | "list" (table)
     const [statusFilter, setStatusFilter] = useState("all");
     const [qrCodes, setQrCodes] = useState({});
     const [qrImages, setQrImages] = useState({});
@@ -563,22 +523,27 @@ function AnimalProfilesList({ onOpenRecords }) {
             if (!query) return true;
             if (queryTagCode.startsWith("RB-") && String(qrCodes[animal._id] || "").toUpperCase().includes(queryTagCode)) return true;
 
-            const fields = {
-                name: animal.name,
-                breed: animal.breed,
-                species: animal.type,
-            };
-            const values = searchBy === "all" ? Object.values(fields) : [fields[searchBy]];
+            // One box searches every detail shown on the profile
+            const searchableValues = [
+                animal.name,
+                animal.type,
+                animal.breed,
+                animal.gender,
+                animal.size,
+                animal.color,
+                animal.location,
+                animal.intakeType,
+                animal.intakeCondition,
+                animal.medicalStatus,
+                animal.description,
+                ANIMAL_STATUS_LABELS[getAnimalStatus(animal)],
+            ];
 
-            return values
+            return searchableValues
                 .filter(Boolean)
                 .some((value) => String(value).toLowerCase().includes(query));
         });
-<<<<<<< HEAD
-    }, [animals, search, searchBy, speciesFilter, statusFilter]);
-=======
     }, [animals, qrCodes, search, speciesFilter, statusFilter]);
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 
     const sortedAnimals = useMemo(() => {
@@ -609,7 +574,7 @@ function AnimalProfilesList({ onOpenRecords }) {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, searchBy, speciesFilter, statusFilter, rowsPerPage]);
+    }, [search, speciesFilter, statusFilter, rowsPerPage]);
 
     function handleSort(key) {
         setSortConfig((current) =>
@@ -633,7 +598,8 @@ function AnimalProfilesList({ onOpenRecords }) {
 
             const response = await fetch(`${API}/api/animals`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 }
             });
             const data = await response.json();
@@ -655,13 +621,8 @@ function AnimalProfilesList({ onOpenRecords }) {
     async function fetchQrCodes() {
         // Volunteers get tag codes only (for lookup); QR images stay staff/admin only
         try {
-<<<<<<< HEAD
-            const response = await fetch(`${API}/api/qr-tags`, {
-                headers: { Authorization: `Bearer ${token}` },
-=======
             const response = await fetch(`${API}/api/qr-tags${canManage ? "" : "/tag-codes"}`, {
                 headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
             });
 
             if (!response.ok) return;
@@ -707,6 +668,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({ animalId: animal._id }),
             });
@@ -764,7 +726,8 @@ function AnimalProfilesList({ onOpenRecords }) {
                 method,
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 },
                 body: JSON.stringify(payload),
             });
@@ -829,7 +792,8 @@ function AnimalProfilesList({ onOpenRecords }) {
             const response = await fetch(`${API}/api/uploads/image`, {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 },
                 body: formData,
             });
@@ -945,7 +909,8 @@ function AnimalProfilesList({ onOpenRecords }) {
             const response = await fetch(`${API}/api/animals/${id}`, {
                 method: "DELETE",
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true"
                 }
             });
 
@@ -1508,16 +1473,6 @@ function AnimalProfilesList({ onOpenRecords }) {
             <section className="admin-panel admin-animal-list-panel">
                     <div className="admin-animal-toolbar ao-toolbar">
                     <div className="ao-searchbox">
-                        <select
-                            value={searchBy}
-                            onChange={(e) => setSearchBy(e.target.value)}
-                            aria-label="Search by"
-                        >
-                            <option value="all">All fields</option>
-                            <option value="name">Animal name</option>
-                            <option value="breed">Breed</option>
-                            <option value="species">Species</option>
-                        </select>
                         <label className="ao-searchbox-input">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                                 <circle cx="11" cy="11" r="7" />
@@ -1525,16 +1480,8 @@ function AnimalProfilesList({ onOpenRecords }) {
                             </svg>
                             <input
                                 type="search"
-<<<<<<< HEAD
-<<<<<<< HEAD
-                                placeholder="Search animal, breed, or species..."
-=======
-                                placeholder="Search name, breed, colour, location, status…"
-=======
                                 placeholder="Search name, breed, QR code, location…"
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                                 aria-label="Search animals"
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -1551,9 +1498,9 @@ function AnimalProfilesList({ onOpenRecords }) {
                         aria-label="Species"
                         onChange={(e) => setSpeciesFilter(e.target.value)}
                     >
-                        <option value="All">All species</option>
-                        <option value="Dog">Dog</option>
-                        <option value="Cat">Cat</option>
+                        <option value="All">Species: All</option>
+                        <option value="Dog">Species: Dogs</option>
+                        <option value="Cat">Species: Cats</option>
                     </select>
 
                     <div className="admin-view-toggle">
@@ -1663,7 +1610,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                     </div>
 
                                     <div className="agc-footer">
-                                        <span>Intake {formatIntakeDate(animal.intakeDate)}</span>
+                                        <span>Intake {formatDate(animal.intakeDate)}</span>
                                         <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                                             {canManage && (
                                                 <button
@@ -1748,7 +1695,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                                 {animal.image ? (
                                                                     <img src={animal.image} alt="" />
                                                                 ) : (
-                                                                    "🐾"
+                                                                    <PetTypeIcon type={animal.type} />
                                                                 )}
                                                             </span>
                                                             <strong>{animal.name}</strong>
@@ -1774,7 +1721,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                                     <td>
                                                         <StatusPill key={status} status={status} />
                                                     </td>
-                                                    <td>{formatIntakeDate(animal.intakeDate)}</td>
+                                                    <td>{formatDate(animal.intakeDate)}</td>
                                                     <td>
                                                         {qrCodes[animal._id] ? (
                                                             <span
@@ -1918,8 +1865,6 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                         <div className="apm-body">
                             <div className="apm-main">
-<<<<<<< HEAD
-=======
                                 {/* Adopter and foster contact details are for staff and admin only */}
                                 {canManage && viewedAnimal.adoptionStatus === "adopted" && (
                                     <PersonContactCard
@@ -1945,7 +1890,6 @@ function AnimalProfilesList({ onOpenRecords }) {
                                     />
                                 )}
 
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                                 <section className="apm-card">
                                     <h4>Basics</h4>
                                     <div className="apm-facts">
@@ -1959,7 +1903,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                                 <section className="apm-card">
                                     <h4>Intake</h4>
                                     <div className="apm-facts is-3">
-                                        <div><span>Intake date</span><b>{formatIntakeDate(viewedAnimal.intakeDate)}</b></div>
+                                        <div><span>Intake date</span><b>{formatDate(viewedAnimal.intakeDate)}</b></div>
                                         <div><span>Location</span><b>{viewedAnimal.location || "RescueBase Shelter"}</b></div>
                                         <div><span>Medical status</span><b>{viewedAnimal.medicalStatus || "—"}</b></div>
                                     </div>
@@ -2081,7 +2025,7 @@ function AnimalProfilesList({ onOpenRecords }) {
                     <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", padding: 24, borderRadius: 12, textAlign: "center" }}>
                         <img src={qrOpen.image} alt="QR code" style={{ width: 320, height: 320 }} />
                         <p style={{ marginTop: 12, fontWeight: 600 }}>{qrOpen.name} · {qrOpen.code}</p>
-                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 8, fontSize: 25 }}>❌</button>
+                        <button type="button" onClick={() => setQrOpen(null)} style={{ marginTop: 12, minHeight: 44, padding: "0 24px", border: "1px solid #e3d5b5", borderRadius: 8, background: "#fffdf4", color: "#5a1b00", font: "inherit", fontWeight: 600, cursor: "pointer" }}>Close</button>
                     </div>
                 </div>
             )}

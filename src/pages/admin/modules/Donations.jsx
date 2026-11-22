@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-<<<<<<< HEAD
-=======
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -13,17 +11,35 @@ import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
 import UiIcon from "../../../components/system/Icon";
 import NumberInput from "../../../components/system/NumberInput";
-<<<<<<< HEAD
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
-=======
 import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
+const CEBU_CENTER = [10.3157, 123.8854];
+
+// Same orange pin as Intake Records (styles in IntakeRecords.css)
+const DROP_OFF_PIN = L.divIcon({
+    className: "ao-pin",
+    html: "<span></span>",
+    iconSize: [26, 34],
+    iconAnchor: [13, 34],
+});
+
+// Tap the map to move the drop-off pin
+function DropOffPinPicker({ onPick }) {
+    useMapEvents({
+        click(event) {
+            onPick(event.latlng.lat, event.latlng.lng);
+        },
+    });
+    return null;
+}
+
+// Keep the map centred on the pin
+function DropOffMapFollow({ latitude, longitude }) {
+    const map = useMap();
+    useEffect(() => {
+        if (latitude && longitude) map.setView([latitude, longitude], Math.max(map.getZoom(), 16));
+    }, [map, latitude, longitude]);
+    return null;
 }
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -100,7 +116,8 @@ const DONATION_TYPES = [
     "Other",
 ];
 
-const STATUS_LABEL = { pending: "Pending", received: "Received", cancelled: "Cancelled" };
+// "cancelled" in the data = the donation never arrived
+const STATUS_LABEL = { pending: "Pending", received: "Received", cancelled: "Not received" };
 
 // Segmented type buttons on the Record Donation page (values must match the server enum)
 const TYPE_BUTTONS = [
@@ -110,7 +127,6 @@ const TYPE_BUTTONS = [
     { value: "Other Supplies", label: "Supplies" },
 ];
 
-const UNITS = ["Pieces", "Boxes", "Bags", "Bottles", "Packs", "Kilograms", "Liters", "Other"];
 
 const DELIVERY_METHODS = ["Drop-off", "Shelter Pickup", "Courier Delivery", "Online Transfer", "Cash"];
 
@@ -118,12 +134,11 @@ const DELIVERY_METHODS = ["Drop-off", "Shelter Pickup", "Courier Delivery", "Onl
 const METHOD_NAMES = {
     GCash: "E-wallet",
     Maya: "E-wallet",
-    "Bank Account": "Bank",
+    "Bank Transfer": "Bank",
+    "Wire Transfer": "Bank",
 };
 
 // Lines we keep inside `notes` because the donation model has no fields for them
-const META_LABELS = ["Unit", "Delivery Method", "Preferred Date"];
-
 const emptyDonationForm = {
     donorName: "",
     donorEmail: "",
@@ -133,11 +148,10 @@ const emptyDonationForm = {
     itemName: "",
     quantity: 1,
     notes: "",
-    status: "pending",
     unit: "",
+    otherUnit: "",
     deliveryMethod: "Drop-off",
     preferredDate: "",
-    receivedDate: null,
 };
 
 const emptyMethodForm = {
@@ -150,30 +164,25 @@ const emptyMethodForm = {
 };
 
 // Split notes into the metadata lines and the free-text part
-function splitNotes(notes) {
-    const meta = {};
-    const rest = [];
+// Donor notes hold "Label: value" lines plus free text; already-shown fields are skipped
+const LABELS_SHOWN_ELSEWHERE = ["donation type", "payment method", "payment reference"];
 
-    String(notes || "")
-        .split("\n")
-        .forEach((line) => {
-            const label = META_LABELS.find((item) =>
-                line.toLowerCase().startsWith(`${item.toLowerCase()}:`)
-            );
+function notesAsRows(notes) {
+    const rows = [];
+    const text = [];
 
-            if (label) {
-                meta[label] = line.slice(label.length + 1).trim();
-            } else {
-                rest.push(line);
-            }
-        });
+    String(notes || "").split("\n").forEach((line) => {
+        const match = line.match(/^([A-Za-z ]{2,30}):\s*(.+)$/);
+        if (!match) return text.push(line);
+        if (!LABELS_SHOWN_ELSEWHERE.includes(match[1].trim().toLowerCase())) rows.push([match[1].trim(), match[2].trim()]);
+    });
 
-    return { meta, text: rest.join("\n").trim() };
+    return { rows, text: text.join("\n").trim() };
 }
 
 function buildNotes(form) {
     return [
-        form.unit && `Unit: ${form.unit}`,
+        resolveUnit(form.unit, form.otherUnit) && `Unit: ${resolveUnit(form.unit, form.otherUnit)}`,
         form.deliveryMethod && `Delivery Method: ${form.deliveryMethod}`,
         form.preferredDate && `Preferred Date: ${form.preferredDate}`,
         form.notes.trim(),
@@ -202,15 +211,6 @@ function moneyValue(donation) {
 }
 
 
-function formatDate(value) {
-    if (!value) return "--";
-
-    return new Date(value).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
-}
 
 // Pull "Label: value" lines out of the notes the adopter form writes
 function noteValue(notes, label) {
@@ -285,6 +285,12 @@ function Icon({ name, size = 18 }) {
                 <path d="M13.5 6.5l4 4" />
             </>
         ),
+        eye: (
+            <>
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+            </>
+        ),
         more: (
             <>
                 <circle cx="5" cy="12" r="1.2" />
@@ -314,15 +320,11 @@ function Icon({ name, size = 18 }) {
 export default function Donations() {
     const [donations, setDonations] = useState([]);
     const [donationForm, setDonationForm] = useState(emptyDonationForm);
-<<<<<<< HEAD
-    const [editingId, setEditingId] = useState(null);
-=======
     const [viewingDonation, setViewingDonation] = useState(null);
     useCloseOnEscape(Boolean(viewingDonation), () => setViewingDonation(null));
     const [notReceivedFor, setNotReceivedFor] = useState(null);
     const [notReceivedReason, setNotReceivedReason] = useState("");
     const [notReceivedError, setNotReceivedError] = useState("");
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState("");
@@ -349,6 +351,11 @@ export default function Donations() {
     const [dropOff, setDropOff] = useState(null);
     const [dropOffForm, setDropOffForm] = useState(null);
     const [savingDropOff, setSavingDropOff] = useState(false);
+    // Address search for the drop-off pin (only typing searches)
+    const [typedDropOffAddress, setTypedDropOffAddress] = useState("");
+    const [dropOffPlaces, setDropOffPlaces] = useState([]);
+    const [searchingDropOffPlaces, setSearchingDropOffPlaces] = useState(false);
+    const [dropOffPlacesOpen, setDropOffPlacesOpen] = useState(false);
 
     const token = localStorage.getItem("token");
 
@@ -360,7 +367,7 @@ export default function Donations() {
             setMessage("");
 
             const response = await fetch(`${API}/api/donations`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -426,7 +433,7 @@ export default function Donations() {
         const term = search.trim().toLowerCase();
 
         const list = donations.filter((donation) => {
-            // Deleted Received donations still count in the totals above, but are not listed
+            // Deleted Received donations still count in the totals, but are not listed
             if (donation.hiddenFromLedgerAt) return false;
 
             const status = donation.status || "pending";
@@ -470,7 +477,6 @@ export default function Donations() {
                 donorName: donationForm.donorName.trim(),
                 donorEmail: donationForm.donorEmail.trim(),
                 donationType: donationForm.donationType,
-                status: donationForm.status,
                 itemName: donationForm.itemName.trim() || (money ? "Monetary Donation" : ""),
                 amount: money ? Number(donationForm.amount || 0) : 0,
                 paymentReference: money ? donationForm.paymentReference.trim() : "",
@@ -480,13 +486,12 @@ export default function Donations() {
                 adminEmail: savedUser.email || "admin",
             };
 
-            const url = editingId ? `${API}/api/donations/${editingId}` : `${API}/api/donations`;
-
-            const response = await fetch(url, {
-                method: editingId ? "PATCH" : "POST",
+            const response = await fetch(`${API}/api/donations`, {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(payload),
             });
@@ -498,12 +503,7 @@ export default function Donations() {
                 return;
             }
 
-<<<<<<< HEAD
-            setMessage(editingId ? "Donation updated successfully." : "Donation created successfully.");
-=======
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
             setDonationForm(emptyDonationForm);
-            setEditingId(null);
             setShowForm(false);
             fetchDonations();
             setMessage("Donation created successfully.");
@@ -516,43 +516,19 @@ export default function Donations() {
     }
 
     function openNewForm() {
-        setEditingId(null);
         setDonationForm(emptyDonationForm);
         setMessage("");
         setShowForm(true);
     }
 
-    function handleEditDonation(donation) {
-        const { meta, text } = splitNotes(donation.notes);
-
-        setEditingId(donation._id);
-        setDonationForm({
-            donorName: donation.donorName || "",
-            donorEmail: donation.donorEmail || "",
-            donationType: donation.donationType || "Money",
-            amount: isMoneyDonation(donation) ? moneyValue(donation) : donation.amount || "",
-            paymentReference: donation.paymentReference || "",
-            itemName: donation.itemName || "",
-            quantity: donation.quantity || 1,
-            notes: text,
-            status: donation.status || "pending",
-            unit: meta.Unit || "",
-            deliveryMethod: meta["Delivery Method"] || "Drop-off",
-            preferredDate: meta["Preferred Date"] || "",
-            receivedDate: donation.receivedDate || null,
-        });
-        setMessage("");
-        setShowForm(true);
-    }
-
-    function handleCancelEdit() {
+    function closeDonationForm() {
         setShowForm(false);
-        setEditingId(null);
         setDonationForm(emptyDonationForm);
         setMessage("");
     }
 
-    async function handleUpdateStatus(donationId, status) {
+    // Returns true when saved
+    async function handleUpdateStatus(donationId, status, notReceivedReason = "") {
         try {
             setMessage("");
 
@@ -561,41 +537,45 @@ export default function Donations() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
-                body: JSON.stringify({ status }),
+                body: JSON.stringify(status === "cancelled" ? { status, notReceivedReason } : { status }),
             });
 
             const data = await response.json();
 
             if (!response.ok || !data.success) {
                 setMessage(data.message || "Failed to update donation status.");
-                return;
+                return false;
             }
 
-<<<<<<< HEAD
-            setMessage("Donation status updated.");
-            fetchDonations();
-=======
             setViewingDonation((current) => (current?._id === donationId ? data.donation : current));
             fetchDonations();
             setMessage("Donation status updated.");
             return true;
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
         } catch (error) {
             console.error("Update donation status error:", error);
             setMessage("Server error while updating donation status.");
+            return false;
         }
     }
 
-    async function handleCancelDonation(donationId) {
-        const confirmed = await askConfirm({
-            title: "Cancel this donation?",
-            message: "It will stay in the ledger marked as cancelled.",
-            confirmLabel: "Cancel donation",
-            danger: true,
-        });
+    // Opens the "Not received" box, which asks for the reason
+    function handleMarkNotReceived(donation) {
+        setNotReceivedFor(donation);
+        setNotReceivedReason("");
+        setNotReceivedError("");
+    }
 
-        if (confirmed) handleUpdateStatus(donationId, "cancelled");
+    async function submitNotReceived() {
+        const reason = notReceivedReason.trim();
+        if (reason.length < 5) {
+            setNotReceivedError("Please give a short reason (at least 5 characters).");
+            return;
+        }
+
+        const saved = await handleUpdateStatus(notReceivedFor._id, "cancelled", reason);
+        if (saved) setNotReceivedFor(null);
     }
 
     async function handleDeleteDonation(donation) {
@@ -618,7 +598,7 @@ export default function Donations() {
 
             const response = await fetch(`${API}/api/donations/${donationId}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
 
             const data = await response.json();
@@ -628,13 +608,9 @@ export default function Donations() {
                 return;
             }
 
-<<<<<<< HEAD
-            setMessage(data.message || "Donation deleted successfully.");
-=======
             setViewingDonation(null);
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
             fetchDonations();
-            setMessage("Donation deleted successfully.");
+            setMessage(data.message || "Donation deleted successfully.");
         } catch (error) {
             console.error("Delete donation error:", error);
             setMessage("Server error while deleting donation.");
@@ -646,7 +622,7 @@ export default function Donations() {
     async function fetchDropOff() {
         try {
             const response = await fetch(`${API}/api/settings/drop-off/manage`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
             if (response.ok && data.success) setDropOff(data.dropOff);
@@ -655,7 +631,51 @@ export default function Donations() {
         }
     }
 
+    // Typing an address pins the best match; picking from the list pins that one
+    useEffect(() => {
+        const query = typedDropOffAddress.trim();
+        if (query.length < 3) {
+            setDropOffPlaces([]);
+            return undefined;
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            setSearchingDropOffPlaces(true);
+            try {
+                const places = await searchCebuPlaces(query, controller.signal);
+                setDropOffPlaces(places);
+                if (places[0]) pinDropOff(places[0].latitude, places[0].longitude);
+            } catch (error) {
+                if (error.name !== "AbortError") setDropOffPlaces([]);
+            } finally {
+                setSearchingDropOffPlaces(false);
+            }
+        }, 600);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [typedDropOffAddress]);
+
+    function pinDropOff(latitude, longitude) {
+        setDropOffForm((current) => current && {
+            ...current,
+            latitude: Number(Number(latitude).toFixed(6)),
+            longitude: Number(Number(longitude).toFixed(6)),
+        });
+    }
+
+    function chooseDropOffPlace(place) {
+        pinDropOff(place.latitude, place.longitude);
+        setDropOffForm((current) => ({ ...current, address: [place.name, place.area].filter(Boolean).join(", ") }));
+        setDropOffPlacesOpen(false);
+    }
+
     function editDropOff() {
+        setTypedDropOffAddress("");
+        setDropOffPlaces([]);
         setDropOffForm({
             enabled: false,
             address: "",
@@ -663,6 +683,8 @@ export default function Donations() {
             contactNumber: "",
             operatingHours: "",
             instructions: "",
+            latitude: null,
+            longitude: null,
             ...(dropOff || {}),
             ...parseHours(dropOff?.operatingHours),
         });
@@ -681,6 +703,7 @@ export default function Donations() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({
                     enabled: dropOffForm.enabled,
@@ -689,6 +712,8 @@ export default function Donations() {
                     contactNumber: dropOffForm.contactNumber,
                     instructions: dropOffForm.instructions,
                     operatingHours: formatHours(dropOffForm.days, dropOffForm.openTime, dropOffForm.closeTime),
+                    latitude: dropOffForm.latitude,
+                    longitude: dropOffForm.longitude,
                 }),
             });
             const data = await response.json().catch(() => ({}));
@@ -714,7 +739,7 @@ export default function Donations() {
     async function fetchMethods() {
         try {
             const response = await fetch(`${API}/api/payment-methods/all`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -741,8 +766,7 @@ export default function Donations() {
     function editMethod(method) {
         setEditingMethodId(method._id);
         setMethodForm({
-            // Records saved before the list was simplified ("Bank Transfer", "Wire Transfer") open as Bank Account
-            method_type: METHOD_NAMES[method.method_type] ? method.method_type : "Bank Account",
+            method_type: method.method_type || "GCash",
             account_name: method.account_name || "",
             account_number: method.account_number || "",
             qr_image_url: method.qr_image_url || "",
@@ -780,7 +804,7 @@ export default function Donations() {
 
             const response = await fetch(`${API}/api/uploads/image`, {
                 method: "POST",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                 body: formData,
             });
             const data = await response.json();
@@ -816,6 +840,7 @@ export default function Donations() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify(methodForm),
             });
@@ -852,7 +877,7 @@ export default function Donations() {
         try {
             const response = await fetch(`${API}/api/payment-methods/${method._id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -891,23 +916,14 @@ export default function Donations() {
                         <p>Record and manage money, food, medicine, and supply donations.</p>
                     </div>
 
-<<<<<<< HEAD
-                    <button type="button" className="dl-btn" onClick={handleCancelEdit}>
-                        ← Back to Donations
-=======
                     <button type="button" className="dl-btn" onClick={closeDonationForm}>
                         <UiIcon name="arrow-left" /> Back to Donations
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                     </button>
                 </header>
 
                 <form className="dl-form-card" onSubmit={handleSubmitDonation}>
                     <div className="dl-form-section">
-<<<<<<< HEAD
-                        <h3>{editingId ? "Edit Donation" : "Donor & Donation"}</h3>
-=======
                         <h3>Donor & donation</h3>
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                         <p>Log a donation received or pledged. Fields marked * are required.</p>
                     </div>
 
@@ -993,11 +1009,7 @@ export default function Donations() {
                         {money && (
                             <label className="dl-field">
                                 <span>
-<<<<<<< HEAD
-                                    Receipt / Ref. no. {!editingId && <b>*</b>}{" "}
-=======
                                     Receipt / ref. no. <span className="required-mark">*</span>{" "}
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                                     <Help text="Required for cash recorded by staff, since there is no proof-of-payment photo." />
                                 </span>
                                 <input
@@ -1006,22 +1018,8 @@ export default function Donations() {
                                     value={donationForm.paymentReference}
                                     placeholder="e.g. OR-000123"
                                     onChange={(e) => setField("paymentReference", e.target.value)}
-                                    required={!editingId}
+                                    required
                                 />
-                            </label>
-                        )}
-
-                        {/* New donations always start as Pending; status is set when reviewing */}
-                        {editingId && (
-                            <label className="dl-field">
-                                <span>
-                                    Status <Help text="Received counts the donation in the totals and stock." />
-                                </span>
-                                <select value={donationForm.status} onChange={(e) => setField("status", e.target.value)}>
-                                    {["pending", "received", "cancelled"].map((value) => (
-                                        <option key={value} value={value}>{STATUS_LABEL[value]}</option>
-                                    ))}
-                                </select>
                             </label>
                         )}
 
@@ -1050,11 +1048,24 @@ export default function Donations() {
                                 onChange={(e) => setField("unit", e.target.value)}
                             >
                                 <option value="">Select</option>
-                                {UNITS.map((unit) => (
+                                {DONATION_UNITS.map((unit) => (
                                     <option key={unit} value={unit}>{unit}</option>
                                 ))}
                             </select>
                         </label>
+
+                        {!money && donationForm.unit === "Other" && (
+                            <label className="dl-field">
+                                <span>Type the unit</span>
+                                <input
+                                    maxLength={30}
+                                    placeholder="e.g. Trays, Dozens"
+                                    value={donationForm.otherUnit}
+                                    onChange={(e) => setField("otherUnit", e.target.value)}
+                                    required
+                                />
+                            </label>
+                        )}
 
                         <label className="dl-field">
                             <span>Delivery method</span>
@@ -1076,17 +1087,6 @@ export default function Donations() {
                                 onChange={(e) => setField("preferredDate", e.target.value)}
                             />
                         </label>
-
-                        <label className="dl-field">
-                            <span>
-                                Received On <Help text="Filled in automatically when the donation is marked Received." />
-                            </span>
-                            <input
-                                value={donationForm.receivedDate ? formatDate(donationForm.receivedDate) : ""}
-                                placeholder="Set when marked Received"
-                                disabled
-                            />
-                        </label>
                     </div>
 
                     {message && <p className={`gs-alert ${messageTone}`}>{message}</p>}
@@ -1095,15 +1095,11 @@ export default function Donations() {
                         <small>Next: you can mark this donation as Received later from the ledger.</small>
 
                         <div className="dl-form-actions">
-                            <button type="button" className="dl-btn" onClick={handleCancelEdit}>
+                            <button type="button" className="dl-btn" onClick={closeDonationForm}>
                                 Cancel
                             </button>
                             <button type="submit" className="dl-btn primary" disabled={submitting}>
-<<<<<<< HEAD
-                                {submitting ? "Saving..." : editingId ? "Save Changes" : "Save Donation"}
-=======
                                 {submitting ? "Saving…" : "Add donation"}
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                             </button>
                         </div>
                     </div>
@@ -1218,10 +1214,6 @@ export default function Donations() {
                                     const details = detailsFor(donation);
 
                                     return (
-<<<<<<< HEAD
-                                        <tr key={donation._id} className={status === "cancelled" ? "is-off" : ""}>
-                                            <td>
-=======
                                         <tr
                                             key={donation._id}
                                             className={`dl-row ${status === "cancelled" ? "is-off" : ""}`}
@@ -1236,35 +1228,29 @@ export default function Donations() {
                                             }}
                                         >
                                             <td data-label="Donor">
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                                                 <div className="dl-donor">
                                                     <b>{donation.donorName || "Anonymous"}</b>
                                                     <span>{donation.donorEmail || "No email"}</span>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td data-label="Type">
                                                 <span className={`dl-type ${typeTone(donation.donationType)}`}>
                                                     {donation.donationType}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td data-label="Details">
                                                 <div className="dl-details">
                                                     <b>{details.main}</b>
                                                     {details.sub && <span>{details.sub}</span>}
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td data-label="Status">
                                                 <span className={`dl-status is-${status}`}>
                                                     {STATUS_LABEL[status] || status}
                                                 </span>
                                             </td>
-<<<<<<< HEAD
-                                            <td className="dl-date">{formatDate(donation.createdAt)}</td>
-                                            <td>
-=======
                                             <td data-label="Date" className="dl-date">{formatDate(donation.createdAt)}</td>
                                             <td data-label="Actions" onClick={(event) => event.stopPropagation()}>
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                                                 <div className="dl-actions">
                                                     {status === "pending" ? (
                                                         <button
@@ -1280,18 +1266,6 @@ export default function Donations() {
                                                         </span>
                                                     )}
 
-<<<<<<< HEAD
-                                                    <button
-                                                        type="button"
-                                                        className="dl-icon-btn"
-                                                        title="Edit"
-                                                        onClick={() => handleEditDonation(donation)}
-                                                    >
-                                                        <Icon name="edit" size={15} />
-                                                    </button>
-
-=======
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
                                                     <div className="dl-menu-wrap">
                                                         <button
                                                             type="button"
@@ -1316,26 +1290,16 @@ export default function Donations() {
                                                                 style={{ top: openMenuPosition.top, right: openMenuPosition.right }}
                                                                 onClick={(e) => e.stopPropagation()}
                                                             >
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        setOpenMenuId(null);
-                                                                        handleEditDonation(donation);
-                                                                    }}
-                                                                >
-                                                                    Edit details
-                                                                </button>
-
                                                                 {status !== "cancelled" && (
                                                                     <button
                                                                         type="button"
                                                                         className="is-danger"
                                                                         onClick={() => {
                                                                             setOpenMenuId(null);
-                                                                            handleCancelDonation(donation._id);
+                                                                            handleMarkNotReceived(donation);
                                                                         }}
                                                                     >
-                                                                        Cancel donation
+                                                                        Mark as not received
                                                                     </button>
                                                                 )}
 
@@ -1363,8 +1327,6 @@ export default function Donations() {
                 )}
             </div>
 
-<<<<<<< HEAD
-=======
             {notReceivedFor && (
                 <div className="ao-confirm-backdrop" onClick={() => setNotReceivedFor(null)}>
                     <div
@@ -1520,15 +1482,13 @@ export default function Donations() {
                             </div>
 
                             <footer className="dl-view-foot">
-                                {isAdmin() && (
-                                    <button
-                                        type="button"
-                                        className="dl-btn danger"
-                                        onClick={() => handleDeleteDonation(donation._id)}
-                                    >
-                                        Delete record
-                                    </button>
-                                )}
+                                <button
+                                    type="button"
+                                    className="dl-btn danger"
+                                    onClick={() => handleDeleteDonation(donation)}
+                                >
+                                    Delete record
+                                </button>
                                 {status !== "cancelled" && (
                                     <button
                                         type="button"
@@ -1553,7 +1513,6 @@ export default function Donations() {
                 );
             })()}
 
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
             {!loading && visibleDonations.length > 0 && (
                 <div className="dl-footer">
                     <span>
@@ -1639,21 +1598,9 @@ export default function Donations() {
                                     <button type="button" className="dl-link" onClick={backToMethodList}>
                                         <UiIcon name="arrow-left" /> Back to list
                                     </button>{" "}
-                                    · Donors see this when they hover the (i) on needed items.
+                                    · Donors see this on the donation page and when they hover the (i) on needed items.
                                 </p>
 
-<<<<<<< HEAD
-                                <label className="dl-field">
-                                    <span>Address {dropOffForm.enabled && <b>*</b>}</span>
-                                    <input
-                                        value={dropOffForm.address}
-                                        maxLength={500}
-                                        placeholder="e.g. RescueBase Shelter, Lahug, Cebu City"
-                                        required={dropOffForm.enabled}
-                                        onChange={(e) => setDropOffForm({ ...dropOffForm, address: e.target.value })}
-                                    />
-                                </label>
-=======
                                 <div className="dl-field">
                                     <span>Address {dropOffForm.enabled && <span className="required-mark">*</span>}</span>
                                     <div className="ao-where-search">
@@ -1742,7 +1689,6 @@ export default function Donations() {
                                         )}
                                     </small>
                                 </div>
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
                                 <div className="dl-field">
                                     <span>Open days</span>
@@ -1971,7 +1917,7 @@ export default function Donations() {
                                 {methodMessage && <p className={`gs-alert ${methodTone}`}>{methodMessage}</p>}
 
                                 <div className="dl-pm-foot">
-                                    {editingMethodId ? (
+                                    {editingMethodId && isAdmin() ? (
                                         (() => {
                                             const used = methodUsage(methodForm.method_type);
                                             const current = methods.find((m) => m._id === editingMethodId);
@@ -1983,7 +1929,7 @@ export default function Donations() {
                                                     disabled={used > 0}
                                                     onClick={() => current && deleteMethod(current)}
                                                 >
-                                                    🗑 Delete method
+                                                    Delete method
                                                     {used > 0 && ` (unavailable: used by ${used} donation${used === 1 ? "" : "s"})`}
                                                 </button>
                                             );

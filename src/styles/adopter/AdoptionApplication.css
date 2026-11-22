@@ -1,6 +1,6 @@
 .adoption-module {
     width: 100%;
-    color: var(--adopter-brown, #5a1b00);
+    color: var(--brown);
 }
 
 .adoption-module-header {
@@ -18,13 +18,8 @@
             rgba(252, 191, 73, 0.25),
             transparent 40%
         ),
-<<<<<<< HEAD
-        #fffaf0;
-    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
-=======
         var(--paper);
     box-shadow: var(--shadow-dropdown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-module-header > div {
@@ -33,15 +28,9 @@
 
 .adoption-module-header > div > span {
     display: inline-block;
-<<<<<<< HEAD
-    margin-bottom: 7px;
-    color: #d62828;
-    font-size: 11px;
-=======
     margin-bottom: 8px;
     color: var(--red);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -52,18 +41,13 @@
     font-family: "Itim", cursive;
     font-size: clamp(29px, 3vw, 39px);
     line-height: 1.08;
-    color: #5a1b00;
+    color: var(--brown);
 }
 
 .adoption-module-header p {
     max-width: 720px;
-<<<<<<< HEAD
-    margin: 9px 0 0;
-    color: #75432f;
-=======
     margin: 8px 0 0;
     color: var(--brown-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
     line-height: 1.65;
 }
@@ -74,16 +58,16 @@
     padding: 8px 16px;
     border: 1px solid rgba(90, 27, 0, 0.17);
     border-radius: 12px;
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
     cursor: pointer;
 }
 
 .adoption-module-back:hover:not(:disabled) {
-    border-color: #fb8500;
-    background: #fcbf49;
+    border-color: var(--orange);
+    background: var(--yellow);
     transform: translateY(-1px);
 }
 
@@ -105,13 +89,8 @@
     padding: 24px;
     border: 1px solid rgba(90, 27, 0, 0.13);
     border-radius: 20px;
-<<<<<<< HEAD
-    background: #fffaf0;
-    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.09);
-=======
     background: var(--paper);
     box-shadow: var(--shadow-dropdown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-selected-pet-image {
@@ -119,15 +98,9 @@
     height: 245px;
     display: grid;
     place-items: center;
-<<<<<<< HEAD
-    margin-bottom: 17px;
-    border-radius: 17px;
-    background: #fff7cb;
-=======
     margin-bottom: 16px;
     border-radius: 20px;
     background: var(--white-yellow);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     overflow: hidden;
     font-size: 72px;
 }
@@ -141,24 +114,14 @@
 .adoption-selected-pet > h2 {
     margin: 8px 0 4px;
     font-family: "Itim", cursive;
-<<<<<<< HEAD
-    font-size: 31px;
-    color: #5a1b00;
-=======
     font-size: 32px;
     color: var(--brown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-selected-pet > p {
     margin: 0;
-<<<<<<< HEAD
-    color: #75432f;
-    font-size: 13px;
-=======
     color: var(--brown-soft);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     line-height: 1.5;
 }
 
@@ -173,20 +136,14 @@
     min-width: 0;
     padding: 12px;
     border-radius: 12px;
-    background: #fff7cb;
+    background: var(--white-yellow);
 }
 
 .adoption-selected-pet-details span {
     display: block;
-<<<<<<< HEAD
-    margin-bottom: 5px;
-    color: #75432f;
-    font-size: 10px;
-=======
     margin-bottom: 4px;
     color: var(--brown-soft);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -195,40 +152,28 @@
 .adoption-selected-pet-details strong {
     display: block;
     overflow-wrap: anywhere;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 12px;
     line-height: 1.4;
 }
 
 .adoption-selected-pet-note {
-<<<<<<< HEAD
-    margin-top: 18px;
-    padding: 15px;
-    border-left: 4px solid #fb8500;
-=======
     margin-top: 16px;
     padding: 16px;
     border-left: 4px solid var(--orange);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     border-radius: 12px;
-    background: #fff4d5;
+    background: var(--peach-soft);
 }
 
 .adoption-selected-pet-note h3 {
-<<<<<<< HEAD
-    margin: 0 0 6px;
-    color: #5a1b00;
-    font-size: 13px;
-=======
     margin: 0 0 8px;
     color: var(--brown);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-selected-pet-note p {
     margin: 0;
-    color: #75432f;
+    color: var(--brown-soft);
     font-size: 12px;
     line-height: 1.6;
 }
@@ -244,13 +189,8 @@
     padding: 24px;
     border: 1px solid rgba(90, 27, 0, 0.13);
     border-radius: 20px;
-<<<<<<< HEAD
-    background: #fffaf0;
-    box-shadow: 0 12px 28px rgba(90, 27, 0, 0.08);
-=======
     background: var(--paper);
     box-shadow: var(--shadow-dropdown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-form-heading {
@@ -264,15 +204,9 @@
     margin-bottom: 8px;
     padding: 4px 8px;
     border-radius: 999px;
-<<<<<<< HEAD
-    background: #fff7cb;
-    color: #d96f00;
-    font-size: 10px;
-=======
     background: var(--white-yellow);
     color: var(--orange-dark);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -281,13 +215,8 @@
 .adoption-form-heading h3 {
     margin: 0;
     font-family: "Itim", cursive;
-<<<<<<< HEAD
-    font-size: 25px;
-    color: #5a1b00;
-=======
     font-size: 24px;
     color: var(--brown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-form-grid {
@@ -302,7 +231,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
 }
@@ -314,14 +243,8 @@
     width: 100%;
     border: 1px solid rgba(90, 27, 0, 0.18);
     border-radius: 12px;
-<<<<<<< HEAD
-    outline: none;
-    background: #ffffff;
-    color: #5a1b00;
-=======
     background: var(--white);
     color: var(--brown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font: inherit;
     font-size: 14px;
     font-weight: 400;
@@ -348,27 +271,21 @@
 .adoption-form-grid select:focus,
 .adoption-form-grid textarea:focus,
 .adoption-document-upload input:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
 .adoption-form-grid input[readonly] {
-    background: #f4edce;
-    color: #7b6658;
+    background: var(--peach-soft);
+    color: var(--brown-muted);
     cursor: not-allowed;
 }
 
 .adoption-form-grid small,
 .adoption-document-upload small {
-<<<<<<< HEAD
-    color: #86604d;
-    font-size: 10px;
-    font-weight: 500;
-=======
     color: var(--brown-muted);
     font-size: 12px;
     font-weight: 400;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     line-height: 1.5;
 }
 
@@ -379,13 +296,8 @@
 .adoption-document-upload {
     padding: 16px;
     border: 2px dashed rgba(251, 133, 0, 0.38);
-<<<<<<< HEAD
-    border-radius: 15px;
-    background: #fff9df;
-=======
     border-radius: 12px;
     background: var(--peach-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-document-upload input {
@@ -398,15 +310,9 @@
     margin-right: 12px;
     padding: 8px 12px;
     border: 0;
-<<<<<<< HEAD
-    border-radius: 9px;
-    background: #fb8500;
-    color: #ffffff;
-=======
     border-radius: 8px;
     background: var(--orange);
     color: var(--white);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-family: inherit;
     font-size: 12px;
     font-weight: 800;
@@ -414,7 +320,7 @@
 }
 
 .adoption-document-upload input::file-selector-button:hover {
-    background: #d96f00;
+    background: var(--orange-dark);
 }
 
 .adoption-document-preview {
@@ -425,13 +331,8 @@
     margin-top: 16px;
     padding: 16px;
     border: 1px solid rgba(90, 27, 0, 0.13);
-<<<<<<< HEAD
-    border-radius: 15px;
-    background: #fff7cb;
-=======
     border-radius: 12px;
     background: var(--white-yellow);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-document-preview img {
@@ -452,51 +353,33 @@
 .adoption-document-preview strong {
     max-width: 100%;
     overflow: hidden;
-<<<<<<< HEAD
-    color: #5a1b00;
-    font-size: 13px;
-=======
     color: var(--brown);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .adoption-document-preview span {
-<<<<<<< HEAD
-    color: #9a6400;
-    font-size: 11px;
-    font-weight: 700;
-=======
     color: var(--amber);
     font-size: 12px;
     font-weight: 800;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-document-preview button {
     margin-top: 4px;
     padding: 8px 12px;
     border: 1px solid rgba(214, 40, 40, 0.25);
-<<<<<<< HEAD
-    border-radius: 9px;
-    background: #ffffff;
-    color: #d62828;
-    font-size: 10px;
-=======
     border-radius: 8px;
     background: var(--white);
     color: var(--red);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: pointer;
 }
 
 .adoption-document-preview button:hover:not(:disabled) {
-    border-color: #d62828;
-    background: #fbe1e1;
+    border-color: var(--red);
+    background: var(--red-soft);
 }
 
 .adoption-document-preview button:disabled {
@@ -515,14 +398,14 @@
 
 .adoption-module-message.success {
     border-color: rgba(47, 143, 91, 0.28);
-    background: #dff5e8;
-    color: #237346;
+    background: var(--green-soft);
+    color: var(--green-dark);
 }
 
 .adoption-module-message.error {
     border-color: rgba(214, 40, 40, 0.25);
-    background: #fbe1e1;
-    color: #b01f1f;
+    background: var(--red-soft);
+    color: var(--red-dark);
 }
 
 .adoption-module-actions {
@@ -552,37 +435,26 @@
 
 .adoption-cancel-button {
     border: 1px solid rgba(90, 27, 0, 0.2);
-    background: #fffaf0;
-    color: #5a1b00;
+    background: var(--paper);
+    color: var(--brown);
 }
 
 .adoption-cancel-button:hover:not(:disabled) {
-    border-color: #fb8500;
-    background: #fff7cb;
+    border-color: var(--orange);
+    background: var(--white-yellow);
 }
 
 .adoption-submit-button {
     border: 0;
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #fb8500, #f5a623);
-    color: #ffffff;
-    box-shadow: 0 9px 20px rgba(251, 133, 0, 0.23);
-=======
     background: linear-gradient(135deg, var(--orange), var(--orange-light));
     color: var(--white);
     box-shadow: var(--shadow-dropdown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-submit-button:hover:not(:disabled) {
     transform: translateY(-1px);
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #d96f00, #fb8500);
-    box-shadow: 0 12px 24px rgba(251, 133, 0, 0.28);
-=======
     background: linear-gradient(135deg, var(--orange-dark), var(--orange));
     box-shadow: var(--shadow-dropdown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-cancel-button:disabled,
@@ -598,15 +470,9 @@
     margin: 40px auto;
     padding: 40px 32px;
     border: 1px solid rgba(90, 27, 0, 0.13);
-<<<<<<< HEAD
-    border-radius: 22px;
-    background: #fffaf0;
-    color: #5a1b00;
-=======
     border-radius: 20px;
     background: var(--paper);
     color: var(--brown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     text-align: center;
     box-shadow: var(--shadow-modal);
 }
@@ -618,13 +484,8 @@
     place-items: center;
     margin: 0 auto 16px;
     border-radius: 50%;
-<<<<<<< HEAD
-    background: #fff7cb;
-    font-size: 39px;
-=======
     background: var(--white-yellow);
     font-size: 40px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-module-empty h2 {
@@ -635,15 +496,9 @@
 
 .adoption-module-empty p {
     max-width: 470px;
-<<<<<<< HEAD
-    margin: 12px auto 22px;
-    color: #75432f;
-    font-size: 13px;
-=======
     margin: 12px auto 24px;
     color: var(--brown-soft);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     line-height: 1.65;
 }
 
@@ -652,8 +507,8 @@
     padding: 8px 16px;
     border: 0;
     border-radius: 12px;
-    background: #fb8500;
-    color: #ffffff;
+    background: var(--orange);
+    color: var(--white);
     font-family: inherit;
     font-size: 12px;
     font-weight: 800;
@@ -661,7 +516,7 @@
 }
 
 .adoption-module-empty button:hover {
-    background: #d96f00;
+    background: var(--orange-dark);
     transform: translateY(-1px);
 }
 
@@ -766,142 +621,6 @@
     }
 }
 
-<<<<<<< HEAD
-.adoption-draft-note {
-    display: block;
-    margin-top: 10px;
-    color: #75432f;
-    font-size: 11px;
-    text-align: right;
-}
-
-.adoption-tracker {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin: -8px 0 24px;
-    padding: 12px 20px;
-    border: 1px solid rgba(90, 27, 0, 0.13);
-    border-radius: 16px;
-    background: #fffaf0;
-}
-
-.adoption-tracker ol {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.adoption-tracker li {
-    display: flex;
-    align-items: center;
-    flex: 1;
-}
-
-.adoption-tracker li:last-child {
-    flex: 0 0 auto;
-}
-
-/* connector line between steps */
-.adoption-tracker li:not(:last-child)::after {
-    content: "";
-    flex: 1;
-    height: 2px;
-    margin: 0 14px;
-    border-radius: 999px;
-    background: rgba(90, 27, 0, 0.12);
-}
-
-.adoption-tracker li.is-done:not(:last-child)::after {
-    background: #fb8500;
-}
-
-.adoption-tracker button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: #a07c66;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.adoption-tracker button b {
-    width: 22px;
-    height: 22px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: #f1e6c8;
-    color: #a07c66;
-    font-size: 11px;
-}
-
-.adoption-tracker li.is-current button {
-    color: #5a1b00;
-}
-
-.adoption-tracker li.is-current button b {
-    background: #fb8500;
-    color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
-}
-
-.adoption-tracker li.is-done button {
-    color: #5a1b00;
-}
-
-.adoption-tracker li.is-done button b {
-    background: #2f8f5b;
-    color: #ffffff;
-}
-
-.adoption-tracker-pill {
-    flex-shrink: 0;
-    padding: 5px 14px;
-    border-radius: 999px;
-    background: #fff4c4;
-    color: #5a1b00;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.adoption-tracker-pill.is-ready {
-    background: #e3f6ea;
-    color: #2f8f5b;
-}
-
-@media (max-width: 650px) {
-    .adoption-tracker {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    .adoption-tracker li:not(:last-child)::after {
-        margin: 0 8px;
-    }
-
-    .adoption-tracker-pill {
-        align-self: flex-start;
-    }
-}
-
-.adoption-tracker li.is-done.is-current button b {
-    background: #fb8500;
-    box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
-}
-
-=======
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 /* ===== Step heading with number badge ===== */
 .adoption-form-heading--numbered {
     display: flex;
@@ -918,8 +637,8 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: #fb8500;
-    color: #ffffff;
+    background: var(--orange);
+    color: var(--white);
     font-size: 14px;
     font-weight: 800;
     box-shadow: 0 0 0 4px rgba(251, 133, 0, 0.18);
@@ -931,7 +650,7 @@
 
 .adoption-form-heading--numbered p {
     margin: 4px 0 0;
-    color: #75432f;
+    color: var(--brown-soft);
     font-size: 12px;
     font-weight: 400;
 }
@@ -941,17 +660,17 @@
 .adoption-form-grid select,
 .adoption-form-grid textarea {
     border-color: rgba(251, 133, 0, 0.28);
-    background: #fff7d6;
+    background: var(--peach-soft);
 }
 
 .adoption-form-grid input::placeholder,
 .adoption-form-grid textarea::placeholder {
-    color: #b3967f;
+    color: var(--brown-muted);
 }
 
 /* required star */
 .adoption-label-text em {
-    color: #d62828;
+    color: var(--red);
     font-style: normal;
 }
 
@@ -964,8 +683,8 @@
 .adoption-locked-field input[readonly] {
     padding-right: 40px;
     border-color: rgba(90, 27, 0, 0.12);
-    background: #f6efd6;
-    color: #7b6658;
+    background: var(--peach-soft);
+    color: var(--brown-muted);
 }
 
 .adoption-lock-icon {
@@ -976,56 +695,19 @@
     height: 15px;
     transform: translateY(-50%);
     fill: none;
-    stroke: #a07c66;
+    stroke: var(--brown-muted);
     stroke-width: 2;
     stroke-linecap: round;
     pointer-events: none;
 }
 
-<<<<<<< HEAD
-/* ===== +63 phone field ===== */
-.adoption-phone-field {
-    display: flex;
-    align-items: stretch;
-    border: 1px solid rgba(251, 133, 0, 0.28);
-    border-radius: 12px;
-    background: #fff7d6;
-    overflow: hidden;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.adoption-phone-field:focus-within {
-    border-color: #fb8500;
-    box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
-}
-
-.adoption-phone-prefix {
-    display: grid;
-    place-items: center;
-    padding: 0 14px;
-    border-right: 1px solid rgba(251, 133, 0, 0.28);
-    background: #ffeeb8;
-    color: #5a1b00;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.adoption-form-grid .adoption-phone-field input {
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-}
-
-=======
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 /* ===== Home type choice buttons ===== */
 .adoption-choice-field {
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
 }
@@ -1047,8 +729,8 @@
     padding: 8px 8px;
     border: 1px solid rgba(251, 133, 0, 0.28);
     border-radius: 12px;
-    background: #fff7d6;
-    color: #5a1b00;
+    background: var(--peach-soft);
+    color: var(--brown);
     font-family: inherit;
     font-size: 12px;
     font-weight: 800;
@@ -1057,20 +739,14 @@
 }
 
 .adoption-choice-group button:hover {
-    background: #ffeeb8;
+    background: var(--amber-soft);
 }
 
 .adoption-choice-group button.is-selected {
     border-color: transparent;
-<<<<<<< HEAD
-    background: linear-gradient(115deg, #fb8500, #ffa53a);
-    color: #ffffff;
-    box-shadow: 0 6px 14px rgba(251, 133, 0, 0.3);
-=======
     background: linear-gradient(115deg, var(--orange), var(--orange-light));
     color: var(--white);
     box-shadow: var(--shadow-dropdown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 @media (max-width: 640px) {
@@ -1088,15 +764,9 @@
     place-items: center;
     margin-left: 4px;
     border-radius: 50%;
-<<<<<<< HEAD
-    background: #fb8500;
-    color: #ffffff;
-    font-size: 11px;
-=======
     background: var(--orange);
     color: var(--white);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: help;
 }
@@ -1114,8 +784,8 @@
     width: 260px;
     padding: 12px 16px;
     border-radius: 8px;
-    background: #4a1a00;
-    color: #ffffff;
+    background: var(--brown);
+    color: var(--white);
     font-size: 12px;
     font-weight: 400;
     line-height: 1.55;
@@ -1137,7 +807,7 @@
     left: 15px;
     border-width: 0 6px 6px;
     border-style: solid;
-    border-color: transparent transparent #4a1a00;
+    border-color: transparent transparent var(--brown);
 }
 
 .adoption-module .admin-info-tip:hover .admin-info-tip-bubble,
@@ -1182,53 +852,6 @@
     }
 }
 
-<<<<<<< HEAD
-.adoption-form-grid input.has-error,
-.adoption-form-grid textarea.has-error,
-.adoption-choice-field > input.has-error,
-.adoption-phone-field.has-error {
-    border-color: #d62828;
-    background: #fff1ee;
-}
-
-.adoption-form-grid input.has-error:focus,
-.adoption-form-grid textarea.has-error:focus,
-.adoption-phone-field.has-error:focus-within {
-    border-color: #d62828;
-    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.14);
-}
-
-.adoption-phone-field.has-error .adoption-phone-prefix {
-    border-right-color: rgba(214, 40, 40, 0.35);
-    background: #ffe1db;
-}
-
-.adoption-form-grid .adoption-field-error,
-.adoption-choice-field .adoption-field-error {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #c21f1f;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.adoption-field-error::before {
-    content: "!";
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: #d62828;
-    color: #fff;
-    font-size: 9px;
-    font-weight: 800;
-}
-
-=======
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 /* ===== Step 2: Yes / No buttons ===== */
 .adoption-choice-group.adoption-choice-group--yesno {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1253,13 +876,8 @@
     position: absolute;
     right: 14px;
     bottom: 10px;
-<<<<<<< HEAD
-    color: #a07c66;
-    font-size: 10px;
-=======
     color: var(--brown-muted);
     font-size: 12px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 600;
     pointer-events: none;
 }
@@ -1289,7 +907,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    color: #5a1b00;
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
 }
@@ -1301,13 +919,8 @@
     gap: 16px;
     padding: 24px 24px;
     border: 2px dashed rgba(251, 133, 0, 0.45);
-<<<<<<< HEAD
-    border-radius: 15px;
-    background: #fff7d6;
-=======
     border-radius: 12px;
     background: var(--peach-soft);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     cursor: pointer;
     transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -1315,8 +928,8 @@
 .adoption-dropzone:hover,
 .adoption-dropzone.is-dragging,
 .adoption-dropzone:focus-within {
-    border-color: #fb8500;
-    background: #ffeeb8;
+    border-color: var(--orange);
+    background: var(--amber-soft);
 }
 
 .adoption-dropzone.is-uploading {
@@ -1324,14 +937,6 @@
     opacity: 0.7;
 }
 
-<<<<<<< HEAD
-.adoption-dropzone.has-error {
-    border-color: #d62828;
-    background: #fff1ee;
-}
-
-=======
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 /* hidden but still focusable for the error scroll */
 .adoption-dropzone-input {
     position: absolute;
@@ -1348,14 +953,14 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: #ffe2a8;
+    background: var(--amber-soft);
 }
 
 .adoption-dropzone-icon svg {
     width: 24px;
     height: 24px;
     fill: none;
-    stroke: #fb8500;
+    stroke: var(--orange);
     stroke-width: 2.2;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -1370,21 +975,15 @@
 }
 
 .adoption-dropzone-text strong {
-    color: #3a1200;
+    color: var(--brown-strong);
     font-size: 14px;
     font-weight: 800;
 }
 
 .adoption-dropzone-text small {
-<<<<<<< HEAD
-    color: #86604d;
-    font-size: 11px;
-    font-weight: 500;
-=======
     color: var(--brown-muted);
     font-size: 12px;
     font-weight: 400;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-dropzone-tags {
@@ -1398,55 +997,28 @@
     padding: 3px 8px;
     border: 1px solid rgba(251, 133, 0, 0.35);
     border-radius: 999px;
-<<<<<<< HEAD
-    background: #fffaf0;
-    color: #5a1b00;
-    font-size: 10px;
-    font-weight: 700;
-=======
     background: var(--paper);
     color: var(--brown);
     font-size: 12px;
     font-weight: 800;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .adoption-dropzone-button {
     flex-shrink: 0;
-<<<<<<< HEAD
-    padding: 11px 20px;
-    border-radius: 10px;
-    background: #4a1a00;
-    color: #ffffff;
-=======
     padding: 12px 20px;
     border-radius: 12px;
     background: var(--brown);
     color: var(--white);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 12px;
     font-weight: 800;
     transition: background 0.2s ease;
 }
 
 .adoption-dropzone:hover .adoption-dropzone-button {
-    background: #fb8500;
+    background: var(--orange);
 }
 
-<<<<<<< HEAD
-.adoption-id-field .adoption-field-error {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #c21f1f;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-@media (max-width: 650px) {
-=======
 @media (max-width: 640px) {
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     .adoption-dropzone {
         flex-direction: column;
         text-align: center;
@@ -1460,9 +1032,6 @@
         width: 100%;
         text-align: center;
     }
-<<<<<<< HEAD
-}
-=======
 }
 
 /* ===== Fields: same look as the Lost & Found report form (lfr2-field), rounded corners kept ===== */
@@ -1557,4 +1126,3 @@
     border-color: var(--red-dark);
     background: var(--red-soft);
 }
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe

@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
-=======
 import { formatDate, toDayValue } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -99,7 +96,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
        async function loadAdoptionApp() {
            try {
                const response = await fetch(`${API}/api/adoptions/user/latest`, {
-                   headers: { Authorization: `Bearer ${token}` },
+                   headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
                });
                const data = await response.json();
                setAdoptApp(response.ok && data.success ? data.application : null);
@@ -156,6 +153,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify(returnForm),
                 }
@@ -181,7 +179,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
     // Load the shelter's name and contacts once (name shows on the pet card)
     useEffect(() => {
         if (!token) return;
-        fetch(`${API}/api/settings/contact`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${API}/api/settings/contact`, { headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" } })
             .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
             .then(({ ok, data }) => {
                 if (ok && data.success) setContact(data.contact);
@@ -197,7 +195,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
 
         try {
             const response = await fetch(`${API}/api/settings/contact`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
             setContact(response.ok && data.success ? data.contact : {});
@@ -230,6 +228,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -267,18 +266,6 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
         }
     }, []);
 
-    function formatDate(date) {
-        if (!date) return "N/A";
-
-        return new Date(date).toLocaleDateString(
-            "en-PH",
-            {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            }
-        );
-    }
 
     // Weekly report: "sent" if one went in during the last 7 days, otherwise when it's due
     function reportStatus(item) {
@@ -303,7 +290,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
         }
 
         return {
-            label: `Report due ${due.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+            label: `Report due ${formatDate(due, { withYear: false })}`,
             tone: "is-due",
         };
     }
@@ -703,7 +690,7 @@ export default function FosterAssignment({ application = null, onNavigate, onAdo
                                     <input
                                         type="date"
                                         value={returnForm.preferredDate}
-                                        min={new Date().toISOString().slice(0, 10)}
+                                        min={toDayValue()}
                                         onChange={(e) => setReturnForm({ ...returnForm, preferredDate: e.target.value })}
                                     />
                                 </label>

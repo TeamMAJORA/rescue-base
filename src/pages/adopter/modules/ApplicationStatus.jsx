@@ -1,38 +1,7 @@
 import { useState } from "react";
-<<<<<<< HEAD
-function formatDate(dateValue, includeTime = false) {
-    if (!dateValue) {
-        return "Not Available";
-    }
-
-    const date = new Date(dateValue);
-
-    if (Number.isNaN(date.getTime())) {
-        return "Not Available";
-    }
-
-    return date.toLocaleString(
-        "en-PH",
-        includeTime
-            ? {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-            }
-            : {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            }
-    );
-}
-=======
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import Icon from "../../../components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 // Pet card helpers (status pill on the photo + short dates)
 const PET_CARD_STATUS = {
@@ -97,11 +66,6 @@ function PetCardIcon({ name, size = 18 }) {
     );
 }
 
-function shortDate(dateValue) {
-    const date = new Date(dateValue);
-    if (!dateValue || Number.isNaN(date.getTime())) return "Not available";
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
 
 // Application History table
 const HISTORY_LABELS = {
@@ -269,7 +233,7 @@ export default function ApplicationStatus({
         return (
             <section className="application-status-loading">
                 <div className="application-status-loading-icon">
-                    🐾
+                    <PetTypeIcon />
                 </div>
 
                 <h2>Loading application status…</h2>
@@ -395,7 +359,7 @@ export default function ApplicationStatus({
         {
             label: "Interview",
             detail: hasInterview
-                ? formatDate(application.interviewSchedule, true)
+                ? formatDateTime(application.interviewSchedule)
                 : isApproved || isRejected || isWithdrawn
                     ? "Not held"
                     : "To be scheduled",
@@ -490,14 +454,14 @@ export default function ApplicationStatus({
                             <span className="asp-date-icon"><PetCardIcon name="calendar" /></span>
                             <div>
                                 <small>Submitted</small>
-                                <b>{shortDate(application.submittedAt)}</b>
+                                <b>{formatDate(application.submittedAt)}</b>
                             </div>
                         </div>
                         <div className="asp-date">
                             <span className="asp-date-icon"><PetCardIcon name="refresh" /></span>
                             <div>
                                 <small>Last updated</small>
-                                <b>{shortDate(application.updatedAt)}</b>
+                                <b>{formatDate(application.updatedAt)}</b>
                             </div>
                         </div>
                     </div>
@@ -615,7 +579,7 @@ export default function ApplicationStatus({
                                 {isInterviewScheduled && application.interviewSchedule && (
                                     <div className="application-interview-card">
                                         <span>Interview Schedule</span>
-                                        <strong>{formatDate(application.interviewSchedule, true)}</strong>
+                                        <strong>{formatDateTime(application.interviewSchedule)}</strong>
                                     </div>
                                 )}
 
@@ -666,10 +630,7 @@ export default function ApplicationStatus({
                                         </span>
 
                                         <strong>
-                                            {formatDate(
-                                                application.interviewSchedule,
-                                                true
-                                            )}
+                                            {formatDateTime(application.interviewSchedule)}
                                         </strong>
                                     </div>
                                 ) : (
@@ -874,10 +835,10 @@ export default function ApplicationStatus({
                                                 {rowId.slice(-8).toUpperCase()}
                                             </span>
                                             <span className="ahx-cell" data-label="Submitted">
-                                                {shortDate(row.submittedAt)}
+                                                {formatDate(row.submittedAt)}
                                             </span>
                                             <span className="ahx-cell" data-label="Last updated">
-                                                {shortDate(row.updatedAt || row.closedAt || row.submittedAt)}
+                                                {formatDate(row.updatedAt || row.closedAt || row.submittedAt)}
                                             </span>
                                             <span className="ahx-cell" data-label="Status">
                                                 <span className={`ahx-pill is-${row.status}`}>

@@ -19,15 +19,9 @@
 .admin-user-message {
     margin: 0;
     padding: 12px 16px;
-<<<<<<< HEAD
-    border-radius: 14px;
-    background: #fff7cb;
-    color: #5a1b00;
-=======
     border-radius: 12px;
     background: var(--white-yellow);
     color: var(--brown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
     font-weight: 800;
     border: 1px solid rgba(251, 133, 0, 0.22);
@@ -40,33 +34,22 @@
     gap: 16px;
     padding: 16px;
     border-radius: 20px;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.1);
 }
 
 .admin-user-edit-form h3 {
     grid-column: 1 / -1;
     margin: 0 0 4px;
-<<<<<<< HEAD
-    color: #5a1b00;
-    font-size: 18px;
-=======
     color: var(--brown);
     font-size: 20px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .admin-user-edit-form label {
     display: grid;
-<<<<<<< HEAD
-    gap: 7px;
-    color: #5a1b00;
-    font-size: 13px;
-=======
     gap: 8px;
     color: var(--brown);
     font-size: 14px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
 }
 
@@ -75,23 +58,16 @@
     width: 100%;
     min-height: 42px;
     border: 1px solid rgba(90, 27, 0, 0.16);
-<<<<<<< HEAD
-    border-radius: 14px;
-    padding: 10px 12px;
-    background: white;
-    color: #5a1b00;
-=======
     border-radius: 12px;
     padding: 8px 12px;
     background: var(--white);
     color: var(--brown);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-size: 14px;
 }
 
 .admin-user-edit-form input:focus,
 .admin-user-edit-form select:focus {
-    border-color: #fb8500;
+    border-color: var(--orange);
     box-shadow: 0 0 0 3px rgba(251, 133, 0, 0.12);
 }
 
@@ -111,13 +87,13 @@
 }
 
 .admin-user-form-actions button[type="submit"] {
-    background: #fb8500;
-    color: white;
+    background: var(--orange);
+    color: var(--white);
 }
 
 .admin-user-form-actions button[type="button"] {
-    background: #e9dcc4;
-    color: #5a1b00;
+    background: var(--line-soft);
+    color: var(--brown);
 }
 
 /* User list */
@@ -133,7 +109,7 @@
     gap: 16px;
     padding: 16px 16px;
     border-radius: 20px;
-    background: #fffaf0;
+    background: var(--paper);
     border: 1px solid rgba(90, 27, 0, 0.08);
 }
 
@@ -143,15 +119,9 @@
 }
 
 .admin-user-row h3 {
-<<<<<<< HEAD
-    margin: 0 0 5px;
-    color: #5a1b00;
-    font-size: 17px;
-=======
     margin: 0 0 4px;
     color: var(--brown);
     font-size: 16px;
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 }
 
 .admin-user-row p {
@@ -178,8 +148,8 @@
 .admin-user-badges span {
     padding: 8px 12px;
     border-radius: 999px;
-    background: #fff7cb;
-    color: #5a1b00;
+    background: var(--white-yellow);
+    color: var(--brown);
     font-size: 12px;
     font-weight: 800;
     text-transform: capitalize;
@@ -189,17 +159,10 @@
 /* Row button */
 .admin-user-row button {
     border: none;
-<<<<<<< HEAD
-    border-radius: 14px;
-    padding: 10px 16px;
-    background: #fb8500;
-    color: white;
-=======
     border-radius: 12px;
     padding: 8px 16px;
     background: var(--orange);
     color: var(--white);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
@@ -256,23 +219,23 @@
 }
 
 .deactivate-btn {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: var(--red-soft);
+    color: var(--red-dark);
 }
 
 .deactivate-btn:hover {
-    background: #fecaca;
+    background: var(--red-soft);
 }
 
 .deactivate-btn:disabled {
-    background: #e5e7eb;
-    color: #6b7280;
+    background: var(--white);
+    color: var(--brown-muted);
     cursor: not-allowed;
 }
 
 .edit-btn {
-    background: #e0e7ff;
-    color: #3730a3;
+    background: var(--blue-soft);
+    color: var(--blue);
 }
 
 .edit-btn:hover {
@@ -306,9 +269,6 @@
     .admin-user-row-actions .admin-user-action-btn {
         width: auto;
     }
-<<<<<<< HEAD
-}
-=======
 }
 /* ===================== User Management redesign (Nov 9) ===================== */
 /* Plain headings (no highlight), flat cards, 12/8/6px corners, shadow only on the floating menu */
@@ -451,4 +411,3 @@
     .um-table tr.um-row td:nth-child(1) { grid-row: auto; }
     .um-modal .um-actions { flex-wrap: wrap; }
 }
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe

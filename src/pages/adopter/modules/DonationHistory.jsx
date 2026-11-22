@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-<<<<<<< HEAD
-=======
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { formatDate } from "../../../utils/formatDate";
 import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -28,18 +25,11 @@ function moneyValue(donation) {
 }
 
 
-function formatDate(date) {
-    if (!date) return "--";
-
-    return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
-}
 
 function formatStatus(status) {
     if (!status) return "Pending";
+    // Stored as "cancelled": the donation never reached the shelter
+    if (status === "cancelled") return "Not received";
     return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
@@ -59,7 +49,7 @@ function rowSubtitle(donation) {
     }
 
     if (status === "pending") return "Waiting for staff to confirm receipt";
-    if (status === "cancelled") return "This donation was cancelled";
+    if (status === "cancelled") return "The shelter didn't receive this donation";
 
     return `${donation.quantity || 1} × ${donation.donationType}`;
 }
@@ -129,7 +119,7 @@ export default function DonationHistory({ onMakeDonation }) {
             setError("");
 
             const response = await fetch(`${API}/api/donations/my`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
 
             const data = await response.json();
@@ -245,13 +235,8 @@ export default function DonationHistory({ onMakeDonation }) {
 
                 {hasNoDonations && (
                     <div className="dh-empty">
-<<<<<<< HEAD
-                        <div className="dh-empty-icon" aria-hidden="true">🐾</div>
-                        <h3>No Donations Yet</h3>
-=======
                         <div className="dh-empty-icon" aria-hidden="true"><PetTypeIcon /></div>
                         <h3>No donations yet</h3>
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                         <p>Your donations will appear here once you submit one.</p>
                         {onMakeDonation && (
                             <button type="button" onClick={onMakeDonation}>
@@ -342,6 +327,13 @@ export default function DonationHistory({ onMakeDonation }) {
 
                                 <dt>Status</dt>
                                 <dd>{formatStatus(selected.status)}</dd>
+
+                                {selected.status === "cancelled" && (
+                                    <>
+                                        <dt>Reason</dt>
+                                        <dd>{selected.notReceivedReason || "No reason was given."}</dd>
+                                    </>
+                                )}
 
                                 <dt>Submitted</dt>
                                 <dd>{formatDate(selected.createdAt)}</dd>

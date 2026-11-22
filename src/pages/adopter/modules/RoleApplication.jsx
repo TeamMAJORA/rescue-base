@@ -2,12 +2,9 @@ import { useState, useEffect } from "react";
 import InfoTip from "../../../components/system/InfoTip";
 import FosterApplication from "../../foster/modules/FosterApplication";
 import "../../../styles/foster/FosterApplication.css";
-<<<<<<< HEAD
-=======
 import { formatDate } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -33,6 +30,7 @@ export default function RoleApplication() {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                 }
             );
@@ -55,7 +53,7 @@ export default function RoleApplication() {
     async function fetchFosterApplication() {
         try {
             const response = await fetch(`${API}/api/foster/applications/me`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
@@ -82,6 +80,7 @@ export default function RoleApplication() {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
                 },
                 body: JSON.stringify({}),
             });
@@ -124,6 +123,7 @@ export default function RoleApplication() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         targetRole,
@@ -175,10 +175,6 @@ export default function RoleApplication() {
     const ROLE_LABELS = { volunteer: "Volunteer", foster: "Foster caregiver" };
     const STATUS_LABELS = { none: "None", pending: "Pending", approved: "Approved", rejected: "Declined", withdrawn: "Revoked" };
 
-    function formatDate(value) {
-        if (!value) return "";
-        return new Date(value).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
-    }
 
     const raSteps = [
         {

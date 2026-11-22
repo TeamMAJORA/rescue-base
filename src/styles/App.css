@@ -1,16 +1,45 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Itim&family=Karma:wght@400;500;700&display=swap");
 
 :root {
-    --cream: #eae2b7;
-    --cream-card: #f9f5eb;
-    --yellow: #fcbf49;
+    /* The only colour palette. Module CSS uses var(--name), never hex codes. */
+    /* Brand */
     --orange: #fb8500;
+    --orange-dark: #d96f00;      /* hover / pressed */
+    --orange-light: #ffa53a;     /* gradient end */
+    --peach: #fde3bf;
+    --peach-soft: #fff3d6;
+    --yellow: #fcbf49;
+    --gold: #f3d98a;
+    /* Landing page bands (header, hero top, stats, closing banner) */
+    --landing-orange: #FCA227;
+
+    /* Text (darkest to lightest) */
+    --brown-strong: #3a1200;
     --brown: #5a1b00;
-    --brown-soft: #7a3e19;
-    --red: #d62828;
-    --red-dark: #aa2020;
-    --dark: #2f2f30;
+    --brown-soft: #7b452d;
+    --brown-muted: #8a6a4a;
+
+    /* Surfaces and lines */
+    --cream: #eae2b7;            /* page background */
+    --cream-card: #f9f5eb;
+    --white: #ffffff;
+    --paper: #fffaf0;
     --white-yellow: #fff7cb;
+    --line: #e3d5b5;
+    --line-soft: #efe4cb;
+
+    /* Status: strong colour for text/icons, soft for backgrounds */
+    --green: #2f8f5b;
+    --green-dark: #1f7a45;
+    --green-soft: #dff5e8;
+    --red: #d62828;
+    --red-dark: #b42318;
+    --red-soft: #fdeaea;
+    --amber: #8a5a00;
+    --amber-soft: #fff4c4;
+    --blue: #1c5cab;
+    --blue-soft: #e3effd;
+    --dark: #2f2f30;
 }
 
 * {
@@ -63,14 +92,9 @@ img {
    so the nav sits in the true centre of the page whatever the side widths are. */
 .header {
     height: 119px;
-<<<<<<< HEAD
-    background: var(--yellow);
-    display: flex;
-=======
     background: var(--landing-orange);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
     align-items: center;
     column-gap: 24px;
     padding: 0 58px;
@@ -94,7 +118,7 @@ img {
     margin-left: 8px;
     font-family: "Itim", cursive;
     font-size: 48px;
-    color: var(--red);
+    color: var(--brown);
     line-height: 1;
 }
 
@@ -105,7 +129,7 @@ img {
     gap: 18px;
     font-family: "Itim", cursive;
     font-size: 16px;
-    color: var(--red);
+    color: var(--brown);
 }
 
 .nav img {
@@ -191,7 +215,7 @@ img {
     position: absolute;
     inset: 0 0 auto 0;
     height: 360px;
-    background: var(--yellow);
+    background: var(--landing-orange);
     z-index: 0;
 }
 
@@ -222,7 +246,7 @@ img {
     top: 300px;
     left: 50%;
 
-    opacity: 0.55;
+    opacity: 0.28;
     transform: translateX(-50%) rotate(23deg);
     transform-origin: center center;
 
@@ -230,7 +254,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 1;
+    z-index: 0;
 }
 
 
@@ -262,20 +286,20 @@ img {
     right: -2%;
     bottom: -8px;
     height: 6px;
-    background: #0d0d0d;
+    background: var(--dark);
     border-radius: 2px 4px 3px 1px;
     transform: rotate(0.8deg);
     mask-image: repeating-linear-gradient(90deg,
-            #000 0px,
-            #000 4px,
+            var(--dark) 0px,
+            var(--dark) 4px,
             rgba(0, 0, 0, 0.85) 5px,
-            #000 7px,
+            var(--dark) 7px,
             rgba(0, 0, 0, 0.9) 9px);
     -webkit-mask-image: repeating-linear-gradient(90deg,
-            #000 0px,
-            #000 4px,
+            var(--dark) 0px,
+            var(--dark) 4px,
             rgba(0, 0, 0, 0.85) 5px,
-            #000 7px,
+            var(--dark) 7px,
             rgba(0, 0, 0, 0.9) 9px);
 }
 
@@ -336,7 +360,7 @@ img {
     min-height: 760px;
     position: relative;
     padding: 35px 80px 95px;
-    background: var(--cream);
+    background: transparent;
 }
 
 .see-all-pets {
@@ -346,121 +370,6 @@ img {
     font-family: "Karma", serif;
     font-size: 15px;
     color: var(--brown);
-}
-
-.pet-slider {
-    width: min(1000px, 100%);
-    margin: 85px auto 0;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.pet-track {
-    flex: 1;
-    display: flex;
-    gap: 32px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    padding: 6px 4px 16px;
-    /* Scrollbar hidden: slide by dragging with the mouse, the arrows, or swiping */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    cursor: grab;
-    user-select: none;
-}
-
-.pet-track::-webkit-scrollbar {
-    display: none;
-}
-
-/* While dragging: follow the mouse exactly, snap again on release */
-.pet-track.dragging {
-    cursor: grabbing;
-    scroll-snap-type: none;
-    scroll-behavior: auto;
-}
-
-.pet-track img {
-    -webkit-user-drag: none;
-    pointer-events: none;
-}
-
-.pet-slide {
-    flex: 0 0 261px;
-    scroll-snap-align: start;
-}
-
-.pet-slider-arrow {
-    flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: none;
-    background: var(--brown);
-    color: var(--cream);
-    font-size: 22px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.pet-slider-arrow:hover {
-    background: var(--red-dark);
-    transform: scale(1.06);
-}
-
-.pet-card {
-    height: 310px;
-    background: var(--cream-card);
-    border: 1px solid var(--brown);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow:
-        0 0 1px rgba(0, 0, 0, 0.08),
-        0 8px 16px rgba(0, 0, 0, 0.08);
-    position: relative;
-    z-index: 6;
-}
-
-.pet-image {
-    width: 100%;
-    height: 205px;
-    object-fit: cover;
-}
-
-.pet-details {
-    padding: 14px 16px;
-    color: var(--dark);
-}
-
-.pet-details h3 {
-    font-size: 20px;
-    line-height: 1;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-}
-
-.pet-details p {
-    margin-top: 5px;
-    font-size: 11px;
-}
-
-.pet-details span {
-    display: inline-flex;
-    align-items: center;
-    margin-top: 9px;
-    padding: 5px 8px;
-    border-radius: 999px;
-    background: var(--dark);
-    color: white;
-    font-size: 8px;
-    white-space: nowrap;
 }
 
 .pet-note {
@@ -515,18 +424,6 @@ img {
    FOOTER
 ========================= */
 
-.stats-band {
-    min-height: 120px;
-    background: var(--yellow);
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    align-items: center;
-    text-align: center;
-    padding: 28px 80px;
-    color: var(--brown);
-    margin-top: 0;
-}
-
 
 
 .outline-btn {
@@ -549,7 +446,7 @@ img {
 .cta-footer {
     position: relative;
     min-height: 520px;
-    background: var(--yellow);
+    background: var(--landing-orange);
     overflow: hidden;
     padding: 58px 80px 26px;
 }
@@ -606,7 +503,7 @@ img {
     font-family: "Karma", serif;
     font-size: 17px;
     font-weight: 700;
-    color: var(--red);
+    color: var(--brown);
 }
 
 .cta-actions {
@@ -691,7 +588,7 @@ img {
 
 .stats-band {
     min-height: 120px;
-    background: var(--yellow);
+    background: var(--landing-orange);
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     align-items: center;
@@ -840,7 +737,7 @@ img {
     top: 1520px;
     left: 50%;
 
-    opacity: 0.48;
+    opacity: 0.28;
     transform: translateX(-50%) rotate(14deg) scale(-1);
     transform-origin: center center;
 
@@ -848,7 +745,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 3;
+    z-index: 0;
 }
 
 .page-paws-footer-bottom1 {
@@ -858,13 +755,13 @@ img {
     height: auto;
     top: 4500px;
     left: 50%;
-    opacity: 0.45;
+    opacity: 0.28;
     transform: translateX(-50%) rotate(-7deg) scaleY(-1);
     transform-origin: center center;
     filter: brightness(0.7) saturate(1.8);
     pointer-events: none;
     user-select: none;
-    z-index: 3;
+    z-index: 0;
 }
 
 .steps-section,
@@ -899,7 +796,7 @@ img {
     /* adjust this */
     left: 50%;
 
-    opacity: 0.45;
+    opacity: 0.28;
     transform: translateX(-50%) rotate(16deg);
     transform-origin: center center;
 
@@ -907,7 +804,7 @@ img {
 
     pointer-events: none;
     user-select: none;
-    z-index: 2;
+    z-index: 0;
 }
 
 .features-section .section-heading,
@@ -996,13 +893,6 @@ img {
         margin-left: auto;
     }
 
-    .pet-slide {
-        flex-basis: 220px;
-    }
-
-    .pet-track {
-        gap: 25px;
-    }
 }
 
 /* The site header is shared by the landing page and the log in / sign-up pages, so its phone rules live here */
@@ -1078,19 +968,6 @@ img {
         text-align: center;
     }
 
-    .pet-slider-arrow {
-        display: none;
-    }
-
-    .pet-slide {
-        flex-basis: 78vw;
-        max-width: 300px;
-    }
-
-    .pet-track {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
 }
 
 html,
@@ -1127,8 +1004,8 @@ body {
     align-items: stretch;
     height: 36px;
     overflow: hidden;
-    background: #5a1b00;
-    color: #ffffff;
+    background: var(--brown);
+    color: var(--white);
     font-size: 13px;
 }
 
@@ -1138,7 +1015,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 0 14px;
-    background: #fb8500;
+    background: var(--orange);
     font-size: 11.5px;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -1149,7 +1026,7 @@ body {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--white);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
@@ -1177,7 +1054,7 @@ body {
 
 .rb-ticker-move b {
     margin: 0 18px;
-    color: #ffb703;
+    color: var(--yellow);
 }
 
 @keyframes rb-ticker-scroll {
@@ -1195,20 +1072,18 @@ body {
     width: 36px;
     border: none;
     background: transparent;
-    color: #f5d9c4;
+    color: var(--line-soft);
     font-size: 18px;
     cursor: pointer;
 }
 
 .rb-ticker-close:hover {
-    color: #ffffff;
+    color: var(--white);
 }
 
 /* Facebook link in the landing footer */
 .footer-bottom .footer-facebook { display: inline-flex; align-items: center; gap: 6px; }
 .footer-bottom .footer-facebook img { width: 16px; height: 16px; }
-<<<<<<< HEAD
-=======
 
 /* ================= Shared style rules (Nov 9) =================
    Corners: cards 12px, things inside a card (inputs, buttons, menus) 8px, chips/tags 6px.
@@ -1434,4 +1309,3 @@ img.inline-icon {
     .rb-drill-forward,
     .rb-drill-back { animation-name: rb-fade-in; }
 }
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe

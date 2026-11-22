@@ -115,11 +115,7 @@ export default function PublicPetProfile({ tagCode }) {
     const [isPhone, setIsPhone] = useState(() => window.matchMedia("(max-width: 760px)").matches);
 
     useEffect(() => {
-<<<<<<< HEAD
-        fetch(`${API}/api/qr-tags/lookup/${encodeURIComponent(tagCode)}`)
-=======
         fetch(`${API}/api/qr-tags/lookup/${encodeURIComponent(tagCode)}`, { headers: HEADERS })
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
             .then((r) => r.json())
             .then((data) => (data.success ? setAnimal(data.animal) : setError(data.message || "Pet not found.")))
             .catch(() => setError("Could not load pet info."));

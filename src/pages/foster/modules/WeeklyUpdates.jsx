@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-<<<<<<< HEAD
-=======
 import { formatDate } from "../../../utils/formatDate";
 import NumberInput from "../../../components/system/NumberInput";
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
 
 // Care Updates — weekly care report for the foster's active pet
 // (replaces the old "Weekly Updates" + "Foster Updates" pages)
@@ -160,14 +157,6 @@ function daysBetween(from, to = new Date()) {
     return Math.round((b - a) / 86400000);
 }
 
-function formatDate(value) {
-    if (!value) return "—";
-    return new Date(value).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
-}
 
 function relativeDay(value) {
     const days = daysBetween(value);
@@ -182,7 +171,7 @@ async function uploadPhoto(file, token) {
 
     const response = await fetch(`${API}/api/uploads/image`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
         body: formData,
     });
 
@@ -304,6 +293,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        "ngrok-skip-browser-warning": "true",
                     },
                     body: JSON.stringify({
                         healthStatus: pick(form.healthStatus, form.healthOther),
@@ -411,7 +401,7 @@ export default function WeeklyUpdates({ assignment: assignedPet, refreshAssignme
                         icon: "bell",
                         label: "Next update due",
                         value: hasAssignment
-                            ? dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            ? formatDate(dueDate, { withYear: false })
                             : "—",
                         note: hasAssignment ? dueNote : "",
                     },

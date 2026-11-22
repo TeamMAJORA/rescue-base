@@ -1,23 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { isAdmin } from "../../../../utils/auth";
-<<<<<<< HEAD
-=======
 import { searchCebuPlaces } from "../../../../utils/cebuPlaces";
 import PetTypeIcon from "../../../../components/system/PetTypeIcon";
 import { askConfirm, askPrompt } from "../../../../utils/dialogs";
 import { formatDate, toDayValue } from "../../../../utils/formatDate";
 import LoadingState from "../../../../components/system/LoadingState";
 import UiIcon from "../../../../components/system/Icon";
-<<<<<<< HEAD
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
-=======
 import RowActionsMenu from "../../../../components/system/RowActionsMenu";
->>>>>>> 3eb14fb9d48a9e2e66f5eabff2a5dfebe0d6b0e5
 
 const CEBU_CENTER = [10.3157, 123.8854];
+
+// Same colours as Lost & Found reports, so intakes and reports can be matched
+const INTAKE_COLOUR_OPTIONS = ["Black", "White", "Brown", "Tan", "Gray", "Cream", "Golden", "Orange", "Red", "Mixed", "Other"];
 
 const AO_PIN = L.divIcon({
     className: "ao-pin",
@@ -57,6 +54,15 @@ function PinPicker({ onPick }) {
     return null;
 }
 
+// Move the map to the pin whenever it changes
+function MapFollow({ latitude, longitude }) {
+    const map = useMap();
+    useEffect(() => {
+        if (latitude && longitude) map.setView([latitude, longitude], Math.max(map.getZoom(), 16));
+    }, [map, latitude, longitude]);
+    return null;
+}
+
 // Saved from a phone? (small screen or a mobile browser)
 function isPhoneDevice() {
     const small = typeof window !== "undefined" && window.matchMedia?.("(max-width: 900px)").matches;
@@ -64,10 +70,6 @@ function isPhoneDevice() {
     return Boolean(small || mobileAgent);
 }
 
-function todayISO() {
-    const now = new Date();
-    return new Date(now - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-}
 
 function currentUserName() {
     try {
@@ -78,13 +80,6 @@ function currentUserName() {
     }
 }
 
-
-// Styled confirm popup from the dashboard (falls back to the browser box)
-function askConfirm(options) {
-    return window.rbConfirm
-        ? window.rbConfirm(options)
-        : Promise.resolve(window.confirm(options.title));
-}
 
 // ---------- Shared UI pieces (stats strip, tabs, search bar, chips) ----------
 
@@ -321,12 +316,6 @@ function conditionTone(condition) {
     }
 }
 
-function speciesEmoji(type) {
-    if (type === "Cat") return "🐱";
-    if (type === "Dog") return "🐶";
-    return "🐾";
-}
-
 function isSameMonth(date, now = new Date()) {
     if (!date) return false;
     const d = new Date(date);
@@ -339,7 +328,12 @@ const UPLOAD_URL = `${import.meta.env.VITE_BACKEND_URL}/api/uploads/image`;
 const initialForm = {
     animalName: "",
     animalType: "Dog",
+    breed: "",
+    colour: "",
+    sex: "",
+    size: "",
     intakeType: "Rescued",
+    listOnLostFound: false,
     rescueLocation: "",
     intakeDate: "",
     rescuedBy: "",
@@ -352,13 +346,12 @@ const initialForm = {
 
 // New form: today's date and the signed-in person filled in
 function freshForm() {
-    return { ...initialForm, intakeDate: todayISO(), rescuedBy: currentUserName() };
+    return { ...initialForm, intakeDate: toDayValue(), rescuedBy: currentUserName() };
 }
 
 const SPECIES_OPTIONS = [
     { value: "Dog", label: "Dog" },
     { value: "Cat", label: "Cat" },
-    { value: "Other", label: "Other" },
 ];
 
 const INTAKE_TYPE_OPTIONS = [
@@ -435,17 +428,6 @@ async function parseResponse(response) {
     return data;
 }
 
-function formatDate(date) {
-    if (!date) {
-        return "Unknown date";
-    }
-
-    return new Date(date).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
-}
 
 // The database stores "pending_review"; older records may have no status.
 function getStatus(record) {
@@ -469,6 +451,11 @@ export default function IntakeRecords() {
     const [photo, setPhoto] = useState(null);
     const [locating, setLocating] = useState(false);
     const [accuracy, setAccuracy] = useState(null);
+    // Address typed in "Where?" -> Cebu place suggestions; the top one is pinned automatically
+    const [typedAddress, setTypedAddress] = useState("");
+    const [addressResults, setAddressResults] = useState([]);
+    const [addressSearching, setAddressSearching] = useState(false);
+    const [addressListOpen, setAddressListOpen] = useState(false);
     const [openId, setOpenId] = useState(null);
 
     const [tab, setTab] = useState("pending");
@@ -490,7 +477,7 @@ export default function IntakeRecords() {
     // --------------------------------------------------
 
     async function fetchList(url, key) {
-        const response = await fetch(url, { method: "GET", headers: getHeaders() });
+        const response = await fetch(url, { method: "GET", headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" } });
         const data = await parseResponse(response);
         return data[key] || [];
     }
@@ -553,6 +540,7 @@ export default function IntakeRecords() {
         setEditingId(null);
         setPhoto(null);
         setAccuracy(null);
+        setTypedAddress("");
     }
 
     // Photo preview (freed when the photo changes)
@@ -567,7 +555,7 @@ export default function IntakeRecords() {
         formData.append("folder", "rescuebase/intakes");
         const response = await fetch(UPLOAD_URL, {
             method: "POST",
-            headers: getHeaders(),
+            headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
             body: formData,
         });
         const data = await response.json().catch(() => ({}));
@@ -609,6 +597,50 @@ export default function IntakeRecords() {
         );
     }
 
+    // Only typing triggers a search, so pins from the map/Locate never re-pin themselves
+    useEffect(() => {
+        const query = typedAddress.trim();
+        if (query.length < 3) {
+            setAddressResults([]);
+            return undefined;
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            setAddressSearching(true);
+            try {
+                const places = await searchCebuPlaces(query, controller.signal);
+                setAddressResults(places);
+                if (places[0]) pinAddressResult(places[0]);
+            } catch (err) {
+                if (err.name !== "AbortError") setAddressResults([]);
+            } finally {
+                setAddressSearching(false);
+            }
+        }, 600);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [typedAddress]);
+
+    // Pin a search result without overwriting what the user typed
+    function pinAddressResult(place) {
+        setAccuracy(null);
+        setForm((current) => ({
+            ...current,
+            latitude: place.latitude.toFixed(6),
+            longitude: place.longitude.toFixed(6),
+        }));
+    }
+
+    function chooseAddressResult(place) {
+        pinAddressResult(place);
+        setForm((current) => ({ ...current, rescueLocation: [place.name, place.area].filter(Boolean).join(", ") }));
+        setAddressListOpen(false);
+    }
+
     function pickOnMap(lat, lng) {
         setAccuracy(null);
         setPin(lat, lng);
@@ -621,10 +653,15 @@ export default function IntakeRecords() {
 
     function handleEditRecord(record) {
         setEditingId(record._id);
+        setTypedAddress("");
 
         setForm({
             animalName: record.name || "",
             animalType: record.type || "Dog",
+            breed: record.breed || "",
+            colour: record.color || "",
+            sex: record.gender === "Unknown" ? "" : record.gender || "",
+            size: record.size === "Unknown" ? "" : record.size || "",
             intakeType: record.intakeType || "Rescued",
             rescueLocation: record.location || "",
             intakeDate: record.intakeDate ? String(record.intakeDate).slice(0, 10) : "",
@@ -646,8 +683,9 @@ export default function IntakeRecords() {
     async function handleSubmit(e) {
         e.preventDefault();
 
-        if (!canManage) {
-            setError("Only administrators and staff can manage intake records.");
+        // Volunteers may add new intakes (they wait for staff review) but not edit existing ones
+        if (editingId && !canManage) {
+            setError("Only administrators and staff can edit intake records.");
             return;
         }
 
@@ -661,6 +699,10 @@ export default function IntakeRecords() {
             const payload = {
                 name: form.animalName.trim(),
                 type: form.animalType,
+                breed: form.breed.trim(),
+                color: form.colour,
+                gender: form.sex || "Unknown",
+                size: form.size || "Unknown",
                 intakeType: form.intakeType,
                 location: form.rescueLocation.trim(),
                 intakeDate: form.intakeDate || undefined,
@@ -675,6 +717,7 @@ export default function IntakeRecords() {
             // Tag new intakes saved from a phone (the source never changes on edit)
             if (!editingId) {
                 payload.intakeSource = isPhoneDevice() ? "field" : "desk";
+                payload.listOnLostFound = form.listOnLostFound;
             }
 
             const endpoint = editingId ? `${API_BASE_URL}/${editingId}` : API_BASE_URL;
@@ -682,7 +725,7 @@ export default function IntakeRecords() {
 
             const response = await fetch(endpoint, {
                 method,
-                headers: getHeaders(true),
+                headers: { ...(getHeaders(true)), "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify(payload),
             });
 
@@ -691,7 +734,9 @@ export default function IntakeRecords() {
             setSuccessMessage(
                 editingId
                     ? "Intake record updated successfully."
-                    : "Intake saved. The animal now has a profile in Animal Profiles."
+                    : canManage
+                        ? "Intake saved. The animal now has a profile in Animal Profiles."
+                        : "Intake submitted. Staff will review it before the animal gets a profile."
             );
 
             resetForm();
@@ -724,7 +769,7 @@ export default function IntakeRecords() {
 
             const response = await fetch(`${API_BASE_URL}/${id}/approve-intake`, {
                 method: "PATCH",
-                headers: getHeaders(true),
+                headers: { ...(getHeaders(true)), "ngrok-skip-browser-warning": "true" },
             });
 
             await parseResponse(response);
@@ -743,7 +788,15 @@ export default function IntakeRecords() {
             return;
         }
 
-        const reason = window.prompt("Enter the reason for rejecting this intake:");
+        const reason = await askPrompt({
+            title: "Reject this intake?",
+            message: "The person who submitted it will see your reason.",
+            label: "Reason",
+            placeholder: "e.g. Duplicate record, wrong animal details",
+            required: true,
+            confirmLabel: "Reject",
+            danger: true,
+        });
 
         if (reason === null) {
             return;
@@ -763,7 +816,7 @@ export default function IntakeRecords() {
 
             const response = await fetch(`${API_BASE_URL}/${id}/reject-intake`, {
                 method: "PATCH",
-                headers: getHeaders(true),
+                headers: { ...(getHeaders(true)), "ngrok-skip-browser-warning": "true" },
                 body: JSON.stringify({ reason: trimmedReason }),
             });
 
@@ -794,7 +847,7 @@ export default function IntakeRecords() {
 
             const response = await fetch(`${API_BASE_URL}/${id}`, {
                 method: "DELETE",
-                headers: getHeaders(),
+                headers: { ...(getHeaders()), "ngrok-skip-browser-warning": "true" },
             });
 
             await parseResponse(response);
@@ -955,14 +1008,78 @@ export default function IntakeRecords() {
                             />
                         </div>
 
+                        <div className="ao-row2">
+                            <label className="ao-field">
+                                <span>Breed</span>
+                                <input
+                                    value={form.breed}
+                                    onChange={(e) => updateForm("breed", e.target.value)}
+                                    placeholder="e.g. Aspin"
+                                />
+                            </label>
+
+                            <label className="ao-field">
+                                <span>Colour</span>
+                                <select value={form.colour} onChange={(e) => updateForm("colour", e.target.value)}>
+                                    <option value="">Select</option>
+                                    {INTAKE_COLOUR_OPTIONS.map((colourOption) => (
+                                        <option key={colourOption} value={colourOption}>{colourOption}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        </div>
+
+                        <div className="ao-row2">
+                            <label className="ao-field">
+                                <span>Sex</span>
+                                <select value={form.sex} onChange={(e) => updateForm("sex", e.target.value)}>
+                                    <option value="">Select</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </label>
+
+                            <label className="ao-field">
+                                <span>Size</span>
+                                <select value={form.size} onChange={(e) => updateForm("size", e.target.value)}>
+                                    <option value="">Select</option>
+                                    <option value="Small">Small</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Large">Large</option>
+                                </select>
+                            </label>
+                        </div>
+                        <small className="ao-hint">Fill in at least two of breed, colour, sex or size so lost-pet owners can be matched.</small>
+
                         <div className="ao-field">
                             <span>How did they arrive? <span className="required-mark">*</span></span>
                             <ChipGroup
                                 options={INTAKE_TYPE_OPTIONS}
                                 value={form.intakeType}
-                                onChange={(value) => updateForm("intakeType", value)}
+                                onChange={(value) =>
+                                    // Strays are ticked by default; staff can still change it
+                                    setForm((current) => ({
+                                        ...current,
+                                        intakeType: value,
+                                        listOnLostFound: editingId ? current.listOnLostFound : value === "Stray",
+                                    }))
+                                }
                             />
                         </div>
+
+                        {!editingId && (
+                            <label className="ao-list-lostfound">
+                                <input
+                                    type="checkbox"
+                                    checked={form.listOnLostFound}
+                                    onChange={(e) => updateForm("listOnLostFound", e.target.checked)}
+                                />
+                                <span>
+                                    <b>List on Lost &amp; Found</b>
+                                    <small>Owners can find this animal, get matched and claim it.</small>
+                                </span>
+                            </label>
+                        )}
 
                         <div className="ao-row2">
                             <label className="ao-field">
@@ -987,28 +1104,30 @@ export default function IntakeRecords() {
                         </div>
 
                         <div className="ao-field">
-<<<<<<< HEAD
-                            <span>Where? <span className="ao-req">*</span></span>
-                            <div className="ao-where">
-                                <input
-=======
                             <span>Where? <span className="required-mark">*</span></span>
                             <div className="ao-where-search">
                                 <input
                                     type="search"
                                     aria-label="Where the animal was found"
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                                     value={form.rescueLocation}
-                                    onChange={(e) => updateForm("rescueLocation", e.target.value)}
-                                    placeholder="e.g. Brgy. Guadalupe, Cebu City"
+                                    onChange={(e) => {
+                                        updateForm("rescueLocation", e.target.value);
+                                        setTypedAddress(e.target.value);
+                                        setAddressListOpen(true);
+                                    }}
+                                    onFocus={() => setAddressListOpen(true)}
+                                    onBlur={() => setTimeout(() => setAddressListOpen(false), 150)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault(); // stops the form from submitting
+                                            if (addressResults[0]) chooseAddressResult(addressResults[0]);
+                                        }
+                                        if (e.key === "Escape") setAddressListOpen(false);
+                                    }}
+                                    placeholder="Type an address, e.g. Brgy. Guadalupe, Cebu City"
+                                    autoComplete="off"
                                     required
                                 />
-<<<<<<< HEAD
-                                <button type="button" className="ao-btn" onClick={locateMe} disabled={locating}>
-                                    <Icon name="pin" />
-                                    {locating ? "Locating..." : "Locate"}
-                                </button>
-=======
                                 {addressListOpen && typedAddress.trim().length >= 3 && (
                                     <ul className="gm-map-results">
                                         {addressSearching && addressResults.length === 0 && <li className="is-note">Searching…</li>}
@@ -1023,21 +1142,21 @@ export default function IntakeRecords() {
                                         ))}
                                     </ul>
                                 )}
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                             </div>
-                            <div className="ao-pickmap">
+
+                            <div className="lfr2-map">
                                 <MapContainer
-                                    key={form.latitude ? "pinned" : "empty"}
                                     center={form.latitude ? [Number(form.latitude), Number(form.longitude)] : CEBU_CENTER}
-                                    zoom={form.latitude ? 17 : 12}
+                                    zoom={form.latitude ? 16 : 12}
                                     scrollWheelZoom={false}
-                                    className="ao-pickmap-map"
+                                    style={{ height: "100%", width: "100%" }}
                                 >
                                     <TileLayer
                                         attribution="&copy; OpenStreetMap"
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                     />
                                     <PinPicker onPick={pickOnMap} />
+                                    <MapFollow latitude={Number(form.latitude)} longitude={Number(form.longitude)} />
                                     {form.latitude && (
                                         <Marker
                                             position={[Number(form.latitude), Number(form.longitude)]}
@@ -1052,23 +1171,18 @@ export default function IntakeRecords() {
                                         />
                                     )}
                                 </MapContainer>
-                                <div className="ao-pickmap-note">
-                                    {form.latitude ? (
-                                        <>
-                                            <span>
-                                                {accuracy && accuracy > 50
-                                                    ? `Approximate (±${accuracy >= 1000 ? `${(accuracy / 1000).toFixed(1)} km` : `${accuracy} m`}). Tap the exact spot.`
-                                                    : "Pin saved. Tap or drag to adjust."}
-                                            </span>
-                                            <button type="button" onClick={clearPin}>Remove pin</button>
-                                        </>
-                                    ) : (
-                                        <span>Optional: tap the map to pin the spot.</span>
-                                    )}
-                                </div>
+
+                                <button
+                                    type="button"
+                                    className={`lfr2-locate${locating ? " is-busy" : ""}`}
+                                    onClick={locateMe}
+                                    disabled={locating}
+                                    title="Pin my current location"
+                                    aria-label="Pin my current location"
+                                >
+                                    <img src="/gis/icon-find-nearest.svg" alt="" />
+                                </button>
                             </div>
-<<<<<<< HEAD
-=======
 
                             <small className="lfr2-coord">
                                 {form.latitude
@@ -1089,7 +1203,6 @@ export default function IntakeRecords() {
                                     </>
                                 )}
                             </small>
->>>>>>> b5f9c1969fa63c81eb46b139e16fabde87cf2dbe
                         </div>
 
                         <div className="ao-field">
@@ -1227,7 +1340,7 @@ export default function IntakeRecords() {
                                             {record.image ? (
                                                 <img src={record.image} alt="" />
                                             ) : (
-                                                speciesEmoji(record.type)
+                                                <PetTypeIcon type={record.type} />
                                             )}
                                         </div>
 
