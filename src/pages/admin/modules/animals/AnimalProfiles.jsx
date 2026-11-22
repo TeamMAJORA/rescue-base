@@ -2041,20 +2041,17 @@ export default function AnimalProfiles({ initialTab = "profiles" }) {
     const clearFilter = () => setFilterAnimal(null);
     const filterKey = filterAnimal?._id || "all";
 
-    // Volunteers only see the animal list: the server refuses them on intake, medical,
-    // vaccination and transfer records, so those tabs are hidden instead of failing
-    if (!isAdmin() && !isStaff()) {
-        return (
-            <div className="ap-tabs-page">
-                <AnimalProfilesList onOpenRecords={openRecords} />
-            </div>
-        );
-    }
+    // Volunteers log intakes from the field (staff review them); medical, vaccination and
+    // transfer records are staff-only on the server, so those tabs are hidden for volunteers
+    const canManageRecords = isAdmin() || isStaff();
+    const visibleTabs = canManageRecords
+        ? RECORD_TABS
+        : RECORD_TABS.filter((item) => item.key === "profiles" || item.key === "intake");
 
     return (
         <div className="ap-tabs-page">
             <nav className="ap-tabs" aria-label="Animal records">
-                {RECORD_TABS.map((item) => (
+                {visibleTabs.map((item) => (
                     <button
                         key={item.key}
                         type="button"
@@ -2069,13 +2066,13 @@ export default function AnimalProfiles({ initialTab = "profiles" }) {
 
             {tab === "profiles" && <AnimalProfilesList onOpenRecords={openRecords} />}
             {tab === "intake" && <IntakeRecords />}
-            {tab === "medical" && (
+            {canManageRecords && tab === "medical" && (
                 <MedicalRecords key={filterKey} filterAnimal={filterAnimal} onClearFilter={clearFilter} />
             )}
-            {tab === "vaccinations" && (
+            {canManageRecords && tab === "vaccinations" && (
                 <VaccinationRecords key={filterKey} filterAnimal={filterAnimal} onClearFilter={clearFilter} />
             )}
-            {tab === "transfers" && <AnimalTransfers />}
+            {canManageRecords && tab === "transfers" && <AnimalTransfers />}
         </div>
     );
 }

@@ -486,11 +486,17 @@ export default function IntakeRecords() {
         setLoading(true);
         setError("");
 
-        const results = await Promise.allSettled([
-            fetchList(`${API_BASE_URL}/intakes`, "intakes"),
-            fetchList(`${API_BASE_URL}?intakeStatus=approved`, "animals"),
-            fetchList(`${API_BASE_URL}?intakeStatus=rejected`, "animals"),
-        ]);
+        // Volunteers get only their own intakes (every status) from /intakes; staff get the
+        // review queue plus every approved and rejected intake
+        const results = await Promise.allSettled(
+            canManage
+                ? [
+                    fetchList(`${API_BASE_URL}/intakes`, "intakes"),
+                    fetchList(`${API_BASE_URL}?intakeStatus=approved`, "animals"),
+                    fetchList(`${API_BASE_URL}?intakeStatus=rejected`, "animals"),
+                ]
+                : [fetchList(`${API_BASE_URL}/intakes`, "intakes")]
+        );
 
         const merged = [];
         const seen = new Set();
@@ -938,10 +944,7 @@ export default function IntakeRecords() {
             <StatsStrip
                 highlight={{
                     value: counts.pending,
-                    label:
-                        counts.pending === 1
-                            ? "Intake waiting for your review"
-                            : "Intakes waiting for your review",
+                    label: `${counts.pending === 1 ? "Intake" : "Intakes"} waiting for ${canManage ? "your" : "staff"} review`,
                 }}
                 items={[
                     { icon: "paw", label: "Intakes this month", value: stats.thisMonth },
