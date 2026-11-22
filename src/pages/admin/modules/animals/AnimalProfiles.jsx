@@ -897,7 +897,7 @@ function AnimalProfilesList({ onOpenRecords }) {
     async function handleDeleteAnimal(id) {
 
         if (!isAdmin()) {
-            setMessage("Only administrators can delete animal profiles");
+            showToast("Only administrators can delete animal profiles.", "error");
             return;
         }
 
@@ -906,8 +906,6 @@ function AnimalProfilesList({ onOpenRecords }) {
         if (!confirmed) return;
 
         try {
-            setMessage("");
-
             const response = await fetch(`${API}/api/animals/${id}`, {
                 method: "DELETE",
                 headers: {
@@ -921,11 +919,11 @@ function AnimalProfilesList({ onOpenRecords }) {
             console.log("Delete animal:", data);
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to delete animal profile.");
+                showToast(data.message || "Failed to delete animal profile.", "error");
                 return;
             }
 
-            setMessage("Animal profile deleted successfully.");
+            showToast("Animal profile deleted successfully.");
 
             if (editingId === id) {
                 handleCancelEdit();
@@ -934,7 +932,7 @@ function AnimalProfilesList({ onOpenRecords }) {
             fetchAnimals();
         } catch (error) {
             console.error("Delete animal error:", error);
-            setMessage("Server error while deleting animal profile.");
+            showToast("Server error while deleting animal profile.", "error");
         }
     }
 
