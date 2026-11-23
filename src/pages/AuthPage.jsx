@@ -22,7 +22,7 @@ function emailError(email, isSignup) {
 const RESEND_COOLDOWN_SECONDS = 30;
 const MIN_PASSWORD_LENGTH = 6;
 
-// MARO rescue photos, the same ones the animal seed uses (public/seedimg/maro)
+// MARO rescue photos (public/images)
 const MARO_PHOTO_FILES = [
     "1.png", "2.png", "3.png", "4.png","5.png", "6.png", "7.png", "8.png", 
     "9.png", "10.png", "11.png", "12.png", "13.png", "14.png", "15.png", "16.png"
