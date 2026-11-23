@@ -15,6 +15,7 @@ import Icon from "../../../../components/system/Icon";
 import NumberInput from "../../../../components/system/NumberInput";
 import RowActionsMenu from "../../../../components/system/RowActionsMenu";
 import { getAnimalStatus } from "../../../../utils/petStatus";
+import { getHealthItems } from "../../../../utils/petProfile";
 import QrScanDialog from "../../../../components/system/QrScanDialog";
 import { tagCodeFrom } from "../../../../utils/qrTag";
 
@@ -32,6 +33,7 @@ const emptyAnimalForm = {
     image: "",
     description: "",
     medicalStatus: "",
+    spayNeuterStatus: "Unknown",
     behaviorNotes: "",
     intakeDate: "",
     intakeType: "Rescued",
@@ -102,6 +104,7 @@ function PawIcon() {
 function AdopterPreview({ form, savedAnimal }) {
     const status = getAnimalStatus(form);
     const personalityTags = getPreviewPersonalityTags(savedAnimal);
+    const healthItems = getHealthItems(form);
 
     const subtitleParts = [
         { value: form.type, label: "Species" },
@@ -189,11 +192,13 @@ function AdopterPreview({ form, savedAnimal }) {
                     <div className="admin-preview-section">
                         <h5>
                             Health
-                            <InfoTip text="Comes from Medical Status. Diagnoses and treatments are never shown to adopters." />
+                            <InfoTip text="Comes from Medical Status and Spayed / Neutered. Diagnoses and treatments are never shown to adopters." />
                         </h5>
-                        {form.medicalStatus ? (
+                        {healthItems.length > 0 ? (
                             <div className="admin-preview-tags">
-                                <span className="health">{form.medicalStatus}</span>
+                                {healthItems.map((item) => (
+                                    <span key={item.label} className="health">{item.label}</span>
+                                ))}
                             </div>
                         ) : (
                             <p className="admin-preview-empty">No tags yet</p>
@@ -834,6 +839,7 @@ function AnimalProfilesList({ onOpenRecords }) {
             image: animal.image || "",
             description: animal.description || "",
             medicalStatus: animal.medicalStatus || "",
+            spayNeuterStatus: animal.spayNeuterStatus || "Unknown",
             behaviorNotes: animal.behaviorNotes || "",
             intakeDate: animal.intakeDate ? String(animal.intakeDate).slice(0, 10) : "",
             intakeType: animal.intakeType || "Rescued",
@@ -1153,6 +1159,20 @@ function AnimalProfilesList({ onOpenRecords }) {
                                         <option value="Small">Small</option>
                                         <option value="Medium">Medium</option>
                                         <option value="Large">Large</option>
+                                        <option value="Unknown">Unknown</option>
+                                    </select>
+                                </label>
+                                <label className="ap-wide-phone">
+                                    <span className="admin-field-label">
+                                        Spayed / Neutered
+                                        <InfoTip text="Shown to adopters as a Health tag. Log the surgery itself in Medical Records." />
+                                    </span>
+                                    <select
+                                        value={animalForm.spayNeuterStatus}
+                                        onChange={(e) => setAnimalForm({ ...animalForm, spayNeuterStatus: e.target.value })}
+                                    >
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
                                         <option value="Unknown">Unknown</option>
                                     </select>
                                 </label>
@@ -1896,10 +1916,11 @@ function AnimalProfilesList({ onOpenRecords }) {
 
                                 <section className="apm-card">
                                     <h4>Intake</h4>
-                                    <div className="apm-facts is-3">
+                                    <div className="apm-facts">
                                         <div><span>Intake date</span><b>{formatDate(viewedAnimal.intakeDate)}</b></div>
                                         <div><span>Location</span><b>{viewedAnimal.location || "RescueBase Shelter"}</b></div>
                                         <div><span>Medical status</span><b>{viewedAnimal.medicalStatus || "—"}</b></div>
+                                        <div><span>Spayed / neutered</span><b>{viewedAnimal.spayNeuterStatus || "Unknown"}</b></div>
                                     </div>
                                 </section>
 
