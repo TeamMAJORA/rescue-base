@@ -37,13 +37,25 @@ export function getIdealHomeTags(animal) {
 // Health as short items ("Neutered", "Anti-rabies and 4-in-1 complete" …). `ok: false` flags things to watch.
 const NEEDS_CARE = /sick|injur|observation|positive|treatment|recover|wound|infect/i;
 
+// "Spayed" for females, "Neutered" for males; nothing when staff don't know yet.
+const SPAY_NEUTER_WORDS = { Female: "Spayed", Male: "Neutered" };
+
+function getSpayNeuterItem(animal) {
+    const word = SPAY_NEUTER_WORDS[animal.gender] || "Spayed/Neutered";
+    if (animal.spayNeuterStatus === "Yes") return { label: word, ok: true };
+    if (animal.spayNeuterStatus === "No") return { label: `Not yet ${word.toLowerCase()}`, ok: false };
+    return null;
+}
+
 export function getHealthItems(animal) {
     const text = String(animal.medicalStatus || "").trim();
-    const items = text
+    const labels = text
         ? text.split(/[.;]\s*/).map((item) => item.trim()).filter(Boolean)
         : [animal.intakeCondition].filter((condition) => condition && condition !== "Unknown");
 
-    return items.map((label) => ({ label, ok: !NEEDS_CARE.test(label) }));
+    const items = labels.map((label) => ({ label, ok: !NEEDS_CARE.test(label) }));
+    const spayNeuterItem = getSpayNeuterItem(animal);
+    return spayNeuterItem ? [spayNeuterItem, ...items] : items;
 }
 
 // Shapes an animal from the API into what the pet cards and the pet profile pop-up show.
