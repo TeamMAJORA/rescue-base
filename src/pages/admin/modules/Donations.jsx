@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { isAdmin } from "../../../utils/auth";
 import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import { askConfirm } from "../../../utils/dialogs";
@@ -100,12 +100,13 @@ const TYPE_BUTTONS = [
 const DELIVERY_METHODS = ["Drop-off", "Shelter Pickup", "Courier Delivery", "Online Transfer", "Cash"];
 
 // Names the server accepts for payment methods, and the type shown for each
+// Listed method names and their type; "Other" lets the shelter type any name (e.g. PayPal)
 const METHOD_NAMES = {
     GCash: "E-wallet",
     Maya: "E-wallet",
-    "Bank Transfer": "Bank",
-    "Wire Transfer": "Bank",
+    "Bank Account": "Bank",
 };
+const OTHER_METHOD_CHOICE = "other";
 
 // Lines we keep inside `notes` because the donation model has no fields for them
 const emptyDonationForm = {
@@ -310,10 +311,14 @@ export default function Donations() {
 
     const [methods, setMethods] = useState([]);
     const [methodForm, setMethodForm] = useState(emptyMethodForm);
+    // "Other" chosen: the method name comes from the text field
+    const [isOtherMethodName, setIsOtherMethodName] = useState(false);
     const [editingMethodId, setEditingMethodId] = useState(null);
     const [methodMessage, setMethodMessage] = useState("");
     const [savingMethod, setSavingMethod] = useState(false);
     const [methodView, setMethodView] = useState("list");
+    const methodCardRef = useRef(null);
+    const hasSwitchedMethodView = useRef(false);
     const [qrFileName, setQrFileName] = useState("");
     const [uploadingQr, setUploadingQr] = useState(false);
     // Drop-off point (where donors bring items); edited in the side card
@@ -668,9 +673,20 @@ export default function Donations() {
         }
     }
 
+    // Opening a method or the drop-off point (or going back) keeps the side card in view,
+    // e.g. when it sits below a long donations list
+    useEffect(() => {
+        if (!hasSwitchedMethodView.current) {
+            hasSwitchedMethodView.current = true;
+            return;
+        }
+        methodCardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, [methodView, editingMethodId]);
+
     function newMethod() {
         setEditingMethodId(null);
         setMethodForm(emptyMethodForm);
+        setIsOtherMethodName(false);
         setQrFileName("");
         setMethodMessage("");
         setMethodView("edit");
@@ -686,6 +702,7 @@ export default function Donations() {
             instructions: method.instructions || "",
             is_active: method.is_active !== false,
         });
+        setIsOtherMethodName(Boolean(method.method_type) && !METHOD_NAMES[method.method_type]);
         setQrFileName(method.qr_image_url ? "Current QR code" : "");
         setMethodMessage("");
         setMethodView("edit");
@@ -694,6 +711,7 @@ export default function Donations() {
     function backToMethodList() {
         setEditingMethodId(null);
         setMethodForm(emptyMethodForm);
+        setIsOtherMethodName(false);
         setMethodMessage("");
         setMethodView("list");
     }
@@ -755,7 +773,7 @@ export default function Donations() {
                     Authorization: `Bearer ${token}`,
                     "ngrok-skip-browser-warning": "true",
                 },
-                body: JSON.stringify(methodForm),
+                body: JSON.stringify({ ...methodForm, method_type: methodForm.method_type.trim() }),
             });
             const data = await response.json();
 
@@ -765,6 +783,7 @@ export default function Donations() {
             }
 
             setMethodForm(emptyMethodForm);
+            setIsOtherMethodName(false);
             setEditingMethodId(null);
             setMethodView("list");
             setMethodMessage(editingMethodId ? "Payment method updated." : "Payment method added.");
@@ -1451,7 +1470,7 @@ export default function Donations() {
             </div>
 
             {/* Payment methods side card */}
-            <aside className="dl-card dl-pm dl-pm-side">
+            <aside ref={methodCardRef} className="dl-card dl-pm dl-pm-side">
                         {methodView === "list" ? (
                             <>
                                 <h3>Payment methods</h3>
@@ -1475,7 +1494,8 @@ export default function Donations() {
                                                 </span>
                                                 <span className="dl-method-info">
                                                     <b>{method.method_type}</b>
-                                                    <span>{method.account_name} · {method.account_number}</span>
+                                                    <span>{method.account_name}</span>
+                                                    <span className="dl-method-number">{method.account_number}</span>
                                                 </span>
                                                 <span className={`dl-status ${method.is_active ? "is-received" : "is-cancelled"}`}>
                                                     {method.is_active ? "Active" : "Inactive"}
@@ -1674,19 +1694,40 @@ export default function Donations() {
                                     <label className="dl-field">
                                         <span>Method name <span className="required-mark">*</span></span>
                                         <select
-                                            value={methodForm.method_type}
-                                            onChange={(e) => setMethodForm({ ...methodForm, method_type: e.target.value })}
+                                            value={isOtherMethodName ? OTHER_METHOD_CHOICE : methodForm.method_type}
+                                            onChange={(e) => {
+                                                const choice = e.target.value;
+                                                const choseOther = choice === OTHER_METHOD_CHOICE;
+                                                setIsOtherMethodName(choseOther);
+                                                setMethodForm({ ...methodForm, method_type: choseOther ? "" : choice });
+                                            }}
                                         >
                                             {Object.keys(METHOD_NAMES).map((name) => (
                                                 <option key={name} value={name}>{name}</option>
                                             ))}
+                                            <option value={OTHER_METHOD_CHOICE}>Other…</option>
                                         </select>
                                     </label>
 
                                     <label className="dl-field">
                                         <span>Method type</span>
-                                        <input value={METHOD_NAMES[methodForm.method_type] || "Other"} disabled />
+                                        <input value={isOtherMethodName ? "Other" : METHOD_NAMES[methodForm.method_type]} disabled />
                                     </label>
+
+                                    {isOtherMethodName && (
+                                        <label className="dl-field dl-field-wide">
+                                            <span>Other method name <span className="required-mark">*</span></span>
+                                            <input
+                                                value={methodForm.method_type}
+                                                placeholder="e.g. PayPal, Metrobank, Palawan Pay"
+                                                minLength={2}
+                                                maxLength={40}
+                                                data-required-message="Enter the method name."
+                                                required
+                                                onChange={(e) => setMethodForm({ ...methodForm, method_type: e.target.value })}
+                                            />
+                                        </label>
+                                    )}
 
                                     <label className="dl-field">
                                         <span>Account name <span className="required-mark">*</span></span>

@@ -22,19 +22,19 @@ function emailError(email, isSignup) {
 const RESEND_COOLDOWN_SECONDS = 30;
 const MIN_PASSWORD_LENGTH = 6;
 
-const authSlides = [
-    assets.images.authPets,
-    assets.images.authPets2,
-    assets.images.photo1,
-    assets.images.photo2,
-    assets.images.photo3,
-    assets.images.photo4,
-    assets.images.photo5,
-    assets.images.photo6,
-    assets.images.photo7,
-    assets.images.photo8,
-    assets.images.photo9,
+// MARO rescue photos, the same ones the animal seed uses (public/seedimg/maro)
+const MARO_PHOTO_FILES = [
+    "Almond.jpg", "Angel.jpg", "Aria.jpg", "Ariel.jpg", "Atlas.jpg", "Bamboo.jpg", "Barbie.jpg",
+    "Bayani.jpg", "Brandy.jpg", "Brownie.jpg", "Bruno.jpg", "Buddy.jpg", "Bumok.jpg", "Cha.jpg",
+    "Chaichai.jpg", "Chang.jpg", "Cheska.jpg", "Chikay.jpg", "Chowchow.jpg", "Cotto.jpg", "Darko.jpg",
+    "Dexter.jpg", "Downie.jpg", "Frankie.jpg", "Haydn.jpg", "Hercules.jpg", "Jaydee.jpg", "Joli.jpg",
+    "Jupiter.jpg", "Langging.jpg", "Lynard.jpg", "Max.jpg", "Mikee.png", "Mocca.jpg", "Mohon.png",
+    "Mouse.jpg", "Murphy.jpg", "Pablo.jpg", "Peanut.jpg", "Peewee.jpg", "Princess.jpg", "Richard.jpg",
+    "Roger.jpg", "Samsam.png", "Senna.jpg", "Shane.jpg", "Sky.jpg", "Sophie.jpg", "Sparkle.jpg",
+    "Tashia.jpg", "Tiger.jpg", "Tobi.jpg", "Toitoi.jpg", "Uling.jpg", "Whiskey.jpg", "Winter.jpg",
+    "Zeus.jpg",
 ];
+const authSlides = MARO_PHOTO_FILES.map((fileName) => `/seedimg/maro/${fileName}`);
 
 // Forgiving input: spaces are removed or tidied instead of becoming errors.
 // Passwords are never changed (a space can be part of one).
