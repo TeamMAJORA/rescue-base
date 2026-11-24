@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { isAdmin } from "../../../utils/auth";
+import { isAdmin, isStaff } from "../../../utils/auth";
 import { askConfirm, notify } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
@@ -67,7 +67,7 @@ export default function Feedback() {
     const [replying, setReplying] = useState(false);
     const [notice, setNotice] = useState("");
 
-    const canDelete = isAdmin();
+    const canDelete = isAdmin() || isStaff();
 
     async function loadFeedback() {
         const token = localStorage.getItem("token");

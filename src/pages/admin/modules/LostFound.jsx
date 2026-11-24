@@ -2000,7 +2000,7 @@ if (showReportForm && canSubmitReport) {
                     {error && <div className="lost-found-message error">{error}</div>}
 
                     <footer className="lf-modal-foot">
-    {r.canDelete && (
+    {(r.canDelete || isStaff()) && (
         <button
             type="button"
             className="lfr-delete"
