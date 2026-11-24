@@ -9,6 +9,8 @@ import PasswordInput from "../components/system/PasswordInput";
 import Header from "../components/landing/Header";
 import { openLandingSection } from "../components/landing/goToSection";
 import { EMAIL_FORMAT, suggestEmailFix } from "../utils/emailTypos";
+import { notify, notifyError, notifySuccess } from "../utils/dialogs"; 
+
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -37,6 +39,7 @@ const cleanName = (value) => value.replace(/\s+/g, " ").trim();
 const CODE_COPY = {
     signup: { title: "Verify your email", verifying: "Checking…" },
     login: { title: "Confirm it's you", verifying: "Checking…" },
+    disabled: { title: "Account disabled", verifying: "Checking…" },
     reset: { title: "Check your email", verifying: "Checking…" },
 };
 
@@ -54,6 +57,7 @@ function friendlyCodeError(message = "") {
     const triesLeft = message.match(/\d+ tr(?:y|ies) left/i)?.[0];
     if (triesLeft) return `That code didn't work. ${triesLeft}.`;
     if (/expire/i.test(message)) return "That code has expired. Resend a new one.";
+    if (/disabled/i.test(message)) return "That account is disabled.";
     return "That code didn't work. Check it and try again.";
 }
 
@@ -108,6 +112,7 @@ export default function AuthPage({ mode = "login", setPage }) {
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState("");
     const [formSuccess, setFormSuccess] = useState("");
+
 
     // Code step
     const [codePurpose, setCodePurpose] = useState("signup"); // signup | login | reset
@@ -188,10 +193,12 @@ export default function AuthPage({ mode = "login", setPage }) {
         confirmNewPassword: confirmNewPassword === newPassword ? "" : "Passwords don't match.",
     };
     const shownError = (name) => (touched[name] ? errors[name] : "");
+
     // Leaving a field shows its error only if something was typed; empty fields are flagged on submit.
     // (So clicking "Create an account" or "Back" never flashes an error and shifts the layout.)
     const touch = (name, value) => {
         if (value) setTouched((current) => ({ ...current, [name]: true }));
+        else setTouched((current) => ({ ...current, [name]: false }));
     };
 
     // Marks the fields as touched; returns true when they're all valid, otherwise focuses the first problem
@@ -200,6 +207,7 @@ export default function AuthPage({ mode = "login", setPage }) {
         const firstInvalid = names.find((name) => errors[name]);
         if (firstInvalid) {
             document.getElementById(`${fieldId}-${firstInvalid}`)?.focus();
+            notifyError(shownError(firstInvalid));
             return false;
         }
         return true;
@@ -208,6 +216,7 @@ export default function AuthPage({ mode = "login", setPage }) {
     function redirectByRole(user, token = null) {
         if (token) localStorage.setItem("token", token);
         localStorage.setItem("rescuebase_user", JSON.stringify(user));
+        notifySuccess("Authentication successful.");
         const role = String(user.role || "adopter").trim().toLowerCase();
         const pageByRole = { admin: "admin", foster: "foster", staff: "staff", volunteer: "volunteer" };
         setPage(pageByRole[role] || "dashboard");
@@ -227,7 +236,7 @@ export default function AuthPage({ mode = "login", setPage }) {
         });
         const data = await response.json();
         if (!response.ok || !data.success) throw new Error(data.message || "Authentication failed.");
-
+        notifySuccess("Google authentication successful.");
         if (data.requiresOtp) {
             googleLoginRef.current = { firebaseUser, endpoint };
             openCodeStep("login", data.email || firebaseUser.email || "");
@@ -244,8 +253,10 @@ export default function AuthPage({ mode = "login", setPage }) {
             const result = await signInWithPopup(auth, googleProvider);
             const endpoint = API + (isSignup ? "/api/auth/google/signup" : "/api/auth/google/login");
             await finishGoogleLogin(result.user, endpoint);
+            notifySuccess("Google authentication successful.");
         } catch (error) {
             console.error("Google auth error:", error);
+            notifyError(friendlyAuthError(error));
             setFormError(friendlyAuthError(error));
         } finally {
             setLoading(false);
@@ -322,6 +333,7 @@ export default function AuthPage({ mode = "login", setPage }) {
             if (data.user) redirectByRole(data.user, data.token);
         } catch (error) {
             setCodeStatus({ tone: "error", text: friendlyCodeError(error.message) });
+            notifyError(friendlyCodeError(error.message));
             setCode("");
         }
     }
@@ -350,6 +362,7 @@ export default function AuthPage({ mode = "login", setPage }) {
             setCodeStatus({ tone: "ok", text: "We sent a new code." });
         } catch (error) {
             setCodeStatus({ tone: "error", text: error.message || "We couldn't send a new code." });
+            notifyError(friendlyCodeError(error.message));
         }
     }
 
@@ -368,6 +381,7 @@ export default function AuthPage({ mode = "login", setPage }) {
             openCodeStep("reset", tidyEmail);
         } catch (error) {
             setFormError(error.message || "We couldn't send a reset code.");
+            notifyError(friendlyAuthError(error.message || "We couldn't send a reset code."));
         } finally {
             setLoading(false);
         }
@@ -407,6 +421,7 @@ export default function AuthPage({ mode = "login", setPage }) {
             setFormSuccess("Password updated. Log in with your new password.");
         } catch (error) {
             setFormError(error.message || "We couldn't update your password.");
+            notifyError(friendlyAuthError(error.message || "We couldn't update your password."));   
         } finally {
             setLoading(false);
         }
