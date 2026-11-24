@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import LoadingState from "../../../components/system/LoadingState";
+import { notify, notifyError } from "../../../utils/dialogs";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -109,7 +110,10 @@ export default function Analytics() {
                 setTotals({ ...emptyTotals, ...(data.totals || {}) });
                 setDetails({ ...emptyDetails, ...(data.details || {}) });
                 setMonthlyStats(Array.isArray(data.monthlyStats) ? data.monthlyStats : []);
+                
+                notify("Analytics loaded.");
             } catch (err) {
+                notifyError("Analytics loading failed.");
                 if (err.name === "AbortError") return;
 
                 console.error("Analytics loading error:", err);
