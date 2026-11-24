@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { isAdmin } from "../../../utils/auth";
+import { isAdmin, isStaff } from "../../../utils/auth";
 import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
@@ -1235,7 +1235,7 @@ export default function Donations() {
                                                                     </button>
                                                                 )}
 
-                                                                {isAdmin() && (
+                                                                {(isAdmin() || isStaff()) && (
                                                                     <button
                                                                         type="button"
                                                                         className="is-danger"
@@ -1416,7 +1416,7 @@ export default function Donations() {
                             </div>
 
                             <footer className="dl-view-foot">
-                                {isAdmin() && (
+                                {(isAdmin() || isStaff()) && (
                                     <button
                                         type="button"
                                         className="dl-btn danger"
@@ -1804,7 +1804,7 @@ export default function Donations() {
                                 {methodMessage && <p className={`gs-alert ${methodTone}`}>{methodMessage}</p>}
 
                                 <div className="dl-pm-foot">
-                                    {editingMethodId && isAdmin() ? (
+                                    {editingMethodId ? (
                                         (() => {
                                             const used = methodUsage(methodForm.method_type);
                                             const current = methods.find((m) => m._id === editingMethodId);
