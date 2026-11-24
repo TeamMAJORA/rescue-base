@@ -6,7 +6,7 @@ import {
 } from "react";
 import { askConfirm } from "../../../utils/dialogs";
 import LoadingState from "../../../components/system/LoadingState";
-
+import { notifyError, notifySuccess } from "../../../utils/dialogs";
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -91,6 +91,7 @@ export default function UserManagement() {
                 return;
             }
 
+            notifySuccess("Users fetched successfully.");
             setUsers(data.users || []);
         } catch (error) {
             console.error("Fetch users error:", error);
@@ -172,11 +173,12 @@ export default function UserManagement() {
                 setMessage(
                     data.message || "Failed to deactivate user."
                 );
+                notifyError("Failed to deactivate user.");
                 return false;
             }
 
             await fetchUsers();
-            setMessage("User deactivated successfully.");
+            notifySuccess("User deactivated successfully.");
             return true;
         } catch (error) {
             console.error("Deactivate user error:", error);
@@ -231,12 +233,13 @@ export default function UserManagement() {
             setShowAddForm(false);
 
             await fetchUsers();
-            setMessage("User created successfully.");
+            notifySuccess("User created successfully.");
         } catch (error) {
             console.error("Add user error:", error);
             setMessage(
                 "Server error while creating user."
             );
+            notifyError("Failed to create user.");
         } finally {
             setAddingUser(false);
         }
@@ -277,11 +280,13 @@ export default function UserManagement() {
 
             await fetchUsers();
             setMessage("User updated successfully.");
+            notifySuccess("User updated successfully.");
         } catch (error) {
             console.error("Update user error:", error);
             setMessage(
                 "Server error while updating user."
             );
+            notifyError("Failed to update user.");
         }
     }
 
@@ -348,6 +353,11 @@ export default function UserManagement() {
                     ? "Role application approved successfully."
                     : "Role application rejected successfully."
             );
+            notifySuccess(
+                decision === "approved"
+                    ? "Role application approved successfully."
+                    : "Role application rejected successfully."
+            );
         } catch (error) {
             console.error("Review role application error:", error);
 
@@ -390,10 +400,12 @@ export default function UserManagement() {
 
             await fetchUsers();
             setMessage("User reactivated.");
+            notifySuccess("User reactivated successfully.");
             return true;
         } catch (error) {
             console.error("Reactivate user error:", error);
             setMessage("Server error while reactivating user.");
+            notifyError("Failed to reactivate user.");
             return false;
         }
     }
