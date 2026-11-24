@@ -9,7 +9,7 @@ import PasswordInput from "../components/system/PasswordInput";
 import Header from "../components/landing/Header";
 import { openLandingSection } from "../components/landing/goToSection";
 import { EMAIL_FORMAT, suggestEmailFix } from "../utils/emailTypos";
-import { notify, notifyError, notifySuccess } from "../utils/dialogs"; 
+import { notifyError, notifySuccess } from "../utils/dialogs"; 
 
 
 const API = import.meta.env.VITE_BACKEND_URL;
