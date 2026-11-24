@@ -11,7 +11,6 @@ import { openLandingSection } from "../components/landing/goToSection";
 import { EMAIL_FORMAT, suggestEmailFix } from "../utils/emailTypos";
 import { notifyError, notifySuccess } from "../utils/dialogs"; 
 
-
 const API = import.meta.env.VITE_BACKEND_URL;
 
 
@@ -48,16 +47,29 @@ function friendlyAuthError(error) {
         "auth/invalid-email": "That doesn't look like a valid email address.",
         "auth/too-many-requests": "Too many attempts. Please wait a moment and try again.",
         "auth/popup-closed-by-user": "Google sign-in was cancelled.",
+        "auth/user-not-found": "No account found with that email.",
+        "auth/wrong-password": "That password didn't work. Check it and try again.",
+        "auth/email-already-in-use": "An account already exists with that email.",
+        "auth/weak-password": `Use at least ${MIN_PASSWORD_LENGTH} characters for your password.`,
+        "auth/account-disabled": "That account is disabled. Contact support for help.",
+        "auth/invalid-verification-code": "That code didn't work. Check it and try again.",
+        "auth/invalid-verification-id": "That verification ID didn't work. Check it and try again.",
     };
     return map[error?.code] || error?.message || "Something went wrong. Please try again.";
 }
 
+function disabledAccountError(message = "") {
+    if (/disabled/i.test(message)) return "That account is disabled. Contact support for help.";
+    if (/operation not allowed/i.test(message)) return "That sign-in method is not enabled. Contact support for help.";
+    return "";
+}
 function friendlyCodeError(message = "") {
     if (/too many|locked|try again in/i.test(message)) return message; // "Too many wrong codes. Try again in 15 minutes."
     const triesLeft = message.match(/\d+ tr(?:y|ies) left/i)?.[0];
     if (triesLeft) return `That code didn't work. ${triesLeft}.`;
     if (/expire/i.test(message)) return "That code has expired. Resend a new one.";
     if (/disabled/i.test(message)) return "That account is disabled.";
+    if (/operation not allowed/i.test(message)) return "That sign-in method is not enabled. Contact support for help.";
     return "That code didn't work. Check it and try again.";
 }
 
@@ -327,7 +339,7 @@ export default function AuthPage({ mode = "login", setPage }) {
         try {
             const path = codePurpose === "signup" ? "/api/auth/email/verify-otp" : "/api/auth/email/verify-login-otp";
             const { ok, data } = await postJson(path, { email: cleanEmail(codeEmail), otp: fullCode });
-            if (!ok) throw new Error(data.message || "");
+            if (!ok) throw new Error(data.message || "" + disabledAccountError(data.message || ""));
 
             setCodeStatus({ tone: "ok", text: "Verified. Signing you in…" });
             if (data.user) redirectByRole(data.user, data.token);
@@ -355,7 +367,7 @@ export default function AuthPage({ mode = "login", setPage }) {
             } else {
                 result = await postJson("/api/auth/email/login", { email: cleanEmail(codeEmail), password });
             }
-            if (!result.ok) throw new Error(result.data?.message || "We couldn't send a new code.");
+            if (!result.ok) throw new Error(result.data?.message || "We couldn't send a new code." + disabledAccountError(result.data?.message || ""));
 
             setCode("");
             setResendIn(RESEND_COOLDOWN_SECONDS);
@@ -377,7 +389,7 @@ export default function AuthPage({ mode = "login", setPage }) {
         setLoading(true);
         try {
             const { ok, data } = await postJson("/api/auth/forgot-password", { email: tidyEmail });
-            if (!ok) throw new Error(data.message || "We couldn't send a reset code.");
+            if (!ok) throw new Error(data.message || "We couldn't send a reset code." + disabledAccountError(data.message || ""));
             openCodeStep("reset", tidyEmail);
         } catch (error) {
             setFormError(error.message || "We couldn't send a reset code.");
@@ -420,8 +432,8 @@ export default function AuthPage({ mode = "login", setPage }) {
             goTo("form", "back");
             setFormSuccess("Password updated. Log in with your new password.");
         } catch (error) {
-            setFormError(error.message || "We couldn't update your password.");
-            notifyError(friendlyAuthError(error.message || "We couldn't update your password."));   
+            setFormError(error.message || "We couldn't update your password." + disabledAccountError(error.message || ""));
+            notifyError(friendlyAuthError(error.message || "We couldn't update your password." + disabledAccountError(error.message || "")));   
         } finally {
             setLoading(false);
         }
