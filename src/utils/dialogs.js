@@ -28,3 +28,7 @@ export function notify(text, tone = "success") {
 export function notifyError(text) {
     notify(text, "error");
 }
+
+export function notifySuccess(text) {
+    notify(text, "success");
+}

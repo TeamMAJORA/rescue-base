@@ -183,7 +183,7 @@ export default function IntakeForecast() {
     }, []);
 
     useEffect(() => {
-        loadForecast();
+        loadForecast(); // eslint-disable-line react-hooks/set-state-in-effect -- load data on mount
     }, [loadForecast]);
 
     const history = useMemo(() => forecast?.history || [], [forecast]);

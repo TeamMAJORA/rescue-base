@@ -57,12 +57,6 @@ export default function UserManagement() {
         ).length;
     }, [users]);
 
-    const fosterUsers = useMemo(() => {
-        return users.filter(
-            (user) => user.role === "foster"
-        ).length;
-    }, [users]);
-
     const pendingApplications = useMemo(() => {
         return users.filter(
             (user) =>
@@ -411,8 +405,8 @@ export default function UserManagement() {
     }
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        fetchUsers(); // eslint-disable-line react-hooks/set-state-in-effect -- load data on mount
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Close the "⋯" menu on any outside click, scroll or resize
     useEffect(() => {
