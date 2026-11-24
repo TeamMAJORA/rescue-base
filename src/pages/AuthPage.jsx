@@ -392,8 +392,8 @@ export default function AuthPage({ mode = "login", setPage }) {
             if (!ok) throw new Error(data.message || "We couldn't send a reset code." + disabledAccountError(data.message || ""));
             openCodeStep("reset", tidyEmail);
         } catch (error) {
-            setFormError(error.message || "We couldn't send a reset code.");
-            notifyError(friendlyAuthError(error.message || "We couldn't send a reset code."));
+            setFormError(error.message || "We couldn't send a reset code." + disabledAccountError(error.message || ""));
+            notifyError(friendlyAuthError(error.message || "We couldn't send a reset code." + disabledAccountError(error.message || "")));
         } finally {
             setLoading(false);
         }
@@ -422,7 +422,7 @@ export default function AuthPage({ mode = "login", setPage }) {
                     setCodeStatus({ tone: "error", text: friendlyCodeError(message) });
                     return;
                 }
-                throw new Error(message || "We couldn't update your password.");
+                throw new Error(message || "We couldn't update your password." + disabledAccountError(message || ""));
             }
 
             setPassword("");
@@ -431,6 +431,8 @@ export default function AuthPage({ mode = "login", setPage }) {
             setResetCode("");
             goTo("form", "back");
             setFormSuccess("Password updated. Log in with your new password.");
+            notifySuccess("Password updated.");
+
         } catch (error) {
             setFormError(error.message || "We couldn't update your password." + disabledAccountError(error.message || ""));
             notifyError(friendlyAuthError(error.message || "We couldn't update your password." + disabledAccountError(error.message || "")));   
