@@ -2,9 +2,9 @@ import {
     useEffect, useRef, useState
 } from "react"
 import InfoTip from "../../../components/system/InfoTip";
-import { askConfirm } from "../../../utils/dialogs";
+import { askConfirm, notify, notifyError } from "../../../utils/dialogs";
 import { formatDate, formatDateTime, toDayValue } from "../../../utils/formatDate";
-import LoadingState from "../../../components/system/LoadingState";
+import LoadingState from "../../../components/system/LoadingState";
 import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
 import Icon from "../../../components/system/Icon"; 
 
@@ -20,6 +20,11 @@ const BEHAVIOR_EVALUATION_LABEL = {
 };
 
 // Planned to last 30+ days (no end date counts as long) -> weekly updates expected
+// A weekly report the shelter hasn't opened yet (shown as "New")
+function hasUnseenUpdates(assignment) {
+    return (assignment.updates || []).some((update) => !update.seenAt);
+}
+
 function isLongAssignment(assignment) {
     if (!assignment.endDate) return true;
     const start = new Date(assignment.startDate || assignment.createdAt);
@@ -111,14 +116,8 @@ const STAT_ICONS = {
             <path d="m21 21-4.3-4.3" />
         </>
     ),
-    paw: (
-        <>
-            <circle cx="11" cy="4" r="2" />
-            <circle cx="18" cy="8" r="2" />
-            <circle cx="4" cy="8" r="2" />
-            <path d="M8 14c0-2 2-4 4-4s4 2 4 4-1 6-4 6-4-4-4-6z" />
-        </>
-    ),
+    // The app's paw (same file as the sidebar Animals icon)
+    paw: <image href="/icons/sidebar/brown paw.svg" x="2" y="2" width="20" height="20" />,
     // new: no trash icon exists in the project yet
     trash: (
         <>
@@ -306,7 +305,8 @@ function CareChecklistInput({ value, onChange }) {
         </div>
     );
 }
-export default function FosterCare() {
+// openAssignmentId: open that assignment's details card (from a bell notification)
+export default function FosterCare({ openAssignmentId = null, onOpenAssignmentHandled } = {}) {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
@@ -372,7 +372,7 @@ export default function FosterCare() {
             }
 
             setEarlyReturn(null);
-            setMessage(data.message);
+            notify(data.message);
             fetchAssignments();
             fetchAnimals();
         } catch (error) {
@@ -522,7 +522,7 @@ export default function FosterCare() {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to fetch foster applications.");
+                notifyError(data.message || "Failed to fetch foster applications.");
                 return;
             }
 
@@ -542,13 +542,12 @@ export default function FosterCare() {
             });
         } catch (error) {
             console.error("Fetch foster applications error:", error);
-            setMessage("Server error while fetching foster applications.");
+            notifyError("Server error while fetching foster applications.");
         }
     }
 
     async function handleReviewFosterApplication(applicationId, status, note = "") {
         try {
-            setMessage("");
 
             const savedUser = JSON.parse(
                 localStorage.getItem("rescuebase_user") || "{}"
@@ -584,24 +583,23 @@ export default function FosterCare() {
             console.log("Review foster application:", data);
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to review foster application.");
+                notifyError(data.message || "Failed to review foster application.");
                 return false;
             }
 
-            setMessage(`Foster application ${status}.`);
+            notify(`Foster application ${status}.`);
 
             fetchFosterApplications();
             return true;
         } catch (error) {
             console.error("Review foster application error:", error);
-            setMessage("Server error while reviewing foster application.");
+            notifyError("Server error while reviewing foster application.");
             return false;
         }
     }
 
     async function decideCapacityRequest(application, decision) {
         try {
-            setMessage("");
             const response = await fetch(
                 `${API}/api/foster/applications/${application._id}/capacity-request`,
                 {
@@ -617,22 +615,21 @@ export default function FosterCare() {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Could not update the capacity request.");
+                notifyError(data.message || "Could not update the capacity request.");
                 return;
             }
 
-            setMessage(data.message);
+            notify(data.message);
             setReviewingApplication(null);
             fetchFosterApplications();
         } catch (error) {
             console.error("Capacity request decision error:", error);
-            setMessage("Server error while updating the capacity request.");
+            notifyError("Server error while updating the capacity request.");
         }
     }
 
     async function handleAcceptBehaviorEvaluation(id) {
         try {
-            setMessage("");
 
             const response = await fetch(
                 `${API}/api/foster/assignments/${id}/behavior-evaluation/accept`,
@@ -649,16 +646,16 @@ export default function FosterCare() {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to accept behavioral evaluation");
+                notifyError(data.message || "Failed to accept behavioral evaluation");
                 return;
             }
 
-            setMessage(data.message || "Behavioral evaluation accepted.");
+            notify(data.message || "Behavioral evaluation accepted.");
 
             await fetchAssignments();
         } catch (error) {
             console.error("Accept behavioral evaluation error:", error);
-            setMessage("Server error while accepting behavioral evaluation");
+            notifyError("Server error while accepting behavioral evaluation");
         }
     }
 
@@ -675,7 +672,6 @@ export default function FosterCare() {
         }
 
         try {
-            setMessage("");
 
             const response = await fetch(
                 `${API}/api/foster/assignments/${id}/behavior-evaluation/return`,
@@ -697,7 +693,7 @@ export default function FosterCare() {
                 return;
             }
 
-            setMessage("Behavioral evaluation sent back to the foster for revision.");
+            notify("Behavioral evaluation sent back to the foster for revision.");
 
             setReturningId(null);
             setReturnReason("");
@@ -728,8 +724,8 @@ export default function FosterCare() {
 
     function handleEditAssignment(assignment) {
         if (assignment.status !== "active") {
-            setMessage(
-                "Only active assignents can be edited."
+            notifyError(
+                "Only active assignments can be edited."
             );
             return;
         }
@@ -782,25 +778,24 @@ export default function FosterCare() {
         if (!confirmed) return;
 
         try {
-            setMessage("");
             const response = await fetch(`${API}/api/foster/assignments/${assignment._id}/complete`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
             });
             const data = await response.json();
 
-            setMessage(data.message || (response.ok ? "Foster assignment completed." : "Could not complete the assignment."));
+            if (response.ok && data.success) notify(data.message || "Foster assignment completed.");
+            else notifyError(data.message || "Could not complete the assignment.");
             if (response.ok && data.success) fetchAssignments();
         } catch (error) {
             console.error("Complete foster assignment error:", error);
-            setMessage("Server error while completing the assignment.");
+            notifyError("Server error while completing the assignment.");
         }
     }
 
     async function handleRequestUpdate(assignment) {
         try {
             setRequestingUpdateId(assignment._id);
-            setMessage("");
 
             const response = await fetch(`${API}/api/foster/assignments/${assignment._id}/request-update`, {
                 method: "POST",
@@ -808,11 +803,12 @@ export default function FosterCare() {
             });
             const data = await response.json();
 
-            setMessage(data.message || (response.ok ? "Update requested." : "Could not ask for an update."));
+            if (response.ok && data.success) notify(data.message || "Update requested.");
+            else notifyError(data.message || "Could not ask for an update.");
             if (response.ok && data.success) fetchAssignments();
         } catch (error) {
             console.error("Request weekly update error:", error);
-            setMessage("Server error while asking for an update.");
+            notifyError("Server error while asking for an update.");
         } finally {
             setRequestingUpdateId("");
         }
@@ -824,7 +820,6 @@ export default function FosterCare() {
         if (!confirmDelete) return;
 
         try {
-            setMessage("");
 
             const savedUser = JSON.parse(
                 localStorage.getItem("rescuebase_user") || "{}"
@@ -851,11 +846,11 @@ export default function FosterCare() {
             console.log("Delete foster assignment:", data);
 
             if (!response.ok || !data.success) {
-                setMessage(data.message || "Failed to delete assignment.");
+                notifyError(data.message || "Failed to delete assignment.");
                 return;
             }
 
-            setMessage("Foster assignment deleted.");
+            notify("Foster assignment deleted.");
 
             if (editingId === id) {
                 handleCancelEdit();
@@ -864,7 +859,7 @@ export default function FosterCare() {
             fetchAssignments();
         } catch (error) {
             console.error("Delete foster assignment error:", error);
-            setMessage("Server error while deleting assignment.");
+            notifyError("Server error while deleting assignment.");
         }
     }
 
@@ -917,7 +912,8 @@ export default function FosterCare() {
                 return;
             }
 
-            setMessage("Foster assignment created");
+            setMessage("");
+            notify("Assignment saved.");
 
             setAssignmentForm(emptyAssignmentForm);
             setAssigningApplication(null);
@@ -970,7 +966,8 @@ export default function FosterCare() {
                 return;
             }
 
-            setMessage("Assignment updated.");
+            setMessage("");
+            notify("Assignment saved.");
 
             setEditingId(null);
 
@@ -1007,17 +1004,17 @@ export default function FosterCare() {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                setMessage(
+                notifyError(
                     data.message || "Failed to update medical request."
                 );
                 return;
             }
 
-            setMessage("Medical request updated successfully.");
+            notify("Medical request updated successfully.");
             fetchMedicalRequests();
         } catch (error) {
             console.error("Update medical request error:", error);
-            setMessage("Something went wrong while updating the request.");
+            notifyError("Something went wrong while updating the request.");
         }
     }
 
@@ -1038,7 +1035,7 @@ export default function FosterCare() {
             console.log("Medical requests:", data);
 
             if (!response.ok || !data.success) {
-                setMessage(
+                notifyError(
                     data.message ||
                     "Failed to fetch medical requests."
                 );
@@ -1307,6 +1304,33 @@ export default function FosterCare() {
     // Always read the card's assignment from the latest list, so it updates after any action
     const viewedAssignment = assignments.find((item) => item._id === viewingAssignmentId) || null;
 
+    // Bell notification about an assignment: open its card once the list is loaded
+    useEffect(() => {
+        if (!openAssignmentId || loading) return;
+        if (assignments.some((item) => item._id === openAssignmentId)) setViewingAssignmentId(openAssignmentId);
+        else notifyError("That foster assignment no longer exists.");
+        onOpenAssignmentHandled?.();
+    }, [openAssignmentId, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Weekly reports the shelter hadn't seen when this card opened: tagged "New" in the card
+    const [newUpdateIds, setNewUpdateIds] = useState([]);
+
+    // Opening the details counts as seeing its weekly reports: the foster then sees "Seen"
+    useEffect(() => {
+        const unseenIds = (viewedAssignment?.updates || []).filter((update) => !update.seenAt).map((update) => update._id);
+        setNewUpdateIds(unseenIds);
+        if (unseenIds.length === 0) return;
+
+        fetch(`${API}/api/foster/assignments/${viewedAssignment._id}/updates/seen`, {
+            method: "PATCH",
+            headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true" },
+        })
+            .then((response) => {
+                if (response.ok) fetchAssignments();
+            })
+            .catch((error) => console.error("Mark weekly updates seen error:", error));
+    }, [viewingAssignmentId]); // eslint-disable-line react-hooks/exhaustive-deps
+
     // Escape closes the open window (review, assign, edit, early return, medical request)
     useCloseOnEscape(Boolean(reviewingApplication), () => setReviewingApplication(null));
     useCloseOnEscape(Boolean(assigningApplication), closeAssign);
@@ -1504,7 +1528,7 @@ export default function FosterCare() {
 
                         {visibleAssignments.map((assignment, index) => (
                             <article
-                                className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" ? "is-new" : ""}`}
+                                className={`afl-item ${assignment.behaviorEvaluation?.status === "pending" || assignment.returnRequest?.status === "pending" || hasUnseenUpdates(assignment) ? "is-new" : ""}`}
                                 key={assignment._id}
                             >
                                 {/* Click anywhere on the row (except its buttons) to open the details card */}
@@ -1555,6 +1579,8 @@ export default function FosterCare() {
                                             </span>
                                         ) : assignment.behaviorEvaluation?.status === "pending" ? (
                                             <span className="afl-flag is-due">Evaluation to review</span>
+                                        ) : hasUnseenUpdates(assignment) ? (
+                                            <span className="afl-flag is-due">New weekly update</span>
                                         ) : weeklyUpdateIsDue(assignment) ? (
                                             <span className="afl-flag is-due">Update due</span>
                                         ) : null}
@@ -1763,9 +1789,10 @@ export default function FosterCare() {
             </section>
 
             {viewedAssignment && (() => {
-                const latestUpdate = [...(viewedAssignment.updates || [])].sort(
+                // Every weekly report, newest first, so staff can look back
+                const weeklyUpdates = [...(viewedAssignment.updates || [])].sort(
                     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-                )[0];
+                );
                 const careInstructions = String(viewedAssignment.careInstructions || "")
                     .split("\n")
                     .map((line) => line.trim())
@@ -1850,8 +1877,46 @@ export default function FosterCare() {
                             )}
 
                             <div className="afd-section">
-                                <h4>{latestUpdate ? `Latest update · ${formatShortDate(latestUpdate.createdAt)}` : "Latest update"}</h4>
-                                <p className="afd-text">{latestUpdate ? latestUpdate.note || "No note added." : "No updates yet."}</p>
+                                <h4>Weekly updates{weeklyUpdates.length ? ` · ${weeklyUpdates.length}` : ""}</h4>
+                                {weeklyUpdates.length === 0 ? (
+                                    <p className="afd-text">No updates yet.</p>
+                                ) : (
+                                    <ol className="afd-updates">
+                                        {weeklyUpdates.map((update) => {
+                                            const isNew = newUpdateIds.includes(update._id);
+                                            const facts = [
+                                                update.healthStatus && `${update.healthStatus} health`,
+                                                update.appetite && `${update.appetite} appetite`,
+                                                update.behavior,
+                                                update.weight != null && `${update.weight} kg`,
+                                                update.medication && "Medication given",
+                                                update.exercise && "Exercise done",
+                                            ].filter(Boolean);
+
+                                            return (
+                                                <li key={update._id} className={`afd-update${isNew ? " is-new" : ""}`}>
+                                                    <div className="afd-update-body">
+                                                        <b>
+                                                            {formatDateTime(update.createdAt)}
+                                                            {isNew && <span className="afd-new">New</span>}
+                                                        </b>
+                                                        {facts.length > 0 && (
+                                                            <span className="afd-update-tags">
+                                                                {facts.map((fact) => <span key={fact}>{fact}</span>)}
+                                                            </span>
+                                                        )}
+                                                        <p>{update.note || "No note added."}</p>
+                                                    </div>
+                                                    {update.photoUrl && (
+                                                        <a className="afd-update-photo" href={update.photoUrl} target="_blank" rel="noreferrer" title="Open photo">
+                                                            <img src={update.photoUrl} alt={`Update photo, ${formatShortDate(update.createdAt)}`} />
+                                                        </a>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ol>
+                                )}
                             </div>
 
                             {careInstructions.length > 0 && (

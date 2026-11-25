@@ -271,9 +271,6 @@
     .fdo-hero-side { flex-direction: row; min-width: 0; }
     .fdo-hero-badge { width: 52px; height: 52px; margin: 0 8px 0 0; }
     .fdo-hero-badge img { width: 30px; height: 30px; }
-    /* Phone: urgent items right under the greeting, before the shortcut cards */
-    .fdo-hero { order: -2; }
-    .fdo-attn { order: -1; }
     .fdo-hero-paw.is-one { right: -30px; }
 }
 
@@ -479,6 +476,7 @@ button.fdo-pet:hover {
     font-size: 12px;
     font-weight: 800;
 }
+.fdo-pills { display: flex; flex-wrap: wrap; gap: 4px; }
 .fdo-pill { margin-top: 2px; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; }
 .fdo-pill.is-alert { background: var(--red-soft); color: var(--red-dark); }
 .fdo-pill.is-due { background: var(--white-yellow); color: var(--orange-dark); border: 1px solid var(--yellow); }
@@ -686,7 +684,25 @@ button.fdo-pet:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Secondary: last on the page and quieter than the foster's own actions */
+.fdo-more-title {
+    margin: 0 0 8px;
+    color: var(--brown-soft);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.fdo-shortcuts .fdo-action {
+    padding: 12px 16px;
+    background: transparent;
+    box-shadow: none;
+}
+
 .fdo-shortcuts .fdo-action-icon {
+    width: 36px;
+    height: 36px;
     background: var(--peach-soft);
 }
 

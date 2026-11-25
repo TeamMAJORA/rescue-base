@@ -167,6 +167,13 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
         return () => { alive = false; };
     }, [applyUser]);
 
+    // The notice sits at the top of the page: bring it into view after a save further down
+    const noticeRef = useRef(null);
+
+    useEffect(() => {
+        if (notice) noticeRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, [notice]);
+
     function flash(type, text) {
         setNotice({ type, text });
     }
@@ -345,7 +352,7 @@ export default function AccountSettings({ onLogout, onApplyRole, extraTabs = [],
 
             <div className="as2-main">
                 {notice && (
-                    <div className={`as2-notice is-${notice.type}`} role="status">
+                    <div ref={noticeRef} className={`as2-notice is-${notice.type}`} role="status">
                         <span>{notice.text}</span>
                         <button type="button" aria-label="Dismiss" onClick={() => setNotice(null)}><Icon name="close" /></button>
                     </div>

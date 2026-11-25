@@ -1,9 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { isAdmin } from "../../../utils/auth";
-import { searchCebuPlaces } from "../../../utils/cebuPlaces";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { isAdmin, isStaff } from "../../../utils/auth";
 import { DONATION_UNITS, resolveUnit } from "../../../utils/donationUnits";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate } from "../../../utils/formatDate";
@@ -11,36 +7,9 @@ import { formatPeso } from "../../../utils/formatMoney";
 import LoadingState from "../../../components/system/LoadingState";
 import UiIcon from "../../../components/system/Icon";
 import NumberInput from "../../../components/system/NumberInput";
+import LocationPicker from "../../../components/system/LocationPicker";
+import TimeField from "../../../components/system/TimeField";
 import useCloseOnEscape from "../../../hooks/useCloseOnEscape";
-
-const CEBU_CENTER = [10.3157, 123.8854];
-
-// Same orange pin as Intake Records (styles in IntakeRecords.css)
-const DROP_OFF_PIN = L.divIcon({
-    className: "ao-pin",
-    html: "<span></span>",
-    iconSize: [26, 34],
-    iconAnchor: [13, 34],
-});
-
-// Tap the map to move the drop-off pin
-function DropOffPinPicker({ onPick }) {
-    useMapEvents({
-        click(event) {
-            onPick(event.latlng.lat, event.latlng.lng);
-        },
-    });
-    return null;
-}
-
-// Keep the map centred on the pin
-function DropOffMapFollow({ latitude, longitude }) {
-    const map = useMap();
-    useEffect(() => {
-        if (latitude && longitude) map.setView([latitude, longitude], Math.max(map.getZoom(), 16));
-    }, [map, latitude, longitude]);
-    return null;
-}
 
 const API = import.meta.env.VITE_BACKEND_URL;
 
@@ -131,12 +100,13 @@ const TYPE_BUTTONS = [
 const DELIVERY_METHODS = ["Drop-off", "Shelter Pickup", "Courier Delivery", "Online Transfer", "Cash"];
 
 // Names the server accepts for payment methods, and the type shown for each
+// Listed method names and their type; "Other" lets the shelter type any name (e.g. PayPal)
 const METHOD_NAMES = {
     GCash: "E-wallet",
     Maya: "E-wallet",
-    "Bank Transfer": "Bank",
-    "Wire Transfer": "Bank",
+    "Bank Account": "Bank",
 };
+const OTHER_METHOD_CHOICE = "other";
 
 // Lines we keep inside `notes` because the donation model has no fields for them
 const emptyDonationForm = {
@@ -341,10 +311,14 @@ export default function Donations() {
 
     const [methods, setMethods] = useState([]);
     const [methodForm, setMethodForm] = useState(emptyMethodForm);
+    // "Other" chosen: the method name comes from the text field
+    const [isOtherMethodName, setIsOtherMethodName] = useState(false);
     const [editingMethodId, setEditingMethodId] = useState(null);
     const [methodMessage, setMethodMessage] = useState("");
     const [savingMethod, setSavingMethod] = useState(false);
     const [methodView, setMethodView] = useState("list");
+    const methodCardRef = useRef(null);
+    const hasSwitchedMethodView = useRef(false);
     const [qrFileName, setQrFileName] = useState("");
     const [uploadingQr, setUploadingQr] = useState(false);
     // Drop-off point (where donors bring items); edited in the side card
@@ -352,10 +326,6 @@ export default function Donations() {
     const [dropOffForm, setDropOffForm] = useState(null);
     const [savingDropOff, setSavingDropOff] = useState(false);
     // Address search for the drop-off pin (only typing searches)
-    const [typedDropOffAddress, setTypedDropOffAddress] = useState("");
-    const [dropOffPlaces, setDropOffPlaces] = useState([]);
-    const [searchingDropOffPlaces, setSearchingDropOffPlaces] = useState(false);
-    const [dropOffPlacesOpen, setDropOffPlacesOpen] = useState(false);
 
     const token = localStorage.getItem("token");
 
@@ -631,51 +601,7 @@ export default function Donations() {
         }
     }
 
-    // Typing an address pins the best match; picking from the list pins that one
-    useEffect(() => {
-        const query = typedDropOffAddress.trim();
-        if (query.length < 3) {
-            setDropOffPlaces([]);
-            return undefined;
-        }
-
-        const controller = new AbortController();
-        const timer = setTimeout(async () => {
-            setSearchingDropOffPlaces(true);
-            try {
-                const places = await searchCebuPlaces(query, controller.signal);
-                setDropOffPlaces(places);
-                if (places[0]) pinDropOff(places[0].latitude, places[0].longitude);
-            } catch (error) {
-                if (error.name !== "AbortError") setDropOffPlaces([]);
-            } finally {
-                setSearchingDropOffPlaces(false);
-            }
-        }, 600);
-
-        return () => {
-            clearTimeout(timer);
-            controller.abort();
-        };
-    }, [typedDropOffAddress]);
-
-    function pinDropOff(latitude, longitude) {
-        setDropOffForm((current) => current && {
-            ...current,
-            latitude: Number(Number(latitude).toFixed(6)),
-            longitude: Number(Number(longitude).toFixed(6)),
-        });
-    }
-
-    function chooseDropOffPlace(place) {
-        pinDropOff(place.latitude, place.longitude);
-        setDropOffForm((current) => ({ ...current, address: [place.name, place.area].filter(Boolean).join(", ") }));
-        setDropOffPlacesOpen(false);
-    }
-
     function editDropOff() {
-        setTypedDropOffAddress("");
-        setDropOffPlaces([]);
         setDropOffForm({
             enabled: false,
             address: "",
@@ -755,9 +681,20 @@ export default function Donations() {
         }
     }
 
+    // Opening a method or the drop-off point (or going back) keeps the side card in view,
+    // e.g. when it sits below a long donations list
+    useEffect(() => {
+        if (!hasSwitchedMethodView.current) {
+            hasSwitchedMethodView.current = true;
+            return;
+        }
+        methodCardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, [methodView, editingMethodId]);
+
     function newMethod() {
         setEditingMethodId(null);
         setMethodForm(emptyMethodForm);
+        setIsOtherMethodName(false);
         setQrFileName("");
         setMethodMessage("");
         setMethodView("edit");
@@ -773,6 +710,7 @@ export default function Donations() {
             instructions: method.instructions || "",
             is_active: method.is_active !== false,
         });
+        setIsOtherMethodName(Boolean(method.method_type) && !METHOD_NAMES[method.method_type]);
         setQrFileName(method.qr_image_url ? "Current QR code" : "");
         setMethodMessage("");
         setMethodView("edit");
@@ -781,6 +719,7 @@ export default function Donations() {
     function backToMethodList() {
         setEditingMethodId(null);
         setMethodForm(emptyMethodForm);
+        setIsOtherMethodName(false);
         setMethodMessage("");
         setMethodView("list");
     }
@@ -842,7 +781,7 @@ export default function Donations() {
                     Authorization: `Bearer ${token}`,
                     "ngrok-skip-browser-warning": "true",
                 },
-                body: JSON.stringify(methodForm),
+                body: JSON.stringify({ ...methodForm, method_type: methodForm.method_type.trim() }),
             });
             const data = await response.json();
 
@@ -852,6 +791,7 @@ export default function Donations() {
             }
 
             setMethodForm(emptyMethodForm);
+            setIsOtherMethodName(false);
             setEditingMethodId(null);
             setMethodView("list");
             setMethodMessage(editingMethodId ? "Payment method updated." : "Payment method added.");
@@ -1303,6 +1243,7 @@ export default function Donations() {
                                                                     </button>
                                                                 )}
 
+<<<<<<< HEAD
                                                                 <button
                                                                     type="button"
                                                                     className="is-danger"
@@ -1313,6 +1254,20 @@ export default function Donations() {
                                                                 >
                                                                     Delete record
                                                                 </button>
+=======
+                                                                {(isAdmin() || isStaff()) && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className="is-danger"
+                                                                        onClick={() => {
+                                                                            setOpenMenuId(null);
+                                                                            handleDeleteDonation(donation._id);
+                                                                        }}
+                                                                    >
+                                                                        Delete record
+                                                                    </button>
+                                                                )}
+>>>>>>> a75cbcf521d0a9917f7f5bd85f79be8ad800a712
                                                             </div>
                                                         )}
                                                     </div>
@@ -1482,6 +1437,7 @@ export default function Donations() {
                             </div>
 
                             <footer className="dl-view-foot">
+<<<<<<< HEAD
                                 <button
                                     type="button"
                                     className="dl-btn danger"
@@ -1489,6 +1445,17 @@ export default function Donations() {
                                 >
                                     Delete record
                                 </button>
+=======
+                                {(isAdmin() || isStaff()) && (
+                                    <button
+                                        type="button"
+                                        className="dl-btn danger"
+                                        onClick={() => handleDeleteDonation(donation._id)}
+                                    >
+                                        Delete record
+                                    </button>
+                                )}
+>>>>>>> a75cbcf521d0a9917f7f5bd85f79be8ad800a712
                                 {status !== "cancelled" && (
                                     <button
                                         type="button"
@@ -1534,7 +1501,7 @@ export default function Donations() {
             </div>
 
             {/* Payment methods side card */}
-            <aside className="dl-card dl-pm dl-pm-side">
+            <aside ref={methodCardRef} className="dl-card dl-pm dl-pm-side">
                         {methodView === "list" ? (
                             <>
                                 <h3>Payment methods</h3>
@@ -1558,7 +1525,8 @@ export default function Donations() {
                                                 </span>
                                                 <span className="dl-method-info">
                                                     <b>{method.method_type}</b>
-                                                    <span>{method.account_name} · {method.account_number}</span>
+                                                    <span>{method.account_name}</span>
+                                                    <span className="dl-method-number">{method.account_number}</span>
                                                 </span>
                                                 <span className={`dl-status ${method.is_active ? "is-received" : "is-cancelled"}`}>
                                                     {method.is_active ? "Active" : "Inactive"}
@@ -1603,91 +1571,18 @@ export default function Donations() {
 
                                 <div className="dl-field">
                                     <span>Address {dropOffForm.enabled && <span className="required-mark">*</span>}</span>
-                                    <div className="ao-where-search">
-                                        <input
-                                            type="search"
-                                            value={dropOffForm.address}
-                                            maxLength={500}
-                                            placeholder="e.g. RescueBase Shelter, Lahug, Cebu City"
-                                            required={dropOffForm.enabled}
-                                            autoComplete="off"
-                                            onChange={(e) => {
-                                                setDropOffForm({ ...dropOffForm, address: e.target.value });
-                                                setTypedDropOffAddress(e.target.value);
-                                                setDropOffPlacesOpen(true);
-                                            }}
-                                            onFocus={() => setDropOffPlacesOpen(true)}
-                                            onBlur={() => setTimeout(() => setDropOffPlacesOpen(false), 150)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter") {
-                                                    e.preventDefault(); // stops the form from saving
-                                                    if (dropOffPlaces[0]) chooseDropOffPlace(dropOffPlaces[0]);
-                                                }
-                                                if (e.key === "Escape") setDropOffPlacesOpen(false);
-                                            }}
-                                        />
-                                        {dropOffPlacesOpen && typedDropOffAddress.trim().length >= 3 && (
-                                            <ul className="gm-map-results">
-                                                {searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">Searching…</li>}
-                                                {!searchingDropOffPlaces && dropOffPlaces.length === 0 && <li className="is-note">No places found in Cebu. Tap the map instead.</li>}
-                                                {dropOffPlaces.map((place) => (
-                                                    <li key={place.id}>
-                                                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chooseDropOffPlace(place)}>
-                                                            <b>{place.name}</b>
-                                                            {place.area && <small>{place.area}</small>}
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-
-                                    <div className="lfr2-map dl-dropoff-map">
-                                        <MapContainer
-                                            center={dropOffForm.latitude ? [dropOffForm.latitude, dropOffForm.longitude] : CEBU_CENTER}
-                                            zoom={dropOffForm.latitude ? 16 : 12}
-                                            scrollWheelZoom={false}
-                                            style={{ height: "100%", width: "100%" }}
-                                        >
-                                            <TileLayer
-                                                attribution="&copy; OpenStreetMap"
-                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                            />
-                                            <DropOffPinPicker onPick={pinDropOff} />
-                                            <DropOffMapFollow latitude={dropOffForm.latitude} longitude={dropOffForm.longitude} />
-                                            {dropOffForm.latitude && (
-                                                <Marker
-                                                    position={[dropOffForm.latitude, dropOffForm.longitude]}
-                                                    icon={DROP_OFF_PIN}
-                                                    draggable
-                                                    eventHandlers={{
-                                                        dragend: (event) => {
-                                                            const point = event.target.getLatLng();
-                                                            pinDropOff(point.lat, point.lng);
-                                                        },
-                                                    }}
-                                                />
-                                            )}
-                                        </MapContainer>
-                                    </div>
-
-                                    <small className="lfr2-coord">
-                                        {dropOffForm.latitude
-                                            ? `Pinned at ${dropOffForm.latitude.toFixed(4)}, ${dropOffForm.longitude.toFixed(4)}. Drag the pin or tap the exact gate.`
-                                            : "No pin yet. Type the address or tap the map. Donors see this map on the donation page."}
-                                        {dropOffForm.latitude && (
-                                            <>
-                                                {" · "}
-                                                <button
-                                                    type="button"
-                                                    className="dl-link is-danger"
-                                                    onClick={() => setDropOffForm({ ...dropOffForm, latitude: null, longitude: null })}
-                                                >
-                                                    Remove pin
-                                                </button>
-                                            </>
-                                        )}
-                                    </small>
+                                    <LocationPicker
+                                        address={dropOffForm.address}
+                                        onAddressChange={(address) => setDropOffForm((current) => ({ ...current, address }))}
+                                        latitude={dropOffForm.latitude}
+                                        longitude={dropOffForm.longitude}
+                                        onPinChange={(latitude, longitude) => setDropOffForm((current) => ({ ...current, latitude, longitude }))}
+                                        ariaLabel="Drop-off address"
+                                        placeholder="e.g. RescueBase Shelter, Lahug, Cebu City"
+                                        maxLength={500}
+                                        required={dropOffForm.enabled}
+                                        emptyHint="No pin yet. Type the address or tap the map. Donors see this map on the donation page."
+                                    />
                                 </div>
 
                                 <div className="dl-field">
@@ -1718,22 +1613,24 @@ export default function Donations() {
                                 </div>
 
                                 <div className="dl-grid">
-                                    <label className="dl-field">
+                                    <div className="dl-field">
                                         <span>Opens</span>
-                                        <input
-                                            type="time"
+                                        <TimeField
                                             value={dropOffForm.openTime}
-                                            onChange={(e) => setDropOffForm({ ...dropOffForm, openTime: e.target.value })}
+                                            onChange={(openTime) => setDropOffForm((current) => ({ ...current, openTime }))}
+                                            ariaLabel="Opens"
+                                            defaultTime="08:00"
                                         />
-                                    </label>
-                                    <label className="dl-field">
+                                    </div>
+                                    <div className="dl-field">
                                         <span>Closes</span>
-                                        <input
-                                            type="time"
+                                        <TimeField
                                             value={dropOffForm.closeTime}
-                                            onChange={(e) => setDropOffForm({ ...dropOffForm, closeTime: e.target.value })}
+                                            onChange={(closeTime) => setDropOffForm((current) => ({ ...current, closeTime }))}
+                                            ariaLabel="Closes"
+                                            defaultTime="17:00"
                                         />
-                                    </label>
+                                    </div>
                                 </div>
 
                                 <p className="dl-hours-preview">
@@ -1828,19 +1725,40 @@ export default function Donations() {
                                     <label className="dl-field">
                                         <span>Method name <span className="required-mark">*</span></span>
                                         <select
-                                            value={methodForm.method_type}
-                                            onChange={(e) => setMethodForm({ ...methodForm, method_type: e.target.value })}
+                                            value={isOtherMethodName ? OTHER_METHOD_CHOICE : methodForm.method_type}
+                                            onChange={(e) => {
+                                                const choice = e.target.value;
+                                                const choseOther = choice === OTHER_METHOD_CHOICE;
+                                                setIsOtherMethodName(choseOther);
+                                                setMethodForm({ ...methodForm, method_type: choseOther ? "" : choice });
+                                            }}
                                         >
                                             {Object.keys(METHOD_NAMES).map((name) => (
                                                 <option key={name} value={name}>{name}</option>
                                             ))}
+                                            <option value={OTHER_METHOD_CHOICE}>Other…</option>
                                         </select>
                                     </label>
 
                                     <label className="dl-field">
                                         <span>Method type</span>
-                                        <input value={METHOD_NAMES[methodForm.method_type] || "Other"} disabled />
+                                        <input value={isOtherMethodName ? "Other" : METHOD_NAMES[methodForm.method_type]} disabled />
                                     </label>
+
+                                    {isOtherMethodName && (
+                                        <label className="dl-field dl-field-wide">
+                                            <span>Other method name <span className="required-mark">*</span></span>
+                                            <input
+                                                value={methodForm.method_type}
+                                                placeholder="e.g. PayPal, Metrobank, Palawan Pay"
+                                                minLength={2}
+                                                maxLength={40}
+                                                data-required-message="Enter the method name."
+                                                required
+                                                onChange={(e) => setMethodForm({ ...methodForm, method_type: e.target.value })}
+                                            />
+                                        </label>
+                                    )}
 
                                     <label className="dl-field">
                                         <span>Account name <span className="required-mark">*</span></span>
@@ -1917,7 +1835,7 @@ export default function Donations() {
                                 {methodMessage && <p className={`gs-alert ${methodTone}`}>{methodMessage}</p>}
 
                                 <div className="dl-pm-foot">
-                                    {editingMethodId && isAdmin() ? (
+                                    {editingMethodId ? (
                                         (() => {
                                             const used = methodUsage(methodForm.method_type);
                                             const current = methods.find((m) => m._id === editingMethodId);

@@ -10,6 +10,7 @@ const PAGE_BY_TYPE = {
     donation_update: "donations",
     lost_found_update: "lost-found",
     rescue_update: "rescue",
+    vaccination: "vaccination-records",
 };
 
 function authHeaders() {
@@ -34,6 +35,7 @@ export async function fetchRecentNotifications() {
         type: item.type,
         createdAt: item.createdAt,
         page: PAGE_BY_TYPE[item.type] || null,
+        relatedId: item.relatedId || null,
     }));
 }
 

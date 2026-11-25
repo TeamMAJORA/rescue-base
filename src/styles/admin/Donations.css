@@ -1029,14 +1029,6 @@
 /* No scrollbars on the donations table; columns wrap instead */
 .dl-card .dl-table-wrap { overflow: visible; }
 
-/* Drop-off pin map (search list and pin styles come from LostFound.css / IntakeRecords.css) */
-.dl-dropoff-map {
-    height: 220px;
-    margin-top: 8px;
-    overflow: hidden;
-    border-radius: 12px;
-}
-
 /* Donation details (view only: mark received, cancel, delete) */
 .dl-view-overlay {
     position: fixed;
@@ -1239,3 +1231,16 @@
 /* Donation rows open the details window on click (the eye button was removed) */
 .dl-table tr.dl-row { cursor: pointer; }
 .dl-table tr.dl-row:hover td { background: var(--peach-soft); }
+
+/* Side card: one column that never grows past the card, so long account names wrap
+   instead of pushing the rows (and their status pills) outside it */
+.dl-pm.dl-pm-side { grid-template-columns: minmax(0, 1fr); }
+.dl-pm-side .dl-method-info b,
+.dl-pm-side .dl-method-info span { overflow-wrap: anywhere; }
+.dl-pm-side .dl-method .dl-status { flex: none; }
+.dl-pm-side .dl-method-info .dl-method-number { overflow-wrap: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Many methods: the list scrolls, so the sticky card stays within the screen */
+.dl-pm-side .dl-method-list { max-height: 360px; overflow-y: auto; padding-right: 2px; }
+
+/* "Other" method name: full row under Method name / Method type */
+.dl-pm-side .dl-field-wide { grid-column: 1 / -1; }

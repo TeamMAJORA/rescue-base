@@ -1798,6 +1798,11 @@
     stroke: none;
 }
 
+/* The paw is the brown sidebar image: show it white on the orange button */
+.afr-btn.is-assign .ao-icon image {
+    filter: brightness(0) invert(1);
+}
+
 .afr-btn.is-assign:hover:not(:disabled) {
     background: var(--orange-dark);
     transform: translateY(-1px);
@@ -2882,4 +2887,87 @@
 .afr-capacity-request-actions {
     display: flex;
     gap: 8px;
+}
+
+/* Weekly update history in the assignment details card (newest first) */
+.afd-updates {
+    display: grid;
+    gap: 8px;
+    max-height: 340px;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.afd-update {
+    display: flex;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid rgba(90, 27, 0, 0.1);
+    border-radius: 12px;
+    background: var(--white);
+}
+
+.afd-update.is-new {
+    border-color: var(--yellow);
+    background: var(--white-yellow);
+}
+
+.afd-update-body {
+    display: grid;
+    flex: 1;
+    gap: 4px;
+    min-width: 0;
+}
+
+.afd-update-body b {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.afd-new {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--orange);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.afd-update-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.afd-update-tags span {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--line-soft);
+    color: var(--brown-muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.afd-update-body p {
+    margin: 0;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.afd-update-photo {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.afd-update-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }

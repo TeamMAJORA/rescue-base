@@ -15,14 +15,8 @@ const ICONS = {
     ),
     home: <path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
     back: <path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3" />,
-    paw: (
-        <>
-            <circle cx="11" cy="4" r="2" />
-            <circle cx="18" cy="8" r="2" />
-            <circle cx="4" cy="8" r="2" />
-            <path d="M8 14c0-2 2-4 4-4s4 2 4 4-1 6-4 6-4-4-4-6z" />
-        </>
-    ),
+    // The app's paw (same file as the sidebar Animals icon)
+    paw: <image href="/icons/sidebar/brown paw.svg" x="2" y="2" width="20" height="20" />,
     calendar: (
         <>
             <rect x="3" y="5" width="18" height="16" rx="2" />

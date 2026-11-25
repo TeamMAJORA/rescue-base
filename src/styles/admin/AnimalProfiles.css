@@ -1658,3 +1658,160 @@
 .at-leaves .at-leaves-row input { width: 16px; height: 16px; accent-color: var(--brown); }
 .at-leaves small { color: var(--brown-muted); font-size: 12px; font-weight: 400; }
 .at-left-tag { display: inline-block; margin-top: 8px; padding: 3px 8px; border-radius: 999px; background: var(--red-soft); color: var(--red-dark); font-size: 12px; font-weight: 800; }
+
+/* ====================================================================
+   Animal form: grouped sections (Basic info, Shelter status, Intake record),
+   bigger photo, sticky Save, and phone layout. Placed last so these
+   responsive rules win over the base rules above.
+   ==================================================================== */
+.ap-form-group {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+    margin: 0;
+    padding: 16px 0 0;
+    border: 0;
+    border-top: 1px solid rgba(90, 27, 0, 0.14);
+}
+
+.ap-form-group.is-first {
+    padding-top: 0;
+    border-top: 0;
+}
+
+/* Section headings one step below the tab heading ("Animal details") */
+.ap-form-group > legend,
+.admin-animal-form .admin-form-section h3 {
+    float: left;
+    width: 100%;
+    margin: 0 0 4px;
+    padding: 0;
+    font-family: "Itim", cursive;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--brown);
+}
+
+.ap-basic-grid {
+    display: grid;
+    grid-template-columns: 140px repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.ap-status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.ap-form-note {
+    margin: 0;
+    color: var(--brown-soft);
+    font-size: 12px;
+}
+
+.ap-form-note b {
+    color: var(--brown);
+}
+
+/* Photo: a square tile at the start of Basic info */
+.ap-photo-tile {
+    grid-row: span 3;
+}
+
+.ap-photo-tile .admin-photo-input {
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    min-height: 140px;
+    padding: 12px;
+    text-align: center;
+}
+
+.ap-photo-tile .admin-photo-input img {
+    width: 88px;
+    height: 88px;
+    border-radius: 12px;
+}
+
+.ap-photo-tile .admin-photo-input img.is-placeholder {
+    width: 40px;
+    height: 40px;
+    opacity: 0.5;
+}
+
+.ap-photo-tile input[type="file"] {
+    inset: 24px 0 0 0;
+    height: auto;
+}
+
+/* Save stays reachable at the bottom of the screen on a long form */
+.admin-animal-form .admin-form-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: 0 -20px -24px;
+    padding: 12px 20px;
+    border-top: 1px solid rgba(90, 27, 0, 0.12);
+    border-radius: 0 0 12px 12px;
+    background: var(--paper);
+}
+
+.admin-form-save,
+.admin-form-cancel {
+    white-space: nowrap;
+}
+
+@media (max-width: 1200px) {
+    .ap-basic-grid { grid-template-columns: 140px repeat(2, minmax(0, 1fr)); }
+    .ap-photo-tile { grid-row: span 4; }
+    .ap-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .admin-intake-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Phones: two columns, short choices side by side, text fields full width */
+@media (max-width: 640px) {
+    .admin-animal-form { grid-template-columns: minmax(0, 1fr); }
+
+    .ap-basic-grid,
+    .ap-status-grid,
+    .admin-intake-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .ap-wide-phone,
+    .ap-photo-tile,
+    .admin-intake-notes {
+        grid-column: 1 / -1;
+    }
+
+    .ap-photo-tile { grid-row: auto; }
+
+    /* Intake record: the two short choices side by side */
+    .admin-intake-grid > * { order: 3; }
+    .admin-intake-grid > :first-child { order: 1; }
+    .admin-intake-grid > .ap-intake-condition { order: 2; }
+
+    .ap-photo-tile .admin-photo-input {
+        flex-direction: row;
+        justify-content: flex-start;
+        min-height: 0;
+        text-align: left;
+    }
+
+    .ap-photo-tile .admin-photo-input img { width: 56px; height: 56px; }
+    .ap-photo-tile .admin-photo-input img.is-placeholder { width: 32px; height: 32px; }
+
+    .admin-animal-form .admin-form-footer {
+        flex-direction: row;
+        align-items: center;
+        margin: 0 -16px -24px;
+        padding: 12px 16px;
+    }
+
+    .admin-animal-form .admin-form-footer > p { display: none; }
+
+    .admin-form-footer-actions { flex: 1; }
+    .admin-form-footer-actions > button { flex: 1; }
+}

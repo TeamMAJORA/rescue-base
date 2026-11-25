@@ -4,6 +4,7 @@ import "../../../styles/admin/IntakeForecast.css";
 import { formatDateTime, formatMonth } from "../../../utils/formatDate";
 import LoadingState from "../../../components/system/LoadingState";
 import Icon from "../../../components/system/Icon";
+import { notify, notifyError } from "../../../utils/dialogs";
 
 const API = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -170,18 +171,19 @@ export default function IntakeForecast() {
             if (!data?.success || !data?.target) {
                 throw new Error("The server returned an incomplete forecast.");
             }
+            notify("Intake forecast loaded.");
 
             setForecast(data);
         } catch (err) {
             console.error("[Intake Forecast UI]", err);
-            setError(err.message || "Failed to load the intake forecast.");
+            notifyError("Failed to load the intake forecast.");
         } finally {
             setLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        loadForecast();
+        loadForecast(); // eslint-disable-line react-hooks/set-state-in-effect -- load data on mount
     }, [loadForecast]);
 
     const history = useMemo(() => forecast?.history || [], [forecast]);

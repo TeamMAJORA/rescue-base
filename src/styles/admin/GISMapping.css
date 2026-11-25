@@ -1084,9 +1084,8 @@
     width: calc(100% + 20px);
 }
 
-/* Place search with suggestions (GIS map + report form map) */
-.gm-map-search,
-.lfr2-map-search {
+/* Place search with suggestions (GIS map; the list is also used by LocationPicker) */
+.gm-map-search {
     position: absolute;
     top: 10px;
     left: 54px;
@@ -1094,8 +1093,7 @@
     width: min(320px, calc(100% - 64px));
 }
 
-.gm-map-search input,
-.lfr2-map-search input {
+.gm-map-search input {
     width: 100%;
     box-sizing: border-box;
     padding: 8px 8px;
@@ -1108,8 +1106,7 @@
     box-shadow: var(--shadow-card);
 }
 
-.gm-map-search input:focus,
-.lfr2-map-search input:focus {
+.gm-map-search input:focus {
     border-color: var(--orange);
 }
 
