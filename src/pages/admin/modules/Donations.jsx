@@ -1243,18 +1243,6 @@ export default function Donations() {
                                                                     </button>
                                                                 )}
 
-<<<<<<< HEAD
-                                                                <button
-                                                                    type="button"
-                                                                    className="is-danger"
-                                                                    onClick={() => {
-                                                                        setOpenMenuId(null);
-                                                                        handleDeleteDonation(donation);
-                                                                    }}
-                                                                >
-                                                                    Delete record
-                                                                </button>
-=======
                                                                 {(isAdmin() || isStaff()) && (
                                                                     <button
                                                                         type="button"
@@ -1267,7 +1255,6 @@ export default function Donations() {
                                                                         Delete record
                                                                     </button>
                                                                 )}
->>>>>>> a75cbcf521d0a9917f7f5bd85f79be8ad800a712
                                                             </div>
                                                         )}
                                                     </div>
@@ -1437,15 +1424,6 @@ export default function Donations() {
                             </div>
 
                             <footer className="dl-view-foot">
-<<<<<<< HEAD
-                                <button
-                                    type="button"
-                                    className="dl-btn danger"
-                                    onClick={() => handleDeleteDonation(donation)}
-                                >
-                                    Delete record
-                                </button>
-=======
                                 {(isAdmin() || isStaff()) && (
                                     <button
                                         type="button"
@@ -1455,7 +1433,6 @@ export default function Donations() {
                                         Delete record
                                     </button>
                                 )}
->>>>>>> a75cbcf521d0a9917f7f5bd85f79be8ad800a712
                                 {status !== "cancelled" && (
                                     <button
                                         type="button"
