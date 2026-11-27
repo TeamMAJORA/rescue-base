@@ -1033,7 +1033,7 @@
     overflow: hidden;
     color: var(--brown);
     font-family: "Itim", cursive;
-    font-size: 40px;
+    font-size: 28px; /* stays below the 38px page title (UX check #11) */
     font-weight: 400;
     line-height: 1.1;
     white-space: nowrap;

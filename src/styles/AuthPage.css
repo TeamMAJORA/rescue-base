@@ -190,7 +190,7 @@
 
 .auth-field input {
     width: 100%;
-    height: 40px;
+    height: 44px; /* 44px touch target (UX check #8) */
     padding: 0 44px 0 0;
     border: none;
     border-bottom: 1px solid var(--brown);
