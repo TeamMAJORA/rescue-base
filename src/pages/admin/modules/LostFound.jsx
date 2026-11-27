@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { DateField, startOfToday, toDayValue } from "../../../components/system/MonthCalendar";
+import { DateField, startOfToday} from "../../../components/system/MonthCalendar";
 import PetTypeIcon from "../../../components/system/PetTypeIcon";
 import { askConfirm } from "../../../utils/dialogs";
 import { formatDate, formatDateTime } from "../../../utils/formatDate";
@@ -90,7 +90,7 @@ function kilometersBetween(first, second) {
 function reportDate(report) {
     return report?.eventDate || report?.dateReported || report?.createdAt || null;
 }
-export default function LostFoundPage({ setPage, openReportId, onOpenReportHandled }) {
+export default function LostFoundPage({ openReportId, onOpenReportHandled }) {
     const [user, setUser] = useState(null);
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);

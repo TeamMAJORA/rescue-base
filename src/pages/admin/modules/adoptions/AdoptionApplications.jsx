@@ -613,11 +613,6 @@ function ApplicationRow({
     quizByEmail = {},
     highlight = null,
     onReview,
-    onSchedule,
-    onCompleteInterview,
-    onApprove,
-    onReject,
-    busy,
 }) {
     const status = String(
         application.status || "pending"

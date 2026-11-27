@@ -553,10 +553,6 @@ export default function FosterCare({ openAssignmentId = null, onOpenAssignmentHa
                 localStorage.getItem("rescuebase_user") || "{}"
             );
 
-            const application = applications.find(
-                (item) => item._id === applicationId
-            );
-
             const response = await fetch(
                 `${API}/api/foster/applications/${applicationId}/status`,
                 {
@@ -704,24 +700,6 @@ export default function FosterCare({ openAssignmentId = null, onOpenAssignmentHa
         }
     }
 
-    function handleApplicationSelect(e) {
-        const applicationId = e.target.value;
-
-        const application = applications.find(
-            (item) => item._id === applicationId
-        );
-
-        if (!application) return;
-
-        setAssignmentForm({
-            ...assignmentForm,
-
-            fosterApplicationId: application._id,
-            fosterName: application.applicantName,
-            fosterEmail: application.applicantEmail,
-        });
-    }
-
     function handleEditAssignment(assignment) {
         if (assignment.status !== "active") {
             notifyError(
@@ -824,10 +802,6 @@ export default function FosterCare({ openAssignmentId = null, onOpenAssignmentHa
             const savedUser = JSON.parse(
                 localStorage.getItem("rescuebase_user") || "{}"
             );
-
-            const assignment = assignments.find(
-                (item) => item._id === id
-            )
 
             const response = await fetch(`${API}/api/foster/assignments/${id}`, {
                 method: "DELETE",
@@ -1081,10 +1055,6 @@ export default function FosterCare({ openAssignmentId = null, onOpenAssignmentHa
         { value: "pending", label: "Pending" },
         { value: "approved", label: "Approved" },
     ];
-
-    const pendingApplicationCount = applications.filter(
-        (application) => application.status === "pending"
-    ).length;
 
 
     // Pending applications (or approved ones the foster edited) this admin hasn't opened yet

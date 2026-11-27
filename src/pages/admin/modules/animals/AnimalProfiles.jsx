@@ -818,7 +818,7 @@ function AnimalProfilesList({ onOpenRecords }) {
             }));
 
             setMessage("Image uploaded successfully.");
-        } catch (error) {
+        } catch {
             console.error("Upload animal image error.");
             setMessage("Server error while uploading image.");
         } finally {
