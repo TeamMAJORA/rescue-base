@@ -548,9 +548,7 @@ function goToPage(page, petId = null) {
     }
 
     // ----- Foster status banner -----
-    const FOSTER_STEPS = ["Personal", "Household", "Preferences", "Experience & Contact"];
     const applicationStatus = application?.status || "none";
-    const applicationSubmitted = Boolean(application);
 
     const BANNER_TEXT = {
         none: {

@@ -124,26 +124,6 @@ function StatsStrip({ highlight, items }) {
     );
 }
 
-function Tabs({ tabs, value, onChange }) {
-    return (
-        <div className="ao-tabs" role="tablist">
-            {tabs.map((tab) => (
-                <button
-                    type="button"
-                    key={tab.value}
-                    role="tab"
-                    aria-selected={value === tab.value}
-                    className={value === tab.value ? "active" : ""}
-                    onClick={() => onChange(tab.value)}
-                >
-                    {tab.label}
-                    {tab.count > 0 && <i>{tab.count}</i>}
-                </button>
-            ))}
-        </div>
-    );
-}
-
 function daysBetween(from, to = new Date()) {
     const a = new Date(from);
     const b = new Date(to);
@@ -152,13 +132,6 @@ function daysBetween(from, to = new Date()) {
     return Math.round((b - a) / 86400000);
 }
 
-
-function relativeDay(value) {
-    const days = daysBetween(value);
-    if (days <= 0) return "today";
-    if (days === 1) return "yesterday";
-    return `${days} days ago`;
-}
 
 async function uploadPhoto(file, token) {
     const formData = new FormData();

@@ -68,12 +68,6 @@ function daysOfCare(item) {
     return Math.max(1, Math.round((end - start) / DAY));
 }
 
-function shortDate(value) {
-    return value
-        ? formatDate(value)
-        : "—";
-}
-
 function longDate(value) {
     return value
         ? formatDate(value)
