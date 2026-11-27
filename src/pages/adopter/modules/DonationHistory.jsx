@@ -182,7 +182,7 @@ export default function DonationHistory({ onMakeDonation }) {
         <div className="dh-page">
             <div className="dh-hero">
                 <span>Donation</span>
-                <h1>Look at all the love you've unleashed!</h1>
+                <h2>Look at all the love you've unleashed!</h2>
                 <p>
                     Behind every transaction below is a wagging tail,
                     a soothing purr, and a rescued life.

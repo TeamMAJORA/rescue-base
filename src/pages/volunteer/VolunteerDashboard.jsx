@@ -27,7 +27,6 @@ import FeedbackForm from "../FeedbackForm";
 import GISMapping from "../admin/modules/GISMapping";
 
 // // ADOPTIONS
-import AnimalTransfers from "../admin/modules/animals/AnimalTransfers";
 
 import { markAllNotificationsRead } from "../../utils/savedNotifications";
 import { openOnAdopterDashboard } from "../../utils/adopterStartPage";

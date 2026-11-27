@@ -1296,7 +1296,7 @@ async function fetchPets({ silent = false } = {}) {
         }
 
         if (activeAdopterPage === "matchmaking-quiz") {
-            let currentUser = null;
+            let currentUser;
 
             try {
                 currentUser = JSON.parse(

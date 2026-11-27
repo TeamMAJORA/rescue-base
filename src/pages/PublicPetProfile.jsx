@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { formatAge } from "../utils/formatAge";
 import { openOnAdopterDashboard } from "../utils/adopterStartPage";
 import { getAnimalStatus } from "../utils/petStatus";
+import Header from "../components/landing/Header";
 import "../styles/PublicPetProfiles.css";
 
 const API = import.meta.env.VITE_BACKEND_URL;
@@ -108,7 +109,7 @@ function goToAdopterPage(adopterPageKey, adoptPetId) {
     window.location.href = "/";
 }
 
-export default function PublicPetProfile({ tagCode }) {
+export default function PublicPetProfile({ tagCode, onOpenSitePage }) {
     const [animal, setAnimal] = useState(null);
     const [error, setError] = useState("");
     const [shelter, setShelter] = useState(null);
@@ -133,11 +134,28 @@ export default function PublicPetProfile({ tagCode }) {
         return () => phoneQuery.removeEventListener("change", updateIsPhone);
     }, []);
 
+    // Same site header as the landing page, so a visitor who scanned a tag can find the rest of RescueBase
+    const siteHeader = (
+        <div className="pp-site-header">
+            <Header
+                onLogin={() => onOpenSitePage("auth")}
+                onSignup={() => onOpenSitePage("signup")}
+                onNavigate={(sectionId) => onOpenSitePage("home", sectionId)}
+            />
+        </div>
+    );
+
     if (error || !animal) {
         return (
+            <>
+            {siteHeader}
             <div className="pp-page">
-                <div className="pp-message">{error || "Loading…"}</div>
+                <div className="pp-message">
+                    <p>{error || "Loading…"}</p>
+                    {error && <a className="pp-btn is-outline" href="/">Go to RescueBase</a>}
+                </div>
             </div>
+            </>
         );
     }
 
@@ -182,6 +200,8 @@ export default function PublicPetProfile({ tagCode }) {
     );
 
     return (
+        <>
+        {siteHeader}
         <div className={`pp-page ${isAvailable ? "has-adopt-bar" : ""}`}>
             <div className="pp-wrap">
                 <aside className="pp-side">
@@ -277,5 +297,6 @@ export default function PublicPetProfile({ tagCode }) {
                 </main>
             </div>
         </div>
+        </>
     );
 }
