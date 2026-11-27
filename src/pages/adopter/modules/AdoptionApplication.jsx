@@ -55,8 +55,6 @@ export default function AdoptionApplication({
         experience: "",
     });
 
-    // Snapshot of the starting form, used to know if the adopter typed anything
-    const [initialForm] = useState(() => form);
     const [leaveOpen, setLeaveOpen] = useState(false);
 
     const [document, setDocument] = useState(() => readFormDraft(DRAFT_KEY)?.document || null);
