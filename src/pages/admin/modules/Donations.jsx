@@ -68,23 +68,6 @@ function parseHours(text) {
 
 const PAGE_SIZE = 10;
 
-const DONATION_TYPES = [
-    "Money",
-    "Pet Food",
-    "Dog Food",
-    "Cat Food",
-    "Medicine",
-    "Medical Supplies",
-    "Blankets & Bedding",
-    "Cleaning Supplies",
-    "Pet Toys",
-    "Pet Accessories",
-    "Feeding Bowls",
-    "Leashes & Collars",
-    "Other Supplies",
-    "Other",
-];
-
 // "cancelled" in the data = the donation never arrived
 const STATUS_LABEL = { pending: "Pending", received: "Received", cancelled: "Not received" };
 
