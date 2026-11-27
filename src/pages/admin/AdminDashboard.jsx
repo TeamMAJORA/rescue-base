@@ -674,7 +674,6 @@ export default function AdminDashboard({ setPage }) {
 
         // Loading data when the page opens is the normal use of an effect;
         // this newer lint rule flags it anyway, so it is switched off for this one line.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchAdminNotifications();
 
         // Every 60 s, and only while the tab is visible: polling every 5 s used up the
