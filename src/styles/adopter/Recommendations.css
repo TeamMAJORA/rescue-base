@@ -41,7 +41,7 @@
     margin: 0;
     color: var(--brown);
     font-family: "Itim", cursive;
-    font-size: clamp(32px, 3vw, 42px);
+    font-size: clamp(24px, 2.2vw, 30px); /* stays below the 38px page title (UX check #11) */
     line-height: 1.05;
 }
 

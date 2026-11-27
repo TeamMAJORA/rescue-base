@@ -10,6 +10,7 @@ import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 import PublicPetProfile from "./pages/PublicPetProfile";
 import LandingPage from "./pages/LandingPage";
 import AppDialogs from "./components/system/AppDialogs";
+import { openLandingSection } from "./components/landing/goToSection";
 // Last on purpose: the shared button, form and sidebar looks override the older per-module styles
 import "./styles/components/Buttons.css";
 import "./styles/components/Forms.css";
@@ -103,8 +104,18 @@ function MaintenanceTicker() {
 
 function AppPages() {
     const [page, setPage] = useState(getStartPage);
-    const petMatch = window.location.pathname.match(/^\/pet\/([^/]+)/);
-    if (petMatch) return <PublicPetProfile tagCode={decodeURIComponent(petMatch[1])} />;
+    const [path, setPath] = useState(window.location.pathname);
+    const petMatch = path.match(/^\/pet\/([^/]+)/);
+
+    // The pet page's site header leaves the /pet/ link and opens the landing page (a section) or log in / sign-up
+    const openSitePageFromPetPage = (nextPage, sectionId) => {
+        window.history.pushState(null, "", "/");
+        setPath("/");
+        if (nextPage === "home") openLandingSection(sectionId, setPage);
+        else setPage(nextPage);
+    };
+
+    if (petMatch) return <PublicPetProfile tagCode={decodeURIComponent(petMatch[1])} onOpenSitePage={openSitePageFromPetPage} />;
     
     if (page === "auth" || page === "login") {
         return (

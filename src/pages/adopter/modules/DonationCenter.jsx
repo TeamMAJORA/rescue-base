@@ -132,9 +132,6 @@ export default function DonationCenter({ onOpenDonationHistory }) {
         () => donation.quantity !== "" && !AMOUNT_PRESETS.includes(Number(donation.quantity))
     );
 
-    const [selected, setSelected] = 
-        useState("monetary");
-
     const [submitting, setSubmitting] =
         useState(false);
 
