@@ -221,6 +221,7 @@ export default function Analytics() {
     const currentMonthIndex = monthlyStats.length - 1;
     const previousMonthLabel = monthlyStats.length > 1 ? monthlyStats[monthlyStats.length - 2].month : "";
     const monthValue = (metricKey, index) => Number(monthlyStats[index]?.[metricKey]) || 0;
+    const unitFor = (count, singular, pluralWord) => (count === 1 ? singular : pluralWord);
     const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
     // "Same as Oct", "4 more new reports than Oct", "1 fewer rescue than Oct"
@@ -234,23 +235,23 @@ export default function Analytics() {
 
     const insightTiles = [
         {
-            key: "adoptions", metric: "adoptions", label: "Adoptions", value: totals.adoptions, note: "adopted so far",
+            key: "adoptions", metric: "adoptions", label: "Adoptions", value: totals.adoptions, unit: unitFor(totals.adoptions, "pet adopted", "pets adopted"),
             tone: "positive",
             footer: details.pendingApplications > 0
                 ? `${plural(details.pendingApplications, "application")} waiting for review`
                 : "No applications waiting",
         },
         {
-            key: "rescues", metric: "rescues", label: "Rescues", value: totals.rescues, note: "animals taken in",
+            key: "rescues", metric: "rescues", label: "Rescues", value: totals.rescues, unit: unitFor(totals.rescues, "animal taken in", "animals taken in"),
             tone: "neutral", footer: describeMonthChange("rescues", "rescue", "rescues"),
         },
         {
-            key: "lost-found", metric: "lostFound", label: "Lost & Found", value: details.openLostFound, note: "reports still open",
+            key: "lost-found", metric: "lostFound", label: "Lost & Found", value: details.openLostFound, unit: unitFor(details.openLostFound, "report open", "reports open"),
             tone: details.openLostFound > 0 ? "warning" : "neutral",
             footer: describeMonthChange("lostFound", "new report", "new reports"),
         },
         {
-            key: "foster", metric: "foster", label: "Foster care", value: details.activeFosters, note: "pets in foster now",
+            key: "foster", metric: "foster", label: "Foster care", value: details.activeFosters, unit: unitFor(details.activeFosters, "pet in foster", "pets in foster"),
             tone: "neutral",
             footer: `${plural(details.completedFosters, "placement")} completed`,
         },
@@ -479,11 +480,10 @@ export default function Analytics() {
                                 className={`an2-insight is-${tile.tone}${selectedInsightKey === tile.key && selectedMetric === tile.metric ? " is-selected" : ""}`}
                                 key={tile.key}
                                 onClick={() => showInsightInChart(tile)}
-                                aria-label={`${tile.label}: ${tile.value} ${tile.note}. Show ${nowLabel} in the Monthly activity chart`}
+                                aria-label={`${tile.label}: ${tile.value} ${tile.unit}. Show ${nowLabel} in the Monthly activity chart`}
                             >
                                 <span className="an2-insight-label">{tile.label}</span>
-                                <b>{tile.value}</b>
-                                <span className="an2-insight-note">{tile.note}</span>
+                                <b>{tile.value} <span className="an2-insight-unit">{tile.unit}</span></b>
                                 {tile.footer && <span className="an2-insight-footer">{tile.footer}</span>}
                             </button>
                         ))}

@@ -646,17 +646,17 @@
 }
 
 .an2-insight b {
-    padding: 2px 16px 0;
+    padding: 2px 16px 12px;
     color: var(--brown);
     font-size: 28px;
     font-weight: 800;
     line-height: 1.15;
 }
 
-.an2-insight-note {
-    padding: 0 16px;
+.an2-insight-unit {
     color: var(--brown-muted);
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: 600;
 }
 
 .an2-insight-footer {
@@ -693,7 +693,6 @@
 
     .an2-insight-label,
     .an2-insight b,
-    .an2-insight-note,
     .an2-insight-footer {
         padding-left: 12px;
         padding-right: 12px;
