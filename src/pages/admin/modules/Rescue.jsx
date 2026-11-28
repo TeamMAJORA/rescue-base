@@ -35,6 +35,7 @@ const STATUS_BADGES = {
     pending: "Waiting for reply",
     accepted: "Accepted",
     active: "Started",
+    in_progress: "In progress",
     completed: "Completed",
     declined: "Declined",
     cancelled: "Cancelled",
@@ -359,7 +360,6 @@ export default function RescueAssignments() {
             if (assignment.status === "accepted") return { label: "Start", onSelect: () => respondToAssignment(assignment, "start") };
             if (assignment.status === "active") return { label: "Complete", onSelect: () => respondToAssignment(assignment, "complete") };
         }
-        if (assignment.status === "completed") return { label: "View proof", onSelect: () => setViewingId(assignment._id), isQuiet: true };
         return null;
     }
 
@@ -662,6 +662,9 @@ export default function RescueAssignments() {
                                                     <small>
                                                         {TYPE_LABELS[assignment.assignmentType] || "Rescue"}
                                                         {assignment.animalName ? ` · ${assignment.animalName}` : ""}
+                                                        {(priority === "high" || priority === "urgent") && (
+                                                            <> · <span className={`ra-priority is-${priority}`}>{PRIORITY_LABELS[priority]}</span></>
+                                                        )}
                                                     </small>
                                                 </td>
                                                 <td data-label="Assigned to">
@@ -674,21 +677,22 @@ export default function RescueAssignments() {
                                                     </small>
                                                 </td>
                                                 <td data-label="When & where">
-                                                    <b className="rs2-nowrap">{assignment.scheduledDate ? formatDate(assignment.scheduledDate) : "Not scheduled"}</b>
-                                                    {time && <small>{time}</small>}
-                                                    <small>{assignment.location || "—"}</small>
+                                                    <b className={`rs2-nowrap${overdue ? " ra-overdue-text" : ""}`}>
+                                                        {assignment.scheduledDate ? formatDate(assignment.scheduledDate) : "Not scheduled"}
+                                                        {time ? ` · ${time}` : ""}
+                                                        {overdue ? " · Overdue" : ""}
+                                                    </b>
+                                                    <small className="ra-one-line" title={assignment.location || ""}>{assignment.location || "—"}</small>
                                                 </td>
                                                 <td data-label="Status">
-                                                    <span className="ra-badges">
-                                                        <span className={`rs2-status is-${status}`}>{STATUS_BADGES[status] || status}</span>
-                                                        {overdue && <span className="ra-overdue">Overdue</span>}
-                                                        <span className={`rs2-priority is-${priority}`}>{PRIORITY_LABELS[priority] || "Normal"}</span>
+                                                    <span className={`rs2-status is-${status} ra-status-pill`}>
+                                                        {status === "pending" ? "Waiting" : STATUS_BADGES[status] || status}
                                                     </span>
                                                 </td>
                                                 <td className="ra-cell-actions">
                                                     <div className="rs2-actions">
                                                         {action && (
-                                                            <button type="button" className={`rs2-mini${action.isQuiet ? "" : " is-go"}`} onClick={action.onSelect}>
+                                                            <button type="button" className="rs2-mini is-go" onClick={action.onSelect}>
                                                                 {action.label}
                                                             </button>
                                                         )}

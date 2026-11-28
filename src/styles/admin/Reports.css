@@ -1624,6 +1624,35 @@
     white-space: nowrap;
 }
 
+/* Assignments table: one status pill; overdue shows in the date line, priority under the title */
+.ra-status-pill {
+    white-space: nowrap;
+}
+
+.rs2-table td .ra-overdue-text {
+    color: var(--red-dark);
+}
+
+.ra-priority {
+    font-weight: 800;
+}
+
+.ra-priority.is-high {
+    color: var(--orange-dark);
+}
+
+.ra-priority.is-urgent {
+    color: var(--red-dark);
+}
+
+.ra-one-line {
+    display: block;
+    max-width: 26ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* Only High and Urgent get colour (audit R13) */
 .ra-badges .rs2-priority.is-normal,
 .ra-badges .rs2-priority.is-low {
