@@ -362,6 +362,9 @@ export default function AnimalTransfers() {
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
     const formRef = useRef(null);
+    // The Add/Edit form opens in a window on request
+    const [formOpen, setFormOpen] = useState(false);
+    const formInline = false;
     const listRef = useRef(null);
 
     // Existing animals for the Animal field
@@ -405,7 +408,21 @@ export default function AnimalTransfers() {
     function resetForm() {
         setEditingId(null);
         setForm(emptyForm);
+        setFormOpen(false);
     }
+
+    function openAddForm() {
+        setEditingId(null);
+        setForm(emptyForm);
+        setFormOpen(true);
+    }
+
+    useEffect(() => {
+        if (!formOpen) return undefined;
+        const closeOnEscape = (event) => event.key === "Escape" && resetForm();
+        window.addEventListener("keydown", closeOnEscape);
+        return () => window.removeEventListener("keydown", closeOnEscape);
+    }, [formOpen]);
 
         // Animal name in the form -> the animal's database ID
     function findAnimalId(name) {
@@ -460,6 +477,7 @@ export default function AnimalTransfers() {
             status: transfer.status,
         });
 
+        setFormOpen(true);
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -552,6 +570,110 @@ export default function AnimalTransfers() {
         { value: "Cancelled", label: "Cancelled" },
     ];
 
+    // ---------- Add / edit form ----------
+    const formCard = (
+    <section className="ao-card ao-form-card" ref={formRef}>
+        <h2>{editingId ? "Edit transfer" : "Add transfer"}</h2>
+        <p className="ao-hint">Record where the animal is going and why.</p>
+
+        <form className="ao-form" onSubmit={handleSubmit}>
+            <label className="ao-field">
+                <span>Animal <span className="required-mark">*</span></span>
+                <select
+                    value={form.animalName}
+                    onChange={(e) => updateField("animalName", e.target.value)}
+                    required
+                >
+                    <option value="">Select an animal</option>
+                    {/* Keep an old transfer's animal selectable when editing */}
+                    {form.animalName && !animalNames.includes(form.animalName) && (
+                        <option value={form.animalName}>{form.animalName}</option>
+                    )}
+                    {animalNames.map((name) => (
+                        <option key={name} value={name}>
+                            {name}
+                        </option>
+                    ))}
+                </select>
+            </label>
+
+            <div className="ao-route">
+                <label className="ao-field">
+                    <span>From <span className="required-mark">*</span></span>
+                    <input
+                        value={form.fromLocation}
+                        onChange={(e) => updateField("fromLocation", e.target.value)}
+                        placeholder="e.g. MARO Shelter"
+                        required
+                    />
+                </label>
+                <Icon name="arrow" size={20} />
+                <label className="ao-field">
+                    <span>To <span className="required-mark">*</span></span>
+                    <input
+                        value={form.toLocation}
+                        onChange={(e) => updateField("toLocation", e.target.value)}
+                        placeholder="e.g. Vet clinic"
+                        required
+                    />
+                </label>
+            </div>
+
+            <label className="ao-field">
+                <span>Transfer date <span className="required-mark">*</span></span>
+                <input
+                    type="date"
+                    value={form.transferDate}
+                    onChange={(e) => updateField("transferDate", e.target.value)}
+                    required
+                />
+            </label>
+
+            <label className="ao-field">
+                <span>Reason <span className="required-mark">*</span></span>
+                <textarea
+                    value={form.reason}
+                    onChange={(e) => updateField("reason", e.target.value)}
+                    placeholder="e.g. Scheduled spay surgery"
+                    required
+                />
+            </label>
+
+            <div className="ao-field">
+                <span>Status <span className="required-mark">*</span></span>
+                <ChipGroup
+                    options={STATUS_OPTIONS}
+                    value={form.status}
+                    onChange={(value) => updateField("status", value)}
+                />
+            </div>
+
+            <label className="ao-field at-leaves">
+                <span className="at-leaves-row">
+                    <input
+                        type="checkbox"
+                        checked={Boolean(form.leavesShelter)}
+                        onChange={(e) => updateField("leavesShelter", e.target.checked)}
+                    />
+                    This animal leaves our care (another shelter or rescue partner)
+                </span>
+                <small>When the transfer is Completed, the animal is taken off adoption.</small>
+            </label>
+
+            <div className="ao-form-actions">
+                <button type="submit" className="ao-btn primary">
+                    {editingId ? "Save changes" : "Add transfer"}
+                </button>
+                {(editingId || !formInline) && (
+                    <button type="button" className="ao-btn" onClick={resetForm}>
+                        Cancel
+                    </button>
+                )}
+            </div>
+        </form>
+    </section>
+    );
+
     return (
         <section className="ao-page">
             <StatsStrip
@@ -573,113 +695,18 @@ export default function AnimalTransfers() {
                 ]}
             />
 
-            <div className="ao-layout">
-                {/* ---------- FORM ---------- */}
-                <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit transfer" : "Add transfer"}</h2>
-                    <p className="ao-hint">Record where the animal is going and why.</p>
-
-                    <form className="ao-form" onSubmit={handleSubmit}>
-                        <label className="ao-field">
-                            <span>Animal <span className="required-mark">*</span></span>
-                            <select
-                                value={form.animalName}
-                                onChange={(e) => updateField("animalName", e.target.value)}
-                                required
-                            >
-                                <option value="">Select an animal</option>
-                                {/* Keep an old transfer's animal selectable when editing */}
-                                {form.animalName && !animalNames.includes(form.animalName) && (
-                                    <option value={form.animalName}>{form.animalName}</option>
-                                )}
-                                {animalNames.map((name) => (
-                                    <option key={name} value={name}>
-                                        {name}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-
-                        <div className="ao-route">
-                            <label className="ao-field">
-                                <span>From <span className="required-mark">*</span></span>
-                                <input
-                                    value={form.fromLocation}
-                                    onChange={(e) => updateField("fromLocation", e.target.value)}
-                                    placeholder="e.g. MARO Shelter"
-                                    required
-                                />
-                            </label>
-                            <Icon name="arrow" size={20} />
-                            <label className="ao-field">
-                                <span>To <span className="required-mark">*</span></span>
-                                <input
-                                    value={form.toLocation}
-                                    onChange={(e) => updateField("toLocation", e.target.value)}
-                                    placeholder="e.g. Vet clinic"
-                                    required
-                                />
-                            </label>
-                        </div>
-
-                        <label className="ao-field">
-                            <span>Transfer date <span className="required-mark">*</span></span>
-                            <input
-                                type="date"
-                                value={form.transferDate}
-                                onChange={(e) => updateField("transferDate", e.target.value)}
-                                required
-                            />
-                        </label>
-
-                        <label className="ao-field">
-                            <span>Reason <span className="required-mark">*</span></span>
-                            <textarea
-                                value={form.reason}
-                                onChange={(e) => updateField("reason", e.target.value)}
-                                placeholder="e.g. Scheduled spay surgery"
-                                required
-                            />
-                        </label>
-
-                        <div className="ao-field">
-                            <span>Status <span className="required-mark">*</span></span>
-                            <ChipGroup
-                                options={STATUS_OPTIONS}
-                                value={form.status}
-                                onChange={(value) => updateField("status", value)}
-                            />
-                        </div>
-
-                        <label className="ao-field at-leaves">
-                            <span className="at-leaves-row">
-                                <input
-                                    type="checkbox"
-                                    checked={Boolean(form.leavesShelter)}
-                                    onChange={(e) => updateField("leavesShelter", e.target.checked)}
-                                />
-                                This animal leaves our care (another shelter or rescue partner)
-                            </span>
-                            <small>When the transfer is Completed, the animal is taken off adoption.</small>
-                        </label>
-
-                        <div className="ao-form-actions">
-                            <button type="submit" className="ao-btn primary">
-                                {editingId ? "Save changes" : "Add transfer"}
-                            </button>
-                            {editingId && (
-                                <button type="button" className="ao-btn" onClick={resetForm}>
-                                    Cancel
-                                </button>
-                            )}
-                        </div>
-                    </form>
-                </section>
+            <div className={`ao-layout${formInline ? "" : " is-single"}`}>
+                {formInline && formCard}
 
                 {/* ---------- LIST ---------- */}
                 <section className="ao-card" ref={listRef}>
                     <div className="ao-list-head">
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
+                        {!formInline && (
+                            <button type="button" className="ao-btn primary ao-add-btn" onClick={() => openAddForm()}>
+                                + Add transfer
+                            </button>
+                        )}
                     </div>
 
                     <SearchToolbar
@@ -798,6 +825,14 @@ export default function AnimalTransfers() {
                     )}
                 </section>
             </div>
+
+            {!formInline && formOpen && (
+                <div className="ao-confirm-backdrop" onClick={resetForm}>
+                    <div className="ao-form-dialog" role="dialog" aria-modal="true" aria-label={editingId ? "Edit transfer" : "Add transfer"} onClick={(event) => event.stopPropagation()}>
+                        {formCard}
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

@@ -347,6 +347,9 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
     const formRef = useRef(null);
+    // The Add/Edit form opens in a window on request; inside an animal's own profile it stays on the page
+    const [formOpen, setFormOpen] = useState(false);
+    const formInline = Boolean(lockedAnimal);
 
     // Existing animals for the Animal dropdown
     useEffect(() => {
@@ -384,7 +387,21 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
     function resetForm() {
         setEditingId(null);
         setRecordForm(blankForm);
+        setFormOpen(false);
     }
+
+    function openAddForm(animalName = "") {
+        setEditingId(null);
+        setRecordForm({ ...blankForm, animalName: animalName || blankForm.animalName });
+        setFormOpen(true);
+    }
+
+    useEffect(() => {
+        if (!formOpen) return undefined;
+        const closeOnEscape = (event) => event.key === "Escape" && resetForm();
+        window.addEventListener("keydown", closeOnEscape);
+        return () => window.removeEventListener("keydown", closeOnEscape);
+    }, [formOpen]);
 
         // Animal name in the form -> the animal's database ID
     function findAnimalId(name) {
@@ -440,6 +457,7 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
             notes: record.notes,
         });
 
+        setFormOpen(true);
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -529,6 +547,111 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
     const tabs = [{ value: "All", label: "All" }, ...RECORD_TYPES.map((t) => ({ value: t, label: t }))];
     if (counts.Vaccine) tabs.push({ value: "Vaccine", label: "Vaccine (old)" });
 
+    // ---------- Add / edit form ----------
+    const formCard = (
+    <section className="ao-card ao-form-card" ref={formRef}>
+        <h2>{editingId ? "Edit medical record" : "Add medical record"}</h2>
+        <p className="ao-hint">
+            Checkups, treatments, surgeries and deworming. Vaccines go in Vaccination Records.
+        </p>
+
+        <form className="ao-form" onSubmit={handleAddRecord}>
+            <label className="ao-field">
+                <span>Animal <span className="required-mark">*</span></span>
+                {lockedAnimal ? (
+                    <input type="text" value={recordForm.animalName} readOnly />
+                ) : (
+                    <select
+                        value={recordForm.animalName}
+                        onChange={(e) => updateField("animalName", e.target.value)}
+                        required
+                    >
+                        <option value="">Select an animal</option>
+                        {animalNames.map((name) => (
+                            <option key={name} value={name}>
+                                {name}
+                            </option>
+                        ))}
+                        {/* Keep older records editable if the animal is no longer listed */}
+                        {recordForm.animalName && !animalNames.includes(recordForm.animalName) && (
+                            <option value={recordForm.animalName}>
+                                {recordForm.animalName} (not in Animal Profiles)
+                            </option>
+                        )}
+                    </select>
+                )}
+            </label>
+
+            <label className="ao-field">
+                <span className="ao-label-tip">
+                    <span>Record type <span className="required-mark">*</span></span>
+                    <InfoTip text="Checkup: routine exam. Treatment: medicine or care for an illness or injury. Surgery: any operation, including spay/neuter. Deworming: parasite treatment. Vaccines go in Vaccination Records." />
+                </span>
+                <select
+                    value={recordForm.recordType}
+                    onChange={(e) => updateField("recordType", e.target.value)}
+                    required
+                >
+                    {RECORD_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                            {type}
+                        </option>
+                    ))}
+                    {/* Keep older types (e.g. "Vaccine") selectable when editing */}
+                    {recordForm.recordType && !RECORD_TYPES.includes(recordForm.recordType) && (
+                        <option value={recordForm.recordType}>{recordForm.recordType}</option>
+                    )}
+                </select>
+            </label>
+
+            <div className="ao-row2">
+                <label className="ao-field">
+                    <span>Veterinarian <span className="required-mark">*</span></span>
+                    <input
+                        type="text"
+                        value={recordForm.vetName}
+                        onChange={(e) => updateField("vetName", e.target.value)}
+                        placeholder="e.g. Dr. Santos"
+                        required
+                    />
+                </label>
+
+                <label className="ao-field">
+                    <span>Date <span className="required-mark">*</span></span>
+                    <input
+                        type="date"
+                        value={recordForm.recordDate}
+                        max={todayLocal()}
+                        onChange={(e) => updateField("recordDate", e.target.value)}
+                        required
+                    />
+                </label>
+            </div>
+
+            <label className="ao-field">
+                <span>Notes <span className="required-mark">*</span></span>
+                <textarea
+                    value={recordForm.notes}
+                    onChange={(e) => updateField("notes", e.target.value)}
+                    placeholder="Write medical details here…"
+                    required
+                />
+            </label>
+
+            <div className="ao-form-actions">
+                <button type="submit" className="ao-btn primary">
+                    {editingId ? "Save changes" : "Add medical record"}
+                </button>
+                {(editingId || !formInline) && (
+                    <button type="button" className="ao-btn" onClick={resetForm}>
+                        Cancel
+                    </button>
+                )}
+            </div>
+        </form>
+    </section>
+    );
+
     return (
         <section className={`ao-page${lockedAnimal ? " ao-embedded" : ""}`}>
             {!lockedAnimal && (
@@ -545,109 +668,8 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                 />
             )}
 
-            <div className="ao-layout">
-                {/* ---------- FORM ---------- */}
-                <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit medical record" : "Add medical record"}</h2>
-                    <p className="ao-hint">
-                        Checkups, treatments, surgeries and deworming. Vaccines go in Vaccination Records.
-                    </p>
-
-                    <form className="ao-form" onSubmit={handleAddRecord}>
-                        <label className="ao-field">
-                            <span>Animal <span className="required-mark">*</span></span>
-                            {lockedAnimal ? (
-                                <input type="text" value={recordForm.animalName} readOnly />
-                            ) : (
-                                <select
-                                    value={recordForm.animalName}
-                                    onChange={(e) => updateField("animalName", e.target.value)}
-                                    required
-                                >
-                                    <option value="">Select an animal</option>
-                                    {animalNames.map((name) => (
-                                        <option key={name} value={name}>
-                                            {name}
-                                        </option>
-                                    ))}
-                                    {/* Keep older records editable if the animal is no longer listed */}
-                                    {recordForm.animalName && !animalNames.includes(recordForm.animalName) && (
-                                        <option value={recordForm.animalName}>
-                                            {recordForm.animalName} (not in Animal Profiles)
-                                        </option>
-                                    )}
-                                </select>
-                            )}
-                        </label>
-
-                        <label className="ao-field">
-                            <span className="ao-label-tip">
-                                <span>Record type <span className="required-mark">*</span></span>
-                                <InfoTip text="Checkup: routine exam. Treatment: medicine or care for an illness or injury. Surgery: any operation, including spay/neuter. Deworming: parasite treatment. Vaccines go in Vaccination Records." />
-                            </span>
-                            <select
-                                value={recordForm.recordType}
-                                onChange={(e) => updateField("recordType", e.target.value)}
-                                required
-                            >
-                                {RECORD_TYPES.map((type) => (
-                                    <option key={type} value={type}>
-                                        {type}
-                                    </option>
-                                ))}
-                                {/* Keep older types (e.g. "Vaccine") selectable when editing */}
-                                {recordForm.recordType && !RECORD_TYPES.includes(recordForm.recordType) && (
-                                    <option value={recordForm.recordType}>{recordForm.recordType}</option>
-                                )}
-                            </select>
-                        </label>
-
-                        <div className="ao-row2">
-                            <label className="ao-field">
-                                <span>Veterinarian <span className="required-mark">*</span></span>
-                                <input
-                                    type="text"
-                                    value={recordForm.vetName}
-                                    onChange={(e) => updateField("vetName", e.target.value)}
-                                    placeholder="e.g. Dr. Santos"
-                                    required
-                                />
-                            </label>
-
-                            <label className="ao-field">
-                                <span>Date <span className="required-mark">*</span></span>
-                                <input
-                                    type="date"
-                                    value={recordForm.recordDate}
-                                    max={todayLocal()}
-                                    onChange={(e) => updateField("recordDate", e.target.value)}
-                                    required
-                                />
-                            </label>
-                        </div>
-
-                        <label className="ao-field">
-                            <span>Notes <span className="required-mark">*</span></span>
-                            <textarea
-                                value={recordForm.notes}
-                                onChange={(e) => updateField("notes", e.target.value)}
-                                placeholder="Write medical details here…"
-                                required
-                            />
-                        </label>
-
-                        <div className="ao-form-actions">
-                            <button type="submit" className="ao-btn primary">
-                                {editingId ? "Save changes" : "Add medical record"}
-                            </button>
-                            {editingId && (
-                                <button type="button" className="ao-btn" onClick={resetForm}>
-                                    Cancel
-                                </button>
-                            )}
-                        </div>
-                    </form>
-                </section>
+            <div className={`ao-layout${formInline ? "" : " is-single"}`}>
+                {formInline && formCard}
 
                 {/* ---------- HISTORY ---------- */}
                 <section className="ao-card">
@@ -660,6 +682,11 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                             </span>
                         )}
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
+                        {!formInline && (
+                            <button type="button" className="ao-btn primary ao-add-btn" onClick={() => openAddForm(filterAnimal?.name)}>
+                                + Add medical record
+                            </button>
+                        )}
                     </div>
 
                     <SearchToolbar
@@ -761,6 +788,14 @@ export default function MedicalRecords({ lockedAnimal = null, filterAnimal = nul
                     )}
                 </section>
             </div>
+
+            {!formInline && formOpen && (
+                <div className="ao-confirm-backdrop" onClick={resetForm}>
+                    <div className="ao-form-dialog" role="dialog" aria-modal="true" aria-label={editingId ? "Edit medical record" : "Add medical record"} onClick={(event) => event.stopPropagation()}>
+                        {formCard}
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

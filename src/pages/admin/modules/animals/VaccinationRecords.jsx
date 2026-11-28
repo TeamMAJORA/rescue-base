@@ -363,6 +363,9 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
     const formRef = useRef(null);
+    // The Add/Edit form opens in a window on request; inside an animal's own profile it stays on the page
+    const [formOpen, setFormOpen] = useState(false);
+    const formInline = Boolean(lockedAnimal);
     const listRef = useRef(null);
 
     // Existing animals: used for the Animal dropdown and the "Not vaccinated" tab
@@ -395,7 +398,21 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     function resetForm() {
         setEditingId(null);
         setVaccinationForm(blankForm);
+        setFormOpen(false);
     }
+
+    function openAddForm(animalName = "") {
+        setEditingId(null);
+        setVaccinationForm({ ...blankForm, animalName: animalName || blankForm.animalName });
+        setFormOpen(true);
+    }
+
+    useEffect(() => {
+        if (!formOpen) return undefined;
+        const closeOnEscape = (event) => event.key === "Escape" && resetForm();
+        window.addEventListener("keydown", closeOnEscape);
+        return () => window.removeEventListener("keydown", closeOnEscape);
+    }, [formOpen]);
 
         // Animal name in the form -> the animal's database ID
     function findAnimalId(name) {
@@ -453,6 +470,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
             notes: vaccination.notes,
         });
 
+        setFormOpen(true);
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -657,6 +675,131 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
     const isCustomVaccine =
         vaccinationForm.vaccineName !== "" && !COMMON_VACCINES.includes(vaccinationForm.vaccineName);
 
+    // ---------- Add / edit form ----------
+    const formCard = (
+    <section className="ao-card ao-form-card" ref={formRef}>
+        <h2>{editingId ? "Edit vaccination" : "Add vaccination"}</h2>
+        <p className="ao-hint">Log a vaccine given, and set when the next dose is due.</p>
+
+        <form className="ao-form" onSubmit={handleAddVaccination}>
+            <label className="ao-field">
+                <span>Animal <span className="required-mark">*</span></span>
+                {lockedAnimal ? (
+                    <input type="text" value={vaccinationForm.animalName} readOnly />
+                ) : (
+                    <select
+                        value={vaccinationForm.animalName}
+                        onChange={(e) => updateField("animalName", e.target.value)}
+                        required
+                    >
+                        <option value="">Select an animal</option>
+                        {animalNames.map((name) => (
+                            <option key={name} value={name}>
+                                {name}
+                            </option>
+                        ))}
+                        {/* Keep older records editable if the animal is no longer listed */}
+                        {vaccinationForm.animalName &&
+                            !animalNames.includes(vaccinationForm.animalName) && (
+                                <option value={vaccinationForm.animalName}>
+                                    {vaccinationForm.animalName} (not in Animal Profiles)
+                                </option>
+                            )}
+                    </select>
+                )}
+            </label>
+
+            <div className="ao-field">
+                <span>Vaccine <span className="required-mark">*</span></span>
+                <ChipGroup
+                    options={COMMON_VACCINES.map((name) => ({ value: name, label: name }))}
+                    value={vaccinationForm.vaccineName}
+                    onChange={(value) => updateField("vaccineName", value)}
+                />
+                <input
+                    type="text"
+                    value={isCustomVaccine ? vaccinationForm.vaccineName : ""}
+                    onChange={(e) => updateField("vaccineName", e.target.value)}
+                    placeholder="Other vaccine? Type it here"
+                    aria-label="Vaccine name"
+                    required={!vaccinationForm.vaccineName}
+                />
+            </div>
+
+            <label className="ao-field">
+                <span>Veterinarian <span className="required-mark">*</span></span>
+                <input
+                    type="text"
+                    value={vaccinationForm.veterinarian}
+                    onChange={(e) => updateField("veterinarian", e.target.value)}
+                    placeholder="e.g. Dr. Santos"
+                    required
+                />
+            </label>
+
+            <div className="ao-row2">
+                <label className="ao-field">
+                    <span>Date given <span className="required-mark">*</span></span>
+                    <input
+                        type="date"
+                        value={vaccinationForm.vaccinationDate}
+                        onChange={(e) => updateField("vaccinationDate", e.target.value)}
+                        required
+                    />
+                </label>
+
+                <label className="ao-field">
+                    <span className="ao-label-tip">
+                        <span>Next due <span className="required-mark">*</span></span>
+                        <InfoTip text="When the next dose or booster is due. It can't be earlier than the date given." />
+                    </span>
+                    <input
+                        type="date"
+                        value={vaccinationForm.nextDueDate}
+                        min={vaccinationForm.vaccinationDate || undefined}
+                        required
+                        onChange={(e) => updateField("nextDueDate", e.target.value)}
+                    />
+                </label>
+            </div>
+
+            <div className="ao-field">
+                <span className="ao-label-tip">
+                    <span>Status <span className="required-mark">*</span></span>
+                    <InfoTip text="Completed: the vaccine was given. Pending: scheduled but not given yet. Overdue: the due date passed and it wasn't given." />
+                </span>
+                <ChipGroup
+                    options={STATUS_OPTIONS}
+                    value={vaccinationForm.status}
+                    tone="green"
+                    onChange={(value) => updateField("status", value)}
+                />
+            </div>
+
+            <label className="ao-field">
+                <span>Notes <span className="required-mark">*</span></span>
+                <textarea
+                    value={vaccinationForm.notes}
+                    onChange={(e) => updateField("notes", e.target.value)}
+                    placeholder="Reactions, batch number, reminders…"
+                    required
+                />
+            </label>
+
+            <div className="ao-form-actions">
+                <button type="submit" className="ao-btn primary">
+                    {editingId ? "Save changes" : "Add vaccination"}
+                </button>
+                {(editingId || !formInline) && (
+                    <button type="button" className="ao-btn" onClick={resetForm}>
+                        Cancel
+                    </button>
+                )}
+            </div>
+        </form>
+    </section>
+    );
+
     return (
         <section className={`ao-page${lockedAnimal ? " ao-embedded" : ""}`}>
             {!lockedAnimal && (
@@ -676,129 +819,8 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                 />
             )}
 
-            <div className="ao-layout">
-                {/* ---------- FORM ---------- */}
-                <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit vaccination" : "Add vaccination"}</h2>
-                    <p className="ao-hint">Log a vaccine given, and set when the next dose is due.</p>
-
-                    <form className="ao-form" onSubmit={handleAddVaccination}>
-                        <label className="ao-field">
-                            <span>Animal <span className="required-mark">*</span></span>
-                            {lockedAnimal ? (
-                                <input type="text" value={vaccinationForm.animalName} readOnly />
-                            ) : (
-                                <select
-                                    value={vaccinationForm.animalName}
-                                    onChange={(e) => updateField("animalName", e.target.value)}
-                                    required
-                                >
-                                    <option value="">Select an animal</option>
-                                    {animalNames.map((name) => (
-                                        <option key={name} value={name}>
-                                            {name}
-                                        </option>
-                                    ))}
-                                    {/* Keep older records editable if the animal is no longer listed */}
-                                    {vaccinationForm.animalName &&
-                                        !animalNames.includes(vaccinationForm.animalName) && (
-                                            <option value={vaccinationForm.animalName}>
-                                                {vaccinationForm.animalName} (not in Animal Profiles)
-                                            </option>
-                                        )}
-                                </select>
-                            )}
-                        </label>
-
-                        <div className="ao-field">
-                            <span>Vaccine <span className="required-mark">*</span></span>
-                            <ChipGroup
-                                options={COMMON_VACCINES.map((name) => ({ value: name, label: name }))}
-                                value={vaccinationForm.vaccineName}
-                                onChange={(value) => updateField("vaccineName", value)}
-                            />
-                            <input
-                                type="text"
-                                value={isCustomVaccine ? vaccinationForm.vaccineName : ""}
-                                onChange={(e) => updateField("vaccineName", e.target.value)}
-                                placeholder="Other vaccine? Type it here"
-                                aria-label="Vaccine name"
-                                required={!vaccinationForm.vaccineName}
-                            />
-                        </div>
-
-                        <label className="ao-field">
-                            <span>Veterinarian <span className="required-mark">*</span></span>
-                            <input
-                                type="text"
-                                value={vaccinationForm.veterinarian}
-                                onChange={(e) => updateField("veterinarian", e.target.value)}
-                                placeholder="e.g. Dr. Santos"
-                                required
-                            />
-                        </label>
-
-                        <div className="ao-row2">
-                            <label className="ao-field">
-                                <span>Date given <span className="required-mark">*</span></span>
-                                <input
-                                    type="date"
-                                    value={vaccinationForm.vaccinationDate}
-                                    onChange={(e) => updateField("vaccinationDate", e.target.value)}
-                                    required
-                                />
-                            </label>
-
-                            <label className="ao-field">
-                                <span className="ao-label-tip">
-                                    <span>Next due <span className="required-mark">*</span></span>
-                                    <InfoTip text="When the next dose or booster is due. It can't be earlier than the date given." />
-                                </span>
-                                <input
-                                    type="date"
-                                    value={vaccinationForm.nextDueDate}
-                                    min={vaccinationForm.vaccinationDate || undefined}
-                                    required
-                                    onChange={(e) => updateField("nextDueDate", e.target.value)}
-                                />
-                            </label>
-                        </div>
-
-                        <div className="ao-field">
-                            <span className="ao-label-tip">
-                                <span>Status <span className="required-mark">*</span></span>
-                                <InfoTip text="Completed: the vaccine was given. Pending: scheduled but not given yet. Overdue: the due date passed and it wasn't given." />
-                            </span>
-                            <ChipGroup
-                                options={STATUS_OPTIONS}
-                                value={vaccinationForm.status}
-                                tone="green"
-                                onChange={(value) => updateField("status", value)}
-                            />
-                        </div>
-
-                        <label className="ao-field">
-                            <span>Notes <span className="required-mark">*</span></span>
-                            <textarea
-                                value={vaccinationForm.notes}
-                                onChange={(e) => updateField("notes", e.target.value)}
-                                placeholder="Reactions, batch number, reminders…"
-                                required
-                            />
-                        </label>
-
-                        <div className="ao-form-actions">
-                            <button type="submit" className="ao-btn primary">
-                                {editingId ? "Save changes" : "Add vaccination"}
-                            </button>
-                            {editingId && (
-                                <button type="button" className="ao-btn" onClick={resetForm}>
-                                    Cancel
-                                </button>
-                            )}
-                        </div>
-                    </form>
-                </section>
+            <div className={`ao-layout${formInline ? "" : " is-single"}`}>
+                {formInline && formCard}
 
                 {/* ---------- LIST ---------- */}
                 <section className="ao-card" ref={listRef}>
@@ -811,6 +833,11 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                             </span>
                         )}
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
+                        {!formInline && (
+                            <button type="button" className="ao-btn primary ao-add-btn" onClick={() => openAddForm(filterAnimal?.name)}>
+                                + Add vaccination
+                            </button>
+                        )}
                     </div>
 
                     {tab === "unvaccinated" ? (
@@ -866,6 +893,11 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                                 <div className="ao-tags">
                                                     <span className="ao-tag red">No vaccine on record</span>
                                                 </div>
+                                            </div>
+                                            <div className="ao-actions">
+                                                <button type="button" className="ao-btn sm ok" onClick={() => openAddForm(animal.name)}>
+                                                    Add vaccination
+                                                </button>
                                             </div>
                                         </article>
                                     ))}
@@ -992,6 +1024,14 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                     )}
                 </section>
             </div>
+
+            {!formInline && formOpen && (
+                <div className="ao-confirm-backdrop" onClick={resetForm}>
+                    <div className="ao-form-dialog" role="dialog" aria-modal="true" aria-label={editingId ? "Edit vaccination" : "Add vaccination"} onClick={(event) => event.stopPropagation()}>
+                        {formCard}
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

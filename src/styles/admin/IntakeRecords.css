@@ -3003,3 +3003,20 @@ a.ao-tag {
         justify-content: flex-start;
     }
 }
+
+/* ---------- Add form in a window (Vaccinations) ---------- */
+.ao-layout.is-single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.ao-list-head .ao-add-btn {
+    margin-left: auto;
+}
+
+.ao-form-dialog {
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    border-radius: 20px;
+}
