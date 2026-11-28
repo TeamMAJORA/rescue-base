@@ -138,7 +138,7 @@ function dueText(vaccination) {
         return `Due in ${days} day${days === 1 ? "" : "s"}`;
     }
     if (state === "ok") return "Up to date";
-    return "One-time vaccine";
+    return "Done";
 }
 
 // ---------- Shared UI pieces (stats strip, tabs, search bar, chips) ----------
@@ -456,7 +456,8 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-        // Records that the dose was given today and keeps the same booster interval.
+    // Marks this dose as given today. If it had a booster, the next dose
+    // becomes its own Pending record with the same interval.
     async function handleMarkGiven(vaccination) {
         const today = toDayValue();
         let nextDueDate = "";
@@ -475,10 +476,28 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                 body: JSON.stringify({
                     status: "Completed",
                     vaccination_date: today,
-                    next_due_date: nextDueDate || null,
+                    next_due_date: null,
                 }),
             });
-            notify(`${vaccination.animalName} marked as vaccinated`);
+
+            if (nextDueDate) {
+                await apiRequest(API_VACCINATIONS, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        animal_id: vaccination.animalId,
+                        vaccine_name: vaccination.vaccineName,
+                        veterinarian: vaccination.veterinarian || null,
+                        vaccination_date: today,
+                        next_due_date: nextDueDate,
+                        status: "Pending",
+                        notes: "Next dose",
+                    }),
+                });
+                notify(`${vaccination.animalName} marked as vaccinated. Next dose due ${formatVaccineDate(nextDueDate)}`);
+            } else {
+                notify(`${vaccination.animalName} marked as vaccinated`);
+            }
+
             await loadVaccinations();
         } catch (error) {
             notifyError(error.message || "Couldn't update the vaccination record.");
@@ -926,7 +945,7 @@ export default function VaccinationRecords({ lockedAnimal = null, filterAnimal =
                                             </div>
 
                                             <div className="ao-timeline">
-                                                <span>Given {formatVaccineDate(vaccination.vaccinationDate)}</span>
+                                                <span>{vaccination.status === "Completed" ? "Given" : "Last dose"} {formatVaccineDate(vaccination.vaccinationDate)}</span>
                                                 {vaccination.nextDueDate && (
                                                     <>
                                                         <i />

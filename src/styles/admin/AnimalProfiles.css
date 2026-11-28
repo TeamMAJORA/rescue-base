@@ -1534,6 +1534,10 @@
 .ap-tabs button { flex: none; white-space: nowrap; padding: 12px 20px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--brown); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
 .ap-tabs button:hover { background: var(--peach-soft); }
 .ap-tabs button.is-active { background: var(--brown); color: var(--paper); border-bottom-color: var(--orange); }
+/* Red dot: something in this tab needs attention */
+.ap-tabs button { position: relative; }
+.ap-tab-dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 2px var(--paper); }
+.ap-tabs button.is-active .ap-tab-dot { box-shadow: 0 0 0 2px var(--brown); }
 .ap-filter-chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--paper); border: 1px solid var(--gold); color: var(--brown); font-size: 12px; font-weight: 800; }
 .ap-filter-chip button { padding: 0; border: 0; background: none; color: var(--red-dark); font-size: 14px; font-weight: 800; cursor: pointer; }
 @media (max-width: 640px) { .ap-tabs button { padding: 8px 16px; font-size: 14px; } }
