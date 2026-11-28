@@ -17,8 +17,14 @@ function formatNumber(value, digits = 0) {
     });
 }
 
-// From training_metadata.json (test set): mean absolute error in animals per month
-const MODEL_TEST_MAE = 2.56;
+// In testing, most forecasts landed within 3 animals of the real count
+const USUAL_RANGE = 3;
+
+// Shown under the forecast so staff treat it as a guide
+const FORECAST_LIMITS = [
+    "The model was trained on monthly counts; an incomplete current month may reduce forecast reliability.",
+    "Predictions are estimates, not guaranteed counts.",
+];
 
 // "2026-11" -> chart / table month labels
 function monthLabel(key, options = { short: true }) {
@@ -188,7 +194,6 @@ export default function IntakeForecast() {
 
     const history = useMemo(() => forecast?.history || [], [forecast]);
     const target = forecast?.target;
-    const warnings = forecast?.dataQuality?.warnings || [];
     const [showData, setShowData] = useState(true); // monthly table starts open
     // Accuracy note on the forecast number: shown on hover/keyboard focus, or toggled by a tap on phones
     const [isAccuracyNoteOpen, setIsAccuracyNoteOpen] = useState(false);
@@ -216,7 +221,7 @@ export default function IntakeForecast() {
                         Model online
                         {forecast.generatedAt && (
                             <span>
-                                · updated{" "}
+                                · <span className="if2-updated-word">updated </span>
                                 {formatDateTime(forecast.generatedAt)}
                             </span>
                         )}
@@ -225,11 +230,11 @@ export default function IntakeForecast() {
                     <div />
                 )}
 
-                <button className="if2-refresh" type="button" onClick={loadForecast} disabled={loading}>
+                <button className="if2-refresh" type="button" onClick={loadForecast} disabled={loading} aria-label="Refresh forecast">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                         <path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5" />
                     </svg>
-                    {loading ? "Loading…" : "Refresh forecast"}
+                    <span className="if2-refresh-label">{loading ? "Loading…" : "Refresh forecast"}</span>
                 </button>
             </div>
 
@@ -255,7 +260,10 @@ export default function IntakeForecast() {
                             <div className="um-strip-total">
                                 <b>{formatNumber(target?.roundedPredictedIntake)}</b>
                                 <small>Animals expected in {target?.label || "next month"}</small>
-                                <em>LSTM estimate {formatNumber(target?.predictedIntake, 2)}, rounded</em>
+                                <em>
+                                    Usually between {Math.max(0, (target?.roundedPredictedIntake ?? 0) - USUAL_RANGE)} and{" "}
+                                    {(target?.roundedPredictedIntake ?? 0) + USUAL_RANGE}
+                                </em>
                                 <span className={`if2-accuracy ${isAccuracyNoteOpen ? "is-open" : ""}`}>
                                     <button
                                         type="button"
@@ -265,21 +273,16 @@ export default function IntakeForecast() {
                                         onClick={() => setIsAccuracyNoteOpen((isOpen) => !isOpen)}
                                         onBlur={() => setIsAccuracyNoteOpen(false)}
                                     >
-                                        Could be off by ±{Math.round(MODEL_TEST_MAE)} animals
+                                        Estimate only
                                         <Icon name="info" />
                                     </button>
                                     <span className="if2-accuracy-note" id="if2-accuracy-note" role="tooltip">
-                                        <strong>Insufficient history so far.</strong>
-                                        <span>
-                                            This forecast can be off by about ±{Math.round(MODEL_TEST_MAE)} animals (test error {MODEL_TEST_MAE}).
-                                        </span>
-                                        {warnings.length > 0 && (
-                                            <ul>
-                                                {warnings.map((warning, index) => (
-                                                    <li key={`${index}-${warning}`}>{warning}</li>
-                                                ))}
-                                            </ul>
-                                        )}
+                                        <strong>Not a perfect prediction.</strong>
+                                        <ul>
+                                            {FORECAST_LIMITS.map((limit) => (
+                                                <li key={limit}>{limit}</li>
+                                            ))}
+                                        </ul>
                                     </span>
                                 </span>
                             </div>

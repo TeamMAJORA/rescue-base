@@ -270,8 +270,8 @@ export default function Analytics() {
             <div className="um-strip an2-strip">
                 <div className="um-strip-total">
                     <b>{totals.adoptions}</b>
-                    <small>Total adoptions (all time)</small>
-                    <em>{details.pendingApplications} applications pending</em>
+                    <small>Total adoptions<span className="an2-all-time"> (all time)</span></small>
+                    <em>{plural(details.pendingApplications, "application")} pending</em>
                 </div>
                 <div>
                     <small>Animals rescued</small>
@@ -279,12 +279,12 @@ export default function Analytics() {
                     <em>all time</em>
                 </div>
                 <div>
-                    <small>Lost &amp; Found reports (all time)</small>
+                    <small>Lost &amp; Found<span className="an2-all-time"> reports (all time)</span></small>
                     <b>{totals.lostFound}</b>
                     <em>{details.openLostFound} open</em>
                 </div>
                 <div>
-                    <small>Foster assignments (all time)</small>
+                    <small>Foster<span className="an2-all-time"> assignments (all time)</span></small>
                     <b>{totals.foster}</b>
                     <em>{details.activeFosters} active</em>
                 </div>
