@@ -908,3 +908,80 @@
         border-radius: 20px 0 0 0;
     }
 }
+
+/* Phone: one-line status, icon refresh, full-width forecast card, three stats in one row */
+@media (max-width: 640px) {
+    .if2-status {
+        white-space: nowrap;
+    }
+
+    .if2-updated-word,
+    .if2-refresh-label {
+        display: none;
+    }
+
+    .if2-refresh {
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 12px;
+    }
+
+    .if2-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .if2-strip > .um-strip-total {
+        grid-column: 1 / -1;
+        padding: 20px;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .if2-strip > .um-strip-total b {
+        font-size: 44px;
+    }
+
+    .if2-strip > .um-strip-total em {
+        display: inline-block;
+        width: fit-content;
+        margin-top: 8px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--white);
+        font-weight: 600;
+    }
+
+    .if2-accuracy-chip {
+        padding: 0;
+        border: 0;
+        color: var(--peach);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .if2-strip > div:not(.um-strip-total) {
+        padding: 12px;
+        border-top: 1px solid rgba(90, 27, 0, 0.08);
+    }
+
+    .if2-strip > div:nth-child(2) {
+        border-left: none;
+    }
+
+    .if2-strip > div:not(.um-strip-total) small {
+        font-size: 12px;
+        line-height: 1.2;
+    }
+
+    .if2-strip > div:not(.um-strip-total) b {
+        font-size: 20px;
+    }
+
+    .if2-strip > div:not(.um-strip-total) em {
+        display: block;
+        margin-left: 0;
+    }
+}

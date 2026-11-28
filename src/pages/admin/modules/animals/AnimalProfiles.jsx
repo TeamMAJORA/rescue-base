@@ -2049,6 +2049,47 @@ function AnimalProfilesList({ onOpenRecords }) {
 }
 
 // ---------- Animal Profiles page with record tabs ----------
+// Which record tabs need attention: intakes waiting for review, overdue vaccinations,
+// and transfers not finished yet. Checked again each time the tab changes.
+function useRecordTabAlerts(enabled, tab) {
+    const [alerts, setAlerts] = useState({});
+
+    useEffect(() => {
+        if (!enabled) return;
+
+        const headers = {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "ngrok-skip-browser-warning": "true",
+        };
+        const getList = (path, key) =>
+            fetch(`${import.meta.env.VITE_BACKEND_URL}${path}`, { headers })
+                .then((response) => (response.ok ? response.json() : {}))
+                .then((data) => data[key] || [])
+                .catch(() => []);
+
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        Promise.all([
+            getList("/api/animals/intakes", "intakes"),
+            getList("/api/vaccinations", "vaccinations"),
+            getList("/api/animal-transfers", "transfers"),
+        ]).then(([intakes, vaccinations, transfers]) => {
+            setAlerts({
+                intake: intakes.some((record) => (record.intakeStatus || "pending_review") === "pending_review"),
+                vaccinations: vaccinations.some(
+                    (record) =>
+                        record.status === "Overdue" ||
+                        (record.next_due_date && new Date(record.next_due_date) < startOfToday)
+                ),
+                transfers: transfers.some((record) => ["Pending", "In Transit"].includes(record.status || "Pending")),
+            });
+        });
+    }, [enabled, tab]);
+
+    return alerts;
+}
+
 const RECORD_TABS = [
     { key: "profiles", label: "Profiles" },
     { key: "intake", label: "Intake" },
@@ -2081,6 +2122,7 @@ export default function AnimalProfiles({ initialTab = "profiles" }) {
     const visibleTabs = canManageRecords
         ? RECORD_TABS
         : RECORD_TABS.filter((item) => item.key === "profiles" || item.key === "intake");
+    const tabAlerts = useRecordTabAlerts(canManageRecords, tab);
 
     return (
         <div className="ap-tabs-page">
@@ -2097,6 +2139,7 @@ export default function AnimalProfiles({ initialTab = "profiles" }) {
                         }}
                     >
                         {item.label}
+                        {tabAlerts[item.key] && <span className="ap-tab-dot" aria-label="needs attention" />}
                     </button>
                 ))}
             </nav>

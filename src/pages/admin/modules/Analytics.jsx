@@ -221,52 +221,38 @@ export default function Analytics() {
     const currentMonthIndex = monthlyStats.length - 1;
     const previousMonthLabel = monthlyStats.length > 1 ? monthlyStats[monthlyStats.length - 2].month : "";
     const monthValue = (metricKey, index) => Number(monthlyStats[index]?.[metricKey]) || 0;
-    // Percentages on this page stay between 1 and 100 (a real change is never shown as 0%, and never above 100%)
-    const toPercentInRange = (value) => Math.min(100, Math.max(1, Math.round(value)));
+    const unitFor = (count, singular, pluralWord) => (count === 1 ? singular : pluralWord);
     const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
-    function describeMonthChange(metricKey, isMoreGood) {
-        if (monthlyStats.length < 2) return null;
-        const current = monthValue(metricKey, currentMonthIndex);
-        const previous = monthValue(metricKey, currentMonthIndex - 1);
-        if (current === previous) return { direction: "flat", tone: "neutral", text: `Same as ${previousMonthLabel}` };
-        const direction = current > previous ? "up" : "down";
-        const tone = (direction === "up") === isMoreGood ? "good" : "bad";
-        if (previous === 0) return { direction, tone, text: `${current} new`, suffix: `vs 0 in ${previousMonthLabel}` };
-        const percent = toPercentInRange((Math.abs(current - previous) / previous) * 100);
-        return { direction, tone, text: `${percent}%`, suffix: `vs ${previousMonthLabel} (${previous} → ${current})` };
+    // "Same as Oct", "4 more new reports than Oct", "1 fewer rescue than Oct"
+    function describeMonthChange(metricKey, singular, pluralWord) {
+        if (monthlyStats.length < 2) return "";
+        const difference = monthValue(metricKey, currentMonthIndex) - monthValue(metricKey, currentMonthIndex - 1);
+        if (difference === 0) return `Same as ${previousMonthLabel}`;
+        const count = Math.abs(difference);
+        return `${count} ${difference > 0 ? "more" : "fewer"} ${count === 1 ? singular : pluralWord} than ${previousMonthLabel}`;
     }
 
-    function describeRescuesVsAverage() {
-        const total = monthlyStats.reduce((sum, month) => sum + (Number(month.rescues) || 0), 0);
-        if (!monthlyStats.length || total === 0) return `No rescues in the last ${monthlyStats.length || 6} months`;
-        const average = total / monthlyStats.length;
-        const differenceFromAverage = ((monthValue("rescues", currentMonthIndex) - average) / average) * 100;
-        if (Math.round(differenceFromAverage) === 0) return `${nowLabel}: right at the monthly average`;
-        return `${nowLabel}: ${toPercentInRange(Math.abs(differenceFromAverage))}% ${differenceFromAverage > 0 ? "above" : "below"} the monthly average`;
-    }
-
-    const newLostFoundThisMonth = monthValue("lostFound", currentMonthIndex);
     const insightTiles = [
         {
-            key: "adoptions", metric: "adoptions", label: "Adoptions", value: totals.adoptions, note: "adopted so far",
-            change: describeMonthChange("adoptions", true), tone: "positive",
+            key: "adoptions", metric: "adoptions", label: "Adoptions", value: totals.adoptions, unit: unitFor(totals.adoptions, "pet adopted", "pets adopted"),
+            tone: "positive",
             footer: details.pendingApplications > 0
                 ? `${plural(details.pendingApplications, "application")} waiting for review`
                 : "No applications waiting",
         },
         {
-            key: "rescues", metric: "rescues", label: "Rescues", value: totals.rescues, note: "animals taken in",
-            change: describeMonthChange("rescues", true), tone: "neutral", footer: describeRescuesVsAverage(),
+            key: "rescues", metric: "rescues", label: "Rescues", value: totals.rescues, unit: unitFor(totals.rescues, "animal taken in", "animals taken in"),
+            tone: "neutral", footer: describeMonthChange("rescues", "rescue", "rescues"),
         },
         {
-            key: "lost-found", metric: "lostFound", label: "Lost & Found", value: details.openLostFound, note: "reports still open",
-            change: describeMonthChange("lostFound", false), tone: details.openLostFound > 0 ? "warning" : "neutral",
-            footer: `${plural(newLostFoundThisMonth, "new report")} in ${nowLabel}`,
+            key: "lost-found", metric: "lostFound", label: "Lost & Found", value: details.openLostFound, unit: unitFor(details.openLostFound, "report open", "reports open"),
+            tone: details.openLostFound > 0 ? "warning" : "neutral",
+            footer: describeMonthChange("lostFound", "new report", "new reports"),
         },
         {
-            key: "foster", metric: "foster", label: "Foster care", value: details.activeFosters, note: "pets in foster now",
-            change: describeMonthChange("foster", true), tone: "neutral",
+            key: "foster", metric: "foster", label: "Foster care", value: details.activeFosters, unit: unitFor(details.activeFosters, "pet in foster", "pets in foster"),
+            tone: "neutral",
             footer: `${plural(details.completedFosters, "placement")} completed`,
         },
     ];
@@ -284,8 +270,8 @@ export default function Analytics() {
             <div className="um-strip an2-strip">
                 <div className="um-strip-total">
                     <b>{totals.adoptions}</b>
-                    <small>Total adoptions (all time)</small>
-                    <em>{details.pendingApplications} applications pending</em>
+                    <small>Total adoptions<span className="an2-all-time"> (all time)</span></small>
+                    <em>{plural(details.pendingApplications, "application")} pending</em>
                 </div>
                 <div>
                     <small>Animals rescued</small>
@@ -293,12 +279,12 @@ export default function Analytics() {
                     <em>all time</em>
                 </div>
                 <div>
-                    <small>Lost &amp; Found reports (all time)</small>
+                    <small>Lost &amp; Found<span className="an2-all-time"> reports (all time)</span></small>
                     <b>{totals.lostFound}</b>
                     <em>{details.openLostFound} open</em>
                 </div>
                 <div>
-                    <small>Foster assignments (all time)</small>
+                    <small>Foster<span className="an2-all-time"> assignments (all time)</span></small>
                     <b>{totals.foster}</b>
                     <em>{details.activeFosters} active</em>
                 </div>
@@ -494,21 +480,11 @@ export default function Analytics() {
                                 className={`an2-insight is-${tile.tone}${selectedInsightKey === tile.key && selectedMetric === tile.metric ? " is-selected" : ""}`}
                                 key={tile.key}
                                 onClick={() => showInsightInChart(tile)}
-                                aria-label={`${tile.label}: ${tile.value} ${tile.note}. Show ${nowLabel} in the Monthly activity chart`}
+                                aria-label={`${tile.label}: ${tile.value} ${tile.unit}. Show ${nowLabel} in the Monthly activity chart`}
                             >
                                 <span className="an2-insight-label">{tile.label}</span>
-                                <b>{tile.value}</b>
-                                <span className="an2-insight-note">{tile.note}</span>
-                                {tile.change && (
-                                    <span className="an2-insight-change">
-                                        <span className={`an2-trend is-${tile.change.tone}`}>
-                                            {tile.change.direction === "up" ? "↗ " : tile.change.direction === "down" ? "↘ " : "— "}
-                                            {tile.change.text}
-                                        </span>
-                                        {tile.change.suffix && <small>{tile.change.suffix}</small>}
-                                    </span>
-                                )}
-                                <span className="an2-insight-footer">{tile.footer}</span>
+                                <b>{tile.value} <span className="an2-insight-unit">{tile.unit}</span></b>
+                                {tile.footer && <span className="an2-insight-footer">{tile.footer}</span>}
                             </button>
                         ))}
                     </div>

@@ -790,6 +790,7 @@ export default function AdminOverview({ onNavigate }) {
     const percentColor = (p) => (p >= 90 ? "#c62828" : p >= 70 ? "#d96f00" : "#2f8f5b");
     const barColor = (p) => (p >= 90 ? "#e5534b" : p >= 70 ? "#fcbf49" : "#2e9e4f");
     const adoptionDiff = view.adoptionsThisMonth - view.adoptionsLastMonth;
+    const lastMonthName = new Date(now.getFullYear(), now.getMonth() - 1, 1).toLocaleString("en-US", { month: "short" });
     const sickCount = view.healthGroups.find((g) => g.key === "sick").animals.length;
     const obsCount = view.healthGroups.find((g) => g.key === "observation").animals.length;
 
@@ -825,7 +826,7 @@ export default function AdminOverview({ onNavigate }) {
                 />
                 <StatCard
                     icon="/icons/heart-brown.svg"
-                    badge={adoptionDiff === 0 ? "Same as last month" : `${adoptionDiff > 0 ? "▲" : "▼"} ${Math.abs(adoptionDiff)} vs last month`}
+                    badge={adoptionDiff === 0 ? `Same as ${lastMonthName}` : `${adoptionDiff > 0 ? "▲" : "▼"} ${Math.abs(adoptionDiff)} vs ${lastMonthName}`}
                     badgeClass={adoptionDiff >= 0 ? "is-green" : "is-red"}
                     label="Adoptions this month"
                     value={view.adoptionsThisMonth}

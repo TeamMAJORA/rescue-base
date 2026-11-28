@@ -451,3 +451,35 @@
 @media (hover: none) {
     .db2-card .db2-sub { display: none; }
 }
+
+/* Phone: every stat card reads label, number, detail with the badge in one spot;
+   Animals in care spans the top, Need medical care spans the bottom */
+@media (max-width: 640px) {
+    .db2-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .db2-stat-top { flex-wrap: nowrap; align-items: center; }
+    .db2-badge { white-space: nowrap; font-size: 11px; }
+    .db2-stat small { margin-top: 10px; text-transform: uppercase; letter-spacing: 0.02em; }
+    .db2-stats > .db2-stat:last-child { grid-column: 1 / -1; }
+
+    .db2-stat.is-hero {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+        column-gap: 14px;
+        align-items: center;
+    }
+    .db2-stat.is-hero .db2-stat-top { display: contents; }
+    .db2-stat.is-hero .db2-stat-svg {
+        grid-column: 1;
+        grid-row: 1 / 4;
+        width: 44px;
+        height: 44px;
+        padding: 8px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.12);
+    }
+    .db2-stat.is-hero .db2-badge { grid-column: 3; grid-row: 1; align-self: start; }
+    .db2-stat.is-hero small { grid-column: 2; grid-row: 1; margin-top: 0; }
+    .db2-stat.is-hero b { grid-column: 2; grid-row: 2; font-size: 36px; }
+    .db2-stat.is-hero em { grid-column: 2; grid-row: 3; }
+}

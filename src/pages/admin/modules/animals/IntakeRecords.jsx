@@ -413,6 +413,9 @@ export default function IntakeRecords() {
     const [successMessage, setSuccessMessage] = useState("");
 
     const formRef = useRef(null);
+    // The Add/Edit form opens in a window on request
+    const [formOpen, setFormOpen] = useState(false);
+    const formInline = false;
     const listRef = useRef(null);
 
     const canManage = ["admin", "staff"].includes(getCurrentUserRole());
@@ -484,7 +487,21 @@ export default function IntakeRecords() {
         setForm(freshForm());
         setEditingId(null);
         setPhoto(null);
+        setFormOpen(false);
     }
+
+    function openAddForm() {
+        setEditingId(null);
+        setForm(freshForm());
+        setFormOpen(true);
+    }
+
+    useEffect(() => {
+        if (!formOpen) return undefined;
+        const closeOnEscape = (event) => event.key === "Escape" && resetForm();
+        window.addEventListener("keydown", closeOnEscape);
+        return () => window.removeEventListener("keydown", closeOnEscape);
+    }, [formOpen]);
 
     // Photo preview (freed when the photo changes)
     const photoPreview = useMemo(() => (photo ? URL.createObjectURL(photo) : ""), [photo]);
@@ -532,6 +549,7 @@ export default function IntakeRecords() {
 
         setError("");
         setSuccessMessage("");
+        setFormOpen(true);
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -791,6 +809,216 @@ export default function IntakeRecords() {
         rejected: { label: "Rejected", tone: "red" },
     };
 
+    // ---------- Add / edit form ----------
+    const formCard = (
+    <section className="ao-card ao-form-card" ref={formRef}>
+        <h2>{editingId ? "Edit intake" : "Add intake"}</h2>
+        <p className="ao-hint">
+            {editingId
+                ? "Update the arrival details, then save."
+                : "Works the same on a phone or a computer. Photo and map pin are optional."}
+        </p>
+
+        <form className="ao-form" onSubmit={handleSubmit}>
+            <label className="ao-photo-pick">
+                <span className="ao-photo-thumb">
+                    {photoPreview || form.image ? (
+                        <img src={photoPreview || form.image} alt="" />
+                    ) : (
+                        <Icon name="camera" size={20} />
+                    )}
+                </span>
+                <span>
+                    <b>{photoPreview || form.image ? "Change photo" : "Add photo"}</b>
+                    <small>Optional · opens the camera on a phone</small>
+                </span>
+                <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    hidden
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (file) setPhoto(file);
+                    }}
+                />
+            </label>
+
+            <label className="ao-field">
+                <span>Name or nickname <span className="required-mark">*</span></span>
+                <input
+                    value={form.animalName}
+                    onChange={(e) => updateForm("animalName", e.target.value)}
+                    placeholder="e.g. Brownie"
+                    required
+                />
+            </label>
+
+            <div className="ao-field">
+                <span>Species <span className="required-mark">*</span></span>
+                <ChipGroup
+                    options={SPECIES_OPTIONS}
+                    value={form.animalType}
+                    onChange={(value) => updateForm("animalType", value)}
+                />
+            </div>
+
+            <div className="ao-row2">
+                <label className="ao-field">
+                    <span>Breed</span>
+                    <input
+                        value={form.breed}
+                        onChange={(e) => updateForm("breed", e.target.value)}
+                        placeholder="e.g. Aspin"
+                    />
+                </label>
+
+                <label className="ao-field">
+                    <span>Colour</span>
+                    <select value={form.colour} onChange={(e) => updateForm("colour", e.target.value)}>
+                        <option value="">Select</option>
+                        {INTAKE_COLOUR_OPTIONS.map((colourOption) => (
+                            <option key={colourOption} value={colourOption}>{colourOption}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+
+            <div className="ao-row2">
+                <label className="ao-field">
+                    <span>Sex</span>
+                    <select value={form.sex} onChange={(e) => updateForm("sex", e.target.value)}>
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </label>
+
+                <label className="ao-field">
+                    <span>Size</span>
+                    <select value={form.size} onChange={(e) => updateForm("size", e.target.value)}>
+                        <option value="">Select</option>
+                        <option value="Small">Small</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Large">Large</option>
+                    </select>
+                </label>
+            </div>
+            <small className="ao-hint">Fill in at least two of breed, colour, sex or size so lost-pet owners can be matched.</small>
+
+            <div className="ao-field">
+                <span>How did they arrive? <span className="required-mark">*</span></span>
+                <ChipGroup
+                    options={INTAKE_TYPE_OPTIONS}
+                    value={form.intakeType}
+                    onChange={(value) =>
+                        // Strays are ticked by default; staff can still change it
+                        setForm((current) => ({
+                            ...current,
+                            intakeType: value,
+                            listOnLostFound: editingId ? current.listOnLostFound : value === "Stray",
+                        }))
+                    }
+                />
+            </div>
+
+            {!editingId && (
+                <label className="ao-list-lostfound">
+                    <input
+                        type="checkbox"
+                        checked={form.listOnLostFound}
+                        onChange={(e) => updateForm("listOnLostFound", e.target.checked)}
+                    />
+                    <span>
+                        <b>List on Lost &amp; Found</b>
+                        <small>Owners can find this animal, get matched and claim it.</small>
+                    </span>
+                </label>
+            )}
+
+            <div className="ao-row2">
+                <label className="ao-field">
+                    <span>Date <span className="required-mark">*</span></span>
+                    <input
+                        type="date"
+                        value={form.intakeDate}
+                        onChange={(e) => updateForm("intakeDate", e.target.value)}
+                        required
+                    />
+                </label>
+
+                <label className="ao-field">
+                    <span>Rescued By <span className="required-mark">*</span></span>
+                    <input
+                        value={form.rescuedBy}
+                        onChange={(e) => updateForm("rescuedBy", e.target.value)}
+                        placeholder="Name"
+                        required
+                    />
+                </label>
+            </div>
+
+            <div className="ao-field">
+                <span>Where? <span className="required-mark">*</span></span>
+                <LocationPicker
+                    address={form.rescueLocation}
+                    onAddressChange={(address) => updateForm("rescueLocation", address)}
+                    latitude={form.latitude ? Number(form.latitude) : null}
+                    longitude={form.longitude ? Number(form.longitude) : null}
+                    onPinChange={(latitude, longitude) =>
+                        setForm((current) => ({ ...current, latitude: latitude === null ? "" : String(latitude), longitude: longitude === null ? "" : String(longitude) }))
+                    }
+                    ariaLabel="Where the animal was found"
+                    placeholder="Type an address, e.g. Brgy. Guadalupe, Cebu City"
+                    required
+                />
+            </div>
+
+            <div className="ao-field">
+                <span>Condition <span className="required-mark">*</span></span>
+                <ChipGroup
+                    options={CONDITION_OPTIONS}
+                    value={form.condition}
+                    tone="green"
+                    onChange={(value) => updateForm("condition", value)}
+                />
+            </div>
+
+            <label className="ao-field">
+                <span>Notes <span className="required-mark">*</span></span>
+                <textarea
+                    value={form.notes}
+                    onChange={(e) => updateForm("notes", e.target.value)}
+                    placeholder="Anything staff should know…"
+                    required
+                />
+            </label>
+
+            <div className="ao-form-actions">
+                <button type="submit" className="ao-btn primary" disabled={submitting}>
+                    {submitting
+                        ? "Saving…"
+                        : editingId
+                          ? "Save changes"
+                          : "Add intake"}
+                </button>
+
+                {(editingId || !formInline) && (
+                    <button
+                        type="button"
+                        className="ao-btn"
+                        onClick={resetForm}
+                        disabled={submitting}
+                    >
+                        Cancel
+                    </button>
+                )}
+            </div>
+        </form>
+    </section>
+    );
+
     return (
         <section className="ao-page">
             {error && <div className="ao-alert error">{error}</div>}
@@ -808,219 +1036,18 @@ export default function IntakeRecords() {
                 ]}
             />
 
-            <div className="ao-layout">
-                {/* ---------- FORM ---------- */}
-                <section className="ao-card ao-form-card" ref={formRef}>
-                    <h2>{editingId ? "Edit intake" : "Add intake"}</h2>
-                    <p className="ao-hint">
-                        {editingId
-                            ? "Update the arrival details, then save."
-                            : "Works the same on a phone or a computer. Photo and map pin are optional."}
-                    </p>
-
-                    <form className="ao-form" onSubmit={handleSubmit}>
-                        <label className="ao-photo-pick">
-                            <span className="ao-photo-thumb">
-                                {photoPreview || form.image ? (
-                                    <img src={photoPreview || form.image} alt="" />
-                                ) : (
-                                    <Icon name="camera" size={20} />
-                                )}
-                            </span>
-                            <span>
-                                <b>{photoPreview || form.image ? "Change photo" : "Add photo"}</b>
-                                <small>Optional · opens the camera on a phone</small>
-                            </span>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                capture="environment"
-                                hidden
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    e.target.value = "";
-                                    if (file) setPhoto(file);
-                                }}
-                            />
-                        </label>
-
-                        <label className="ao-field">
-                            <span>Name or nickname <span className="required-mark">*</span></span>
-                            <input
-                                value={form.animalName}
-                                onChange={(e) => updateForm("animalName", e.target.value)}
-                                placeholder="e.g. Brownie"
-                                required
-                            />
-                        </label>
-
-                        <div className="ao-field">
-                            <span>Species <span className="required-mark">*</span></span>
-                            <ChipGroup
-                                options={SPECIES_OPTIONS}
-                                value={form.animalType}
-                                onChange={(value) => updateForm("animalType", value)}
-                            />
-                        </div>
-
-                        <div className="ao-row2">
-                            <label className="ao-field">
-                                <span>Breed</span>
-                                <input
-                                    value={form.breed}
-                                    onChange={(e) => updateForm("breed", e.target.value)}
-                                    placeholder="e.g. Aspin"
-                                />
-                            </label>
-
-                            <label className="ao-field">
-                                <span>Colour</span>
-                                <select value={form.colour} onChange={(e) => updateForm("colour", e.target.value)}>
-                                    <option value="">Select</option>
-                                    {INTAKE_COLOUR_OPTIONS.map((colourOption) => (
-                                        <option key={colourOption} value={colourOption}>{colourOption}</option>
-                                    ))}
-                                </select>
-                            </label>
-                        </div>
-
-                        <div className="ao-row2">
-                            <label className="ao-field">
-                                <span>Sex</span>
-                                <select value={form.sex} onChange={(e) => updateForm("sex", e.target.value)}>
-                                    <option value="">Select</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                            </label>
-
-                            <label className="ao-field">
-                                <span>Size</span>
-                                <select value={form.size} onChange={(e) => updateForm("size", e.target.value)}>
-                                    <option value="">Select</option>
-                                    <option value="Small">Small</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Large">Large</option>
-                                </select>
-                            </label>
-                        </div>
-                        <small className="ao-hint">Fill in at least two of breed, colour, sex or size so lost-pet owners can be matched.</small>
-
-                        <div className="ao-field">
-                            <span>How did they arrive? <span className="required-mark">*</span></span>
-                            <ChipGroup
-                                options={INTAKE_TYPE_OPTIONS}
-                                value={form.intakeType}
-                                onChange={(value) =>
-                                    // Strays are ticked by default; staff can still change it
-                                    setForm((current) => ({
-                                        ...current,
-                                        intakeType: value,
-                                        listOnLostFound: editingId ? current.listOnLostFound : value === "Stray",
-                                    }))
-                                }
-                            />
-                        </div>
-
-                        {!editingId && (
-                            <label className="ao-list-lostfound">
-                                <input
-                                    type="checkbox"
-                                    checked={form.listOnLostFound}
-                                    onChange={(e) => updateForm("listOnLostFound", e.target.checked)}
-                                />
-                                <span>
-                                    <b>List on Lost &amp; Found</b>
-                                    <small>Owners can find this animal, get matched and claim it.</small>
-                                </span>
-                            </label>
-                        )}
-
-                        <div className="ao-row2">
-                            <label className="ao-field">
-                                <span>Date <span className="required-mark">*</span></span>
-                                <input
-                                    type="date"
-                                    value={form.intakeDate}
-                                    onChange={(e) => updateForm("intakeDate", e.target.value)}
-                                    required
-                                />
-                            </label>
-
-                            <label className="ao-field">
-                                <span>Rescued By <span className="required-mark">*</span></span>
-                                <input
-                                    value={form.rescuedBy}
-                                    onChange={(e) => updateForm("rescuedBy", e.target.value)}
-                                    placeholder="Name"
-                                    required
-                                />
-                            </label>
-                        </div>
-
-                        <div className="ao-field">
-                            <span>Where? <span className="required-mark">*</span></span>
-                            <LocationPicker
-                                address={form.rescueLocation}
-                                onAddressChange={(address) => updateForm("rescueLocation", address)}
-                                latitude={form.latitude ? Number(form.latitude) : null}
-                                longitude={form.longitude ? Number(form.longitude) : null}
-                                onPinChange={(latitude, longitude) =>
-                                    setForm((current) => ({ ...current, latitude: latitude === null ? "" : String(latitude), longitude: longitude === null ? "" : String(longitude) }))
-                                }
-                                ariaLabel="Where the animal was found"
-                                placeholder="Type an address, e.g. Brgy. Guadalupe, Cebu City"
-                                required
-                            />
-                        </div>
-
-                        <div className="ao-field">
-                            <span>Condition <span className="required-mark">*</span></span>
-                            <ChipGroup
-                                options={CONDITION_OPTIONS}
-                                value={form.condition}
-                                tone="green"
-                                onChange={(value) => updateForm("condition", value)}
-                            />
-                        </div>
-
-                        <label className="ao-field">
-                            <span>Notes <span className="required-mark">*</span></span>
-                            <textarea
-                                value={form.notes}
-                                onChange={(e) => updateForm("notes", e.target.value)}
-                                placeholder="Anything staff should know…"
-                                required
-                            />
-                        </label>
-
-                        <div className="ao-form-actions">
-                            <button type="submit" className="ao-btn primary" disabled={submitting}>
-                                {submitting
-                                    ? "Saving…"
-                                    : editingId
-                                      ? "Save changes"
-                                      : "Add intake"}
-                            </button>
-
-                            {editingId && (
-                                <button
-                                    type="button"
-                                    className="ao-btn"
-                                    onClick={resetForm}
-                                    disabled={submitting}
-                                >
-                                    Cancel
-                                </button>
-                            )}
-                        </div>
-                    </form>
-                </section>
+            <div className={`ao-layout${formInline ? "" : " is-single"}`}>
+                {formInline && formCard}
 
                 {/* ---------- LIST ---------- */}
                 <section className="ao-card" ref={listRef}>
                     <div className="ao-list-head">
                         <Tabs tabs={tabs} value={tab} onChange={setTab} />
+                        {!formInline && (
+                            <button type="button" className="ao-btn primary ao-add-btn" onClick={() => openAddForm()}>
+                                + Add intake
+                            </button>
+                        )}
                     </div>
 
                     <SearchToolbar
@@ -1223,6 +1250,14 @@ export default function IntakeRecords() {
                     )}
                 </section>
             </div>
+
+            {!formInline && formOpen && (
+                <div className="ao-confirm-backdrop" onClick={resetForm}>
+                    <div className="ao-form-dialog" role="dialog" aria-modal="true" aria-label={editingId ? "Edit intake" : "Add intake"} onClick={(event) => event.stopPropagation()}>
+                        {formCard}
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

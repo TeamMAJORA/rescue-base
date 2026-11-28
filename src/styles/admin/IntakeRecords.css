@@ -2938,3 +2938,85 @@ a.ao-tag {
         padding: 12px;
     }
 }
+
+/* ---------- Narrow page area (laptops with the sidebar open, tablets) ----------
+   The form | list split needs about 1000px. Below that the cards stack, and the
+   list card tidies itself up from its own width, not the screen width. */
+:has(> .ao-layout) {
+    container-type: inline-size;
+}
+
+@container (max-width: 1000px) {
+    .ao-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* Records first; the Add form follows the list */
+    .ao-layout > .ao-form-card {
+        order: 1;
+    }
+}
+
+.ao-layout > .ao-card {
+    container-type: inline-size;
+    min-width: 0;
+}
+
+@container (max-width: 640px) {
+    .ao-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .ao-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .ao-tabs button {
+        flex: none;
+        white-space: nowrap;
+    }
+
+    .ao-toolbar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ao-toolbar > .ao-searchbox {
+        grid-column: 1 / -1;
+        min-width: 0;
+    }
+
+    .ao-toolbar > .ao-dropdown {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .ao-item {
+        grid-template-columns: 46px minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .ao-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+/* ---------- Add form in a window (Vaccinations) ---------- */
+.ao-layout.is-single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.ao-list-head .ao-add-btn {
+    margin-left: auto;
+}
+
+.ao-form-dialog {
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    border-radius: 20px;
+}
